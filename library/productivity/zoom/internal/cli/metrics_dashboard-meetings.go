@@ -15,35 +15,65 @@ func newMetricsDashboardMeetingsCmd(flags *rootFlags) *cobra.Command {
 	var flagType string
 	var flagFrom string
 	var flagTo string
-	var flagPageSize string
+	var flagPageSize int
 	var flagNextPageToken string
 	var flagAll bool
 
 	cmd := &cobra.Command{
 		Use:         "dashboard-meetings",
 		Short:       "List live meetings or past meetings for a specified period",
-		Example:     "  zoom-pp-cli metrics dashboard-meetings --from example-value --to example-value",
+		Example:     "  zoom-pp-cli metrics dashboard-meetings --from 2026-01-15 --to 2026-01-15",
 		Annotations: map[string]string{"pp:endpoint": "metrics.dashboard-meetings", "pp:method": "GET", "pp:path": "/metrics/meetings", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Bare invocation of a command with required input prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only read commands fall through so a bare call still executes.
+			// Machine callers (--json/--agent, which sets asJSON) get a usage
+			// error + exit 2 instead of silent exit-0 help, so an incomplete
+			// invocation is never mistaken for success.
+			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "requires input",
+						"usage": cmd.CommandPath() + " --help",
+					}, flags); printErr != nil {
+						return printErr
+					}
+					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
+				}
+				return cmd.Help()
+			}
 			if !cmd.Flags().Changed("from") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "from")
 			}
 			if !cmd.Flags().Changed("to") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "to")
 			}
+			if cmd.Flags().Changed("type") {
+				allowedType := []string{"past", "pastOne", "live"}
+				validType := false
+				for _, v := range allowedType {
+					if flagType == v {
+						validType = true
+						break
+					}
+				}
+				if !validType {
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagType, "type", allowedType)
+				}
+			}
+			path := "/metrics/meetings"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/metrics/meetings"
-			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "metrics", path, map[string]string{
-				"type":            fmt.Sprintf("%v", flagType),
-				"from":            fmt.Sprintf("%v", flagFrom),
-				"to":              fmt.Sprintf("%v", flagTo),
-				"page_size":       fmt.Sprintf("%v", flagPageSize),
-				"next_page_token": fmt.Sprintf("%v", flagNextPageToken),
-			}, nil, flagAll, "", "", "")
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "metrics", path, map[string]string{
+				"type":            formatCLIParamValue(flagType),
+				"from":            formatCLIParamValue(flagFrom),
+				"to":              formatCLIParamValue(flagTo),
+				"page_size":       formatCLIParamValue(flagPageSize),
+				"next_page_token": formatCLIParamValue(flagNextPageToken),
+			}, nil, flagAll, "", "offset", "page_size", 30, "", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -73,6 +103,10 @@ func newMetricsDashboardMeetingsCmd(flags *rootFlags) *cobra.Command {
 				if wrapErr != nil {
 					return wrapErr
 				}
+				wrapped, wrapErr = wrapPlatformStructuredOutput(wrapped, flags, "results", true)
+				if wrapErr != nil {
+					return wrapErr
+				}
 				return printOutput(cmd.OutOrStdout(), wrapped, true)
 			}
 			// For all other output modes (table, csv, plain, quiet), use the standard pipeline
@@ -88,14 +122,14 @@ func newMetricsDashboardMeetingsCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
-	cmd.Flags().StringVar(&flagType, "type", "", "The meeting type")
+	cmd.Flags().StringVar(&flagType, "type", "live", "The meeting type (one of: past, pastOne, live)")
 	cmd.Flags().StringVar(&flagFrom, "from", "", "Start Date")
 	cmd.Flags().StringVar(&flagTo, "to", "", "End Date")
-	cmd.Flags().StringVar(&flagPageSize, "page-size", "", "The number of records returned within a single API call")
-	cmd.Flags().StringVar(&flagNextPageToken, "next-page-token", "", "Next page token is used to paginate through large result sets. A next page token will be returned whenever the set...")
+	cmd.Flags().IntVar(&flagPageSize, "page-size", 30, "The number of records returned within a single API call")
+	cmd.Flags().StringVar(&flagNextPageToken, "next-page-token", "", "Next page token is used to paginate through large result sets.")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
 	return cmd

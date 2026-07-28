@@ -9,9 +9,10 @@ import (
 
 func newAccountsBillingCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "billing",
-		Short: "Billing operations",
-		RunE:  parentNoSubcommandRunE(flags),
+		Use:         "billing",
+		Short:       "Get and update billing for accounts",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newAccountsBillingAccountCmd(flags))

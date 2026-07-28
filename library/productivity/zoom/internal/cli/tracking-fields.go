@@ -9,10 +9,10 @@ import (
 
 func newTrackingFieldsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:    "tracking-fields",
-		Short:  "Tracking Field operations",
-		Hidden: true,
-		RunE:   parentNoSubcommandRunE(flags),
+		Use:         "tracking-fields",
+		Short:       "List, get, create, update, and delete tracking fields",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:api-resource": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newTrackingFieldsCreateCmd(flags))

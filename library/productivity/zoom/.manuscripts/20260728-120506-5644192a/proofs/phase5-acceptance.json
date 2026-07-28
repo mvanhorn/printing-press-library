@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "zoom",
+  "run_id": "20260728-120506-5644192a",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 388,
+  "tests_passed": 388,
+  "tests_skipped": 577,
+  "auth_context": {
+    "type": "api_key"
+  }
+}

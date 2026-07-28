@@ -11,6 +11,7 @@ import (
 	"io"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -111,7 +112,7 @@ func ParseVTT(r io.Reader) ([]Cue, error) {
 
 // ParseVTTFile opens path and calls ParseVTT.
 func ParseVTTFile(path string) ([]Cue, error) {
-	f, err := os.Open(path)
+	f, err := os.Open(path) // #nosec G304 -- path is a transcript file discovered under the user's own Zoom recordings folder or supplied by the user; reading user-named files is this command's purpose
 	if err != nil {
 		return nil, err
 	}
@@ -120,11 +121,11 @@ func ParseVTTFile(path string) ([]Cue, error) {
 }
 
 func mustDur(h, m, s, ms string) time.Duration {
-	var hh, mm, ss, mss int
-	fmt.Sscanf(h, "%d", &hh)
-	fmt.Sscanf(m, "%d", &mm)
-	fmt.Sscanf(s, "%d", &ss)
-	fmt.Sscanf(ms, "%d", &mss)
+	// Inputs are regex-captured digit groups, so Atoi cannot fail here.
+	hh, _ := strconv.Atoi(h)
+	mm, _ := strconv.Atoi(m)
+	ss, _ := strconv.Atoi(s)
+	mss, _ := strconv.Atoi(ms)
 	return time.Duration(hh)*time.Hour +
 		time.Duration(mm)*time.Minute +
 		time.Duration(ss)*time.Second +

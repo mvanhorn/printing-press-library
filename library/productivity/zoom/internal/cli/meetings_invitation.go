@@ -9,9 +9,10 @@ import (
 
 func newMeetingsInvitationCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "invitation",
-		Short: "Manage invitation",
-		RunE:  parentNoSubcommandRunE(flags),
+		Use:         "invitation",
+		Short:       "Get invitation for meetings",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newMeetingsInvitationMeetingCmd(flags))

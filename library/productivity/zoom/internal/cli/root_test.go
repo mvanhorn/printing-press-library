@@ -7,8 +7,247 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 	"testing"
+
+	"github.com/spf13/cobra"
 )
+
+func TestDeclaredAPISurfaceReachable(t *testing.T) {
+	expected := []string{
+		"accounts",
+		"accounts account",
+		"accounts accounts",
+		"accounts billing",
+		"accounts billing account",
+		"accounts billing account-update",
+		"accounts create",
+		"accounts disassociate",
+		"accounts managed-domains",
+		"accounts managed-domains account",
+		"accounts options",
+		"accounts options account-update",
+		"accounts plans",
+		"accounts plans account",
+		"accounts plans account-addon-create",
+		"accounts plans account-addon-update",
+		"accounts plans account-base-update",
+		"accounts plans account-create",
+		"accounts settings",
+		"accounts settings account",
+		"accounts settings account-update",
+		"groups",
+		"groups create",
+		"groups delete",
+		"groups group",
+		"groups groups",
+		"groups members",
+		"groups members group",
+		"groups members group-create",
+		"groups members group-delete",
+		"groups update",
+		"h323",
+		"h323 device-create",
+		"h323 device-delete",
+		"h323 device-list",
+		"h323 device-update",
+		"im",
+		"im chat-messages",
+		"im chat-sessions",
+		"im group",
+		"im group-create",
+		"im group-delete",
+		"im group-members",
+		"im group-members-create",
+		"im group-members-delete",
+		"im group-update",
+		"im groups",
+		"meetings",
+		"meetings delete",
+		"meetings invitation",
+		"meetings invitation meeting",
+		"meetings livestream",
+		"meetings livestream meeting-live-stream-status-update",
+		"meetings livestream meeting-live-stream-update",
+		"meetings meeting",
+		"meetings polls",
+		"meetings polls meeting",
+		"meetings polls meeting-create",
+		"meetings polls meeting-delete",
+		"meetings polls meeting-get",
+		"meetings polls meeting-update",
+		"meetings recordings",
+		"meetings recordings delete",
+		"meetings recordings delete-one",
+		"meetings recordings get",
+		"meetings recordings setting-update",
+		"meetings recordings settings-update",
+		"meetings recordings status-update",
+		"meetings recordings status-update-one",
+		"meetings registrants",
+		"meetings registrants meeting",
+		"meetings registrants meeting-create",
+		"meetings registrants meeting-status",
+		"meetings status",
+		"meetings status meeting",
+		"meetings update",
+		"metrics",
+		"metrics dashboard-crc",
+		"metrics dashboard-im",
+		"metrics dashboard-meeting-detail",
+		"metrics dashboard-meeting-participant-qos",
+		"metrics dashboard-meeting-participant-share",
+		"metrics dashboard-meeting-participants",
+		"metrics dashboard-meeting-participants-qos",
+		"metrics dashboard-meetings",
+		"metrics dashboard-webinar-detail",
+		"metrics dashboard-webinar-participant-qos",
+		"metrics dashboard-webinar-participant-share",
+		"metrics dashboard-webinar-participants",
+		"metrics dashboard-webinar-participants-qos",
+		"metrics dashboard-webinars",
+		"metrics dashboard-zoom-room",
+		"metrics dashboard-zoom-rooms",
+		"past-meetings",
+		"past-meetings instances",
+		"past-meetings instances past-meetings",
+		"past-meetings participants",
+		"past-meetings participants past-meeting",
+		"past-webinars",
+		"past-webinars instances",
+		"past-webinars instances past-webinars",
+		"report",
+		"report cloud-recording",
+		"report daily",
+		"report meeting-details",
+		"report meeting-participants",
+		"report meeting-polls",
+		"report meetings",
+		"report telephone",
+		"report users",
+		"report webinar-details",
+		"report webinar-participants",
+		"report webinar-polls",
+		"report webinar-qa",
+		"tracking-fields",
+		"tracking-fields create",
+		"tracking-fields delete",
+		"tracking-fields get",
+		"tracking-fields list",
+		"tracking-fields update",
+		"tsp",
+		"tsp tsp",
+		"tsp update",
+		"users",
+		"users assistants",
+		"users assistants user",
+		"users assistants user-create",
+		"users assistants user-delete",
+		"users assistants user-delete-users",
+		"users create",
+		"users delete",
+		"users email",
+		"users email user-update",
+		"users email-check",
+		"users meetings",
+		"users meetings create",
+		"users meetings meetings",
+		"users pac",
+		"users pac user",
+		"users password",
+		"users password user",
+		"users permissions",
+		"users permissions user",
+		"users picture",
+		"users picture user",
+		"users recordings",
+		"users recordings list",
+		"users schedulers",
+		"users schedulers user",
+		"users schedulers user-delete",
+		"users schedulers user-delete-users",
+		"users settings",
+		"users settings user",
+		"users settings user-update",
+		"users status",
+		"users status user",
+		"users token",
+		"users token user",
+		"users token user-ssotoken-delete",
+		"users tsp",
+		"users tsp user",
+		"users tsp user-tspcreate",
+		"users tsp user-tspdelete",
+		"users tsp user-tspupdate",
+		"users tsp user-users",
+		"users update",
+		"users user",
+		"users users",
+		"users vanity-name",
+		"users webinars",
+		"users webinars create",
+		"users webinars webinars",
+		"users zpk",
+		"webhooks",
+		"webhooks create",
+		"webhooks delete",
+		"webhooks switch",
+		"webhooks update",
+		"webhooks webhook",
+		"webhooks webhooks",
+		"webinars",
+		"webinars delete",
+		"webinars panelists",
+		"webinars panelists webinar",
+		"webinars panelists webinar-create",
+		"webinars panelists webinar-delete",
+		"webinars panelists webinar-delete-webinars",
+		"webinars polls",
+		"webinars polls webinar",
+		"webinars polls webinar-create",
+		"webinars polls webinar-delete",
+		"webinars polls webinar-get",
+		"webinars polls webinar-update",
+		"webinars registrants",
+		"webinars registrants webinar",
+		"webinars registrants webinar-create",
+		"webinars registrants webinar-status",
+		"webinars status",
+		"webinars status webinar",
+		"webinars update",
+		"webinars webinar",
+	}
+	actual := make(map[string]struct{}, len(expected))
+	type pendingCommand struct {
+		command *cobra.Command
+		path    string
+	}
+	queue := make([]pendingCommand, 0, len(expected))
+	for _, child := range RootCmd().Commands() {
+		queue = append(queue, pendingCommand{command: child, path: child.Name()})
+	}
+	for len(queue) > 0 {
+		current := queue[0]
+		queue = queue[1:]
+		actual[current.path] = struct{}{}
+		for _, child := range current.command.Commands() {
+			queue = append(queue, pendingCommand{
+				command: child,
+				path:    strings.TrimSpace(current.path + " " + child.Name()),
+			})
+		}
+	}
+
+	var missing []string
+	for _, commandPath := range expected {
+		if _, ok := actual[commandPath]; !ok {
+			missing = append(missing, commandPath)
+		}
+	}
+	if len(missing) > 0 {
+		t.Fatalf("declared API command paths missing from generated Cobra tree: %s", strings.Join(missing, ", "))
+	}
+}
 
 // TestIsCobraUsageError covers the six pre-RunE error shapes Cobra and
 // pflag can produce before any user RunE runs. Each must be detected so
@@ -135,10 +374,16 @@ func TestFilterFields(t *testing.T) {
 			want:   `{"projects":[{"id":"a"}]}`,
 		},
 		{
-			name:   "flat object no match returns empty (no array fallback)",
+			name:   "flat object no match preserves input",
 			input:  `{"a":1,"b":2}`,
 			fields: "c",
-			want:   `{}`,
+			want:   `{"a":1,"b":2}`,
+		},
+		{
+			name:   "unknown selector preserves nested array objects",
+			input:  `{"items":[{"id":"a","name":"Alpha"},{"id":"b","name":"Beta"}]}`,
+			fields: "missing",
+			want:   `{"items":[{"id":"a","name":"Alpha"},{"id":"b","name":"Beta"}]}`,
 		},
 		{
 			// Null pagination cursors are common envelope metadata.
@@ -152,12 +397,11 @@ func TestFilterFields(t *testing.T) {
 		},
 		{
 			// Without a real array sibling the envelope fallback does not
-			// fire, so a flat object whose only "extra" key is null still
-			// returns {} for a non-matching selector.
-			name:   "flat object with null sibling no match returns empty",
+			// fire, but an invalid selector still preserves the input.
+			name:   "flat object with null sibling no match preserves input",
 			input:  `{"a":1,"b":null}`,
 			fields: "c",
-			want:   `{}`,
+			want:   `{"a":1,"b":null}`,
 		},
 		{
 			// Multiple array siblings at the same level each receive the
@@ -172,13 +416,11 @@ func TestFilterFields(t *testing.T) {
 			// Envelope fallback is intentionally one level deep. A nested
 			// object envelope like {"data":{"items":[...]}} surfaces no
 			// array at the outer level, so the fallback does not fire and
-			// the result is the empty-object that flat-no-match would
-			// produce. Pins the boundary so a future deeper-walk change
-			// is an explicit decision, not an accident.
-			name:   "nested object envelope returns empty (one-level only)",
+			// an invalid selector preserves the input.
+			name:   "nested object envelope preserves input (one-level only)",
 			input:  `{"data":{"items":[{"id":"a","other":"y"}]}}`,
 			fields: "id",
-			want:   `{}`,
+			want:   `{"data":{"items":[{"id":"a","other":"y"}]}}`,
 		},
 	}
 	for _, tc := range cases {

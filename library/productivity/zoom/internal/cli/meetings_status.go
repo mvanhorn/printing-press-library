@@ -9,9 +9,10 @@ import (
 
 func newMeetingsStatusCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "status",
-		Short: "Manage status",
-		RunE:  parentNoSubcommandRunE(flags),
+		Use:         "status",
+		Short:       "Update status for meetings",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newMeetingsStatusMeetingCmd(flags))

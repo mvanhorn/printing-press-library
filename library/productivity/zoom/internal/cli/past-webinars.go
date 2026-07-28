@@ -9,10 +9,10 @@ import (
 
 func newPastWebinarsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:    "past-webinars",
-		Short:  "Manage past webinars",
-		Hidden: true,
-		RunE:   parentNoSubcommandRunE(flags),
+		Use:         "past-webinars",
+		Short:       "Manage past webinars command groups",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:api-resource": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newPastWebinarsInstancesCmd(flags))

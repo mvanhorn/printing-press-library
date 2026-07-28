@@ -13,28 +13,77 @@ import (
 )
 
 func newMeetingsUpdateCmd(flags *rootFlags) *cobra.Command {
+	var bodyAgenda string
+	var bodyDuration int
+	var bodyPassword string
+	var bodyRecurrenceEndDateTime string
+	var bodyRecurrenceEndTimes int
+	var bodyRecurrenceMonthlyDay int
+	var bodyRecurrenceMonthlyWeek int
+	var bodyRecurrenceMonthlyWeekDay int
+	var bodyRecurrenceRepeatInterval int
+	var bodyRecurrenceType int
+	var bodyRecurrenceWeeklyDays int
+	var bodyScheduleFor string
+	var bodySettingsAlternativeHosts string
+	var bodySettingsApprovalType int
+	var bodySettingsAudio string
+	var bodySettingsAutoRecording string
+	var bodySettingsCloseRegistration bool
+	var bodySettingsCnMeeting bool
+	var bodySettingsEnforceLogin bool
+	var bodySettingsEnforceLoginDomains string
+	var bodySettingsHostVideo bool
+	var bodySettingsInMeeting bool
+	var bodySettingsJoinBeforeHost bool
+	var bodySettingsMuteUponEntry bool
+	var bodySettingsParticipantVideo bool
+	var bodySettingsRegistrantsConfirmationEmail bool
+	var bodySettingsRegistrationType int
+	var bodySettingsUsePmi bool
+	var bodySettingsWaitingRoom bool
+	var bodySettingsWatermark bool
+	var bodyStartTime string
+	var bodyTimezone string
+	var bodyTopic string
+	var bodyTrackingFields string
+	var bodyType int
 	var stdinBody bool
 
 	cmd := &cobra.Command{
 		Use:         "update <meetingId>",
 		Short:       "Update a meeting's details",
-		Example:     "  zoom-pp-cli meetings update 550e8400-e29b-41d4-a716-446655440000",
+		Example:     "  zoom-pp-cli meetings update 42",
 		Annotations: map[string]string{"pp:endpoint": "meetings.update", "pp:method": "PATCH", "pp:path": "/meetings/{meetingId}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
-				return cmd.Help()
+				// A missing required positional is a usage error in every output
+				// mode (matches command_promoted.go.tmpl). Machine callers
+				// (--json/--agent) also get a JSON error envelope on stdout;
+				// usageErr sets exit 2.
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "missing required argument",
+						"usage": fmt.Sprintf("%s%s", cmd.CommandPath(), " <meetingId>"),
+					}, flags); printErr != nil {
+						return printErr
+					}
+				}
+				return usageErr(fmt.Errorf("missing required argument\nUsage: %s%s", cmd.CommandPath(), " <meetingId>"))
 			}
 			if !stdinBody {
 			}
+			path := "/meetings/{meetingId}"
+			if len(args) < 1 || args[0] == "" {
+				return usageErr(fmt.Errorf("meetingId is required\nUsage: %s <%s>", cmd.CommandPath(), "meetingId"))
+			}
+			path = replacePathParam(path, "meetingId", args[0])
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/meetings/{meetingId}"
-			path = replacePathParam(path, "meetingId", args[0])
 			params := map[string]string{}
-			var body map[string]any
+			var body any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
@@ -46,9 +95,135 @@ func newMeetingsUpdateCmd(flags *rootFlags) *cobra.Command {
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
+				bodyMap := map[string]any{}
+				body = bodyMap
+				if bodyAgenda != "" {
+					bodyMap["agenda"] = bodyAgenda
+				}
+				if bodyDuration != 0 {
+					bodyMap["duration"] = bodyDuration
+				}
+				if bodyPassword != "" {
+					bodyMap["password"] = bodyPassword
+				}
+				{
+					nestedRecurrence := map[string]any{}
+					if bodyRecurrenceEndDateTime != "" {
+						nestedRecurrence["end_date_time"] = bodyRecurrenceEndDateTime
+					}
+					if bodyRecurrenceEndTimes != 0 {
+						nestedRecurrence["end_times"] = bodyRecurrenceEndTimes
+					}
+					if bodyRecurrenceMonthlyDay != 0 {
+						nestedRecurrence["monthly_day"] = bodyRecurrenceMonthlyDay
+					}
+					if bodyRecurrenceMonthlyWeek != 0 {
+						nestedRecurrence["monthly_week"] = bodyRecurrenceMonthlyWeek
+					}
+					if bodyRecurrenceMonthlyWeekDay != 0 {
+						nestedRecurrence["monthly_week_day"] = bodyRecurrenceMonthlyWeekDay
+					}
+					if bodyRecurrenceRepeatInterval != 0 {
+						nestedRecurrence["repeat_interval"] = bodyRecurrenceRepeatInterval
+					}
+					if bodyRecurrenceType != 0 {
+						nestedRecurrence["type"] = bodyRecurrenceType
+					}
+					if bodyRecurrenceWeeklyDays != 0 {
+						nestedRecurrence["weekly_days"] = bodyRecurrenceWeeklyDays
+					}
+					if len(nestedRecurrence) > 0 {
+						bodyMap["recurrence"] = nestedRecurrence
+					}
+				}
+				if bodyScheduleFor != "" {
+					bodyMap["schedule_for"] = bodyScheduleFor
+				}
+				{
+					nestedSettings := map[string]any{}
+					if bodySettingsAlternativeHosts != "" {
+						nestedSettings["alternative_hosts"] = bodySettingsAlternativeHosts
+					}
+					if bodySettingsApprovalType != 0 {
+						nestedSettings["approval_type"] = bodySettingsApprovalType
+					}
+					if bodySettingsAudio != "" {
+						nestedSettings["audio"] = bodySettingsAudio
+					}
+					if bodySettingsAutoRecording != "" {
+						nestedSettings["auto_recording"] = bodySettingsAutoRecording
+					}
+					if cmd.Flags().Changed("settings-close-registration") {
+						nestedSettings["close_registration"] = bodySettingsCloseRegistration
+					}
+					if cmd.Flags().Changed("settings-cn-meeting") {
+						nestedSettings["cn_meeting"] = bodySettingsCnMeeting
+					}
+					if cmd.Flags().Changed("settings-enforce-login") {
+						nestedSettings["enforce_login"] = bodySettingsEnforceLogin
+					}
+					if bodySettingsEnforceLoginDomains != "" {
+						nestedSettings["enforce_login_domains"] = bodySettingsEnforceLoginDomains
+					}
+					if cmd.Flags().Changed("settings-host-video") {
+						nestedSettings["host_video"] = bodySettingsHostVideo
+					}
+					if cmd.Flags().Changed("settings-in-meeting") {
+						nestedSettings["in_meeting"] = bodySettingsInMeeting
+					}
+					if cmd.Flags().Changed("settings-join-before-host") {
+						nestedSettings["join_before_host"] = bodySettingsJoinBeforeHost
+					}
+					if cmd.Flags().Changed("settings-mute-upon-entry") {
+						nestedSettings["mute_upon_entry"] = bodySettingsMuteUponEntry
+					}
+					if cmd.Flags().Changed("settings-participant-video") {
+						nestedSettings["participant_video"] = bodySettingsParticipantVideo
+					}
+					if cmd.Flags().Changed("settings-registrants-confirmation-email") {
+						nestedSettings["registrants_confirmation_email"] = bodySettingsRegistrantsConfirmationEmail
+					}
+					if bodySettingsRegistrationType != 0 {
+						nestedSettings["registration_type"] = bodySettingsRegistrationType
+					}
+					if cmd.Flags().Changed("settings-use-pmi") {
+						nestedSettings["use_pmi"] = bodySettingsUsePmi
+					}
+					if cmd.Flags().Changed("settings-waiting-room") {
+						nestedSettings["waiting_room"] = bodySettingsWaitingRoom
+					}
+					if cmd.Flags().Changed("settings-watermark") {
+						nestedSettings["watermark"] = bodySettingsWatermark
+					}
+					if len(nestedSettings) > 0 {
+						bodyMap["settings"] = nestedSettings
+					}
+				}
+				if bodyStartTime != "" {
+					bodyMap["start_time"] = bodyStartTime
+				}
+				if bodyTimezone != "" {
+					bodyMap["timezone"] = bodyTimezone
+				}
+				if bodyTopic != "" {
+					bodyMap["topic"] = bodyTopic
+				}
+				if bodyTrackingFields != "" {
+					var parsedTrackingFields any
+					if err := json.Unmarshal([]byte(bodyTrackingFields), &parsedTrackingFields); err != nil {
+						return fmt.Errorf("parsing --tracking-fields JSON: %w", err)
+					}
+					asArray, ok := parsedTrackingFields.([]any)
+					if !ok {
+						return fmt.Errorf("--tracking-fields must be a JSON array, got JSON %T", parsedTrackingFields)
+					}
+					bodyMap["tracking_fields"] = asArray
+				}
+				if bodyType != 0 {
+					bodyMap["type"] = bodyType
+				}
 			}
-			data, statusCode, err := c.PatchWithParams(path, params, body)
+			data, statusCode, err := c.PatchWithParams(cmd.Context(), path, params, body)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -69,6 +244,9 @@ func newMeetingsUpdateCmd(flags *rootFlags) *cobra.Command {
 						fmt.Fprintf(os.Stderr, "         succeeded: %d operation(s)\n", len(partialFailure.ResourceNames))
 					}
 				}
+			}
+			if !flags.dryRun && statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure) {
+				writeMutationResponseToStore(cmd.Context(), "meetings", data, "")
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")
@@ -105,6 +283,41 @@ func newMeetingsUpdateCmd(flags *rootFlags) *cobra.Command {
 					}
 					return nil
 				}
+				envelope := map[string]any{
+					"action":   "patch",
+					"resource": "meetings",
+					"path":     path,
+					"status":   statusCode,
+					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
+				}
+				if flags.agent {
+					envelope["meta"] = map[string]any{"source": "live"}
+				}
+				if partialFailure != nil {
+					envelope["partial_failure"] = partialFailure
+				}
+				if flags.dryRun {
+					envelope["dry_run"] = true
+					envelope["status"] = 0
+					envelope["success"] = false
+				}
+				// Verify-mode synthetic envelope detection runs against RAW data
+				// (before --compact/--select filtering) so the sentinel field is
+				// guaranteed to be visible even if the operator passes a filter
+				// flag that would otherwise strip it. Surfaces a top-level
+				// verify_noop signal + flips success to false. Mirrors the dry_run
+				// shape above.
+				if len(data) > 0 {
+					var rawParsed any
+					if err := json.Unmarshal(data, &rawParsed); err == nil {
+						if m, ok := rawParsed.(map[string]any); ok {
+							if v, ok := m["__pp_verify_synthetic__"].(bool); ok && v {
+								envelope["verify_noop"] = true
+								envelope["success"] = false
+							}
+						}
+					}
+				}
 				// Apply --compact and --select to the API response before wrapping.
 				// --select wins when both are set: explicit field choice trumps the
 				// generic high-gravity allow-list. Otherwise --compact still applies
@@ -115,32 +328,29 @@ func newMeetingsUpdateCmd(flags *rootFlags) *cobra.Command {
 				} else if flags.compact {
 					filtered = compactFields(filtered)
 				}
-				envelope := map[string]any{
-					"action":   "patch",
-					"resource": "meetings",
-					"path":     path,
-					"status":   statusCode,
-					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
-				}
-				if partialFailure != nil {
-					envelope["partial_failure"] = partialFailure
-				}
-				if flags.dryRun {
-					envelope["dry_run"] = true
-					envelope["status"] = 0
-					envelope["success"] = false
-				}
 				if len(filtered) > 0 {
 					var parsed any
 					if err := json.Unmarshal(filtered, &parsed); err == nil {
-						envelope["data"] = parsed
+						if flags.agent {
+							envelope["results"] = parsed
+						} else {
+							envelope["data"] = parsed
+						}
 					}
 				}
 				envelopeJSON, err := json.Marshal(envelope)
 				if err != nil {
 					return err
 				}
-				if perr := printOutput(cmd.OutOrStdout(), json.RawMessage(envelopeJSON), true); perr != nil {
+				resultKey := "data"
+				if flags.agent {
+					resultKey = "results"
+				}
+				structured, err := wrapPlatformStructuredOutput(json.RawMessage(envelopeJSON), flags, resultKey, true)
+				if err != nil {
+					return err
+				}
+				if perr := printOutput(cmd.OutOrStdout(), structured, true); perr != nil {
 					return perr
 				}
 				if partialFailure != nil && !flags.allowPartialFailure {
@@ -164,6 +374,41 @@ func newMeetingsUpdateCmd(flags *rootFlags) *cobra.Command {
 			return nil
 		},
 	}
+	cmd.Flags().StringVar(&bodyAgenda, "agenda", "", "Meeting description")
+	cmd.Flags().IntVar(&bodyDuration, "duration", 0, "Meeting duration (minutes). Used for scheduled meetings only")
+	cmd.Flags().StringVar(&bodyPassword, "password", "", "Password to join the meeting. Password may only contain the following characters: [a-z A-Z 0-9 @ - _ *].")
+	cmd.Flags().StringVar(&bodyRecurrenceEndDateTime, "recurrence-end-date-time", "", "Select a date the meeting will occur before it is canceled.. Should be UTC time, such as 2017-11-25T12:00:00Z.")
+	cmd.Flags().IntVar(&bodyRecurrenceEndTimes, "recurrence-end-times", 0, "Select how many times the meeting will occur before it is canceled. (Cannot be used with 'end_date_time'.)")
+	cmd.Flags().IntVar(&bodyRecurrenceMonthlyDay, "recurrence-monthly-day", 0, "Day of the month for the meeting to be scheduled. The value range is from 1 to 31.")
+	cmd.Flags().IntVar(&bodyRecurrenceMonthlyWeek, "recurrence-monthly-week", 0, "Week for which the meeting should recur each month,")
+	cmd.Flags().IntVar(&bodyRecurrenceMonthlyWeekDay, "recurrence-monthly-week-day", 0, "Day for which the meeting should recur each month")
+	cmd.Flags().IntVar(&bodyRecurrenceRepeatInterval, "recurrence-repeat-interval", 0, "At which interval should the meeting repeat? For a daily meeting, max of 90 days. For a weekly meeting, max of 12 weeks.")
+	cmd.Flags().IntVar(&bodyRecurrenceType, "recurrence-type", 0, "Recurrence meeting type")
+	cmd.Flags().IntVar(&bodyRecurrenceWeeklyDays, "recurrence-weekly-days", 0, "Days of the week the meeting should repeat, multiple values separated by comma")
+	cmd.Flags().StringVar(&bodyScheduleFor, "schedule-for", "", "Email or userId if you want to schedule meeting for another user.")
+	cmd.Flags().StringVar(&bodySettingsAlternativeHosts, "settings-alternative-hosts", "", "Alternative hosts emails or IDs. Multiple value separated by comma.")
+	cmd.Flags().IntVar(&bodySettingsApprovalType, "settings-approval-type", 0, "Approval type")
+	cmd.Flags().StringVar(&bodySettingsAudio, "settings-audio", "", "Determine how participants can join the audio portion of the meeting")
+	cmd.Flags().StringVar(&bodySettingsAutoRecording, "settings-auto-recording", "", "Auto recording")
+	cmd.Flags().BoolVar(&bodySettingsCloseRegistration, "settings-close-registration", false, "Close registration after event date")
+	cmd.Flags().BoolVar(&bodySettingsCnMeeting, "settings-cn-meeting", false, "Host meeting in China")
+	cmd.Flags().BoolVar(&bodySettingsEnforceLogin, "settings-enforce-login", false, "Only signed-in users can join this meeting")
+	cmd.Flags().StringVar(&bodySettingsEnforceLoginDomains, "settings-enforce-login-domains", "", "Only signed-in users with specified domains can join meetings")
+	cmd.Flags().BoolVar(&bodySettingsHostVideo, "settings-host-video", false, "Start video when host joins meeting")
+	cmd.Flags().BoolVar(&bodySettingsInMeeting, "settings-in-meeting", false, "Host meeting in India")
+	cmd.Flags().BoolVar(&bodySettingsJoinBeforeHost, "settings-join-before-host", false, "Allow participants to join the meeting before the host starts the meeting.")
+	cmd.Flags().BoolVar(&bodySettingsMuteUponEntry, "settings-mute-upon-entry", false, "Mute participants upon entry")
+	cmd.Flags().BoolVar(&bodySettingsParticipantVideo, "settings-participant-video", false, "Start video when participants join meeting")
+	cmd.Flags().BoolVar(&bodySettingsRegistrantsConfirmationEmail, "settings-registrants-confirmation-email", false, "Send confirmation Email to Registrants")
+	cmd.Flags().IntVar(&bodySettingsRegistrationType, "settings-registration-type", 0, "Registration type. Used for recurring meeting with fixed time only.")
+	cmd.Flags().BoolVar(&bodySettingsUsePmi, "settings-use-pmi", false, "Use Personal Meeting ID. Only used for scheduled meetings and recurring meetings with no fixed time.")
+	cmd.Flags().BoolVar(&bodySettingsWaitingRoom, "settings-waiting-room", false, "Enable waiting room")
+	cmd.Flags().BoolVar(&bodySettingsWatermark, "settings-watermark", false, "Add watermark when viewing shared screen")
+	cmd.Flags().StringVar(&bodyStartTime, "start-time", "", "Meeting start time. When using a format like 'yyyy-MM-dd'T'HH:mm:ss'Z'', always use GMT time.")
+	cmd.Flags().StringVar(&bodyTimezone, "timezone", "", "Timezone to format start_time. For example, 'America/Los_Angeles'. For scheduled meetings only.")
+	cmd.Flags().StringVar(&bodyTopic, "topic", "", "Meeting topic")
+	cmd.Flags().StringVar(&bodyTrackingFields, "tracking-fields", "", "Tracking fields")
+	cmd.Flags().IntVar(&bodyType, "type", 2, "Meeting Type")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd

@@ -8,16 +8,42 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/productivity/zoom/internal/cliutil"
 	"github.com/pelletier/go-toml/v2"
 )
 
 type Config struct {
-	BaseURL       string            `toml:"base_url"`
-	AuthHeaderVal string            `toml:"auth_header"`
-	Headers       map[string]string `toml:"headers,omitempty"`
-	AuthSource    string            `toml:"-"`
-	Path          string            `toml:"-"`
+	BaseURL            string            `toml:"base_url"`
+	AuthHeaderVal      string            `toml:"auth_header"`
+	Headers            map[string]string `toml:"headers,omitempty"`
+	AuthSource         string            `toml:"-"`
+	CredentialSource   string            `toml:"-"`
+	AgentcookieManaged bool              `toml:"-"`
+	// configOwner records which on-disk file parseConfigData populated this
+	// config from ("config-kind path" or "legacy config path") so the
+	// credential-source fallback below reports where config-stored
+	// credentials actually live. Unexported: never persisted.
+	configOwner string
+	// legacySourcePath records the legacy config path when Load fell
+	// back to it. Used by save() to scrub credential fields from the
+	// old location after relocation. Unexported: never persisted.
+	legacySourcePath   string
+	AccessToken        string          `toml:"access_token"`
+	RefreshToken       string          `toml:"refresh_token"`
+	TokenExpiry        time.Time       `toml:"token_expiry"`
+	ClientID           string          `toml:"client_id"`
+	ClientSecret       string          `toml:"client_secret"`
+	Path               string          `toml:"-"`
+	envOverrides       map[string]bool `toml:"-"`
+	fileConfig         *Config         `toml:"-"`
+	ZoomS2sAccessToken string          `toml:"s2s_access_token"`
+	// TemplateVars holds the runtime values for {placeholder} markers in
+	// BaseURL and the request path (e.g. Shopify's {shop}/{version}). Populated
+	// at Load() time from env vars; consumed by the client's buildURL helper.
+	// Stored as a serializable map so non-default values survive a config save.
+	TemplateVars map[string]string `toml:"template_vars,omitempty"`
 }
 
 func Load(configPath string) (*Config, error) {
@@ -26,45 +52,114 @@ func Load(configPath string) (*Config, error) {
 	}
 
 	// Resolve config path
-	path := configPath
-	if path == "" {
-		path = os.Getenv("ZOOM_CONFIG")
-	}
-	if path == "" {
-		home, _ := os.UserHomeDir()
-		path = filepath.Join(home, ".config", "zoom-pp-cli", "config.toml")
+	path, explicitConfigFile, err := resolveConfigPath(configPath)
+	if err != nil {
+		return nil, err
 	}
 	cfg.Path = path
 
-	// Try to load config file
-	data, err := os.ReadFile(path)
-	if err == nil {
-		if err := toml.Unmarshal(data, cfg); err != nil {
-			return nil, fmt.Errorf("parsing config %s: %w", path, err)
+	if explicitConfigFile {
+		// Keep non-secret settings from a readable config even when its permissions
+		// have drifted, but never trust credentials from that file. Canonicalizing
+		// first also makes a symlink inherit the target's permission verdict.
+		if real, evalErr := filepath.EvalSymlinks(path); evalErr == nil {
+			credentialsTrusted := cliutil.VerifyCredsPerms(real) == nil
+			parsed := *cfg
+			if err := readConfigFile(path, &parsed, "config-kind path"); err != nil {
+				if !os.IsNotExist(err) {
+					return nil, err
+				}
+			} else {
+				if !credentialsTrusted {
+					parsed.clearCredentialFields()
+				}
+				*cfg = parsed
+			}
+		}
+	} else {
+		legacyPath, err := LegacyConfigPath()
+		if err != nil {
+			return nil, err
+		}
+		data, sourcePath, err := cliutil.ReadFileWithLegacyFallback(path, legacyPath)
+		if err != nil {
+			if !os.IsNotExist(err) {
+				return nil, err
+			}
+		} else if real, evalErr := filepath.EvalSymlinks(sourcePath); evalErr == nil {
+			credentialsTrusted := cliutil.VerifyCredsPerms(real) == nil
+			owner := "config-kind path"
+			if sourcePath == legacyPath {
+				owner = "legacy config path"
+			}
+			parsed := *cfg
+			if err := parseConfigData(data, &parsed, sourcePath, owner); err != nil {
+				if sourcePath == legacyPath {
+					fmt.Fprintf(os.Stderr, "warning: legacy config parse skipped for %s: %v\n", sourcePath, err)
+				} else {
+					return nil, err
+				}
+			} else {
+				if !credentialsTrusted {
+					parsed.clearCredentialFields()
+				}
+				*cfg = parsed
+				if sourcePath == legacyPath {
+					cfg.legacySourcePath = legacyPath
+				}
+			}
 		}
 	}
-
-	// Env var overrides
-	// Zoom S2S OAuth: ZOOM_S2S_ACCESS_TOKEN (pre-exchanged) wins. Otherwise
-	// tryLoadCachedZoomToken (sibling file zoom_auth_config.go) looks up the
-	// token cache that `zoom-pp-cli auth set-token` writes — that command
-	// exchanges ZOOM_S2S_ACCOUNT_ID + ZOOM_S2S_CLIENT_ID + ZOOM_S2S_CLIENT_SECRET
-	// against https://zoom.us/oauth/token (account_credentials grant) and caches
-	// the resulting bearer token.
-	if v := os.Getenv("ZOOM_S2S_ACCESS_TOKEN"); v != "" {
-		cfg.AuthHeaderVal = "Bearer " + strings.TrimPrefix(strings.TrimSpace(v), "Bearer ")
-		cfg.AuthSource = "env:ZOOM_S2S_ACCESS_TOKEN"
-	} else if cfg.AuthHeaderVal == "" {
-		if tok, src := tryLoadCachedZoomToken(); tok != "" {
-			cfg.AuthHeaderVal = "Bearer " + tok
-			if src != "" {
-				cfg.AuthSource = src
-			} else {
-				cfg.AuthSource = "cache"
+	cfg.Path = path
+	if cfg.AgentcookieManagedByExternalStore() {
+		cfg.markAgentcookieManaged()
+	} else {
+		var creds *cliutil.Credentials
+		var ok bool
+		if !cfg.hasCompleteCredentialFields() {
+			if explicitConfigFile {
+				creds, ok, err = cliutil.LoadCredentialsForConfig(path)
+				if err != nil {
+					return nil, err
+				}
+			}
+			if !ok || creds == nil || !creds.HasValues() {
+				creds, ok, err = cliutil.LoadCredentials()
+				if err != nil {
+					return nil, err
+				}
+			}
+			if ok && creds.HasValues() {
+				cfg.applyCredentials(creds)
+				if cfg.hasCredentialFields() {
+					cfg.AuthSource = "config"
+					cfg.CredentialSource = "credentials file"
+				}
 			}
 		}
 	}
 
+	cfg.snapshotFileConfig()
+
+	// Env var overrides
+	if v := os.Getenv("ZOOM_S2S_ACCESS_TOKEN"); v != "" {
+		cfg.ZoomS2sAccessToken = v
+		cfg.markEnvOverride("ZoomS2sAccessToken")
+		cfg.AuthSource = "env:ZOOM_S2S_ACCESS_TOKEN"
+		cfg.CredentialSource = "env:ZOOM_S2S_ACCESS_TOKEN"
+	}
+	// Zoom S2S OAuth cache fallback: `auth s2s-token` exchanges account
+	// credentials for a short-lived bearer token and caches it. Consult that
+	// cache when no env var and no stored credential supplied one, so cloud
+	// commands work off the exchange rather than requiring a manual paste.
+	// tryLoadCachedZoomToken lives in the sibling file zoom_auth_config.go.
+	if cfg.ZoomS2sAccessToken == "" {
+		if tok, src := tryLoadCachedZoomToken(); tok != "" {
+			cfg.ZoomS2sAccessToken = tok
+			cfg.AuthSource = src
+			cfg.CredentialSource = src
+		}
+	}
 	// Label config-file-derived credentials so doctor can distinguish
 	// "credentials persisted on disk" from "no credentials at all" — without
 	// this, users who saved via set-token without an env var see a blank
@@ -73,22 +168,126 @@ func Load(configPath string) (*Config, error) {
 	// config file path is exposed separately as report["config_path"], and
 	// embedding it in auth_source leaks the user's home directory through
 	// doctor's JSON envelope.
-	if cfg.AuthSource == "" && (cfg.AuthHeaderVal != "") {
+	if cfg.AuthSource == "" && cfg.hasCredentialFields() {
 		cfg.AuthSource = "config"
+	}
+	if cfg.CredentialSource == "" && cfg.AuthSource == "config" {
+		// Label config-stored credentials with the file they were parsed
+		// from: the resolved config-kind path (covers --home and per-kind
+		// env relocation as well as explicit --config files) or the legacy
+		// config path when the read fell back to the pre-paths layout.
+		cfg.CredentialSource = cfg.configOwner
+		if cfg.CredentialSource == "" {
+			cfg.CredentialSource = "legacy config path"
+		}
+	}
+
+	// Soft agentcookie integration: if the agentcookie daemon manages this
+	// CLI's secrets, it writes a marker file alongside the config file. When
+	// the marker is present AND credentials came from the config (not from a
+	// direct env var override that wins above), upgrade AuthSource to
+	// "agentcookie" so doctor / auth-status can surface the bus state. When
+	// the marker is absent, behavior is identical to pre-agentcookie: no
+	// import, no network, no error. agentcookie itself is never imported
+	// here — the contract is purely on-disk.
+	if cfg.AuthSource == "config" {
+		marker := filepath.Join(filepath.Dir(cfg.Path), ".agentcookie-managed")
+		if _, err := os.Stat(marker); err == nil {
+			cfg.AuthSource = "agentcookie"
+			cfg.markAgentcookieManaged()
+		}
 	}
 
 	// Base URL override (used by printing-press verify to point at mock/test servers)
 	if v := os.Getenv("ZOOM_BASE_URL"); v != "" {
 		cfg.BaseURL = v
 	}
+
+	// Endpoint template vars: resolve each {placeholder} in BaseURL or the
+	// GraphQL path against the matching env var. Populated even when values
+	// are empty so the client's buildURL helper can issue an actionable
+	// "export FOO_BAR=..." error instead of silently sending a request to a
+	// URL with literal "{shop}" in it. Under PRINTING_PRESS_VERIFY=1 (set by
+	// the printing-press verifier in every mock subprocess), an unset
+	// template var falls through to "<name>_placeholder" so dry-run legs
+	// reach Cobra instead of hitting buildURL's actionable error first.
+	// Placeholders with a spec-declared default (server-URL variables) skip
+	// the verify branch; the default is a real value that lets verify probe
+	// a real-shaped URL.
+	if cfg.TemplateVars == nil {
+		cfg.TemplateVars = map[string]string{}
+	}
+	verifyMode := os.Getenv("PRINTING_PRESS_VERIFY") == "1"
+	if v := strings.TrimSpace(os.Getenv("ZOOM_MEETING_ID")); v != "" {
+		cfg.TemplateVars["meetingId"] = v
+	} else if verifyMode {
+		cfg.TemplateVars["meetingId"] = "meetingId_placeholder"
+	}
+	if v := strings.TrimSpace(os.Getenv("ZOOM_MEETING_U_U_I_D")); v != "" {
+		cfg.TemplateVars["meetingUUID"] = v
+	} else if verifyMode {
+		cfg.TemplateVars["meetingUUID"] = "meetingUUID_placeholder"
+	}
 	return cfg, nil
+}
+
+func resolveConfigPath(configPath string) (string, bool, error) {
+	if strings.TrimSpace(configPath) != "" {
+		return configPath, true, nil
+	}
+	if path := os.Getenv("ZOOM_CONFIG"); path != "" {
+		return path, true, nil
+	}
+	dir, err := cliutil.ConfigDir()
+	if err != nil {
+		return "", false, err
+	}
+	return filepath.Join(dir, "config.toml"), false, nil
+}
+
+func LegacyConfigPath() (string, error) {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "", fmt.Errorf("resolve legacy config path: %w", err)
+	}
+	return filepath.Join(home, ".config", "zoom-pp-cli", "config.toml"), nil
+}
+
+func readConfigFile(path string, cfg *Config, owner string) error {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return err
+	}
+	return parseConfigData(data, cfg, path, owner)
+}
+
+func parseConfigData(data []byte, cfg *Config, path string, owner string) error {
+	if err := toml.Unmarshal(data, cfg); err != nil {
+		return fmt.Errorf("parsing %s %s: %w", owner, path, err)
+	}
+	cfg.configOwner = owner
+	return nil
+}
+func FileHasCredentialFields(path string) (bool, error) {
+	var cfg Config
+	if err := readConfigFile(path, &cfg, "credential probe"); err != nil {
+		return false, err
+	}
+	return cfg.hasCredentialFields(), nil
 }
 
 func (c *Config) AuthHeader() string {
 	if c.AuthHeaderVal != "" {
 		return c.AuthHeaderVal
 	}
-	return ""
+	token := c.ZoomS2sAccessToken
+	if token == "" {
+		return ""
+	}
+	if c.ZoomS2sAccessToken == "" {
+		return ""
+	}
+	return token
 }
 
 func applyAuthFormat(format string, replacements map[string]string) string {
@@ -104,16 +303,342 @@ func applyAuthFormat(format string, replacements map[string]string) string {
 	return format
 }
 
-func (c *Config) save() error {
-	dir := filepath.Dir(c.Path)
-	if err := os.MkdirAll(dir, 0o700); err != nil {
-		return fmt.Errorf("creating config dir: %w", err)
+func (c *Config) AgentcookieManagedByExternalStore() bool {
+	if c.AgentcookieManaged || c.AuthSource == "agentcookie" || c.CredentialSource == "agentcookie" {
+		return true
 	}
-	data, err := toml.Marshal(c)
+	if c.Path == "" {
+		return false
+	}
+	marker := filepath.Join(filepath.Dir(c.Path), ".agentcookie-managed")
+	if _, err := os.Stat(marker); err == nil {
+		return true
+	}
+	return false
+}
+
+func (c *Config) markAgentcookieManaged() {
+	c.AgentcookieManaged = true
+	c.CredentialSource = "agentcookie"
+}
+
+func (c *Config) hasCredentialFields() bool {
+	if c.AuthHeaderVal != "" ||
+		c.AccessToken != "" ||
+		c.RefreshToken != "" ||
+		c.ClientID != "" ||
+		c.ClientSecret != "" {
+		return true
+	}
+	if c.ZoomS2sAccessToken != "" {
+		return true
+	}
+	return false
+}
+
+func (c *Config) hasCompleteCredentialFields() bool {
+	if c.AuthHeaderVal != "" {
+		return true
+	}
+	if c.ZoomS2sAccessToken == "" {
+		return false
+	}
+	if c.ZoomS2sAccessToken == "" {
+		return false
+	}
+	return true
+}
+
+func (c *Config) clearCredentialFields() {
+	c.AuthHeaderVal = ""
+	c.AccessToken = ""
+	c.RefreshToken = ""
+	c.TokenExpiry = time.Time{}
+	c.ClientID = ""
+	c.ClientSecret = ""
+	c.ZoomS2sAccessToken = ""
+}
+
+func (c *Config) credentials() *cliutil.Credentials {
+	return &cliutil.Credentials{
+		AuthHeaderVal:      c.AuthHeaderVal,
+		AccessToken:        c.AccessToken,
+		RefreshToken:       c.RefreshToken,
+		TokenExpiry:        c.TokenExpiry,
+		ClientID:           c.ClientID,
+		ClientSecret:       c.ClientSecret,
+		ZoomS2sAccessToken: c.ZoomS2sAccessToken,
+	}
+}
+
+func (c *Config) applyCredentials(creds *cliutil.Credentials) {
+	if creds == nil {
+		return
+	}
+	if c.AuthHeaderVal == "" {
+		c.AuthHeaderVal = creds.AuthHeaderVal
+	}
+	if c.AccessToken == "" {
+		c.AccessToken = creds.AccessToken
+	}
+	if c.RefreshToken == "" {
+		c.RefreshToken = creds.RefreshToken
+	}
+	if c.TokenExpiry.IsZero() {
+		c.TokenExpiry = creds.TokenExpiry
+	}
+	if c.ClientID == "" {
+		c.ClientID = creds.ClientID
+	}
+	if c.ClientSecret == "" {
+		c.ClientSecret = creds.ClientSecret
+	}
+	if c.ZoomS2sAccessToken == "" {
+		c.ZoomS2sAccessToken = creds.ZoomS2sAccessToken
+	}
+}
+
+func (c *Config) saveCredentialsFirst() error {
+	if c.AgentcookieManagedByExternalStore() {
+		c.markAgentcookieManaged()
+		return nil
+	}
+	persisted := c.configForSave()
+	if err := cliutil.SaveCredentials(persisted.credentials()); err != nil {
+		return err
+	}
+	c.CredentialSource = "credentials file"
+	return nil
+}
+
+func (c *Config) SaveTokens(clientID, clientSecret, accessToken, refreshToken string, expiry time.Time) error {
+	c.ClientID = clientID
+	c.ClientSecret = clientSecret
+	c.AccessToken = accessToken
+	c.RefreshToken = refreshToken
+	c.TokenExpiry = expiry
+	delete(c.envOverrides, "ClientID")
+	delete(c.envOverrides, "ClientSecret")
+	delete(c.envOverrides, "AccessToken")
+	delete(c.envOverrides, "RefreshToken")
+	delete(c.envOverrides, "TokenExpiry")
+	c.updateFileConfigField("ClientID")
+	c.updateFileConfigField("ClientSecret")
+	c.updateFileConfigField("AccessToken")
+	c.updateFileConfigField("RefreshToken")
+	c.updateFileConfigField("TokenExpiry")
+	if err := c.saveCredentialsFirst(); err != nil {
+		return err
+	}
+	return c.save()
+}
+
+// SaveCredential persists a single API credential to the field that
+// AuthHeader() consults for api_key auth. Writing to AccessToken (the
+// bearer slot) would silently no-op since AuthHeader() reads the env-var-
+// derived field, not AccessToken, when Auth.Type == "api_key".
+//
+// The clears precede the assignment so a canonical env-var whose placeholder
+// collides with a builtin tag (e.g. an env var named XXX_ACCESS_TOKEN
+// resolving to the AccessToken field) ends up holding the new token.
+func (c *Config) SaveCredential(token string) error {
+	c.AuthHeaderVal = ""
+	c.AccessToken = ""
+	// Pair each builtin-field zeroing with an envOverrides delete, like
+	// ClearTokens/SaveBearerToken: if an env var's placeholder collides with the
+	// AuthHeaderVal/AccessToken builtin tag, the override would otherwise survive
+	// and configForSave would restore the stale on-disk value instead of "".
+	delete(c.envOverrides, "AuthHeaderVal")
+	delete(c.envOverrides, "AccessToken")
+	c.updateFileConfigField("AuthHeaderVal")
+	c.updateFileConfigField("AccessToken")
+	c.ZoomS2sAccessToken = token
+	delete(c.envOverrides, "ZoomS2sAccessToken")
+	c.updateFileConfigField("ZoomS2sAccessToken")
+	if err := c.saveCredentialsFirst(); err != nil {
+		return err
+	}
+	return c.save()
+}
+
+func (c *Config) ClearTokens() error {
+	// AuthHeader() falls back to the env-var-derived fields when AuthHeaderVal
+	// and AccessToken are empty, so dropping the working credential requires
+	// zeroing every emitted credential field, not just the OAuth trio.
+	// ClientID/ClientSecret persist to disk via SaveTokens for the oauth2
+	// and oauth2-cc flows, so logout must wipe them too; otherwise
+	// `auth login` can re-mint a new access token unattended.
+	c.AuthHeaderVal = ""
+	c.AccessToken = ""
+	c.RefreshToken = ""
+	c.TokenExpiry = time.Time{}
+	c.ClientID = ""
+	c.ClientSecret = ""
+	delete(c.envOverrides, "AuthHeaderVal")
+	delete(c.envOverrides, "AccessToken")
+	delete(c.envOverrides, "RefreshToken")
+	delete(c.envOverrides, "TokenExpiry")
+	delete(c.envOverrides, "ClientID")
+	delete(c.envOverrides, "ClientSecret")
+	c.updateFileConfigField("AuthHeaderVal")
+	c.updateFileConfigField("AccessToken")
+	c.updateFileConfigField("RefreshToken")
+	c.updateFileConfigField("TokenExpiry")
+	c.updateFileConfigField("ClientID")
+	c.updateFileConfigField("ClientSecret")
+	c.ZoomS2sAccessToken = ""
+	delete(c.envOverrides, "ZoomS2sAccessToken")
+	c.updateFileConfigField("ZoomS2sAccessToken")
+	if c.AgentcookieManagedByExternalStore() {
+		c.markAgentcookieManaged()
+		// save() persists the full config (credential fields included) for
+		// agentcookie-managed stores, so the zeroed fields must be written
+		// back; returning early would leave the secrets on disk.
+		return c.save()
+	}
+	if err := cliutil.RemoveCredentials(); err != nil {
+		return err
+	}
+	return c.save()
+}
+
+func (c *Config) markEnvOverride(field string) {
+	if c.envOverrides == nil {
+		c.envOverrides = map[string]bool{}
+	}
+	c.envOverrides[field] = true
+}
+
+// cloneStringMap returns an independent copy of m (nil stays nil). The fileConfig
+// snapshot must not share reference-type map fields (such as Headers) with the
+// live config, or a later mutation to one would silently track in the other.
+func cloneStringMap(m map[string]string) map[string]string {
+	if m == nil {
+		return nil
+	}
+	out := make(map[string]string, len(m))
+	for k, v := range m {
+		out[k] = v
+	}
+	return out
+}
+
+func (c *Config) snapshotFileConfig() {
+	snapshot := *c
+	snapshot.envOverrides = nil
+	snapshot.fileConfig = nil
+	// *c is a shallow copy: map fields are reference types, so the snapshot would
+	// share them with c and silently track later mutations, defeating the
+	// isolation this snapshot exists to provide. Clone them.
+	snapshot.Headers = cloneStringMap(c.Headers)
+	snapshot.TemplateVars = cloneStringMap(c.TemplateVars)
+	c.fileConfig = &snapshot
+}
+
+func (c *Config) configForSave() Config {
+	out := *c
+	if c.fileConfig != nil {
+		if c.envOverrides["ZoomS2sAccessToken"] {
+			out.ZoomS2sAccessToken = c.fileConfig.ZoomS2sAccessToken
+		}
+	}
+	out.envOverrides = nil
+	out.fileConfig = nil
+	return out
+}
+
+func (c *Config) updateFileConfigField(field string) {
+	if c.fileConfig == nil || c.envOverrides[field] {
+		return
+	}
+	switch field {
+	case "AuthHeaderVal":
+		c.fileConfig.AuthHeaderVal = c.AuthHeaderVal
+	case "AccessToken":
+		c.fileConfig.AccessToken = c.AccessToken
+	case "RefreshToken":
+		c.fileConfig.RefreshToken = c.RefreshToken
+	case "TokenExpiry":
+		c.fileConfig.TokenExpiry = c.TokenExpiry
+	case "ClientID":
+		c.fileConfig.ClientID = c.ClientID
+	case "ClientSecret":
+		c.fileConfig.ClientSecret = c.ClientSecret
+	case "ZoomS2sAccessToken":
+		c.fileConfig.ZoomS2sAccessToken = c.ZoomS2sAccessToken
+	}
+}
+
+func (c *Config) save() error {
+	persisted := c.configForSave()
+	var persist any = persisted
+	if !c.AgentcookieManagedByExternalStore() {
+		persist = persisted.persisted()
+	}
+	data, err := toml.Marshal(persist)
 	if err != nil {
 		return fmt.Errorf("marshaling config: %w", err)
 	}
-	return os.WriteFile(c.Path, data, 0o600)
+	if err := cliutil.AtomicWritePrivateFile(c.Path, data, 0o600, 0o700); err != nil {
+		return err
+	}
+	c.scrubLegacyCredentials()
+	if !c.AgentcookieManagedByExternalStore() {
+		persisted.clearCredentialFields()
+	}
+	c.fileConfig = &persisted
+	c.fileConfig.envOverrides = nil
+	c.fileConfig.fileConfig = nil
+	// persisted shares its map fields with c (configForSave shallow-copies *c),
+	// so isolate the stored fileConfig the same way snapshotFileConfig does;
+	// otherwise later mutations to c's maps leak into the on-disk snapshot.
+	c.fileConfig.Headers = cloneStringMap(c.fileConfig.Headers)
+	c.fileConfig.TemplateVars = cloneStringMap(c.fileConfig.TemplateVars)
+	return nil
+}
+func (c *Config) scrubLegacyCredentials() {
+	if c.legacySourcePath == "" || c.legacySourcePath == c.Path {
+		return
+	}
+	if c.AgentcookieManagedByExternalStore() {
+		return
+	}
+	data, err := os.ReadFile(c.legacySourcePath)
+	if err != nil {
+		if !os.IsNotExist(err) {
+			fmt.Fprintf(os.Stderr, "warning: cannot read legacy config to scrub credentials: %v\n", err)
+		}
+		return
+	}
+	var legacy Config
+	if err := toml.Unmarshal(data, &legacy); err != nil {
+		fmt.Fprintf(os.Stderr, "warning: cannot parse legacy config to scrub credentials: %v\n", err)
+		return
+	}
+	legacy.clearCredentialFields()
+	scrubbed := legacy.persisted()
+	scrubbedData, err := toml.Marshal(scrubbed)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "warning: cannot marshal scrubbed legacy config: %v\n", err)
+		return
+	}
+	if err := cliutil.AtomicWritePrivateFile(c.legacySourcePath, scrubbedData, 0o600, 0o700); err != nil {
+		fmt.Fprintf(os.Stderr, "warning: cannot write scrubbed legacy config: %v\n", err)
+	}
+}
+
+type persistedConfig struct {
+	BaseURL      string            `toml:"base_url"`
+	Headers      map[string]string `toml:"headers,omitempty"`
+	TemplateVars map[string]string `toml:"template_vars,omitempty"`
+}
+
+func (c *Config) persisted() persistedConfig {
+	return persistedConfig{
+		BaseURL:      c.BaseURL,
+		Headers:      c.Headers,
+		TemplateVars: c.TemplateVars,
+	}
 }
 
 // Ensure strings import is used

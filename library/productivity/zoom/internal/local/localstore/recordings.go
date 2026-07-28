@@ -2,7 +2,7 @@ package localstore
 
 import (
 	"context"
-	"crypto/sha1"
+	"crypto/sha1" // #nosec G505 -- non-cryptographic content fingerprint for folder IDs, not security
 	"database/sql"
 	"encoding/hex"
 	"time"
@@ -293,6 +293,6 @@ func boolToInt(b bool) int {
 }
 
 func folderID(f recordings.Folder) string {
-	h := sha1.Sum([]byte(f.Path))
+	h := sha1.Sum([]byte(f.Path)) // #nosec G401 -- stable non-security fingerprint of a local folder path
 	return hex.EncodeToString(h[:8])
 }

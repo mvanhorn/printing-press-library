@@ -14,9 +14,9 @@ import (
 func newUsersDeleteCmd(flags *rootFlags) *cobra.Command {
 	var flagAction string
 	var flagTransferEmail string
-	var flagTransferMeeting string
-	var flagTransferWebinar string
-	var flagTransferRecording string
+	var flagTransferMeeting bool
+	var flagTransferWebinar bool
+	var flagTransferRecording bool
 
 	cmd := &cobra.Command{
 		Use:         "delete <userId>",
@@ -25,32 +25,59 @@ func newUsersDeleteCmd(flags *rootFlags) *cobra.Command {
 		Annotations: map[string]string{"pp:endpoint": "users.delete", "pp:method": "DELETE", "pp:path": "/users/{userId}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
-				return cmd.Help()
+				// A missing required positional is a usage error in every output
+				// mode (matches command_promoted.go.tmpl). Machine callers
+				// (--json/--agent) also get a JSON error envelope on stdout;
+				// usageErr sets exit 2.
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "missing required argument",
+						"usage": fmt.Sprintf("%s%s", cmd.CommandPath(), " <userId>"),
+					}, flags); printErr != nil {
+						return printErr
+					}
+				}
+				return usageErr(fmt.Errorf("missing required argument\nUsage: %s%s", cmd.CommandPath(), " <userId>"))
 			}
+			if cmd.Flags().Changed("action") {
+				allowedAction := []string{"disassociate", "delete"}
+				validAction := false
+				for _, v := range allowedAction {
+					if flagAction == v {
+						validAction = true
+						break
+					}
+				}
+				if !validAction {
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagAction, "action", allowedAction)
+				}
+			}
+			path := "/users/{userId}"
+			if len(args) < 1 || args[0] == "" {
+				return usageErr(fmt.Errorf("userId is required\nUsage: %s <%s>", cmd.CommandPath(), "userId"))
+			}
+			path = replacePathParam(path, "userId", args[0])
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/users/{userId}"
-			path = replacePathParam(path, "userId", args[0])
 			params := map[string]string{}
 			if flagAction != "" {
-				params["action"] = fmt.Sprintf("%v", flagAction)
+				params["action"] = formatCLIParamValue(flagAction)
 			}
 			if flagTransferEmail != "" {
-				params["transfer_email"] = fmt.Sprintf("%v", flagTransferEmail)
+				params["transfer_email"] = formatCLIParamValue(flagTransferEmail)
 			}
-			if flagTransferMeeting != "" {
-				params["transfer_meeting"] = fmt.Sprintf("%v", flagTransferMeeting)
+			if flagTransferMeeting != false {
+				params["transfer_meeting"] = formatCLIParamValue(flagTransferMeeting)
 			}
-			if flagTransferWebinar != "" {
-				params["transfer_webinar"] = fmt.Sprintf("%v", flagTransferWebinar)
+			if flagTransferWebinar != false {
+				params["transfer_webinar"] = formatCLIParamValue(flagTransferWebinar)
 			}
-			if flagTransferRecording != "" {
-				params["transfer_recording"] = fmt.Sprintf("%v", flagTransferRecording)
+			if flagTransferRecording != false {
+				params["transfer_recording"] = formatCLIParamValue(flagTransferRecording)
 			}
-			data, statusCode, err := c.DeleteWithParams(path, params)
+			data, statusCode, err := c.DeleteWithParams(cmd.Context(), path, params)
 			if err != nil {
 				return classifyDeleteError(err, flags)
 			}
@@ -107,6 +134,41 @@ func newUsersDeleteCmd(flags *rootFlags) *cobra.Command {
 					}
 					return nil
 				}
+				envelope := map[string]any{
+					"action":   "delete",
+					"resource": "users",
+					"path":     path,
+					"status":   statusCode,
+					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
+				}
+				if flags.agent {
+					envelope["meta"] = map[string]any{"source": "live"}
+				}
+				if partialFailure != nil {
+					envelope["partial_failure"] = partialFailure
+				}
+				if flags.dryRun {
+					envelope["dry_run"] = true
+					envelope["status"] = 0
+					envelope["success"] = false
+				}
+				// Verify-mode synthetic envelope detection runs against RAW data
+				// (before --compact/--select filtering) so the sentinel field is
+				// guaranteed to be visible even if the operator passes a filter
+				// flag that would otherwise strip it. Surfaces a top-level
+				// verify_noop signal + flips success to false. Mirrors the dry_run
+				// shape above.
+				if len(data) > 0 {
+					var rawParsed any
+					if err := json.Unmarshal(data, &rawParsed); err == nil {
+						if m, ok := rawParsed.(map[string]any); ok {
+							if v, ok := m["__pp_verify_synthetic__"].(bool); ok && v {
+								envelope["verify_noop"] = true
+								envelope["success"] = false
+							}
+						}
+					}
+				}
 				// Apply --compact and --select to the API response before wrapping.
 				// --select wins when both are set: explicit field choice trumps the
 				// generic high-gravity allow-list. Otherwise --compact still applies
@@ -117,32 +179,29 @@ func newUsersDeleteCmd(flags *rootFlags) *cobra.Command {
 				} else if flags.compact {
 					filtered = compactFields(filtered)
 				}
-				envelope := map[string]any{
-					"action":   "delete",
-					"resource": "users",
-					"path":     path,
-					"status":   statusCode,
-					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
-				}
-				if partialFailure != nil {
-					envelope["partial_failure"] = partialFailure
-				}
-				if flags.dryRun {
-					envelope["dry_run"] = true
-					envelope["status"] = 0
-					envelope["success"] = false
-				}
 				if len(filtered) > 0 {
 					var parsed any
 					if err := json.Unmarshal(filtered, &parsed); err == nil {
-						envelope["data"] = parsed
+						if flags.agent {
+							envelope["results"] = parsed
+						} else {
+							envelope["data"] = parsed
+						}
 					}
 				}
 				envelopeJSON, err := json.Marshal(envelope)
 				if err != nil {
 					return err
 				}
-				if perr := printOutput(cmd.OutOrStdout(), json.RawMessage(envelopeJSON), true); perr != nil {
+				resultKey := "data"
+				if flags.agent {
+					resultKey = "results"
+				}
+				structured, err := wrapPlatformStructuredOutput(json.RawMessage(envelopeJSON), flags, resultKey, true)
+				if err != nil {
+					return err
+				}
+				if perr := printOutput(cmd.OutOrStdout(), structured, true); perr != nil {
 					return perr
 				}
 				if partialFailure != nil && !flags.allowPartialFailure {
@@ -166,11 +225,11 @@ func newUsersDeleteCmd(flags *rootFlags) *cobra.Command {
 			return nil
 		},
 	}
-	cmd.Flags().StringVar(&flagAction, "action", "", "Delete action type")
+	cmd.Flags().StringVar(&flagAction, "action", "disassociate", "Delete action type (one of: disassociate, delete)")
 	cmd.Flags().StringVar(&flagTransferEmail, "transfer-email", "", "Transfer email")
-	cmd.Flags().StringVar(&flagTransferMeeting, "transfer-meeting", "", "Transfer meeting")
-	cmd.Flags().StringVar(&flagTransferWebinar, "transfer-webinar", "", "Transfer webinar")
-	cmd.Flags().StringVar(&flagTransferRecording, "transfer-recording", "", "Transfer recording")
+	cmd.Flags().BoolVar(&flagTransferMeeting, "transfer-meeting", false, "Transfer meeting")
+	cmd.Flags().BoolVar(&flagTransferWebinar, "transfer-webinar", false, "Transfer webinar")
+	cmd.Flags().BoolVar(&flagTransferRecording, "transfer-recording", false, "Transfer recording")
 
 	return cmd
 }

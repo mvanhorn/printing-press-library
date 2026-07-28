@@ -9,9 +9,10 @@ import (
 
 func newUsersPacCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "pac",
-		Short: "PAC operations",
-		RunE:  parentNoSubcommandRunE(flags),
+		Use:         "pac",
+		Short:       "Get pac for users",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newUsersPacUserCmd(flags))

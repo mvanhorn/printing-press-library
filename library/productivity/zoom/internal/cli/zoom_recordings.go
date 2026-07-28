@@ -1,3 +1,5 @@
+// pp:data-source auto
+
 package cli
 
 import (
@@ -551,7 +553,7 @@ func newRecordingsExportCmd(flags *rootFlags) *cobra.Command {
 				return fmt.Errorf("recordings export: no local recording matching %q (run `recordings local sync` first?)", query)
 			}
 
-			if err := os.MkdirAll(out, 0o755); err != nil {
+			if err := os.MkdirAll(out, 0o755); err != nil { // #nosec G301 -- export destination is a user-chosen output directory intended for sharing
 				return err
 			}
 
@@ -652,7 +654,7 @@ func writeExportIndex(ctx context.Context, db *sql.DB, indexPath, topic, srcPath
 		}
 	}
 	// Single atomic write; os.WriteFile reports create + write errors together.
-	return os.WriteFile(indexPath, []byte(b.String()), 0o644)
+	return os.WriteFile(indexPath, []byte(b.String()), 0o644) // #nosec G306 -- exported bundle index is a user-facing artifact in the user-chosen output dir
 }
 
 // helpers
@@ -686,12 +688,12 @@ func parseSince(s string) (time.Time, error) {
 }
 
 func copyFile(src, dst string) error {
-	in, err := os.Open(src)
+	in, err := os.Open(src) // #nosec G304 -- src is a recording file discovered under the user's own Zoom folder
 	if err != nil {
 		return err
 	}
 	defer in.Close()
-	out, err := os.Create(dst)
+	out, err := os.Create(dst) // #nosec G304 -- dst is inside the user-chosen export directory
 	if err != nil {
 		return err
 	}

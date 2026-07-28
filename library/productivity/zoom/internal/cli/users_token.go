@@ -9,9 +9,10 @@ import (
 
 func newUsersTokenCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "token",
-		Short: "Manage token",
-		RunE:  parentNoSubcommandRunE(flags),
+		Use:         "token",
+		Short:       "Get and delete token for users",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newUsersTokenUserCmd(flags))

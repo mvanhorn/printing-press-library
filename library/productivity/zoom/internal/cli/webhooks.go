@@ -9,10 +9,10 @@ import (
 
 func newWebhooksCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:    "webhooks",
-		Short:  "Webhook operations",
-		Hidden: true,
-		RunE:   parentNoSubcommandRunE(flags),
+		Use:         "webhooks",
+		Short:       "Get, create, update, and delete webhooks",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:api-resource": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newWebhooksCreateCmd(flags))

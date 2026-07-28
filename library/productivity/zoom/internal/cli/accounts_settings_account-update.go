@@ -13,6 +13,97 @@ import (
 )
 
 func newAccountsSettingsAccountUpdateCmd(flags *rootFlags) *cobra.Command {
+	var bodyEmailNotificationAlternativeHostReminder bool
+	var bodyEmailNotificationCancelMeetingReminder bool
+	var bodyEmailNotificationCloudRecordingAvaliableReminder bool
+	var bodyEmailNotificationJbhReminder bool
+	var bodyEmailNotificationLowHostCountReminder bool
+	var bodyFeatureMeetingCapacity int
+	var bodyInMeetingAlertGuestJoin bool
+	var bodyInMeetingAllowLiveStreaming bool
+	var bodyInMeetingAllowShowZoomWindows bool
+	var bodyInMeetingAnnotation bool
+	var bodyInMeetingAnonymousQuestionAnswer bool
+	var bodyInMeetingAttendeeOnHold bool
+	var bodyInMeetingAttentionTracking bool
+	var bodyInMeetingAutoAnswer bool
+	var bodyInMeetingAutoSavingChat bool
+	var bodyInMeetingBreakoutRoom bool
+	var bodyInMeetingChat bool
+	var bodyInMeetingClosedCaption bool
+	var bodyInMeetingCoHost bool
+	var bodyInMeetingCustomLiveStreaming bool
+	var bodyInMeetingCustomServiceInstructions string
+	var bodyInMeetingDscpAudio int
+	var bodyInMeetingDscpMarking bool
+	var bodyInMeetingDscpVideo int
+	var bodyInMeetingE2eEncryption bool
+	var bodyInMeetingFarEndCameraControl bool
+	var bodyInMeetingFeedback bool
+	var bodyInMeetingFileTransfer bool
+	var bodyInMeetingGroupHd bool
+	var bodyInMeetingOriginalAudio bool
+	var bodyInMeetingP2pConnetion bool
+	var bodyInMeetingP2pPorts bool
+	var bodyInMeetingPolling bool
+	var bodyInMeetingPortsRange string
+	var bodyInMeetingPostMeetingFeedback bool
+	var bodyInMeetingPrivateChat bool
+	var bodyInMeetingRemoteControl bool
+	var bodyInMeetingScreenSharing bool
+	var bodyInMeetingSendingDefaultEmailInvites bool
+	var bodyInMeetingShowMeetingControlToolbar bool
+	var bodyInMeetingStereoAudio bool
+	var bodyInMeetingUseHtmlFormatEmail bool
+	var bodyInMeetingVirtualBackground bool
+	var bodyInMeetingWatermark bool
+	var bodyInMeetingWebinarQuestionAnswer bool
+	var bodyInMeetingWhiteboard bool
+	var bodyInMeetingWorkplaceByFacebook bool
+	var bodyIntegrationBox bool
+	var bodyIntegrationDropbox bool
+	var bodyIntegrationGoogleCalendar bool
+	var bodyIntegrationGoogleDrive bool
+	var bodyIntegrationKubi bool
+	var bodyIntegrationMicrosoftOneDrive bool
+	var bodyRecordingAccountUserAccessRecording bool
+	var bodyRecordingAutoDeleteCmr bool
+	var bodyRecordingAutoDeleteCmrDays int
+	var bodyRecordingAutoRecording string
+	var bodyRecordingCloudRecording bool
+	var bodyRecordingCloudRecordingDownload bool
+	var bodyRecordingCloudRecordingDownloadHost bool
+	var bodyRecordingLocalRecording bool
+	var bodyRecordingRecordAudioFile bool
+	var bodyRecordingRecordGalleryView bool
+	var bodyRecordingRecordSpeakerView bool
+	var bodyRecordingRecordingAudioTranscript bool
+	var bodyRecordingSaveChatText bool
+	var bodyRecordingShowTimestamp bool
+	var bodyScheduleMetingAudioType string
+	var bodyScheduleMetingEnforceLogin bool
+	var bodyScheduleMetingEnforceLoginDomains string
+	var bodyScheduleMetingEnforceLoginWithDomains bool
+	var bodyScheduleMetingForcePmiJbhPassword bool
+	var bodyScheduleMetingHostVideo bool
+	var bodyScheduleMetingJoinBeforeHost bool
+	var bodyScheduleMetingNotStoreMeetingTopic bool
+	var bodyScheduleMetingParticipantVideo bool
+	var bodySecurityAdminChangeNamePic bool
+	var bodySecurityHideBillingInfo bool
+	var bodySecurityImportPhotosFromDevices bool
+	var bodyTelephonyAudioConferenceInfo string
+	var bodyTelephonyThirdPartyAudio bool
+	var bodyZoomRoomsAutoStartStopScheduledMeetings bool
+	var bodyZoomRoomsCmrForInstantMeeting bool
+	var bodyZoomRoomsForcePrivateMeeting bool
+	var bodyZoomRoomsHideHostInformation bool
+	var bodyZoomRoomsListMeetingsWithCalendar bool
+	var bodyZoomRoomsStartAirplayManually bool
+	var bodyZoomRoomsUltrasonic bool
+	var bodyZoomRoomsUpcomingMeetingAlert bool
+	var bodyZoomRoomsWeeklySystemRestart bool
+	var bodyZoomRoomsZrPostMeetingFeedback bool
 	var stdinBody bool
 
 	cmd := &cobra.Command{
@@ -23,19 +114,33 @@ func newAccountsSettingsAccountUpdateCmd(flags *rootFlags) *cobra.Command {
 		Annotations: map[string]string{"pp:endpoint": "settings.account-update", "pp:method": "PATCH", "pp:path": "/accounts/{accountId}/settings"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
-				return cmd.Help()
+				// A missing required positional is a usage error in every output
+				// mode (matches command_promoted.go.tmpl). Machine callers
+				// (--json/--agent) also get a JSON error envelope on stdout;
+				// usageErr sets exit 2.
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "missing required argument",
+						"usage": fmt.Sprintf("%s%s", cmd.CommandPath(), " <accountId>"),
+					}, flags); printErr != nil {
+						return printErr
+					}
+				}
+				return usageErr(fmt.Errorf("missing required argument\nUsage: %s%s", cmd.CommandPath(), " <accountId>"))
 			}
 			if !stdinBody {
 			}
+			path := "/accounts/{accountId}/settings"
+			if len(args) < 1 || args[0] == "" {
+				return usageErr(fmt.Errorf("accountId is required\nUsage: %s <%s>", cmd.CommandPath(), "accountId"))
+			}
+			path = replacePathParam(path, "accountId", args[0])
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/accounts/{accountId}/settings"
-			path = replacePathParam(path, "accountId", args[0])
 			params := map[string]string{}
-			var body map[string]any
+			var body any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
@@ -47,9 +152,337 @@ func newAccountsSettingsAccountUpdateCmd(flags *rootFlags) *cobra.Command {
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
+				bodyMap := map[string]any{}
+				body = bodyMap
+				{
+					nestedEmailNotification := map[string]any{}
+					if cmd.Flags().Changed("email-notification-alternative-host-reminder") {
+						nestedEmailNotification["alternative_host_reminder"] = bodyEmailNotificationAlternativeHostReminder
+					}
+					if cmd.Flags().Changed("email-notification-cancel-meeting-reminder") {
+						nestedEmailNotification["cancel_meeting_reminder"] = bodyEmailNotificationCancelMeetingReminder
+					}
+					if cmd.Flags().Changed("email-notification-cloud-recording-avaliable-reminder") {
+						nestedEmailNotification["cloud_recording_avaliable_reminder"] = bodyEmailNotificationCloudRecordingAvaliableReminder
+					}
+					if cmd.Flags().Changed("email-notification-jbh-reminder") {
+						nestedEmailNotification["jbh_reminder"] = bodyEmailNotificationJbhReminder
+					}
+					if cmd.Flags().Changed("email-notification-low-host-count-reminder") {
+						nestedEmailNotification["low_host_count_reminder"] = bodyEmailNotificationLowHostCountReminder
+					}
+					if len(nestedEmailNotification) > 0 {
+						bodyMap["email_notification"] = nestedEmailNotification
+					}
+				}
+				{
+					nestedFeature := map[string]any{}
+					if bodyFeatureMeetingCapacity != 0 {
+						nestedFeature["meeting_capacity"] = bodyFeatureMeetingCapacity
+					}
+					if len(nestedFeature) > 0 {
+						bodyMap["feature"] = nestedFeature
+					}
+				}
+				{
+					nestedInMeeting := map[string]any{}
+					if cmd.Flags().Changed("in-meeting-alert-guest-join") {
+						nestedInMeeting["alert_guest_join"] = bodyInMeetingAlertGuestJoin
+					}
+					if cmd.Flags().Changed("in-meeting-allow-live-streaming") {
+						nestedInMeeting["allow_live_streaming"] = bodyInMeetingAllowLiveStreaming
+					}
+					if cmd.Flags().Changed("in-meeting-allow-show-zoom-windows") {
+						nestedInMeeting["allow_show_zoom_windows"] = bodyInMeetingAllowShowZoomWindows
+					}
+					if cmd.Flags().Changed("in-meeting-annotation") {
+						nestedInMeeting["annotation"] = bodyInMeetingAnnotation
+					}
+					if cmd.Flags().Changed("in-meeting-anonymous-question-answer") {
+						nestedInMeeting["anonymous_question_answer"] = bodyInMeetingAnonymousQuestionAnswer
+					}
+					if cmd.Flags().Changed("in-meeting-attendee-on-hold") {
+						nestedInMeeting["attendee_on_hold"] = bodyInMeetingAttendeeOnHold
+					}
+					if cmd.Flags().Changed("in-meeting-attention-tracking") {
+						nestedInMeeting["attention_tracking"] = bodyInMeetingAttentionTracking
+					}
+					if cmd.Flags().Changed("in-meeting-auto-answer") {
+						nestedInMeeting["auto_answer"] = bodyInMeetingAutoAnswer
+					}
+					if cmd.Flags().Changed("in-meeting-auto-saving-chat") {
+						nestedInMeeting["auto_saving_chat"] = bodyInMeetingAutoSavingChat
+					}
+					if cmd.Flags().Changed("in-meeting-breakout-room") {
+						nestedInMeeting["breakout_room"] = bodyInMeetingBreakoutRoom
+					}
+					if cmd.Flags().Changed("in-meeting-chat") {
+						nestedInMeeting["chat"] = bodyInMeetingChat
+					}
+					if cmd.Flags().Changed("in-meeting-closed-caption") {
+						nestedInMeeting["closed_caption"] = bodyInMeetingClosedCaption
+					}
+					if cmd.Flags().Changed("in-meeting-co-host") {
+						nestedInMeeting["co_host"] = bodyInMeetingCoHost
+					}
+					if cmd.Flags().Changed("in-meeting-custom-live-streaming") {
+						nestedInMeeting["custom_live_streaming"] = bodyInMeetingCustomLiveStreaming
+					}
+					if bodyInMeetingCustomServiceInstructions != "" {
+						nestedInMeeting["custom_service_instructions"] = bodyInMeetingCustomServiceInstructions
+					}
+					if bodyInMeetingDscpAudio != 0 {
+						nestedInMeeting["dscp_audio"] = bodyInMeetingDscpAudio
+					}
+					if cmd.Flags().Changed("in-meeting-dscp-marking") {
+						nestedInMeeting["dscp_marking"] = bodyInMeetingDscpMarking
+					}
+					if bodyInMeetingDscpVideo != 0 {
+						nestedInMeeting["dscp_video"] = bodyInMeetingDscpVideo
+					}
+					if cmd.Flags().Changed("in-meeting-e2e-encryption") {
+						nestedInMeeting["e2e_encryption"] = bodyInMeetingE2eEncryption
+					}
+					if cmd.Flags().Changed("in-meeting-far-end-camera-control") {
+						nestedInMeeting["far_end_camera_control"] = bodyInMeetingFarEndCameraControl
+					}
+					if cmd.Flags().Changed("in-meeting-feedback") {
+						nestedInMeeting["feedback"] = bodyInMeetingFeedback
+					}
+					if cmd.Flags().Changed("in-meeting-file-transfer") {
+						nestedInMeeting["file_transfer"] = bodyInMeetingFileTransfer
+					}
+					if cmd.Flags().Changed("in-meeting-group-hd") {
+						nestedInMeeting["group_hd"] = bodyInMeetingGroupHd
+					}
+					if cmd.Flags().Changed("in-meeting-original-audio") {
+						nestedInMeeting["original_audio"] = bodyInMeetingOriginalAudio
+					}
+					if cmd.Flags().Changed("in-meeting-p2p-connetion") {
+						nestedInMeeting["p2p_connetion"] = bodyInMeetingP2pConnetion
+					}
+					if cmd.Flags().Changed("in-meeting-p2p-ports") {
+						nestedInMeeting["p2p_ports"] = bodyInMeetingP2pPorts
+					}
+					if cmd.Flags().Changed("in-meeting-polling") {
+						nestedInMeeting["polling"] = bodyInMeetingPolling
+					}
+					if bodyInMeetingPortsRange != "" {
+						nestedInMeeting["ports_range"] = bodyInMeetingPortsRange
+					}
+					if cmd.Flags().Changed("in-meeting-post-meeting-feedback") {
+						nestedInMeeting["post_meeting_feedback"] = bodyInMeetingPostMeetingFeedback
+					}
+					if cmd.Flags().Changed("in-meeting-private-chat") {
+						nestedInMeeting["private_chat"] = bodyInMeetingPrivateChat
+					}
+					if cmd.Flags().Changed("in-meeting-remote-control") {
+						nestedInMeeting["remote_control"] = bodyInMeetingRemoteControl
+					}
+					if cmd.Flags().Changed("in-meeting-screen-sharing") {
+						nestedInMeeting["screen_sharing"] = bodyInMeetingScreenSharing
+					}
+					if cmd.Flags().Changed("in-meeting-sending-default-email-invites") {
+						nestedInMeeting["sending_default_email_invites"] = bodyInMeetingSendingDefaultEmailInvites
+					}
+					if cmd.Flags().Changed("in-meeting-show-meeting-control-toolbar") {
+						nestedInMeeting["show_meeting_control_toolbar"] = bodyInMeetingShowMeetingControlToolbar
+					}
+					if cmd.Flags().Changed("in-meeting-stereo-audio") {
+						nestedInMeeting["stereo_audio"] = bodyInMeetingStereoAudio
+					}
+					if cmd.Flags().Changed("in-meeting-use-html-format-email") {
+						nestedInMeeting["use_html_format_email"] = bodyInMeetingUseHtmlFormatEmail
+					}
+					if cmd.Flags().Changed("in-meeting-virtual-background") {
+						nestedInMeeting["virtual_background"] = bodyInMeetingVirtualBackground
+					}
+					if cmd.Flags().Changed("in-meeting-watermark") {
+						nestedInMeeting["watermark"] = bodyInMeetingWatermark
+					}
+					if cmd.Flags().Changed("in-meeting-webinar-question-answer") {
+						nestedInMeeting["webinar_question_answer"] = bodyInMeetingWebinarQuestionAnswer
+					}
+					if cmd.Flags().Changed("in-meeting-whiteboard") {
+						nestedInMeeting["whiteboard"] = bodyInMeetingWhiteboard
+					}
+					if cmd.Flags().Changed("in-meeting-workplace-by-facebook") {
+						nestedInMeeting["workplace_by_facebook"] = bodyInMeetingWorkplaceByFacebook
+					}
+					if len(nestedInMeeting) > 0 {
+						bodyMap["in_meeting"] = nestedInMeeting
+					}
+				}
+				{
+					nestedIntegration := map[string]any{}
+					if cmd.Flags().Changed("integration-box") {
+						nestedIntegration["box"] = bodyIntegrationBox
+					}
+					if cmd.Flags().Changed("integration-dropbox") {
+						nestedIntegration["dropbox"] = bodyIntegrationDropbox
+					}
+					if cmd.Flags().Changed("integration-google-calendar") {
+						nestedIntegration["google_calendar"] = bodyIntegrationGoogleCalendar
+					}
+					if cmd.Flags().Changed("integration-google-drive") {
+						nestedIntegration["google_drive"] = bodyIntegrationGoogleDrive
+					}
+					if cmd.Flags().Changed("integration-kubi") {
+						nestedIntegration["kubi"] = bodyIntegrationKubi
+					}
+					if cmd.Flags().Changed("integration-microsoft-one-drive") {
+						nestedIntegration["microsoft_one_drive"] = bodyIntegrationMicrosoftOneDrive
+					}
+					if len(nestedIntegration) > 0 {
+						bodyMap["integration"] = nestedIntegration
+					}
+				}
+				{
+					nestedRecording := map[string]any{}
+					if cmd.Flags().Changed("recording-account-user-access-recording") {
+						nestedRecording["account_user_access_recording"] = bodyRecordingAccountUserAccessRecording
+					}
+					if cmd.Flags().Changed("recording-auto-delete-cmr") {
+						nestedRecording["auto_delete_cmr"] = bodyRecordingAutoDeleteCmr
+					}
+					if bodyRecordingAutoDeleteCmrDays != 0 {
+						nestedRecording["auto_delete_cmr_days"] = bodyRecordingAutoDeleteCmrDays
+					}
+					if bodyRecordingAutoRecording != "" {
+						nestedRecording["auto_recording"] = bodyRecordingAutoRecording
+					}
+					if cmd.Flags().Changed("recording-cloud-recording") {
+						nestedRecording["cloud_recording"] = bodyRecordingCloudRecording
+					}
+					if cmd.Flags().Changed("recording-cloud-recording-download") {
+						nestedRecording["cloud_recording_download"] = bodyRecordingCloudRecordingDownload
+					}
+					if cmd.Flags().Changed("recording-cloud-recording-download-host") {
+						nestedRecording["cloud_recording_download_host"] = bodyRecordingCloudRecordingDownloadHost
+					}
+					if cmd.Flags().Changed("recording-local-recording") {
+						nestedRecording["local_recording"] = bodyRecordingLocalRecording
+					}
+					if cmd.Flags().Changed("recording-record-audio-file") {
+						nestedRecording["record_audio_file"] = bodyRecordingRecordAudioFile
+					}
+					if cmd.Flags().Changed("recording-record-gallery-view") {
+						nestedRecording["record_gallery_view"] = bodyRecordingRecordGalleryView
+					}
+					if cmd.Flags().Changed("recording-record-speaker-view") {
+						nestedRecording["record_speaker_view"] = bodyRecordingRecordSpeakerView
+					}
+					if cmd.Flags().Changed("recording-recording-audio-transcript") {
+						nestedRecording["recording_audio_transcript"] = bodyRecordingRecordingAudioTranscript
+					}
+					if cmd.Flags().Changed("recording-save-chat-text") {
+						nestedRecording["save_chat_text"] = bodyRecordingSaveChatText
+					}
+					if cmd.Flags().Changed("recording-show-timestamp") {
+						nestedRecording["show_timestamp"] = bodyRecordingShowTimestamp
+					}
+					if len(nestedRecording) > 0 {
+						bodyMap["recording"] = nestedRecording
+					}
+				}
+				{
+					nestedScheduleMeting := map[string]any{}
+					if bodyScheduleMetingAudioType != "" {
+						nestedScheduleMeting["audio_type"] = bodyScheduleMetingAudioType
+					}
+					if cmd.Flags().Changed("schedule-meting-enforce-login") {
+						nestedScheduleMeting["enforce_login"] = bodyScheduleMetingEnforceLogin
+					}
+					if bodyScheduleMetingEnforceLoginDomains != "" {
+						nestedScheduleMeting["enforce_login_domains"] = bodyScheduleMetingEnforceLoginDomains
+					}
+					if cmd.Flags().Changed("schedule-meting-enforce-login-with-domains") {
+						nestedScheduleMeting["enforce_login_with_domains"] = bodyScheduleMetingEnforceLoginWithDomains
+					}
+					if cmd.Flags().Changed("schedule-meting-force-pmi-jbh-password") {
+						nestedScheduleMeting["force_pmi_jbh_password"] = bodyScheduleMetingForcePmiJbhPassword
+					}
+					if cmd.Flags().Changed("schedule-meting-host-video") {
+						nestedScheduleMeting["host_video"] = bodyScheduleMetingHostVideo
+					}
+					if cmd.Flags().Changed("schedule-meting-join-before-host") {
+						nestedScheduleMeting["join_before_host"] = bodyScheduleMetingJoinBeforeHost
+					}
+					if cmd.Flags().Changed("schedule-meting-not-store-meeting-topic") {
+						nestedScheduleMeting["not_store_meeting_topic"] = bodyScheduleMetingNotStoreMeetingTopic
+					}
+					if cmd.Flags().Changed("schedule-meting-participant-video") {
+						nestedScheduleMeting["participant_video"] = bodyScheduleMetingParticipantVideo
+					}
+					if len(nestedScheduleMeting) > 0 {
+						bodyMap["schedule_meting"] = nestedScheduleMeting
+					}
+				}
+				{
+					nestedSecurity := map[string]any{}
+					if cmd.Flags().Changed("security-admin-change-name-pic") {
+						nestedSecurity["admin_change_name_pic"] = bodySecurityAdminChangeNamePic
+					}
+					if cmd.Flags().Changed("security-hide-billing-info") {
+						nestedSecurity["hide_billing_info"] = bodySecurityHideBillingInfo
+					}
+					if cmd.Flags().Changed("security-import-photos-from-devices") {
+						nestedSecurity["import_photos_from_devices"] = bodySecurityImportPhotosFromDevices
+					}
+					if len(nestedSecurity) > 0 {
+						bodyMap["security"] = nestedSecurity
+					}
+				}
+				{
+					nestedTelephony := map[string]any{}
+					if bodyTelephonyAudioConferenceInfo != "" {
+						nestedTelephony["audio_conference_info"] = bodyTelephonyAudioConferenceInfo
+					}
+					if cmd.Flags().Changed("telephony-third-party-audio") {
+						nestedTelephony["third_party_audio"] = bodyTelephonyThirdPartyAudio
+					}
+					if len(nestedTelephony) > 0 {
+						bodyMap["telephony"] = nestedTelephony
+					}
+				}
+				{
+					nestedZoomRooms := map[string]any{}
+					if cmd.Flags().Changed("zoom-rooms-auto-start-stop-scheduled-meetings") {
+						nestedZoomRooms["auto_start_stop_scheduled_meetings"] = bodyZoomRoomsAutoStartStopScheduledMeetings
+					}
+					if cmd.Flags().Changed("zoom-rooms-cmr-for-instant-meeting") {
+						nestedZoomRooms["cmr_for_instant_meeting"] = bodyZoomRoomsCmrForInstantMeeting
+					}
+					if cmd.Flags().Changed("zoom-rooms-force-private-meeting") {
+						nestedZoomRooms["force_private_meeting"] = bodyZoomRoomsForcePrivateMeeting
+					}
+					if cmd.Flags().Changed("zoom-rooms-hide-host-information") {
+						nestedZoomRooms["hide_host_information"] = bodyZoomRoomsHideHostInformation
+					}
+					if cmd.Flags().Changed("zoom-rooms-list-meetings-with-calendar") {
+						nestedZoomRooms["list_meetings_with_calendar"] = bodyZoomRoomsListMeetingsWithCalendar
+					}
+					if cmd.Flags().Changed("zoom-rooms-start-airplay-manually") {
+						nestedZoomRooms["start_airplay_manually"] = bodyZoomRoomsStartAirplayManually
+					}
+					if cmd.Flags().Changed("zoom-rooms-ultrasonic") {
+						nestedZoomRooms["ultrasonic"] = bodyZoomRoomsUltrasonic
+					}
+					if cmd.Flags().Changed("zoom-rooms-upcoming-meeting-alert") {
+						nestedZoomRooms["upcoming_meeting_alert"] = bodyZoomRoomsUpcomingMeetingAlert
+					}
+					if cmd.Flags().Changed("zoom-rooms-weekly-system-restart") {
+						nestedZoomRooms["weekly_system_restart"] = bodyZoomRoomsWeeklySystemRestart
+					}
+					if cmd.Flags().Changed("zoom-rooms-zr-post-meeting-feedback") {
+						nestedZoomRooms["zr_post_meeting_feedback"] = bodyZoomRoomsZrPostMeetingFeedback
+					}
+					if len(nestedZoomRooms) > 0 {
+						bodyMap["zoom_rooms"] = nestedZoomRooms
+					}
+				}
 			}
-			data, statusCode, err := c.PatchWithParams(path, params, body)
+			data, statusCode, err := c.PatchWithParams(cmd.Context(), path, params, body)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -70,6 +503,9 @@ func newAccountsSettingsAccountUpdateCmd(flags *rootFlags) *cobra.Command {
 						fmt.Fprintf(os.Stderr, "         succeeded: %d operation(s)\n", len(partialFailure.ResourceNames))
 					}
 				}
+			}
+			if !flags.dryRun && statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure) {
+				writeMutationResponseToStore(cmd.Context(), "settings", data, "")
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")
@@ -106,6 +542,41 @@ func newAccountsSettingsAccountUpdateCmd(flags *rootFlags) *cobra.Command {
 					}
 					return nil
 				}
+				envelope := map[string]any{
+					"action":   "patch",
+					"resource": "settings",
+					"path":     path,
+					"status":   statusCode,
+					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
+				}
+				if flags.agent {
+					envelope["meta"] = map[string]any{"source": "live"}
+				}
+				if partialFailure != nil {
+					envelope["partial_failure"] = partialFailure
+				}
+				if flags.dryRun {
+					envelope["dry_run"] = true
+					envelope["status"] = 0
+					envelope["success"] = false
+				}
+				// Verify-mode synthetic envelope detection runs against RAW data
+				// (before --compact/--select filtering) so the sentinel field is
+				// guaranteed to be visible even if the operator passes a filter
+				// flag that would otherwise strip it. Surfaces a top-level
+				// verify_noop signal + flips success to false. Mirrors the dry_run
+				// shape above.
+				if len(data) > 0 {
+					var rawParsed any
+					if err := json.Unmarshal(data, &rawParsed); err == nil {
+						if m, ok := rawParsed.(map[string]any); ok {
+							if v, ok := m["__pp_verify_synthetic__"].(bool); ok && v {
+								envelope["verify_noop"] = true
+								envelope["success"] = false
+							}
+						}
+					}
+				}
 				// Apply --compact and --select to the API response before wrapping.
 				// --select wins when both are set: explicit field choice trumps the
 				// generic high-gravity allow-list. Otherwise --compact still applies
@@ -116,32 +587,29 @@ func newAccountsSettingsAccountUpdateCmd(flags *rootFlags) *cobra.Command {
 				} else if flags.compact {
 					filtered = compactFields(filtered)
 				}
-				envelope := map[string]any{
-					"action":   "patch",
-					"resource": "settings",
-					"path":     path,
-					"status":   statusCode,
-					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
-				}
-				if partialFailure != nil {
-					envelope["partial_failure"] = partialFailure
-				}
-				if flags.dryRun {
-					envelope["dry_run"] = true
-					envelope["status"] = 0
-					envelope["success"] = false
-				}
 				if len(filtered) > 0 {
 					var parsed any
 					if err := json.Unmarshal(filtered, &parsed); err == nil {
-						envelope["data"] = parsed
+						if flags.agent {
+							envelope["results"] = parsed
+						} else {
+							envelope["data"] = parsed
+						}
 					}
 				}
 				envelopeJSON, err := json.Marshal(envelope)
 				if err != nil {
 					return err
 				}
-				if perr := printOutput(cmd.OutOrStdout(), json.RawMessage(envelopeJSON), true); perr != nil {
+				resultKey := "data"
+				if flags.agent {
+					resultKey = "results"
+				}
+				structured, err := wrapPlatformStructuredOutput(json.RawMessage(envelopeJSON), flags, resultKey, true)
+				if err != nil {
+					return err
+				}
+				if perr := printOutput(cmd.OutOrStdout(), structured, true); perr != nil {
 					return perr
 				}
 				if partialFailure != nil && !flags.allowPartialFailure {
@@ -165,6 +633,97 @@ func newAccountsSettingsAccountUpdateCmd(flags *rootFlags) *cobra.Command {
 			return nil
 		},
 	}
+	cmd.Flags().BoolVar(&bodyEmailNotificationAlternativeHostReminder, "email-notification-alternative-host-reminder", false, "Notify when an alternative host is set or removed from a meeting")
+	cmd.Flags().BoolVar(&bodyEmailNotificationCancelMeetingReminder, "email-notification-cancel-meeting-reminder", false, "Notify host and participants when the meeting is cancelled")
+	cmd.Flags().BoolVar(&bodyEmailNotificationCloudRecordingAvaliableReminder, "email-notification-cloud-recording-avaliable-reminder", false, "Notify host when cloud recording is available")
+	cmd.Flags().BoolVar(&bodyEmailNotificationJbhReminder, "email-notification-jbh-reminder", false, "Notify host when participants join the meeting before them")
+	cmd.Flags().BoolVar(&bodyEmailNotificationLowHostCountReminder, "email-notification-low-host-count-reminder", false, "Notify when host licenses are running low")
+	cmd.Flags().IntVar(&bodyFeatureMeetingCapacity, "feature-meeting-capacity", 0, "Set the maximum number of participants this user can have in a single meeting")
+	cmd.Flags().BoolVar(&bodyInMeetingAlertGuestJoin, "in-meeting-alert-guest-join", false, "Identify guest participants in the meeting/webinar")
+	cmd.Flags().BoolVar(&bodyInMeetingAllowLiveStreaming, "in-meeting-allow-live-streaming", false, "Allow live streaming")
+	cmd.Flags().BoolVar(&bodyInMeetingAllowShowZoomWindows, "in-meeting-allow-show-zoom-windows", false, "Show Zoom Desktop application when sharing screen")
+	cmd.Flags().BoolVar(&bodyInMeetingAnnotation, "in-meeting-annotation", false, "Allow participants to use annotation tools to add information to shared screens")
+	cmd.Flags().BoolVar(&bodyInMeetingAnonymousQuestionAnswer, "in-meeting-anonymous-question-answer", false, "Allow Anonymous Q&A in Webinar")
+	cmd.Flags().BoolVar(&bodyInMeetingAttendeeOnHold, "in-meeting-attendee-on-hold", false, "Allow hosts to temporarily remove an attendee from the meeting")
+	cmd.Flags().BoolVar(&bodyInMeetingAttentionTracking, "in-meeting-attention-tracking", false, "Lets the host see an indicator in the participant panel if a meeting/webinar attendee does not have Zoom in focus")
+	cmd.Flags().BoolVar(&bodyInMeetingAutoAnswer, "in-meeting-auto-answer", false, "Enable users to see and add contacts to 'auto-answer group' in the contact list on chat.")
+	cmd.Flags().BoolVar(&bodyInMeetingAutoSavingChat, "in-meeting-auto-saving-chat", false, "Automatically save all in-meeting chats so that hosts do not need to manually save the text of the chat after the")
+	cmd.Flags().BoolVar(&bodyInMeetingBreakoutRoom, "in-meeting-breakout-room", false, "Allow host to split meeting participants into separate, smaller rooms")
+	cmd.Flags().BoolVar(&bodyInMeetingChat, "in-meeting-chat", false, "Allow meeting participants to send a message visible to all participants")
+	cmd.Flags().BoolVar(&bodyInMeetingClosedCaption, "in-meeting-closed-caption", false, "Allow host to type closed captions or assign a participant/third party device to add closed captions")
+	cmd.Flags().BoolVar(&bodyInMeetingCoHost, "in-meeting-co-host", false, "Allow the host to add co-hosts")
+	cmd.Flags().BoolVar(&bodyInMeetingCustomLiveStreaming, "in-meeting-custom-live-streaming", false, "Custom live streaming")
+	cmd.Flags().StringVar(&bodyInMeetingCustomServiceInstructions, "in-meeting-custom-service-instructions", "", "Custom service instructions")
+	cmd.Flags().IntVar(&bodyInMeetingDscpAudio, "in-meeting-dscp-audio", 0, "DSCP Audio")
+	cmd.Flags().BoolVar(&bodyInMeetingDscpMarking, "in-meeting-dscp-marking", false, "DSCP marking")
+	cmd.Flags().IntVar(&bodyInMeetingDscpVideo, "in-meeting-dscp-video", 0, "DSCP Video")
+	cmd.Flags().BoolVar(&bodyInMeetingE2eEncryption, "in-meeting-e2e-encryption", false, "Require that all meetings are encrypted using AES")
+	cmd.Flags().BoolVar(&bodyInMeetingFarEndCameraControl, "in-meeting-far-end-camera-control", false, "Allow another user to take control of your camera during a meeting")
+	cmd.Flags().BoolVar(&bodyInMeetingFeedback, "in-meeting-feedback", false, "Add a Feedback tab to the Windows Settings or Mac Preferences dialog")
+	cmd.Flags().BoolVar(&bodyInMeetingFileTransfer, "in-meeting-file-transfer", false, "Hosts and participants can send files through the in-meeting chat")
+	cmd.Flags().BoolVar(&bodyInMeetingGroupHd, "in-meeting-group-hd", false, "Activate higher quality video for host and participants. (This will use more bandwidth.)")
+	cmd.Flags().BoolVar(&bodyInMeetingOriginalAudio, "in-meeting-original-audio", false, "Allow users to select original sound in their client settings")
+	cmd.Flags().BoolVar(&bodyInMeetingP2pConnetion, "in-meeting-p2p-connetion", false, "Peer to Peer connection while only 2 people are in a meeting")
+	cmd.Flags().BoolVar(&bodyInMeetingP2pPorts, "in-meeting-p2p-ports", false, "P2P listening ports range")
+	cmd.Flags().BoolVar(&bodyInMeetingPolling, "in-meeting-polling", false, "Add 'Polls' to the meeting controls.")
+	cmd.Flags().StringVar(&bodyInMeetingPortsRange, "in-meeting-ports-range", "", "Listening ports range, separated by comma (ex 55,56). The ports range must be between 1 to 65535.")
+	cmd.Flags().BoolVar(&bodyInMeetingPostMeetingFeedback, "in-meeting-post-meeting-feedback", false, "Display a thumbs up/down survey at the end of each meeting")
+	cmd.Flags().BoolVar(&bodyInMeetingPrivateChat, "in-meeting-private-chat", false, "Allow meeting participants to send a private 1:1 message to another participants")
+	cmd.Flags().BoolVar(&bodyInMeetingRemoteControl, "in-meeting-remote-control", false, "Allow users to request remote control")
+	cmd.Flags().BoolVar(&bodyInMeetingScreenSharing, "in-meeting-screen-sharing", false, "Allow screen sharing")
+	cmd.Flags().BoolVar(&bodyInMeetingSendingDefaultEmailInvites, "in-meeting-sending-default-email-invites", false, "Only show default email when sending email invites")
+	cmd.Flags().BoolVar(&bodyInMeetingShowMeetingControlToolbar, "in-meeting-show-meeting-control-toolbar", false, "Always show meeting control toolbar")
+	cmd.Flags().BoolVar(&bodyInMeetingStereoAudio, "in-meeting-stereo-audio", false, "Allow users to select stereo audio in their client settings")
+	cmd.Flags().BoolVar(&bodyInMeetingUseHtmlFormatEmail, "in-meeting-use-html-format-email", false, "Use HTML format email for Outlook plugin")
+	cmd.Flags().BoolVar(&bodyInMeetingVirtualBackground, "in-meeting-virtual-background", false, "Allow users to replace their background with any selected image.")
+	cmd.Flags().BoolVar(&bodyInMeetingWatermark, "in-meeting-watermark", false, "Add watermark when viewing shared screen")
+	cmd.Flags().BoolVar(&bodyInMeetingWebinarQuestionAnswer, "in-meeting-webinar-question-answer", false, "Q&A in webinar")
+	cmd.Flags().BoolVar(&bodyInMeetingWhiteboard, "in-meeting-whiteboard", false, "Allow participants to share a whiteboard that includes annotation tools")
+	cmd.Flags().BoolVar(&bodyInMeetingWorkplaceByFacebook, "in-meeting-workplace-by-facebook", false, "Workplace by facebook")
+	cmd.Flags().BoolVar(&bodyIntegrationBox, "integration-box", false, "Enables users who join a meeting from their mobile device to share content from their Box account")
+	cmd.Flags().BoolVar(&bodyIntegrationDropbox, "integration-dropbox", false, "Enables users who join a meeting from their mobile device to share content from their Dropbox account")
+	cmd.Flags().BoolVar(&bodyIntegrationGoogleCalendar, "integration-google-calendar", false, "Enables meetings to be scheduled using Google Calendars")
+	cmd.Flags().BoolVar(&bodyIntegrationGoogleDrive, "integration-google-drive", false, "Enables users who join a meeting from their mobile device to share content from their Google Drive")
+	cmd.Flags().BoolVar(&bodyIntegrationKubi, "integration-kubi", false, "Enables users to control a connected Kubi device from within a Zoom meeting")
+	cmd.Flags().BoolVar(&bodyIntegrationMicrosoftOneDrive, "integration-microsoft-one-drive", false, "Enables users who join a meeting from their mobile device to share content from their Microsoft OneDrive account")
+	cmd.Flags().BoolVar(&bodyRecordingAccountUserAccessRecording, "recording-account-user-access-recording", false, "Cloud recordings are only accessible to account members.")
+	cmd.Flags().BoolVar(&bodyRecordingAutoDeleteCmr, "recording-auto-delete-cmr", false, "Allow Zoom to automatically delete recordings permanently after a specified number of days")
+	cmd.Flags().IntVar(&bodyRecordingAutoDeleteCmrDays, "recording-auto-delete-cmr-days", 0, "When `auto_delete_cmr` is 'true' this value will set the number of days before auto deletion of cloud recordings")
+	cmd.Flags().StringVar(&bodyRecordingAutoRecording, "recording-auto-recording", "", "Record meetings automatically as they start")
+	cmd.Flags().BoolVar(&bodyRecordingCloudRecording, "recording-cloud-recording", false, "Allow hosts to record and save the meeting in the cloud")
+	cmd.Flags().BoolVar(&bodyRecordingCloudRecordingDownload, "recording-cloud-recording-download", false, "Cloud Recording Downloads")
+	cmd.Flags().BoolVar(&bodyRecordingCloudRecordingDownloadHost, "recording-cloud-recording-download-host", false, "Only the host can download cloud recordings")
+	cmd.Flags().BoolVar(&bodyRecordingLocalRecording, "recording-local-recording", false, "Allow hosts and participants to record the meeting to a local file")
+	cmd.Flags().BoolVar(&bodyRecordingRecordAudioFile, "recording-record-audio-file", false, "Record an audio only file")
+	cmd.Flags().BoolVar(&bodyRecordingRecordGalleryView, "recording-record-gallery-view", false, "Record gallery view with shared screen")
+	cmd.Flags().BoolVar(&bodyRecordingRecordSpeakerView, "recording-record-speaker-view", false, "Record active speaker with shared screen")
+	cmd.Flags().BoolVar(&bodyRecordingRecordingAudioTranscript, "recording-recording-audio-transcript", false, "Automatically transcribe the audio of the meeting or webinar to the cloud")
+	cmd.Flags().BoolVar(&bodyRecordingSaveChatText, "recording-save-chat-text", false, "Save chat text from the meeting")
+	cmd.Flags().BoolVar(&bodyRecordingShowTimestamp, "recording-show-timestamp", false, "Add a timestamp to the recording")
+	cmd.Flags().StringVar(&bodyScheduleMetingAudioType, "schedule-meting-audio-type", "", "Determine how participants can join the audio portion of the meeting")
+	cmd.Flags().BoolVar(&bodyScheduleMetingEnforceLogin, "schedule-meting-enforce-login", false, "Only signed-in (Zoom users) users can join meetings")
+	cmd.Flags().StringVar(&bodyScheduleMetingEnforceLoginDomains, "schedule-meting-enforce-login-domains", "", "Only signed-in users with a specified domains")
+	cmd.Flags().BoolVar(&bodyScheduleMetingEnforceLoginWithDomains, "schedule-meting-enforce-login-with-domains", false, "Only signed-in users with a specific domain can join meetings")
+	cmd.Flags().BoolVar(&bodyScheduleMetingForcePmiJbhPassword, "schedule-meting-force-pmi-jbh-password", false, "Require a password for Personal Meetings if attendees can join before host")
+	cmd.Flags().BoolVar(&bodyScheduleMetingHostVideo, "schedule-meting-host-video", false, "Start meetings with host video on")
+	cmd.Flags().BoolVar(&bodyScheduleMetingJoinBeforeHost, "schedule-meting-join-before-host", false, "Allow participants to join the meeting before the host arrives")
+	cmd.Flags().BoolVar(&bodyScheduleMetingNotStoreMeetingTopic, "schedule-meting-not-store-meeting-topic", false, "Always display 'Zoom Meeting' as the meeting topic")
+	cmd.Flags().BoolVar(&bodyScheduleMetingParticipantVideo, "schedule-meting-participant-video", false, "Start meetings with participant video on. Participants can change this during the meeting.")
+	cmd.Flags().BoolVar(&bodySecurityAdminChangeNamePic, "security-admin-change-name-pic", false, "Only account administrators can change user's username and picture")
+	cmd.Flags().BoolVar(&bodySecurityHideBillingInfo, "security-hide-billing-info", false, "Hide billing information")
+	cmd.Flags().BoolVar(&bodySecurityImportPhotosFromDevices, "security-import-photos-from-devices", false, "Allow importing of photos from photo library on the user's device")
+	cmd.Flags().StringVar(&bodyTelephonyAudioConferenceInfo, "telephony-audio-conference-info", "", "3rd party audio conference info")
+	cmd.Flags().BoolVar(&bodyTelephonyThirdPartyAudio, "telephony-third-party-audio", false, "Users can join the meeting using the existing 3rd party audio configuration")
+	cmd.Flags().BoolVar(&bodyZoomRoomsAutoStartStopScheduledMeetings, "zoom-rooms-auto-start-stop-scheduled-meetings", false, "Automatic start/stop for scheduled meetings")
+	cmd.Flags().BoolVar(&bodyZoomRoomsCmrForInstantMeeting, "zoom-rooms-cmr-for-instant-meeting", false, "Cloud recording for instant meetings")
+	cmd.Flags().BoolVar(&bodyZoomRoomsForcePrivateMeeting, "zoom-rooms-force-private-meeting", false, "Transform all meetings to private")
+	cmd.Flags().BoolVar(&bodyZoomRoomsHideHostInformation, "zoom-rooms-hide-host-information", false, "Hide host and meeting ID from private meetings")
+	cmd.Flags().BoolVar(&bodyZoomRoomsListMeetingsWithCalendar, "zoom-rooms-list-meetings-with-calendar", false, "Display meeting list with calendar integration")
+	cmd.Flags().BoolVar(&bodyZoomRoomsStartAirplayManually, "zoom-rooms-start-airplay-manually", false, "Start AirPlay service manually")
+	cmd.Flags().BoolVar(&bodyZoomRoomsUltrasonic, "zoom-rooms-ultrasonic", false, "Automatic direct sharing using ultrasonic proximity signal")
+	cmd.Flags().BoolVar(&bodyZoomRoomsUpcomingMeetingAlert, "zoom-rooms-upcoming-meeting-alert", false, "Upcoming meeting alert")
+	cmd.Flags().BoolVar(&bodyZoomRoomsWeeklySystemRestart, "zoom-rooms-weekly-system-restart", false, "Weekly system restart")
+	cmd.Flags().BoolVar(&bodyZoomRoomsZrPostMeetingFeedback, "zoom-rooms-zr-post-meeting-feedback", false, "Zoom Room post meeting feedback")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd

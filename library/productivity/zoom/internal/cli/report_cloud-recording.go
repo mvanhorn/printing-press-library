@@ -18,30 +18,47 @@ func newReportCloudRecordingCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "cloud-recording",
 		Aliases:     []string{"list"},
-		Short:       "Retrieve cloud recording usage report for a specified period. You can only get cloud recording reports for the most...",
-		Example:     "  zoom-pp-cli report cloud-recording --from example-value --to example-value",
+		Short:       "Retrieve cloud recording usage report for a specified period.",
+		Example:     "  zoom-pp-cli report cloud-recording --from 2026-01-15 --to 2026-01-15",
 		Annotations: map[string]string{"pp:endpoint": "report.cloud-recording", "pp:method": "GET", "pp:path": "/report/cloud_recording", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Bare invocation of a command with required input prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only read commands fall through so a bare call still executes.
+			// Machine callers (--json/--agent, which sets asJSON) get a usage
+			// error + exit 2 instead of silent exit-0 help, so an incomplete
+			// invocation is never mistaken for success.
+			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "requires input",
+						"usage": cmd.CommandPath() + " --help",
+					}, flags); printErr != nil {
+						return printErr
+					}
+					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
+				}
+				return cmd.Help()
+			}
 			if !cmd.Flags().Changed("from") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "from")
 			}
 			if !cmd.Flags().Changed("to") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "to")
 			}
+			path := "/report/cloud_recording"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/report/cloud_recording"
 			params := map[string]string{}
 			if flagFrom != "" {
-				params["from"] = fmt.Sprintf("%v", flagFrom)
+				params["from"] = formatCLIParamValue(flagFrom)
 			}
 			if flagTo != "" {
-				params["to"] = fmt.Sprintf("%v", flagTo)
+				params["to"] = formatCLIParamValue(flagTo)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "report", false, path, params, nil)
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "report", false, path, params, nil, "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -71,6 +88,10 @@ func newReportCloudRecordingCmd(flags *rootFlags) *cobra.Command {
 				if wrapErr != nil {
 					return wrapErr
 				}
+				wrapped, wrapErr = wrapPlatformStructuredOutput(wrapped, flags, "results", true)
+				if wrapErr != nil {
+					return wrapErr
+				}
 				return printOutput(cmd.OutOrStdout(), wrapped, true)
 			}
 			// For all other output modes (table, csv, plain, quiet), use the standard pipeline
@@ -86,7 +107,7 @@ func newReportCloudRecordingCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagFrom, "from", "", "Start Date")

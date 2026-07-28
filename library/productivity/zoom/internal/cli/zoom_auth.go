@@ -19,40 +19,30 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/productivity/zoom/internal/config"
 )
 
-// newZoomAuthCmd wires up `auth set-token`, `auth status`, `auth refresh`.
-// These sit alongside the framework-emitted commands and own the Server-to-
-// Server OAuth flow that the spec couldn't describe (Swagger 2.0 apiKey
-// scheme can't express the exchange).
-func newZoomAuthCmd(flags *rootFlags) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "auth",
-		Short: "Manage Zoom Server-to-Server OAuth credentials",
-		Long: "Manage the cached access token used for cloud commands. " +
-			"S2S OAuth exchanges ZOOM_S2S_ACCOUNT_ID + ZOOM_S2S_CLIENT_ID + ZOOM_S2S_CLIENT_SECRET " +
-			"against https://zoom.us/oauth/token (account_credentials grant) and caches the bearer " +
-			"token at ~/.config/zoom-pp-cli/token.json.",
-		RunE: func(cmd *cobra.Command, args []string) error { return cmd.Help() },
-	}
-	cmd.AddCommand(newAuthSetTokenCmd(flags))
-	cmd.AddCommand(newAuthStatusCmd(flags))
-	cmd.AddCommand(newAuthRefreshCmd(flags))
-	cmd.AddCommand(newAuthLogoutCmd(flags))
-	return cmd
+// attachZoomS2SAuth adds the Zoom Server-to-Server OAuth subcommands to the
+// framework-emitted `auth` command. The Swagger 2.0 apiKey scheme cannot
+// express the account_credentials exchange, so it is owned here rather than
+// generated. The framework's own set-token/status/logout still handle a
+// pre-exchanged bearer token stored in the credentials file.
+func attachZoomS2SAuth(cmd *cobra.Command, flags *rootFlags) {
+	cmd.AddCommand(newZoomAuthS2STokenCmd(flags))
+	cmd.AddCommand(newZoomAuthS2SStatusCmd(flags))
+	cmd.AddCommand(newZoomAuthRefreshCmd(flags))
 }
 
-func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
+func newZoomAuthS2STokenCmd(flags *rootFlags) *cobra.Command {
 	var (
 		accountID    string
 		clientID     string
 		clientSecret string
 	)
 	cmd := &cobra.Command{
-		Use:   "set-token",
+		Use:   "s2s-token",
 		Short: "Exchange S2S OAuth credentials for a cached bearer token",
 		Long: "Reads --account-id / --client-id / --client-secret (or ZOOM_S2S_ACCOUNT_ID / ZOOM_S2S_CLIENT_ID / ZOOM_S2S_CLIENT_SECRET), " +
 			"POSTs to https://zoom.us/oauth/token with grant_type=account_credentials, and caches the response token " +
 			"at ~/.config/zoom-pp-cli/token.json. Subsequent invocations reuse the cached token until expiry.",
-		Example: "  zoom-pp-cli auth set-token --json",
+		Example: "  zoom-pp-cli auth s2s-token --json",
 		Annotations: map[string]string{
 			"mcp:read-only": "false",
 		},
@@ -79,7 +69,7 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 					"would_exchange": true,
 					"endpoint":       "https://zoom.us/oauth/token",
 					"grant_type":     "account_credentials",
-					"account_id":     redact(accountID),
+					"account_id":     redactS2SID(accountID),
 				})
 				return nil
 			}
@@ -96,7 +86,7 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 				"path":       config.TokenCachePath(),
 				"expires_at": tc.ExpiresAt,
 				"scope":      tc.Scope,
-				"account_id": redact(tc.AccountID),
+				"account_id": redactS2SID(tc.AccountID),
 			})
 		},
 	}
@@ -106,9 +96,9 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 	return cmd
 }
 
-func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
+func newZoomAuthS2SStatusCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
-		Use:   "status",
+		Use:   "s2s-status",
 		Short: "Show whether a Zoom S2S access token is currently available",
 		Annotations: map[string]string{
 			"mcp:read-only": "true",
@@ -136,7 +126,7 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 	}
 }
 
-func newAuthRefreshCmd(flags *rootFlags) *cobra.Command {
+func newZoomAuthRefreshCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:   "refresh",
 		Short: "Force a fresh S2S OAuth exchange (ignoring cache)",
@@ -169,31 +159,6 @@ func newAuthRefreshCmd(flags *rootFlags) *cobra.Command {
 				"status":     "refreshed",
 				"expires_at": tc.ExpiresAt,
 			})
-		},
-	}
-}
-
-func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
-	return &cobra.Command{
-		Use:   "logout",
-		Short: "Delete the cached S2S access token",
-		Annotations: map[string]string{
-			"mcp:read-only": "false",
-		},
-		RunE: func(cmd *cobra.Command, args []string) error {
-			path := config.TokenCachePath()
-			if dryRunOK(flags) {
-				_ = flags.printJSON(cmd, map[string]any{"would_delete": path})
-				return nil
-			}
-			err := os.Remove(path)
-			if os.IsNotExist(err) {
-				return flags.printJSON(cmd, map[string]any{"status": "no_cache", "path": path})
-			}
-			if err != nil {
-				return err
-			}
-			return flags.printJSON(cmd, map[string]any{"status": "deleted", "path": path})
 		},
 	}
 }
@@ -252,16 +217,16 @@ func writeTokenCache(tc *config.TokenCache) error {
 	if err := os.MkdirAll(filepath.Dir(path), 0o700); err != nil {
 		return err
 	}
-	b, err := json.MarshalIndent(tc, "", "  ")
+	b, err := json.MarshalIndent(tc, "", "  ") // #nosec G117 -- serializing the OAuth token cache is this helper's purpose; file is written 0600 under the user's own config dir
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(path, b, 0o600)
+	return os.WriteFile(path, b, 0o600) // #nosec G703 G304 -- fixed path from config.TokenCachePath(), no user-controlled traversal
 }
 
 func readTokenCache() (*config.TokenCache, error) {
 	path := config.TokenCachePath()
-	b, err := os.ReadFile(path)
+	b, err := os.ReadFile(path) // #nosec G304 -- fixed path from config.TokenCachePath()
 	if err != nil {
 		return nil, err
 	}
@@ -272,7 +237,7 @@ func readTokenCache() (*config.TokenCache, error) {
 	return &tc, nil
 }
 
-func redact(s string) string {
+func redactS2SID(s string) string {
 	if len(s) <= 4 {
 		return strings.Repeat("*", len(s))
 	}

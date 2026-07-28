@@ -13,28 +13,121 @@ import (
 )
 
 func newAccountsPlansAccountCreateCmd(flags *rootFlags) *cobra.Command {
+	var bodyContactAddress string
+	var bodyContactApt string
+	var bodyContactCity string
+	var bodyContactCountry string
+	var bodyContactEmail string
+	var bodyContactFirstName string
+	var bodyContactLastName string
+	var bodyContactPhoneNumber string
+	var bodyContactState string
+	var bodyContactZip string
+	var bodyPlanAudioCalloutCountries string
+	var bodyPlanAudioDdiNumbers int
+	var bodyPlanAudioPremiumCountries string
+	var bodyPlanAudioTollfreeCountries string
+	var bodyPlanAudioType string
+	var bodyPlanBaseHosts int
+	var bodyPlanBaseType string
+	var bodyPlanLargeMeeting string
+	var bodyPlanRecording string
+	var bodyPlanRoomConnectorHosts int
+	var bodyPlanRoomConnectorType string
+	var bodyPlanWebinar string
+	var bodyPlanZoomRoomsHosts int
+	var bodyPlanZoomRoomsType string
 	var stdinBody bool
 
 	cmd := &cobra.Command{
 		Use:         "account-create <accountId>",
-		Short:       "Subscribe plans for a sub account of the master account <aside>Can only subscribe plans for the sub account which is...",
+		Short:       "Subscribe plans for a sub account of the master account Can only subscribe plans for the sub account which is a free",
 		Example:     "  zoom-pp-cli accounts plans account-create 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "plans.account-create", "pp:method": "POST", "pp:path": "/accounts/{accountId}/plans"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) == 0 {
+			// Bare invocation of a command with required input prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only read commands fall through so a bare call still executes.
+			// Machine callers (--json/--agent, which sets asJSON) get a usage
+			// error + exit 2 instead of silent exit-0 help, so an incomplete
+			// invocation is never mistaken for success.
+			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "requires input",
+						"usage": cmd.CommandPath() + " --help",
+					}, flags); printErr != nil {
+						return printErr
+					}
+					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
+				}
 				return cmd.Help()
 			}
-			if !stdinBody {
+			if len(args) == 0 {
+				// A missing required positional is a usage error in every output
+				// mode (matches command_promoted.go.tmpl). Machine callers
+				// (--json/--agent) also get a JSON error envelope on stdout;
+				// usageErr sets exit 2.
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "missing required argument",
+						"usage": fmt.Sprintf("%s%s", cmd.CommandPath(), " <accountId>"),
+					}, flags); printErr != nil {
+						return printErr
+					}
+				}
+				return usageErr(fmt.Errorf("missing required argument\nUsage: %s%s", cmd.CommandPath(), " <accountId>"))
 			}
+			if !stdinBody {
+				if bodyContactAddress != "" || bodyContactApt != "" || bodyContactCity != "" || bodyContactCountry != "" || bodyContactEmail != "" || bodyContactFirstName != "" || bodyContactLastName != "" || bodyContactPhoneNumber != "" || bodyContactState != "" || bodyContactZip != "" {
+					if !cmd.Flags().Changed("contact-address") && !flags.dryRun {
+						return fmt.Errorf("required flag \"%s\" not set", "contact-address")
+					}
+					if !cmd.Flags().Changed("contact-city") && !flags.dryRun {
+						return fmt.Errorf("required flag \"%s\" not set", "contact-city")
+					}
+					if !cmd.Flags().Changed("contact-country") && !flags.dryRun {
+						return fmt.Errorf("required flag \"%s\" not set", "contact-country")
+					}
+					if !cmd.Flags().Changed("contact-email") && !flags.dryRun {
+						return fmt.Errorf("required flag \"%s\" not set", "contact-email")
+					}
+					if !cmd.Flags().Changed("contact-first-name") && !flags.dryRun {
+						return fmt.Errorf("required flag \"%s\" not set", "contact-first-name")
+					}
+					if !cmd.Flags().Changed("contact-last-name") && !flags.dryRun {
+						return fmt.Errorf("required flag \"%s\" not set", "contact-last-name")
+					}
+					if !cmd.Flags().Changed("contact-phone-number") && !flags.dryRun {
+						return fmt.Errorf("required flag \"%s\" not set", "contact-phone-number")
+					}
+					if !cmd.Flags().Changed("contact-state") && !flags.dryRun {
+						return fmt.Errorf("required flag \"%s\" not set", "contact-state")
+					}
+					if !cmd.Flags().Changed("contact-zip") && !flags.dryRun {
+						return fmt.Errorf("required flag \"%s\" not set", "contact-zip")
+					}
+				}
+				if bodyPlanBaseHosts != 0 || bodyPlanBaseType != "" {
+					if !cmd.Flags().Changed("plan-base-hosts") && !flags.dryRun {
+						return fmt.Errorf("required flag \"%s\" not set", "plan-base-hosts")
+					}
+					if !cmd.Flags().Changed("plan-base-type") && !flags.dryRun {
+						return fmt.Errorf("required flag \"%s\" not set", "plan-base-type")
+					}
+				}
+			}
+			path := "/accounts/{accountId}/plans"
+			if len(args) < 1 || args[0] == "" {
+				return usageErr(fmt.Errorf("accountId is required\nUsage: %s <%s>", cmd.CommandPath(), "accountId"))
+			}
+			path = replacePathParam(path, "accountId", args[0])
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/accounts/{accountId}/plans"
-			path = replacePathParam(path, "accountId", args[0])
 			params := map[string]string{}
-			var body map[string]any
+			var body any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
@@ -46,9 +139,128 @@ func newAccountsPlansAccountCreateCmd(flags *rootFlags) *cobra.Command {
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
+				bodyMap := map[string]any{}
+				body = bodyMap
+				{
+					nestedContact := map[string]any{}
+					if bodyContactAddress != "" {
+						nestedContact["address"] = bodyContactAddress
+					}
+					if bodyContactApt != "" {
+						nestedContact["apt"] = bodyContactApt
+					}
+					if bodyContactCity != "" {
+						nestedContact["city"] = bodyContactCity
+					}
+					if bodyContactCountry != "" {
+						nestedContact["country"] = bodyContactCountry
+					}
+					if bodyContactEmail != "" {
+						nestedContact["email"] = bodyContactEmail
+					}
+					if bodyContactFirstName != "" {
+						nestedContact["first_name"] = bodyContactFirstName
+					}
+					if bodyContactLastName != "" {
+						nestedContact["last_name"] = bodyContactLastName
+					}
+					if bodyContactPhoneNumber != "" {
+						nestedContact["phone_number"] = bodyContactPhoneNumber
+					}
+					if bodyContactState != "" {
+						nestedContact["state"] = bodyContactState
+					}
+					if bodyContactZip != "" {
+						nestedContact["zip"] = bodyContactZip
+					}
+					if len(nestedContact) > 0 {
+						bodyMap["contact"] = nestedContact
+					}
+				}
+				{
+					nestedPlanAudio := map[string]any{}
+					if bodyPlanAudioCalloutCountries != "" {
+						nestedPlanAudio["callout_countries"] = bodyPlanAudioCalloutCountries
+					}
+					if bodyPlanAudioDdiNumbers != 0 {
+						nestedPlanAudio["ddi_numbers"] = bodyPlanAudioDdiNumbers
+					}
+					if bodyPlanAudioPremiumCountries != "" {
+						nestedPlanAudio["premium_countries"] = bodyPlanAudioPremiumCountries
+					}
+					if bodyPlanAudioTollfreeCountries != "" {
+						nestedPlanAudio["tollfree_countries"] = bodyPlanAudioTollfreeCountries
+					}
+					if bodyPlanAudioType != "" {
+						nestedPlanAudio["type"] = bodyPlanAudioType
+					}
+					if len(nestedPlanAudio) > 0 {
+						bodyMap["plan_audio"] = nestedPlanAudio
+					}
+				}
+				{
+					nestedPlanBase := map[string]any{}
+					if bodyPlanBaseHosts != 0 {
+						nestedPlanBase["hosts"] = bodyPlanBaseHosts
+					}
+					if bodyPlanBaseType != "" {
+						nestedPlanBase["type"] = bodyPlanBaseType
+					}
+					if len(nestedPlanBase) > 0 {
+						bodyMap["plan_base"] = nestedPlanBase
+					}
+				}
+				if bodyPlanLargeMeeting != "" {
+					var parsedPlanLargeMeeting any
+					if err := json.Unmarshal([]byte(bodyPlanLargeMeeting), &parsedPlanLargeMeeting); err != nil {
+						return fmt.Errorf("parsing --plan-large-meeting JSON: %w", err)
+					}
+					asArray, ok := parsedPlanLargeMeeting.([]any)
+					if !ok {
+						return fmt.Errorf("--plan-large-meeting must be a JSON array, got JSON %T", parsedPlanLargeMeeting)
+					}
+					bodyMap["plan_large_meeting"] = asArray
+				}
+				if bodyPlanRecording != "" {
+					bodyMap["plan_recording"] = bodyPlanRecording
+				}
+				{
+					nestedPlanRoomConnector := map[string]any{}
+					if bodyPlanRoomConnectorHosts != 0 {
+						nestedPlanRoomConnector["hosts"] = bodyPlanRoomConnectorHosts
+					}
+					if bodyPlanRoomConnectorType != "" {
+						nestedPlanRoomConnector["type"] = bodyPlanRoomConnectorType
+					}
+					if len(nestedPlanRoomConnector) > 0 {
+						bodyMap["plan_room_connector"] = nestedPlanRoomConnector
+					}
+				}
+				if bodyPlanWebinar != "" {
+					var parsedPlanWebinar any
+					if err := json.Unmarshal([]byte(bodyPlanWebinar), &parsedPlanWebinar); err != nil {
+						return fmt.Errorf("parsing --plan-webinar JSON: %w", err)
+					}
+					asArray, ok := parsedPlanWebinar.([]any)
+					if !ok {
+						return fmt.Errorf("--plan-webinar must be a JSON array, got JSON %T", parsedPlanWebinar)
+					}
+					bodyMap["plan_webinar"] = asArray
+				}
+				{
+					nestedPlanZoomRooms := map[string]any{}
+					if bodyPlanZoomRoomsHosts != 0 {
+						nestedPlanZoomRooms["hosts"] = bodyPlanZoomRoomsHosts
+					}
+					if bodyPlanZoomRoomsType != "" {
+						nestedPlanZoomRooms["type"] = bodyPlanZoomRoomsType
+					}
+					if len(nestedPlanZoomRooms) > 0 {
+						bodyMap["plan_zoom_rooms"] = nestedPlanZoomRooms
+					}
+				}
 			}
-			data, statusCode, err := c.PostWithParams(path, params, body)
+			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -69,6 +281,9 @@ func newAccountsPlansAccountCreateCmd(flags *rootFlags) *cobra.Command {
 						fmt.Fprintf(os.Stderr, "         succeeded: %d operation(s)\n", len(partialFailure.ResourceNames))
 					}
 				}
+			}
+			if !flags.dryRun && statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure) {
+				writeMutationResponseToStore(cmd.Context(), "plans", data, "")
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")
@@ -105,6 +320,41 @@ func newAccountsPlansAccountCreateCmd(flags *rootFlags) *cobra.Command {
 					}
 					return nil
 				}
+				envelope := map[string]any{
+					"action":   "post",
+					"resource": "plans",
+					"path":     path,
+					"status":   statusCode,
+					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
+				}
+				if flags.agent {
+					envelope["meta"] = map[string]any{"source": "live"}
+				}
+				if partialFailure != nil {
+					envelope["partial_failure"] = partialFailure
+				}
+				if flags.dryRun {
+					envelope["dry_run"] = true
+					envelope["status"] = 0
+					envelope["success"] = false
+				}
+				// Verify-mode synthetic envelope detection runs against RAW data
+				// (before --compact/--select filtering) so the sentinel field is
+				// guaranteed to be visible even if the operator passes a filter
+				// flag that would otherwise strip it. Surfaces a top-level
+				// verify_noop signal + flips success to false. Mirrors the dry_run
+				// shape above.
+				if len(data) > 0 {
+					var rawParsed any
+					if err := json.Unmarshal(data, &rawParsed); err == nil {
+						if m, ok := rawParsed.(map[string]any); ok {
+							if v, ok := m["__pp_verify_synthetic__"].(bool); ok && v {
+								envelope["verify_noop"] = true
+								envelope["success"] = false
+							}
+						}
+					}
+				}
 				// Apply --compact and --select to the API response before wrapping.
 				// --select wins when both are set: explicit field choice trumps the
 				// generic high-gravity allow-list. Otherwise --compact still applies
@@ -115,32 +365,29 @@ func newAccountsPlansAccountCreateCmd(flags *rootFlags) *cobra.Command {
 				} else if flags.compact {
 					filtered = compactFields(filtered)
 				}
-				envelope := map[string]any{
-					"action":   "post",
-					"resource": "plans",
-					"path":     path,
-					"status":   statusCode,
-					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
-				}
-				if partialFailure != nil {
-					envelope["partial_failure"] = partialFailure
-				}
-				if flags.dryRun {
-					envelope["dry_run"] = true
-					envelope["status"] = 0
-					envelope["success"] = false
-				}
 				if len(filtered) > 0 {
 					var parsed any
 					if err := json.Unmarshal(filtered, &parsed); err == nil {
-						envelope["data"] = parsed
+						if flags.agent {
+							envelope["results"] = parsed
+						} else {
+							envelope["data"] = parsed
+						}
 					}
 				}
 				envelopeJSON, err := json.Marshal(envelope)
 				if err != nil {
 					return err
 				}
-				if perr := printOutput(cmd.OutOrStdout(), json.RawMessage(envelopeJSON), true); perr != nil {
+				resultKey := "data"
+				if flags.agent {
+					resultKey = "results"
+				}
+				structured, err := wrapPlatformStructuredOutput(json.RawMessage(envelopeJSON), flags, resultKey, true)
+				if err != nil {
+					return err
+				}
+				if perr := printOutput(cmd.OutOrStdout(), structured, true); perr != nil {
 					return perr
 				}
 				if partialFailure != nil && !flags.allowPartialFailure {
@@ -164,6 +411,30 @@ func newAccountsPlansAccountCreateCmd(flags *rootFlags) *cobra.Command {
 			return nil
 		},
 	}
+	cmd.Flags().StringVar(&bodyContactAddress, "contact-address", "", "Billing Contact's address")
+	cmd.Flags().StringVar(&bodyContactApt, "contact-apt", "", "Billing Contact's apartment/suite")
+	cmd.Flags().StringVar(&bodyContactCity, "contact-city", "", "Billing Contact's city")
+	cmd.Flags().StringVar(&bodyContactCountry, "contact-country", "", "Billing Contact's country")
+	cmd.Flags().StringVar(&bodyContactEmail, "contact-email", "", "Billing Contact's email address")
+	cmd.Flags().StringVar(&bodyContactFirstName, "contact-first-name", "", "Billing Contact's first name")
+	cmd.Flags().StringVar(&bodyContactLastName, "contact-last-name", "", "Billing Contact's last name")
+	cmd.Flags().StringVar(&bodyContactPhoneNumber, "contact-phone-number", "", "Billing Contact's phone number")
+	cmd.Flags().StringVar(&bodyContactState, "contact-state", "", "Billing Contact's state")
+	cmd.Flags().StringVar(&bodyContactZip, "contact-zip", "", "Billing Contact's zip/postal code")
+	cmd.Flags().StringVar(&bodyPlanAudioCalloutCountries, "plan-audio-callout-countries", "", "Call-out countries, multiple value separated by comma")
+	cmd.Flags().IntVar(&bodyPlanAudioDdiNumbers, "plan-audio-ddi-numbers", 0, "Dedicated Dial-In Numbers")
+	cmd.Flags().StringVar(&bodyPlanAudioPremiumCountries, "plan-audio-premium-countries", "", "Premium countries, multiple value separated by comma")
+	cmd.Flags().StringVar(&bodyPlanAudioTollfreeCountries, "plan-audio-tollfree-countries", "", "Toll-free countries, multiple value separated by comma")
+	cmd.Flags().StringVar(&bodyPlanAudioType, "plan-audio-type", "", "Additional Audio Conferencing plan type")
+	cmd.Flags().IntVar(&bodyPlanBaseHosts, "plan-base-hosts", 0, "Account base plan number of hosts. For a Pro Plan, please select a value between 1 and 9.")
+	cmd.Flags().StringVar(&bodyPlanBaseType, "plan-base-type", "", "Account base plan type")
+	cmd.Flags().StringVar(&bodyPlanLargeMeeting, "plan-large-meeting", "", "Additional Large Meeting Plans")
+	cmd.Flags().StringVar(&bodyPlanRecording, "plan-recording", "", "Additional Cloud Recording Plan")
+	cmd.Flags().IntVar(&bodyPlanRoomConnectorHosts, "plan-room-connector-hosts", 0, "Account plan number of hosts")
+	cmd.Flags().StringVar(&bodyPlanRoomConnectorType, "plan-room-connector-type", "", "Account plan type")
+	cmd.Flags().StringVar(&bodyPlanWebinar, "plan-webinar", "", "Additional Webinar Plans")
+	cmd.Flags().IntVar(&bodyPlanZoomRoomsHosts, "plan-zoom-rooms-hosts", 0, "Account plan number of hosts")
+	cmd.Flags().StringVar(&bodyPlanZoomRoomsType, "plan-zoom-rooms-type", "", "Account plan type")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd

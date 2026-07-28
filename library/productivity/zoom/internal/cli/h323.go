@@ -9,10 +9,10 @@ import (
 
 func newH323Cmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:    "h323",
-		Short:  "Manage h323",
-		Hidden: true,
-		RunE:   parentNoSubcommandRunE(flags),
+		Use:         "h323",
+		Short:       "Get, create, update, and delete h323",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:api-resource": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newH323DeviceCreateCmd(flags))

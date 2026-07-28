@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// TokenCache is the on-disk shape written by `zoom-pp-cli auth set-token`.
+// TokenCache is the on-disk shape written by `zoom-pp-cli auth s2s-token`.
 // The CLI exchanges S2S OAuth account credentials for a bearer token at
 // https://zoom.us/oauth/token (account_credentials grant) and persists the
 // result here so subsequent invocations don't re-exchange. The cache lives at
@@ -35,7 +35,7 @@ func TokenCachePath() string {
 // empty strings when the cache is missing, malformed, or expired.
 func tryLoadCachedZoomToken() (string, string) {
 	path := TokenCachePath()
-	data, err := os.ReadFile(path)
+	data, err := os.ReadFile(path) // #nosec G304 -- fixed path from TokenCachePath()
 	if err != nil {
 		return "", ""
 	}

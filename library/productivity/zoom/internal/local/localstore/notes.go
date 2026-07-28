@@ -68,12 +68,12 @@ func IngestNote(ctx context.Context, db *sql.DB, note IngestedNote) (int64, erro
 	for ftsRows.Next() {
 		var e ftsEntry
 		if scanErr := ftsRows.Scan(&e.id, &e.text, &e.heading); scanErr != nil {
-			ftsRows.Close()
+			_ = ftsRows.Close()
 			return 0, scanErr
 		}
 		stale = append(stale, e)
 	}
-	ftsRows.Close()
+	_ = ftsRows.Close()
 	if err := ftsRows.Err(); err != nil {
 		return 0, err
 	}

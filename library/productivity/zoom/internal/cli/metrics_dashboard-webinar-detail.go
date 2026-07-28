@@ -21,20 +21,47 @@ func newMetricsDashboardWebinarDetailCmd(flags *rootFlags) *cobra.Command {
 		Annotations: map[string]string{"pp:endpoint": "metrics.dashboard-webinar-detail", "pp:method": "GET", "pp:path": "/metrics/webinars/{webinarId}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
-				return cmd.Help()
+				// A missing required positional is a usage error in every output
+				// mode (matches command_promoted.go.tmpl). Machine callers
+				// (--json/--agent) also get a JSON error envelope on stdout;
+				// usageErr sets exit 2.
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "missing required argument",
+						"usage": fmt.Sprintf("%s%s", cmd.CommandPath(), " <webinarId>"),
+					}, flags); printErr != nil {
+						return printErr
+					}
+				}
+				return usageErr(fmt.Errorf("missing required argument\nUsage: %s%s", cmd.CommandPath(), " <webinarId>"))
 			}
+			if cmd.Flags().Changed("type") {
+				allowedType := []string{"past", "live"}
+				validType := false
+				for _, v := range allowedType {
+					if flagType == v {
+						validType = true
+						break
+					}
+				}
+				if !validType {
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagType, "type", allowedType)
+				}
+			}
+			path := "/metrics/webinars/{webinarId}"
+			if len(args) < 1 || args[0] == "" {
+				return usageErr(fmt.Errorf("webinarId is required\nUsage: %s <%s>", cmd.CommandPath(), "webinarId"))
+			}
+			path = replacePathParam(path, "webinarId", args[0])
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/metrics/webinars/{webinarId}"
-			path = replacePathParam(path, "webinarId", args[0])
 			params := map[string]string{}
 			if flagType != "" {
-				params["type"] = fmt.Sprintf("%v", flagType)
+				params["type"] = formatCLIParamValue(flagType)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "metrics", false, path, params, nil)
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "metrics", false, path, params, nil, "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -64,6 +91,10 @@ func newMetricsDashboardWebinarDetailCmd(flags *rootFlags) *cobra.Command {
 				if wrapErr != nil {
 					return wrapErr
 				}
+				wrapped, wrapErr = wrapPlatformStructuredOutput(wrapped, flags, "results", true)
+				if wrapErr != nil {
+					return wrapErr
+				}
 				return printOutput(cmd.OutOrStdout(), wrapped, true)
 			}
 			// For all other output modes (table, csv, plain, quiet), use the standard pipeline
@@ -79,10 +110,10 @@ func newMetricsDashboardWebinarDetailCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
-	cmd.Flags().StringVar(&flagType, "type", "", "The webinar type")
+	cmd.Flags().StringVar(&flagType, "type", "live", "The webinar type (one of: past, live)")
 
 	return cmd
 }

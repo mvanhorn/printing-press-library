@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/mark3labs/mcp-go/server"
+	"github.com/mvanhorn/printing-press-library/library/productivity/zoom/internal/cli"
 	mcptools "github.com/mvanhorn/printing-press-library/library/productivity/zoom/internal/mcp"
 )
 
@@ -24,6 +25,13 @@ const (
 )
 
 func main() {
+	// Pin the learn-event surface for this process and every walker
+	// shell-out child, so usage events record surface=mcp.
+	_ = os.Setenv("ZOOM_LEARN_SURFACE", "mcp")
+	if err := cli.BindMCPServerProfile(); err != nil {
+		fmt.Fprintf(os.Stderr, "MCP client-profile bind failed: %v\n", err)
+		os.Exit(1)
+	}
 	s := server.NewMCPServer(
 		"Zoom",
 		"1.0.0",

@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "zoom-pp-cli"
+display_name = "Zoom"
+description = "The first Zoom CLI that joins your local desktop app, your on-disk recordings, and your cloud account into one agent-native surface."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/zoom-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+ZOOM_S2S_ACCESS_TOKEN = true

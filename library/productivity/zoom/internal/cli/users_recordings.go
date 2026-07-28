@@ -9,9 +9,10 @@ import (
 
 func newUsersRecordingsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "recordings",
-		Short: "Manage recordings",
-		RunE:  parentNoSubcommandRunE(flags),
+		Use:         "recordings",
+		Short:       "List recordings for users",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newUsersRecordingsListCmd(flags))

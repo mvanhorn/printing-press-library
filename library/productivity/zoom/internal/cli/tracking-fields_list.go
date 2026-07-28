@@ -17,16 +17,15 @@ func newTrackingFieldsListCmd(flags *rootFlags) *cobra.Command {
 		Use:         "list",
 		Short:       "List Tracking Fields on your Zoom account.",
 		Example:     "  zoom-pp-cli tracking-fields list",
-		Annotations: map[string]string{"pp:endpoint": "tracking-fields.list", "pp:method": "GET", "pp:path": "/v2/tracking_fields", "mcp:read-only": "true"},
+		Annotations: map[string]string{"pp:endpoint": "tracking-fields.list", "pp:method": "GET", "pp:path": "/tracking_fields", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			path := "/tracking_fields"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/v2/tracking_fields"
 			params := map[string]string{}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "tracking-fields", false, path, params, nil)
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "tracking-fields", true, path, params, nil, "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -56,6 +55,10 @@ func newTrackingFieldsListCmd(flags *rootFlags) *cobra.Command {
 				if wrapErr != nil {
 					return wrapErr
 				}
+				wrapped, wrapErr = wrapPlatformStructuredOutput(wrapped, flags, "results", true)
+				if wrapErr != nil {
+					return wrapErr
+				}
 				return printOutput(cmd.OutOrStdout(), wrapped, true)
 			}
 			// For all other output modes (table, csv, plain, quiet), use the standard pipeline
@@ -71,7 +74,7 @@ func newTrackingFieldsListCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 

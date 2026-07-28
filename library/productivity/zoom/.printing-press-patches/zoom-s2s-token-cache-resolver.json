@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "zoom-s2s-token-cache-resolver",
+  "applied_at": "2026-07-28",
+  "base_run_id": "20260728-120506-5644192a",
+  "base_printing_press_version": "4.29.0",
+  "summary": "config Load consults tryLoadCachedZoomToken() so cached S2S OAuth tokens resolve as credentials for cloud commands.",
+  "reason": "The generator has no credential-resolver hook, so generated config loading only reads env vars and stored config fields; without this fallback the token minted by `auth s2s-token` is cached but never used.",
+  "files": [
+    "internal/config/config.go",
+    "internal/config/zoom_auth_config.go"
+  ],
+  "validated_outcome": "Live dogfood (--live --level full) passed 388 commands with 0 failures against the real Zoom API using only the cached S2S token.",
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/3827"
+}

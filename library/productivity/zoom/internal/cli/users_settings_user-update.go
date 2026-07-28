@@ -13,6 +13,61 @@ import (
 )
 
 func newUsersSettingsUserUpdateCmd(flags *rootFlags) *cobra.Command {
+	var bodyEmailNotificationAlternativeHostReminder bool
+	var bodyEmailNotificationCancelMeetingReminder bool
+	var bodyEmailNotificationJbhReminder bool
+	var bodyFeatureLargeMeeting bool
+	var bodyFeatureLargeMeetingCapacity int
+	var bodyFeatureMeetingCapacity int
+	var bodyFeatureWebinar bool
+	var bodyFeatureWebinarCapacity int
+	var bodyInMeetingAllowLiveStreaming bool
+	var bodyInMeetingAnnotation bool
+	var bodyInMeetingAttendeeOnHold bool
+	var bodyInMeetingAttentionTracking bool
+	var bodyInMeetingAutoSavingChat bool
+	var bodyInMeetingBreakoutRoom bool
+	var bodyInMeetingChat bool
+	var bodyInMeetingClosedCaption bool
+	var bodyInMeetingCoHost bool
+	var bodyInMeetingCustomLiveStreaming bool
+	var bodyInMeetingCustomServiceInstructions string
+	var bodyInMeetingE2eEncryption bool
+	var bodyInMeetingEntryExitChime string
+	var bodyInMeetingFarEndCameraControl bool
+	var bodyInMeetingFeedback bool
+	var bodyInMeetingFileTransfer bool
+	var bodyInMeetingGroupHd bool
+	var bodyInMeetingNonVerbalFeedback bool
+	var bodyInMeetingPolling bool
+	var bodyInMeetingPrivateChat bool
+	var bodyInMeetingRecordPlayVoice bool
+	var bodyInMeetingRemoteControl bool
+	var bodyInMeetingRemoteSupport bool
+	var bodyInMeetingShareDualCamera bool
+	var bodyInMeetingVirtualBackground bool
+	var bodyInMeetingWaitingRoom bool
+	var bodyInMeetingWorkplaceByFacebook bool
+	var bodyRecordingAutoDeleteCmr bool
+	var bodyRecordingAutoDeleteCmrDays int
+	var bodyRecordingAutoRecording string
+	var bodyRecordingCloudRecording bool
+	var bodyRecordingLocalRecording bool
+	var bodyRecordingRecordAudioFile bool
+	var bodyRecordingRecordGalleryView bool
+	var bodyRecordingRecordSpeakerView bool
+	var bodyRecordingRecordingAudioTranscript bool
+	var bodyRecordingSaveChatText bool
+	var bodyRecordingShowTimestamp bool
+	var bodyScheduleMeetingAudioType string
+	var bodyScheduleMeetingForcePmiJbhPassword bool
+	var bodyScheduleMeetingHostVideo bool
+	var bodyScheduleMeetingJoinBeforeHost bool
+	var bodyScheduleMeetingParticipantsVideo bool
+	var bodyScheduleMeetingPstnPasswordProtected bool
+	var bodyTelephonyAudioConferenceInfo string
+	var bodyTelephonyShowInternationalNumbersLink bool
+	var bodyTelephonyThirdPartyAudio bool
 	var stdinBody bool
 
 	cmd := &cobra.Command{
@@ -23,19 +78,33 @@ func newUsersSettingsUserUpdateCmd(flags *rootFlags) *cobra.Command {
 		Annotations: map[string]string{"pp:endpoint": "settings.user-update", "pp:method": "PATCH", "pp:path": "/users/{userId}/settings"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
-				return cmd.Help()
+				// A missing required positional is a usage error in every output
+				// mode (matches command_promoted.go.tmpl). Machine callers
+				// (--json/--agent) also get a JSON error envelope on stdout;
+				// usageErr sets exit 2.
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "missing required argument",
+						"usage": fmt.Sprintf("%s%s", cmd.CommandPath(), " <userId>"),
+					}, flags); printErr != nil {
+						return printErr
+					}
+				}
+				return usageErr(fmt.Errorf("missing required argument\nUsage: %s%s", cmd.CommandPath(), " <userId>"))
 			}
 			if !stdinBody {
 			}
+			path := "/users/{userId}/settings"
+			if len(args) < 1 || args[0] == "" {
+				return usageErr(fmt.Errorf("userId is required\nUsage: %s <%s>", cmd.CommandPath(), "userId"))
+			}
+			path = replacePathParam(path, "userId", args[0])
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/users/{userId}/settings"
-			path = replacePathParam(path, "userId", args[0])
 			params := map[string]string{}
-			var body map[string]any
+			var body any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
@@ -47,9 +116,211 @@ func newUsersSettingsUserUpdateCmd(flags *rootFlags) *cobra.Command {
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
+				bodyMap := map[string]any{}
+				body = bodyMap
+				{
+					nestedEmailNotification := map[string]any{}
+					if cmd.Flags().Changed("email-notification-alternative-host-reminder") {
+						nestedEmailNotification["alternative_host_reminder"] = bodyEmailNotificationAlternativeHostReminder
+					}
+					if cmd.Flags().Changed("email-notification-cancel-meeting-reminder") {
+						nestedEmailNotification["cancel_meeting_reminder"] = bodyEmailNotificationCancelMeetingReminder
+					}
+					if cmd.Flags().Changed("email-notification-jbh-reminder") {
+						nestedEmailNotification["jbh_reminder"] = bodyEmailNotificationJbhReminder
+					}
+					if len(nestedEmailNotification) > 0 {
+						bodyMap["email_notification"] = nestedEmailNotification
+					}
+				}
+				{
+					nestedFeature := map[string]any{}
+					if cmd.Flags().Changed("feature-large-meeting") {
+						nestedFeature["large_meeting"] = bodyFeatureLargeMeeting
+					}
+					if bodyFeatureLargeMeetingCapacity != 0 {
+						nestedFeature["large_meeting_capacity"] = bodyFeatureLargeMeetingCapacity
+					}
+					if bodyFeatureMeetingCapacity != 0 {
+						nestedFeature["meeting_capacity"] = bodyFeatureMeetingCapacity
+					}
+					if cmd.Flags().Changed("feature-webinar") {
+						nestedFeature["webinar"] = bodyFeatureWebinar
+					}
+					if bodyFeatureWebinarCapacity != 0 {
+						nestedFeature["webinar_capacity"] = bodyFeatureWebinarCapacity
+					}
+					if len(nestedFeature) > 0 {
+						bodyMap["feature"] = nestedFeature
+					}
+				}
+				{
+					nestedInMeeting := map[string]any{}
+					if cmd.Flags().Changed("in-meeting-allow-live-streaming") {
+						nestedInMeeting["allow_live_streaming"] = bodyInMeetingAllowLiveStreaming
+					}
+					if cmd.Flags().Changed("in-meeting-annotation") {
+						nestedInMeeting["annotation"] = bodyInMeetingAnnotation
+					}
+					if cmd.Flags().Changed("in-meeting-attendee-on-hold") {
+						nestedInMeeting["attendee_on_hold"] = bodyInMeetingAttendeeOnHold
+					}
+					if cmd.Flags().Changed("in-meeting-attention-tracking") {
+						nestedInMeeting["attention_tracking"] = bodyInMeetingAttentionTracking
+					}
+					if cmd.Flags().Changed("in-meeting-auto-saving-chat") {
+						nestedInMeeting["auto_saving_chat"] = bodyInMeetingAutoSavingChat
+					}
+					if cmd.Flags().Changed("in-meeting-breakout-room") {
+						nestedInMeeting["breakout_room"] = bodyInMeetingBreakoutRoom
+					}
+					if cmd.Flags().Changed("in-meeting-chat") {
+						nestedInMeeting["chat"] = bodyInMeetingChat
+					}
+					if cmd.Flags().Changed("in-meeting-closed-caption") {
+						nestedInMeeting["closed_caption"] = bodyInMeetingClosedCaption
+					}
+					if cmd.Flags().Changed("in-meeting-co-host") {
+						nestedInMeeting["co_host"] = bodyInMeetingCoHost
+					}
+					if cmd.Flags().Changed("in-meeting-custom-live-streaming") {
+						nestedInMeeting["custom_live_streaming"] = bodyInMeetingCustomLiveStreaming
+					}
+					if bodyInMeetingCustomServiceInstructions != "" {
+						nestedInMeeting["custom_service_instructions"] = bodyInMeetingCustomServiceInstructions
+					}
+					if cmd.Flags().Changed("in-meeting-e2e-encryption") {
+						nestedInMeeting["e2e_encryption"] = bodyInMeetingE2eEncryption
+					}
+					if bodyInMeetingEntryExitChime != "" {
+						nestedInMeeting["entry_exit_chime"] = bodyInMeetingEntryExitChime
+					}
+					if cmd.Flags().Changed("in-meeting-far-end-camera-control") {
+						nestedInMeeting["far_end_camera_control"] = bodyInMeetingFarEndCameraControl
+					}
+					if cmd.Flags().Changed("in-meeting-feedback") {
+						nestedInMeeting["feedback"] = bodyInMeetingFeedback
+					}
+					if cmd.Flags().Changed("in-meeting-file-transfer") {
+						nestedInMeeting["file_transfer"] = bodyInMeetingFileTransfer
+					}
+					if cmd.Flags().Changed("in-meeting-group-hd") {
+						nestedInMeeting["group_hd"] = bodyInMeetingGroupHd
+					}
+					if cmd.Flags().Changed("in-meeting-non-verbal-feedback") {
+						nestedInMeeting["non_verbal_feedback"] = bodyInMeetingNonVerbalFeedback
+					}
+					if cmd.Flags().Changed("in-meeting-polling") {
+						nestedInMeeting["polling"] = bodyInMeetingPolling
+					}
+					if cmd.Flags().Changed("in-meeting-private-chat") {
+						nestedInMeeting["private_chat"] = bodyInMeetingPrivateChat
+					}
+					if cmd.Flags().Changed("in-meeting-record-play-voice") {
+						nestedInMeeting["record_play_voice"] = bodyInMeetingRecordPlayVoice
+					}
+					if cmd.Flags().Changed("in-meeting-remote-control") {
+						nestedInMeeting["remote_control"] = bodyInMeetingRemoteControl
+					}
+					if cmd.Flags().Changed("in-meeting-remote-support") {
+						nestedInMeeting["remote_support"] = bodyInMeetingRemoteSupport
+					}
+					if cmd.Flags().Changed("in-meeting-share-dual-camera") {
+						nestedInMeeting["share_dual_camera"] = bodyInMeetingShareDualCamera
+					}
+					if cmd.Flags().Changed("in-meeting-virtual-background") {
+						nestedInMeeting["virtual_background"] = bodyInMeetingVirtualBackground
+					}
+					if cmd.Flags().Changed("in-meeting-waiting-room") {
+						nestedInMeeting["waiting_room"] = bodyInMeetingWaitingRoom
+					}
+					if cmd.Flags().Changed("in-meeting-workplace-by-facebook") {
+						nestedInMeeting["workplace_by_facebook"] = bodyInMeetingWorkplaceByFacebook
+					}
+					if len(nestedInMeeting) > 0 {
+						bodyMap["in_meeting"] = nestedInMeeting
+					}
+				}
+				{
+					nestedRecording := map[string]any{}
+					if cmd.Flags().Changed("recording-auto-delete-cmr") {
+						nestedRecording["auto_delete_cmr"] = bodyRecordingAutoDeleteCmr
+					}
+					if bodyRecordingAutoDeleteCmrDays != 0 {
+						nestedRecording["auto_delete_cmr_days"] = bodyRecordingAutoDeleteCmrDays
+					}
+					if bodyRecordingAutoRecording != "" {
+						nestedRecording["auto_recording"] = bodyRecordingAutoRecording
+					}
+					if cmd.Flags().Changed("recording-cloud-recording") {
+						nestedRecording["cloud_recording"] = bodyRecordingCloudRecording
+					}
+					if cmd.Flags().Changed("recording-local-recording") {
+						nestedRecording["local_recording"] = bodyRecordingLocalRecording
+					}
+					if cmd.Flags().Changed("recording-record-audio-file") {
+						nestedRecording["record_audio_file"] = bodyRecordingRecordAudioFile
+					}
+					if cmd.Flags().Changed("recording-record-gallery-view") {
+						nestedRecording["record_gallery_view"] = bodyRecordingRecordGalleryView
+					}
+					if cmd.Flags().Changed("recording-record-speaker-view") {
+						nestedRecording["record_speaker_view"] = bodyRecordingRecordSpeakerView
+					}
+					if cmd.Flags().Changed("recording-recording-audio-transcript") {
+						nestedRecording["recording_audio_transcript"] = bodyRecordingRecordingAudioTranscript
+					}
+					if cmd.Flags().Changed("recording-save-chat-text") {
+						nestedRecording["save_chat_text"] = bodyRecordingSaveChatText
+					}
+					if cmd.Flags().Changed("recording-show-timestamp") {
+						nestedRecording["show_timestamp"] = bodyRecordingShowTimestamp
+					}
+					if len(nestedRecording) > 0 {
+						bodyMap["recording"] = nestedRecording
+					}
+				}
+				{
+					nestedScheduleMeeting := map[string]any{}
+					if bodyScheduleMeetingAudioType != "" {
+						nestedScheduleMeeting["audio_type"] = bodyScheduleMeetingAudioType
+					}
+					if cmd.Flags().Changed("schedule-meeting-force-pmi-jbh-password") {
+						nestedScheduleMeeting["force_pmi_jbh_password"] = bodyScheduleMeetingForcePmiJbhPassword
+					}
+					if cmd.Flags().Changed("schedule-meeting-host-video") {
+						nestedScheduleMeeting["host_video"] = bodyScheduleMeetingHostVideo
+					}
+					if cmd.Flags().Changed("schedule-meeting-join-before-host") {
+						nestedScheduleMeeting["join_before_host"] = bodyScheduleMeetingJoinBeforeHost
+					}
+					if cmd.Flags().Changed("schedule-meeting-participants-video") {
+						nestedScheduleMeeting["participants_video"] = bodyScheduleMeetingParticipantsVideo
+					}
+					if cmd.Flags().Changed("schedule-meeting-pstn-password-protected") {
+						nestedScheduleMeeting["pstn_password_protected"] = bodyScheduleMeetingPstnPasswordProtected
+					}
+					if len(nestedScheduleMeeting) > 0 {
+						bodyMap["schedule_meeting"] = nestedScheduleMeeting
+					}
+				}
+				{
+					nestedTelephony := map[string]any{}
+					if bodyTelephonyAudioConferenceInfo != "" {
+						nestedTelephony["audio_conference_info"] = bodyTelephonyAudioConferenceInfo
+					}
+					if cmd.Flags().Changed("telephony-show-international-numbers-link") {
+						nestedTelephony["show_international_numbers_link"] = bodyTelephonyShowInternationalNumbersLink
+					}
+					if cmd.Flags().Changed("telephony-third-party-audio") {
+						nestedTelephony["third_party_audio"] = bodyTelephonyThirdPartyAudio
+					}
+					if len(nestedTelephony) > 0 {
+						bodyMap["telephony"] = nestedTelephony
+					}
+				}
 			}
-			data, statusCode, err := c.PatchWithParams(path, params, body)
+			data, statusCode, err := c.PatchWithParams(cmd.Context(), path, params, body)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -70,6 +341,9 @@ func newUsersSettingsUserUpdateCmd(flags *rootFlags) *cobra.Command {
 						fmt.Fprintf(os.Stderr, "         succeeded: %d operation(s)\n", len(partialFailure.ResourceNames))
 					}
 				}
+			}
+			if !flags.dryRun && statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure) {
+				writeMutationResponseToStore(cmd.Context(), "settings", data, "")
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")
@@ -106,6 +380,41 @@ func newUsersSettingsUserUpdateCmd(flags *rootFlags) *cobra.Command {
 					}
 					return nil
 				}
+				envelope := map[string]any{
+					"action":   "patch",
+					"resource": "settings",
+					"path":     path,
+					"status":   statusCode,
+					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
+				}
+				if flags.agent {
+					envelope["meta"] = map[string]any{"source": "live"}
+				}
+				if partialFailure != nil {
+					envelope["partial_failure"] = partialFailure
+				}
+				if flags.dryRun {
+					envelope["dry_run"] = true
+					envelope["status"] = 0
+					envelope["success"] = false
+				}
+				// Verify-mode synthetic envelope detection runs against RAW data
+				// (before --compact/--select filtering) so the sentinel field is
+				// guaranteed to be visible even if the operator passes a filter
+				// flag that would otherwise strip it. Surfaces a top-level
+				// verify_noop signal + flips success to false. Mirrors the dry_run
+				// shape above.
+				if len(data) > 0 {
+					var rawParsed any
+					if err := json.Unmarshal(data, &rawParsed); err == nil {
+						if m, ok := rawParsed.(map[string]any); ok {
+							if v, ok := m["__pp_verify_synthetic__"].(bool); ok && v {
+								envelope["verify_noop"] = true
+								envelope["success"] = false
+							}
+						}
+					}
+				}
 				// Apply --compact and --select to the API response before wrapping.
 				// --select wins when both are set: explicit field choice trumps the
 				// generic high-gravity allow-list. Otherwise --compact still applies
@@ -116,32 +425,29 @@ func newUsersSettingsUserUpdateCmd(flags *rootFlags) *cobra.Command {
 				} else if flags.compact {
 					filtered = compactFields(filtered)
 				}
-				envelope := map[string]any{
-					"action":   "patch",
-					"resource": "settings",
-					"path":     path,
-					"status":   statusCode,
-					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
-				}
-				if partialFailure != nil {
-					envelope["partial_failure"] = partialFailure
-				}
-				if flags.dryRun {
-					envelope["dry_run"] = true
-					envelope["status"] = 0
-					envelope["success"] = false
-				}
 				if len(filtered) > 0 {
 					var parsed any
 					if err := json.Unmarshal(filtered, &parsed); err == nil {
-						envelope["data"] = parsed
+						if flags.agent {
+							envelope["results"] = parsed
+						} else {
+							envelope["data"] = parsed
+						}
 					}
 				}
 				envelopeJSON, err := json.Marshal(envelope)
 				if err != nil {
 					return err
 				}
-				if perr := printOutput(cmd.OutOrStdout(), json.RawMessage(envelopeJSON), true); perr != nil {
+				resultKey := "data"
+				if flags.agent {
+					resultKey = "results"
+				}
+				structured, err := wrapPlatformStructuredOutput(json.RawMessage(envelopeJSON), flags, resultKey, true)
+				if err != nil {
+					return err
+				}
+				if perr := printOutput(cmd.OutOrStdout(), structured, true); perr != nil {
 					return perr
 				}
 				if partialFailure != nil && !flags.allowPartialFailure {
@@ -165,6 +471,61 @@ func newUsersSettingsUserUpdateCmd(flags *rootFlags) *cobra.Command {
 			return nil
 		},
 	}
+	cmd.Flags().BoolVar(&bodyEmailNotificationAlternativeHostReminder, "email-notification-alternative-host-reminder", false, "When an alternative host is set or removed from a meeting")
+	cmd.Flags().BoolVar(&bodyEmailNotificationCancelMeetingReminder, "email-notification-cancel-meeting-reminder", false, "When a meeting is cancelled")
+	cmd.Flags().BoolVar(&bodyEmailNotificationJbhReminder, "email-notification-jbh-reminder", false, "When attendees join meeting before host")
+	cmd.Flags().BoolVar(&bodyFeatureLargeMeeting, "feature-large-meeting", false, "Large meting feature")
+	cmd.Flags().IntVar(&bodyFeatureLargeMeetingCapacity, "feature-large-meeting-capacity", 0, "Large meeting capacity, can be 100, 200, 300 or 500")
+	cmd.Flags().IntVar(&bodyFeatureMeetingCapacity, "feature-meeting-capacity", 0, "User’s meeting capacity")
+	cmd.Flags().BoolVar(&bodyFeatureWebinar, "feature-webinar", false, "Webinar feature")
+	cmd.Flags().IntVar(&bodyFeatureWebinarCapacity, "feature-webinar-capacity", 0, "Webinar capacity, can be 100, 500, 1000, 3000, 5000 or 10000")
+	cmd.Flags().BoolVar(&bodyInMeetingAllowLiveStreaming, "in-meeting-allow-live-streaming", false, "Allow live streaming")
+	cmd.Flags().BoolVar(&bodyInMeetingAnnotation, "in-meeting-annotation", false, "Annotation")
+	cmd.Flags().BoolVar(&bodyInMeetingAttendeeOnHold, "in-meeting-attendee-on-hold", false, "Allow host to put attendee on hold")
+	cmd.Flags().BoolVar(&bodyInMeetingAttentionTracking, "in-meeting-attention-tracking", false, "Attention tracking")
+	cmd.Flags().BoolVar(&bodyInMeetingAutoSavingChat, "in-meeting-auto-saving-chat", false, "Auto saving chats")
+	cmd.Flags().BoolVar(&bodyInMeetingBreakoutRoom, "in-meeting-breakout-room", false, "Breakout room")
+	cmd.Flags().BoolVar(&bodyInMeetingChat, "in-meeting-chat", false, "Chat")
+	cmd.Flags().BoolVar(&bodyInMeetingClosedCaption, "in-meeting-closed-caption", false, "Closed caption")
+	cmd.Flags().BoolVar(&bodyInMeetingCoHost, "in-meeting-co-host", false, "Co-host")
+	cmd.Flags().BoolVar(&bodyInMeetingCustomLiveStreaming, "in-meeting-custom-live-streaming", false, "Custom live streaming")
+	cmd.Flags().StringVar(&bodyInMeetingCustomServiceInstructions, "in-meeting-custom-service-instructions", "", "Custom service instructions")
+	cmd.Flags().BoolVar(&bodyInMeetingE2eEncryption, "in-meeting-e2e-encryption", false, "End-to-end encryption")
+	cmd.Flags().StringVar(&bodyInMeetingEntryExitChime, "in-meeting-entry-exit-chime", "", "Play sound on join/leave")
+	cmd.Flags().BoolVar(&bodyInMeetingFarEndCameraControl, "in-meeting-far-end-camera-control", false, "Far end camera control")
+	cmd.Flags().BoolVar(&bodyInMeetingFeedback, "in-meeting-feedback", false, "Feedback to Zoom")
+	cmd.Flags().BoolVar(&bodyInMeetingFileTransfer, "in-meeting-file-transfer", false, "File transfer")
+	cmd.Flags().BoolVar(&bodyInMeetingGroupHd, "in-meeting-group-hd", false, "Group HD video")
+	cmd.Flags().BoolVar(&bodyInMeetingNonVerbalFeedback, "in-meeting-non-verbal-feedback", false, "Non-verbal feedback")
+	cmd.Flags().BoolVar(&bodyInMeetingPolling, "in-meeting-polling", false, "Polling")
+	cmd.Flags().BoolVar(&bodyInMeetingPrivateChat, "in-meeting-private-chat", false, "Private chat")
+	cmd.Flags().BoolVar(&bodyInMeetingRecordPlayVoice, "in-meeting-record-play-voice", false, "Record and play their own voice")
+	cmd.Flags().BoolVar(&bodyInMeetingRemoteControl, "in-meeting-remote-control", false, "Remote control")
+	cmd.Flags().BoolVar(&bodyInMeetingRemoteSupport, "in-meeting-remote-support", false, "Remote support")
+	cmd.Flags().BoolVar(&bodyInMeetingShareDualCamera, "in-meeting-share-dual-camera", false, "Share dual camera (Deprecated)")
+	cmd.Flags().BoolVar(&bodyInMeetingVirtualBackground, "in-meeting-virtual-background", false, "Virtual background")
+	cmd.Flags().BoolVar(&bodyInMeetingWaitingRoom, "in-meeting-waiting-room", false, "Waiting room")
+	cmd.Flags().BoolVar(&bodyInMeetingWorkplaceByFacebook, "in-meeting-workplace-by-facebook", false, "Workplace by facebook")
+	cmd.Flags().BoolVar(&bodyRecordingAutoDeleteCmr, "recording-auto-delete-cmr", false, "Auto delete cloud recordings")
+	cmd.Flags().IntVar(&bodyRecordingAutoDeleteCmrDays, "recording-auto-delete-cmr-days", 0, "A specified number of days of auto delete cloud recordings")
+	cmd.Flags().StringVar(&bodyRecordingAutoRecording, "recording-auto-recording", "", "Automatic recording")
+	cmd.Flags().BoolVar(&bodyRecordingCloudRecording, "recording-cloud-recording", false, "Cloud recording")
+	cmd.Flags().BoolVar(&bodyRecordingLocalRecording, "recording-local-recording", false, "Local recording")
+	cmd.Flags().BoolVar(&bodyRecordingRecordAudioFile, "recording-record-audio-file", false, "Record an audio only file")
+	cmd.Flags().BoolVar(&bodyRecordingRecordGalleryView, "recording-record-gallery-view", false, "Record the gallery view")
+	cmd.Flags().BoolVar(&bodyRecordingRecordSpeakerView, "recording-record-speaker-view", false, "Record the active speaker view")
+	cmd.Flags().BoolVar(&bodyRecordingRecordingAudioTranscript, "recording-recording-audio-transcript", false, "Audio transcript")
+	cmd.Flags().BoolVar(&bodyRecordingSaveChatText, "recording-save-chat-text", false, "Save chat text from the meeting")
+	cmd.Flags().BoolVar(&bodyRecordingShowTimestamp, "recording-show-timestamp", false, "Show timestamp on video")
+	cmd.Flags().StringVar(&bodyScheduleMeetingAudioType, "schedule-meeting-audio-type", "", "Determine how participants can join the audio portion of the meeting")
+	cmd.Flags().BoolVar(&bodyScheduleMeetingForcePmiJbhPassword, "schedule-meeting-force-pmi-jbh-password", false, "Require a password for Personal Meetings if attendees can join before host")
+	cmd.Flags().BoolVar(&bodyScheduleMeetingHostVideo, "schedule-meeting-host-video", false, "Host video")
+	cmd.Flags().BoolVar(&bodyScheduleMeetingJoinBeforeHost, "schedule-meeting-join-before-host", false, "Join before host")
+	cmd.Flags().BoolVar(&bodyScheduleMeetingParticipantsVideo, "schedule-meeting-participants-video", false, "Participants video")
+	cmd.Flags().BoolVar(&bodyScheduleMeetingPstnPasswordProtected, "schedule-meeting-pstn-password-protected", false, "Generate and require password for participants joining by phone")
+	cmd.Flags().StringVar(&bodyTelephonyAudioConferenceInfo, "telephony-audio-conference-info", "", "3rd party audio conference info")
+	cmd.Flags().BoolVar(&bodyTelephonyShowInternationalNumbersLink, "telephony-show-international-numbers-link", false, "Show international numbers link on the invitation email")
+	cmd.Flags().BoolVar(&bodyTelephonyThirdPartyAudio, "telephony-third-party-audio", false, "3rd party audio conference")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd

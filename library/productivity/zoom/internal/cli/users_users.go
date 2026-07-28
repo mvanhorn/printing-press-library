@@ -13,8 +13,8 @@ import (
 
 func newUsersUsersCmd(flags *rootFlags) *cobra.Command {
 	var flagStatus string
-	var flagPageSize string
-	var flagPageNumber string
+	var flagPageSize int
+	var flagPageNumber int
 	var flagAll bool
 
 	cmd := &cobra.Command{
@@ -23,17 +23,29 @@ func newUsersUsersCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  zoom-pp-cli users users",
 		Annotations: map[string]string{"pp:endpoint": "users.users", "pp:method": "GET", "pp:path": "/users", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if cmd.Flags().Changed("status") {
+				allowedStatus := []string{"active", "inactive", "pending"}
+				validStatus := false
+				for _, v := range allowedStatus {
+					if flagStatus == v {
+						validStatus = true
+						break
+					}
+				}
+				if !validStatus {
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagStatus, "status", allowedStatus)
+				}
+			}
+			path := "/users"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/users"
-			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "users", path, map[string]string{
-				"status":      fmt.Sprintf("%v", flagStatus),
-				"page_size":   fmt.Sprintf("%v", flagPageSize),
-				"page_number": fmt.Sprintf("%v", flagPageNumber),
-			}, nil, flagAll, "page_number", "", "")
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "users", path, map[string]string{
+				"status":      formatCLIParamValue(flagStatus),
+				"page_size":   formatCLIParamValue(flagPageSize),
+				"page_number": formatCLIParamValue(flagPageNumber),
+			}, nil, flagAll, "page_number", "page", "page_size", 30, "", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -63,6 +75,10 @@ func newUsersUsersCmd(flags *rootFlags) *cobra.Command {
 				if wrapErr != nil {
 					return wrapErr
 				}
+				wrapped, wrapErr = wrapPlatformStructuredOutput(wrapped, flags, "results", true)
+				if wrapErr != nil {
+					return wrapErr
+				}
 				return printOutput(cmd.OutOrStdout(), wrapped, true)
 			}
 			// For all other output modes (table, csv, plain, quiet), use the standard pipeline
@@ -78,12 +94,12 @@ func newUsersUsersCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
-	cmd.Flags().StringVar(&flagStatus, "status", "", "User status")
-	cmd.Flags().StringVar(&flagPageSize, "page-size", "", "The number of records returned within a single API call")
-	cmd.Flags().StringVar(&flagPageNumber, "page-number", "", "Current page number of returned records")
+	cmd.Flags().StringVar(&flagStatus, "status", "active", "User status (one of: active, inactive, pending)")
+	cmd.Flags().IntVar(&flagPageSize, "page-size", 30, "The number of records returned within a single API call")
+	cmd.Flags().IntVar(&flagPageNumber, "page-number", 1, "Current page number of returned records")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
 	return cmd

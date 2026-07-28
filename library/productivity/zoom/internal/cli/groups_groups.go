@@ -20,14 +20,13 @@ func newGroupsGroupsCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  zoom-pp-cli groups groups",
 		Annotations: map[string]string{"pp:endpoint": "groups.groups", "pp:method": "GET", "pp:path": "/groups", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			path := "/groups"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/groups"
 			params := map[string]string{}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "groups", false, path, params, nil)
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "groups", false, path, params, nil, "groups", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -57,6 +56,10 @@ func newGroupsGroupsCmd(flags *rootFlags) *cobra.Command {
 				if wrapErr != nil {
 					return wrapErr
 				}
+				wrapped, wrapErr = wrapPlatformStructuredOutput(wrapped, flags, "results", true)
+				if wrapErr != nil {
+					return wrapErr
+				}
 				return printOutput(cmd.OutOrStdout(), wrapped, true)
 			}
 			// For all other output modes (table, csv, plain, quiet), use the standard pipeline
@@ -72,7 +75,7 @@ func newGroupsGroupsCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 

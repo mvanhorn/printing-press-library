@@ -1,3 +1,5 @@
+// pp:data-source live
+
 package cli
 
 import (
@@ -91,7 +93,7 @@ func newZoomScheduleCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			if cfg.AuthHeader() == "" {
-				return errors.New("schedule: no Zoom S2S OAuth token available — run `zoom-pp-cli auth set-token` first")
+				return errors.New("schedule: no Zoom S2S OAuth token available — run `zoom-pp-cli auth s2s-token` first")
 			}
 
 			meeting, err := postZoomMeeting(cmd.Context(), cfg, userID, body)

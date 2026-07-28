@@ -7,6 +7,7 @@ package macosctl
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os/exec"
 	"runtime"
@@ -270,10 +271,32 @@ end tell`, item, item)
 	return strings.TrimSpace(out) == "true", nil
 }
 
-func runOsascript(ctx context.Context, script string) (string, error) {
-	cmd := exec.CommandContext(ctx, "osascript", "-e", script)
+// ErrProbeTimeout reports that osascript did not return within
+// osascriptTimeout. The usual cause is macOS holding the process on a TCC
+// (Automation / Accessibility) consent prompt that nobody is there to answer,
+// which otherwise hangs the CLI forever.
+type ErrProbeTimeout struct{ After time.Duration }
+
+func (e *ErrProbeTimeout) Error() string {
+	return fmt.Sprintf("osascript did not respond within %s — macOS is most likely waiting on an "+
+		"Automation/Accessibility consent prompt; grant your terminal control of Zoom and System Events "+
+		"in System Settings > Privacy & Security, then retry", e.After)
+}
+
+// osascriptTimeout bounds every AppleScript call. Chosen well under the
+// 30s per-command budget the live-dogfood runner enforces so a consent-prompt
+// stall surfaces as a typed error instead of a killed process.
+const osascriptTimeout = 8 * time.Second
+
+func runOsascript(parent context.Context, script string) (string, error) {
+	ctx, cancel := context.WithTimeout(parent, osascriptTimeout)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, "osascript", "-e", script) // #nosec G204 -- fixed binary; script text is composed from package-internal constants, never user input
 	out, err := cmd.Output()
 	if err != nil {
+		if parent.Err() == nil && errors.Is(ctx.Err(), context.DeadlineExceeded) {
+			return "", &ErrProbeTimeout{After: osascriptTimeout}
+		}
 		// osascript writes useful errors to stderr; preserve them in the
 		// wrapped message.
 		if exitErr, ok := err.(*exec.ExitError); ok {

@@ -44,7 +44,7 @@ func Parse(path string) (localstore.IngestedNote, error) {
 	case ".txt", ".md":
 		// Allow .txt/.md so users can run the extractor against their own
 		// pre-converted exports without dragging in another tool.
-		data, err := os.ReadFile(abs)
+		data, err := os.ReadFile(abs) // #nosec G304 -- user-supplied notes export file; reading user-named files is this command's purpose
 		if err != nil {
 			return localstore.IngestedNote{}, err
 		}
@@ -308,6 +308,13 @@ var todoPatterns = []struct {
 }
 
 var ownerSuffix = regexp.MustCompile(`\s*\(\s*Owner\s*:\s*([^)]+)\)\s*$`)
+
+// ExtractTodos scans text for action-item patterns. Exported so callers that
+// build a note from something other than a parsed file — a fetched transcript,
+// for example — get the same extraction the file parser applies.
+func ExtractTodos(text string) []localstore.NoteTodo {
+	return extractTodos(text)
+}
 
 // extractTodos scans the full text for any of the supported patterns.
 func extractTodos(text string) []localstore.NoteTodo {

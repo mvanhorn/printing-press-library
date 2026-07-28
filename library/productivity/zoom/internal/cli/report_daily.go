@@ -12,8 +12,8 @@ import (
 )
 
 func newReportDailyCmd(flags *rootFlags) *cobra.Command {
-	var flagYear string
-	var flagMonth string
+	var flagYear int
+	var flagMonth int
 
 	cmd := &cobra.Command{
 		Use:         "daily",
@@ -21,20 +21,19 @@ func newReportDailyCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  zoom-pp-cli report daily",
 		Annotations: map[string]string{"pp:endpoint": "report.daily", "pp:method": "GET", "pp:path": "/report/daily", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			path := "/report/daily"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/report/daily"
 			params := map[string]string{}
-			if flagYear != "" {
-				params["year"] = fmt.Sprintf("%v", flagYear)
+			if flagYear != 0 {
+				params["year"] = formatCLIParamValue(flagYear)
 			}
-			if flagMonth != "" {
-				params["month"] = fmt.Sprintf("%v", flagMonth)
+			if flagMonth != 0 {
+				params["month"] = formatCLIParamValue(flagMonth)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "report", false, path, params, nil)
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "report", false, path, params, nil, "dates", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -64,6 +63,10 @@ func newReportDailyCmd(flags *rootFlags) *cobra.Command {
 				if wrapErr != nil {
 					return wrapErr
 				}
+				wrapped, wrapErr = wrapPlatformStructuredOutput(wrapped, flags, "results", true)
+				if wrapErr != nil {
+					return wrapErr
+				}
 				return printOutput(cmd.OutOrStdout(), wrapped, true)
 			}
 			// For all other output modes (table, csv, plain, quiet), use the standard pipeline
@@ -79,11 +82,11 @@ func newReportDailyCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
-	cmd.Flags().StringVar(&flagYear, "year", "", "Year for this report")
-	cmd.Flags().StringVar(&flagMonth, "month", "", "Month for this report")
+	cmd.Flags().IntVar(&flagYear, "year", 0, "Year for this report")
+	cmd.Flags().IntVar(&flagMonth, "month", 0, "Month for this report")
 
 	return cmd
 }

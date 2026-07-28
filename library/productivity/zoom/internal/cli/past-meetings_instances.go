@@ -9,9 +9,10 @@ import (
 
 func newPastMeetingsInstancesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "instances",
-		Short: "Manage instances",
-		RunE:  parentNoSubcommandRunE(flags),
+		Use:         "instances",
+		Short:       "Get instances for past meetings",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newPastMeetingsInstancesPastMeetingsCmd(flags))

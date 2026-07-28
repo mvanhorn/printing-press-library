@@ -14,32 +14,69 @@ import (
 
 func newWebinarsRegistrantsWebinarStatusCmd(flags *rootFlags) *cobra.Command {
 	var flagOccurrenceId string
+	var bodyAction string
+	var bodyRegistrants string
 	var stdinBody bool
 
 	cmd := &cobra.Command{
 		Use:         "webinar-status <webinarId>",
 		Aliases:     []string{"update"},
 		Short:       "Update a webinar registrant's status",
-		Example:     "  zoom-pp-cli webinars registrants webinar-status 550e8400-e29b-41d4-a716-446655440000",
+		Example:     "  zoom-pp-cli webinars registrants webinar-status 42 --action approve",
 		Annotations: map[string]string{"pp:endpoint": "registrants.webinar-status", "pp:method": "PUT", "pp:path": "/webinars/{webinarId}/registrants/status"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) == 0 {
+			// Bare invocation of a command with required input prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only read commands fall through so a bare call still executes.
+			// Machine callers (--json/--agent, which sets asJSON) get a usage
+			// error + exit 2 instead of silent exit-0 help, so an incomplete
+			// invocation is never mistaken for success.
+			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "requires input",
+						"usage": cmd.CommandPath() + " --help",
+					}, flags); printErr != nil {
+						return printErr
+					}
+					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
+				}
 				return cmd.Help()
 			}
-			if !stdinBody {
+			if len(args) == 0 {
+				// A missing required positional is a usage error in every output
+				// mode (matches command_promoted.go.tmpl). Machine callers
+				// (--json/--agent) also get a JSON error envelope on stdout;
+				// usageErr sets exit 2.
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "missing required argument",
+						"usage": fmt.Sprintf("%s%s", cmd.CommandPath(), " <webinarId>"),
+					}, flags); printErr != nil {
+						return printErr
+					}
+				}
+				return usageErr(fmt.Errorf("missing required argument\nUsage: %s%s", cmd.CommandPath(), " <webinarId>"))
 			}
+			if !stdinBody {
+				if !cmd.Flags().Changed("action") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "action")
+				}
+			}
+			path := "/webinars/{webinarId}/registrants/status"
+			if len(args) < 1 || args[0] == "" {
+				return usageErr(fmt.Errorf("webinarId is required\nUsage: %s <%s>", cmd.CommandPath(), "webinarId"))
+			}
+			path = replacePathParam(path, "webinarId", args[0])
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/webinars/{webinarId}/registrants/status"
-			path = replacePathParam(path, "webinarId", args[0])
 			params := map[string]string{}
 			if flagOccurrenceId != "" {
-				params["occurrence_id"] = fmt.Sprintf("%v", flagOccurrenceId)
+				params["occurrence_id"] = formatCLIParamValue(flagOccurrenceId)
 			}
-			var body map[string]any
+			var body any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
@@ -51,9 +88,24 @@ func newWebinarsRegistrantsWebinarStatusCmd(flags *rootFlags) *cobra.Command {
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
+				bodyMap := map[string]any{}
+				body = bodyMap
+				if bodyAction != "" {
+					bodyMap["action"] = bodyAction
+				}
+				if bodyRegistrants != "" {
+					var parsedRegistrants any
+					if err := json.Unmarshal([]byte(bodyRegistrants), &parsedRegistrants); err != nil {
+						return fmt.Errorf("parsing --registrants JSON: %w", err)
+					}
+					asArray, ok := parsedRegistrants.([]any)
+					if !ok {
+						return fmt.Errorf("--registrants must be a JSON array, got JSON %T", parsedRegistrants)
+					}
+					bodyMap["registrants"] = asArray
+				}
 			}
-			data, statusCode, err := c.PutWithParams(path, params, body)
+			data, statusCode, err := c.PutWithParams(cmd.Context(), path, params, body)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -74,6 +126,9 @@ func newWebinarsRegistrantsWebinarStatusCmd(flags *rootFlags) *cobra.Command {
 						fmt.Fprintf(os.Stderr, "         succeeded: %d operation(s)\n", len(partialFailure.ResourceNames))
 					}
 				}
+			}
+			if !flags.dryRun && statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure) {
+				writeMutationResponseToStore(cmd.Context(), "registrants", data, "")
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")
@@ -110,6 +165,41 @@ func newWebinarsRegistrantsWebinarStatusCmd(flags *rootFlags) *cobra.Command {
 					}
 					return nil
 				}
+				envelope := map[string]any{
+					"action":   "put",
+					"resource": "registrants",
+					"path":     path,
+					"status":   statusCode,
+					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
+				}
+				if flags.agent {
+					envelope["meta"] = map[string]any{"source": "live"}
+				}
+				if partialFailure != nil {
+					envelope["partial_failure"] = partialFailure
+				}
+				if flags.dryRun {
+					envelope["dry_run"] = true
+					envelope["status"] = 0
+					envelope["success"] = false
+				}
+				// Verify-mode synthetic envelope detection runs against RAW data
+				// (before --compact/--select filtering) so the sentinel field is
+				// guaranteed to be visible even if the operator passes a filter
+				// flag that would otherwise strip it. Surfaces a top-level
+				// verify_noop signal + flips success to false. Mirrors the dry_run
+				// shape above.
+				if len(data) > 0 {
+					var rawParsed any
+					if err := json.Unmarshal(data, &rawParsed); err == nil {
+						if m, ok := rawParsed.(map[string]any); ok {
+							if v, ok := m["__pp_verify_synthetic__"].(bool); ok && v {
+								envelope["verify_noop"] = true
+								envelope["success"] = false
+							}
+						}
+					}
+				}
 				// Apply --compact and --select to the API response before wrapping.
 				// --select wins when both are set: explicit field choice trumps the
 				// generic high-gravity allow-list. Otherwise --compact still applies
@@ -120,32 +210,29 @@ func newWebinarsRegistrantsWebinarStatusCmd(flags *rootFlags) *cobra.Command {
 				} else if flags.compact {
 					filtered = compactFields(filtered)
 				}
-				envelope := map[string]any{
-					"action":   "put",
-					"resource": "registrants",
-					"path":     path,
-					"status":   statusCode,
-					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
-				}
-				if partialFailure != nil {
-					envelope["partial_failure"] = partialFailure
-				}
-				if flags.dryRun {
-					envelope["dry_run"] = true
-					envelope["status"] = 0
-					envelope["success"] = false
-				}
 				if len(filtered) > 0 {
 					var parsed any
 					if err := json.Unmarshal(filtered, &parsed); err == nil {
-						envelope["data"] = parsed
+						if flags.agent {
+							envelope["results"] = parsed
+						} else {
+							envelope["data"] = parsed
+						}
 					}
 				}
 				envelopeJSON, err := json.Marshal(envelope)
 				if err != nil {
 					return err
 				}
-				if perr := printOutput(cmd.OutOrStdout(), json.RawMessage(envelopeJSON), true); perr != nil {
+				resultKey := "data"
+				if flags.agent {
+					resultKey = "results"
+				}
+				structured, err := wrapPlatformStructuredOutput(json.RawMessage(envelopeJSON), flags, resultKey, true)
+				if err != nil {
+					return err
+				}
+				if perr := printOutput(cmd.OutOrStdout(), structured, true); perr != nil {
 					return perr
 				}
 				if partialFailure != nil && !flags.allowPartialFailure {
@@ -170,6 +257,8 @@ func newWebinarsRegistrantsWebinarStatusCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagOccurrenceId, "occurrence-id", "", "The meeting occurrence ID")
+	cmd.Flags().StringVar(&bodyAction, "action", "", "Action")
+	cmd.Flags().StringVar(&bodyRegistrants, "registrants", "", "List of registrants")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd

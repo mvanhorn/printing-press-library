@@ -1,3 +1,5 @@
+// pp:data-source local
+
 package cli
 
 import (

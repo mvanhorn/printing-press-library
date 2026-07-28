@@ -9,9 +9,10 @@ import (
 
 func newUsersWebinarsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "webinars",
-		Short: "Webinar operations",
-		RunE:  parentNoSubcommandRunE(flags),
+		Use:         "webinars",
+		Short:       "Get and create webinars for users",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newUsersWebinarsCreateCmd(flags))

@@ -23,7 +23,7 @@ builds:
     env:
       - CGO_ENABLED=0
     ldflags:
-      - -s -w
+      - -s -w -X main.version={{ .Version }}
     targets:
       - darwin_amd64
       - darwin_arm64
@@ -45,7 +45,7 @@ brews:
       owner: jacken
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "The first Zoom CLI that joins your local desktop app, your on-disk recordings, and your cloud account into one..."
+    description: "The first Zoom CLI that joins your local desktop app, your on-disk recordings, and your cloud account into one agent-native surface."
     install: |
       bin.install "zoom-pp-cli"
       bin.install "zoom-pp-mcp"

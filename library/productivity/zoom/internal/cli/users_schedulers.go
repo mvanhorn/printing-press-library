@@ -9,9 +9,10 @@ import (
 
 func newUsersSchedulersCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "schedulers",
-		Short: "Manage schedulers",
-		RunE:  parentNoSubcommandRunE(flags),
+		Use:         "schedulers",
+		Short:       "Get and delete schedulers for users",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newUsersSchedulersUserCmd(flags))

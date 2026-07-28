@@ -1,7 +1,11 @@
+// pp:data-source local
+
 package cli
 
 import (
+	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/spf13/cobra"
 
@@ -25,7 +29,10 @@ func newZoomMuteCmd(flags *rootFlags) *cobra.Command {
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			action := "mute"
-			if len(args) > 0 && args[0] == "toggle" {
+			if len(args) > 0 {
+				if args[0] != "toggle" {
+					return usageErr(fmt.Errorf("mute: the only accepted argument is %q, got %q\nUsage: %s", "toggle", args[0], cmd.UseLine()))
+				}
 				action = "mute-toggle"
 			}
 			if dryRunOK(flags) || cliutil.IsVerifyEnv() {
@@ -180,6 +187,19 @@ func newZoomStatusCmd(flags *rootFlags) *cobra.Command {
 			}
 			st, err := macosctl.CheckStatus(cmd.Context())
 			if err != nil {
+				// `status` is a read-only probe: an unanswerable probe is a
+				// reportable state, not a command failure. Callers polling it
+				// (agents, shell prompts) need a parseable answer every time,
+				// so a stalled or refused osascript degrades to a structured
+				// "unknown" rather than a non-zero exit.
+				var timeout *macosctl.ErrProbeTimeout
+				if errors.As(err, &timeout) || strings.Contains(err.Error(), "osascript:") {
+					return flags.printJSON(cmd, map[string]any{
+						"supported": true,
+						"probe":     "unavailable",
+						"note":      err.Error(),
+					})
+				}
 				return err
 			}
 			return flags.printJSON(cmd, map[string]any{

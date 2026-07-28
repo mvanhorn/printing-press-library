@@ -15,35 +15,65 @@ func newReportTelephoneCmd(flags *rootFlags) *cobra.Command {
 	var flagType string
 	var flagFrom string
 	var flagTo string
-	var flagPageSize string
-	var flagPageNumber string
+	var flagPageSize int
+	var flagPageNumber int
 	var flagAll bool
 
 	cmd := &cobra.Command{
 		Use:         "telephone",
-		Short:       "Retrieve telephone report for a specified period <aside>Toll Report option would be removed.</aside>.",
-		Example:     "  zoom-pp-cli report telephone --from example-value --to example-value",
+		Short:       "Retrieve telephone report for a specified period Toll Report option would be removed. .",
+		Example:     "  zoom-pp-cli report telephone --from 2026-01-15 --to 2026-01-15",
 		Annotations: map[string]string{"pp:endpoint": "report.telephone", "pp:method": "GET", "pp:path": "/report/telephone", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Bare invocation of a command with required input prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only read commands fall through so a bare call still executes.
+			// Machine callers (--json/--agent, which sets asJSON) get a usage
+			// error + exit 2 instead of silent exit-0 help, so an incomplete
+			// invocation is never mistaken for success.
+			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "requires input",
+						"usage": cmd.CommandPath() + " --help",
+					}, flags); printErr != nil {
+						return printErr
+					}
+					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
+				}
+				return cmd.Help()
+			}
 			if !cmd.Flags().Changed("from") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "from")
 			}
 			if !cmd.Flags().Changed("to") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "to")
 			}
+			if cmd.Flags().Changed("type") {
+				allowedType := []string{"1"}
+				validType := false
+				for _, v := range allowedType {
+					if flagType == v {
+						validType = true
+						break
+					}
+				}
+				if !validType {
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagType, "type", allowedType)
+				}
+			}
+			path := "/report/telephone"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/report/telephone"
-			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "report", path, map[string]string{
-				"type":        fmt.Sprintf("%v", flagType),
-				"from":        fmt.Sprintf("%v", flagFrom),
-				"to":          fmt.Sprintf("%v", flagTo),
-				"page_size":   fmt.Sprintf("%v", flagPageSize),
-				"page_number": fmt.Sprintf("%v", flagPageNumber),
-			}, nil, flagAll, "page_number", "", "")
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "report", path, map[string]string{
+				"type":        formatCLIParamValue(flagType),
+				"from":        formatCLIParamValue(flagFrom),
+				"to":          formatCLIParamValue(flagTo),
+				"page_size":   formatCLIParamValue(flagPageSize),
+				"page_number": formatCLIParamValue(flagPageNumber),
+			}, nil, flagAll, "page_number", "page", "page_size", 30, "", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -73,6 +103,10 @@ func newReportTelephoneCmd(flags *rootFlags) *cobra.Command {
 				if wrapErr != nil {
 					return wrapErr
 				}
+				wrapped, wrapErr = wrapPlatformStructuredOutput(wrapped, flags, "results", true)
+				if wrapErr != nil {
+					return wrapErr
+				}
 				return printOutput(cmd.OutOrStdout(), wrapped, true)
 			}
 			// For all other output modes (table, csv, plain, quiet), use the standard pipeline
@@ -88,14 +122,15 @@ func newReportTelephoneCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
-	cmd.Flags().StringVar(&flagType, "type", "", "Audio type")
+	cmd.Flags().StringVar(&flagType, "type", "1", "Audio type (one of: 1)")
+	_ = cmd.Flags().MarkHidden("type")
 	cmd.Flags().StringVar(&flagFrom, "from", "", "Start Date")
 	cmd.Flags().StringVar(&flagTo, "to", "", "End Date")
-	cmd.Flags().StringVar(&flagPageSize, "page-size", "", "The number of records returned within a single API call")
-	cmd.Flags().StringVar(&flagPageNumber, "page-number", "", "Current page number of returned records")
+	cmd.Flags().IntVar(&flagPageSize, "page-size", 30, "The number of records returned within a single API call")
+	cmd.Flags().IntVar(&flagPageNumber, "page-number", 1, "Current page number of returned records")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
 	return cmd

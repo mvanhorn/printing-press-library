@@ -9,9 +9,10 @@ import (
 
 func newAccountsManagedDomainsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "managed-domains",
-		Short: "Manage managed domains",
-		RunE:  parentNoSubcommandRunE(flags),
+		Use:         "managed-domains",
+		Short:       "Get managed domains for accounts",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newAccountsManagedDomainsAccountCmd(flags))

@@ -26,14 +26,14 @@ const (
 // own web UI emits and the desktop client cannot consume directly) versus the
 // raw numeric/string password the URL scheme expects.
 type Params struct {
-	Action    Action
-	ConfNo    string
-	Pwd       string // unencrypted; if Encrypted is true the URL scheme will not work
-	Encrypted bool
-	Uname     string
-	UID       string // host user ID (only used with action=start)
-	ZakToken  string // Zoom Access Key, needed to start as host without re-auth
-	Stype     string // historical; "101" appears in many official invites
+	Action    Action `json:"action"`
+	ConfNo    string `json:"conf_no"`
+	Pwd       string `json:"pwd"` // unencrypted; if Encrypted is true the URL scheme will not work
+	Encrypted bool   `json:"encrypted"`
+	Uname     string `json:"uname,omitempty"`
+	UID       string `json:"uid,omitempty"`       // host user ID (only used with action=start)
+	ZakToken  string `json:"zak_token,omitempty"` // Zoom Access Key, needed to start as host without re-auth
+	Stype     string `json:"stype,omitempty"`     // historical; "101" appears in many official invites
 }
 
 // Build returns a "zoommtg://zoom.us/<action>?…" URL ready for `open`,

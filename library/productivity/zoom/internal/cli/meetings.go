@@ -9,10 +9,10 @@ import (
 
 func newMeetingsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:    "meetings",
-		Short:  "Meeting operations",
-		Hidden: true,
-		RunE:   parentNoSubcommandRunE(flags),
+		Use:         "meetings",
+		Short:       "Get, update, and delete meetings",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:api-resource": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newMeetingsDeleteCmd(flags))

@@ -1,6 +1,8 @@
 package cli
 
 import (
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 )
@@ -70,4 +72,21 @@ func jsonNumberField(doc, key string) float64 {
 		return 0
 	}
 	return v
+}
+
+// expandUserPath resolves a leading "~" against the current user's home so
+// paths copied straight out of the docs (and out of an agent's own help-text
+// reading) work without shell expansion. Anything else is returned verbatim.
+func expandUserPath(p string) string {
+	if p != "~" && !strings.HasPrefix(p, "~/") {
+		return p
+	}
+	home, err := os.UserHomeDir()
+	if err != nil || home == "" {
+		return p
+	}
+	if p == "~" {
+		return home
+	}
+	return filepath.Join(home, p[2:])
 }

@@ -9,15 +9,15 @@ import (
 
 func newUsersCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:    "users",
-		Short:  "User operations",
-		Hidden: true,
-		RunE:   parentNoSubcommandRunE(flags),
+		Use:         "users",
+		Short:       "Get, create, update, and delete users",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:api-resource": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newUsersCreateCmd(flags))
 	cmd.AddCommand(newUsersDeleteCmd(flags))
-	cmd.AddCommand(newUsersEmailCmd(flags))
+	cmd.AddCommand(newUsersEmailCheckCmd(flags))
 	cmd.AddCommand(newUsersUpdateCmd(flags))
 	cmd.AddCommand(newUsersUserCmd(flags))
 	cmd.AddCommand(newUsersUsersCmd(flags))

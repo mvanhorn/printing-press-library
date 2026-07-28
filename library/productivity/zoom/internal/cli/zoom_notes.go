@@ -1,22 +1,17 @@
+// pp:data-source auto
+
 package cli
 
 import (
-	"bytes"
-	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
-	"io"
-	"net/http"
 	"net/url"
 	"runtime"
 	"strings"
-	"time"
 
 	"github.com/spf13/cobra"
 
 	"github.com/mvanhorn/printing-press-library/library/productivity/zoom/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/productivity/zoom/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/productivity/zoom/internal/local/localstore"
 	"github.com/mvanhorn/printing-press-library/library/productivity/zoom/internal/local/notesparse"
 )
@@ -42,6 +37,7 @@ func newZoomNotesCmd(flags *rootFlags) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error { return cmd.Help() },
 	}
 	cmd.AddCommand(newNotesWebCmd(flags))
+	cmd.AddCommand(newNotesDocsCmd(flags))
 	cmd.AddCommand(newNotesSummaryCmd(flags))
 	cmd.AddCommand(newNotesTranscriptCmd(flags))
 	cmd.AddCommand(newNotesIngestCmd(flags))
@@ -52,10 +48,12 @@ func newZoomNotesCmd(flags *rootFlags) *cobra.Command {
 }
 
 func newNotesWebCmd(flags *rootFlags) *cobra.Command {
-	return &cobra.Command{
+	var launch bool
+	cmd := &cobra.Command{
 		Use:   "web [meeting-id]",
-		Short: "Open https://zoom.us/notes in the default browser (the only live UI path to My Notes)",
+		Short: "Print the My Notes web-portal URL (the only live UI path to My Notes); --launch opens it",
 		Example: `  zoom-pp-cli notes web --json
+  zoom-pp-cli notes web 85123456789 --launch
   zoom-pp-cli notes web 85123456789 --dry-run`,
 		Annotations: map[string]string{
 			"mcp:read-only": "false",
@@ -63,9 +61,21 @@ func newNotesWebCmd(flags *rootFlags) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			url := "https://zoom.us/notes"
 			if len(args) > 0 {
-				url = "https://zoom.us/notes?meetingId=" + args[0]
+				id := strings.Map(func(r rune) rune {
+					if r >= '0' && r <= '9' {
+						return r
+					}
+					return -1
+				}, args[0])
+				if id != strings.TrimSpace(args[0]) || id == "" {
+					return usageErr(fmt.Errorf("notes web: meeting-id must be numeric, got %q\nUsage: %s", args[0], cmd.UseLine()))
+				}
+				url = "https://zoom.us/notes?meetingId=" + id
 			}
-			if dryRunOK(flags) || cliutil.IsVerifyEnv() {
+			// Opening a browser tab is a visible side effect, so printing is
+			// the default and --launch is the opt-in; the verify-env check is
+			// the floor beneath it.
+			if !launch || dryRunOK(flags) || cliutil.IsVerifyEnv() {
 				if !flags.asJSON {
 					fmt.Fprintln(cmd.OutOrStdout(), "would open:", url)
 					return nil
@@ -78,6 +88,8 @@ func newNotesWebCmd(flags *rootFlags) *cobra.Command {
 			return flags.printJSON(cmd, map[string]any{"status": "opened", "url": url, "platform": runtime.GOOS})
 		},
 	}
+	cmd.Flags().BoolVar(&launch, "launch", false, "Actually open the URL in the default browser (default: print only)")
+	return cmd
 }
 
 func newNotesSummaryCmd(flags *rootFlags) *cobra.Command {
@@ -136,12 +148,16 @@ func newNotesIngestCmd(flags *rootFlags) *cobra.Command {
   zoom-pp-cli notes ingest ./notes/standup.docx --json`,
 		Annotations: map[string]string{
 			"mcp:read-only": "false",
+			// The Example paths are illustrative user files that exist on
+			// nobody else's disk. Point the runtime probe at the checked-in
+			// sample note so the happy path exercises a real parse.
+			"pp:happy-args": "<file>=testdata/sample-note.md",
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
-			path := args[0]
+			path := expandUserPath(args[0])
 			if dryRunOK(flags) || cliutil.IsVerifyEnv() {
 				return flags.printJSON(cmd, map[string]any{"would_ingest": path})
 			}
@@ -304,6 +320,10 @@ func newNotesTodosCmd(flags *rootFlags) *cobra.Command {
 
 // runCloudGET is a shared helper for notes summary/transcript and any other
 // hand-coded GET that hits a documented endpoint outside the spec-emitted tree.
+// It rides the generated client rather than a private http.Client so these
+// commands inherit the same credential resolution, retry/rate-limit policy,
+// response cache and typed error classification (exit 4 on auth failure) as
+// every spec-derived read.
 func runCloudGET(cmd *cobra.Command, flags *rootFlags, path string) error {
 	// Dry-run / verify-env first — these never make a network call so they
 	// don't need auth to succeed. Order matters: the previous shape errored
@@ -311,28 +331,15 @@ func runCloudGET(cmd *cobra.Command, flags *rootFlags, path string) error {
 	if dryRunOK(flags) || cliutil.IsVerifyEnv() {
 		return flags.printJSON(cmd, map[string]any{"would_call": "GET " + path})
 	}
-	cfg, err := config.Load(flags.configPath)
+	ctx, cancel := boundCtx(cmd.Context(), flags)
+	defer cancel()
+	c, err := flags.newClient()
 	if err != nil {
 		return err
 	}
-	if cfg.AuthHeader() == "" {
-		return errors.New("notes: requires Zoom S2S OAuth — run `zoom-pp-cli auth set-token` first or export ZOOM_S2S_ACCESS_TOKEN")
-	}
-	url := strings.TrimRight(cfg.BaseURL, "/") + path
-	req, err := http.NewRequestWithContext(cmd.Context(), "GET", url, nil)
+	body, err := c.Get(ctx, path, nil)
 	if err != nil {
-		return err
-	}
-	req.Header.Set("Authorization", cfg.AuthHeader())
-	req.Header.Set("Accept", "application/json")
-	resp, err := (&http.Client{Timeout: 20 * time.Second}).Do(req)
-	if err != nil {
-		return fmt.Errorf("zoom GET: %w", err)
-	}
-	defer resp.Body.Close()
-	body, _ := io.ReadAll(resp.Body)
-	if resp.StatusCode >= 400 {
-		return fmt.Errorf("zoom GET %s: HTTP %d: %s", path, resp.StatusCode, strings.TrimSpace(string(body)))
+		return classifyAPIError(err, flags)
 	}
 	var out map[string]any
 	if err := json.Unmarshal(body, &out); err != nil {
@@ -341,9 +348,3 @@ func runCloudGET(cmd *cobra.Command, flags *rootFlags, path string) error {
 	}
 	return flags.printJSON(cmd, out)
 }
-
-// Keep the bytes / context imports referenced in case they're inlined later.
-var (
-	_ = bytes.Buffer{}
-	_ = context.Background
-)

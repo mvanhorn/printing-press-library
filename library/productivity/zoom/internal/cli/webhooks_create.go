@@ -9,28 +9,63 @@ import (
 	"io"
 	"os"
 
+	"github.com/mvanhorn/printing-press-library/library/productivity/zoom/internal/cliutil"
 	"github.com/spf13/cobra"
 )
 
 func newWebhooksCreateCmd(flags *rootFlags) *cobra.Command {
+	var bodyAuthPassword string
+	var bodyAuthUser string
+	var bodyEvents string
+	var bodyUrl string
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:         "create",
-		Short:       "Create a webhook for a account",
-		Example:     "  zoom-pp-cli webhooks create",
+		Use:   "create",
+		Short: "Create a webhook for a account",
+		// TODO: replace placeholder example values before relying on this for live dogfood.
+		Example:     "  zoom-pp-cli webhooks create --auth-password example-value",
 		Annotations: map[string]string{"pp:endpoint": "webhooks.create", "pp:method": "POST", "pp:path": "/webhooks"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if !stdinBody {
+			// Bare invocation of a command with required input prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only read commands fall through so a bare call still executes.
+			// Machine callers (--json/--agent, which sets asJSON) get a usage
+			// error + exit 2 instead of silent exit-0 help, so an incomplete
+			// invocation is never mistaken for success.
+			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "requires input",
+						"usage": cmd.CommandPath() + " --help",
+					}, flags); printErr != nil {
+						return printErr
+					}
+					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
+				}
+				return cmd.Help()
 			}
+			if !stdinBody {
+				if !cmd.Flags().Changed("auth-password") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "auth-password")
+				}
+				if !cmd.Flags().Changed("auth-user") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "auth-user")
+				}
+				if !cmd.Flags().Changed("events") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "events")
+				}
+				if !cmd.Flags().Changed("url") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "url")
+				}
+			}
+			path := "/webhooks"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/webhooks"
 			params := map[string]string{}
-			var body map[string]any
+			var body any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
@@ -42,9 +77,26 @@ func newWebhooksCreateCmd(flags *rootFlags) *cobra.Command {
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
+				bodyMap := map[string]any{}
+				body = bodyMap
+				if bodyAuthPassword != "" {
+					bodyMap["auth_password"] = bodyAuthPassword
+				}
+				if bodyAuthUser != "" {
+					bodyMap["auth_user"] = bodyAuthUser
+				}
+				if cmd.Flags().Changed("events") {
+					parsedEvents, parseErr := cliutil.ParseStringList(bodyEvents)
+					if parseErr != nil {
+						return fmt.Errorf("parsing --events list: %w", parseErr)
+					}
+					bodyMap["events"] = parsedEvents
+				}
+				if bodyUrl != "" {
+					bodyMap["url"] = bodyUrl
+				}
 			}
-			data, statusCode, err := c.PostWithParams(path, params, body)
+			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -65,6 +117,9 @@ func newWebhooksCreateCmd(flags *rootFlags) *cobra.Command {
 						fmt.Fprintf(os.Stderr, "         succeeded: %d operation(s)\n", len(partialFailure.ResourceNames))
 					}
 				}
+			}
+			if !flags.dryRun && statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure) {
+				writeMutationResponseToStore(cmd.Context(), "webhooks", data, "")
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")
@@ -101,6 +156,41 @@ func newWebhooksCreateCmd(flags *rootFlags) *cobra.Command {
 					}
 					return nil
 				}
+				envelope := map[string]any{
+					"action":   "post",
+					"resource": "webhooks",
+					"path":     path,
+					"status":   statusCode,
+					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
+				}
+				if flags.agent {
+					envelope["meta"] = map[string]any{"source": "live"}
+				}
+				if partialFailure != nil {
+					envelope["partial_failure"] = partialFailure
+				}
+				if flags.dryRun {
+					envelope["dry_run"] = true
+					envelope["status"] = 0
+					envelope["success"] = false
+				}
+				// Verify-mode synthetic envelope detection runs against RAW data
+				// (before --compact/--select filtering) so the sentinel field is
+				// guaranteed to be visible even if the operator passes a filter
+				// flag that would otherwise strip it. Surfaces a top-level
+				// verify_noop signal + flips success to false. Mirrors the dry_run
+				// shape above.
+				if len(data) > 0 {
+					var rawParsed any
+					if err := json.Unmarshal(data, &rawParsed); err == nil {
+						if m, ok := rawParsed.(map[string]any); ok {
+							if v, ok := m["__pp_verify_synthetic__"].(bool); ok && v {
+								envelope["verify_noop"] = true
+								envelope["success"] = false
+							}
+						}
+					}
+				}
 				// Apply --compact and --select to the API response before wrapping.
 				// --select wins when both are set: explicit field choice trumps the
 				// generic high-gravity allow-list. Otherwise --compact still applies
@@ -111,32 +201,29 @@ func newWebhooksCreateCmd(flags *rootFlags) *cobra.Command {
 				} else if flags.compact {
 					filtered = compactFields(filtered)
 				}
-				envelope := map[string]any{
-					"action":   "post",
-					"resource": "webhooks",
-					"path":     path,
-					"status":   statusCode,
-					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
-				}
-				if partialFailure != nil {
-					envelope["partial_failure"] = partialFailure
-				}
-				if flags.dryRun {
-					envelope["dry_run"] = true
-					envelope["status"] = 0
-					envelope["success"] = false
-				}
 				if len(filtered) > 0 {
 					var parsed any
 					if err := json.Unmarshal(filtered, &parsed); err == nil {
-						envelope["data"] = parsed
+						if flags.agent {
+							envelope["results"] = parsed
+						} else {
+							envelope["data"] = parsed
+						}
 					}
 				}
 				envelopeJSON, err := json.Marshal(envelope)
 				if err != nil {
 					return err
 				}
-				if perr := printOutput(cmd.OutOrStdout(), json.RawMessage(envelopeJSON), true); perr != nil {
+				resultKey := "data"
+				if flags.agent {
+					resultKey = "results"
+				}
+				structured, err := wrapPlatformStructuredOutput(json.RawMessage(envelopeJSON), flags, resultKey, true)
+				if err != nil {
+					return err
+				}
+				if perr := printOutput(cmd.OutOrStdout(), structured, true); perr != nil {
 					return perr
 				}
 				if partialFailure != nil && !flags.allowPartialFailure {
@@ -160,6 +247,10 @@ func newWebhooksCreateCmd(flags *rootFlags) *cobra.Command {
 			return nil
 		},
 	}
+	cmd.Flags().StringVar(&bodyAuthPassword, "auth-password", "", "Webhook auth password")
+	cmd.Flags().StringVar(&bodyAuthUser, "auth-user", "", "Webhook auth user name")
+	cmd.Flags().StringVar(&bodyEvents, "events", "", "List of events objects.")
+	cmd.Flags().StringVar(&bodyUrl, "url", "", "Webhook endpoint")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd

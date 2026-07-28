@@ -9,9 +9,10 @@ import (
 
 func newUsersAssistantsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "assistants",
-		Short: "Manage assistants",
-		RunE:  parentNoSubcommandRunE(flags),
+		Use:         "assistants",
+		Short:       "Get, create, and delete assistants for users",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newUsersAssistantsUserCmd(flags))

@@ -14,21 +14,51 @@ import (
 func newUsersRecordingsListCmd(flags *rootFlags) *cobra.Command {
 	var flagFrom string
 	var flagTo string
-	var flagPageSize string
+	var flagPageSize int
 	var flagNextPageToken string
 	var flagMc string
-	var flagTrash string
+	var flagTrash bool
 	var flagAll bool
 
 	cmd := &cobra.Command{
 		Use:         "list <userId>",
 		Aliases:     []string{"get"},
 		Short:       "List all the recordings",
-		Example:     "  zoom-pp-cli users recordings list 550e8400-e29b-41d4-a716-446655440000 --from example-value --to example-value",
+		Example:     "  zoom-pp-cli users recordings list 550e8400-e29b-41d4-a716-446655440000 --from 2026-01-15 --to 2026-01-15",
 		Annotations: map[string]string{"pp:endpoint": "recordings.list", "pp:method": "GET", "pp:path": "/users/{userId}/recordings", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) == 0 {
+			// Bare invocation of a command with required input prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only read commands fall through so a bare call still executes.
+			// Machine callers (--json/--agent, which sets asJSON) get a usage
+			// error + exit 2 instead of silent exit-0 help, so an incomplete
+			// invocation is never mistaken for success.
+			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "requires input",
+						"usage": cmd.CommandPath() + " --help",
+					}, flags); printErr != nil {
+						return printErr
+					}
+					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
+				}
 				return cmd.Help()
+			}
+			if len(args) == 0 {
+				// A missing required positional is a usage error in every output
+				// mode (matches command_promoted.go.tmpl). Machine callers
+				// (--json/--agent) also get a JSON error envelope on stdout;
+				// usageErr sets exit 2.
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "missing required argument",
+						"usage": fmt.Sprintf("%s%s", cmd.CommandPath(), " <userId>"),
+					}, flags); printErr != nil {
+						return printErr
+					}
+				}
+				return usageErr(fmt.Errorf("missing required argument\nUsage: %s%s", cmd.CommandPath(), " <userId>"))
 			}
 			if !cmd.Flags().Changed("from") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "from")
@@ -36,21 +66,23 @@ func newUsersRecordingsListCmd(flags *rootFlags) *cobra.Command {
 			if !cmd.Flags().Changed("to") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "to")
 			}
+			path := "/users/{userId}/recordings"
+			if len(args) < 1 || args[0] == "" {
+				return usageErr(fmt.Errorf("userId is required\nUsage: %s <%s>", cmd.CommandPath(), "userId"))
+			}
+			path = replacePathParam(path, "userId", args[0])
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/users/{userId}/recordings"
-			path = replacePathParam(path, "userId", args[0])
-			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "recordings", path, map[string]string{
-				"from":            fmt.Sprintf("%v", flagFrom),
-				"to":              fmt.Sprintf("%v", flagTo),
-				"page_size":       fmt.Sprintf("%v", flagPageSize),
-				"next_page_token": fmt.Sprintf("%v", flagNextPageToken),
-				"mc":              fmt.Sprintf("%v", flagMc),
-				"trash":           fmt.Sprintf("%v", flagTrash),
-			}, nil, flagAll, "", "", "")
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "live", "recordings", path, map[string]string{
+				"from":            formatCLIParamValue(flagFrom),
+				"to":              formatCLIParamValue(flagTo),
+				"page_size":       formatCLIParamValue(flagPageSize),
+				"next_page_token": formatCLIParamValue(flagNextPageToken),
+				"mc":              formatCLIParamValue(flagMc),
+				"trash":           formatCLIParamValue(flagTrash),
+			}, nil, flagAll, "", "offset", "page_size", 30, "", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -80,6 +112,10 @@ func newUsersRecordingsListCmd(flags *rootFlags) *cobra.Command {
 				if wrapErr != nil {
 					return wrapErr
 				}
+				wrapped, wrapErr = wrapPlatformStructuredOutput(wrapped, flags, "results", true)
+				if wrapErr != nil {
+					return wrapErr
+				}
 				return printOutput(cmd.OutOrStdout(), wrapped, true)
 			}
 			// For all other output modes (table, csv, plain, quiet), use the standard pipeline
@@ -95,15 +131,15 @@ func newUsersRecordingsListCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagFrom, "from", "", "Start Date")
 	cmd.Flags().StringVar(&flagTo, "to", "", "End Date")
-	cmd.Flags().StringVar(&flagPageSize, "page-size", "", "The number of records returned within a single API call")
-	cmd.Flags().StringVar(&flagNextPageToken, "next-page-token", "", "Next page token is used to paginate through large result sets. A next page token will be returned whenever the set...")
-	cmd.Flags().StringVar(&flagMc, "mc", "", "Query mc")
-	cmd.Flags().StringVar(&flagTrash, "trash", "", "Query trash")
+	cmd.Flags().IntVar(&flagPageSize, "page-size", 30, "The number of records returned within a single API call")
+	cmd.Flags().StringVar(&flagNextPageToken, "next-page-token", "", "Next page token is used to paginate through large result sets.")
+	cmd.Flags().StringVar(&flagMc, "mc", "false", "Query mc")
+	cmd.Flags().BoolVar(&flagTrash, "trash", false, "Query trash")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
 	return cmd

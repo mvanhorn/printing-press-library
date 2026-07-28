@@ -1,3 +1,5 @@
+// pp:data-source local
+
 package cli
 
 import (
@@ -6,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 
@@ -96,11 +99,14 @@ func newSavedAddFromURLCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return fmt.Errorf("saved add-from-url: %w", err)
 			}
+			now := time.Now().UTC()
 			sm := localstore.SavedMeeting{
 				Name:      name,
 				MeetingID: p.ConfNo,
 				URL:       raw,
 				Notes:     notes,
+				CreatedAt: now,
+				UpdatedAt: now,
 			}
 			warning := ""
 			if p.Encrypted {
@@ -266,11 +272,18 @@ func newSavedRmCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			status := "not_found"
-			if ok {
-				status = "deleted"
+			if !ok {
+				// Deleting a bookmark that was never there is a failure unless
+				// the caller opted into idempotent deletes via --ignore-missing.
+				if err := flags.printJSON(cmd, map[string]any{"status": "not_found", "name": args[0]}); err != nil {
+					return err
+				}
+				if flags.ignoreMissing {
+					return nil
+				}
+				return fmt.Errorf("saved rm: no bookmark named %q (pass --ignore-missing to treat this as a no-op)", args[0])
 			}
-			return flags.printJSON(cmd, map[string]any{"status": status, "name": args[0]})
+			return flags.printJSON(cmd, map[string]any{"status": "deleted", "name": args[0]})
 		},
 	}
 }

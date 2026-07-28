@@ -9,10 +9,10 @@ import (
 
 func newMetricsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:    "metrics",
-		Short:  "Manage metrics",
-		Hidden: true,
-		RunE:   parentNoSubcommandRunE(flags),
+		Use:         "metrics",
+		Short:       "Manage metrics command groups",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:api-resource": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newMetricsDashboardCrcCmd(flags))

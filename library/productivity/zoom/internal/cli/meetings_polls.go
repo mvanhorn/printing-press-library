@@ -9,9 +9,10 @@ import (
 
 func newMeetingsPollsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "polls",
-		Short: "Manage polls",
-		RunE:  parentNoSubcommandRunE(flags),
+		Use:         "polls",
+		Short:       "Get, create, update, and delete polls for meetings",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newMeetingsPollsMeetingCmd(flags))

@@ -9,9 +9,10 @@ import (
 
 func newAccountsOptionsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "options",
-		Short: "Manage options",
-		RunE:  parentNoSubcommandRunE(flags),
+		Use:         "options",
+		Short:       "Update options for accounts",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newAccountsOptionsAccountUpdateCmd(flags))

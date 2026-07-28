@@ -1,3 +1,5 @@
+// pp:data-source local
+
 package cli
 
 import (
@@ -209,11 +211,11 @@ func openURL(ctx context.Context, url string) error {
 	var cmd *exec.Cmd
 	switch runtime.GOOS {
 	case "darwin":
-		cmd = exec.CommandContext(ctx, "open", url)
+		cmd = exec.CommandContext(ctx, "open", url) // #nosec G204 -- fixed opener binary; url is a validated zoommtg:// / zoom.us URL
 	case "windows":
-		cmd = exec.CommandContext(ctx, "cmd", "/c", "start", "", url)
+		cmd = exec.CommandContext(ctx, "cmd", "/c", "start", "", url) // #nosec G204 -- fixed opener binary; url is a validated zoommtg:// / zoom.us URL
 	default:
-		cmd = exec.CommandContext(ctx, "xdg-open", url)
+		cmd = exec.CommandContext(ctx, "xdg-open", url) // #nosec G204 -- fixed opener binary; url is a validated zoommtg:// / zoom.us URL
 	}
 	out, err := cmd.CombinedOutput()
 	if err != nil {

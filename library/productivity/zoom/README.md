@@ -7,6 +7,7 @@ Start and join meetings via the desktop URL scheme (no browser interstitial), se
 Learn more at [Zoom](https://developer.zoom.us/).
 
 Created by [@Holajack](https://github.com/Holajack) (Jacken).
+Contributors: [@npwalker](https://github.com/npwalker) (Nick Walker).
 
 ## Install
 
@@ -75,7 +76,6 @@ Inside a Hermes chat session:
 Restart the Hermes session or gateway if the newly installed skill is not visible immediately.
 
 ## Install for OpenClaw
-
 Install both the CLI binary and the focused OpenClaw skill. The installer defaults binaries to a per-user bin directory (`$HOME/.local/bin` on macOS/Linux, `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows):
 
 ```bash
@@ -92,6 +92,7 @@ To install:
 
 1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/zoom-current).
 2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+3. Fill in `ZOOM_S2S_ACCESS_TOKEN` when Claude Desktop prompts you.
 
 Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
 
@@ -101,7 +102,9 @@ Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple S
 If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
 
 
-Install the MCP binary from this CLI's published public-library entry or pre-built release.
+```bash
+go install github.com/mvanhorn/printing-press-library/library/productivity/zoom/cmd/zoom-pp-mcp@latest
+```
 
 Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
 
@@ -109,7 +112,12 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 {
   "mcpServers": {
     "zoom": {
-      "command": "zoom-pp-mcp"
+      "command": "zoom-pp-mcp",
+      "env": {
+        "ZOOM_MEETINGID": "<meetingId>",
+        "ZOOM_MEETINGUUID": "<meetingUUID>",
+        "ZOOM_S2S_ACCESS_TOKEN": "<your-key>"
+      }
     }
   }
 }
@@ -119,7 +127,7 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 ## Authentication
 
-Local commands (start, join, mute, leave, recordings local, search) require no Zoom account — just the Zoom desktop app installed. Cloud commands (meetings, users, webinars, recordings cloud, reports, metrics) need Server-to-Server OAuth credentials. Run `zoom-pp-cli auth set-token` to provide ZOOM_S2S_ACCOUNT_ID, ZOOM_S2S_CLIENT_ID, ZOOM_S2S_CLIENT_SECRET — the CLI caches the access token and auto-refreshes on 401.
+Local commands (start, join, mute, leave, recordings local, search) require no Zoom account — just the Zoom desktop app installed. Cloud commands (meetings, users, webinars, recordings cloud, reports, metrics) need Server-to-Server OAuth credentials. Run `zoom-pp-cli auth s2s-token` to provide ZOOM_S2S_ACCOUNT_ID, ZOOM_S2S_CLIENT_ID, ZOOM_S2S_CLIENT_SECRET — the CLI caches the access token and auto-refreshes on 401.
 
 ## Quick Start
 
@@ -257,9 +265,117 @@ These capabilities aren't available in any other tool for this API.
   zoom-pp-cli notes todos --since 7d --json --select text,meeting_topic,start_time,owner,checked
   ```
 
+### Desktop control
+- **`next`** — Join your soonest upcoming Zoom meeting with one command, no link hunting.
+
+  _Agents can get the user into their next meeting without resolving IDs or URLs first._
+
+  ```bash
+  zoom-pp-cli next --dry-run
+  ```
+
+## Recipes
+
+### Find a quote from any past meeting
+
+```bash
+zoom-pp-cli find "customer churn" --source both --speaker "Riley" --after 45 --json --select recording_path,start_ms,speaker,text,deep_link
+```
+
+Searches every local + cloud transcript for the phrase, scoped to one speaker, with 45 seconds of follow-up context per match — and returns a clickable timestamped deep link.
+
+### Triage Monday morning
+
+```bash
+zoom-pp-cli today --with-recordings --since 7d --json --select topic,start_time,join_url,conflict_with,recording_path
+```
+
+Pulls the last week of meetings + today's calendar + today's recordings in one query, flags any back-to-back overlaps, and gives the agent everything it needs to draft a weekly recap.
+
+### Clean up Documents/Zoom safely
+
+```bash
+zoom-pp-cli storage --by month --also-in-cloud --json --select month,total_gb,safe_to_delete_gb
+```
+
+Groups local recordings by month and flags which are also in the cloud (and therefore safe to delete locally) — agents can recommend reclaimable disk without risking the only copy.
+
+### Schedule a meeting and stash it
+
+```bash
+zoom-pp-cli schedule "Sprint planning" --when 2026-05-21T15:00:00Z --duration 60 --save-as sprint --json
+```
+
+Creates the cloud meeting and immediately writes a local bookmark, so a later `zoom-pp-cli saved join sprint` works without re-hitting the API.
+
+### Audit speaker time on yesterday's offsite
+
+```bash
+zoom-pp-cli recordings analyze offsite-2026-05-18 --json --select per_speaker
+```
+
+Computes per-speaker talk-time, longest monologue, and interruption count from the VTT cues without an LLM call.
+
+### Build a to-do list from your meeting notes
+
+```bash
+zoom-pp-cli notes ingest ~/Downloads/notes-q2-planning.pdf && zoom-pp-cli notes todos --since 14d --json --select text,meeting_topic,owner,checked
+```
+
+Ingest an exported Notes PDF, then extract every action-item pattern across the last two weeks of ingested notes — Zoom has no public API for My Notes, so manual export plus this pipeline is the only path.
+
 ## Usage
 
 Run `zoom-pp-cli --help` for the full command reference and flag list.
+
+## Paths & environment variables
+
+This CLI separates local files into four path kinds:
+
+| Kind | Contents |
+|------|----------|
+| `config` | User-editable settings such as `config.toml` and saved profiles |
+| `data` | Durable local data: `credentials.toml`, `data.db`, cookies, browser-session proof files, and other auth sidecars |
+| `state` | Runtime state such as persisted queries, jobs, and `teach.log` |
+| `cache` | Regenerable HTTP/cache files |
+
+Each kind resolves independently. The ladder is:
+
+1. Per-kind env var: `ZOOM_CONFIG_DIR`, `ZOOM_DATA_DIR`, `ZOOM_STATE_DIR`, or `ZOOM_CACHE_DIR`
+2. `--home <dir>` for this invocation
+3. `ZOOM_HOME` for a flat relocated root
+4. XDG env vars: `XDG_CONFIG_HOME`, `XDG_DATA_HOME`, `XDG_STATE_HOME`, `XDG_CACHE_HOME`
+5. Platform defaults matching existing installs
+
+For containers and agent sandboxes, prefer a single relocated root:
+
+```bash
+export ZOOM_HOME=/srv/zoom
+zoom-pp-cli doctor
+```
+
+Under `ZOOM_HOME=/srv/zoom`, the four dirs resolve to `/srv/zoom/config`, `/srv/zoom/data`, `/srv/zoom/state`, and `/srv/zoom/cache`.
+
+MCP servers do not receive CLI flags from the host. Put relocation in the host `env` block:
+
+```json
+{
+  "mcpServers": {
+    "zoom": {
+      "command": "zoom-pp-mcp",
+      "env": {
+        "ZOOM_HOME": "/srv/zoom"
+      }
+    }
+  }
+}
+```
+
+Precedence matters in fleets: an ambient per-kind variable such as `ZOOM_DATA_DIR` overrides an explicit `--home` for that kind. Use `ZOOM_HOME` or the per-kind variables for durable fleet relocation; treat `--home` as the weaker per-invocation lever.
+
+Relocation is one-way. Unsetting `ZOOM_HOME` does not move files back to platform defaults, and `doctor` cannot find credentials left under a former root. Move the files manually before unsetting relocation variables.
+
+Existing installs keep working because the platform-default rung matches the legacy layout. On the first auth write, stored secrets leave `config.toml` and are consolidated into `credentials.toml` under the data directory. Run `zoom-pp-cli doctor --fail-on warn` to check path and credential-location warnings in automation.
 
 ## Commands
 
@@ -345,6 +461,7 @@ Manage past meetings
 
 Manage past webinars
 
+
 ### report
 
 Report operations
@@ -385,7 +502,7 @@ User operations
 
 - **`zoom-pp-cli users create`** - Create a user on your account
 - **`zoom-pp-cli users delete`** - Delete a user on your account
-- **`zoom-pp-cli users email`** - Check if the user email exists
+- **`zoom-pp-cli users email-check`** - Check if the user email exists
 - **`zoom-pp-cli users update`** - Update a user on your account
 - **`zoom-pp-cli users user`** - Retrieve a user on your account
 - **`zoom-pp-cli users users`** - List users on your account
@@ -410,6 +527,24 @@ Webinar operations
 - **`zoom-pp-cli webinars delete`** - Delete a webinar
 - **`zoom-pp-cli webinars update`** - Update a webinar
 - **`zoom-pp-cli webinars webinar`** - Retrieve a webinar
+
+
+### Self-learning loop
+
+This CLI caches per-question discovery so repeat queries skip the walk and structurally similar queries get answered via entity substitution. The loop also self-captures: every invocation is journaled locally, and failed-flag corrections plus fresh teaches surface as candidates on the next `recall` for confirm/reject judgment. Agents call `recall` before discovery and fire `teach &` after answering. See the `## Automatic learning` section in `SKILL.md` for the full protocol.
+
+- **`zoom-pp-cli recall <query>`** - Look up cached resources for a query before running discovery
+- **`zoom-pp-cli teach`** - Record a query -> resource mapping (silent on success, safe to background with `&`)
+- **`zoom-pp-cli learnings list`** - Inspect taught rows
+- **`zoom-pp-cli learnings forget <query>`** - Undo a teach
+- **`zoom-pp-cli learnings candidates`** - List auto-captured candidates awaiting confirm/reject
+- **`zoom-pp-cli learnings stats`** - Local loop metrics: recall hit rate, teach-to-reuse, playbook resolution, candidate counts
+- **`zoom-pp-cli teach-pattern`** - Install a query/resource template up front
+- **`zoom-pp-cli teach-lookup`** - Add an entity mapping (e.g. country code, team alias) for pattern substitution
+
+Pass `--no-learn` or set `ZOOM_NO_LEARN=true` to disable the loop for deterministic flows.
+
+The local store's schema version stamp is one-way: once this version of `zoom-pp-cli` opens the database, older binaries refuse it with a version error — upgrade the binary rather than downgrading.
 
 ## Output Formats
 
@@ -438,13 +573,23 @@ This CLI is designed for AI agent consumption:
 - **Pipeable** - `--json` output to stdout, errors to stderr
 - **Filterable** - `--select id,name` returns only fields you need
 - **Previewable** - `--dry-run` shows the request without sending
-- **Explicit retries** - add `--idempotent` to create retries and `--ignore-missing` to delete retries when a no-op success is acceptable
+- **Explicit retries** - add `--idempotent` to create retries and add `--ignore-missing` to delete retries when a no-op success is acceptable
 - **Confirmable** - `--yes` for explicit confirmation of destructive actions
 - **Piped input** - write commands can accept structured input when their help lists `--stdin`
 - **Offline-friendly** - sync/search commands can use the local SQLite store when available
 - **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
 
-Exit codes: `0` success, `2` usage error, `3` not found, `5` API error, `7` rate limited, `10` config error.
+Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API error, `7` rate limited, `10` config error.
+
+## Runtime Endpoint
+
+This CLI resolves endpoint placeholders at runtime, so one installed binary can target different tenants or API versions without regeneration.
+
+Endpoint environment variables:
+- `ZOOM_MEETING_ID` resolves `{meetingId}`
+- `ZOOM_MEETING_U_U_I_D` resolves `{meetingUUID}`
+
+Base URL: `https://api.zoom.us/v2`
 
 ## Health Check
 
@@ -452,29 +597,41 @@ Exit codes: `0` success, `2` usage error, `3` not found, `5` API error, `7` rate
 zoom-pp-cli doctor
 ```
 
-Verifies configuration and connectivity to the API.
+Verifies configuration, credentials, and connectivity to the API.
 
 ## Configuration
 
-Config file: `~/.config/zoom-pp-cli/config.toml`
+Run `zoom-pp-cli doctor` to see the resolved config, data, state, and cache directories. The platform-default config path is `~/.config/zoom-pp-cli/config.toml`; `--home`, `ZOOM_HOME`, and per-kind env vars can relocate it.
 
 Static request headers can be configured under `headers`; per-command header overrides take precedence.
 
+Environment variables:
+
+| Name | Kind | Required | Description |
+| --- | --- | --- | --- |
+| `ZOOM_MEETINGID` | endpoint | Yes |  |
+| `ZOOM_MEETINGUUID` | endpoint | Yes |  |
+| `ZOOM_S2S_ACCESS_TOKEN` | per_call | Yes | Set to your API credential. |
+
+### agentcookie (optional)
+
+If you use agentcookie to sync secrets across machines, this CLI auto-adopts agentcookie-managed credentials with no extra setup. When the daemon writes to this CLI's config, `zoom-pp-cli doctor` reports `agentcookie: detected` and `auth-status` labels the source as `agentcookie`. Skip this section if you don't use agentcookie - the CLI works the same as any other.
+
 ## Troubleshooting
+**Authentication errors (exit code 4)**
+- Run `zoom-pp-cli doctor` to check credentials
+- Verify the environment variable is set: `echo $ZOOM_S2S_ACCESS_TOKEN`
 **Not found errors (exit code 3)**
 - Check the resource ID is correct
 - Run the `list` command to see available items
 
 ### API-specific
-
 - **`open: zoommtg://...: No application knows how to open URL`** — Run `zoom-pp-cli doctor` — it tells you whether the URL handler is registered. Reinstalling the Zoom desktop app re-registers it.
 - **`mute/unmute` returns `osascript: not supported on this platform`** — These commands are macOS-only. On Linux/Windows, use the Zoom client's keyboard shortcuts directly.
 - **`mute/unmute` exits 0 but nothing happens** — Grant accessibility permission to your terminal: System Settings → Privacy & Security → Accessibility → add Terminal/iTerm. `zoom-pp-cli doctor` checks this.
 - **Cloud commands return `auth: ZOOM_S2S_* not set`** — Run `zoom-pp-cli auth set-token` or export `ZOOM_S2S_ACCOUNT_ID`, `ZOOM_S2S_CLIENT_ID`, `ZOOM_S2S_CLIENT_SECRET`. Get them from your Zoom App Marketplace Server-to-Server OAuth app.
 - **Cloud requests return 429** — The CLI honors `Retry-After`; if you're hitting daily caps, narrow `--from`/`--to` windows or use the local cache (`--data-source local`).
 - **`recordings local sync` skips files** — Skipped files are usually `double_click_to_convert` partials. Run `zoom-pp-cli recordings local list --partial-only` to see them; double-click in Finder to trigger Zoom's conversion.
-
----
 
 ## Sources & Inspiration
 

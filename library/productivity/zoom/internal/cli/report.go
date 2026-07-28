@@ -9,10 +9,10 @@ import (
 
 func newReportCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:    "report",
-		Short:  "Report operations",
-		Hidden: true,
-		RunE:   parentNoSubcommandRunE(flags),
+		Use:         "report",
+		Short:       "Manage report command groups",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:api-resource": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newReportCloudRecordingCmd(flags))

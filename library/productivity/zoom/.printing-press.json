@@ -1,7 +1,7 @@
 {
-  "schema_version": 1,
-  "generated_at": "2026-05-21T16:33:22.239675Z",
-  "printing_press_version": "4.9.0",
+  "schema_version": 2,
+  "generated_at": "2026-07-28T20:38:10.158115Z",
+  "printing_press_version": "4.29.0",
   "api_name": "zoom",
   "display_name": "Zoom",
   "cli_name": "zoom-pp-cli",
@@ -9,19 +9,39 @@
     "handle": "Holajack",
     "name": "Jacken"
   },
+  "contributors": [
+    {
+      "handle": "npwalker",
+      "name": "Nick Walker"
+    }
+  ],
   "owner": "jacken",
   "printer": "Holajack",
   "printer_name": "Jacken",
-  "spec_path": "/Users/jackenholland/printing-press/.runstate/kind-wilbur-23a9ec-a2ff92f1/runs/20260519-094503/research/zoom-openapi-v2.json",
+  "spec_path": "zoom-openapi-v2.json",
   "spec_format": "openapi3",
-  "spec_checksum": "sha256:7633bdbafa7183c789d40634ce1543759ffae2c81d3e950424703df5d7c2f8c4",
-  "run_id": "20260519-094503",
+  "spec_checksum": "sha256:9d773ef426f9157494381e1e26bac72269dc47fb8f37ca411497c42848734e5c",
+  "run_id": "20260728-120506-5644192a",
+  "category": "productivity",
+  "description": "The first Zoom CLI that joins your local desktop app, your on-disk recordings, and your cloud account into one agent-native surface.",
   "mcp_binary": "zoom-pp-mcp",
   "mcp_tool_count": 155,
-  "mcp_public_tool_count": 155,
   "mcp_ready": "full",
   "api_version": "2.0.0",
-  "auth_type": "none",
+  "auth_type": "api_key",
+  "auth_preference": "ZoomS2SOAuth",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "auth_key_url": "https://zoom.us/oauth/token",
   "novel_features": [
     {
       "name": "Find a quote across all transcripts",
@@ -92,6 +112,11 @@
       "name": "My Notes — extract to-do / action items",
       "command": "notes todos",
       "description": "Scans ingested notes for action-item patterns (`TODO:`, `Action:`, `[ ]`, `- [ ]`, `Action Item:`, `Next:`, `Follow up:`, `Owner:`) and emits a structured to-do list with source meeting topic + date + checkbox state."
+    },
+    {
+      "name": "Join next meeting",
+      "command": "next",
+      "description": "Join your soonest upcoming Zoom meeting with one command, no link hunting."
     }
   ]
 }

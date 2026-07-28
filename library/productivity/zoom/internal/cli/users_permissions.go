@@ -9,9 +9,10 @@ import (
 
 func newUsersPermissionsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "permissions",
-		Short: "Manage permissions",
-		RunE:  parentNoSubcommandRunE(flags),
+		Use:         "permissions",
+		Short:       "Get permissions for users",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newUsersPermissionsUserCmd(flags))

@@ -12,8 +12,8 @@ import (
 )
 
 func newMetricsDashboardZoomRoomsCmd(flags *rootFlags) *cobra.Command {
-	var flagPageSize string
-	var flagPageNumber string
+	var flagPageSize int
+	var flagPageNumber int
 	var flagAll bool
 
 	cmd := &cobra.Command{
@@ -22,16 +22,15 @@ func newMetricsDashboardZoomRoomsCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  zoom-pp-cli metrics dashboard-zoom-rooms",
 		Annotations: map[string]string{"pp:endpoint": "metrics.dashboard-zoom-rooms", "pp:method": "GET", "pp:path": "/metrics/zoomrooms", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			path := "/metrics/zoomrooms"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/metrics/zoomrooms"
-			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "metrics", path, map[string]string{
-				"page_size":   fmt.Sprintf("%v", flagPageSize),
-				"page_number": fmt.Sprintf("%v", flagPageNumber),
-			}, nil, flagAll, "page_number", "", "")
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "metrics", path, map[string]string{
+				"page_size":   formatCLIParamValue(flagPageSize),
+				"page_number": formatCLIParamValue(flagPageNumber),
+			}, nil, flagAll, "page_number", "page", "page_size", 30, "", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -61,6 +60,10 @@ func newMetricsDashboardZoomRoomsCmd(flags *rootFlags) *cobra.Command {
 				if wrapErr != nil {
 					return wrapErr
 				}
+				wrapped, wrapErr = wrapPlatformStructuredOutput(wrapped, flags, "results", true)
+				if wrapErr != nil {
+					return wrapErr
+				}
 				return printOutput(cmd.OutOrStdout(), wrapped, true)
 			}
 			// For all other output modes (table, csv, plain, quiet), use the standard pipeline
@@ -76,11 +79,11 @@ func newMetricsDashboardZoomRoomsCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
-	cmd.Flags().StringVar(&flagPageSize, "page-size", "", "The number of records returned within a single API call")
-	cmd.Flags().StringVar(&flagPageNumber, "page-number", "", "Current page number of returned records")
+	cmd.Flags().IntVar(&flagPageSize, "page-size", 30, "The number of records returned within a single API call")
+	cmd.Flags().IntVar(&flagPageNumber, "page-number", 1, "Current page number of returned records")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
 	return cmd

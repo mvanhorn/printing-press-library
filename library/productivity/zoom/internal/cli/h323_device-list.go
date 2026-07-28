@@ -20,14 +20,13 @@ func newH323DeviceListCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  zoom-pp-cli h323 device-list",
 		Annotations: map[string]string{"pp:endpoint": "h323.device-list", "pp:method": "GET", "pp:path": "/h323/devices", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			path := "/h323/devices"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/h323/devices"
 			params := map[string]string{}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "h323", false, path, params, nil)
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "h323", false, path, params, nil, "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -57,6 +56,10 @@ func newH323DeviceListCmd(flags *rootFlags) *cobra.Command {
 				if wrapErr != nil {
 					return wrapErr
 				}
+				wrapped, wrapErr = wrapPlatformStructuredOutput(wrapped, flags, "results", true)
+				if wrapErr != nil {
+					return wrapErr
+				}
 				return printOutput(cmd.OutOrStdout(), wrapped, true)
 			}
 			// For all other output modes (table, csv, plain, quiet), use the standard pipeline
@@ -72,7 +75,7 @@ func newH323DeviceListCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 

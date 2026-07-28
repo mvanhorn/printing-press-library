@@ -9,9 +9,10 @@ import (
 
 func newUsersPictureCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "picture",
-		Short: "Manage picture",
-		RunE:  parentNoSubcommandRunE(flags),
+		Use:         "picture",
+		Short:       "Create picture for users",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newUsersPictureUserCmd(flags))
