@@ -460,6 +460,12 @@ func printOutputWithFlags(w io.Writer, data json.RawMessage, flags *rootFlags) e
 	} else if flags.compact {
 		data = compactFields(data)
 	}
+	// PATCH(title-resolution-must-signal-ambiguity)
+	// Injected after --select/--compact, deliberately: the consumer this field
+	// exists for is the script that narrows its field list and drops stderr, so
+	// letting --select filter the ambiguity record back out would rebuild the
+	// exact blind spot the record closes.
+	data = injectAmbiguityMeta(data, flags)
 	// --quiet: suppress all output, exit code communicates result
 	if flags.quiet {
 		return nil
@@ -469,6 +475,51 @@ func printOutputWithFlags(w io.Writer, data json.RawMessage, flags *rootFlags) e
 		return printCSV(w, data)
 	}
 	return printOutput(w, data, flags.asJSON)
+}
+
+// injectAmbiguityMeta merges the run's recorded title/name ambiguities into the
+// response document under meta.ambiguous.
+//
+// The write is additive: a key that did not exist before appears alongside the
+// existing ones, so a parser reading title/ratings/results is unaffected. It is
+// a no-op unless a resolver actually recorded an ambiguity, so responses never
+// carry an empty or null field, and it merges into an existing meta object
+// (the provenance envelope) rather than replacing it.
+//
+// Documents that are not JSON objects — top-level arrays, and the non-JSON
+// payloads printOutput passes through — are returned untouched: there is no
+// object to add a key to, and the CSV renderer expects an array.
+func injectAmbiguityMeta(data json.RawMessage, flags *rootFlags) json.RawMessage {
+	if flags == nil || len(flags.ambiguities) == 0 {
+		return data
+	}
+	var obj map[string]json.RawMessage
+	if err := json.Unmarshal(data, &obj); err != nil || obj == nil {
+		return data
+	}
+	meta := map[string]json.RawMessage{}
+	if existing, ok := obj["meta"]; ok {
+		if err := json.Unmarshal(existing, &meta); err != nil {
+			// meta exists but isn't an object — leave the document alone
+			// rather than clobbering someone else's field.
+			return data
+		}
+	}
+	encoded, err := json.Marshal(flags.ambiguities)
+	if err != nil {
+		return data
+	}
+	meta["ambiguous"] = encoded
+	encodedMeta, err := json.Marshal(meta)
+	if err != nil {
+		return data
+	}
+	obj["meta"] = encodedMeta
+	merged, err := json.Marshal(obj)
+	if err != nil {
+		return data
+	}
+	return merged
 }
 
 // extractResponseData unwraps common API response envelopes for display.

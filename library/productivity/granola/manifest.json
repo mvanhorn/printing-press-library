@@ -23,7 +23,7 @@
     "granola_api_key": {
       "type": "string",
       "title": "GRANOLA_API_KEY",
-      "description": "Optional. Granola public API key (Personal or Enterprise). Optional — only required when using --remote against the public API. Cache and internal API use auto-discovered WorkOS tokens from the local Granola app data.",
+      "description": "Granola public API key, created in Granola desktop under Settings → Connectors → API keys. Creating one requires a Business or Enterprise Granola workspace; personal and free workspaces cannot issue keys. Needed to fetch new meeting data; reading data already synced into the local store needs no key.",
       "sensitive": true
     }
   },

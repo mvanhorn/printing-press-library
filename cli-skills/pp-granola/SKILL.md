@@ -17,10 +17,11 @@ metadata:
      silently overwritten on the next regen. Edit the library/ source instead.
      See the repository agent guide, section "Generated artifacts: registry.json, cli-skills/". -->
 
-<!-- // PATCH(skill-doc-auth-rewrite): Auth Setup section rewritten for the
-     encrypted-cache install flow (Keychain prompt on first sync, no API key,
-     D6 read-only refresh). See library/productivity/granola/.printing-press-patches.json
-     patches[6]. -->
+<!-- // PATCH(dual-path-store-read): the Data Paths, Auth Setup, Auto-Refresh,
+     and Troubleshooting sections describe the two-path reality after Granola
+     desktop moved its data-encryption key into an entitlement-gated macOS
+     keychain group. See library/productivity/granola/.printing-press-patches/
+     dual-path-store-read.json and dek-migration-classified-from-state-not-version.json. -->
 
 # Granola — Printing Press CLI
 
@@ -42,6 +43,41 @@ go install github.com/mvanhorn/printing-press-library/library/productivity/grano
 ```
 
 If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
+
+## Two Data Paths — Read This Before Running Anything
+
+Granola desktop now keeps its data-encryption key in a macOS data-protection keychain group gated by an entitlement bound to Granola's own Apple Team ID. No third-party binary can read that key. On a current install this means the encrypted desktop cache (`cache-v6.json.enc`) and `granola.db` are permanently unreadable by this CLI, and so is `supabase.json.enc` — which takes the internal-API token path down with it.
+
+Two paths fill the local SQLite store. The CLI ships both:
+
+| Path | Hydrate with | Works on a current install? |
+|---|---|---|
+| Granola public REST API → local store | `sync-api` | **Yes**, with a `GRANOLA_API_KEY`. |
+| Desktop encrypted cache → local store | `sync` | **No.** Fails with a migrated-scheme error naming the entitlement-gated keychain group. Still works on pre-migration Granola builds, and on a machine holding a pre-migration `storage.dek`. |
+
+**Reading already-synced data needs no API key at all.** Every read command serves from the local store first and falls back to the desktop cache only when the store has no row and a cache is actually readable. Neither step makes a network call or consults a key. The key is only needed to fetch *new* data.
+
+So the normal flow on a current install is: set `GRANOLA_API_KEY`, run `granola-pp-cli sync-api` once, then read freely — offline and keyless from then on.
+
+### Capability split
+
+Available from the public API, hydrated by `sync-api`, readable from the store:
+
+- meetings, titles, timestamps
+- attendees
+- calendar events
+- transcripts (full segment list)
+- note summaries (`summary_markdown`)
+- folders and folder membership
+
+Cache-only, and therefore **unavailable on a migrated install**:
+
+- AI panels — `panel get`, and the `--panel` inlining in `attendee brief` and `folder stream`
+- recipes and panel templates — `recipes list`, `recipes describe`
+- AI chat threads — `chat list`, `chat get`
+- workspaces — `workspaces list`
+
+When one of those is asked for on a migrated install, say the data is not reachable. Do not synthesize a panel, a recipe result, or a chat thread from transcript text.
 
 ## When to Use This CLI
 
@@ -124,6 +160,9 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ### Cache-native data
+
+These two read Granola desktop's own cache. `chat list` is cache-only and returns nothing on a migrated install; `calendar overlay` reads calendar events, which `sync-api` hydrates, so it keeps working.
+
 - **`chat list`** — List and dump Granola’s AI chat threads anchored to a meeting (entities.chat_thread + entities.chat_message in the cache).
 
   _Recovers the AI Q&A history a user has accumulated against a meeting — useful when chasing what you asked about an account weeks ago._
@@ -176,7 +215,7 @@ Quick orientation by group:
 | **Cross-meeting analytics** | `attendee timeline`, `attendee brief`, `folder stream`, `recipes coverage`, `talktime`, `calendar overlay`, `stats frequency`, `stats duration`, `stats attendees`, `stats calendar`, `collect`, `duplicates scan`, `chat list`, `chat get` | Queries no per-meeting tool can answer |
 | **Folders / recipes / workspaces** | `folders` (public-API), `folder list`, `folder stream`, `recipes list`, `recipes describe`, `recipes coverage`, `workspaces list` | Granola organizational entities |
 | **Public-API mirrors** | `notes list`, `notes get`, `folders` | Typed Bearer-key endpoints |
-| **Sync / system** | `sync`, `sync-api`, `doctor`, `auth login`, `auth status`, `auth set-token`, `auth logout`, `which`, `agent-context`, `version`, `import` | Local store hydration, auth, capability discovery, batch import |
+| **Sync / system** | `sync`, `sync-api`, `doctor`, `auth setup`, `auth status`, `auth set-token`, `auth logout`, `which`, `agent-context`, `version`, `import` | Local store hydration (`sync-api` is the working path on current installs), auth, capability discovery, batch import |
 | **GUI bridge** | `warm` (macOS only) | Drives Granola desktop app via AppleScript |
 
 ### Finding the right command
@@ -234,28 +273,53 @@ Calendared meetings with no Granola recording — weekly accountability check.
 
 ## Auth Setup
 
-1. **Install Granola desktop and sign in.** The CLI reads the local cache and tokens the desktop manages. No CLI-side credentials to configure.
+### 1. Get an API key — needed only to fetch new data
 
-2. **Run any command.** On macOS, the first invocation that needs the cache or tokens (typically `granola-pp-cli sync`) triggers a Keychain prompt for `Granola Safe Storage`. Click "Always Allow" so subsequent runs are silent. The CLI uses Granola's own Keychain-stored encryption key to decrypt `cache-v6.json.enc` and `supabase.json.enc`.
+API keys are created in **Granola desktop → Settings → Connectors → API keys**. Creating one **requires a Business or Enterprise Granola workspace**; personal and free workspaces cannot issue keys. Two scopes exist, `personal-notes` and `public-notes` — pick the narrowest one that covers the notes the user actually needs, which for a user reading their own meetings is `personal-notes`.
 
-3. **CLI is read-only against the refresh token.** Granola desktop owns rotation; the CLI never calls `RefreshAccessToken` against the encrypted token store because rotating it there would sign Granola desktop out next time the desktop tries to refresh. If a request fails with "token expired", open Granola desktop briefly to refresh, then re-run the CLI command.
+Export it as an environment variable:
 
-4. **Power users / CI: `GRANOLA_WORKOS_TOKEN`.** Setting this env var bypasses the Keychain prompt entirely and accepts the refresh-rotation trade-off (rotating the token via the CLI will sign the desktop out). Use only when CLI-side refresh is required, typically for headless agents.
+```bash
+export GRANOLA_API_KEY="grn_your_key_here"
+```
 
-Optional public REST API path: set `GRANOLA_API_KEY` for the typed `notes` and `folders` top-level commands at `public-api.granola.ai`. Most workflows do not need this.
+Prefer the env var over persisting the key into `~/.config/granola-pp-cli/config.toml`. Backup and dotfile-sync tooling does not reliably preserve file modes, so a key written to a config file can end up world-readable inside a synced folder.
 
-Run `granola-pp-cli doctor` to verify setup. The "Encrypted store" line distinguishes four states: not installed, pre-encryption Granola, present-but-not-yet-synced, ok, or last-sync-failed-with-class.
+The base URL is `https://public-api.granola.ai`. The list endpoints cap `page_size` at 30 and reject any temporal filter that is not a UTC `Z` timestamp; the CLI handles both, but keep it in mind if you script against the API directly.
+
+### 2. Hydrate once
+
+Run `granola-pp-cli sync-api`. It pages the notes list, then fetches each note's detail with its transcript and writes meetings, attendees, calendar events, summaries, folder membership, and transcript segments into the local store — the tables every read command queries. On repeat runs narrow the window with `--since 7d`.
+
+The two sync paths do not clobber each other. Each clears only the rows it owns, so running `sync` and `sync-api` against the same store is safe in either order.
+
+Transcripts get one extra guard. Granola applies transcript retention upstream, so an older meeting can come back from the API pruned to a handful of segments while this store still holds the full recording from the cache path. A sync never replaces a transcript with a **smaller** copy from the other source — it keeps what is stored, skips that meeting, and reports it as `preserved_transcripts` in the sync summary plus a `warning:` line naming the meetings. A path rewriting its own earlier transcript is unaffected, whatever the size change.
+
+### 3. Read with no key
+
+Once hydrated, every read command works offline with no credentials. `granola-pp-cli transcript get <id> --json` returns byte-identical output with and without `GRANOLA_API_KEY` set.
+
+### Legacy and pre-migration installs
+
+On Granola desktop builds from before the key migration, the top-level `sync` command still reads the encrypted desktop cache. The first run triggers a macOS Keychain prompt for `Granola Safe Storage` — click "Always Allow" so later runs are silent.
+
+The CLI is **read-only against every desktop-owned token**. It never rotates a refresh token it found in Granola's own storage — `supabase.json`, `supabase.json.enc`, or the `stored-accounts.json` fallback — because those tokens are single-use and rotating one signs the user out of Granola desktop. If a request fails with "token expired", open Granola desktop briefly to refresh, then re-run.
+
+If you kept a copy of `storage.dek` from before the migration, base64-encode its 32-byte key into `GRANOLA_SAFESTORAGE_KEY_OVERRIDE`. The migration imported the existing key rather than generating a new one, so the old one still decrypts today's files.
+
+Run `granola-pp-cli doctor` to see which paths resolve on this machine.
 
 ### Troubleshooting
 
 | `doctor` says... | What to do |
 |---|---|
-| `INFO no Granola install detected` | Install Granola desktop from granola.ai and sign in. |
-| `INFO not in use (Granola pre-encryption)` | Granola desktop pre-encryption versions wrote plaintext files; the CLI still reads them. Upgrade Granola desktop to pick up the encrypted store. |
-| `INFO present; run sync to authorize Keychain access` | Run `granola-pp-cli sync`. Click "Always Allow" on the macOS prompt. |
-| `OK ok` | Last successful sync recorded. Token source and document-fetch count visible in `--json` output. |
-| `ERROR last sync failed to decrypt (key_unavailable)` | Sign back into Granola desktop, re-run sync, accept the Keychain prompt. |
+| `INFO no Granola install detected` | Install Granola desktop from granola.ai and sign in, or skip the desktop entirely and use the API path. |
+| `INFO not in use (Granola pre-encryption)` | A pre-encryption Granola wrote plaintext files; the CLI reads them directly. |
+| `INFO present; run sync to authorize Keychain access` | Pre-migration install: run `granola-pp-cli sync` and click "Always Allow" on the macOS prompt. |
+| `OK ok` | Last successful cache sync recorded. Token source and document-fetch count are in the `--json` output. |
+| `ERROR last sync failed to decrypt (key_unavailable)` | Read the `encrypted_store_error` field in the `--json` output. If it names an entitlement-gated keychain group, this is the upstream key migration and **no Keychain approval or re-sync can fix it** — switch to `sync-api` with an API key. Only if the message does not mention the migration is signing back into Granola desktop the right move. |
 | `ERROR last sync failed to decrypt (decrypt_failed)` | Encryption scheme may have drifted with a Granola update. File an issue with the doctor output. |
+| Reads return empty after a successful `sync-api` | Check the capability split above — panels, recipes, chat, and workspaces are cache-only and have no API source. |
 
 ## Agent Mode
 
@@ -268,7 +332,7 @@ Add `--agent` to any command. Expands to: `--json --compact --no-input --no-colo
   granola-pp-cli folders --agent --select id,name,status
   ```
 - **Previewable** — `--dry-run` shows the request without sending
-- **Offline-friendly** — `sync` and the `meetings list --query <text>` FTS path use the local SQLite store
+- **Offline-friendly** — once hydrated by `sync` or `sync-api`, every read command serves from the local SQLite store with no network call and no API key
 - **Non-interactive** — never prompts, every input is a flag
 - **Mostly read-only** — `meetings delete`, `meetings restore`, `import`, and `warm --launch` are the only commands that mutate state; every other command inspects, exports, syncs, or analyzes
 
@@ -298,7 +362,11 @@ Every command auto-refreshes the local store as its first action. You do **not**
 
 When both are available, both refresh routines fire (cache first, then api). When neither is configured, auto-refresh is a silent no-op and your underlying command produces its own auth error.
 
-**Freshness ceiling.** Auto-refresh reads from Granola desktop's encrypted cache file; it does **not** poke the desktop app to refresh from Granola servers. The freshness ceiling is whatever Granola desktop has already pulled. If a meeting just ended and the desktop hasn't synced from servers yet, no CLI-side refresh will surface it. For latest-second-fresh data, open Granola desktop briefly before invoking the CLI.
+**On a migrated install the cache leg always fails** — the file is present, so the leg fires, and it reports `cache=failed: <migrated-scheme reason>` on stderr. That is expected, not a misconfiguration. The api leg is the one that does the work. The read itself proceeds against the store either way, because refresh failures are non-fatal.
+
+**Freshness ceiling.** Neither leg pokes Granola desktop into pulling from Granola servers. The cache leg is bounded by whatever the desktop has already pulled; the api leg is bounded by what Granola's servers have already published for the note. If a meeting just ended, give it a moment before expecting a transcript.
+
+**Refresh scope.** The api leg runs both stages the `sync-api` command runs — the note list, then the per-note detail that populates `meetings`, `attendees`, `transcript_segments`, and `folder_memberships` — but it is bounded so it can run ahead of every command: one page of notes changed since its last successful refresh, not your whole account. Run `granola-pp-cli sync-api` once on a new install to backfill history; auto-refresh keeps it current from there.
 
 **Provenance line.** When stderr is a TTY and you are not in `--agent` / `--json` / `--compact` / `--quiet` mode, a one-liner like `auto-refresh: cache=ok (1.2s, 47 rows)  api=ok (820ms, 12 rows)` lands on stderr after the refresh. Agent and JSON consumers see no chatter on stdout.
 

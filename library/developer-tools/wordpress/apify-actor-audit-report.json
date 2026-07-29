@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/wordpress-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260720-234423-04493e9c",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

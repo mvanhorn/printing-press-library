@@ -18,7 +18,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var version = "2026.7.2"
+var version = "2026.7.3"
 
 type rootFlags struct {
 	asJSON        bool
@@ -39,6 +39,12 @@ type rootFlags struct {
 	rateLimit     float64
 	dataSource    string
 	freshnessMeta any
+
+	// PATCH(title-resolution-must-signal-ambiguity)
+	// ambiguities records every title/name lookup in this invocation that had
+	// more than one plausible match. Machine-owned, like freshnessMeta: the
+	// resolvers append, and the output layer serializes it as meta.ambiguous.
+	ambiguities []ambiguityMeta
 
 	// deliverBuf captures command output when --deliver is set to a
 	// non-stdout sink. Flushed to the sink after Execute returns.

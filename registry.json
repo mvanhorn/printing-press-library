@@ -6076,9 +6076,9 @@
       "path": "library/commerce/facebook-marketplace",
       "release": {
         "cli_name": "facebook-marketplace-pp-cli",
-        "version": "2026.7.2",
-        "released_at": "2026-07-24T21:48:16Z",
-        "source_commit": "4284da0c1dc87350730413e12d93e8467aff2676"
+        "version": "2026.7.3",
+        "released_at": "2026-07-25T04:43:02Z",
+        "source_commit": "b3a6332f33440410ae221f7cbcf30b5adfc8bc70"
       },
       "printer": "cathrynlavery",
       "printer_name": "Cathryn Lavery",
@@ -8155,9 +8155,9 @@
       "path": "library/productivity/granola",
       "release": {
         "cli_name": "granola-pp-cli",
-        "version": "2026.7.1",
-        "released_at": "2026-07-08T18:21:21Z",
-        "source_commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0"
+        "version": "2026.7.2",
+        "released_at": "2026-07-25T23:13:09Z",
+        "source_commit": "da762648a30146ce996224cf459c4e052e7b6924"
       },
       "printer": "dstevens",
       "printer_name": "Damien Stevens",
@@ -8169,6 +8169,10 @@
         {
           "handle": "jeffreydebolt",
           "name": "Jeff DeBolt"
+        },
+        {
+          "handle": "mvanhorn",
+          "name": "Matt Van Horn"
         }
       ],
       "mcp": {
@@ -8768,6 +8772,12 @@
         "Find devices drawing persistent power during explicit periods when related household states show inactivity."
       ],
       "path": "library/devices/home-assistant",
+      "release": {
+        "cli_name": "home-assistant-pp-cli",
+        "version": "2026.7.1",
+        "released_at": "2026-07-24T23:56:45Z",
+        "source_commit": "7753aa608886945c0c7e40eb968e639083497b28"
+      },
       "printer": "Avanderheyde",
       "printer_name": "avanderheyde",
       "creator": {
@@ -11415,9 +11425,9 @@
       "path": "library/media-and-entertainment/movie-goat",
       "release": {
         "cli_name": "movie-goat-pp-cli",
-        "version": "2026.7.2",
-        "released_at": "2026-07-08T23:15:22Z",
-        "source_commit": "220c1563d0375ec8741c4c377b4bb5a4317cbf6a"
+        "version": "2026.7.3",
+        "released_at": "2026-07-29T06:13:03Z",
+        "source_commit": "dd926e4c931eff7d3a02b4b7ca88259140af84c7"
       },
       "printer": "tmchow",
       "printer_name": "Trevin Chow",
@@ -11425,6 +11435,12 @@
         "handle": "tmchow",
         "name": "Trevin Chow"
       },
+      "contributors": [
+        {
+          "handle": "giuseppebisemi",
+          "name": "Giuseppe Bisemi"
+        }
+      ],
       "mcp": {
         "binary": "movie-goat-pp-mcp",
         "transports": [
@@ -15655,6 +15671,68 @@
       }
     },
     {
+      "name": "sculptok",
+      "category": "ai",
+      "api": "Sculptok",
+      "description": "SculptOK AI depth-map, relief, STL and 3D generation CLI",
+      "search_terms": [
+        "sculptok",
+        "sculptok-pp-cli",
+        "SculptOK AI depth-map, relief, STL and 3D generation CLI",
+        "One-command depth-map generate",
+        "generate depthmap",
+        "Turn a local image into SculptOK depth-map candidates in one command: upload, submit, auto-poll to completion, and download the results.",
+        "One-command image-to-STL",
+        "generate stl",
+        "Convert a local image straight to a printable STL with full thickness, width, invert, and scale control, polled to completion and saved.",
+        "One-command 3D model generate",
+        "generate threed",
+        "Generate a 3D model from a local image at basic, standard, or high precision, polled and downloaded automatically.",
+        "Credit-cost preflight estimator",
+        "cost",
+        "Estimate exactly how many credits a draw or a whole batch would cost and compare it against your live balance before spending anything.",
+        "Spend analytics by kind and day",
+        "analytics",
+        "Aggregate your locally synced credit events by action type to see where credits actually went.",
+        "Reconcile credits against jobs",
+        "reconcile",
+        "Cross-check synced credit charges against produced draw jobs to surface credits spent with no matching result.",
+        "Offline job search",
+        "search",
+        "Full-text search your local mirror of draws and credit events by kind, status, or parameters without any API call."
+      ],
+      "path": "library/ai/sculptok",
+      "release": {
+        "cli_name": "sculptok-pp-cli",
+        "version": "2026.7.1",
+        "released_at": "2026-07-29T02:47:52Z",
+        "source_commit": "14f584d6820fe91895cd1d892a0350b44a587b69"
+      },
+      "printer": "vcolombo",
+      "printer_name": "Vincent Colombo",
+      "contributors": [
+        {
+          "handle": "vcolombo",
+          "name": "Vincent Colombo"
+        }
+      ],
+      "mcp": {
+        "binary": "sculptok-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 8,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "SCULPTOK_API_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "sea-airport-parking",
       "category": "travel",
       "api": "SEA Airport Parking",
@@ -17514,9 +17592,9 @@
       "path": "library/media-and-entertainment/substack",
       "release": {
         "cli_name": "substack-pp-cli",
-        "version": "2026.7.1",
-        "released_at": "2026-07-08T18:21:21Z",
-        "source_commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0"
+        "version": "2026.7.2",
+        "released_at": "2026-07-29T06:12:24Z",
+        "source_commit": "df91a2c415cf2ce0ed288b248f1fbb8bb2a7177e"
       },
       "printer": "chirantan",
       "printer_name": "Chirantan Rajhans",
@@ -17532,6 +17610,10 @@
         {
           "handle": "tmchow",
           "name": "Trevin Chow"
+        },
+        {
+          "handle": "MBemera",
+          "name": "Matthew Bright"
         }
       ],
       "mcp": {
@@ -20272,6 +20354,61 @@
       "creator": {
         "handle": "Amit-Tabibi",
         "name": "Amit"
+      }
+    },
+    {
+      "name": "wordpress",
+      "category": "developer-tools",
+      "api": "WordPress",
+      "description": "WP-CLI-grade control over any WordPress site through plain HTTPS — no SSH, no server-side plugin, one static binary.",
+      "search_terms": [
+        "wordpress",
+        "wordpress-pp-cli",
+        "WP-CLI-grade control over any WordPress site through plain HTTPS — no SSH, no server-side plugin, one static binary.",
+        "Fleet rollup",
+        "fleet",
+        "See core version, pending updates, admin-account count and sync age for every site you manage, in one table.",
+        "REST reachability diagnosis",
+        "diagnose",
+        "Say in one command why a site's REST API is failing: path-based block, app-layer filter, bot challenge, renamed prefix, or stripped Authorization header.",
+        "Credential capability audit",
+        "caps",
+        "Report what your credentials are actually allowed to do on each route, with zero writes.",
+        "REST visibility gap",
+        "schema",
+        "Find out why a post type, field, or meta key is missing from the REST surface.",
+        "Editorial queue with age",
+        "queue",
+        "See drafts, pending, and scheduled posts bucketed by how long they have been sitting in that state.",
+        "Content hygiene audit",
+        "audit",
+        "Find posts and pages missing a featured image, a real category, an excerpt, or tags.",
+        "Orphaned media",
+        "orphans",
+        "List media files that no post or page references and that are nobody's featured image."
+      ],
+      "path": "library/developer-tools/wordpress",
+      "printer": "bobeglz",
+      "printer_name": "bobe",
+      "creator": {
+        "handle": "bobeglz",
+        "name": "bobe"
+      },
+      "mcp": {
+        "binary": "wordpress-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 174,
+        "public_tool_count": 32,
+        "auth_type": "api_key",
+        "env_vars": [
+          "WORDPRESS_USER",
+          "WORDPRESS_APP_PASSWORD"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
       }
     },
     {

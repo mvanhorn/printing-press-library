@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "sculptok",
+  "run_id": "20260622-164426-352dd01a",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 64,
+  "tests_passed": 64,
+  "tests_skipped": 49,
+  "auth_context": {
+    "type": "none"
+  }
+}

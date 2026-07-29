@@ -325,10 +325,7 @@ func LoadCache(path string) (*Cache, error) {
 	if encrypted {
 		plain, err := safestorage.Decrypt(raw)
 		if err != nil {
-			if errors.Is(err, safestorage.ErrKeyUnavailable) {
-				return nil, fmt.Errorf("reading encrypted cache %s: Keychain access unavailable (sign into Granola desktop or run `granola-pp-cli sync` to authorize Keychain access): %w", path, err)
-			}
-			return nil, fmt.Errorf("reading encrypted cache %s: %w", path, err)
+			return nil, wrapEncryptedCacheError(path, err)
 		}
 		defer safestorage.ZeroBytes(plain)
 		raw = plain
@@ -464,6 +461,37 @@ func LoadCache(path string) (*Cache, error) {
 	}
 
 	return c, nil
+}
+
+// PATCH(dek-migration): the "sign into Granola desktop or run sync to
+// authorize Keychain access" remediation is unreachable on an install
+// where Granola has moved the DEK into its entitlement-gated Keychain
+// group - no amount of signing in or re-running sync produces a key we
+// are allowed to read. Branch on the narrower classification first and
+// pass safestorage's message through untouched, appending only the one
+// fact safestorage cannot know: how much data the local store already
+// covers.
+func wrapEncryptedCacheError(path string, err error) error {
+	if errors.Is(err, safestorage.ErrSchemeMigrated) {
+		return fmt.Errorf("reading encrypted cache %s: %w %s", path, err, lastSuccessfulSyncNote())
+	}
+	if errors.Is(err, safestorage.ErrKeyUnavailable) {
+		return fmt.Errorf("reading encrypted cache %s: Keychain access unavailable (sign into Granola desktop or run `granola-pp-cli sync` to authorize Keychain access): %w", path, err)
+	}
+	return fmt.Errorf("reading encrypted cache %s: %w", path, err)
+}
+
+// lastSuccessfulSyncNote names the date of the last sync that decrypted
+// successfully, so the migrated-scheme error tells the user how current
+// the readable data is. safestorage cannot read this itself: this package
+// imports safestorage, so the reverse direction is an import cycle. The
+// date is therefore surfaced here at the caller layer.
+func lastSuccessfulSyncNote() string {
+	state, err := ReadSyncState()
+	if err != nil || state.LastDecryptStatus != DecryptStatusOK || state.LastSyncAt.IsZero() {
+		return "Last successful sync: none recorded on this machine."
+	}
+	return fmt.Sprintf("Last successful sync: %s.", state.LastSyncAt.Format("2006-01-02"))
 }
 
 // unwrapStringifiedJSON re-parses a json.RawMessage when its contents are

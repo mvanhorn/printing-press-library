@@ -69,6 +69,13 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   movie-goat-pp-cli ratings 550 --json
   ```
+- **Remake-aware title resolution** — Every command that accepts a title instead of a TMDb id says so out loud when the title is shared.
+
+  _TMDb's search ranks by a proprietary relevance score, so `"Sabrina"` resolves to the 1995 remake even though the 1954 Wilder original is better rated. When a title has more than one well-rated match, the CLI reports it on **both** channels: a human notice on stderr, and a `meta.ambiguous` record in the JSON on stdout for consumers that never read stderr. Pin the one you meant with `--year`, a `"Title (YYYY)"` suffix, or the id._
+
+  ```bash
+  movie-goat-pp-cli ratings "Sabrina" --year 1954 --json
+  ```
 - **`marathon`** — Plan a franchise marathon with watch order, total runtime, and suggested breaks.
 
   _Use when planning an event watch; agent can dump the schedule to share with a group._
@@ -206,6 +213,87 @@ movie-goat-pp-cli versus 27205 87108 --region US --agent
 ```
 
 Aligned compare card for Inception vs. Tenet; ratings, runtime, cast overlap, providers.
+
+### Pin the original, not the remake
+
+```bash
+movie-goat-pp-cli ratings "Sabrina" --year 1954 --agent
+movie-goat-pp-cli ratings "Sabrina (1954)" --agent
+movie-goat-pp-cli versus "Sabrina (1954)" "Sabrina (1995)" --agent
+```
+
+`ratings`, `marathon`, and `watchlist add` take `--year`; every title-taking
+command (including the two-positional `versus`) accepts the inline `"Title (YYYY)"`
+suffix. Without either, the CLI still takes TMDb's top-ranked result but prints
+the rival ids on stderr:
+
+```
+warn: "Sabrina" matches 3 titles on TMDb; using id 11860 — Sabrina (1995).
+      TMDb's search relevance put it first, but Sabrina (1954) has more ratings (1373 vs 703).
+      Other matches:
+        6620  Sabrina (1954)
+        503902  Sabrina (2018)
+      Disambiguate with --year <YYYY>, a "title (YYYY)" suffix, or the TMDb id.
+```
+
+`/search/*` orders results by a relevance score TMDb does not expose. It is not
+the vote count and not the `popularity` field — in this very case the 1954 entry
+leads on both (1373 vs 703 ratings, 4.25 vs 3.60 popularity) and still comes back
+second. That is why the top result can differ from the canonical edition, and why
+the notice compares vote counts: they are the only ranking input you can read.
+
+Unrated same-title obscurities never trigger it, so `ratings "Inception"` stays
+silent.
+
+**A script that never reads stderr still finds out.** The same event is recorded
+in the JSON response under `meta.ambiguous`, so a cron job or a pipeline running
+with `2>/dev/null` — the case where nobody is watching and a wrong year is most
+dangerous — can detect it:
+
+```bash
+movie-goat-pp-cli ratings "Sabrina" --agent 2>/dev/null | jq '.meta.ambiguous'
+```
+
+```json
+[
+  {
+    "query": "Sabrina",
+    "kind": "titles",
+    "match_count": 3,
+    "signal": "alternative_better_rated",
+    "chosen":  { "tmdb_id": 11860, "title": "Sabrina", "year": "1995", "vote_count": 703 },
+    "alternatives": [
+      { "tmdb_id": 6620,   "title": "Sabrina", "year": "1954", "vote_count": 1373 },
+      { "tmdb_id": 503902, "title": "Sabrina", "year": "2018", "vote_count": 194 }
+    ],
+    "hint": "Disambiguate with --year <YYYY>, a \"title (YYYY)\" suffix, or the TMDb id."
+  }
+]
+```
+
+`signal` is `alternative_better_rated` when the entry TMDb's search ranked first
+is *not* the best-rated one — treat that as "stop and pin an id" — or
+`multiple_exact_matches` when the top pick is also the best-rated. `meta.ambiguous`
+is a list because one command can resolve several titles (`versus` resolves two).
+
+`popularity` is TMDb's trending score, passed through as reported. It is *not*
+the order the results came back in, and it is not what the signal compares —
+that is `vote_count`.
+
+Rules worth knowing:
+
+- **Additive.** The field appears only when the stderr notice fires. Unambiguous
+  lookups carry no `meta` key at all, so nothing changes for existing parsers.
+- **`--select` cannot filter it out.** `--select title,ratings` still returns
+  `meta.ambiguous` when a lookup was ambiguous — narrowing the field list is
+  exactly the habit that would otherwise hide it.
+- **`--compact` / `--agent` keep it.** The compact allow-list applies to arrays;
+  these responses are objects, whose compaction is a blocklist that leaves `meta`
+  alone.
+- **`--quiet` silences the stderr notice but not the record.** They are separate
+  channels with separate audiences. Note that on these commands `--quiet`
+  suppresses stdout entirely (pre-existing behavior), so use `--json` without
+  `--quiet` to read the field.
 
 ### Plan a franchise night
 

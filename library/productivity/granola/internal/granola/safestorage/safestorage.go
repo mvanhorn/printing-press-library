@@ -39,19 +39,85 @@ var (
 
 	// ErrKeyUnavailable means the Keychain entry was missing, the user
 	// denied access, or storage.dek does not exist (Granola not installed
-	// or pre-encryption version).
+	// or pre-encryption version). ErrSchemeMigrated is a refinement of
+	// this sentinel, not an alternative to it - match the narrower one
+	// first when the distinction matters.
 	ErrKeyUnavailable = errors.New("safestorage: Keychain key or DEK unavailable")
 
 	// ErrDecryptFailed means the GCM auth tag rejected. This is the
 	// scheme-drift signal: the key works for the envelope shape we
 	// expect, but the bytes we got do not authenticate.
 	ErrDecryptFailed = errors.New("safestorage: GCM authentication failed")
+
+	// PATCH(dek-migration): Granola desktop 7.447.1 moved the 32-byte DEK
+	// out of storage.dek and into the macOS data-protection Keychain,
+	// service com.granola.app.dek in access group QZ7DHHLN25.granola. That
+	// access group is gated by a keychain-access-groups entitlement bound
+	// to Granola's Apple Team ID, so no third-party binary can read it.
+	// ErrSchemeMigrated is the honest classification for that state: the
+	// local key path is closed upstream, not misconfigured locally.
+	//
+	// Errors carrying this sentinel also report as ErrKeyUnavailable (see
+	// migratedSchemeError) - the key genuinely is unavailable, so callers
+	// that only know the older sentinel keep their existing fallbacks.
+	// Callers that want the precise reason match this one first.
+	ErrSchemeMigrated = errors.New("safestorage: Granola moved the DEK to an entitlement-gated Keychain group")
 )
 
 const (
 	dekLen    = 32
 	gcmNonce  = 12
 	gcmTagLen = 16
+)
+
+// PATCH(dek-migration): migratedSchemeError is the ErrSchemeMigrated
+// carrier. It reports as both ErrSchemeMigrated and ErrKeyUnavailable so
+// that adding the finer classification never removes a fallback: every
+// existing errors.Is(err, ErrKeyUnavailable) branch behaves exactly as it
+// did, while callers that branch on ErrSchemeMigrated first get the
+// accurate message. Both statements are true - the key is unavailable,
+// and it is unavailable because upstream moved it.
+type migratedSchemeError struct{ msg string }
+
+func (e *migratedSchemeError) Error() string { return e.msg }
+
+func (e *migratedSchemeError) Is(target error) bool {
+	return target == ErrSchemeMigrated || target == ErrKeyUnavailable
+}
+
+// newMigratedSchemeError builds the operator-facing migrated-scheme error.
+// state describes the observed on-disk/Keychain signature we classified
+// from; the shared explanation and remedy are appended so both migrated
+// classifications (unlinked storage.dek, stale storage.dek) tell the user
+// the same thing about what still works.
+func newMigratedSchemeError(state string) error {
+	return &migratedSchemeError{msg: fmt.Sprintf("%s: %s. %s", ErrSchemeMigrated.Error(), state, migratedSchemeRemedy)}
+}
+
+// migratedSchemeRemedy names the path that still works without sending the
+// user somewhere they cannot go. Deliberately absent: any instruction to
+// re-run sync or to approve a Keychain prompt. Neither can succeed once
+// the key lives in an access group gated by an entitlement bound to
+// Granola's own Team ID, and telling the user to try wastes their time.
+//
+// The override is named because it is a genuine local remedy, not just a
+// test seam: the upstream migration imports the existing DEK rather than
+// generating a fresh one, so a pre-migration storage.dek recovered from a
+// backup still decrypts today's cache-v6.json.enc.
+const migratedSchemeRemedy = "Granola desktop now keeps the data encryption key in a Keychain access group gated by an entitlement bound to its own Team ID, so no third-party binary can read it. " +
+	"Fetching newly recorded meetings needs a Granola API key, which requires a Business or Enterprise Granola workspace. " +
+	"Data already synced to the local store remains readable. " +
+	"If you kept a copy of storage.dek from before the migration, base64-encode its 32-byte DEK into GRANOLA_SAFESTORAGE_KEY_OVERRIDE: the migration imported the existing DEK rather than generating a new one, so the old key still decrypts today's files."
+
+// keySource records where the DEK in hand came from. Decrypt uses it to
+// tell a stale storage.dek left behind by a failed upstream migration
+// apart from a genuine envelope drift - only a key read off disk can be
+// stale, an operator-supplied override cannot.
+type keySource int
+
+const (
+	keySourceOverride keySource = iota
+	keySourceStorageDEK
 )
 
 // dekCache holds the 32-byte DEK after a successful Key call. We cache
@@ -72,12 +138,21 @@ var (
 // Keychain entry is missing or denied, or ErrDecryptFailed if the
 // envelope no longer matches the expected shape.
 func Key() ([]byte, error) {
+	dek, _, err := keyWithSource()
+	return dek, err
+}
+
+// keyWithSource is Key plus the provenance Decrypt needs to classify a
+// GCM failure. The override branch stays ahead of everything else so that
+// tests, CI lanes, and any user supplying a recovered DEK out of band are
+// unaffected by the scheme classification below it.
+func keyWithSource() ([]byte, keySource, error) {
 	if override := os.Getenv("GRANOLA_SAFESTORAGE_KEY_OVERRIDE"); override != "" {
 		dek, err := parseKeyOverride(override)
 		if err != nil {
-			return nil, fmt.Errorf("safestorage: GRANOLA_SAFESTORAGE_KEY_OVERRIDE: %w", err)
+			return nil, keySourceOverride, fmt.Errorf("safestorage: GRANOLA_SAFESTORAGE_KEY_OVERRIDE: %w", err)
 		}
-		return dek, nil
+		return dek, keySourceOverride, nil
 	}
 
 	dekMu.Lock()
@@ -85,20 +160,20 @@ func Key() ([]byte, error) {
 	if dekValue != nil {
 		out := make([]byte, len(dekValue))
 		copy(out, dekValue)
-		return out, nil
+		return out, keySourceStorageDEK, nil
 	}
 
 	dek, err := loadDEK()
 	if err != nil {
-		return nil, err
+		return nil, keySourceStorageDEK, err
 	}
 	if len(dek) != dekLen {
-		return nil, fmt.Errorf("%w: DEK length %d, expected %d", ErrDecryptFailed, len(dek), dekLen)
+		return nil, keySourceStorageDEK, fmt.Errorf("%w: DEK length %d, expected %d", ErrDecryptFailed, len(dek), dekLen)
 	}
 
 	dekValue = make([]byte, len(dek))
 	copy(dekValue, dek)
-	return dek, nil
+	return dek, keySourceStorageDEK, nil
 }
 
 // Available reports whether Key has succeeded at least once in this
@@ -129,7 +204,7 @@ func Decrypt(ciphertext []byte) ([]byte, error) {
 	if len(ciphertext) < gcmNonce+gcmTagLen+1 {
 		return nil, fmt.Errorf("%w: ciphertext too short (%d bytes)", ErrDecryptFailed, len(ciphertext))
 	}
-	dek, err := Key()
+	dek, src, err := keyWithSource()
 	if err != nil {
 		return nil, err
 	}
@@ -147,6 +222,22 @@ func Decrypt(ciphertext []byte) ([]byte, error) {
 	body := ciphertext[gcm.NonceSize():]
 	plaintext, err := gcm.Open(nil, nonce, body, nil)
 	if err != nil {
+		// PATCH(dek-migration): a DEK that unwrapped cleanly out of
+		// storage.dek but does not authenticate Granola's own ciphertext
+		// is the failed-migration state, not envelope drift. Granola
+		// unlinks storage.dek only after a successful import and wraps
+		// that import in a five-attempt retry because it can fail at
+		// launch, so a failed import leaves the old key file on disk
+		// while the app has already rotated to a fresh Keychain DEK.
+		// Without this branch such an install reads as a generic decrypt
+		// failure and the operator is told to go fix a Keychain prompt
+		// that cannot help. Only a key read off disk can be stale, so
+		// the override path is never reclassified.
+		if src == keySourceStorageDEK {
+			if staleErr := classifyStaleDEKFile(); staleErr != nil {
+				return nil, staleErr
+			}
+		}
 		return nil, fmt.Errorf("%w: %v", ErrDecryptFailed, err)
 	}
 	return plaintext, nil
