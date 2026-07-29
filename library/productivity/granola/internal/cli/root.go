@@ -231,6 +231,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newWarmCmd(flags))
 	rootCmd.AddCommand(newShowCmd(flags))
 	rootCmd.AddCommand(newStatsCmd(flags))
+	rootCmd.AddCommand(newDBCmd(flags))
 	rootCmd.AddCommand(newCollectCmd(flags))
 	rootCmd.AddCommand(newRecipesCmd(flags))
 	rootCmd.AddCommand(newWorkspacesCmd(flags))

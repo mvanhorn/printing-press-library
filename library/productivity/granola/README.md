@@ -5,7 +5,7 @@
 granola-pp-cli hydrates a local SQLite store from Granola — via the public REST API on current desktop builds, or via the desktop's own cache on pre-migration builds — and adds the queries Granola.ai’s web app and existing community CLIs cannot answer. Reads serve from the local store first, so memo run, memo queue, attendee timeline, recipes coverage, calendar overlay, and talktime are offline local-data joins no per-meeting tool produces. Agent-native JSON by default.
 
 Created by [@dstevens](https://github.com/dstevens) (Damien Stevens).
-Contributors: [@jeffreydebolt](https://github.com/jeffreydebolt) (Jeff DeBolt), [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
+Contributors: [@jeffreydebolt](https://github.com/jeffreydebolt) (Jeff DeBolt), [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn), [@giuseppebisemi](https://github.com/giuseppebisemi) (Giuseppe Bisemi).
 
 ## Install
 
@@ -319,7 +319,7 @@ This CLI exposes 35+ commands. Use `granola-pp-cli --help` for the canonical tre
 | **Cross-meeting analytics** | `attendee timeline / brief`, `folder stream`, `recipes coverage`, `talktime`, `calendar overlay`, `stats frequency / duration / attendees / calendar`, `collect`, `duplicates scan`, `chat list / get` |
 | **Granola entities** | `folders`, `folder list / stream`, `recipes list / describe / coverage`, `workspaces list` |
 | **Public API mirrors** | `notes list / get`, `folders` (require `GRANOLA_API_KEY`) |
-| **Sync / system** | `sync` (desktop cache), `sync-api` (public API), `doctor`, `auth setup / status / set-token / logout`, `which`, `agent-context`, `version`, `import` |
+| **Sync / system** | `sync` (desktop cache), `sync-api` (public API), `doctor`, `db schema` (local store path, tables, columns), `auth setup / status / set-token / logout`, `which`, `agent-context`, `version`, `import` |
 | **GUI bridge (macOS only)** | `warm <id> <query>` — prints by default; `--launch` activates the Granola desktop app |
 
 ## Output Formats
@@ -395,6 +395,8 @@ Environment variables:
 | `GRANOLA_NO_AUTO_REFRESH` | flag | No | Set to `1` to skip the auto-refresh that runs before every command. |
 
 Prefer the environment variable for `GRANOLA_API_KEY` over writing it into `config.toml` — backup and dotfile-sync tooling does not reliably preserve file modes.
+
+Local store: `~/.local/share/granola-pp-cli/data.db` (SQLite). Querying it directly with `sqlite3` is supported for questions the commands don't cover; run `granola-pp-cli db schema` first to read the real tables and columns instead of guessing them (`meetings.row_source`, not `source`; `folders.title`, not `name`). Treat it as read-only — writes belong to `sync` and `sync-api`.
 
 ## Troubleshooting
 **Authentication errors (exit code 4)**

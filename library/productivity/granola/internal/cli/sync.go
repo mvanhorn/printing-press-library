@@ -429,12 +429,18 @@ func syncResourceTo(streams syncStreams, c interface {
 	// fall back to plain pagination — sending a synthetic since=... would
 	// reach the API as an unknown query param and (for strict APIs like
 	// Notion) fail the whole resource with a 400. Warn once per resource
-	// when the user expected incremental behavior.
+	// when the user expected incremental behavior — that is, when --since
+	// was passed explicitly. The automatic last-synced checkpoint reaches
+	// here on every routine sync for these resources; warning on a default
+	// the user never asked for is noise, so the auto path falls back
+	// silently. PATCH(granola-db-schema-discoverability)
 	if effectiveSince != "" && sinceParam == "" {
-		if humanFriendly {
-			fmt.Fprintf(stderr, "  %s: incremental sync ignored (endpoint declares no temporal filter; falling back to full pagination)\n", resource)
-		} else {
-			fmt.Fprintf(stdout, `{"event":"sync_warning","resource":"%s","reason":"resource_not_incremental","message":"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource"}`+"\n", resource)
+		if sinceTS != "" {
+			if humanFriendly {
+				fmt.Fprintf(stderr, "  %s: incremental sync ignored (endpoint declares no temporal filter; falling back to full pagination)\n", resource)
+			} else {
+				fmt.Fprintf(stdout, `{"event":"sync_warning","resource":"%s","reason":"resource_not_incremental","message":"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource"}`+"\n", resource)
+			}
 		}
 		effectiveSince = ""
 	}

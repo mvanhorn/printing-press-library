@@ -193,6 +193,24 @@ Both of these originate in Granola desktop's own cache. `chat list` reads the th
   granola-pp-cli calendar overlay --week 2026-05-11 --missed-only --json
   ```
 
+### Direct SQL against the local store
+
+The local store is plain SQLite at `~/.local/share/granola-pp-cli/data.db`, and querying it directly is a supported pattern for questions the commands don't cover. Read the schema first instead of guessing column names — the two classic wrong guesses are `meetings.source` (the real column is `row_source`) and `folders.name` (the real column is `title`):
+
+```bash
+# Path, tables, and columns — the contract your SQL runs against
+granola-pp-cli db schema
+
+# Machine-readable, for scripts
+granola-pp-cli db schema --json
+
+# Then query with confidence
+sqlite3 ~/.local/share/granola-pp-cli/data.db \
+  "select row_source, count(*) from meetings group by row_source;"
+```
+
+The main tables: `meetings` (notes, timestamps, `row_source` = cache|api), `attendees`, `transcript_segments`, `folders` + `folder_memberships`, `panel_templates`, and `sync_state`. Treat the store as read-only from SQL — writes belong to `sync` and `sync-api`.
+
 ### Pipeline hygiene
 - **`duplicates scan`** — Hash (title, date-bucket, attendee-email-set) across the cache and a meeting-transcripts repo to surface duplicates at scale.
 
