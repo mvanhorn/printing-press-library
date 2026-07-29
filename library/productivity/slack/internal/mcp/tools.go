@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -241,14 +242,22 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("files_upload",
-			mcplib.WithDescription("Upload a file to Slack"),
-			mcplib.WithString("channels", mcplib.Description("Comma-separated channel IDs to share the file with")),
-			mcplib.WithString("content", mcplib.Description("File content (for text-based files)")),
-			mcplib.WithString("filename", mcplib.Description("Filename")),
+			mcplib.WithDescription("Upload a file to Slack via the external upload flow"),
+			mcplib.WithString("file", mcplib.Description("Path to a local file to upload (alternative to content)")),
+			mcplib.WithString("channel", mcplib.Description("Channel or DM ID to share the file into")),
+			mcplib.WithString("channels", mcplib.Description("Deprecated alias for channel; one channel only")),
+			mcplib.WithString("content", mcplib.Description("Inline file content (requires filename)")),
+			mcplib.WithString("filename", mcplib.Description("Filename to register")),
 			mcplib.WithString("title", mcplib.Description("Title of the file")),
-			mcplib.WithString("initial_comment", mcplib.Description("Initial comment for the file")),
+			mcplib.WithString("initial_comment", mcplib.Description("Message posted alongside the file")),
+			mcplib.WithString("thread_ts", mcplib.Description("Thread timestamp to share the file into a thread")),
 		),
-		makeAPIHandler("POST", "/files.upload", []string{}),
+		// PATCH(amend-2026-07-26: run the external upload flow) — this was
+		// makeAPIHandler("POST", "/files.upload"), an endpoint Slack has retired. It
+		// answered method_deprecated for every agent that followed the documented MCP
+		// setup, so the tool could not succeed. Shares client.UploadExternal with the
+		// CLI command rather than reimplementing the three steps.
+		handleFilesUpload,
 	)
 	s.AddTool(
 		mcplib.NewTool("messages_delete_message",
@@ -810,4 +819,111 @@ func handleAbout(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolR
 	}
 	data, _ := json.MarshalIndent(about, "", "  ")
 	return mcplib.NewToolResultText(string(data)), nil
+}
+
+// handleFilesUpload runs Slack's external upload flow for the MCP tool. Accepts
+// either a local path or inline content, mirroring the CLI command.
+func handleFilesUpload(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+	c, err := newMCPClient()
+	if err != nil {
+		return mcplib.NewToolResultError(err.Error()), nil
+	}
+
+	argStr := func(k string) string {
+		if v, ok := req.Params.Arguments[k]; ok {
+			return strings.TrimSpace(fmt.Sprintf("%v", v))
+		}
+		return ""
+	}
+
+	filePath, content := argStr("file"), argStr("content")
+	filename := argStr("filename")
+
+	var (
+		size int64
+		src  io.ReadCloser
+	)
+	switch {
+	case filePath != "" && content != "":
+		return mcplib.NewToolResultError("file and content are mutually exclusive"), nil
+	case filePath != "":
+		// Open once and size that handle, so the length reserved in step 1 matches
+		// the bytes streamed in step 2 even if the file changes underneath.
+		f, err := os.Open(filePath)
+		if err != nil {
+			return mcplib.NewToolResultError(fmt.Sprintf("opening file: %v", err)), nil
+		}
+		info, err := f.Stat()
+		if err != nil {
+			_ = f.Close()
+			return mcplib.NewToolResultError(fmt.Sprintf("reading file: %v", err)), nil
+		}
+		if info.IsDir() {
+			_ = f.Close()
+			return mcplib.NewToolResultError(fmt.Sprintf("%q is a directory", filePath)), nil
+		}
+		size, src = info.Size(), f
+		if filename == "" {
+			filename = filepath.Base(filePath)
+		}
+	case content != "":
+		if filename == "" {
+			return mcplib.NewToolResultError("filename is required when using content"), nil
+		}
+		size, src = int64(len(content)), io.NopCloser(strings.NewReader(content))
+	default:
+		return mcplib.NewToolResultError("one of file or content is required"), nil
+	}
+	defer func() { _ = src.Close() }()
+
+	if size == 0 {
+		return mcplib.NewToolResultError("refusing to upload an empty file"), nil
+	}
+
+	// completeUploadExternal shares into one conversation per call, so reject a
+	// multi-channel list rather than silently dropping the extras.
+	channel := argStr("channel")
+	if list := argStr("channels"); list != "" {
+		parts := strings.Split(list, ",")
+		if len(parts) > 1 {
+			return mcplib.NewToolResultError(fmt.Sprintf("channels lists %d channels; the external upload flow shares into one conversation per call", len(parts))), nil
+		}
+		if channel == "" {
+			channel = strings.TrimSpace(parts[0])
+		}
+	}
+
+	res, err := c.UploadExternal(ctx, client.ExternalUpload{
+		Filename:       filename,
+		Size:           size,
+		Reader:         src,
+		ChannelID:      channel,
+		Title:          argStr("title"),
+		InitialComment: argStr("initial_comment"),
+		ThreadTS:       argStr("thread_ts"),
+	})
+	if err != nil {
+		return mcplib.NewToolResultError(err.Error()), nil
+	}
+	if slackErr := mcpSlackError(res.Response); slackErr != "" {
+		return mcplib.NewToolResultError(slackErr), nil
+	}
+	return mcplib.NewToolResultText(string(res.Response)), nil
+}
+
+// mcpSlackError reports Slack's HTTP-200 {"ok":false} application errors, which
+// the client does not surface on its own.
+func mcpSlackError(data json.RawMessage) string {
+	var resp struct {
+		OK     bool   `json:"ok"`
+		Error  string `json:"error"`
+		Needed string `json:"needed"`
+	}
+	if json.Unmarshal(data, &resp) != nil || resp.OK || resp.Error == "" {
+		return ""
+	}
+	if resp.Error == "missing_scope" && resp.Needed != "" {
+		return fmt.Sprintf("missing Slack scope: %s", resp.Needed)
+	}
+	return fmt.Sprintf("Slack API error: %s", resp.Error)
 }

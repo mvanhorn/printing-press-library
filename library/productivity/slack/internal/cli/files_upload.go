@@ -7,13 +7,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"mime/multipart"
-	"net/http"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 
+	"github.com/mvanhorn/printing-press-library/library/productivity/slack/internal/client"
 	"github.com/spf13/cobra"
 )
 
@@ -62,47 +60,58 @@ func newFilesUploadCmd(flags *rootFlags) *cobra.Command {
 			// Resolve the source and its name before touching the network, so bad
 			// input fails without burning an upload URL.
 			//
-			// The size is taken from stat rather than by reading, and the bytes are
-			// streamed to Slack in step 2, so a large upload does not have to fit in
+			// The size comes from the open descriptor rather than a read, and the
+			// bytes are streamed in step 2, so a large upload does not have to fit in
 			// memory. An earlier version read the whole file with os.ReadFile and then
 			// copied it into a multipart buffer, needing roughly twice the file size
 			// in RAM.
+			//
+			// The file is opened once and sized through that same handle. Sizing the
+			// path with os.Stat and opening it later left a window in which the file
+			// could be appended to, truncated, rotated or replaced, so the length
+			// reserved in step 1 would not match the bytes streamed in step 2 — Slack
+			// would reject the upload or store a corrupt file. One handle, one
+			// snapshot.
 			var (
 				filename string
 				size     int64
-				openSrc  func() (io.ReadCloser, error)
+				src      io.ReadCloser
 			)
 
 			switch {
 			case flagFile != "" && flagContent != "":
 				return fmt.Errorf("--file and --content are mutually exclusive")
 			case flagFile != "":
-				info, err := os.Stat(flagFile)
+				f, err := os.Open(flagFile)
 				if err != nil {
 					return fmt.Errorf("reading --file: %w", err)
 				}
+				info, err := f.Stat()
+				if err != nil {
+					_ = f.Close()
+					return fmt.Errorf("reading --file: %w", err)
+				}
 				if info.IsDir() {
+					_ = f.Close()
 					return fmt.Errorf("--file %q is a directory", flagFile)
 				}
 				size = info.Size()
+				src = f
 				filename = flagFilename
 				if filename == "" {
 					filename = filepath.Base(flagFile)
 				}
-				openSrc = func() (io.ReadCloser, error) { return os.Open(flagFile) }
 			case flagContent != "":
-				content := flagContent
-				size = int64(len(content))
+				size = int64(len(flagContent))
+				src = io.NopCloser(strings.NewReader(flagContent))
 				filename = flagFilename
 				if filename == "" {
 					return fmt.Errorf("--filename is required when using --content")
 				}
-				openSrc = func() (io.ReadCloser, error) {
-					return io.NopCloser(strings.NewReader(content)), nil
-				}
 			default:
 				return fmt.Errorf("one of --file or --content is required")
 			}
+			defer func() { _ = src.Close() }()
 
 			if size == 0 {
 				return fmt.Errorf("refusing to upload an empty file")
@@ -129,6 +138,12 @@ func newFilesUploadCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			if c.DryRun {
+				// --quiet means no stdout, and that applies to the plan as much as to
+				// a real response. Checked here because this branch returns before
+				// reaching any later output guard.
+				if flags.quiet {
+					return nil
+				}
 				plan := map[string]any{
 					"dry_run": true,
 					"steps": []map[string]any{
@@ -144,101 +159,22 @@ func newFilesUploadCmd(flags *rootFlags) *cobra.Command {
 				return printOutput(cmd.OutOrStdout(), json.RawMessage(planJSON), true)
 			}
 
-			// Step 1 — reserve an upload URL.
-			step1, err := c.Get("/files.getUploadURLExternal", map[string]string{
-				"filename": filename,
-				"length":   strconv.FormatInt(size, 10),
+			// The three steps live in client.UploadExternal so the MCP server's
+			// files_upload tool runs the same flow instead of its own.
+			res, err := c.UploadExternal(cmd.Context(), client.ExternalUpload{
+				Filename:       filename,
+				Size:           size,
+				Reader:         src,
+				ChannelID:      channel,
+				Title:          flagTitle,
+				InitialComment: flagInitialComment,
+				ThreadTS:       flagThreadTS,
 			})
 			if err != nil {
 				return classifyAPIError(err)
 			}
-			if slackErr := checkSlackAPIError(step1); slackErr != nil {
-				return slackErr
-			}
-			var reserved uploadURLResponse
-			if err := json.Unmarshal(step1, &reserved); err != nil {
-				return fmt.Errorf("parsing files.getUploadURLExternal response: %w", err)
-			}
-			if reserved.UploadURL == "" || reserved.FileID == "" {
-				return fmt.Errorf("files.getUploadURLExternal returned no upload_url or file_id")
-			}
+			data, statusCode := res.Response, res.StatusCode
 
-			// Step 2 — stream the bytes to the returned URL. Deliberately not via
-			// client.do: different host, and no Authorization header.
-			//
-			// The multipart body is produced through an io.Pipe so neither the file
-			// nor the encoded form is held in memory — the request body is consumed
-			// as it is generated. Writer-side failures are surfaced by closing the
-			// pipe with the error, which makes httpClient.Do return it.
-			src, err := openSrc()
-			if err != nil {
-				return fmt.Errorf("opening upload source: %w", err)
-			}
-			defer func() { _ = src.Close() }()
-
-			pr, pw := io.Pipe()
-			mw := multipart.NewWriter(pw)
-			go func() {
-				part, err := mw.CreateFormFile("file", filename)
-				if err != nil {
-					_ = pw.CloseWithError(fmt.Errorf("building upload form: %w", err))
-					return
-				}
-				if _, err := io.Copy(part, src); err != nil {
-					_ = pw.CloseWithError(fmt.Errorf("reading upload source: %w", err))
-					return
-				}
-				if err := mw.Close(); err != nil {
-					_ = pw.CloseWithError(fmt.Errorf("closing upload form: %w", err))
-					return
-				}
-				_ = pw.Close()
-			}()
-
-			req, err := http.NewRequestWithContext(cmd.Context(), http.MethodPost, reserved.UploadURL, pr)
-			if err != nil {
-				return fmt.Errorf("building upload request: %w", err)
-			}
-			req.Header.Set("Content-Type", mw.FormDataContentType())
-
-			httpClient := c.HTTPClient
-			if httpClient == nil {
-				httpClient = http.DefaultClient
-			}
-			resp, err := httpClient.Do(req)
-			if err != nil {
-				return fmt.Errorf("uploading file bytes: %w", err)
-			}
-			defer func() { _ = resp.Body.Close() }()
-			uploadBody, err := io.ReadAll(io.LimitReader(resp.Body, 4096))
-			if err != nil {
-				return fmt.Errorf("reading upload response: %w", err)
-			}
-			if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-				return fmt.Errorf("uploading file bytes: HTTP %d: %s", resp.StatusCode, strings.TrimSpace(string(uploadBody)))
-			}
-
-			// Step 3 — register, and share if a channel was given.
-			fileEntry := map[string]any{"id": reserved.FileID}
-			if flagTitle != "" {
-				fileEntry["title"] = flagTitle
-			}
-			completeBody := map[string]any{"files": []map[string]any{fileEntry}}
-			if channel != "" {
-				completeBody["channel_id"] = channel
-			}
-			if flagInitialComment != "" {
-				completeBody["initial_comment"] = flagInitialComment
-			}
-			if flagThreadTS != "" {
-				completeBody["thread_ts"] = flagThreadTS
-			}
-
-			path := "/files.completeUploadExternal"
-			data, statusCode, err := c.Post(path, completeBody)
-			if err != nil {
-				return classifyAPIError(err)
-			}
 			if slackErr := checkSlackAPIError(data); slackErr != nil {
 				return slackErr
 			}
@@ -257,10 +193,10 @@ func newFilesUploadCmd(flags *rootFlags) *cobra.Command {
 				envelope := map[string]any{
 					"action":   "post",
 					"resource": "files",
-					"path":     path,
+					"path":     "/files.completeUploadExternal",
 					"status":   statusCode,
 					"success":  statusCode >= 200 && statusCode < 300,
-					"file_id":  reserved.FileID,
+					"file_id":  res.FileID,
 				}
 				if len(filtered) > 0 {
 					var parsed any
