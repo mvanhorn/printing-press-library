@@ -124,7 +124,7 @@ These capabilities aren't available in any other tool for this API.
 
 ### Full-history pagination
 
-- **`--all` on paginated feed commands** — Follows the API's response cursor (`next_max_id`, `cursor`, `continuationToken`, `after`, ...) automatically and merges every page into a single result, with a 40-page safety cap. Covers the paginated list commands across Instagram, TikTok, Facebook, YouTube, Reddit, GitHub, LinkedIn, and more. Without `--all` you get page 1 plus a truncation warning that names the flag.
+- **`--all` on paginated feed commands** — Follows the API's response cursor (`next_max_id`, `cursor`, `continuationToken`, `after`, ...) automatically and merges every page into a single result, with a 100-page safety cap. Covers the paginated list commands across Instagram, TikTok, Facebook, YouTube, Reddit, GitHub, LinkedIn, and more. Without `--all` you get page 1 plus a truncation warning that names the flag.
 
   _Replaces the manual loop of re-running a command with the cursor from the previous response._
 

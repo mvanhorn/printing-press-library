@@ -18,6 +18,7 @@ func newInstagramListPost2Cmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "list-post-2 [url]",
+		Args:        cobra.MaximumNArgs(1),
 		Aliases:     []string{"comments"},
 		Short:       "Retrieves comments on a public Instagram post or reel.",
 		Example:     "  scrape-creators-pp-cli instagram list-post-2 --url https://www.instagram.com/reel/DOq6eV6iIgD",

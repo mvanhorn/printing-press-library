@@ -20,6 +20,7 @@ func newInstagramListUser4Cmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "list-user-4 [handle]",
+		Args:        cobra.MaximumNArgs(1),
 		Aliases:     []string{"posts"},
 		Short:       "Returns a paginated feed of a user's public Instagram posts, including reels, photos, videos, and carousels.",
 		Example:     "  scrape-creators-pp-cli instagram list-user-4 --handle mrbeast",
