@@ -100,7 +100,7 @@ Source routing (local vs live) is controlled by `--data-source`: `auto` (default
 |---------|--------------|
 | `conversations` | List channels and DMs in the workspace |
 | `users` | List all users in the workspace |
-| `search <query>` | Live workspace search via `search.messages`. Local mode (`--data-source local`) does not reach synced messages yet — see Known Limitations |
+| `search <query>` | Live workspace search via `search.messages`. Local mode (`--data-source local`) covers messages, usergroups and files |
 | `digest` | Daily/weekly activity digest from locally synced data |
 | `health` | Channel health report (activity, engagement, stagnation) |
 | `quiet` | Find dead or low-activity channels |
@@ -140,10 +140,9 @@ reporting success.
 
 ## Known Limitations
 
-- `search --data-source local` does not return messages. `sync` writes them to the local
-  `messages`/`messages_fts` tables, but the local search path never queries those tables, so
-  it reports no results even when the index holds matches. Use the default (live) mode for
-  message search.
+- `search --data-source local` covers messages, usergroups and files. Users and conversations are
+  not locally searchable: `sync` writes them to the generic `resources` table rather than a typed
+  per-resource index, so there is nothing per-type to query. Use live mode for those.
 - `auth test` is not registered on the command tree.
 - `sync --resources channels` fails with `unknown_method`; use `conversations`.
 

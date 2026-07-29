@@ -102,3 +102,47 @@ func TestLocalSearchFindsMessages(t *testing.T) {
 		}
 	})
 }
+
+// SearchMessages passed the query straight to FTS5 while Search, SearchUsergroups
+// and SearchFiles all sanitized it first. Wiring messages into local search made
+// that reachable: an unmatched quote produced "SQL logic error: unterminated
+// string", and NOT/OR were applied as real operators, so the same input meant
+// different things depending on which index answered. These lock in literal,
+// consistent handling.
+func TestLocalSearchSanitizesFTSSyntax(t *testing.T) {
+	dbPath := seedMessages(t,
+		"deploy the payment service tonight",
+		"the renewal quote needs review",
+	)
+
+	// Each of these is FTS5 syntax. None may error, and none may be honoured as an
+	// operator — they are literal text that happens not to appear in the corpus.
+	for _, q := range []string{
+		`renewal NOT review`,
+		`renewal OR zzabsent`,
+		`unmatched " quote`,
+		`wild*`,
+		`NEAR(a b)`,
+		`^anchored`,
+	} {
+		t.Run(q, func(t *testing.T) {
+			got := runSearch(t, dbPath, q)
+			// runSearch fails the test on a non-nil error, so reaching here means no
+			// SQL error. Guard against the operator being honoured: "renewal NOT
+			// review" as an operator would match the renewal message, since the
+			// corpus has no other "review".
+			if strings.Contains(got, "renewal quote needs review") && q == `renewal NOT review` {
+				t.Errorf("FTS5 NOT was honoured as an operator rather than treated literally: %s", got)
+			}
+		})
+	}
+
+	// A term that really is present must still match, so sanitizing has not made
+	// the index unsearchable.
+	t.Run("ordinary term still matches", func(t *testing.T) {
+		got := runSearch(t, dbPath, "renewal")
+		if !strings.Contains(got, "renewal quote needs review") {
+			t.Errorf("expected the seeded message, got: %s", got)
+		}
+	})
+}

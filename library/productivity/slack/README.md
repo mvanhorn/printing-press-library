@@ -406,9 +406,9 @@ search now exit non-zero and name the Slack error (including the needed scope fo
 
 ## Known Limitations
 
-- `search --data-source local` does not return messages. `sync` populates the local
-  `messages`/`messages_fts` tables, but the local search path never queries them, so it reports
-  no results even when the index holds matches. Use the default (live) mode for message search.
+- `search --data-source local` covers messages, usergroups and files. Users and conversations are
+  not locally searchable: `sync` writes them to the generic `resources` table rather than a typed
+  per-resource index. Use live mode for those.
 - `auth test` is not registered on the command tree.
 - `sync --resources channels` fails with `unknown_method`; use `conversations` instead.
 

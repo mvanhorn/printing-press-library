@@ -708,9 +708,21 @@ func (s *Store) UserActivity(userID string, days int) ([]map[string]interface{},
 	return results, nil
 }
 
+// PATCH(amend-2026-07-26: sanitize the FTS query like every sibling index) —
+// Search, SearchUsergroups and SearchFiles all pass the query through
+// sanitizeFTSQuery; this one passed it raw. That went unnoticed while the
+// function had no callers, but wiring it into local search made the
+// inconsistency reachable: a query containing FTS5 syntax — NOT, OR, NEAR, *, or
+// an unmatched double quote — either errored or silently changed meaning here
+// while behaving as a literal everywhere else. Same input, different semantics
+// depending on which index answered.
 func (s *Store) SearchMessages(query string, limit int) ([]json.RawMessage, error) {
 	if limit <= 0 {
 		limit = 50
+	}
+	q := sanitizeFTSQuery(query)
+	if q == "" {
+		return nil, nil
 	}
 
 	stmt, err := s.db.Prepare(
@@ -726,7 +738,7 @@ func (s *Store) SearchMessages(query string, limit int) ([]json.RawMessage, erro
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.Query(query, limit)
+	rows, err := stmt.Query(q, limit)
 	if err != nil {
 		return nil, fmt.Errorf("search messages: %w", err)
 	}
