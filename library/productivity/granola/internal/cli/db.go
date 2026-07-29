@@ -52,6 +52,16 @@ func newDBSchemaCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "schema",
 		Short: "Print the local store's path, tables, and columns",
+		Long: `Print the store's path and its tables and columns.
+
+Two contracts, decided by ownership. The CLI's own store is read
+WAL-aware: the schema shown is current, including changes not yet
+checkpointed. An external file passed via --db is opened immutable and
+never touched — no locks, no side files, writes rejected by the driver —
+and its contract is snapshot semantics: the schema as of the file's last
+checkpoint. When a non-empty WAL sits next to an external target, the
+lag is disclosed as wal_pending in JSON and a note in human output;
+checkpoint the file from its owning application to fold the WAL in.`,
 		Example: `  # Every table and column, human-readable
   granola-pp-cli db schema
 

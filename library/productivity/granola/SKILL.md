@@ -198,7 +198,11 @@ Both of these originate in Granola desktop's own cache. `chat list` reads the th
 The local store is plain SQLite at `~/.local/share/granola-pp-cli/data.db`, and querying it directly is a supported pattern for questions the commands don't cover. Read the schema first instead of guessing column names — the two classic wrong guesses are `meetings.source` (the real column is `row_source`) and `folders.name` (the real column is `title`):
 
 ```bash
-# Path, tables, and columns — the contract your SQL runs against
+# Path, tables, and columns — the contract your SQL runs against.
+# On the CLI's own store the schema is WAL-current; an external file
+# passed with --db is opened immutable (never touched) and reports
+# snapshot semantics: the schema as of that file's last checkpoint,
+# with wal_pending set when a non-empty WAL means it may lag.
 granola-pp-cli db schema
 
 # Machine-readable, for scripts
