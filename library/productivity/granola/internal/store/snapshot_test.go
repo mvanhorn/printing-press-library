@@ -5,38 +5,30 @@ package store
 import (
 	"os"
 	"path/filepath"
-	"strings"
 	"testing"
 )
 
-// TestSnapshotDSNQuery pins the WAL-vs-immutable choice: a non-empty -wal
-// means committed state can live outside the main file, so the snapshot
-// must read through the WAL; otherwise immutable inspects with zero side
-// files. Both branches stay mode=ro either way.
-func TestSnapshotDSNQuery(t *testing.T) {
+// TestWALPending pins the disclosure signal: informational only, never
+// load-bearing (no open branches on it), true exactly when a non-empty
+// -wal sits next to the file.
+func TestWALPending(t *testing.T) {
 	t.Parallel()
 	dir := t.TempDir()
 	dbPath := filepath.Join(dir, "data.db")
 
-	if q := snapshotDSNQuery(dbPath); !strings.Contains(q, "immutable=1") {
-		t.Errorf("no -wal on disk: want immutable snapshot, got %q", q)
+	if WALPending(dbPath) {
+		t.Error("no -wal on disk: want false")
 	}
-
 	if err := os.WriteFile(dbPath+"-wal", []byte{}, 0o600); err != nil {
 		t.Fatal(err)
 	}
-	if q := snapshotDSNQuery(dbPath); !strings.Contains(q, "immutable=1") {
-		t.Errorf("empty -wal carries no state: want immutable snapshot, got %q", q)
+	if WALPending(dbPath) {
+		t.Error("empty -wal carries no state: want false")
 	}
-
 	if err := os.WriteFile(dbPath+"-wal", []byte("frame"), 0o600); err != nil {
 		t.Fatal(err)
 	}
-	q := snapshotDSNQuery(dbPath)
-	if strings.Contains(q, "immutable=1") {
-		t.Errorf("non-empty -wal: immutable would miss WAL state, got %q", q)
-	}
-	if !strings.Contains(q, "mode=ro") {
-		t.Errorf("WAL-aware branch must stay read-only, got %q", q)
+	if !WALPending(dbPath) {
+		t.Error("non-empty -wal: want true")
 	}
 }

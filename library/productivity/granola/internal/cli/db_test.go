@@ -34,13 +34,12 @@ func TestDBSchemaListsRealColumns(t *testing.T) {
 	if err != nil {
 		t.Fatalf("read fixture: %v", err)
 	}
-	// The WAL-mode fixture writer may leave journals of its own; record
-	// what exists before the command so the assertion below blames only
-	// files the command itself created.
-	journalBefore := map[string]bool{}
+	// The WAL-mode fixture writer may leave journals of its own; remove
+	// them so the assertion below blames only files the command created.
+	// An external --db target is opened immutable, which must create
+	// nothing at all.
 	for _, suffix := range []string{"-wal", "-shm"} {
-		_, statErr := os.Stat(dbPath + suffix)
-		journalBefore[suffix] = statErr == nil
+		_ = os.Remove(dbPath + suffix)
 	}
 
 	flags := &rootFlags{asJSON: true}
@@ -62,8 +61,8 @@ func TestDBSchemaListsRealColumns(t *testing.T) {
 		t.Error("db schema mutated the store file; inspection must be read-only")
 	}
 	for _, suffix := range []string{"-wal", "-shm"} {
-		if _, statErr := os.Stat(dbPath + suffix); statErr == nil && !journalBefore[suffix] {
-			t.Errorf("db schema created %s; read-only open must not create journals", suffix)
+		if _, statErr := os.Stat(dbPath + suffix); statErr == nil {
+			t.Errorf("db schema created %s on an external --db target; the immutable open must create nothing", suffix)
 		}
 	}
 

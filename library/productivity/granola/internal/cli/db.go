@@ -41,6 +41,10 @@ type dbTable struct {
 type dbSchemaOutput struct {
 	Path   string    `json:"path"`
 	Tables []dbTable `json:"tables"`
+	// WALPending is set only for external --db targets, which are opened
+	// immutable: true means a non-empty -wal sits next to the file, so the
+	// schema shown may lag what a WAL-aware reader would see.
+	WALPending bool `json:"wal_pending,omitempty"`
 }
 
 func newDBSchemaCmd(flags *rootFlags) *cobra.Command {
@@ -63,18 +67,33 @@ func newDBSchemaCmd(flags *rootFlags) *cobra.Command {
 			if dryRunOK(flags) {
 				return nil
 			}
+			external := dbPath != ""
 			if dbPath == "" {
 				dbPath = defaultDBPath("granola-pp-cli")
 			}
 			if _, err := os.Stat(dbPath); os.IsNotExist(err) {
 				return notFoundErr(fmt.Errorf("no local store at %s — run sync first", dbPath))
 			}
-			// Read-only by contract: inspection must not run migrations,
-			// EnsureSchema, or leave WAL/SHM files behind — least of all on
-			// an arbitrary --db file that may not even be a granola store.
-			// The snapshot open creates no side files at all; the schema
-			// printed is whatever the file actually contains.
-			s, err := store.OpenSnapshot(dbPath)
+			// Ownership decides the open, not WAL presence, so no branch
+			// depends on a check-then-open race. The CLI's own store gets
+			// the WAL-aware read-only open: every granola command already
+			// opens that file and maintains its -shm, so inspection doing
+			// the same is ordinary operation, and the schema read is
+			// current through the WAL. An external --db file the process
+			// does not own is never touched: immutable=1 creates no side
+			// files, rejects writes at the driver level, and its one blind
+			// spot — schema still sitting in an un-checkpointed WAL — is
+			// disclosed in the output as wal_pending instead of resolved
+			// silently.
+			var s *store.Store
+			var err error
+			var walPending bool
+			if external {
+				s, err = store.OpenImmutable(dbPath)
+				walPending = store.WALPending(dbPath)
+			} else {
+				s, err = store.OpenReadOnly(dbPath)
+			}
 			if err != nil {
 				return err
 			}
@@ -98,7 +117,7 @@ func newDBSchemaCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			out := dbSchemaOutput{Path: dbPath}
+			out := dbSchemaOutput{Path: dbPath, WALPending: walPending}
 			for _, n := range names {
 				cols, err := tableColumns(cmd, s, n)
 				if err != nil {
@@ -112,6 +131,9 @@ func newDBSchemaCmd(flags *rootFlags) *cobra.Command {
 			}
 			w := cmd.OutOrStdout()
 			fmt.Fprintf(w, "Store: %s\n", out.Path)
+			if out.WALPending {
+				fmt.Fprintln(w, "note: a non-empty WAL sits next to this file; the schema shown may lag until the owner checkpoints it")
+			}
 			for _, t := range out.Tables {
 				fmt.Fprintf(w, "\n%s\n", t.Name)
 				for _, c := range t.Columns {

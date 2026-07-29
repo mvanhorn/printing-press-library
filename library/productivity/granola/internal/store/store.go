@@ -107,36 +107,35 @@ func OpenReadOnly(dbPath string) (*Store, error) {
 	return &Store{db: db, path: dbPath}, nil
 }
 
-// OpenSnapshot opens dbPath for pure read-only inspection (db schema on a
-// file the caller may not own). Two constraints pull against each other:
-// immutable=1 creates no -wal/-shm side files but reads only the main
-// database, so committed state still sitting in an un-checkpointed WAL
-// would be invisible; plain mode=ro reads through the WAL but materializes
-// a -shm index next to the file. The resolver: when a non-empty -wal is
-// already present the file is a live WAL database and correctness wins —
-// open mode=ro (adding -shm beside an existing WAL is ordinary SQLite
-// operation, not pollution). With no WAL on disk there is no hidden state
-// to miss, and immutable=1 inspects without touching anything.
+// OpenImmutable opens dbPath as a frozen read-only snapshot (immutable=1):
+// no writes, no migrations, and no -wal/-shm side files ever created. The
+// documented trade is WAL blindness — committed state still sitting in an
+// un-checkpointed -wal next to the file is not visible through this open.
+// Zero filesystem mutation and WAL currency cannot be had together on a
+// live WAL database (reading through a WAL requires the -shm index; even
+// `sqlite3 file.db .schema` materializes one), so this constructor takes
+// the no-mutation side of the trade and leaves the choice to the caller:
+// use it for files the process does not own, use OpenReadOnly for the
+// CLI's own store, and disclose WALPending to the user instead of
+// resolving it silently.
 //
 // PATCH(granola-db-schema-discoverability)
-func OpenSnapshot(dbPath string) (*Store, error) {
-	db, err := sql.Open("sqlite", "file:"+dbPath+snapshotDSNQuery(dbPath))
+func OpenImmutable(dbPath string) (*Store, error) {
+	db, err := sql.Open("sqlite", "file:"+dbPath+"?mode=ro&immutable=1&_pragma=temp_store(MEMORY)")
 	if err != nil {
-		return nil, fmt.Errorf("opening database (snapshot): %w", err)
+		return nil, fmt.Errorf("opening database (immutable): %w", err)
 	}
 	db.SetMaxOpenConns(1)
 	return &Store{db: db, path: dbPath}, nil
 }
 
-// snapshotDSNQuery picks the query string OpenSnapshot appends: WAL-aware
-// read-only when a non-empty -wal holds state the main file lacks,
-// side-effect-free immutable otherwise. Split out so the choice is unit-
-// testable without opening a database.
-func snapshotDSNQuery(dbPath string) string {
-	if fi, err := os.Stat(dbPath + "-wal"); err == nil && fi.Size() > 0 {
-		return "?mode=ro&_pragma=busy_timeout(5000)&_pragma=temp_store(MEMORY)"
-	}
-	return "?mode=ro&immutable=1&_pragma=temp_store(MEMORY)"
+// WALPending reports whether a non-empty -wal sits next to dbPath — state
+// an immutable open cannot see. Callers surface this to the user; nothing
+// here branches on it, so there is no check-then-open race to exploit:
+// the answer is informational, not load-bearing.
+func WALPending(dbPath string) bool {
+	fi, err := os.Stat(dbPath + "-wal")
+	return err == nil && fi.Size() > 0
 }
 
 // OpenWithContext opens or creates the SQLite store at dbPath. The
