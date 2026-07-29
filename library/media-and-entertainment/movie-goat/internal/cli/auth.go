@@ -61,6 +61,12 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 			}
 			if !authed {
 				fmt.Fprintln(w, red("Not authenticated"))
+				// OMDb is configured independently of TMDb, so it can be
+				// present in this state; the JSON path always reports it and
+				// the plain-text path must not hide it.
+				if omdbConfigured {
+					fmt.Fprintf(w, "  OMDb:   configured (%s)\n", cfg.OmdbSource())
+				}
 				fmt.Fprintln(w, "")
 				fmt.Fprintln(w, "Set your token:")
 				fmt.Fprintln(w, "  export TMDB_API_KEY=\"your-token-here\"")
@@ -186,14 +192,13 @@ func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 				return configErr(err)
 			}
 
-			if err := cfg.ClearTokens(); err != nil {
-				return configErr(fmt.Errorf("clearing tokens: %w", err))
-			}
 			// PATCH(omdb-key-in-config-like-tmdb) — logout clears every stored
-			// credential. Leaving the OMDb key behind would make "Credentials
-			// cleared" false for a config file that now stores two of them.
-			if err := cfg.ClearOmdbCredential(); err != nil {
-				return configErr(fmt.Errorf("clearing omdb token: %w", err))
+			// credential in one config write. Leaving the OMDb key behind
+			// would make "Credentials cleared" false for a config file that
+			// now stores two of them, and clearing the two in separate writes
+			// could strand the file half-cleared if the second one fails.
+			if err := cfg.ClearCredentials(); err != nil {
+				return configErr(fmt.Errorf("clearing credentials: %w", err))
 			}
 
 			envStillSet := os.Getenv("TMDB_API_KEY") != ""

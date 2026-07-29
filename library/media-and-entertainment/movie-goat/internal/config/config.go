@@ -138,6 +138,22 @@ func (c *Config) ClearOmdbCredential() error {
 	return c.save()
 }
 
+// ClearCredentials removes every stored credential — the TMDb token set and
+// the OMDb key — in a single config write. Logout must use this rather than
+// chaining ClearTokens and ClearOmdbCredential: two sequential writes mean a
+// failure between them leaves the file half-cleared, with "Credentials
+// cleared" reported for a config that still holds the OMDb key.
+//
+// PATCH(omdb-key-in-config-like-tmdb)
+func (c *Config) ClearCredentials() error {
+	c.AccessToken = ""
+	c.RefreshToken = ""
+	c.TokenExpiry = time.Time{}
+	c.TmdbApiKey = ""
+	c.OmdbApiKey = ""
+	return c.save()
+}
+
 func applyAuthFormat(format string, replacements map[string]string) string {
 	if format == "" {
 		return ""

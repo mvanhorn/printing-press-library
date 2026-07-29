@@ -91,6 +91,31 @@ func TestOmdbEnvNeverWrittenToConfigFile(t *testing.T) {
 	}
 }
 
+func TestClearCredentialsClearsBothInOneWrite(t *testing.T) {
+	t.Setenv("OMDB_API_KEY", "")
+	t.Setenv("TMDB_API_KEY", "")
+	path := writeConfig(t, "api_key = 'tmdb-placeholder'\nomdb_api_key = 'omdb-placeholder'\n")
+
+	cfg, err := Load(path)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if err := cfg.ClearCredentials(); err != nil {
+		t.Fatalf("ClearCredentials: %v", err)
+	}
+
+	cleared, err := Load(path)
+	if err != nil {
+		t.Fatalf("Load after clear: %v", err)
+	}
+	if got := cleared.TmdbApiKey; got != "" {
+		t.Errorf("TmdbApiKey after ClearCredentials = %q, want empty", got)
+	}
+	if got := cleared.OmdbKey(); got != "" {
+		t.Errorf("OmdbKey() after ClearCredentials = %q, want empty", got)
+	}
+}
+
 func TestSaveAndClearOmdbCredential(t *testing.T) {
 	t.Setenv("OMDB_API_KEY", "")
 	path := writeConfig(t, "api_key = 'tmdb-placeholder'\n")
