@@ -41,7 +41,7 @@ func newFacebookListProfile3Cmd(flags *rootFlags) *cobra.Command {
 				"url":          formatCLIParamValue(flagUrl),
 				"next_page_id": formatCLIParamValue(flagNextPageId),
 				"cursor":       formatCLIParamValue(flagCursor),
-			}, nil, flagAll, "cursor", "cursor", "", "", "", cmd.ErrOrStderr())
+			}, nil, flagAll, "cursor", "cursor", "", "next_page_id", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

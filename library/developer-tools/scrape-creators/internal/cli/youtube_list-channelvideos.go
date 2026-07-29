@@ -19,6 +19,8 @@ func newYoutubeListChannelvideosCmd(flags *rootFlags) *cobra.Command {
 	var flagIsPaidPromotions string
 	var flagIncludeExtras string
 
+	var flagAll bool
+
 	cmd := &cobra.Command{
 		Use:         "list-channelvideos",
 		Short:       "Fetches a paginated list of videos uploaded by a YouTube channel, including each video's title, URL, thumbnail",
@@ -62,7 +64,7 @@ func newYoutubeListChannelvideosCmd(flags *rootFlags) *cobra.Command {
 			if flagIncludeExtras != "" {
 				params["includeExtras"] = formatCLIParamValue(flagIncludeExtras)
 			}
-			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "youtube", false, path, params, nil, "", cmd.ErrOrStderr())
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "youtube", path, params, nil, flagAll, "continuationToken", "cursor", "", "continuationToken", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -116,6 +118,7 @@ func newYoutubeListChannelvideosCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagContinuationToken, "continuation-token", "", "Continuation token to get more videos. Get 'continuationToken' from previous response.")
 	cmd.Flags().StringVar(&flagIsPaidPromotions, "is-paid-promotions", "", "Set to 'true' to search YouTube's public paid product placement / sponsorship / endorsement search surface.")
 	cmd.Flags().StringVar(&flagIncludeExtras, "include-extras", "", "This will get you the like + comment count and the description.")
+	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
 	return cmd
 }

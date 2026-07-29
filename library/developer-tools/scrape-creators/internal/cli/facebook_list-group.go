@@ -47,7 +47,7 @@ func newFacebookListGroupCmd(flags *rootFlags) *cobra.Command {
 				"group_id": formatCLIParamValue(flagGroupId),
 				"sort_by":  formatCLIParamValue(flagSortBy),
 				"cursor":   formatCLIParamValue(flagCursor),
-			}, nil, flagAll, "cursor", "cursor", "", "", "", cmd.ErrOrStderr())
+			}, nil, flagAll, "cursor", "cursor", "", "cursor", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

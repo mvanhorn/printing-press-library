@@ -32,7 +32,7 @@ func newFacebookListPost2Cmd(flags *rootFlags) *cobra.Command {
 				"url":         formatCLIParamValue(flagUrl),
 				"feedback_id": formatCLIParamValue(flagFeedbackId),
 				"cursor":      formatCLIParamValue(flagCursor),
-			}, nil, flagAll, "cursor", "cursor", "", "", "", cmd.ErrOrStderr())
+			}, nil, flagAll, "cursor", "cursor", "", "cursor", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

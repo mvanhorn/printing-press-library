@@ -43,7 +43,7 @@ func newGithubListUser6Cmd(flags *rootFlags) *cobra.Command {
 				"since":  formatCLIParamValue(flagSince),
 				"until":  formatCLIParamValue(flagUntil),
 				"cursor": formatCLIParamValue(flagCursor),
-			}, nil, flagAll, "cursor", "cursor", "", "", "", cmd.ErrOrStderr())
+			}, nil, flagAll, "cursor", "cursor", "", "cursor", "has_more", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

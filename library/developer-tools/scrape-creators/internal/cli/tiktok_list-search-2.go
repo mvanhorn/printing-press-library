@@ -74,7 +74,7 @@ func newTiktokListSearch2Cmd(flags *rootFlags) *cobra.Command {
 				"region":      formatCLIParamValue(flagRegion),
 				"cursor":      formatCLIParamValue(flagCursor),
 				"trim":        formatCLIParamValue(flagTrim),
-			}, nil, flagAll, "cursor", "cursor", "", "", "", cmd.ErrOrStderr())
+			}, nil, flagAll, "cursor", "cursor", "", "cursor", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

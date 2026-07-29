@@ -21,6 +21,8 @@ func newYoutubeListSearchCmd(flags *rootFlags) *cobra.Command {
 	var flagContinuationToken string
 	var flagIncludeExtras string
 
+	var flagAll bool
+
 	cmd := &cobra.Command{
 		Use:   "list-search",
 		Short: "Searches YouTube by keyword query and returns matching videos, channels, playlists, shorts, shelves, and live streams.",
@@ -119,7 +121,7 @@ func newYoutubeListSearchCmd(flags *rootFlags) *cobra.Command {
 			if flagIncludeExtras != "" {
 				params["includeExtras"] = formatCLIParamValue(flagIncludeExtras)
 			}
-			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "youtube", false, path, params, nil, "", cmd.ErrOrStderr())
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "youtube", path, params, nil, flagAll, "continuationToken", "cursor", "", "continuationToken", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -175,6 +177,7 @@ func newYoutubeListSearchCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagRegion, "region", "", "2 letter country code of the country to put the proxy in.")
 	cmd.Flags().StringVar(&flagContinuationToken, "continuation-token", "", "Continuation token to get more videos. Get 'continuationToken' from previous response.")
 	cmd.Flags().StringVar(&flagIncludeExtras, "include-extras", "", "This will get you the like + comment count and the description.")
+	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
 	return cmd
 }

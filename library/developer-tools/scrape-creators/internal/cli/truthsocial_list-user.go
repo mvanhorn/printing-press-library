@@ -17,6 +17,8 @@ func newTruthsocialListUserCmd(flags *rootFlags) *cobra.Command {
 	var flagNextMaxId string
 	var flagTrim bool
 
+	var flagAll bool
+
 	cmd := &cobra.Command{
 		Use:         "list-user",
 		Short:       "Fetches a paginated list of posts from a Truth Social user, returning text, id, created_at, url, content, account info",
@@ -41,7 +43,7 @@ func newTruthsocialListUserCmd(flags *rootFlags) *cobra.Command {
 			if flagTrim != false {
 				params["trim"] = formatCLIParamValue(flagTrim)
 			}
-			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "truthsocial", false, path, params, nil, "", cmd.ErrOrStderr())
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "truthsocial", path, params, nil, flagAll, "next_max_id", "cursor", "", "next_max_id", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -93,6 +95,7 @@ func newTruthsocialListUserCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagUserId, "user-id", "", "Truth Social user id. Use this for faster response times. Trumps is 107780257626128497.")
 	cmd.Flags().StringVar(&flagNextMaxId, "next-max-id", "", "Used to paginate to next page")
 	cmd.Flags().BoolVar(&flagTrim, "trim", false, "Set to true for a trimmed down version of the response")
+	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
 	return cmd
 }

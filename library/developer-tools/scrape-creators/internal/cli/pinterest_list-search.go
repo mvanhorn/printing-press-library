@@ -42,7 +42,7 @@ func newPinterestListSearchCmd(flags *rootFlags) *cobra.Command {
 				"query":  formatCLIParamValue(flagQuery),
 				"cursor": formatCLIParamValue(flagCursor),
 				"trim":   formatCLIParamValue(flagTrim),
-			}, nil, flagAll, "cursor", "cursor", "", "", "", cmd.ErrOrStderr())
+			}, nil, flagAll, "cursor", "cursor", "", "cursor", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

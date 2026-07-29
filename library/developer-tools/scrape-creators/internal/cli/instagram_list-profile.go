@@ -17,6 +17,7 @@ func newInstagramListProfileCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "list-profile",
+		Aliases:     []string{"profile"},
 		Short:       "Retrieves comprehensive public Instagram profile information including biography, bio links",
 		Example:     "  scrape-creators-pp-cli instagram list-profile --handle jane",
 		Annotations: map[string]string{"pp:endpoint": "instagram.list-profile", "pp:method": "GET", "pp:path": "/v1/instagram/profile", "mcp:read-only": "true"},

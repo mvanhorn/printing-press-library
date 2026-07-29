@@ -14,6 +14,8 @@ import (
 func newYoutubeListVideo5Cmd(flags *rootFlags) *cobra.Command {
 	var flagContinuationToken string
 
+	var flagAll bool
+
 	cmd := &cobra.Command{
 		Use:         "list-video-5",
 		Short:       "Fetches replies to a specific comment on a YouTube video, including each reply's text content, author details (name",
@@ -38,7 +40,7 @@ func newYoutubeListVideo5Cmd(flags *rootFlags) *cobra.Command {
 			if flagContinuationToken != "" {
 				params["continuationToken"] = formatCLIParamValue(flagContinuationToken)
 			}
-			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "youtube", false, path, params, nil, "", cmd.ErrOrStderr())
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "youtube", path, params, nil, flagAll, "continuationToken", "cursor", "", "continuationToken", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -87,6 +89,7 @@ func newYoutubeListVideo5Cmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagContinuationToken, "continuation-token", "", "Continuation token for the comment replies.")
+	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
 	return cmd
 }

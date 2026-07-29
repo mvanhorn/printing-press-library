@@ -34,7 +34,7 @@ func newTiktokListShop3Cmd(flags *rootFlags) *cobra.Command {
 				"product_id": formatCLIParamValue(flagProductId),
 				"region":     formatCLIParamValue(flagRegion),
 				"page":       formatCLIParamValue(flagPage),
-			}, nil, flagAll, "page", "page", "", "", "", cmd.ErrOrStderr())
+			}, nil, flagAll, "page", "page", "", "", "has_more", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

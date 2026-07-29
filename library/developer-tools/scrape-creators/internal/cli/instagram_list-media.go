@@ -16,6 +16,7 @@ func newInstagramListMediaCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "list-media",
+		Aliases:     []string{"transcript"},
 		Short:       "Generates an AI-powered speech-to-text transcription for an Instagram video post or reel.",
 		Example:     "  scrape-creators-pp-cli instagram list-media --url https://www.instagram.com/reel/DZaUtKII4lo/",
 		Annotations: map[string]string{"pp:endpoint": "instagram.list-media", "pp:method": "GET", "pp:path": "/v2/instagram/media/transcript", "mcp:read-only": "true"},

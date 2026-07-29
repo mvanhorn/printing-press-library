@@ -32,7 +32,7 @@ func newRumbleListChannelCmd(flags *rootFlags) *cobra.Command {
 				"handle": formatCLIParamValue(flagHandle),
 				"url":    formatCLIParamValue(flagUrl),
 				"cursor": formatCLIParamValue(flagCursor),
-			}, nil, flagAll, "cursor", "cursor", "", "", "", cmd.ErrOrStderr())
+			}, nil, flagAll, "cursor", "cursor", "", "cursor", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

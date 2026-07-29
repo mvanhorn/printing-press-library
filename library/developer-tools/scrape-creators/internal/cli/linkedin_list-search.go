@@ -55,7 +55,7 @@ func newLinkedinListSearchCmd(flags *rootFlags) *cobra.Command {
 				"query":       formatCLIParamValue(flagQuery),
 				"date_posted": formatCLIParamValue(flagDatePosted),
 				"cursor":      formatCLIParamValue(flagCursor),
-			}, nil, flagAll, "cursor", "cursor", "", "", "", cmd.ErrOrStderr())
+			}, nil, flagAll, "cursor", "cursor", "", "cursor", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

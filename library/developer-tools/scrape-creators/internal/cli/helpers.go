@@ -472,6 +472,22 @@ func writeAPIErrorEnvelope(flags *rootFlags, err error, code int) {
 	})
 }
 
+// PATCH(amend-2026-07-29: accept a positional value for a command's lone
+// required flag) — transcripts show repeated `required flag "handle" not set`
+// errors from natural invocations like `instagram list-user-4 mrbeast`.
+// adoptLonePositionalArg lets that positional stand in for the flag; explicit
+// flags always win.
+func adoptLonePositionalArg(cmd *cobra.Command, args []string, flagName string, target *string) {
+	if len(args) != 1 || args[0] == "" {
+		return
+	}
+	if cmd.Flags().Changed(flagName) || *target != "" {
+		return
+	}
+	*target = args[0]
+	_ = cmd.Flags().Set(flagName, args[0])
+}
+
 // classifyAPIError maps API errors to structured exit codes with actionable hints.
 func classifyAPIError(err error, flags *rootFlags) error {
 	var typed *cliError
@@ -498,11 +514,15 @@ func classifyAPIError(err error, flags *rootFlags) error {
 			" Set your API key with: export SCRAPECREATORS_API_KEY=\"your-token-here\""+
 			"\n      See API docs: https://scrapecreators.com"+
 			"\n      Run 'scrape-creators-pp-cli doctor' to check auth status.", err))
+	// PATCH(amend-2026-07-29: 403s here are usually upstream content blocks, not
+	// credential problems) — a session hit identical 403s on one Instagram post
+	// from 4 regions; the old hint sent the user debugging a valid API key.
 	case strings.Contains(msg, "HTTP 403"):
-		return authErr(fmt.Errorf("%w\nhint: permission denied. Your credentials are valid but lack access to this resource."+
-			"\n      Check that your credentials have the required permissions and match the API's expected auth scheme."+
-			"\n      Set your API key with: export SCRAPECREATORS_API_KEY=\"your-token-here\""+
-			"\n      See API docs: https://scrapecreators.com"+
+		return authErr(fmt.Errorf("%w\nhint: forbidden. If your API key works for other commands, the upstream platform is"+
+			"\n      blocking this specific content (private, removed, or geo-restricted) — retrying or"+
+			"\n      switching regions will not help."+
+			"\n      If every command fails with 403, check your API key:"+
+			"\n      export SCRAPECREATORS_API_KEY=\"your-token-here\""+
 			"\n      Run 'scrape-creators-pp-cli doctor' to check auth status.", err))
 	case strings.Contains(msg, "HTTP 404"):
 		return notFoundErr(fmt.Errorf("%w\nhint: resource not found. Run the 'list' command to see available items", err))

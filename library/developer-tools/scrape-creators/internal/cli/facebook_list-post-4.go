@@ -44,7 +44,7 @@ func newFacebookListPost4Cmd(flags *rootFlags) *cobra.Command {
 				"feedback_id":     formatCLIParamValue(flagFeedbackId),
 				"expansion_token": formatCLIParamValue(flagExpansionToken),
 				"cursor":          formatCLIParamValue(flagCursor),
-			}, nil, flagAll, "cursor", "cursor", "", "", "", cmd.ErrOrStderr())
+			}, nil, flagAll, "cursor", "cursor", "", "cursor", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

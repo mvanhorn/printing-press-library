@@ -16,6 +16,8 @@ func newYoutubeListChannel2Cmd(flags *rootFlags) *cobra.Command {
 	var flagHandle string
 	var flagContinuationToken string
 
+	var flagAll bool
+
 	cmd := &cobra.Command{
 		Use:         "list-channel-2",
 		Short:       "Fetches live streams and past streams from a YouTube channel's Live tab, including title, URL, thumbnail, view count",
@@ -37,7 +39,7 @@ func newYoutubeListChannel2Cmd(flags *rootFlags) *cobra.Command {
 			if flagContinuationToken != "" {
 				params["continuationToken"] = formatCLIParamValue(flagContinuationToken)
 			}
-			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "youtube", false, path, params, nil, "", cmd.ErrOrStderr())
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "youtube", path, params, nil, flagAll, "continuationToken", "cursor", "", "continuationToken", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -88,6 +90,7 @@ func newYoutubeListChannel2Cmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagChannelId, "channel-id", "", "YouTube channel ID")
 	cmd.Flags().StringVar(&flagHandle, "handle", "", "YouTube channel handle")
 	cmd.Flags().StringVar(&flagContinuationToken, "continuation-token", "", "Continuation token to get more lives. Get 'continuationToken' from previous response.")
+	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
 	return cmd
 }

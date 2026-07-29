@@ -16,6 +16,8 @@ func newYoutubeListVideo2Cmd(flags *rootFlags) *cobra.Command {
 	var flagContinuationToken string
 	var flagOrder string
 
+	var flagAll bool
+
 	cmd := &cobra.Command{
 		Use:         "list-video-2",
 		Short:       "Fetches comments and replies from a YouTube video, including each comment's text content, author details, like count",
@@ -59,7 +61,7 @@ func newYoutubeListVideo2Cmd(flags *rootFlags) *cobra.Command {
 			if flagOrder != "" {
 				params["order"] = formatCLIParamValue(flagOrder)
 			}
-			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "youtube", false, path, params, nil, "", cmd.ErrOrStderr())
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "youtube", path, params, nil, flagAll, "continuationToken", "cursor", "", "continuationToken", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -110,6 +112,7 @@ func newYoutubeListVideo2Cmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagUrl, "url", "", "YouTube video URL")
 	cmd.Flags().StringVar(&flagContinuationToken, "continuation-token", "", "Continuation token to get more comments. Get 'continuationToken' from previous response.")
 	cmd.Flags().StringVar(&flagOrder, "order", "", "Order of comments (one of: top, newest)")
+	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
 	return cmd
 }

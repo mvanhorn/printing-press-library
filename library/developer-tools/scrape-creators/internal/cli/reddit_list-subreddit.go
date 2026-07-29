@@ -72,7 +72,7 @@ func newRedditListSubredditCmd(flags *rootFlags) *cobra.Command {
 				"sort":      formatCLIParamValue(flagSort),
 				"after":     formatCLIParamValue(flagAfter),
 				"trim":      formatCLIParamValue(flagTrim),
-			}, nil, flagAll, "after", "cursor", "", "", "", cmd.ErrOrStderr())
+			}, nil, flagAll, "after", "cursor", "", "after", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

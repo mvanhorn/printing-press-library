@@ -1961,6 +1961,41 @@ func parseSinceDuration(s string) (time.Time, error) {
 	}
 }
 
+// isSyncableResource reports whether resourceType is one 'sync' can ever
+// populate in the local store (top-level or dependent). Local reads for
+// anything else are live-only by construction.
+func isSyncableResource(resourceType string) bool {
+	for _, r := range knownSyncResourceNames() {
+		if r == resourceType {
+			return true
+		}
+	}
+	return false
+}
+
+// isDefaultSyncResource reports whether a bare 'sync' (no --resources flag)
+// covers resourceType. When false but the resource is syncable, the user
+// needs an explicit 'sync --resources <type>' — telling them to just run
+// 'sync' sends them in a loop that never produces the data.
+func isDefaultSyncResource(resourceType string) bool {
+	for _, r := range defaultSyncResources() {
+		if r == resourceType {
+			return true
+		}
+	}
+	return false
+}
+
+// localSyncHint names the exact sync invocation that can populate
+// resourceType, so local-store errors never recommend a sync that cannot
+// help.
+func localSyncHint(resourceType string) string {
+	if isDefaultSyncResource(resourceType) {
+		return "Run 'scrape-creators-pp-cli sync' first"
+	}
+	return fmt.Sprintf("Run 'scrape-creators-pp-cli sync --resources %s' first (the default sync does not include it)", resourceType)
+}
+
 func defaultSyncResources() []string {
 	return []string{
 		"account",

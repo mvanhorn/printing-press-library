@@ -16,6 +16,8 @@ func newYoutubeListSearch2Cmd(flags *rootFlags) *cobra.Command {
 	var flagContinuationToken string
 	var flagType string
 
+	var flagAll bool
+
 	cmd := &cobra.Command{
 		Use:         "list-search-2",
 		Short:       "Searches YouTube for content matching a specific hashtag and returns matching videos with title, URL, thumbnail",
@@ -59,7 +61,7 @@ func newYoutubeListSearch2Cmd(flags *rootFlags) *cobra.Command {
 			if flagType != "" {
 				params["type"] = formatCLIParamValue(flagType)
 			}
-			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "youtube", false, path, params, nil, "", cmd.ErrOrStderr())
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "youtube", path, params, nil, flagAll, "continuationToken", "cursor", "", "continuationToken", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -110,6 +112,7 @@ func newYoutubeListSearch2Cmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagHashtag, "hashtag", "", "Hashtag to search for")
 	cmd.Flags().StringVar(&flagContinuationToken, "continuation-token", "", "Continuation token to get more videos. Get 'continuationToken' from previous response.")
 	cmd.Flags().StringVar(&flagType, "type", "", "Search for all types of content or only shorts (one of: all, shorts)")
+	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
 	return cmd
 }

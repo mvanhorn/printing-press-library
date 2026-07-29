@@ -85,7 +85,7 @@ func newGoogleListCompanyCmd(flags *rootFlags) *cobra.Command {
 				"format":         formatCLIParamValue(flagFormat),
 				"get_ad_details": formatCLIParamValue(flagGetAdDetails),
 				"cursor":         formatCLIParamValue(flagCursor),
-			}, nil, flagAll, "cursor", "cursor", "", "", "", cmd.ErrOrStderr())
+			}, nil, flagAll, "cursor", "cursor", "", "cursor", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

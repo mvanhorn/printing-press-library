@@ -17,7 +17,8 @@ func newInstagramListPost2Cmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:         "list-post-2",
+		Use:         "list-post-2 [url]",
+		Aliases:     []string{"comments"},
 		Short:       "Retrieves comments on a public Instagram post or reel.",
 		Example:     "  scrape-creators-pp-cli instagram list-post-2 --url https://www.instagram.com/reel/DOq6eV6iIgD",
 		Annotations: map[string]string{"pp:endpoint": "instagram.list-post-2", "pp:method": "GET", "pp:path": "/v2/instagram/post/comments", "mcp:read-only": "true"},
@@ -28,6 +29,8 @@ func newInstagramListPost2Cmd(flags *rootFlags) *cobra.Command {
 			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
 				return cmd.Help()
 			}
+			// `instagram list-post-2 <post-url>` works like --url <post-url>.
+			adoptLonePositionalArg(cmd, args, "url", &flagUrl)
 			if !cmd.Flags().Changed("url") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "url")
 			}
@@ -39,7 +42,7 @@ func newInstagramListPost2Cmd(flags *rootFlags) *cobra.Command {
 			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "instagram", path, map[string]string{
 				"url":    formatCLIParamValue(flagUrl),
 				"cursor": formatCLIParamValue(flagCursor),
-			}, nil, flagAll, "cursor", "cursor", "", "", "", cmd.ErrOrStderr())
+			}, nil, flagAll, "cursor", "cursor", "", "cursor", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

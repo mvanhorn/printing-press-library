@@ -585,12 +585,20 @@ func mutationResponseHasID(resourceType string, data json.RawMessage) bool {
 // filters (query params, path scoping like /teams/{id}/users) are NOT applied locally.
 // The provenance metadata includes "unscoped":true when params were present but not applied.
 func resolveLocal(ctx context.Context, flags *rootFlags, hintWriter io.Writer, resourceType string, isList bool, path string, params map[string]string, reason string) (json.RawMessage, DataProvenance, error) {
+	// PATCH(amend-2026-07-29: stop telling users to sync resources sync cannot
+	// produce) — a session hit `no local data ... Run 'sync' first` on a
+	// resource type the default sync never covers, which invites a pointless
+	// sync loop. Unknown types get a live-only error; known-but-non-default
+	// types get the exact --resources invocation.
+	if !isSyncableResource(resourceType) {
+		return nil, DataProvenance{}, fmt.Errorf("resource type %q is not covered by 'scrape-creators-pp-cli sync' — this data is only available live. Drop --data-source local (or use --data-source auto) for this command", resourceType)
+	}
 	db, err := openStoreForRead(ctx, "scrape-creators-pp-cli")
 	if err != nil {
-		return nil, DataProvenance{}, fmt.Errorf("opening local database: %w\nRun 'scrape-creators-pp-cli sync' first.", err)
+		return nil, DataProvenance{}, fmt.Errorf("opening local database: %w\n%s.", err, localSyncHint(resourceType))
 	}
 	if db == nil {
-		return nil, DataProvenance{}, fmt.Errorf("no local data. Run 'scrape-creators-pp-cli sync' first")
+		return nil, DataProvenance{}, fmt.Errorf("no local data. %s", localSyncHint(resourceType))
 	}
 	defer db.Close()
 
@@ -621,7 +629,7 @@ func resolveLocal(ctx context.Context, flags *rootFlags, hintWriter io.Writer, r
 			items = append(items, r)
 		}
 		if len(items) == 0 {
-			return nil, DataProvenance{}, fmt.Errorf("no local data for %q. Run 'scrape-creators-pp-cli sync' first", resourceType)
+			return nil, DataProvenance{}, fmt.Errorf("no local data for %q. %s", resourceType, localSyncHint(resourceType))
 		}
 		// Marshal []json.RawMessage into a single JSON array
 		data, err := json.Marshal(items)
@@ -638,7 +646,7 @@ func resolveLocal(ctx context.Context, flags *rootFlags, hintWriter io.Writer, r
 	item, err := db.Get(resourceType, id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, DataProvenance{}, fmt.Errorf("resource %q with ID %q not found in local store. Run 'scrape-creators-pp-cli sync' first", resourceType, id)
+			return nil, DataProvenance{}, fmt.Errorf("resource %q with ID %q not found in local store. %s", resourceType, id, localSyncHint(resourceType))
 		}
 		return nil, DataProvenance{}, fmt.Errorf("querying local store: %w", err)
 	}

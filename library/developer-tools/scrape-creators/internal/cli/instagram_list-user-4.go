@@ -16,8 +16,11 @@ func newInstagramListUser4Cmd(flags *rootFlags) *cobra.Command {
 	var flagNextMaxId string
 	var flagTrim bool
 
+	var flagAll bool
+
 	cmd := &cobra.Command{
-		Use:         "list-user-4",
+		Use:         "list-user-4 [handle]",
+		Aliases:     []string{"posts"},
 		Short:       "Returns a paginated feed of a user's public Instagram posts, including reels, photos, videos, and carousels.",
 		Example:     "  scrape-creators-pp-cli instagram list-user-4 --handle mrbeast",
 		Annotations: map[string]string{"pp:endpoint": "instagram.list-user-4", "pp:method": "GET", "pp:path": "/v2/instagram/user/posts", "mcp:read-only": "true"},
@@ -28,6 +31,8 @@ func newInstagramListUser4Cmd(flags *rootFlags) *cobra.Command {
 			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
 				return cmd.Help()
 			}
+			// `instagram list-user-4 mrbeast` works like --handle mrbeast.
+			adoptLonePositionalArg(cmd, args, "handle", &flagHandle)
 			if !cmd.Flags().Changed("handle") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "handle")
 			}
@@ -46,7 +51,7 @@ func newInstagramListUser4Cmd(flags *rootFlags) *cobra.Command {
 			if flagTrim != false {
 				params["trim"] = formatCLIParamValue(flagTrim)
 			}
-			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "instagram", false, path, params, nil, "", cmd.ErrOrStderr())
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "instagram", path, params, nil, flagAll, "next_max_id", "cursor", "", "next_max_id", "more_available", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -97,6 +102,7 @@ func newInstagramListUser4Cmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagHandle, "handle", "", "Instagram handle")
 	cmd.Flags().StringVar(&flagNextMaxId, "next-max-id", "", "Cursor to get next page of results.")
 	cmd.Flags().BoolVar(&flagTrim, "trim", false, "Set to true to get a trimmed response")
+	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
 	return cmd
 }

@@ -19,6 +19,7 @@ func newInstagramListPostCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "list-post",
+		Aliases:     []string{"post"},
 		Short:       "Fetches detailed metadata for a single Instagram post or reel by shortcode or URL.",
 		Example:     "  scrape-creators-pp-cli instagram list-post --url https://www.instagram.com/reel/DZaUtKII4lo/",
 		Annotations: map[string]string{"pp:endpoint": "instagram.list-post", "pp:method": "GET", "pp:path": "/v1/instagram/post", "mcp:read-only": "true"},

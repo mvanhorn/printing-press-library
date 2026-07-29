@@ -69,7 +69,7 @@ func newTiktokListShopCmd(flags *rootFlags) *cobra.Command {
 				"cursor":  formatCLIParamValue(flagCursor),
 				"sort_by": formatCLIParamValue(flagSortBy),
 				"region":  formatCLIParamValue(flagRegion),
-			}, nil, flagAll, "cursor", "cursor", "", "", "", cmd.ErrOrStderr())
+			}, nil, flagAll, "cursor", "cursor", "", "cursor", "has_more", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

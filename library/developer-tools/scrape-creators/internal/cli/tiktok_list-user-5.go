@@ -41,7 +41,7 @@ func newTiktokListUser5Cmd(flags *rootFlags) *cobra.Command {
 				"handle": formatCLIParamValue(flagHandle),
 				"region": formatCLIParamValue(flagRegion),
 				"cursor": formatCLIParamValue(flagCursor),
-			}, nil, flagAll, "cursor", "cursor", "", "", "", cmd.ErrOrStderr())
+			}, nil, flagAll, "cursor", "cursor", "", "cursor", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

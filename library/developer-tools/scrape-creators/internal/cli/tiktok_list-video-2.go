@@ -41,7 +41,7 @@ func newTiktokListVideo2Cmd(flags *rootFlags) *cobra.Command {
 				"url":    formatCLIParamValue(flagUrl),
 				"cursor": formatCLIParamValue(flagCursor),
 				"trim":   formatCLIParamValue(flagTrim),
-			}, nil, flagAll, "cursor", "cursor", "", "", "", cmd.ErrOrStderr())
+			}, nil, flagAll, "cursor", "cursor", "", "cursor", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

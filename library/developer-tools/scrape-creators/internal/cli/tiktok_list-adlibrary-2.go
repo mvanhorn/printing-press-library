@@ -167,7 +167,7 @@ func newTiktokListAdlibrary2Cmd(flags *rootFlags) *cobra.Command {
 				"ad_language": formatCLIParamValue(flagAdLanguage),
 				"cursor":      formatCLIParamValue(flagCursor),
 				"limit":       formatCLIParamValue(flagLimit),
-			}, nil, flagAll, "cursor", "cursor", "limit", "", "", cmd.ErrOrStderr())
+			}, nil, flagAll, "cursor", "cursor", "limit", "cursor", "has_more", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

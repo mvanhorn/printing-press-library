@@ -20,6 +20,8 @@ func newLinkedinListAdsCmd(flags *rootFlags) *cobra.Command {
 	var flagEndDate string
 	var flagPaginationToken string
 
+	var flagAll bool
+
 	cmd := &cobra.Command{
 		Use:         "list-ads",
 		Short:       "Searches the LinkedIn Ad Library by company name, keyword, or companyId with optional country and date filters.",
@@ -53,7 +55,7 @@ func newLinkedinListAdsCmd(flags *rootFlags) *cobra.Command {
 			if flagPaginationToken != "" {
 				params["paginationToken"] = formatCLIParamValue(flagPaginationToken)
 			}
-			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "linkedin", false, path, params, nil, "", cmd.ErrOrStderr())
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "linkedin", path, params, nil, flagAll, "paginationToken", "cursor", "", "paginationToken", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -108,6 +110,7 @@ func newLinkedinListAdsCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagStartDate, "start-date", "", "Start date to search for. Format: YYYY-MM-DD")
 	cmd.Flags().StringVar(&flagEndDate, "end-date", "", "End date to search for. Format: YYYY-MM-DD")
 	cmd.Flags().StringVar(&flagPaginationToken, "pagination-token", "", "Pagination token to paginate through results")
+	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
 	return cmd
 }
