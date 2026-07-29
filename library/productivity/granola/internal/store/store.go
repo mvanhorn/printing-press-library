@@ -107,23 +107,36 @@ func OpenReadOnly(dbPath string) (*Store, error) {
 	return &Store{db: db, path: dbPath}, nil
 }
 
-// OpenSnapshot opens dbPath read-only with immutable=1: SQLite treats the
-// file as a frozen snapshot and creates no -wal/-shm side files, which
-// plain mode=ro still needs on a WAL-mode database. This is the right
-// open for pure inspection of a file the caller may not own (db schema on
-// an arbitrary --db path) — the trade is that a write landing mid-read
-// yields an error or stale rows, never a corrupted file, so keep
-// snapshot connections short-lived and do not use this where a reader
-// must stay coherent with a concurrent writer.
+// OpenSnapshot opens dbPath for pure read-only inspection (db schema on a
+// file the caller may not own). Two constraints pull against each other:
+// immutable=1 creates no -wal/-shm side files but reads only the main
+// database, so committed state still sitting in an un-checkpointed WAL
+// would be invisible; plain mode=ro reads through the WAL but materializes
+// a -shm index next to the file. The resolver: when a non-empty -wal is
+// already present the file is a live WAL database and correctness wins —
+// open mode=ro (adding -shm beside an existing WAL is ordinary SQLite
+// operation, not pollution). With no WAL on disk there is no hidden state
+// to miss, and immutable=1 inspects without touching anything.
 //
 // PATCH(granola-db-schema-discoverability)
 func OpenSnapshot(dbPath string) (*Store, error) {
-	db, err := sql.Open("sqlite", "file:"+dbPath+"?mode=ro&immutable=1&_pragma=temp_store(MEMORY)")
+	db, err := sql.Open("sqlite", "file:"+dbPath+snapshotDSNQuery(dbPath))
 	if err != nil {
 		return nil, fmt.Errorf("opening database (snapshot): %w", err)
 	}
 	db.SetMaxOpenConns(1)
 	return &Store{db: db, path: dbPath}, nil
+}
+
+// snapshotDSNQuery picks the query string OpenSnapshot appends: WAL-aware
+// read-only when a non-empty -wal holds state the main file lacks,
+// side-effect-free immutable otherwise. Split out so the choice is unit-
+// testable without opening a database.
+func snapshotDSNQuery(dbPath string) string {
+	if fi, err := os.Stat(dbPath + "-wal"); err == nil && fi.Size() > 0 {
+		return "?mode=ro&_pragma=busy_timeout(5000)&_pragma=temp_store(MEMORY)"
+	}
+	return "?mode=ro&immutable=1&_pragma=temp_store(MEMORY)"
 }
 
 // OpenWithContext opens or creates the SQLite store at dbPath. The
