@@ -43,6 +43,12 @@ import (
 // plain xoxp OAuth token and files:read; it does not need the browser-session
 // (xoxc/xoxd) credentials some third-party tooling uses for this.
 
+// --canvas is validated unconditionally, including under --dry-run. The
+// generated commands gate required-flag checks on !dryRun so the request shape
+// can be previewed without real ids, but for canvases that made --dry-run report
+// success for a request carrying an empty canvas_id — hiding exactly the mistake
+// the dry run was meant to catch.
+
 // canvasDocument builds Slack's document_content payload from either inline
 // markdown or a file. Returns an empty map when neither is set, which is valid
 // for canvases.create (an untitled blank canvas).
@@ -256,6 +262,31 @@ func newCanvasesReadCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
+			// Reading is two requests against two hosts, so it needs its own
+			// dry-run branch like files upload does. Without one, c.Get returns the
+			// synthetic dry-run envelope, the code below parses that as a files.info
+			// response, finds no download URL and fails — making --dry-run report an
+			// error for a request that would have succeeded.
+			if c.DryRun {
+				// The quiet guard further down is only reached on the real read path,
+				// so --dry-run --quiet printed the plan. Check it here too.
+				if flags.quiet {
+					return nil
+				}
+				plan := map[string]any{
+					"dry_run": true,
+					"steps": []map[string]any{
+						{"step": 1, "method": "GET", "path": "/files.info", "file": flagCanvas},
+						{"step": 2, "method": "GET", "path": "<url_private_download from step 1>", "authenticated": true, "format": flagFormat},
+					},
+				}
+				planJSON, err := json.Marshal(plan)
+				if err != nil {
+					return err
+				}
+				return printOutput(cmd.OutOrStdout(), json.RawMessage(planJSON), true)
+			}
+
 			info, err := c.Get("/files.info", map[string]string{"file": flagCanvas})
 			if err != nil {
 				return classifyAPIError(err)
@@ -293,6 +324,14 @@ func newCanvasesReadCmd(flags *rootFlags) *cobra.Command {
 				content = canvasHTMLToText(content)
 			}
 
+			// --quiet asks for no output, and a canvas body is exactly the kind of
+			// content a caller would not want landing in a script's stdout or a log.
+			// Both branches below printed it regardless. Honour the flag; the fetch
+			// still happens, so a read failure is still reported through the exit
+			// code.
+			if flags.quiet {
+				return nil
+			}
 			if flags.asJSON {
 				envelope := map[string]any{
 					"resource":  "canvases",
@@ -337,7 +376,7 @@ func newCanvasesEditCmd(flags *rootFlags) *cobra.Command {
 		Example: `  slack-pp-cli canvases edit --canvas F0123456789 --content "## Status" --operation insert_at_end
   slack-pp-cli canvases edit --canvas F0123456789 --section temp:C:abc --operation delete`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if flagCanvas == "" && !flags.dryRun {
+			if flagCanvas == "" {
 				return fmt.Errorf("required flag \"canvas\" not set")
 			}
 			if !valid[flagOperation] {
@@ -390,7 +429,7 @@ func newCanvasesDeleteCmd(flags *rootFlags) *cobra.Command {
 		Short:   "Delete a canvas",
 		Example: "  slack-pp-cli canvases delete --canvas F0123456789",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if flagCanvas == "" && !flags.dryRun {
+			if flagCanvas == "" {
 				return fmt.Errorf("required flag \"canvas\" not set")
 			}
 			return postCanvas(cmd, flags, "/canvases.delete", map[string]any{"canvas_id": flagCanvas})
@@ -409,7 +448,7 @@ func newCanvasesAccessSetCmd(flags *rootFlags) *cobra.Command {
 		Example: `  slack-pp-cli canvases access-set --canvas F0123456789 --access-level write --users U0123456789,U9876543210
   slack-pp-cli canvases access-set --canvas F0123456789 --access-level read --channels C0123456789`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if flagCanvas == "" && !flags.dryRun {
+			if flagCanvas == "" {
 				return fmt.Errorf("required flag \"canvas\" not set")
 			}
 			if flagAccessLevel != "read" && flagAccessLevel != "write" {
@@ -450,7 +489,7 @@ func newCanvasesSectionsCmd(flags *rootFlags) *cobra.Command {
   slack-pp-cli canvases sections --canvas F0123456789 --section-types h1,h2
   slack-pp-cli canvases sections --canvas F0123456789 --contains "Risks"`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if flagCanvas == "" && !flags.dryRun {
+			if flagCanvas == "" {
 				return fmt.Errorf("required flag \"canvas\" not set")
 			}
 			criteria := map[string]any{}
