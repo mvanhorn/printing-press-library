@@ -18,6 +18,7 @@ import (
 var irailSchema = []string{
 	`CREATE TABLE IF NOT EXISTS irail_observations (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		round_id TEXT NOT NULL DEFAULT '',
 		observed_at INTEGER NOT NULL,
 		station TEXT NOT NULL,
 		board_type TEXT NOT NULL DEFAULT 'departure',
@@ -34,12 +35,10 @@ var irailSchema = []string{
 		departure_connection TEXT
 	)`,
 	`CREATE INDEX IF NOT EXISTS idx_irail_obs_vehicle ON irail_observations(vehicle, scheduled_at)`,
-	`CREATE INDEX IF NOT EXISTS idx_irail_obs_station ON irail_observations(station, observed_at)`,
+	// Rounds are enumerated per (station, board type) newest-first, so the
+	// board type has to be part of the index or every history read scans.
+	`CREATE INDEX IF NOT EXISTS idx_irail_obs_station ON irail_observations(station, board_type, observed_at)`,
 	`CREATE INDEX IF NOT EXISTS idx_irail_obs_conn ON irail_observations(departure_connection)`,
-	// One row per (departure, observation instant). Re-running observe in the
-	// same second is idempotent instead of double-counting a delay sample.
-	`CREATE UNIQUE INDEX IF NOT EXISTS idx_irail_obs_unique
-		ON irail_observations(station, board_type, vehicle, scheduled_at, observed_at)`,
 
 	`CREATE TABLE IF NOT EXISTS irail_saved_routes (
 		name TEXT PRIMARY KEY,
@@ -49,19 +48,82 @@ var irailSchema = []string{
 	)`,
 }
 
-// EnsureIrailSchema creates the hand-authored tables if they do not exist.
-// Safe to call repeatedly and from every novel command.
+// EnsureIrailSchema creates the hand-authored tables if they do not exist and
+// upgrades stores written by an earlier build. Safe to call repeatedly and from
+// every novel command.
 func (s *Store) EnsureIrailSchema(ctx context.Context) error {
 	for _, stmt := range irailSchema {
 		if _, err := s.DB().ExecContext(ctx, stmt); err != nil {
 			return fmt.Errorf("irail schema: %w", err)
 		}
 	}
+	return s.migrateObservationRounds(ctx)
+}
+
+// migrateObservationRounds moves the observation table from an implicit round
+// key to an explicit one.
+//
+// The original key was (station, board_type, vehicle, scheduled_at,
+// observed_at) with observed_at at one-second resolution. Two captures of the
+// same board that started within the same second produced identical keys, so
+// INSERT OR IGNORE silently discarded the second one and the reader saw a
+// single merged round instead of two samples. Rounds are now identified
+// explicitly by round_id, which observe generates per capture.
+//
+// Every statement is idempotent, so this runs on each EnsureIrailSchema call.
+func (s *Store) migrateObservationRounds(ctx context.Context) error {
+	hasRound, err := s.columnExists(ctx, "irail_observations", "round_id")
+	if err != nil {
+		return err
+	}
+	if !hasRound {
+		if _, err := s.DB().ExecContext(ctx,
+			`ALTER TABLE irail_observations ADD COLUMN round_id TEXT NOT NULL DEFAULT ''`); err != nil {
+			return fmt.Errorf("irail schema: add round_id: %w", err)
+		}
+	}
+	// Rows written before round_id existed belong to whatever round the old
+	// key implied. Reconstruct exactly that grouping so the unique index below
+	// cannot collapse history that is already on disk.
+	if _, err := s.DB().ExecContext(ctx,
+		`UPDATE irail_observations
+		    SET round_id = station || '|' || board_type || '|' || observed_at
+		  WHERE round_id = ''`); err != nil {
+		return fmt.Errorf("irail schema: backfill round_id: %w", err)
+	}
+	if _, err := s.DB().ExecContext(ctx,
+		`DROP INDEX IF EXISTS idx_irail_obs_unique`); err != nil {
+		return fmt.Errorf("irail schema: drop legacy observation index: %w", err)
+	}
+	// Created after the backfill: doing it earlier would make every legacy row
+	// collide on the empty round_id.
+	if _, err := s.DB().ExecContext(ctx,
+		`CREATE UNIQUE INDEX IF NOT EXISTS idx_irail_obs_round_unique
+			ON irail_observations(round_id, vehicle, scheduled_at)`); err != nil {
+		return fmt.Errorf("irail schema: observation round index: %w", err)
+	}
 	return nil
 }
 
+// columnExists reports whether a table already has a column, so migrations can
+// be skipped rather than erroring on a second run.
+func (s *Store) columnExists(ctx context.Context, table, column string) (bool, error) {
+	var n int
+	err := s.DB().QueryRowContext(ctx,
+		`SELECT COUNT(*) FROM pragma_table_info(?) WHERE name = ?`, table, column).Scan(&n)
+	if err != nil {
+		return false, fmt.Errorf("irail schema: inspect %s.%s: %w", table, column, err)
+	}
+	return n > 0, nil
+}
+
 // Observation is one recorded board row.
+//
+// RoundID groups every row captured by a single observe call against a single
+// target. It is what makes two captures distinguishable even when they share an
+// observed_at second.
 type Observation struct {
+	RoundID             string `json:"round_id"`
 	ObservedAt          int64  `json:"observed_at"`
 	Station             string `json:"station"`
 	BoardType           string `json:"board_type"`
@@ -79,12 +141,18 @@ type Observation struct {
 }
 
 // InsertObservations writes a batch of observations in one transaction.
-// Duplicate rows (same station/board/vehicle/scheduled/observed instant) are
-// ignored rather than erroring, so repeated observe runs stay idempotent.
+// Rows are deduplicated within a round only: the same vehicle and scheduled
+// time seen twice in one capture collapses, while two separate captures are
+// always kept apart even if they share an observed_at second.
 // It returns the number of rows actually inserted.
 func (s *Store) InsertObservations(ctx context.Context, obs []Observation) (int, error) {
 	if len(obs) == 0 {
 		return 0, nil
+	}
+	for i := range obs {
+		if obs[i].RoundID == "" {
+			return 0, fmt.Errorf("insert observation for %s: round id is required", obs[i].Vehicle)
+		}
 	}
 	tx, err := s.DB().BeginTx(ctx, nil)
 	if err != nil {
@@ -94,10 +162,10 @@ func (s *Store) InsertObservations(ctx context.Context, obs []Observation) (int,
 
 	stmt, err := tx.PrepareContext(ctx, `
 		INSERT OR IGNORE INTO irail_observations (
-			observed_at, station, board_type, vehicle, vehicle_short, direction,
+			round_id, observed_at, station, board_type, vehicle, vehicle_short, direction,
 			scheduled_at, delay_seconds, canceled, left_station, platform,
 			platform_normal, occupancy, departure_connection
-		) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`)
+		) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`)
 	if err != nil {
 		return 0, fmt.Errorf("prepare observation insert: %w", err)
 	}
@@ -106,7 +174,7 @@ func (s *Store) InsertObservations(ctx context.Context, obs []Observation) (int,
 	inserted := 0
 	for _, o := range obs {
 		res, err := stmt.ExecContext(ctx,
-			o.ObservedAt, o.Station, o.BoardType, o.Vehicle, o.VehicleShort, o.Direction,
+			o.RoundID, o.ObservedAt, o.Station, o.BoardType, o.Vehicle, o.VehicleShort, o.Direction,
 			o.ScheduledAt, o.DelaySeconds, boolToInt(o.Canceled), boolToInt(o.Left), o.Platform,
 			boolToInt(o.PlatformNormal), o.Occupancy, o.DepartureConnection)
 		if err != nil {
@@ -131,6 +199,100 @@ func (s *Store) ObservationCount(ctx context.Context) (int, error) {
 		return 0, fmt.Errorf("count observations: %w", err)
 	}
 	return n, nil
+}
+
+// ObservationRound identifies one capture of one target.
+type ObservationRound struct {
+	ID         string `json:"round_id"`
+	ObservedAt int64  `json:"observed_at"`
+}
+
+// RecentObservationRounds returns the most recent capture rounds for one
+// target, newest first.
+//
+// boardType is required. Departure, arrival and route captures of the same
+// station are separate histories: comparing a departures round against an
+// arrivals round reports every train as appearing or vanishing.
+//
+// direction scopes route captures to a single destination, because a station
+// can be the origin of several observed routes. It must be empty for
+// departure and arrival boards, where direction holds each train's own
+// headsign rather than the target of the capture.
+func (s *Store) RecentObservationRounds(ctx context.Context, station, boardType, direction string, limit int) ([]ObservationRound, error) {
+	query := `SELECT round_id, MAX(observed_at) AS at
+		    FROM irail_observations
+		   WHERE station = ? AND board_type = ?`
+	argv := []any{station, boardType}
+	if direction != "" {
+		query += ` AND direction = ?`
+		argv = append(argv, direction)
+	}
+	query += ` GROUP BY round_id ORDER BY at DESC, round_id DESC LIMIT ?`
+	argv = append(argv, limit)
+
+	rows, err := s.DB().QueryContext(ctx, query, argv...)
+	if err != nil {
+		return nil, fmt.Errorf("querying observation rounds: %w", err)
+	}
+	defer func() { _ = rows.Close() }()
+
+	out := make([]ObservationRound, 0, limit)
+	for rows.Next() {
+		var r ObservationRound
+		if err := rows.Scan(&r.ID, &r.ObservedAt); err != nil {
+			return nil, fmt.Errorf("scanning observation round: %w", err)
+		}
+		out = append(out, r)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterating observation rounds: %w", err)
+	}
+	return out, nil
+}
+
+// ObservationsInRound loads every row captured in one round. The round id
+// already pins station, board type and — for routes — destination, so no
+// further scoping is needed here.
+func (s *Store) ObservationsInRound(ctx context.Context, roundID string) ([]Observation, error) {
+	rows, err := s.DB().QueryContext(ctx,
+		`SELECT round_id, observed_at, station, board_type, vehicle,
+		        COALESCE(vehicle_short,''), COALESCE(direction,''), scheduled_at,
+		        delay_seconds, canceled, left_station, COALESCE(platform,''),
+		        platform_normal, COALESCE(occupancy,''), COALESCE(departure_connection,'')
+		   FROM irail_observations WHERE round_id = ?`, roundID)
+	if err != nil {
+		return nil, fmt.Errorf("querying observations: %w", err)
+	}
+	defer func() { _ = rows.Close() }()
+
+	out := make([]Observation, 0)
+	for rows.Next() {
+		var o Observation
+		var short, dir, platform, occupancy, conn sql.NullString
+		var scheduled, delay, canceled, left, normal sql.NullInt64
+		if err := rows.Scan(&o.RoundID, &o.ObservedAt, &o.Station, &o.BoardType, &o.Vehicle,
+			&short, &dir, &scheduled, &delay, &canceled, &left, &platform,
+			&normal, &occupancy, &conn); err != nil {
+			return nil, fmt.Errorf("scanning observation: %w", err)
+		}
+		o.VehicleShort = short.String
+		o.Direction = dir.String
+		o.ScheduledAt = scheduled.Int64
+		o.DelaySeconds = int(delay.Int64)
+		o.Canceled = canceled.Int64 == 1
+		o.Left = left.Int64 == 1
+		o.Platform = platform.String
+		// A missing platform_normal means iRail did not send the flag; treat
+		// that as the usual platform rather than as a change.
+		o.PlatformNormal = !normal.Valid || normal.Int64 == 1
+		o.Occupancy = occupancy.String
+		o.DepartureConnection = conn.String
+		out = append(out, o)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterating observations: %w", err)
+	}
+	return out, nil
 }
 
 // SavedRoute is a named shortcut. ToStation is empty for station-only shortcuts.

@@ -84,7 +84,7 @@ These capabilities aren't available in any other tool for this API.
   _Use this for questions about the past such as chronic lateness; it never calls the API._
 
   ```bash
-  irail-pp-cli punctuality --from Ghent-Sint-Pieters --to Brussels-Central --agent
+  irail-pp-cli punctuality --from Ghent-Sint-Pieters --to Brussels-Central --board-type route --agent
   ```
 - **`observe`** — Records what the board says right now into local SQLite, building the history other commands read.
 

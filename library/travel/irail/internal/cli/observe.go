@@ -8,6 +8,8 @@ package cli
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"os"
 	"time"
@@ -23,9 +25,27 @@ type observeResult struct {
 	Station   string `json:"station"`
 	BoardType string `json:"board_type"`
 	Direction string `json:"direction,omitempty"`
+	RoundID   string `json:"round_id,omitempty"`
 	Seen      int    `json:"seen"`
 	Recorded  int    `json:"recorded"`
 	Error     string `json:"error,omitempty"`
+}
+
+// newRoundID mints the identifier for one capture of one target.
+//
+// The random suffix is what keeps two observe runs apart: a timestamp alone is
+// only second-resolution, so a scheduled observer and a manual run firing in
+// the same second would otherwise write the same key and the second capture
+// would be silently dropped by INSERT OR IGNORE.
+func newRoundID(observedAt int64) string {
+	var b [8]byte
+	if _, err := rand.Read(b[:]); err != nil {
+		// crypto/rand is documented never to fail on the platforms we ship;
+		// if it somehow does, fall back to the nanosecond clock, which still
+		// separates captures far better than whole seconds.
+		return fmt.Sprintf("%d-%d", observedAt, time.Now().UnixNano())
+	}
+	return fmt.Sprintf("%d-%s", observedAt, hex.EncodeToString(b[:]))
 }
 
 type observeView struct {
@@ -136,14 +156,24 @@ func newNovelObserveCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			for _, t := range targets {
+				// One round per target, not per invocation: observing two
+				// targets is two independent histories that must stay
+				// separately diffable.
+				roundID := newRoundID(observedAt)
 				var obs []store.Observation
 				var fetchErr error
 				if t.boardType == "route" {
-					obs, fetchErr = observeRoute(ctx, c, t.station, t.to, observedAt)
+					obs, fetchErr = observeRoute(ctx, c, t.station, t.to, observedAt, roundID)
 				} else {
-					obs, fetchErr = observeBoard(ctx, c, t.station, t.boardType, observedAt)
+					obs, fetchErr = observeBoard(ctx, c, t.station, t.boardType, observedAt, roundID)
 				}
-				res := observeResult{Station: t.station, BoardType: t.boardType, Direction: t.to, Seen: len(obs)}
+				res := observeResult{
+					Station:   t.station,
+					BoardType: t.boardType,
+					Direction: t.to,
+					RoundID:   roundID,
+					Seen:      len(obs),
+				}
 				if fetchErr != nil {
 					// A failed fetch is not an empty board. Keep it out of the
 					// recorded totals and surface it explicitly.
@@ -204,7 +234,7 @@ func newNovelObserveCmd(flags *rootFlags) *cobra.Command {
 
 // observeBoard fetches a liveboard and converts it to typed observations.
 // pp:client-call
-func observeBoard(ctx context.Context, c *client.Client, station, boardType string, observedAt int64) ([]store.Observation, error) {
+func observeBoard(ctx context.Context, c *client.Client, station, boardType string, observedAt int64, roundID string) ([]store.Observation, error) {
 	if boardType == "" {
 		boardType = "departure"
 	}
@@ -228,14 +258,14 @@ func observeBoard(ctx context.Context, c *client.Client, station, boardType stri
 		if !ok {
 			continue
 		}
-		out = append(out, observationFromRow(row, station, boardType, "", observedAt))
+		out = append(out, observationFromRow(row, station, boardType, "", observedAt, roundID))
 	}
 	return out, nil
 }
 
 // observeRoute records the departure leg of each connection on a route.
 // pp:client-call
-func observeRoute(ctx context.Context, c *client.Client, from, to string, observedAt int64) ([]store.Observation, error) {
+func observeRoute(ctx context.Context, c *client.Client, from, to string, observedAt int64, roundID string) ([]store.Observation, error) {
 	env, err := irailFetch(ctx, c, "/v1/connections?format=json", map[string]string{
 		"from": from,
 		"to":   to,
@@ -255,15 +285,16 @@ func observeRoute(ctx context.Context, c *client.Client, from, to string, observ
 		if dep == nil {
 			continue
 		}
-		out = append(out, observationFromRow(dep, from, "route", to, observedAt))
+		out = append(out, observationFromRow(dep, from, "route", to, observedAt, roundID))
 	}
 	return out, nil
 }
 
 // observationFromRow coerces one iRail board row into a typed observation.
 // iRail returns every scalar as a JSON string, so nothing here is a direct cast.
-func observationFromRow(row map[string]any, station, boardType, direction string, observedAt int64) store.Observation {
+func observationFromRow(row map[string]any, station, boardType, direction string, observedAt int64, roundID string) store.Observation {
 	o := store.Observation{
+		RoundID:             roundID,
 		ObservedAt:          observedAt,
 		Station:             station,
 		BoardType:           boardType,

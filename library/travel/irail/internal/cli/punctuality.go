@@ -34,6 +34,7 @@ type punctualityRow struct {
 
 type punctualityView struct {
 	Station        string           `json:"station,omitempty"`
+	BoardType      string           `json:"board_type"`
 	Direction      string           `json:"direction,omitempty"`
 	WindowDays     int              `json:"window_days"`
 	LateThresholdS int              `json:"late_threshold_seconds"`
@@ -47,6 +48,7 @@ func newNovelPunctualityCmd(flags *rootFlags) *cobra.Command {
 	var flagTo string
 	var flagStation string
 	var flagVehicle string
+	var flagBoardType string
 	var flagDays int
 	var flagLateAfter int
 	var flagLimit int
@@ -59,9 +61,13 @@ func newNovelPunctualityCmd(flags *rootFlags) *cobra.Command {
 			"recorded on this machine by 'observe'.\n\n" +
 			"Use this command for questions about the past, such as chronic lateness. Do NOT\n" +
 			"use it for today's live delay; use 'board' or 'route' for that.\n\n" +
+			"Departure, arrival and route captures are separate histories and are never\n" +
+			"aggregated together; pick one with --board-type. Route captures recorded by\n" +
+			"'observe' with --from and --to need --board-type route.\n\n" +
 			"This command never calls the API. It is empty until 'observe' has run.",
 		Example: `  irail-pp-cli punctuality --station Brussels-Central
-  irail-pp-cli punctuality --from Ghent-Sint-Pieters --to Brussels-Central --agent
+  irail-pp-cli punctuality --station Brussels-Central --board-type arrival
+  irail-pp-cli punctuality --from Ghent-Sint-Pieters --to Brussels-Central --board-type route --agent
   irail-pp-cli punctuality --station Leuven --days 30 --late-after 120`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -71,6 +77,11 @@ func newNovelPunctualityCmd(flags *rootFlags) *cobra.Command {
 			if dryRunOK(flags) {
 				fmt.Fprintln(cmd.OutOrStdout(), "would summarise locally recorded delay observations")
 				return nil
+			}
+			boardType, err := normalizeBoardType(flagBoardType)
+			if err != nil {
+				_ = cmd.Usage()
+				return usageErr(err)
 			}
 
 			ctx, cancel := boundCtx(cmd.Context(), flags)
@@ -112,8 +123,11 @@ func newNovelPunctualityCmd(flags *rootFlags) *cobra.Command {
 				       canceled,
 				       platform_normal
 				FROM irail_observations
-				WHERE observed_at >= ?`
-			argv := []any{since}
+				WHERE observed_at >= ? AND board_type = ?`
+			// board_type is always filtered: departure, arrival and route rows
+			// describe different things, so averaging them together produces a
+			// statistic that belongs to no real journey.
+			argv := []any{since, boardType}
 			if station != "" {
 				query += ` AND station = ?`
 				argv = append(argv, station)
@@ -176,6 +190,7 @@ func newNovelPunctualityCmd(flags *rootFlags) *cobra.Command {
 
 			view := punctualityView{
 				Station:        station,
+				BoardType:      boardType,
 				Direction:      direction,
 				WindowDays:     flagDays,
 				LateThresholdS: flagLateAfter,
@@ -206,8 +221,8 @@ func newNovelPunctualityCmd(flags *rootFlags) *cobra.Command {
 
 			if total == 0 {
 				view.Note = fmt.Sprintf(
-					"no observations recorded in the last %d day(s) for this filter; run 'irail-pp-cli observe' first, then check back",
-					flagDays)
+					"no %s observations recorded in the last %d day(s) for this filter; run 'irail-pp-cli observe' first, then check back",
+					boardType, flagDays)
 			}
 
 			if flags.asJSON || flags.agent || !isTerminal(cmd.OutOrStdout()) {
@@ -238,6 +253,7 @@ func newNovelPunctualityCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagTo, "to", "", "Destination, to restrict to route observations toward it")
 	cmd.Flags().StringVar(&flagStation, "station", "", "Station whose recorded observations to summarise")
 	cmd.Flags().StringVar(&flagVehicle, "vehicle", "", "Restrict to one train, e.g. IC 2843 or BE.NMBS.IC2843")
+	cmd.Flags().StringVar(&flagBoardType, "board-type", "departure", "Which recorded history to summarise: departure, arrival or route")
 	cmd.Flags().IntVar(&flagDays, "days", 30, "How many days of history to include")
 	cmd.Flags().IntVar(&flagLateAfter, "late-after", 60, "Seconds of delay before a train counts as late")
 	cmd.Flags().IntVar(&flagLimit, "limit", 20, "Maximum trains to report")

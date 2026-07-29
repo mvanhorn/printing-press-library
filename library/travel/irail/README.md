@@ -174,7 +174,7 @@ These capabilities aren't available in any other tool for this API.
   _Use this for questions about the past such as chronic lateness; it never calls the API._
 
   ```bash
-  irail-pp-cli punctuality --from Ghent-Sint-Pieters --to Brussels-Central --agent
+  irail-pp-cli punctuality --from Ghent-Sint-Pieters --to Brussels-Central --board-type route --agent
   ```
 - **`observe`** — Records what the board says right now into local SQLite, building the history other commands read.
 
@@ -410,7 +410,7 @@ Static request headers can be configured under `headers`; per-command header ove
 - **Output is XML instead of JSON** — The API defaults to xml. This CLI always sends format=json; if you overrode it, drop --format or set --format json.
 - **train get returns today even though you passed a date** — Upstream ignores the date parameter on the vehicle endpoint. Use board list with --date to inspect another day.
 - **HTTP 500 on a date far in the past or future** — iRail only holds a window around the current date. Query a date close to today.
-- **punctuality or changes returns nothing** — Both read local observations. Run irail-pp-cli observe at least twice before expecting results.
+- **punctuality or changes returns nothing** — Both read local observations. Run irail-pp-cli observe at least twice before expecting results. Both also read one --board-type at a time (default departure), because departure, arrival and route captures are separate histories and are never mixed; history recorded by observe with --from and --to is route history, so read it back with --board-type route.
 - **A station name is not recognised** — Run irail-pp-cli stations search with part of the name; it matches Dutch, French, German and English names plus telegraph codes such as FBMZ.
 - **delay or canceled compares wrong in jq, e.g. .delay > 300 is always false** — The raw endpoint commands (board, route, stations, disruptions, train) return iRail's payload verbatim, and iRail encodes every scalar as a string. Cast with (.delay|tonumber), or use the analysis commands (transfer-risk, punctuality, leave-by, changes, observe) which emit typed numbers and booleans.
 

@@ -9,7 +9,6 @@ package cli
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"os"
 	"time"
@@ -32,6 +31,8 @@ type changeRow struct {
 
 type changesView struct {
 	Station    string      `json:"station"`
+	BoardType  string      `json:"board_type"`
+	Direction  string      `json:"direction,omitempty"`
 	PreviousAt string      `json:"previous_observation,omitempty"`
 	LatestAt   string      `json:"latest_observation,omitempty"`
 	Changes    []changeRow `json:"changes"`
@@ -52,6 +53,8 @@ type observationSnapshot struct {
 
 func newNovelChangesCmd(flags *rootFlags) *cobra.Command {
 	var flagStation string
+	var flagBoardType string
+	var flagTo string
 	var dbPath string
 
 	cmd := &cobra.Command{
@@ -60,8 +63,13 @@ func newNovelChangesCmd(flags *rootFlags) *cobra.Command {
 		Long: "Diffs the two most recent observation rounds recorded by 'observe'.\n\n" +
 			"Use this command for deltas since you last looked. Do NOT use it for a full\n" +
 			"current board; use 'board' for that.\n\n" +
+			"Departure, arrival and route captures are separate histories, so the diff is\n" +
+			"scoped to one --board-type at a time. Route captures also need --to, because a\n" +
+			"station can be the origin of several observed routes.\n\n" +
 			"This command never calls the API. It needs at least two 'observe' rounds.",
 		Example: `  irail-pp-cli changes --station Brussels-Central
+  irail-pp-cli changes --station Brussels-Central --board-type arrival
+  irail-pp-cli changes --station Ghent-Sint-Pieters --board-type route --to Brussels-Central
   irail-pp-cli changes --station Brussels-Central --agent`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -75,6 +83,19 @@ func newNovelChangesCmd(flags *rootFlags) *cobra.Command {
 			if flagStation == "" {
 				_ = cmd.Usage()
 				return usageErr(fmt.Errorf("--station is required"))
+			}
+			boardType, err := normalizeBoardType(flagBoardType)
+			if err != nil {
+				_ = cmd.Usage()
+				return usageErr(err)
+			}
+			if boardType == "route" && flagTo == "" {
+				_ = cmd.Usage()
+				return usageErr(fmt.Errorf("--to is required with --board-type route"))
+			}
+			if boardType != "route" && flagTo != "" {
+				_ = cmd.Usage()
+				return usageErr(fmt.Errorf("--to only applies to --board-type route"))
 			}
 
 			ctx, cancel := boundCtx(cmd.Context(), flags)
@@ -94,6 +115,10 @@ func newNovelChangesCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			station := resolveStationName(flagStation)
+			direction := ""
+			if boardType == "route" {
+				direction = resolveStationName(flagTo)
+			}
 			db, err := store.OpenWithContext(ctx, dbPath)
 			if err != nil {
 				return fmt.Errorf("opening database: %w", err)
@@ -103,18 +128,23 @@ func newNovelChangesCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			// Drain the two most recent observation instants first; SQLite uses a
-			// single connection, so no follow-up query may run while rows is open.
-			stamps, err := recentObservationStamps(ctx, db, station, 2)
+			// Drain the two most recent rounds first; SQLite uses a single
+			// connection, so no follow-up query may run while rows is open.
+			rounds, err := db.RecentObservationRounds(ctx, station, boardType, direction, 2)
 			if err != nil {
 				return err
 			}
 
-			view := changesView{Station: station, Changes: make([]changeRow, 0)}
-			if len(stamps) < 2 {
+			view := changesView{
+				Station:   station,
+				BoardType: boardType,
+				Direction: direction,
+				Changes:   make([]changeRow, 0),
+			}
+			if len(rounds) < 2 {
 				view.Note = fmt.Sprintf(
-					"only %d observation round(s) recorded for %s; run 'irail-pp-cli observe --station %s' again to compare",
-					len(stamps), station, station)
+					"only %d %s observation round(s) recorded for %s; run 'irail-pp-cli observe --station %s' again to compare",
+					len(rounds), boardType, station, station)
 				if flags.asJSON || flags.agent || !isTerminal(cmd.OutOrStdout()) {
 					return printJSONFiltered(cmd.OutOrStdout(), view, flags)
 				}
@@ -122,15 +152,14 @@ func newNovelChangesCmd(flags *rootFlags) *cobra.Command {
 				return nil
 			}
 
-			latestAt, prevAt := stamps[0], stamps[1]
-			view.LatestAt = time.Unix(latestAt, 0).In(belgiumTZ()).Format(time.RFC3339)
-			view.PreviousAt = time.Unix(prevAt, 0).In(belgiumTZ()).Format(time.RFC3339)
+			view.LatestAt = time.Unix(rounds[0].ObservedAt, 0).In(belgiumTZ()).Format(time.RFC3339)
+			view.PreviousAt = time.Unix(rounds[1].ObservedAt, 0).In(belgiumTZ()).Format(time.RFC3339)
 
-			latest, err := observationsAt(ctx, db, station, latestAt)
+			latest, err := snapshotsInRound(ctx, db, rounds[0].ID)
 			if err != nil {
 				return err
 			}
-			previous, err := observationsAt(ctx, db, station, prevAt)
+			previous, err := snapshotsInRound(ctx, db, rounds[1].ID)
 			if err != nil {
 				return err
 			}
@@ -161,71 +190,47 @@ func newNovelChangesCmd(flags *rootFlags) *cobra.Command {
 	}
 
 	cmd.Flags().StringVar(&flagStation, "station", "", "Station to diff (name, telegraph code or id)")
+	cmd.Flags().StringVar(&flagBoardType, "board-type", "departure", "Which recorded history to diff: departure, arrival or route")
+	cmd.Flags().StringVar(&flagTo, "to", "", "Destination of the recorded route, required with --board-type route")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
 	return cmd
 }
 
-// recentObservationStamps returns the most recent distinct observation
-// instants for a station, newest first.
-func recentObservationStamps(ctx context.Context, db *store.Store, station string, n int) ([]int64, error) {
-	rows, err := db.DB().QueryContext(ctx,
-		`SELECT DISTINCT observed_at FROM irail_observations
-		 WHERE station = ? ORDER BY observed_at DESC LIMIT ?`, station, n)
-	if err != nil {
-		return nil, fmt.Errorf("querying observation rounds: %w", err)
+// normalizeBoardType validates the recorded history a command should read.
+// Departure, arrival and route captures of the same station are distinct
+// histories; mixing them reports every train in one as appearing or vanishing
+// from the other.
+func normalizeBoardType(v string) (string, error) {
+	switch v {
+	case "", "departure":
+		return "departure", nil
+	case "arrival", "route":
+		return v, nil
+	default:
+		return "", fmt.Errorf("unknown --board-type %q: want departure, arrival or route", v)
 	}
-	out := make([]int64, 0, n)
-	for rows.Next() {
-		var ts int64
-		if err := rows.Scan(&ts); err != nil {
-			_ = rows.Close()
-			return nil, fmt.Errorf("scanning observation round: %w", err)
-		}
-		out = append(out, ts)
-	}
-	if err := rows.Err(); err != nil {
-		_ = rows.Close()
-		return nil, fmt.Errorf("iterating observation rounds: %w", err)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, fmt.Errorf("closing observation rounds: %w", err)
-	}
-	return out, nil
 }
 
-// observationsAt loads one observation round keyed by vehicle + scheduled time.
-func observationsAt(ctx context.Context, db *store.Store, station string, at int64) (map[string]observationSnapshot, error) {
-	rows, err := db.DB().QueryContext(ctx,
-		`SELECT vehicle, COALESCE(vehicle_short,''), COALESCE(direction,''),
-		        scheduled_at, delay_seconds, canceled, COALESCE(platform,''), platform_normal
-		 FROM irail_observations WHERE station = ? AND observed_at = ?`, station, at)
+// snapshotsInRound loads one capture round keyed by vehicle + scheduled time.
+// The round id already pins station, board type and route destination, so the
+// key does not need to repeat them.
+func snapshotsInRound(ctx context.Context, db *store.Store, roundID string) (map[string]observationSnapshot, error) {
+	obs, err := db.ObservationsInRound(ctx, roundID)
 	if err != nil {
-		return nil, fmt.Errorf("querying observations: %w", err)
+		return nil, err
 	}
-	out := map[string]observationSnapshot{}
-	for rows.Next() {
-		var s observationSnapshot
-		var short, dir, platform sql.NullString
-		var scheduled, delay, canceled, normal sql.NullInt64
-		if err := rows.Scan(&s.vehicle, &short, &dir, &scheduled, &delay, &canceled, &platform, &normal); err != nil {
-			_ = rows.Close()
-			return nil, fmt.Errorf("scanning observation: %w", err)
+	out := make(map[string]observationSnapshot, len(obs))
+	for _, o := range obs {
+		out[fmt.Sprintf("%s|%d", o.Vehicle, o.ScheduledAt)] = observationSnapshot{
+			vehicle:      o.Vehicle,
+			vehicleShort: o.VehicleShort,
+			direction:    o.Direction,
+			scheduledAt:  o.ScheduledAt,
+			delay:        o.DelaySeconds,
+			canceled:     o.Canceled,
+			platform:     o.Platform,
+			normal:       o.PlatformNormal,
 		}
-		s.vehicleShort = short.String
-		s.direction = dir.String
-		s.scheduledAt = scheduled.Int64
-		s.delay = int(delay.Int64)
-		s.canceled = canceled.Int64 == 1
-		s.platform = platform.String
-		s.normal = !normal.Valid || normal.Int64 == 1
-		out[fmt.Sprintf("%s|%d", s.vehicle, s.scheduledAt)] = s
-	}
-	if err := rows.Err(); err != nil {
-		_ = rows.Close()
-		return nil, fmt.Errorf("iterating observations: %w", err)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, fmt.Errorf("closing observations: %w", err)
 	}
 	return out, nil
 }
