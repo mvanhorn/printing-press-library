@@ -65,7 +65,13 @@ This tracks the public catalog, not a personal library (which is not in scope).`
 			}
 
 			prior, seeded := store.Get(key)
-			_ = store.Put(key, ids)
+			// Fail loud: a tracker that cannot persist its baseline has no
+			// product. Silently dropping this error makes the first run claim
+			// "seeded" forever, and later runs re-report the same stale set as
+			// new on every invocation.
+			if perr := store.Put(key, ids); perr != nil {
+				return fmt.Errorf("saving snapshot for this tracker: %w", perr)
+			}
 
 			// --reset re-seeds the baseline rather than diffing against the old
 			// (or an empty) one, so it never reports every current item as "new".

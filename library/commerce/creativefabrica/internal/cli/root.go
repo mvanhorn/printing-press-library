@@ -5,6 +5,7 @@ package cli
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io"
 	"os"
@@ -80,7 +81,13 @@ func Execute() error {
 		}
 	}
 	if err == nil && flags.deliverBuf != nil {
-		if derr := Deliver(flags.deliverSink, flags.deliverBuf.Bytes(), flags.compact); derr != nil {
+		// Fresh context: the command's own ctx was cancelled when Execute
+		// returned, so inheriting it would abort every delivery. boundCtx
+		// applies --timeout (and leaves it unbounded at --timeout 0).
+		dctx, dcancel := boundCtx(context.Background(), &flags)
+		derr := Deliver(dctx, flags.deliverSink, flags.deliverBuf.Bytes(), flags.compact)
+		dcancel()
+		if derr != nil {
 			fmt.Fprintf(os.Stderr, "warning: deliver to %s:%s failed: %v\n", flags.deliverSink.Scheme, flags.deliverSink.Target, derr)
 			return derr
 		}
