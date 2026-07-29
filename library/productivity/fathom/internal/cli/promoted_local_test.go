@@ -21,7 +21,6 @@ func TestPromotedListCommandsReadLocalStore(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open store: %v", err)
 	}
-	defer db.Close()
 
 	fixtures := map[string][]json.RawMessage{
 		"meetings": {
@@ -45,6 +44,9 @@ func TestPromotedListCommandsReadLocalStore(t *testing.T) {
 		if err := db.SaveSyncState(resourceType, "", stored); err != nil {
 			t.Fatalf("save sync state %s: %v", resourceType, err)
 		}
+	}
+	if err := db.Close(); err != nil {
+		t.Fatalf("close setup store: %v", err)
 	}
 
 	for _, command := range []string{"meetings", "teams", "team-members"} {
