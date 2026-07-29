@@ -347,6 +347,32 @@ func (s *Store) ListDrawings(ctx context.Context, limit int) ([]Drawing, error) 
 	if err != nil {
 		return nil, err
 	}
+	return scanDrawings(rows)
+}
+
+// SearchDrawings does a LIKE search over drawing id/img_url, applying limit as
+// a SQL-level result cap (like SearchCreditEvents) so older matching rows are
+// not dropped by a newest-N window. With an empty term it lists recent rows.
+func (s *Store) SearchDrawings(ctx context.Context, term string, limit int) ([]Drawing, error) {
+	if limit <= 0 {
+		limit = 50
+	}
+	if strings.TrimSpace(term) == "" {
+		return s.ListDrawings(ctx, limit)
+	}
+	// Escape % and _ so they match literally; ESCAPE '\' tells SQLite how.
+	like := "%" + likeEscaper.Replace(term) + "%"
+	rows, err := s.db.QueryContext(ctx, `
+		SELECT id, img_url, create_date FROM drawings
+		WHERE id LIKE ? ESCAPE '\' OR img_url LIKE ? ESCAPE '\'
+		ORDER BY create_date DESC, rowid DESC LIMIT ?`, like, like, limit)
+	if err != nil {
+		return nil, err
+	}
+	return scanDrawings(rows)
+}
+
+func scanDrawings(rows *sql.Rows) ([]Drawing, error) {
 	defer rows.Close()
 	out := make([]Drawing, 0)
 	for rows.Next() {

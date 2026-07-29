@@ -101,7 +101,7 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ### Local state that compounds
-- **`search`** — Full-text search your local mirror of draws and credit events by kind, status, or parameters without any API call.
+- **`search`** — Full-text search your local mirror of draws, credit events, and drawings by kind, status, parameters, remarks, or image URL without any API call.
 
   _Use this to find a past job and the settings that produced a good result._
 

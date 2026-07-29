@@ -24,10 +24,12 @@ func newNovelSearchCmd(flags *rootFlags) *cobra.Command {
 		Long: strings.Trim(`
 Search the local SQLite mirror, no API call. Default --type is jobs (your
 generate runs and the settings that produced them). Run 'sync' first to populate
-credit events and drawings.`, "\n"),
+credit events and drawings. The query matches job kind/status/params/ids,
+credit-event remarks, and drawing ids/urls; omit it to list recent rows.`, "\n"),
 		Example: strings.Trim(`
   sculptok-pp-cli search "stl" --type jobs --limit 20
   sculptok-pp-cli search "pro" --type jobs --agent
+  sculptok-pp-cli search "png" --type drawings
   sculptok-pp-cli search --type drawings`, "\n"),
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -68,7 +70,7 @@ credit events and drawings.`, "\n"),
 				}
 				return printJSONFiltered(cmd.OutOrStdout(), events, flags)
 			case "drawings":
-				rows, err := st.ListDrawings(ctx, limit)
+				rows, err := st.SearchDrawings(ctx, term, limit)
 				if err != nil {
 					return err
 				}

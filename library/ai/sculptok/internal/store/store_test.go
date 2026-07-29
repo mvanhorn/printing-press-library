@@ -187,6 +187,50 @@ func TestDrawings(t *testing.T) {
 	}
 }
 
+func TestSearchDrawings(t *testing.T) {
+	ctx := context.Background()
+	st := newTestStore(t)
+
+	drawings := []Drawing{
+		{ID: "d1", ImgURL: "http://x/cat.png", CreateDate: "2026-01-01 00:00:00"},
+		{ID: "d2", ImgURL: "http://x/dog.jpg", CreateDate: "2026-01-02 00:00:00"},
+	}
+	for _, d := range drawings {
+		if err := st.UpsertDrawing(ctx, d); err != nil {
+			t.Fatalf("UpsertDrawing: %v", err)
+		}
+	}
+
+	// A term filters rather than being silently discarded.
+	found, err := st.SearchDrawings(ctx, "cat", 10)
+	if err != nil || len(found) != 1 || found[0].ID != "d1" {
+		t.Fatalf("SearchDrawings(cat) = %v, %v; want [d1]", found, err)
+	}
+	// Matches on id too.
+	byID, err := st.SearchDrawings(ctx, "d2", 10)
+	if err != nil || len(byID) != 1 || byID[0].ID != "d2" {
+		t.Fatalf("SearchDrawings(d2) = %v, %v; want [d2]", byID, err)
+	}
+	// Empty term lists recent rows.
+	all, err := st.SearchDrawings(ctx, "", 10)
+	if err != nil || len(all) != 2 {
+		t.Fatalf("SearchDrawings(\"\") = %d rows, %v; want 2", len(all), err)
+	}
+	// A miss returns empty, not every row.
+	none, err := st.SearchDrawings(ctx, "nonexistent-xyz", 10)
+	if err != nil || len(none) != 0 {
+		t.Fatalf("SearchDrawings(miss) = %d rows; want 0", len(none))
+	}
+	// LIKE metacharacters match literally.
+	if err := st.UpsertDrawing(ctx, Drawing{ID: "d3", ImgURL: "http://x/50%off.png", CreateDate: "2026-01-03 00:00:00"}); err != nil {
+		t.Fatalf("UpsertDrawing: %v", err)
+	}
+	pct, err := st.SearchDrawings(ctx, "50%", 10)
+	if err != nil || len(pct) != 1 || pct[0].ID != "d3" {
+		t.Fatalf("SearchDrawings(50%%) = %v, %v; want [d3]", pct, err)
+	}
+}
+
 func TestOpenReadOnlyMissing(t *testing.T) {
 	ctx := context.Background()
 	missing := filepath.Join(t.TempDir(), "nope.db")

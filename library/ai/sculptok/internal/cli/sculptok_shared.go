@@ -152,6 +152,23 @@ func runGenerate(ctx context.Context, c *sculptok.Client, st *store.Store, opts 
 		if err != nil {
 			return nil, fmt.Errorf("restore submit: %w", err)
 		}
+		// The pre-pass is a billed draw of its own. Persist it under its own
+		// promptId — reconcile matches credit-event remarks against stored
+		// prompt IDs, so an unstored pre-pass reads as an unmatched charge.
+		// Recorded right after submit (before polling) so an interrupted poll
+		// still leaves the spend accounted for.
+		restoreJob := store.Job{
+			PromptID:   rid,
+			Kind:       "restore",
+			Status:     "submitted",
+			ImageURL:   imageURL,
+			Params:     `{"hdFix":"true","prePass":true}`,
+			CreditCost: drawCost("restore", "", ""),
+			CreatedAt:  nowStamp(),
+		}
+		if st != nil {
+			_ = st.UpsertJob(ctx, restoreJob)
+		}
 		rs, err := c.Poll(ctx, rid, opts.pollInterval, nil)
 		if err != nil {
 			return nil, fmt.Errorf("restore poll: %w", err)
@@ -159,6 +176,12 @@ func runGenerate(ctx context.Context, c *sculptok.Client, st *store.Store, opts 
 		if len(rs.ImgRecords) > 0 {
 			imageURL = rs.ImgRecords[0]
 			res.RestoredURL = imageURL
+		}
+		if st != nil {
+			restoreResults, _ := json.Marshal(rs.ImgRecords)
+			restoreJob.Status = "completed"
+			restoreJob.ResultURLs = string(restoreResults)
+			_ = st.UpsertJob(ctx, restoreJob)
 		}
 	}
 
