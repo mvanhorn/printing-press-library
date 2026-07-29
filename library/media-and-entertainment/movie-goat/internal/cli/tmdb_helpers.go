@@ -444,6 +444,19 @@ func noteAmbiguity(flags *rootFlags, kindLabel, query string, matches []tmdbSear
 	if yearHint != "" {
 		hint = fmt.Sprintf("Disambiguate with %s <YYYY>, a %q suffix, or the TMDb id.", yearHint, "title (YYYY)")
 	}
+	// notableAlternatives preserves TMDb's relevance order, so the best-rated
+	// alternative can sit anywhere in the list. Move it to the front: the
+	// signal check below, the better-rated line in the stderr notice, and the
+	// JSON alternatives all treat position 0 as the strongest contender.
+	// notableAlternatives returns a fresh slice, so the swap is safe.
+	best := 0
+	for i := 1; i < len(alts); i++ {
+		if alts[i].VoteCount > alts[best].VoteCount {
+			best = i
+		}
+	}
+	alts[0], alts[best] = alts[best], alts[0]
+
 	signal := signalMultipleMatches
 	if alts[0].VoteCount > chosen.VoteCount {
 		signal = signalBetterRated

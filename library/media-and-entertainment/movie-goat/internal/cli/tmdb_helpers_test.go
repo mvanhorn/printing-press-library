@@ -49,6 +49,32 @@ func TestNoteAmbiguityRecordsForJSON(t *testing.T) {
 	}
 }
 
+func TestNoteAmbiguityBetterRatedAlternativeNotFirst(t *testing.T) {
+	// Relevance order can bury the best-rated alternative behind a weaker
+	// one. The signal must compare the chosen entry against the strongest
+	// alternative, not whichever TMDb happened to rank first — otherwise
+	// this case reports multiple_exact_matches and the stderr notice skips
+	// the better-rated warning entirely.
+	flags := &rootFlags{}
+	matches := []tmdbSearchResult{
+		{ID: 1, Title: "Solaris", ReleaseDate: "2002-11-27", VoteCount: 1000},
+		{ID: 2, Title: "Solaris", ReleaseDate: "1968-10-08", VoteCount: 500},
+		{ID: 3, Title: "Solaris", ReleaseDate: "1972-03-20", VoteCount: 9000},
+	}
+	noteAmbiguity(flags, "titles", "Solaris", matches, notableVoteFloor, "--year")
+
+	if len(flags.ambiguities) != 1 {
+		t.Fatalf("recorded %d ambiguities, want 1", len(flags.ambiguities))
+	}
+	rec := flags.ambiguities[0]
+	if rec.Signal != signalBetterRated {
+		t.Errorf("signal = %q, want %q — the 1972 entry outranks the chosen one on votes even though it is listed last", rec.Signal, signalBetterRated)
+	}
+	if len(rec.Alternatives) != 2 || rec.Alternatives[0].TMDBID != 3 {
+		t.Fatalf("alternatives = %+v, want the best-rated entry (3) moved to the front", rec.Alternatives)
+	}
+}
+
 func TestNoteAmbiguitySilentWhenNoNotableAlternatives(t *testing.T) {
 	flags := &rootFlags{}
 	inception := []tmdbSearchResult{
