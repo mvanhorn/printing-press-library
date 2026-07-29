@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "priority-uppercase-field-probe",
+  "applied_at": "2026-07-29",
+  "base_run_id": "20260729-080245-fb79e74d",
+  "base_printing_press_version": "4.29.0",
+  "summary": "LookupFieldValue also probes ALL-UPPERCASE field names so typed store columns populate from Priority's uppercase OData fields.",
+  "reason": "Generated store template only probes snake/camel/Pascal; Priority (and other ERP OData APIs) return IVNUM/CUSTNAME-style uppercase keys, leaving typed columns NULL and breaking aging/debtors/reconcile.",
+  "files": ["internal/store/store.go"],
+  "validated_outcome": "sync stored 1,200 rows with populated typed columns; aging/debtors/customer-summary return real values; full live dogfood 171/171."
+}

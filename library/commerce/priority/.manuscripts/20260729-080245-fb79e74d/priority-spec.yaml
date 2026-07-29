@@ -1,0 +1,697 @@
+name: priority
+description: "Priority Software ERP REST API (OData) CLI — every form, subform, batch, and attachment"
+version: "0.1.0"
+category: commerce
+base_url: "https://t.eu.priority-connect.online/odata/Priority/tabbtd38.ini,3/usdemo"
+health_check_path: "/GetODataVersion()"
+required_headers:
+  - name: OData-Version
+    value: "4.0"
+
+auth:
+  type: api_key
+  header: "Authorization"
+  format: "Basic {username}:{password}"
+  in: header
+  env_vars:
+    - PRIORITY_API_USERNAME
+    - PRIORITY_API_PASSWORD
+
+config:
+  format: toml
+  path: "~/.config/priority-pp-cli/config.toml"
+
+learn:
+  entity_lookup_seeds:
+    form:
+      - canonical: ORDERS
+        aliases: [orders, sales orders, sales order, so]
+      - canonical: CUSTOMERS
+        aliases: [customers, customer, accounts receivable customers]
+      - canonical: AINVOICES
+        aliases: [invoices, ar invoices, sales invoices]
+      - canonical: LOGPART
+        aliases: [parts, items, products, part catalog, skus]
+      - canonical: PORDERS
+        aliases: [purchase orders, po, pos]
+      - canonical: SUPPLIERS
+        aliases: [suppliers, vendors]
+      - canonical: WAREHOUSES
+        aliases: [warehouses, warehouse list]
+      - canonical: FAMILY_LOG
+        aliases: [part families, families]
+  ticker_patterns:
+    - "^so[0-9]{5,}$"
+    - "^po[0-9]{5,}$"
+  synonyms:
+    "most recent": "latest"
+    "sales order": "order"
+  stopwords:
+    - priority
+    - erp
+    - form
+
+resources:
+  entity:
+    description: "Generic OData surface — query and modify ANY Priority form by name (case-sensitive UPPERCASE)"
+    endpoints:
+      list:
+        method: GET
+        path: "/{form}"
+        description: "List records of any form with full OData query options"
+        example: "  priority-pp-cli entity list ORDERS --filter \"ORDSTATUSDES eq 'Confirmed'\" --top 5"
+        happy_args: "form=ORDERS;--top=1"
+        params:
+          - name: form
+            type: string
+            required: true
+            positional: true
+            description: "Form name, e.g. ORDERS (case-sensitive UPPERCASE)"
+          - name: filter
+            url_name: "$filter"
+            type: string
+            description: "OData $filter, e.g. \"ORDSTATUSDES eq 'Confirmed' and QPRICE gt 100\""
+          - name: odata_select
+            flag_name: odata-select
+            url_name: "$select"
+            type: string
+            description: "Server-side projection: comma-separated UPPERCASE field names"
+          - name: orderby
+            url_name: "$orderby"
+            type: string
+            description: "Sort expression, e.g. \"CURDATE desc\""
+          - name: top
+            url_name: "$top"
+            type: int
+            description: "Max rows (server caps at MAXAPILINES, default 2000)"
+          - name: skip
+            url_name: "$skip"
+            type: int
+            description: "Rows to skip; combine with --top for pagination"
+          - name: expand
+            url_name: "$expand"
+            type: string
+            description: "Subforms to expand, e.g. \"ORDERITEMS_SUBFORM($select=PARTNAME,TQUANT)\""
+          - name: since
+            url_name: "$since"
+            type: string
+            description: "Only records changed since UTC time (BPM entities only), e.g. 2026-01-01T00:00:00Z"
+        response:
+          type: array
+          item: GenericRecord
+        response_path: value
+      get:
+        method: GET
+        path: "/{form}({keyspec})"
+        description: "Get one record by key. Single key: \"'SO17000003'\" (quotes included). Composite: \"IVNUM='T9696',IVTYPE='A',DEBIT='D'\""
+        example: "  priority-pp-cli entity get ORDERS \"'SO17000003'\" --expand ORDERITEMS_SUBFORM"
+        params:
+          - name: form
+            type: string
+            required: true
+            positional: true
+            description: "Form name, e.g. ORDERS"
+          - name: keyspec
+            type: string
+            required: true
+            positional: true
+            description: "Key spec incl. quotes: \"'SO17000003'\" or \"IVNUM='T9696',IVTYPE='A'\""
+          - name: odata_select
+            flag_name: odata-select
+            url_name: "$select"
+            type: string
+            description: "Server-side projection"
+          - name: expand
+            url_name: "$expand"
+            type: string
+            description: "Subforms to expand"
+        response:
+          type: object
+          item: GenericRecord
+      subform:
+        method: GET
+        path: "/{form}({keyspec})/{subform}"
+        description: "Read a subform (related lines) of a record"
+        example: "  priority-pp-cli entity subform ORDERS \"'SO17000003'\" ORDERITEMS_SUBFORM"
+        params:
+          - name: form
+            type: string
+            required: true
+            positional: true
+            description: "Parent form name"
+          - name: keyspec
+            type: string
+            required: true
+            positional: true
+            description: "Parent key spec incl. quotes"
+          - name: subform
+            type: string
+            required: true
+            positional: true
+            description: "Subform name, e.g. ORDERITEMS_SUBFORM"
+        response:
+          type: array
+          item: GenericRecord
+        response_path: value
+      delete:
+        method: DELETE
+        path: "/{form}({keyspec})"
+        description: "Delete a record (or subform line via FORM('key')/SUB_SUBFORM(n) keyspec on parent path)"
+        example: "  priority-pp-cli entity delete FAMILY_LOG \"'765'\" --dry-run"
+        params:
+          - name: form
+            type: string
+            required: true
+            positional: true
+            description: "Form name"
+          - name: keyspec
+            type: string
+            required: true
+            positional: true
+            description: "Key spec incl. quotes"
+
+  orders:
+    description: "Sales orders (ORDERS form)"
+    endpoints:
+      list:
+        method: GET
+        path: "/ORDERS"
+        id_field: ORDNAME
+        description: "List sales orders"
+        happy_args: "--top=1"
+        params:
+          - name: filter
+            url_name: "$filter"
+            type: string
+            description: "OData $filter, e.g. \"ORDSTATUSDES eq 'Confirmed'\""
+          - name: odata_select
+            flag_name: odata-select
+            url_name: "$select"
+            type: string
+            description: "Server-side projection"
+          - name: orderby
+            url_name: "$orderby"
+            type: string
+            description: "Sort, e.g. \"CURDATE desc\""
+          - name: top
+            url_name: "$top"
+            type: int
+            description: "Max rows"
+          - name: skip
+            url_name: "$skip"
+            type: int
+            description: "Rows to skip"
+          - name: expand
+            url_name: "$expand"
+            type: string
+            description: "Subforms to expand, e.g. ORDERITEMS_SUBFORM"
+          - name: since
+            url_name: "$since"
+            type: string
+            description: "Changed since UTC time (ORDERS is BPM-enabled)"
+        response:
+          type: array
+          item: Order
+        response_path: value
+        pagination:
+          type: offset
+          limit_param: "$top"
+          cursor_param: "$skip"
+      get:
+        method: GET
+        path: "/ORDERS('{ordname}')"
+        description: "Get one sales order by order number"
+        example: "  priority-pp-cli orders get SO17000003 --expand ORDERITEMS_SUBFORM"
+        params:
+          - name: ordname
+            type: string
+            required: true
+            positional: true
+            description: "Order number, e.g. SO17000003"
+          - name: odata_select
+            flag_name: odata-select
+            url_name: "$select"
+            type: string
+            description: "Server-side projection"
+          - name: expand
+            url_name: "$expand"
+            type: string
+            description: "Subforms to expand, e.g. ORDERITEMS_SUBFORM,ORDERSTEXT_SUBFORM"
+        response:
+          type: object
+          item: Order
+
+  customers:
+    description: "Customers (CUSTOMERS form)"
+    endpoints:
+      list:
+        method: GET
+        path: "/CUSTOMERS"
+        id_field: CUSTNAME
+        description: "List customers"
+        happy_args: "--top=1"
+        params:
+          - name: filter
+            url_name: "$filter"
+            type: string
+            description: "OData $filter, e.g. \"STATDES eq 'Active'\""
+          - name: odata_select
+            flag_name: odata-select
+            url_name: "$select"
+            type: string
+            description: "Server-side projection"
+          - name: orderby
+            url_name: "$orderby"
+            type: string
+            description: "Sort expression"
+          - name: top
+            url_name: "$top"
+            type: int
+            description: "Max rows"
+          - name: skip
+            url_name: "$skip"
+            type: int
+            description: "Rows to skip"
+          - name: expand
+            url_name: "$expand"
+            type: string
+            description: "Subforms to expand"
+        response:
+          type: array
+          item: Customer
+        response_path: value
+        pagination:
+          type: offset
+          limit_param: "$top"
+          cursor_param: "$skip"
+      get:
+        method: GET
+        path: "/CUSTOMERS('{custname}')"
+        description: "Get one customer by customer number"
+        params:
+          - name: custname
+            type: string
+            required: true
+            positional: true
+            description: "Customer number, e.g. 1011"
+          - name: expand
+            url_name: "$expand"
+            type: string
+            description: "Subforms to expand"
+        response:
+          type: object
+          item: Customer
+
+  invoices:
+    description: "AR invoices (AINVOICES form; composite key IVNUM+IVTYPE+DEBIT — use 'entity get' for single records)"
+    endpoints:
+      list:
+        method: GET
+        path: "/AINVOICES"
+        id_field: IV
+        description: "List AR invoices"
+        happy_args: "--top=1"
+        params:
+          - name: filter
+            url_name: "$filter"
+            type: string
+            description: "OData $filter, e.g. \"CUSTNAME eq '1011'\""
+          - name: odata_select
+            flag_name: odata-select
+            url_name: "$select"
+            type: string
+            description: "Server-side projection"
+          - name: orderby
+            url_name: "$orderby"
+            type: string
+            description: "Sort expression"
+          - name: top
+            url_name: "$top"
+            type: int
+            description: "Max rows"
+          - name: skip
+            url_name: "$skip"
+            type: int
+            description: "Rows to skip"
+        response:
+          type: array
+          item: Invoice
+        response_path: value
+        pagination:
+          type: offset
+          limit_param: "$top"
+          cursor_param: "$skip"
+
+  parts:
+    description: "Part catalog (LOGPART form)"
+    endpoints:
+      list:
+        method: GET
+        path: "/LOGPART"
+        id_field: PARTNAME
+        description: "List parts"
+        happy_args: "--top=1"
+        params:
+          - name: filter
+            url_name: "$filter"
+            type: string
+            description: "OData $filter, e.g. \"TYPE eq 'P' and LASTPRICE gt 200\""
+          - name: odata_select
+            flag_name: odata-select
+            url_name: "$select"
+            type: string
+            description: "Server-side projection"
+          - name: orderby
+            url_name: "$orderby"
+            type: string
+            description: "Sort expression"
+          - name: top
+            url_name: "$top"
+            type: int
+            description: "Max rows"
+          - name: skip
+            url_name: "$skip"
+            type: int
+            description: "Rows to skip"
+        response:
+          type: array
+          item: Part
+        response_path: value
+        pagination:
+          type: offset
+          limit_param: "$top"
+          cursor_param: "$skip"
+      get:
+        method: GET
+        path: "/LOGPART('{partname}')"
+        description: "Get one part by part number"
+        params:
+          - name: partname
+            type: string
+            required: true
+            positional: true
+            description: "Part number, e.g. 111-012"
+          - name: expand
+            url_name: "$expand"
+            type: string
+            description: "Subforms to expand"
+        response:
+          type: object
+          item: Part
+
+  porders:
+    description: "Purchase orders (PORDERS form)"
+    endpoints:
+      list:
+        method: GET
+        path: "/PORDERS"
+        id_field: ORDNAME
+        description: "List purchase orders"
+        happy_args: "--top=1"
+        params:
+          - name: filter
+            url_name: "$filter"
+            type: string
+            description: "OData $filter"
+          - name: odata_select
+            flag_name: odata-select
+            url_name: "$select"
+            type: string
+            description: "Server-side projection"
+          - name: orderby
+            url_name: "$orderby"
+            type: string
+            description: "Sort expression"
+          - name: top
+            url_name: "$top"
+            type: int
+            description: "Max rows"
+          - name: skip
+            url_name: "$skip"
+            type: int
+            description: "Rows to skip"
+        response:
+          type: array
+          item: POrder
+        response_path: value
+        pagination:
+          type: offset
+          limit_param: "$top"
+          cursor_param: "$skip"
+      get:
+        method: GET
+        path: "/PORDERS('{ordname}')"
+        description: "Get one purchase order by number"
+        params:
+          - name: ordname
+            type: string
+            required: true
+            positional: true
+            description: "PO number, e.g. PO26000001"
+          - name: expand
+            url_name: "$expand"
+            type: string
+            description: "Subforms to expand"
+        response:
+          type: object
+          item: POrder
+
+  suppliers:
+    description: "Suppliers/vendors (SUPPLIERS form)"
+    endpoints:
+      list:
+        method: GET
+        path: "/SUPPLIERS"
+        id_field: SUPNAME
+        description: "List suppliers"
+        happy_args: "--top=1"
+        params:
+          - name: filter
+            url_name: "$filter"
+            type: string
+            description: "OData $filter"
+          - name: odata_select
+            flag_name: odata-select
+            url_name: "$select"
+            type: string
+            description: "Server-side projection"
+          - name: orderby
+            url_name: "$orderby"
+            type: string
+            description: "Sort expression"
+          - name: top
+            url_name: "$top"
+            type: int
+            description: "Max rows"
+          - name: skip
+            url_name: "$skip"
+            type: int
+            description: "Rows to skip"
+        response:
+          type: array
+          item: Supplier
+        response_path: value
+        pagination:
+          type: offset
+          limit_param: "$top"
+          cursor_param: "$skip"
+      get:
+        method: GET
+        path: "/SUPPLIERS('{supname}')"
+        description: "Get one supplier by supplier number"
+        params:
+          - name: supname
+            type: string
+            required: true
+            positional: true
+            description: "Supplier number"
+        response:
+          type: object
+          item: Supplier
+
+  warehouses:
+    description: "Warehouses (WAREHOUSES form)"
+    endpoints:
+      list:
+        method: GET
+        path: "/WAREHOUSES"
+        id_field: WARHSNAME
+        description: "List warehouses"
+        happy_args: "--top=1"
+        params:
+          - name: filter
+            url_name: "$filter"
+            type: string
+            description: "OData $filter"
+          - name: top
+            url_name: "$top"
+            type: int
+            description: "Max rows"
+          - name: skip
+            url_name: "$skip"
+            type: int
+            description: "Rows to skip"
+        response:
+          type: array
+          item: Warehouse
+        response_path: value
+        pagination:
+          type: offset
+          limit_param: "$top"
+          cursor_param: "$skip"
+
+  meta:
+    description: "Service metadata and version probes"
+    endpoints:
+      version:
+        method: GET
+        path: "/GetPriorityVersion()"
+        description: "Priority version of the tenant, e.g. 22.0-..."
+        response:
+          type: object
+          item: ValueEnvelope
+      odata-version:
+        method: GET
+        path: "/GetODataVersion()"
+        description: "OData gateway version"
+        response:
+          type: object
+          item: ValueEnvelope
+      entity-metadata:
+        method: GET
+        path: "/GetMetadataFor(entity='{entity}')"
+        description: "Per-entity metadata (v25.0+; top-level entities only; prime with a $top=1 GET first)"
+        params:
+          - name: entity
+            type: string
+            required: true
+            positional: true
+            description: "Top-level entity name, e.g. CUSTOMERS"
+      metadata:
+        method: GET
+        path: "/$metadata"
+        description: "Full tenant EDMX schema (XML, can exceed 10MB)"
+        response_format: binary
+      clear-metadata:
+        method: POST
+        path: "/ClearEntityMetadata"
+        description: "Clear server-side metadata cache for one entity (empty body clears all)"
+        example: "  priority-pp-cli meta clear-metadata --entity ORDERS --dry-run"
+        body:
+          - name: Entity
+            flag_name: entity
+            type: string
+            description: "Entity name to clear, e.g. ORDERS; omit to clear all"
+
+  batch:
+    description: "OData $batch — up to 100 operations per request, no rollback"
+    endpoints:
+      run:
+        method: POST
+        path: "/$batch"
+        description: "Execute a JSON $batch request (max 100 ops; supports id/dependsOn/atomicityGroup and $<id>/ references)"
+        example: "  priority-pp-cli batch --requests '[{\"method\":\"POST\",\"url\":\"FAMILY_LOG\",\"id\":\"1\",\"headers\":{\"content-type\":\"application/json; odata.metadata=minimal; odata.streaming=true\",\"odata-version\":\"4.0\"},\"body\":{\"FAMILYNAME\":\"765\"}}]' --dry-run"
+        body:
+          properties:
+            requests:
+              type: array
+              required: true
+              description: "Array of batch operations: {method,url,id,headers,body,dependsOn,atomicityGroup}"
+
+types:
+  GenericRecord:
+    fields:
+      - name: "@odata.context"
+        type: string
+  Order:
+    fields:
+      - name: ORDNAME
+        type: string
+      - name: CUSTNAME
+        type: string
+      - name: CDES
+        type: string
+      - name: ORDSTATUSDES
+        type: string
+      - name: CURDATE
+        type: string
+      - name: QPRICE
+        type: float
+      - name: DISPRICE
+        type: float
+  Customer:
+    fields:
+      - name: CUSTNAME
+        type: string
+      - name: CUSTDES
+        type: string
+      - name: STATDES
+        type: string
+      - name: PHONE
+        type: string
+      - name: COUNTRYNAME
+        type: string
+  Invoice:
+    fields:
+      - name: IV
+        type: int
+      - name: IVNUM
+        type: string
+      - name: IVTYPE
+        type: string
+      - name: DEBIT
+        type: string
+      - name: CUSTNAME
+        type: string
+      - name: CDES
+        type: string
+      - name: IVDATE
+        type: string
+      - name: TOTPRICE
+        type: float
+      - name: QPRICE
+        type: float
+  Part:
+    fields:
+      - name: PARTNAME
+        type: string
+      - name: PARTDES
+        type: string
+      - name: TYPE
+        type: string
+      - name: FAMILYNAME
+        type: string
+      - name: LASTPRICE
+        type: float
+      - name: STATDES
+        type: string
+  POrder:
+    fields:
+      - name: ORDNAME
+        type: string
+      - name: SUPNAME
+        type: string
+  Supplier:
+    fields:
+      - name: SUPNAME
+        type: string
+      - name: SUPDES
+        type: string
+      - name: PHONE
+        type: string
+      - name: COUNTRYNAME
+        type: string
+  Warehouse:
+    fields:
+      - name: WARHSNAME
+        type: string
+      - name: LOCNAME
+        type: string
+      - name: ADDRESS
+        type: string
+      - name: BRANCHNAME
+        type: string
+  ValueEnvelope:
+    fields:
+      - name: value
+        type: string

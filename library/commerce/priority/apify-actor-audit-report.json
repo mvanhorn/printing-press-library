@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/priority-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260729-080245-fb79e74d",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

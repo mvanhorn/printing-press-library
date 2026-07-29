@@ -1,0 +1,5 @@
+{
+  "descriptions": {
+    "meta_odata-version": "Get the Priority OData gateway protocol version for the configured tenant. Takes no parameters. Returns a ValueEnvelope object ({\"value\": \"<version>\"}, e.g. \"4.0\"). This endpoint is also the CLI's health-check probe: prefer it as the cheapest authenticated call to confirm credentials, tenant URL, and gateway reachability before running heavier queries."
+  }
+}

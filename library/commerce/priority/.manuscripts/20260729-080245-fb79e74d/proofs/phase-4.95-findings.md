@@ -1,0 +1,6 @@
+# Phase 4.95 Local Code Review — priority-pp-cli
+Review path: direct reviewer-subagent dispatch (general-purpose; correctness+security+maintainability lenses) over the 18 hand-written files.
+Autofix summary: 11 findings autofixed in-place in one round (batch op-ID assignment before journaling + collision-free IDs; tenant guard on batch resume; dangling dependsOn strip; journal-privacy disclosure in batch load help; negative --limit/--recent clamps ×3; aging --window-days two-format date parse; shortage parts/porders query errors propagated; dead statement + dead delete removed; gofmt on 5 files). Round-2 re-check: build + full test suite + 171/171 live dogfood green.
+Template-shape retro candidates (not fixed in printed CLI where generated; routed to retro): LookupFieldValue uppercase probe (patched locally via reapply script), credentials test single-token assumption (patched locally), resolveRead binary-header drop (meta metadata patched locally), workflow dogfood curtailment (patched locally), dead newAuthSetTokenCmd constructor (left as-is), README MCP env block single-var render (patched locally).
+Surface-to-user findings: none — no scope-shrinking or multi-path tradeoffs.
+Convergence: findings cleared at round 1.

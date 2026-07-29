@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "priority-readme-mcp-env-pair",
+  "applied_at": "2026-07-29",
+  "base_run_id": "20260729-080245-fb79e74d",
+  "base_printing_press_version": "4.29.0",
+  "summary": "README Claude Desktop MCP config lists both PRIORITY_API_USERNAME and PRIORITY_API_PASSWORD; exit-code tables include 6 (partial failure).",
+  "reason": "README template renders only the first auth env var for Basic-pair specs, producing a non-working MCP config; exit-code table omitted the emitted partial-failure code.",
+  "files": ["README.md", "SKILL.md"],
+  "validated_outcome": "verify-skill and Phase 4.9 doc audit pass."
+}

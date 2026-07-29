@@ -1,0 +1,676 @@
+{
+  "api_name": "priority",
+  "base_url": "https://t.eu.priority-connect.online/odata/Priority/tabbtd38.ini,3/usdemo",
+  "description": "The entire Priority REST API — every form, subform, batch, and attachment — plus offline sync, schema intelligence, and throttle-safe bulk operations no other Priority tool has.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "Authorization",
+    "format": "Basic {PRIORITY_API_USERNAME}:{PRIORITY_API_PASSWORD}",
+    "in": "header",
+    "env_vars": [
+      "PRIORITY_API_USERNAME",
+      "PRIORITY_API_PASSWORD"
+    ],
+    "env_var_specs": [
+      {
+        "name": "PRIORITY_API_USERNAME",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "PRIORITY_API_PASSWORD",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [
+    {
+      "name": "OData-Version",
+      "value": "4.0"
+    }
+  ],
+  "tools": [
+    {
+      "name": "batch_run",
+      "description": "Execute a JSON $batch request (max 100 ops; supports id/dependsOn/atomicityGroup and $\u003cid\u003e/ references). Required: requests.",
+      "method": "POST",
+      "path": "/$batch",
+      "params": [
+        {
+          "name": "requests",
+          "type": "array",
+          "location": "body",
+          "description": "Array of batch operations: {method,url,id,headers,body,dependsOn,atomicityGroup}",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "customers_get",
+      "description": "Get one customer by customer number. Required: custname. Optional: expand. Returns the Customer.",
+      "method": "GET",
+      "path": "/CUSTOMERS('{custname}')",
+      "params": [
+        {
+          "name": "custname",
+          "type": "string",
+          "location": "path",
+          "description": "Customer number, e.g. 1011",
+          "required": true
+        },
+        {
+          "name": "expand",
+          "wire_name": "$expand",
+          "type": "string",
+          "location": "query",
+          "description": "Subforms to expand"
+        }
+      ]
+    },
+    {
+      "name": "customers_list",
+      "description": "List customers. Optional: filter, odata-select, orderby (plus 3 more). Returns array of Customer.",
+      "method": "GET",
+      "path": "/CUSTOMERS",
+      "params": [
+        {
+          "name": "filter",
+          "wire_name": "$filter",
+          "type": "string",
+          "location": "query",
+          "description": "OData $filter, e.g. 'STATDES eq 'Active''"
+        },
+        {
+          "name": "odata-select",
+          "wire_name": "$select",
+          "type": "string",
+          "location": "query",
+          "description": "Server-side projection"
+        },
+        {
+          "name": "orderby",
+          "wire_name": "$orderby",
+          "type": "string",
+          "location": "query",
+          "description": "Sort expression"
+        },
+        {
+          "name": "top",
+          "wire_name": "$top",
+          "type": "int",
+          "location": "query",
+          "description": "Max rows"
+        },
+        {
+          "name": "skip",
+          "wire_name": "$skip",
+          "type": "int",
+          "location": "query",
+          "description": "Rows to skip"
+        },
+        {
+          "name": "expand",
+          "wire_name": "$expand",
+          "type": "string",
+          "location": "query",
+          "description": "Subforms to expand"
+        }
+      ]
+    },
+    {
+      "name": "entity_delete",
+      "description": "Delete a record (or subform line via FORM('key')/SUB_SUBFORM(n) keyspec on parent path). Required: form, keyspec. Destructive.",
+      "method": "DELETE",
+      "path": "/{form}({keyspec})",
+      "params": [
+        {
+          "name": "form",
+          "type": "string",
+          "location": "path",
+          "description": "Form name",
+          "required": true
+        },
+        {
+          "name": "keyspec",
+          "type": "string",
+          "location": "path",
+          "description": "Key spec incl. quotes",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "entity_get",
+      "description": "Get one record by key. Single key: ''SO17000003'' (quotes included). Composite: 'IVNUM='T9696',IVTYPE='A',DEBIT='D''. Required: form, keyspec. Optional: odata-select, expand. Returns the GenericRecord.",
+      "method": "GET",
+      "path": "/{form}({keyspec})",
+      "params": [
+        {
+          "name": "form",
+          "type": "string",
+          "location": "path",
+          "description": "Form name, e.g. ORDERS",
+          "required": true
+        },
+        {
+          "name": "keyspec",
+          "type": "string",
+          "location": "path",
+          "description": "Key spec incl. quotes: ''SO17000003'' or 'IVNUM='T9696',IVTYPE='A''",
+          "required": true
+        },
+        {
+          "name": "odata-select",
+          "wire_name": "$select",
+          "type": "string",
+          "location": "query",
+          "description": "Server-side projection"
+        },
+        {
+          "name": "expand",
+          "wire_name": "$expand",
+          "type": "string",
+          "location": "query",
+          "description": "Subforms to expand"
+        }
+      ]
+    },
+    {
+      "name": "entity_list",
+      "description": "List records of any form with full OData query options. Required: form. Optional: filter, odata-select, orderby (plus 4 more). Returns array of GenericRecord.",
+      "method": "GET",
+      "path": "/{form}",
+      "params": [
+        {
+          "name": "form",
+          "type": "string",
+          "location": "path",
+          "description": "Form name, e.g. ORDERS (case-sensitive UPPERCASE)",
+          "required": true
+        },
+        {
+          "name": "filter",
+          "wire_name": "$filter",
+          "type": "string",
+          "location": "query",
+          "description": "OData $filter, e.g. 'ORDSTATUSDES eq 'Confirmed' and QPRICE gt 100'"
+        },
+        {
+          "name": "odata-select",
+          "wire_name": "$select",
+          "type": "string",
+          "location": "query",
+          "description": "Server-side projection: comma-separated UPPERCASE field names"
+        },
+        {
+          "name": "orderby",
+          "wire_name": "$orderby",
+          "type": "string",
+          "location": "query",
+          "description": "Sort expression, e.g. 'CURDATE desc'"
+        },
+        {
+          "name": "top",
+          "wire_name": "$top",
+          "type": "int",
+          "location": "query",
+          "description": "Max rows (server caps at MAXAPILINES, default 2000)"
+        },
+        {
+          "name": "skip",
+          "wire_name": "$skip",
+          "type": "int",
+          "location": "query",
+          "description": "Rows to skip; combine with --top for pagination"
+        },
+        {
+          "name": "expand",
+          "wire_name": "$expand",
+          "type": "string",
+          "location": "query",
+          "description": "Subforms to expand, e.g. 'ORDERITEMS_SUBFORM($select=PARTNAME,TQUANT)'"
+        },
+        {
+          "name": "since",
+          "wire_name": "$since",
+          "type": "string",
+          "location": "query",
+          "description": "Only records changed since UTC time (BPM entities only), e.g. 2026-01-01T00:00:00Z"
+        }
+      ]
+    },
+    {
+      "name": "entity_subform",
+      "description": "Read a subform (related lines) of a record. Required: form, keyspec, subform. Returns array of GenericRecord.",
+      "method": "GET",
+      "path": "/{form}({keyspec})/{subform}",
+      "params": [
+        {
+          "name": "form",
+          "type": "string",
+          "location": "path",
+          "description": "Parent form name",
+          "required": true
+        },
+        {
+          "name": "keyspec",
+          "type": "string",
+          "location": "path",
+          "description": "Parent key spec incl. quotes",
+          "required": true
+        },
+        {
+          "name": "subform",
+          "type": "string",
+          "location": "path",
+          "description": "Subform name, e.g. ORDERITEMS_SUBFORM",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "invoices_list",
+      "description": "List AR invoices. Optional: filter, odata-select, orderby (plus 2 more). Returns array of Invoice.",
+      "method": "GET",
+      "path": "/AINVOICES",
+      "params": [
+        {
+          "name": "filter",
+          "wire_name": "$filter",
+          "type": "string",
+          "location": "query",
+          "description": "OData $filter, e.g. 'CUSTNAME eq '1011''"
+        },
+        {
+          "name": "odata-select",
+          "wire_name": "$select",
+          "type": "string",
+          "location": "query",
+          "description": "Server-side projection"
+        },
+        {
+          "name": "orderby",
+          "wire_name": "$orderby",
+          "type": "string",
+          "location": "query",
+          "description": "Sort expression"
+        },
+        {
+          "name": "top",
+          "wire_name": "$top",
+          "type": "int",
+          "location": "query",
+          "description": "Max rows"
+        },
+        {
+          "name": "skip",
+          "wire_name": "$skip",
+          "type": "int",
+          "location": "query",
+          "description": "Rows to skip"
+        }
+      ]
+    },
+    {
+      "name": "meta_clear-metadata",
+      "description": "Clear server-side metadata cache for one entity (empty body clears all). Optional: entity.",
+      "method": "POST",
+      "path": "/ClearEntityMetadata",
+      "params": [
+        {
+          "name": "entity",
+          "wire_name": "Entity",
+          "type": "string",
+          "location": "body",
+          "description": "Entity name to clear, e.g. ORDERS; omit to clear all"
+        }
+      ]
+    },
+    {
+      "name": "meta_entity-metadata",
+      "description": "Per-entity metadata (v25.0+; top-level entities only; prime with a $top=1 GET first). Required: entity.",
+      "method": "GET",
+      "path": "/GetMetadataFor(entity='{entity}')",
+      "params": [
+        {
+          "name": "entity",
+          "type": "string",
+          "location": "path",
+          "description": "Top-level entity name, e.g. CUSTOMERS",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "meta_metadata",
+      "description": "Full tenant EDMX schema (XML, can exceed 10MB).",
+      "method": "GET",
+      "path": "/$metadata",
+      "params": []
+    },
+    {
+      "name": "meta_odata-version",
+      "description": "OData gateway version. Returns the ValueEnvelope.",
+      "method": "GET",
+      "path": "/GetODataVersion()",
+      "params": []
+    },
+    {
+      "name": "meta_version",
+      "description": "Priority version of the tenant, e.g. 22.0-... Returns the ValueEnvelope.",
+      "method": "GET",
+      "path": "/GetPriorityVersion()",
+      "params": []
+    },
+    {
+      "name": "orders_get",
+      "description": "Get one sales order by order number. Required: ordname. Optional: odata-select, expand. Returns the Order.",
+      "method": "GET",
+      "path": "/ORDERS('{ordname}')",
+      "params": [
+        {
+          "name": "ordname",
+          "type": "string",
+          "location": "path",
+          "description": "Order number, e.g. SO17000003",
+          "required": true
+        },
+        {
+          "name": "odata-select",
+          "wire_name": "$select",
+          "type": "string",
+          "location": "query",
+          "description": "Server-side projection"
+        },
+        {
+          "name": "expand",
+          "wire_name": "$expand",
+          "type": "string",
+          "location": "query",
+          "description": "Subforms to expand, e.g. ORDERITEMS_SUBFORM,ORDERSTEXT_SUBFORM"
+        }
+      ]
+    },
+    {
+      "name": "orders_list",
+      "description": "List sales orders. Optional: filter, odata-select, orderby (plus 4 more). Returns array of Order.",
+      "method": "GET",
+      "path": "/ORDERS",
+      "params": [
+        {
+          "name": "filter",
+          "wire_name": "$filter",
+          "type": "string",
+          "location": "query",
+          "description": "OData $filter, e.g. 'ORDSTATUSDES eq 'Confirmed''"
+        },
+        {
+          "name": "odata-select",
+          "wire_name": "$select",
+          "type": "string",
+          "location": "query",
+          "description": "Server-side projection"
+        },
+        {
+          "name": "orderby",
+          "wire_name": "$orderby",
+          "type": "string",
+          "location": "query",
+          "description": "Sort, e.g. 'CURDATE desc'"
+        },
+        {
+          "name": "top",
+          "wire_name": "$top",
+          "type": "int",
+          "location": "query",
+          "description": "Max rows"
+        },
+        {
+          "name": "skip",
+          "wire_name": "$skip",
+          "type": "int",
+          "location": "query",
+          "description": "Rows to skip"
+        },
+        {
+          "name": "expand",
+          "wire_name": "$expand",
+          "type": "string",
+          "location": "query",
+          "description": "Subforms to expand, e.g. ORDERITEMS_SUBFORM"
+        },
+        {
+          "name": "since",
+          "wire_name": "$since",
+          "type": "string",
+          "location": "query",
+          "description": "Changed since UTC time (ORDERS is BPM-enabled)"
+        }
+      ]
+    },
+    {
+      "name": "parts_get",
+      "description": "Get one part by part number. Required: partname. Optional: expand. Returns the Part.",
+      "method": "GET",
+      "path": "/LOGPART('{partname}')",
+      "params": [
+        {
+          "name": "partname",
+          "type": "string",
+          "location": "path",
+          "description": "Part number, e.g. 111-012",
+          "required": true
+        },
+        {
+          "name": "expand",
+          "wire_name": "$expand",
+          "type": "string",
+          "location": "query",
+          "description": "Subforms to expand"
+        }
+      ]
+    },
+    {
+      "name": "parts_list",
+      "description": "List parts. Optional: filter, odata-select, orderby (plus 2 more). Returns array of Part.",
+      "method": "GET",
+      "path": "/LOGPART",
+      "params": [
+        {
+          "name": "filter",
+          "wire_name": "$filter",
+          "type": "string",
+          "location": "query",
+          "description": "OData $filter, e.g. 'TYPE eq 'P' and LASTPRICE gt 200'"
+        },
+        {
+          "name": "odata-select",
+          "wire_name": "$select",
+          "type": "string",
+          "location": "query",
+          "description": "Server-side projection"
+        },
+        {
+          "name": "orderby",
+          "wire_name": "$orderby",
+          "type": "string",
+          "location": "query",
+          "description": "Sort expression"
+        },
+        {
+          "name": "top",
+          "wire_name": "$top",
+          "type": "int",
+          "location": "query",
+          "description": "Max rows"
+        },
+        {
+          "name": "skip",
+          "wire_name": "$skip",
+          "type": "int",
+          "location": "query",
+          "description": "Rows to skip"
+        }
+      ]
+    },
+    {
+      "name": "porders_get",
+      "description": "Get one purchase order by number. Required: ordname. Optional: expand. Returns the POrder.",
+      "method": "GET",
+      "path": "/PORDERS('{ordname}')",
+      "params": [
+        {
+          "name": "ordname",
+          "type": "string",
+          "location": "path",
+          "description": "PO number, e.g. PO26000001",
+          "required": true
+        },
+        {
+          "name": "expand",
+          "wire_name": "$expand",
+          "type": "string",
+          "location": "query",
+          "description": "Subforms to expand"
+        }
+      ]
+    },
+    {
+      "name": "porders_list",
+      "description": "List purchase orders. Optional: filter, odata-select, orderby (plus 2 more). Returns array of POrder.",
+      "method": "GET",
+      "path": "/PORDERS",
+      "params": [
+        {
+          "name": "filter",
+          "wire_name": "$filter",
+          "type": "string",
+          "location": "query",
+          "description": "OData $filter"
+        },
+        {
+          "name": "odata-select",
+          "wire_name": "$select",
+          "type": "string",
+          "location": "query",
+          "description": "Server-side projection"
+        },
+        {
+          "name": "orderby",
+          "wire_name": "$orderby",
+          "type": "string",
+          "location": "query",
+          "description": "Sort expression"
+        },
+        {
+          "name": "top",
+          "wire_name": "$top",
+          "type": "int",
+          "location": "query",
+          "description": "Max rows"
+        },
+        {
+          "name": "skip",
+          "wire_name": "$skip",
+          "type": "int",
+          "location": "query",
+          "description": "Rows to skip"
+        }
+      ]
+    },
+    {
+      "name": "suppliers_get",
+      "description": "Get one supplier by supplier number. Required: supname. Returns the Supplier.",
+      "method": "GET",
+      "path": "/SUPPLIERS('{supname}')",
+      "params": [
+        {
+          "name": "supname",
+          "type": "string",
+          "location": "path",
+          "description": "Supplier number",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "suppliers_list",
+      "description": "List suppliers. Optional: filter, odata-select, orderby (plus 2 more). Returns array of Supplier.",
+      "method": "GET",
+      "path": "/SUPPLIERS",
+      "params": [
+        {
+          "name": "filter",
+          "wire_name": "$filter",
+          "type": "string",
+          "location": "query",
+          "description": "OData $filter"
+        },
+        {
+          "name": "odata-select",
+          "wire_name": "$select",
+          "type": "string",
+          "location": "query",
+          "description": "Server-side projection"
+        },
+        {
+          "name": "orderby",
+          "wire_name": "$orderby",
+          "type": "string",
+          "location": "query",
+          "description": "Sort expression"
+        },
+        {
+          "name": "top",
+          "wire_name": "$top",
+          "type": "int",
+          "location": "query",
+          "description": "Max rows"
+        },
+        {
+          "name": "skip",
+          "wire_name": "$skip",
+          "type": "int",
+          "location": "query",
+          "description": "Rows to skip"
+        }
+      ]
+    },
+    {
+      "name": "warehouses_list",
+      "description": "List warehouses. Optional: filter, top, skip. Returns array of Warehouse.",
+      "method": "GET",
+      "path": "/WAREHOUSES",
+      "params": [
+        {
+          "name": "filter",
+          "wire_name": "$filter",
+          "type": "string",
+          "location": "query",
+          "description": "OData $filter"
+        },
+        {
+          "name": "top",
+          "wire_name": "$top",
+          "type": "int",
+          "location": "query",
+          "description": "Max rows"
+        },
+        {
+          "name": "skip",
+          "wire_name": "$skip",
+          "type": "int",
+          "location": "query",
+          "description": "Rows to skip"
+        }
+      ]
+    }
+  ]
+}

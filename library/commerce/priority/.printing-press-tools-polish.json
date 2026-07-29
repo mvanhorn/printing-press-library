@@ -1,0 +1,31 @@
+{
+  "timestamp": "2026-07-29T06:24:23.10753Z",
+  "cli_dir": "\u003ccli-dir\u003e/priority-pp-cli",
+  "findings": [
+    {
+      "kind": "missing-read-only",
+      "command": "get",
+      "file": "files_cmd.go",
+      "line": 96,
+      "evidence": "name matches read heuristic; no mcp:read-only annotation",
+      "status": "accepted",
+      "note": "files get decodes the attachment blob to a user-named file on disk via --out (os.WriteFile); that local filesystem write means the destructive default hint is correct, so mcp:read-only must not be added"
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 692,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "teach.go is a DO-NOT-EDIT generated file; 'List recorded learnings' is accurate for the learn-loop surface but a richer Short needs a generator-template fix — retro candidate"
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-07-29T06:22:42.184432Z"
+  },
+  "progress": {
+    "last_processed_finding_id": "thin-short:list:teach.go:692"
+  }
+}

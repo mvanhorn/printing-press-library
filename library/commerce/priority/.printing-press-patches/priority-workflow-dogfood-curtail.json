@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "priority-workflow-dogfood-curtail",
+  "applied_at": "2026-07-29",
+  "base_run_id": "20260729-080245-fb79e74d",
+  "base_printing_press_version": "4.29.0",
+  "summary": "workflow archive syncs one page per resource under PRINTING_PRESS_DOGFOOD.",
+  "reason": "Generated workflow command runs a full multi-resource sync (100 pages each) and exceeds live dogfood's 30s per-command budget.",
+  "files": ["internal/cli/channel_workflow.go"],
+  "validated_outcome": "workflow archive passes live dogfood within budget; full archive behavior unchanged outside dogfood."
+}

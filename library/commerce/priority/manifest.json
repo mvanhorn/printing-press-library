@@ -1,0 +1,47 @@
+{
+  "manifest_version": "0.3",
+  "name": "priority-pp-mcp",
+  "display_name": "Priority Software",
+  "version": "0.1.0",
+  "description": "The entire Priority REST API — every form, subform, batch, and attachment — plus offline sync, schema intelligence, and throttle-safe bulk operations no other Priority tool has.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/priority-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/priority-pp-mcp",
+      "args": [],
+      "env": {
+        "PRIORITY_API_PASSWORD": "${user_config.priority_api_password}",
+        "PRIORITY_API_USERNAME": "${user_config.priority_api_username}"
+      }
+    }
+  },
+  "user_config": {
+    "priority_api_password": {
+      "type": "string",
+      "title": "PRIORITY_API_PASSWORD",
+      "description": "Sets PRIORITY_API_PASSWORD for the Priority Software MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "priority_api_username": {
+      "type": "string",
+      "title": "PRIORITY_API_USERNAME",
+      "description": "Sets PRIORITY_API_USERNAME for the Priority Software MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-29T06:26:53.964677Z",
+  "printing_press_version": "4.29.0",
+  "api_name": "priority",
+  "display_name": "Priority Software",
+  "cli_name": "priority-pp-cli",
+  "creator": {
+    "handle": "alon-auto",
+    "name": "alon-auto"
+  },
+  "owner": "alon-auto",
+  "printer": "alon-auto",
+  "printer_name": "alon-auto",
+  "spec_path": "priority-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:c0f1ff432e075d5f6036b8ad613b594ac1a51eec854f3351697f49d859128771",
+  "run_id": "20260729-080245-fb79e74d",
+  "category": "commerce",
+  "description": "The entire Priority REST API \u2014 every form, subform, batch, and attachment \u2014 plus offline sync, schema intelligence, and throttle-safe bulk operations no other Priority tool has.",
+  "mcp_binary": "priority-pp-mcp",
+  "mcp_tool_count": 22,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "PRIORITY_API_USERNAME",
+    "PRIORITY_API_PASSWORD"
+  ],
+  "novel_features": [
+    {
+      "name": "Schema grep",
+      "command": "forms search",
+      "description": "Find any form, field, or subform on your tenant by name fragment, instantly and offline."
+    },
+    {
+      "name": "Schema snapshot diff",
+      "command": "forms diff",
+      "description": "Snapshot your tenant's schema and see exactly which forms and fields changed after an upgrade or customization."
+    },
+    {
+      "name": "License probe",
+      "command": "forms licensed",
+      "description": "Discover which forms are actually API-enabled on this tenant instead of finding out via 400 errors."
+    },
+    {
+      "name": "Batch journal + resume",
+      "command": "batch resume",
+      "description": "Re-run only the failed operations from a partially-failed $batch \u2014 Priority batches have no rollback."
+    },
+    {
+      "name": "Sync reconcile",
+      "command": "reconcile",
+      "description": "Verify your local mirror matches the live tenant using windowed probes \u2014 the API has no $count."
+    },
+    {
+      "name": "Shortage (ATP)",
+      "command": "shortage",
+      "description": "See which parts will run out given the open order book \u2014 open demand vs on-hand stock, optionally netting inbound POs."
+    },
+    {
+      "name": "Customer 360",
+      "command": "customer summary",
+      "description": "One command for a customer's whole picture: invoiced totals, age buckets by invoice date, open orders, recent invoices."
+    }
+  ]
+}
