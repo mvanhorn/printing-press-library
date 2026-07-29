@@ -82,18 +82,38 @@ func (s *Store) migrateObservationRounds(ctx context.Context) error {
 			return fmt.Errorf("irail schema: add round_id: %w", err)
 		}
 	}
-	// Rows written before round_id existed belong to whatever round the old
-	// key implied. Reconstruct exactly that grouping so the unique index below
-	// cannot collapse history that is already on disk.
+	// Rows written before round_id existed belong to whatever round the old key
+	// implied, so the backfill reconstructs that grouping. Route captures also
+	// fold in the destination: for board_type 'route' the direction column is
+	// the target of the capture and is constant across the round, so including
+	// it separates two routes out of one origin that the old key merged. For
+	// departure and arrival rows direction is each train's own headsign and
+	// varies within a round, so it must stay out of the key there.
 	if _, err := s.DB().ExecContext(ctx,
 		`UPDATE irail_observations
-		    SET round_id = station || '|' || board_type || '|' || observed_at
+		    SET round_id = station || '|' || board_type || '|' || observed_at ||
+		                   CASE WHEN board_type = 'route'
+		                        THEN '|' || COALESCE(direction, '')
+		                        ELSE '' END
 		  WHERE round_id = ''`); err != nil {
 		return fmt.Errorf("irail schema: backfill round_id: %w", err)
 	}
 	if _, err := s.DB().ExecContext(ctx,
 		`DROP INDEX IF EXISTS idx_irail_obs_unique`); err != nil {
 		return fmt.Errorf("irail schema: drop legacy observation index: %w", err)
+	}
+	// Guard the index creation. The backfilled key is at least as specific as
+	// the old unique key, so a store written by this CLI cannot hold a row that
+	// violates it. Rather than rely on that, drop any row that would violate
+	// the constraint anyway: a failed CREATE UNIQUE INDEX would leave every
+	// command unable to open the database, which is a far worse outcome than
+	// discarding a duplicate the old INSERT OR IGNORE would never have written.
+	if _, err := s.DB().ExecContext(ctx,
+		`DELETE FROM irail_observations
+		  WHERE id NOT IN (
+		        SELECT MIN(id) FROM irail_observations
+		         GROUP BY round_id, vehicle, scheduled_at)`); err != nil {
+		return fmt.Errorf("irail schema: drop duplicate observations: %w", err)
 	}
 	// Created after the backfill: doing it earlier would make every legacy row
 	// collide on the empty round_id.
