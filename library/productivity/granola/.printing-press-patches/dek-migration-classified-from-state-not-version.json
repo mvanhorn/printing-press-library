@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "dek-migration-classified-from-state-not-version",
+  "applied_at": "2026-07-25",
+  "base_run_id": "20260511-211333",
+  "base_printing_press_version": "4.4.0",
+  "files": [
+    "internal/granola/cache.go",
+    "internal/granola/cache_test.go",
+    "internal/granola/safestorage/safestorage.go",
+    "internal/granola/safestorage/safestorage_darwin.go",
+    "internal/granola/safestorage/safestorage_darwin_test.go",
+    "internal/granola/safestorage/safestorage_other.go",
+    "internal/granola/safestorage/safestorage_test.go",
+    "internal/granola/safestorage/testdata/scheme.md"
+  ],
+  "summary": "Whether Granola's data encryption key is reachable must be classified from observable state — encrypted cache present, storage.dek absent, Safe Storage keychain item resolvable — not from a desktop version string, which rots on the next release. A missing install, a pre-encryption install, a signed-out install, and a migrated install stay four distinct reports, and the migrated one must never offer a remedy that cannot succeed: no 'run sync', no 'approve the Keychain prompt'. Classify the failed-migration state too — Granola unlinks storage.dek only after a successful import, so a key read off disk that unwraps cleanly and then fails GCM against the encrypted cache is the migration, not envelope drift.",
+  "reason": "Granola moved the DEK into a macOS data-protection keychain access group gated by an entitlement bound to its own Team ID, so no third-party binary can read it and no user action recovers it. The pre-existing key-unavailable message sent every user through a Keychain prompt that can never be granted; an honest classification instead names the paths that still work (already-synced local data, and the public API for new data)."
+}

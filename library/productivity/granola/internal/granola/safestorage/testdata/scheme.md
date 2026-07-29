@@ -1,13 +1,63 @@
 # Granola .enc decryption scheme — empirical finding (U1)
 
 Captured 2026-05-12. Granola desktop 7.205.0 on macOS.
+Tier-1 update captured 2026-07-25 against Granola desktop 7.447.1 — see
+"Tier-1 update" below before re-deriving anything.
 
 ## Result
 
 **Two-tier encryption.** Both `cache-v6.json.enc`, `supabase.json.enc`, and
 `user-preferences.json.enc` share the same scheme.
 
+## Tier-1 update (2026-07-25, Granola 7.447.1): the DEK moved
+
+**Layer 2 below is unchanged.** AES-256-GCM, 12-byte nonce, 16-byte tag, no
+AAD — still exactly as documented. Do not re-derive it, and do not touch the
+tier-2 decrypt path chasing this.
+
+**Layer 1 is dead for third parties.** Granola 7.447.1 moved the 32-byte DEK
+out of `storage.dek` and into the macOS **data-protection** keychain, under
+service `com.granola.app.dek` in access group `QZ7DHHLN25.granola`. That
+access group is gated by a `keychain-access-groups` entitlement bound to
+Granola's Apple Team ID, so no third-party binary can read it. The decompiled
+app shows a migrate-then-unlink flow: on first launch after the update it
+imports the old DEK into a bundled `keychain.node` module and then **unlinks
+`storage.dek`**.
+
+Two consequences worth carrying forward:
+
+1. The migration **imports** the existing DEK rather than generating a fresh
+   one. A pre-migration `storage.dek` recovered from a backup therefore still
+   decrypts today's `cache-v6.json.enc` when its 32 raw bytes are supplied
+   base64-encoded through `GRANOLA_SAFESTORAGE_KEY_OVERRIDE`. That override is
+   a genuine remedy, not just a test seam.
+2. The unlink happens **only after a successful import**, and the import is
+   wrapped in a five-attempt retry because it can fail at launch. A failed
+   migration therefore leaves `storage.dek` on disk while the app has already
+   rotated to a fresh Keychain DEK. Such an install is migrated with a stale
+   key file — it is **not** an unmigrated install, and its decrypt failure is
+   not envelope drift.
+
+`safestorage` classifies these states from observable state only, never from a
+Granola version string (version sniffing breaks on every release):
+
+| support dir | `cache-v6.json.enc` | `storage.dek` | `Granola Safe Storage` Keychain item | classification |
+|---|---|---|---|---|
+| absent | — | — | not probed | `ErrKeyUnavailable`, Granola not installed |
+| present | absent | absent | not probed | `ErrKeyUnavailable`, pre-encryption build |
+| present | present | absent | not found | `ErrKeyUnavailable`, signed out |
+| present | present | absent | resolves | **`ErrSchemeMigrated`**, DEK moved upstream |
+| present | present | present, unwraps, GCM rejects | resolves | **`ErrSchemeMigrated`**, stale key file from a failed migration |
+| present | present | present and valid | resolves | unchanged two-tier unwrap |
+
+`ErrSchemeMigrated` errors also report as `ErrKeyUnavailable` under
+`errors.Is`. Both statements are true, and the refinement must not silently
+delete fallbacks that only know the older sentinel.
+
 ## Layer 1: storage.dek → 32-byte Data Encryption Key (DEK)
+
+Historical for installs that predate the 7.447.1 migration, and still live for
+anyone supplying a recovered DEK through the override.
 
 `storage.dek` is encrypted with **Electron's standard `safeStorage` v10 envelope**
 (Chromium's OSCrypt on macOS):

@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "api-list-stage-matches-live-contract",
+  "applied_at": "2026-07-25",
+  "base_run_id": "20260511-211333",
+  "base_printing_press_version": "4.4.0",
+  "files": [
+    "internal/cli/granola_helpers.go",
+    "internal/cli/sync.go",
+    "internal/cli/sync_list_contract_test.go"
+  ],
+  "summary": "The list stage's pagination size and timestamp format are whatever the live public API currently enforces, and a regen must re-probe them rather than trust a generic default. Two are load-bearing: the page-size cap (30 at the time of writing; anything above it is rejected outright) and the requirement that every temporal filter be a UTC 'Z' RFC3339 timestamp, since a local-zone numeric offset is rejected as an invalid date. Route every timestamp through a single helper so a new call site cannot reintroduce the offset form, and keep --db reaching the domain store rather than only the generic one.",
+  "reason": "The generated defaults were guesses — page_size 100 against an API that caps at 30, and time.RFC3339 over a local-zone time — so sync-api could never complete a single page against the real service; the command had never worked. A fresh print restores those guesses, which is why the durable instruction is 'verify against the live contract', not the two numbers themselves.",
+  "validated_outcome": "Probed live: page_size 30 succeeds and 31 returns HTTP 400; the UTC Z form is accepted where the local-offset form returns 'Invalid date'. A regression test pins both and names the probe results so the values cannot drift back silently."
+}

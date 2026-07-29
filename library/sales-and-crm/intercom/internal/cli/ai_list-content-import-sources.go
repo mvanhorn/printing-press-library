@@ -20,14 +20,13 @@ func newAiListContentImportSourcesCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  intercom-pp-cli ai list-content-import-sources",
 		Annotations: map[string]string{"pp:endpoint": "ai.list-content-import-sources", "pp:method": "GET", "pp:path": "/ai/content_import_sources", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			path := "/ai/content_import_sources"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/ai/content_import_sources"
 			params := map[string]string{}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "ai", false, path, params, nil, cmd.ErrOrStderr())
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "ai", false, path, params, nil, "data", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -72,7 +71,7 @@ func newAiListContentImportSourcesCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 

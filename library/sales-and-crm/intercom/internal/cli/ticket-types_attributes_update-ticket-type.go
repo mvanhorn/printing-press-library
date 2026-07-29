@@ -33,23 +33,37 @@ func newTicketTypesAttributesUpdateTicketTypeCmd(flags *rootFlags) *cobra.Comman
 		Annotations: map[string]string{"pp:endpoint": "attributes.update-ticket-type", "pp:method": "PUT", "pp:path": "/ticket_types/{ticket_type_id}/attributes/{id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
-				return cmd.Help()
+				// A missing required positional is a usage error in every output
+				// mode (matches command_promoted.go.tmpl). Machine callers
+				// (--json/--agent) also get a JSON error envelope on stdout;
+				// usageErr sets exit 2.
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "missing required argument",
+						"usage": fmt.Sprintf("%s%s", cmd.CommandPath(), " <ticket_type_id> <id>"),
+					}, flags); printErr != nil {
+						return printErr
+					}
+				}
+				return usageErr(fmt.Errorf("missing required argument\nUsage: %s%s", cmd.CommandPath(), " <ticket_type_id> <id>"))
 			}
 			if !stdinBody {
 			}
+			path := "/ticket_types/{ticket_type_id}/attributes/{id}"
+			if len(args) < 1 || args[0] == "" {
+				return usageErr(fmt.Errorf("ticket_type_id is required\nUsage: %s <%s>", cmd.CommandPath(), "ticket_type_id"))
+			}
+			path = replacePathParam(path, "ticket_type_id", args[0])
+			if len(args) < 2 || args[1] == "" {
+				return usageErr(fmt.Errorf("id is required\nUsage: %s <%s>", cmd.CommandPath(), "id"))
+			}
+			path = replacePathParam(path, "id", args[1])
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/ticket_types/{ticket_type_id}/attributes/{id}"
-			path = replacePathParam(path, "ticket_type_id", args[0])
-			if len(args) < 2 {
-				return usageErr(fmt.Errorf("id is required\nUsage: %s <%s>", cmd.CommandPath(), "id"))
-			}
-			path = replacePathParam(path, "id", args[1])
 			params := map[string]string{}
-			var body map[string]any
+			var body any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
@@ -61,36 +75,37 @@ func newTicketTypesAttributesUpdateTicketTypeCmd(flags *rootFlags) *cobra.Comman
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
+				bodyMap := map[string]any{}
+				body = bodyMap
 				if cmd.Flags().Changed("allow-multiple-values") {
-					body["allow_multiple_values"] = bodyAllowMultipleValues
+					bodyMap["allow_multiple_values"] = bodyAllowMultipleValues
 				}
 				if cmd.Flags().Changed("archived") {
-					body["archived"] = bodyArchived
+					bodyMap["archived"] = bodyArchived
 				}
 				if bodyDescription != "" {
-					body["description"] = bodyDescription
+					bodyMap["description"] = bodyDescription
 				}
 				if bodyListItems != "" {
-					body["list_items"] = bodyListItems
+					bodyMap["list_items"] = bodyListItems
 				}
 				if cmd.Flags().Changed("multiline") {
-					body["multiline"] = bodyMultiline
+					bodyMap["multiline"] = bodyMultiline
 				}
 				if bodyName != "" {
-					body["name"] = bodyName
+					bodyMap["name"] = bodyName
 				}
 				if cmd.Flags().Changed("required-to-create") {
-					body["required_to_create"] = bodyRequiredToCreate
+					bodyMap["required_to_create"] = bodyRequiredToCreate
 				}
 				if cmd.Flags().Changed("required-to-create-for-contacts") {
-					body["required_to_create_for_contacts"] = bodyRequiredToCreateForContacts
+					bodyMap["required_to_create_for_contacts"] = bodyRequiredToCreateForContacts
 				}
 				if cmd.Flags().Changed("visible-on-create") {
-					body["visible_on_create"] = bodyVisibleOnCreate
+					bodyMap["visible_on_create"] = bodyVisibleOnCreate
 				}
 				if cmd.Flags().Changed("visible-to-contacts") {
-					body["visible_to_contacts"] = bodyVisibleToContacts
+					bodyMap["visible_to_contacts"] = bodyVisibleToContacts
 				}
 			}
 			data, statusCode, err := c.PutWithParams(cmd.Context(), path, params, body)
@@ -160,6 +175,9 @@ func newTicketTypesAttributesUpdateTicketTypeCmd(flags *rootFlags) *cobra.Comman
 					"status":   statusCode,
 					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
 				}
+				if flags.agent {
+					envelope["meta"] = map[string]any{"source": "live"}
+				}
 				if partialFailure != nil {
 					envelope["partial_failure"] = partialFailure
 				}
@@ -198,7 +216,11 @@ func newTicketTypesAttributesUpdateTicketTypeCmd(flags *rootFlags) *cobra.Comman
 				if len(filtered) > 0 {
 					var parsed any
 					if err := json.Unmarshal(filtered, &parsed); err == nil {
-						envelope["data"] = parsed
+						if flags.agent {
+							envelope["results"] = parsed
+						} else {
+							envelope["data"] = parsed
+						}
 					}
 				}
 				envelopeJSON, err := json.Marshal(envelope)

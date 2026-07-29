@@ -7,6 +7,7 @@ Movie Goat unifies the workflows that today require four browser tabs: discovery
 Learn more at [Movie Goat](https://www.themoviedb.org).
 
 Created by [@tmchow](https://github.com/tmchow) (Trevin Chow).
+Contributors: [@giuseppebisemi](https://github.com/giuseppebisemi) (Giuseppe Bisemi).
 
 ## Install
 
@@ -169,6 +170,13 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   movie-goat-pp-cli ratings 550 --json
   ```
+- **Remake-aware title resolution** — Every command that takes a title instead of a TMDb id tells you when the title is shared.
+
+  _TMDb's search ranks by a proprietary relevance score — not the vote count, not the `popularity` field — so `"Sabrina"` lands on the 1995 remake even though the 1954 Wilder original leads on both. When a title has more than one well-rated match the CLI says so on **both** channels: a notice on stderr for humans, and a `meta.ambiguous` record in the JSON for scripts that run with `2>/dev/null`. Pin one with `--year`, a `"Title (YYYY)"` suffix, or the id._
+
+  ```bash
+  movie-goat-pp-cli ratings "Sabrina" --year 1954 --json
+  ```
 - **`marathon`** — Plan a franchise marathon with watch order, total runtime, and suggested breaks.
 
   _Use when planning an event watch; agent can dump the schedule to share with a group._
@@ -321,7 +329,44 @@ movie-goat-pp-cli discover movies --with-genres 28,53 --primary-release-date-gte
 
 # 12. Recommendation queue from your watchlist (suggests next-watch picks).
 movie-goat-pp-cli queue --providers netflix,max --region US --limit 10
+
+# 13. Pin the original instead of the remake. Bare "Sabrina" resolves to the 1995
+#     version (TMDb's search ranks it first) and prints the rival ids on stderr.
+movie-goat-pp-cli ratings "Sabrina" --year 1954
+movie-goat-pp-cli ratings "Sabrina (1954)"
+movie-goat-pp-cli versus "Sabrina (1954)" "Sabrina (1995)"
+movie-goat-pp-cli watchlist add "Sabrina" --year 1954
 ```
+
+`--year` is available on `ratings`, `marathon`, and `watchlist add`; the inline
+`"Title (YYYY)"` suffix works on every command that accepts a title, including
+the two-positional `versus`.
+
+```bash
+# 14. Detect the ambiguity from a script that never reads stderr.
+movie-goat-pp-cli ratings "Sabrina" --agent 2>/dev/null | jq '.meta.ambiguous[0].signal'
+# → "alternative_better_rated"  (TMDb's top pick is not the best-rated match)
+movie-goat-pp-cli ratings "Inception" --agent 2>/dev/null | jq '.meta'
+# → null  (no ambiguity, so no field)
+```
+
+The `meta.ambiguous` record carries the query, the chosen entry, every notable
+alternative (tmdb_id, title, year, vote_count), and a `signal` of
+`alternative_better_rated` or `multiple_exact_matches`. It is a list because one
+command can resolve several titles — `versus` resolves two.
+
+`/search/*` orders results by a relevance score TMDb does not expose, so the top
+result is not necessarily the canonical edition. The `popularity` value in the
+record is TMDb's trending score passed through as-is; it is neither the ordering
+criterion nor what `signal` compares — that is `vote_count`. For "Sabrina" the
+1954 entry leads on both and is still returned second.
+
+It only appears when the stderr notice fires, so existing parsers see no change
+on unambiguous lookups. `--select` deliberately cannot filter it out (narrowing
+the field list is exactly what would hide it), and `--compact` / `--agent` keep
+it. `--quiet` silences the stderr notice but not the record — though on these
+commands `--quiet` already suppresses stdout entirely, so read the field with
+`--json` instead.
 
 ## Output Formats
 

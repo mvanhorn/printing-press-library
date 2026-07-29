@@ -9,6 +9,7 @@ package cli
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -222,6 +223,58 @@ func janeReq(ctx context.Context, hc *http.Client, method, u, referer string, fo
 		finalURL = resp.Request.URL.String()
 	}
 	return resp.StatusCode, string(b), finalURL, nil
+}
+
+// errAnonymousSession reports a cookie set that Jane accepted syntactically but
+// does not consider signed in.
+var errAnonymousSession = errors.New("session is not authenticated")
+
+// janeVerifySession reports whether cookies represents an AUTHENTICATED Jane
+// session for baseURL, rather than an anonymous one.
+//
+// Presence of _front_desk_session proves nothing. Jane sets that cookie for
+// logged-out visitors too, and Chrome's on-disk cookie DB lags the live
+// in-memory session, so a browser import routinely captures a signed-out
+// session and still looks like it worked. Only the server can settle it.
+//
+// /api/v2/appointments is the correct probe: it answers 401 for both an absent
+// and an invalid session and 200 only when signed in. The HTML /account page is
+// NOT usable here — it returns 200 for an invalid cookie, silently redirecting
+// to /cookies_required, so a status check against it passes when it shouldn't.
+func janeVerifySession(ctx context.Context, baseURL, cookies string, timeout time.Duration) error {
+	base := strings.TrimSuffix(baseURL, "/")
+	u, err := url.Parse(base)
+	if err != nil {
+		return fmt.Errorf("parsing base URL %q: %w", base, err)
+	}
+	jar, err := cookiejar.New(nil)
+	if err != nil {
+		return fmt.Errorf("creating cookie jar: %w", err)
+	}
+	var cks []*http.Cookie
+	for _, part := range strings.Split(cookies, ";") {
+		name, value, ok := strings.Cut(strings.TrimSpace(part), "=")
+		if !ok {
+			continue
+		}
+		cks = append(cks, &http.Cookie{Name: strings.TrimSpace(name), Value: value})
+	}
+	if len(cks) == 0 {
+		return errAnonymousSession
+	}
+	jar.SetCookies(u, cks)
+
+	status, _, _, err := janeReqAccept(ctx, &http.Client{Jar: jar, Timeout: timeout}, base+"/api/v2/appointments")
+	if err != nil {
+		return fmt.Errorf("verifying session: %w", err)
+	}
+	if status == http.StatusUnauthorized || status == http.StatusForbidden {
+		return errAnonymousSession
+	}
+	if status >= 400 {
+		return fmt.Errorf("unexpected status %d verifying session against %s", status, base)
+	}
+	return nil
 }
 
 func janeReqAccept(ctx context.Context, hc *http.Client, u string) (int, string, string, error) {

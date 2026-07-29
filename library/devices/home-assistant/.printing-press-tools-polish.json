@@ -1,0 +1,101 @@
+{
+  "timestamp": "2026-07-21T16:35:12.894956Z",
+  "cli_dir": "\u003ccli-dir\u003e/home-assistant",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 692,
+      "evidence": "List recorded learnings"
+    },
+    {
+      "kind": "thin-mcp-description",
+      "command": "calendars_list",
+      "file": "tools-manifest.json",
+      "line": 0,
+      "evidence": "List calendars."
+    },
+    {
+      "kind": "thin-mcp-description",
+      "command": "calendars_list-events",
+      "file": "tools-manifest.json",
+      "line": 0,
+      "evidence": "List calendar events. Required: calendarId, start, end."
+    },
+    {
+      "kind": "thin-mcp-description",
+      "command": "components_list",
+      "file": "tools-manifest.json",
+      "line": 0,
+      "evidence": "List loaded components."
+    },
+    {
+      "kind": "thin-mcp-description",
+      "command": "config_validate",
+      "file": "tools-manifest.json",
+      "line": 0,
+      "evidence": "Validate Home Assistant configuration."
+    },
+    {
+      "kind": "thin-mcp-description",
+      "command": "error-log_get",
+      "file": "tools-manifest.json",
+      "line": 0,
+      "evidence": "Get current error log."
+    },
+    {
+      "kind": "thin-mcp-description",
+      "command": "events_fire",
+      "file": "tools-manifest.json",
+      "line": 0,
+      "evidence": "Fire an event. Required: eventType."
+    },
+    {
+      "kind": "thin-mcp-description",
+      "command": "events_list",
+      "file": "tools-manifest.json",
+      "line": 0,
+      "evidence": "List event types."
+    },
+    {
+      "kind": "thin-mcp-description",
+      "command": "intent_handle",
+      "file": "tools-manifest.json",
+      "line": 0,
+      "evidence": "Handle an Assist intent."
+    },
+    {
+      "kind": "thin-mcp-description",
+      "command": "services_list",
+      "file": "tools-manifest.json",
+      "line": 0,
+      "evidence": "List service domains and services."
+    },
+    {
+      "kind": "thin-mcp-description",
+      "command": "states_get",
+      "file": "tools-manifest.json",
+      "line": 0,
+      "evidence": "Get an entity state. Required: entityId."
+    },
+    {
+      "kind": "thin-mcp-description",
+      "command": "states_list",
+      "file": "tools-manifest.json",
+      "line": 0,
+      "evidence": "List current entity states."
+    },
+    {
+      "kind": "thin-mcp-description",
+      "command": "template_render",
+      "file": "tools-manifest.json",
+      "line": 0,
+      "evidence": "Render a Home Assistant template."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 0,
+    "captured": "2026-07-21T16:35:12.894961Z"
+  }
+}

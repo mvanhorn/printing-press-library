@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -19,24 +20,38 @@ func newConversationsRetrieveCmd(flags *rootFlags) *cobra.Command {
 		Use:         "retrieve <id>",
 		Aliases:     []string{"get"},
 		Short:       "You can fetch the details of a single conversation.",
-		Example:     "  intercom-pp-cli conversations retrieve 550e8400-e29b-41d4-a716-446655440000",
+		Example:     "  intercom-pp-cli conversations retrieve 123",
 		Annotations: map[string]string{"pp:endpoint": "conversations.retrieve", "pp:method": "GET", "pp:path": "/conversations/{id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
-				return cmd.Help()
+				// A missing required positional is a usage error in every output
+				// mode (matches command_promoted.go.tmpl). Machine callers
+				// (--json/--agent) also get a JSON error envelope on stdout;
+				// usageErr sets exit 2.
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "missing required argument",
+						"usage": fmt.Sprintf("%s%s", cmd.CommandPath(), " <id>"),
+					}, flags); printErr != nil {
+						return printErr
+					}
+				}
+				return usageErr(fmt.Errorf("missing required argument\nUsage: %s%s", cmd.CommandPath(), " <id>"))
 			}
+			path := "/conversations/{id}"
+			if len(args) < 1 || args[0] == "" {
+				return usageErr(fmt.Errorf("id is required\nUsage: %s <%s>", cmd.CommandPath(), "id"))
+			}
+			path = replacePathParam(path, "id", args[0])
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/conversations/{id}"
-			path = replacePathParam(path, "id", args[0])
 			params := map[string]string{}
 			if flagDisplayAs != "" {
-				params["display_as"] = fmt.Sprintf("%v", flagDisplayAs)
+				params["display_as"] = formatCLIParamValue(flagDisplayAs)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "conversations", false, path, params, nil, cmd.ErrOrStderr())
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "conversations", false, path, params, nil, "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -81,7 +96,7 @@ func newConversationsRetrieveCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagDisplayAs, "display-as", "", "Set to plaintext to retrieve conversation messages in plain text.")
@@ -97,7 +112,7 @@ func newConversationsRetrieveCmd(flags *rootFlags) *cobra.Command {
 // exhausted. pathParams must include every {placeholder} in the parent
 // path (e.g. {"id": "<value>"}).
 func fetchFullConversationsRetrieveLinkedObjects(ctx context.Context, c interface {
-	GetWithHeaders(ctx context.Context, path string, params map[string]string, headers map[string]string) (json.RawMessage, error)
+	GetWithHeadersValues(ctx context.Context, path string, params url.Values, headers map[string]string) (json.RawMessage, error)
 }, pathParams map[string]string) ([]json.RawMessage, error) {
 	childPath := "/conversations/{id}/linked_objects"
 	for name, val := range pathParams {

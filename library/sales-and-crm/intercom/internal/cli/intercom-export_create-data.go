@@ -23,6 +23,24 @@ func newIntercomExportCreateDataCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  intercom-pp-cli intercom-export create-data",
 		Annotations: map[string]string{"pp:endpoint": "intercom-export.create-data", "pp:method": "POST", "pp:path": "/export/content/data"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Bare invocation of a command with required input prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only read commands fall through so a bare call still executes.
+			// Machine callers (--json/--agent, which sets asJSON) get a usage
+			// error + exit 2 instead of silent exit-0 help, so an incomplete
+			// invocation is never mistaken for success.
+			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "requires input",
+						"usage": cmd.CommandPath() + " --help",
+					}, flags); printErr != nil {
+						return printErr
+					}
+					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
+				}
+				return cmd.Help()
+			}
 			if !stdinBody {
 				if !cmd.Flags().Changed("created-at-after") && !flags.dryRun {
 					return fmt.Errorf("required flag \"%s\" not set", "created-at-after")
@@ -31,14 +49,13 @@ func newIntercomExportCreateDataCmd(flags *rootFlags) *cobra.Command {
 					return fmt.Errorf("required flag \"%s\" not set", "created-at-before")
 				}
 			}
+			path := "/export/content/data"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/export/content/data"
 			params := map[string]string{}
-			var body map[string]any
+			var body any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
@@ -50,12 +67,13 @@ func newIntercomExportCreateDataCmd(flags *rootFlags) *cobra.Command {
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
+				bodyMap := map[string]any{}
+				body = bodyMap
 				if bodyCreatedAtAfter != 0 {
-					body["created_at_after"] = bodyCreatedAtAfter
+					bodyMap["created_at_after"] = bodyCreatedAtAfter
 				}
 				if bodyCreatedAtBefore != 0 {
-					body["created_at_before"] = bodyCreatedAtBefore
+					bodyMap["created_at_before"] = bodyCreatedAtBefore
 				}
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
@@ -125,6 +143,9 @@ func newIntercomExportCreateDataCmd(flags *rootFlags) *cobra.Command {
 					"status":   statusCode,
 					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
 				}
+				if flags.agent {
+					envelope["meta"] = map[string]any{"source": "live"}
+				}
 				if partialFailure != nil {
 					envelope["partial_failure"] = partialFailure
 				}
@@ -163,7 +184,11 @@ func newIntercomExportCreateDataCmd(flags *rootFlags) *cobra.Command {
 				if len(filtered) > 0 {
 					var parsed any
 					if err := json.Unmarshal(filtered, &parsed); err == nil {
-						envelope["data"] = parsed
+						if flags.agent {
+							envelope["results"] = parsed
+						} else {
+							envelope["data"] = parsed
+						}
 					}
 				}
 				envelopeJSON, err := json.Marshal(envelope)

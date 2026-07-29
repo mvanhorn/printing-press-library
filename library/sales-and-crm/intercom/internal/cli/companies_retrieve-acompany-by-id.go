@@ -17,21 +17,35 @@ func newCompaniesRetrieveAcompanyByIdCmd(flags *rootFlags) *cobra.Command {
 		Use:         "retrieve-acompany-by-id <id>",
 		Aliases:     []string{"get"},
 		Short:       "You can fetch a single company.",
-		Example:     "  intercom-pp-cli companies retrieve-acompany-by-id 550e8400-e29b-41d4-a716-446655440000",
+		Example:     "  intercom-pp-cli companies retrieve-acompany-by-id 5f4d3c1c-7b1b-4d7d-a97e-6095715c6632",
 		Annotations: map[string]string{"pp:endpoint": "companies.retrieve-acompany-by-id", "pp:method": "GET", "pp:path": "/companies/{id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
-				return cmd.Help()
+				// A missing required positional is a usage error in every output
+				// mode (matches command_promoted.go.tmpl). Machine callers
+				// (--json/--agent) also get a JSON error envelope on stdout;
+				// usageErr sets exit 2.
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "missing required argument",
+						"usage": fmt.Sprintf("%s%s", cmd.CommandPath(), " <id>"),
+					}, flags); printErr != nil {
+						return printErr
+					}
+				}
+				return usageErr(fmt.Errorf("missing required argument\nUsage: %s%s", cmd.CommandPath(), " <id>"))
 			}
+			path := "/companies/{id}"
+			if len(args) < 1 || args[0] == "" {
+				return usageErr(fmt.Errorf("id is required\nUsage: %s <%s>", cmd.CommandPath(), "id"))
+			}
+			path = replacePathParam(path, "id", args[0])
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/companies/{id}"
-			path = replacePathParam(path, "id", args[0])
 			params := map[string]string{}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "companies", false, path, params, nil, cmd.ErrOrStderr())
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "companies", false, path, params, nil, "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -76,7 +90,7 @@ func newCompaniesRetrieveAcompanyByIdCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 

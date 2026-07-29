@@ -56,6 +56,7 @@ when OMDB_API_KEY is set, and emit the side-by-side comparison plus the
 top-billed cast overlap (people credited as cast on both titles).`,
 		Example: `  movie-goat-pp-cli versus 550 27205
   movie-goat-pp-cli versus "The Dark Knight" "Inception"
+  movie-goat-pp-cli versus "Sabrina (1954)" "Sabrina (1995)"
   movie-goat-pp-cli versus 1396 60625 --type tv --json`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
@@ -86,7 +87,7 @@ top-billed cast overlap (people credited as cast on both titles).`,
 				appendStr := "credits,external_ids,watch/providers"
 				switch kind {
 				case "movie":
-					id, _, rerr := resolveMovieID(c, arg)
+					id, _, rerr := resolveMovieID(c, flags, arg, "", "")
 					if rerr != nil {
 						return vt, nil, classifyAPIError(rerr)
 					}
@@ -113,7 +114,7 @@ top-billed cast overlap (people credited as cast on both titles).`,
 					vt.Providers, _, _ = parseAppendedProviders(detail.WatchProviders, region)
 					return vt, detail.Credits, nil
 				case "tv":
-					id, _, rerr := resolveTVID(c, arg)
+					id, _, rerr := resolveTVID(c, flags, arg, "", "")
 					if rerr != nil {
 						return vt, nil, classifyAPIError(rerr)
 					}

@@ -2,6 +2,10 @@
 
 This file is maintained by printing-press-library release automation. Do not hand-edit release sections in normal PRs.
 
+## 2026.7.3 - 2026-07-24
+
+- fix(janeapp): reject anonymous sessions on browser cookie import (#1572).
+
 ## 2026.7.2 - 2026-07-08
 
 - fix(catalog): require Go 1.26.5 across published modules (#1467).

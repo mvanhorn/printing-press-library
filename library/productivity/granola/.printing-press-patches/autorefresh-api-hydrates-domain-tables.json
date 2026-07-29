@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "autorefresh-api-hydrates-domain-tables",
+  "applied_at": "2026-07-25",
+  "base_run_id": "20260511-211333",
+  "base_printing_press_version": "4.4.0",
+  "files": [
+    "internal/cli/sync_autorefresh.go",
+    "internal/cli/sync_api_hydrate.go",
+    "internal/cli/sync_autorefresh_api_test.go"
+  ],
+  "summary": "Any automatic refresh path must run the same two stages the user-facing sync command runs, and must report on the stage that feeds the read commands. The generated list stage writes the generic resources table that nothing queries, so a refresh that stops there reports success while the domain tables the read commands serve from go stale forever. A hook that fires before ordinary commands additionally needs its own bounds and its own checkpoint: bound the detail stage to a small window so it stays cheap enough to run per invocation, check the context between per-note fetches rather than only between pages, and record the checkpoint under a key the list stage does not own so a failed detail stage re-scans the same window instead of skipping the notes it never fetched.",
+  "reason": "On a migrated install (desktop encryption key moved into an entitlement-gated keychain) the API is the only working data path, and the auto-refresh provenance line read 'cache=failed api=ok (N rows)' while every read command served an empty store. A stage that succeeds at writing rows nobody reads is worse than a visible failure, because it removes the signal that would send the user to sync-api.",
+  "validated_outcome": "runApiSync now lands rows in meetings / attendees / transcript_segments / folder_memberships against a stubbed public API, and a 5xx on note detail surfaces as an error so the fragment renders api=failed."
+}

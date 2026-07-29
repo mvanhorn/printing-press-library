@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "sculptok-pp-mcp",
+  "display_name": "Sculptok",
+  "version": "0.0.0",
+  "description": "SculptOK AI depth-map, relief, STL and 3D generation CLI",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/sculptok-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/sculptok-pp-mcp",
+      "args": [],
+      "env": {
+        "SCULPTOK_API_KEY": "${user_config.sculptok_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "sculptok_api_key": {
+      "type": "string",
+      "title": "SCULPTOK_API_KEY",
+      "description": "Sets SCULPTOK_API_KEY for the Sculptok MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

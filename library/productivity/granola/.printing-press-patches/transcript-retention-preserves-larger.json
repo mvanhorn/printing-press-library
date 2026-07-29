@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "transcript-retention-preserves-larger",
+  "applied_at": "2026-07-25",
+  "base_run_id": "20260511-211333",
+  "base_printing_press_version": "4.4.0",
+  "files": [
+    "internal/cli/sync_api_hydrate.go",
+    "internal/cli/sync_api_hydrate_test.go",
+    "internal/cli/sync_cache.go",
+    "internal/granola/api_notes_test.go",
+    "internal/granola/store_sync.go"
+  ],
+  "summary": "A non-empty transcript from one sync path is not evidence that it is complete: Granola applies transcript retention upstream while this local store is expected to outlive it, so a sync must never delete a stored transcript to replace it with a SMALLER one owned by the other path. Ownership transfer stays as-is when the incoming copy is at least as complete (a whole-meeting rewrite is required either way, or the two sources collide on the transcript_segments (meeting_id, idx) primary key); the shrinking cross-source case keeps what is stored, skips the incoming write for that meeting, and reports a count plus the meeting ids on the same non-fatal warning channel as the unparsed-timestamp accounting. Size is compared only against the OTHER row_source, so a path rewriting its own earlier transcript is never blocked.",
+  "reason": "The prior rule treated any non-empty payload as authoritative and ran an unscoped per-meeting DELETE, so the first API sync after upstream retention pruned an older meeting destroyed the full cache-captured transcript and left the remnant, permanently and with no count anywhere in the sync summary. Silence was half the defect: without the preserved-transcript accounting a user cannot distinguish a sync that correctly declined to shrink a transcript from one that is quietly broken.",
+  "validated_outcome": "Against the pre-fix code the new store-level tests fail with 'the retention-pruned API transcript destroyed the larger cache-sourced one: got 2, want 5' and the mirror 'got 1, want 6'. An existing collision test had to move from a shorter to a longer incoming transcript, since the shorter direction is now the preservation case."
+}

@@ -13,7 +13,7 @@ require (
 	github.com/gorilla/websocket v1.5.3
 	github.com/mark3labs/mcp-go v0.47.0
 	github.com/spf13/pflag v1.0.6
-	golang.org/x/text v0.37.0
+	golang.org/x/text v0.39.0
 	modernc.org/sqlite v1.50.1
 )
 

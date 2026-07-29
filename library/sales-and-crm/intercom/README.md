@@ -7,6 +7,7 @@ This CLI exposes the full Intercom REST API as a single Go binary. Every endpoin
 Learn more at [Intercom](https://developers.intercom.com).
 
 Created by [@rob-coco](https://github.com/rob-coco) (Rob Zehner).
+Contributors: [@francobee](https://github.com/francobee) (Francis Battikha).
 
 ## Install
 
@@ -75,7 +76,6 @@ Inside a Hermes chat session:
 Restart the Hermes session or gateway if the newly installed skill is not visible immediately.
 
 ## Install for OpenClaw
-
 Install both the CLI binary and the focused OpenClaw skill. The installer defaults binaries to a per-user bin directory (`$HOME/.local/bin` on macOS/Linux, `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows):
 
 ```bash
@@ -102,7 +102,9 @@ Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple S
 If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
 
 
-Install the MCP binary from this CLI's published public-library entry or pre-built release.
+```bash
+go install github.com/mvanhorn/printing-press-library/library/sales-and-crm/intercom/cmd/intercom-pp-mcp@latest
+```
 
 Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
 
@@ -201,13 +203,13 @@ intercom-pp-cli conversations sla --group-by team --metric first-response,resolu
 
 Local SQL over conversations + parts; --select narrows the nested payload so agents don't burn context.
 
-### Pull every help-center article into git
+### Pull every help-center article into a git-managed tree
 
 ```bash
-intercom-pp-cli articles pull --to ./articles/ && git add ./articles/ && git commit -m 'Snapshot Intercom articles'
+intercom-pp-cli articles pull --to ./articles/
 ```
 
-Each article lands as `<id>-<slug>.<locale>.md` with YAML frontmatter; multilingual variants are sibling files.
+Each article lands as `<id>-<slug>.<locale>.md` with YAML frontmatter; commit the directory to git, edit locally, then run `intercom-pp-cli articles push --from ./articles/` to sync diffs back.
 
 ### Resolve a contact before triaging
 
@@ -225,19 +227,58 @@ intercom-pp-cli conversations list --agent --select conversations.id,conversatio
 
 Generated endpoint mirror; `--select` uses dotted paths to walk Intercom's nested envelope so agents don't load 30 KB per conversation.
 
-## Known Gaps
-
-These are real user-facing constraints discovered during live verification — not CLI defects, but worth knowing before you reach for the commands:
-
-- **`contacts search`, `conversations search`, `tickets search`** require a JSON predicate, not a plain string. Pass `--query '{"field":"role","operator":"=","value":"user"}'` (Intercom's nested-predicate shape). A bare keyword string returns `HTTP 400: Invalid query. Ensure 'field', 'operator', 'value' are present`.
-- **`internal-articles list` and `internal-articles search`** require Intercom API version 2.14 or later. This CLI pins to 2.13, so these two commands return `HTTP 400: Requested resource is not available in current API version`. Use `articles list` (the public help-center endpoint) instead, or wait for the next regen against a 2.14+ spec.
-- **`news list-items` and `news list-newsfeeds`** require the Intercom News feature, which is plan-gated. Workspaces without the News add-on get `HTTP 404 /news/news_items`. Check your workspace plan before reaching for these.
-- **`events list-data --type <value>`** expects the `--type` flag to be an Intercom enum (`user`, `admin`, etc.), not free text. Unsupported values return `HTTP 422: unsupported type [...]`.
-- **`admins list-activity-logs --created-at-after <value>`** expects a Unix epoch integer (e.g. `1730000000`), not a date string.
-
 ## Usage
 
 Run `intercom-pp-cli --help` for the full command reference and flag list.
+
+## Paths & environment variables
+
+This CLI separates local files into four path kinds:
+
+| Kind | Contents |
+|------|----------|
+| `config` | User-editable settings such as `config.toml` and saved profiles |
+| `data` | Durable local data: `credentials.toml`, `data.db`, cookies, browser-session proof files, and other auth sidecars |
+| `state` | Runtime state such as persisted queries, jobs, and `teach.log` |
+| `cache` | Regenerable HTTP/cache files |
+
+Each kind resolves independently. The ladder is:
+
+1. Per-kind env var: `INTERCOM_CONFIG_DIR`, `INTERCOM_DATA_DIR`, `INTERCOM_STATE_DIR`, or `INTERCOM_CACHE_DIR`
+2. `--home <dir>` for this invocation
+3. `INTERCOM_HOME` for a flat relocated root
+4. XDG env vars: `XDG_CONFIG_HOME`, `XDG_DATA_HOME`, `XDG_STATE_HOME`, `XDG_CACHE_HOME`
+5. Platform defaults matching existing installs
+
+For containers and agent sandboxes, prefer a single relocated root:
+
+```bash
+export INTERCOM_HOME=/srv/intercom
+intercom-pp-cli doctor
+```
+
+Under `INTERCOM_HOME=/srv/intercom`, the four dirs resolve to `/srv/intercom/config`, `/srv/intercom/data`, `/srv/intercom/state`, and `/srv/intercom/cache`.
+
+MCP servers do not receive CLI flags from the host. Put relocation in the host `env` block:
+
+```json
+{
+  "mcpServers": {
+    "intercom": {
+      "command": "intercom-pp-mcp",
+      "env": {
+        "INTERCOM_HOME": "/srv/intercom"
+      }
+    }
+  }
+}
+```
+
+Precedence matters in fleets: an ambient per-kind variable such as `INTERCOM_DATA_DIR` overrides an explicit `--home` for that kind. Use `INTERCOM_HOME` or the per-kind variables for durable fleet relocation; treat `--home` as the weaker per-invocation lever.
+
+Relocation is one-way. Unsetting `INTERCOM_HOME` does not move files back to platform defaults, and `doctor` cannot find credentials left under a former root. Move the files manually before unsetting relocation variables.
+
+Existing installs keep working because the platform-default rung matches the legacy layout. On the first auth write, stored secrets leave `config.toml` and are consolidated into `credentials.toml` under the data directory. Run `intercom-pp-cli doctor --fail-on warn` to check path and credential-location warnings in automation.
 
 ## Commands
 
@@ -993,6 +1034,24 @@ Everything about your Visitors
 
 **Option 2.** You can update a visitor by passing in the `id` of the visitor in the Request body.
 
+
+### Self-learning loop
+
+This CLI caches per-question discovery so repeat queries skip the walk and structurally similar queries get answered via entity substitution. The loop also self-captures: every invocation is journaled locally, and failed-flag corrections plus fresh teaches surface as candidates on the next `recall` for confirm/reject judgment. Agents call `recall` before discovery and fire `teach &` after answering. See the `## Automatic learning` section in `SKILL.md` for the full protocol.
+
+- **`intercom-pp-cli recall <query>`** - Look up cached resources for a query before running discovery
+- **`intercom-pp-cli teach`** - Record a query -> resource mapping (silent on success, safe to background with `&`)
+- **`intercom-pp-cli learnings list`** - Inspect taught rows
+- **`intercom-pp-cli learnings forget <query>`** - Undo a teach
+- **`intercom-pp-cli learnings candidates`** - List auto-captured candidates awaiting confirm/reject
+- **`intercom-pp-cli learnings stats`** - Local loop metrics: recall hit rate, teach-to-reuse, playbook resolution, candidate counts
+- **`intercom-pp-cli teach-pattern`** - Install a query/resource template up front
+- **`intercom-pp-cli teach-lookup`** - Add an entity mapping (e.g. country code, team alias) for pattern substitution
+
+Pass `--no-learn` or set `INTERCOM_NO_LEARN=true` to disable the loop for deterministic flows.
+
+The local store's schema version stamp is one-way: once this version of `intercom-pp-cli` opens the database, older binaries refuse it with a version error — upgrade the binary rather than downgrading.
+
 ## Output Formats
 
 ```bash
@@ -1020,7 +1079,7 @@ This CLI is designed for AI agent consumption:
 - **Pipeable** - `--json` output to stdout, errors to stderr
 - **Filterable** - `--select id,name` returns only fields you need
 - **Previewable** - `--dry-run` shows the request without sending
-- **Explicit retries** - add `--idempotent` to create retries and `--ignore-missing` to delete retries when a no-op success is acceptable
+- **Explicit retries** - add `--idempotent` to create retries and add `--ignore-missing` to delete retries when a no-op success is acceptable
 - **Confirmable** - `--yes` for explicit confirmation of destructive actions
 - **Piped input** - write commands can accept structured input when their help lists `--stdin`
 - **Offline-friendly** - sync/search commands can use the local SQLite store when available
@@ -1038,7 +1097,7 @@ Verifies configuration, credentials, and connectivity to the API.
 
 ## Configuration
 
-Config file: `~/.config/intercom-pp-cli/config.toml`
+Run `intercom-pp-cli doctor` to see the resolved config, data, state, and cache directories. The platform-default config path is `~/.config/intercom-pp-cli/config.toml`; `--home`, `INTERCOM_HOME`, and per-kind env vars can relocate it.
 
 Static request headers can be configured under `headers`; per-command header overrides take precedence.
 
@@ -1047,6 +1106,10 @@ Environment variables:
 | Name | Kind | Required | Description |
 | --- | --- | --- | --- |
 | `INTERCOM_ACCESS_TOKEN` | per_call | Yes | Set to your API credential. |
+
+### agentcookie (optional)
+
+If you use agentcookie to sync secrets across machines, this CLI auto-adopts agentcookie-managed credentials with no extra setup. When the daemon writes to this CLI's config, `intercom-pp-cli doctor` reports `agentcookie: detected` and `auth-status` labels the source as `agentcookie`. Skip this section if you don't use agentcookie - the CLI works the same as any other.
 
 ## Troubleshooting
 **Authentication errors (exit code 4)**

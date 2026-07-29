@@ -50,14 +50,17 @@ per segment, filtered to segments with >= --min-words words.`,
 				}
 				to = t
 			}
-			c, err := openGranolaCache()
+			// PATCH(dual-path-store-read): store first, cache fallback.
+			c, err := openGranolaRead(cmd.Context())
 			if err != nil {
 				return err
 			}
+			defer c.Close()
+			docs := c.Documents()
 			perDay := map[string][]string{}
 			perDayOrder := []string{}
 			for _, id := range c.SortedDocumentIDs() {
-				d := c.Documents[id]
+				d := docs[id]
 				segs := c.TranscriptByID(id)
 				if len(segs) == 0 {
 					continue

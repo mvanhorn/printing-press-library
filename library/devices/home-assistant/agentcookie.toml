@@ -1,0 +1,17 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "home-assistant-pp-cli"
+display_name = "Home Assistant"
+description = "Safe household actions, offline memory, and evidence-backed answers on top of the full Home Assistant control surface."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/home-assistant-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+HASS_TOKEN = true
+HOME_ASSISTANT_BEARER_AUTH = true

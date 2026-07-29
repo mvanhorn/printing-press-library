@@ -16,26 +16,41 @@ func newIntercomExportCancelDataCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:         "cancel-data <job_identifier>",
-		Aliases:     []string{"create"},
-		Short:       "Cancel content data export",
+		Use:     "cancel-data <job_identifier>",
+		Aliases: []string{"create"},
+		Short:   "Cancel content data export",
+		// TODO: replace placeholder example values before relying on this for live dogfood.
 		Example:     "  intercom-pp-cli intercom-export cancel-data example-value",
 		Annotations: map[string]string{"pp:endpoint": "intercom-export.cancel-data", "pp:method": "POST", "pp:path": "/export/cancel/{job_identifier}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
-				return cmd.Help()
+				// A missing required positional is a usage error in every output
+				// mode (matches command_promoted.go.tmpl). Machine callers
+				// (--json/--agent) also get a JSON error envelope on stdout;
+				// usageErr sets exit 2.
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "missing required argument",
+						"usage": fmt.Sprintf("%s%s", cmd.CommandPath(), " <job_identifier>"),
+					}, flags); printErr != nil {
+						return printErr
+					}
+				}
+				return usageErr(fmt.Errorf("missing required argument\nUsage: %s%s", cmd.CommandPath(), " <job_identifier>"))
 			}
 			if !stdinBody {
 			}
+			path := "/export/cancel/{job_identifier}"
+			if len(args) < 1 || args[0] == "" {
+				return usageErr(fmt.Errorf("job_identifier is required\nUsage: %s <%s>", cmd.CommandPath(), "job_identifier"))
+			}
+			path = replacePathParam(path, "job_identifier", args[0])
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/export/cancel/{job_identifier}"
-			path = replacePathParam(path, "job_identifier", args[0])
 			params := map[string]string{}
-			var body map[string]any
+			var body any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
@@ -47,7 +62,8 @@ func newIntercomExportCancelDataCmd(flags *rootFlags) *cobra.Command {
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
+				bodyMap := map[string]any{}
+				body = bodyMap
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
 			if err != nil {
@@ -116,6 +132,9 @@ func newIntercomExportCancelDataCmd(flags *rootFlags) *cobra.Command {
 					"status":   statusCode,
 					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
 				}
+				if flags.agent {
+					envelope["meta"] = map[string]any{"source": "live"}
+				}
 				if partialFailure != nil {
 					envelope["partial_failure"] = partialFailure
 				}
@@ -154,7 +173,11 @@ func newIntercomExportCancelDataCmd(flags *rootFlags) *cobra.Command {
 				if len(filtered) > 0 {
 					var parsed any
 					if err := json.Unmarshal(filtered, &parsed); err == nil {
-						envelope["data"] = parsed
+						if flags.agent {
+							envelope["results"] = parsed
+						} else {
+							envelope["data"] = parsed
+						}
 					}
 				}
 				envelopeJSON, err := json.Marshal(envelope)

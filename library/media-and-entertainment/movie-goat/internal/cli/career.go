@@ -99,7 +99,7 @@ OMDb's per-day quota, no more than 50 credits are enriched per call.`,
 			if id, perr := strconv.Atoi(query); perr == nil {
 				personID = id
 			} else {
-				p, err := searchPersonByName(c, query)
+				p, err := searchPersonByName(c, flags, query)
 				if err != nil {
 					return classifyAPIError(err)
 				}

@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-23T05:41:48.850568Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "sculptok",
+  "display_name": "Sculptok",
+  "cli_name": "sculptok-pp-cli",
+  "contributors": [
+    {
+      "handle": "vcolombo",
+      "name": "Vincent Colombo"
+    }
+  ],
+  "printer": "vcolombo",
+  "printer_name": "Vincent Colombo",
+  "spec_path": "sculptok-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:31108683b3fa62d4e031f1514b09b8432563554eaed489767643e1f9722ea564",
+  "run_id": "20260622-164426-352dd01a",
+  "category": "ai",
+  "description": "SculptOK AI depth-map, relief, STL and 3D generation CLI",
+  "mcp_binary": "sculptok-pp-mcp",
+  "mcp_tool_count": 8,
+  "mcp_ready": "full",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "SCULPTOK_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "One-command depth-map generate",
+      "command": "generate depthmap",
+      "description": "Turn a local image into SculptOK depth-map candidates in one command: upload, submit, auto-poll to completion, and download the results."
+    },
+    {
+      "name": "One-command image-to-STL",
+      "command": "generate stl",
+      "description": "Convert a local image straight to a printable STL with full thickness, width, invert, and scale control, polled to completion and saved."
+    },
+    {
+      "name": "One-command 3D model generate",
+      "command": "generate threed",
+      "description": "Generate a 3D model from a local image at basic, standard, or high precision, polled and downloaded automatically."
+    },
+    {
+      "name": "Credit-cost preflight estimator",
+      "command": "cost",
+      "description": "Estimate exactly how many credits a draw or a whole batch would cost and compare it against your live balance before spending anything."
+    },
+    {
+      "name": "Spend analytics by kind and day",
+      "command": "analytics",
+      "description": "Aggregate your locally synced credit events by action type to see where credits actually went."
+    },
+    {
+      "name": "Reconcile credits against jobs",
+      "command": "reconcile",
+      "description": "Cross-check synced credit charges against produced draw jobs to surface credits spent with no matching result."
+    },
+    {
+      "name": "Offline job search",
+      "command": "search",
+      "description": "Full-text search your local mirror of draws and credit events by kind, status, or parameters without any API call."
+    }
+  ]
+}

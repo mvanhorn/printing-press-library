@@ -44,6 +44,7 @@ type ratingsSources struct {
 func newRatingsCmd(flags *rootFlags) *cobra.Command {
 	var flagType string
 	var flagRegion string
+	var flagYear string
 	cmd := &cobra.Command{
 		Use:         "ratings <id-or-title>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
@@ -54,9 +55,16 @@ into a single rating card.
 
 OMDb enrichment is optional: set OMDB_API_KEY in the environment to enable it.
 Without OMDB_API_KEY the IMDb / RT / Metacritic rows render "N/A" but TMDb
-ratings still work.`,
+ratings still work.
+
+A title shared by an original and a remake resolves to whichever TMDb's search
+ranked first, which is not always the canonical edition. When that happens the
+alternatives are listed on stderr and recorded under meta.ambiguous in the JSON;
+pin the one you meant with --year, a "Title (YYYY)" suffix, or the TMDb id.`,
 		Example: `  movie-goat-pp-cli ratings 550
   movie-goat-pp-cli ratings "Fight Club" --json
+  movie-goat-pp-cli ratings "Sabrina" --year 1954
+  movie-goat-pp-cli ratings "Sabrina (1954)"
   movie-goat-pp-cli ratings 1396 --type tv
   movie-goat-pp-cli ratings 550 --json --select title,ratings`,
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -83,13 +91,18 @@ ratings still work.`,
 				return usageErr(fmt.Errorf("--type must be \"movie\" or \"tv\", got %q", flagType))
 			}
 			query := strings.Join(args, " ")
+			// PATCH(title-resolution-must-signal-ambiguity)
+			year, err := validateYearFlag(flagYear)
+			if err != nil {
+				return err
+			}
 
 			out := ratingsOutput{Kind: kind}
 			out.Sources.TMDB = true
 
 			switch kind {
 			case "movie":
-				id, _, err := resolveMovieID(c, query)
+				id, _, err := resolveMovieID(c, flags, query, year, "--year")
 				if err != nil {
 					return classifyAPIError(err)
 				}
@@ -111,7 +124,7 @@ ratings still work.`,
 					out.Ratings.TMDB = fmt.Sprintf("%.1f", detail.VoteAverage)
 				}
 			case "tv":
-				id, _, err := resolveTVID(c, query)
+				id, _, err := resolveTVID(c, flags, query, year, "--year")
 				if err != nil {
 					return classifyAPIError(err)
 				}
@@ -210,6 +223,8 @@ ratings still work.`,
 	}
 	cmd.Flags().StringVar(&flagType, "type", "movie", "Media type: movie or tv")
 	cmd.Flags().StringVar(&flagRegion, "region", "US", "Region code (reserved for future use)")
+	// PATCH(title-resolution-must-signal-ambiguity)
+	cmd.Flags().StringVar(&flagYear, "year", "", "Release year (movies) or first-air year (tv) used to disambiguate a shared title")
 	return cmd
 }
 

@@ -160,9 +160,12 @@ const (
 	// for D6 because the plaintext and encrypted files may share the same
 	// single-use refresh token.
 	TokenSourcePlaintextSupabaseDesktopFallback
-	// TokenSourceStoredAccounts: stored-accounts.json fallback. Refresh
-	// allowed - this surface is rarely populated on modern installs and
-	// is not the canonical token store the desktop tracks.
+	// TokenSourceStoredAccounts: stored-accounts.json fallback. D6: refresh
+	// refused whenever supabase.json.enc is present, because the desktop
+	// owns the account store on any install that also has an encrypted
+	// store - and a desktop key migration means the load now falls through
+	// to this file on exactly those installs. Refresh stays allowed on
+	// genuinely legacy installs that never had an encrypted store.
 	TokenSourceStoredAccounts
 )
 
@@ -179,11 +182,47 @@ var (
 )
 
 // ErrRefreshRefused is returned by RefreshAccessToken when the in-memory
-// token came from supabase.json.enc. Refreshing would invalidate the
-// rotated token Granola desktop still holds on disk, signing the user
+// token came from a store Granola desktop owns. Refreshing would invalidate
+// the rotated token the desktop still holds on disk, signing the user
 // out. Callers should surface the contained message to the user and
-// suggest waking Granola desktop. See plan D6.
+// suggest waking Granola desktop. See plan D6. Refusals for sources other
+// than the encrypted store wrap this sentinel, so match it with errors.Is.
 var ErrRefreshRefused = errors.New("safestorage: refresh refused for encrypted source - open Granola desktop briefly to refresh, then retry")
+
+// refreshRefusedError names the desktop-owned source that blocked a refresh
+// while still matching ErrRefreshRefused via errors.Is, so callers keep the
+// same "wake Granola desktop" handling regardless of which store the token
+// was read from.
+type refreshRefusedError struct{ source string }
+
+func (e *refreshRefusedError) Error() string {
+	return fmt.Sprintf("safestorage: refresh refused for %s source - open Granola desktop briefly to refresh, then retry", e.source)
+}
+
+func (e *refreshRefusedError) Unwrap() error { return ErrRefreshRefused }
+
+// refreshRefusalFor returns the D6 refusal for a desktop-owned token source,
+// or nil when refresh is allowed.
+//
+// PATCH(d6-read-only-applies-to-all-desktop-token-sources): stored-accounts.json
+// is desktop-owned too whenever supabase.json.enc sits beside it. A Granola
+// desktop key migration made that encrypted store undecryptable here, so the
+// stored-accounts fallback is the live path on current installs and its
+// refresh token is the single-use one the desktop still holds - rotating it
+// signs the desktop out. Gating on the encrypted store's presence rather than
+// refusing outright preserves refresh for genuinely legacy installs that never
+// had one.
+func refreshRefusalFor(src TokenSource) error {
+	switch src {
+	case TokenSourceEncryptedSupabase, TokenSourcePlaintextSupabaseDesktopFallback:
+		return ErrRefreshRefused
+	case TokenSourceStoredAccounts:
+		if _, err := os.Stat(supabaseJSONPath() + ".enc"); err == nil {
+			return &refreshRefusedError{source: "stored-accounts"}
+		}
+	}
+	return nil
+}
 
 // SetRefreshHTTPClient swaps the HTTP client used for WorkOS refreshes.
 // Tests use this to inject mocked transports.
@@ -395,24 +434,25 @@ var workosLimiter = cliutil.NewAdaptiveLimiter(2.0)
 // it intends to refresh again (we cache it in-process only - we do not
 // write back to Granola's files).
 //
-// PATCH(encrypted-cache): refuses to refresh when the in-memory token
-// came from supabase.json.enc, or from plaintext supabase.json as a fallback
-// because the encrypted store was Keychain-blocked (D6). Refreshing would
-// mint a new refresh_token and invalidate the one Granola desktop still has
-// on disk, signing the user out next time the desktop tries to refresh.
-// The env override path (GRANOLA_WORKOS_TOKEN) is opt-in: power users
-// who set it accept the desktop-sign-out trade-off. The plaintext
-// supabase.json and stored-accounts.json paths still allow refresh
-// (legacy / rarely populated, not the canonical desktop store).
+// PATCH(encrypted-cache): refuses to refresh when the in-memory token came
+// from a store Granola desktop owns - supabase.json.enc, plaintext
+// supabase.json read as a fallback because the encrypted store was
+// Keychain-blocked, or stored-accounts.json on an install that has an
+// encrypted store (D6). Refreshing would mint a new refresh_token and
+// invalidate the one Granola desktop still has on disk, signing the user out
+// next time the desktop tries to refresh. The env override path
+// (GRANOLA_WORKOS_TOKEN) is opt-in: power users who set it accept the
+// desktop-sign-out trade-off. Legacy plaintext supabase.json and
+// stored-accounts.json installs with no encrypted store still allow refresh.
 func RefreshAccessToken(refreshToken string) (RefreshAccessTokenResponse, error) {
 	// Hold tokenMu across the D6 check so a concurrent loadTokensRaw cannot
-	// flip cachedSource to TokenSourceEncryptedSupabase between the read and
+	// flip cachedSource to a desktop-owned source between the read and
 	// the network call. Single-CLI-invocation processes don't see this race
 	// in practice; long-running agents that call sync concurrently would.
 	tokenMu.Lock()
-	if cachedSource == TokenSourceEncryptedSupabase || cachedSource == TokenSourcePlaintextSupabaseDesktopFallback {
+	if refusal := refreshRefusalFor(cachedSource); refusal != nil {
 		tokenMu.Unlock()
-		return RefreshAccessTokenResponse{}, ErrRefreshRefused
+		return RefreshAccessTokenResponse{}, refusal
 	}
 	tokenMu.Unlock()
 	body, _ := json.Marshal(map[string]string{

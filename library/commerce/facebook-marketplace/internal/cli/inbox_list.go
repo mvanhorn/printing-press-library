@@ -47,6 +47,13 @@ func newInboxListCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
+			if inboxListLooksLikeSellerRoleStub(data) {
+				fallback, fallbackStatus, fallbackErr := c.MarketplaceInboxOverviewFallback()
+				if fallbackErr == nil && len(fallback) > 0 {
+					data = fallback
+					statusCode = fallbackStatus
+				}
+			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")
 				var items []map[string]any
@@ -111,8 +118,26 @@ func newInboxListCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&bodyFbApiReqFriendlyName, "fb-api-req-friendly-name", "CometMarketplaceInboxContentContainerQuery", "Captured Relay operation name.")
-	cmd.Flags().StringVar(&bodyDocId, "doc-id", "8816823481754272", "Captured Relay document id.")
+	cmd.Flags().StringVar(&bodyDocId, "doc-id", "27439893065673498", "Captured Relay document id.")
 	cmd.Flags().StringVar(&bodyVariables, "variables", "{}", "JSON Relay variables.")
 
 	return cmd
+}
+
+func inboxListLooksLikeSellerRoleStub(data []byte) bool {
+	var response struct {
+		Data struct {
+			Viewer struct {
+				MarketplaceSettings struct {
+					PreferredInboxViewerRole string `json:"preferred_inbox_viewer_role"`
+				} `json:"marketplace_settings"`
+				LightspeedWebRequest any `json:"lightspeed_web_request"`
+			} `json:"viewer"`
+		} `json:"data"`
+	}
+	if err := json.Unmarshal(data, &response); err != nil {
+		return false
+	}
+	role := response.Data.Viewer.MarketplaceSettings.PreferredInboxViewerRole
+	return role == "SELLER" && response.Data.Viewer.LightspeedWebRequest == nil && len(data) < 2048
 }

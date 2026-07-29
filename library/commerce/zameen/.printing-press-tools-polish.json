@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-07-24T15:51:05.392306Z",
+  "cli_dir": "\u003ccli-dir\u003e/zameen-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 692,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "Brief but precise: 'learnings list' lists recorded learnings; the command's Example block and mcp:read-only annotation give agents the needed context. Also a DO-NOT-EDIT generated learn-loop file (teach.go) — any richer Short must come from a generator-template fix, not a hand-edit; retro candidate."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-07-24T14:56:46.402323Z"
+  }
+}
