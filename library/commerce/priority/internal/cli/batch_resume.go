@@ -19,8 +19,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"priority-pp-cli/internal/client"
-	"priority-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/commerce/priority/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/commerce/priority/internal/store"
 )
 
 // pp:data-source live

@@ -16,7 +16,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"priority-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/commerce/priority/internal/store"
 )
 
 // readBodyInput resolves the JSON body from --data, @file syntax, or stdin.
