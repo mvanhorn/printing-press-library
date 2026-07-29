@@ -409,8 +409,6 @@ search now exit non-zero and name the Slack error (including the needed scope fo
 - `search --data-source local` does not return messages. `sync` populates the local
   `messages`/`messages_fts` tables, but the local search path never queries them, so it reports
   no results even when the index holds matches. Use the default (live) mode for message search.
-- `files upload` targets Slack's retired `files.upload` endpoint and fails with
-  `method_deprecated`. There is no file-attachment path yet.
 - `auth test` is not registered on the command tree.
 - `sync --resources channels` fails with `unknown_method`; use `conversations` instead.
 

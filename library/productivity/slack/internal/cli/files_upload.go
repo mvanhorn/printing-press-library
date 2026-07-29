@@ -4,7 +4,6 @@
 package cli
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -60,35 +59,52 @@ func newFilesUploadCmd(flags *rootFlags) *cobra.Command {
 		Example: "  slack-pp-cli files upload --file ./report.pdf --channel C0123456789 --title \"Q3 report\"\n" +
 			"  slack-pp-cli files upload --content \"hello\" --filename note.txt --channel C0123456789",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// Resolve the payload and its name before touching the network, so
-			// bad input fails without burning an upload URL.
-			var payload []byte
-			var filename string
+			// Resolve the source and its name before touching the network, so bad
+			// input fails without burning an upload URL.
+			//
+			// The size is taken from stat rather than by reading, and the bytes are
+			// streamed to Slack in step 2, so a large upload does not have to fit in
+			// memory. An earlier version read the whole file with os.ReadFile and then
+			// copied it into a multipart buffer, needing roughly twice the file size
+			// in RAM.
+			var (
+				filename string
+				size     int64
+				openSrc  func() (io.ReadCloser, error)
+			)
 
 			switch {
 			case flagFile != "" && flagContent != "":
 				return fmt.Errorf("--file and --content are mutually exclusive")
 			case flagFile != "":
-				b, err := os.ReadFile(flagFile)
+				info, err := os.Stat(flagFile)
 				if err != nil {
 					return fmt.Errorf("reading --file: %w", err)
 				}
-				payload = b
+				if info.IsDir() {
+					return fmt.Errorf("--file %q is a directory", flagFile)
+				}
+				size = info.Size()
 				filename = flagFilename
 				if filename == "" {
 					filename = filepath.Base(flagFile)
 				}
+				openSrc = func() (io.ReadCloser, error) { return os.Open(flagFile) }
 			case flagContent != "":
-				payload = []byte(flagContent)
+				content := flagContent
+				size = int64(len(content))
 				filename = flagFilename
 				if filename == "" {
 					return fmt.Errorf("--filename is required when using --content")
+				}
+				openSrc = func() (io.ReadCloser, error) {
+					return io.NopCloser(strings.NewReader(content)), nil
 				}
 			default:
 				return fmt.Errorf("one of --file or --content is required")
 			}
 
-			if len(payload) == 0 {
+			if size == 0 {
 				return fmt.Errorf("refusing to upload an empty file")
 			}
 
@@ -116,8 +132,8 @@ func newFilesUploadCmd(flags *rootFlags) *cobra.Command {
 				plan := map[string]any{
 					"dry_run": true,
 					"steps": []map[string]any{
-						{"step": 1, "method": "GET", "path": "/files.getUploadURLExternal", "filename": filename, "length": len(payload)},
-						{"step": 2, "method": "POST", "path": "<upload_url from step 1>", "bytes": len(payload), "authenticated": false},
+						{"step": 1, "method": "GET", "path": "/files.getUploadURLExternal", "filename": filename, "length": size},
+						{"step": 2, "method": "POST", "path": "<upload_url from step 1>", "bytes": size, "authenticated": false},
 						{"step": 3, "method": "POST", "path": "/files.completeUploadExternal", "channel_id": channel, "title": flagTitle, "thread_ts": flagThreadTS},
 					},
 				}
@@ -131,7 +147,7 @@ func newFilesUploadCmd(flags *rootFlags) *cobra.Command {
 			// Step 1 — reserve an upload URL.
 			step1, err := c.Get("/files.getUploadURLExternal", map[string]string{
 				"filename": filename,
-				"length":   strconv.Itoa(len(payload)),
+				"length":   strconv.FormatInt(size, 10),
 			})
 			if err != nil {
 				return classifyAPIError(err)
@@ -147,22 +163,39 @@ func newFilesUploadCmd(flags *rootFlags) *cobra.Command {
 				return fmt.Errorf("files.getUploadURLExternal returned no upload_url or file_id")
 			}
 
-			// Step 2 — send the bytes to the returned URL. Deliberately not via
+			// Step 2 — stream the bytes to the returned URL. Deliberately not via
 			// client.do: different host, and no Authorization header.
-			var form bytes.Buffer
-			mw := multipart.NewWriter(&form)
-			part, err := mw.CreateFormFile("file", filename)
+			//
+			// The multipart body is produced through an io.Pipe so neither the file
+			// nor the encoded form is held in memory — the request body is consumed
+			// as it is generated. Writer-side failures are surfaced by closing the
+			// pipe with the error, which makes httpClient.Do return it.
+			src, err := openSrc()
 			if err != nil {
-				return fmt.Errorf("building upload form: %w", err)
+				return fmt.Errorf("opening upload source: %w", err)
 			}
-			if _, err := part.Write(payload); err != nil {
-				return fmt.Errorf("writing upload form: %w", err)
-			}
-			if err := mw.Close(); err != nil {
-				return fmt.Errorf("closing upload form: %w", err)
-			}
+			defer func() { _ = src.Close() }()
 
-			req, err := http.NewRequestWithContext(cmd.Context(), http.MethodPost, reserved.UploadURL, &form)
+			pr, pw := io.Pipe()
+			mw := multipart.NewWriter(pw)
+			go func() {
+				part, err := mw.CreateFormFile("file", filename)
+				if err != nil {
+					_ = pw.CloseWithError(fmt.Errorf("building upload form: %w", err))
+					return
+				}
+				if _, err := io.Copy(part, src); err != nil {
+					_ = pw.CloseWithError(fmt.Errorf("reading upload source: %w", err))
+					return
+				}
+				if err := mw.Close(); err != nil {
+					_ = pw.CloseWithError(fmt.Errorf("closing upload form: %w", err))
+					return
+				}
+				_ = pw.Close()
+			}()
+
+			req, err := http.NewRequestWithContext(cmd.Context(), http.MethodPost, reserved.UploadURL, pr)
 			if err != nil {
 				return fmt.Errorf("building upload request: %w", err)
 			}

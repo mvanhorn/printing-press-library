@@ -144,8 +144,6 @@ reporting success.
   `messages`/`messages_fts` tables, but the local search path never queries those tables, so
   it reports no results even when the index holds matches. Use the default (live) mode for
   message search.
-- `files upload` targets Slack's retired `files.upload` endpoint and fails with
-  `method_deprecated`. There is no file-attachment path yet.
 - `auth test` is not registered on the command tree.
 - `sync --resources channels` fails with `unknown_method`; use `conversations`.
 
