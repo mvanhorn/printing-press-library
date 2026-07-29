@@ -79,18 +79,25 @@ common mistake, silently loses most large structures.
 				return usageErr(err)
 			}
 
-			subs, attempts, err := runQuery(ctx, cmd, flags, query, &area)
+			subs, attempts, remark, err := runQuery(ctx, cmd, flags, query, &area)
 			if err != nil {
 				return err
 			}
 			if flags.asJSON {
-				return flags.printJSONLive(cmd, map[string]any{
+				// The truncation remark rides inside the document. Printed
+				// ahead of it, as prose, it would make stdout unparseable.
+				payload := map[string]any{
 					"type": ty.Name, "tags": ty.Tags, "origin": origin,
 					"radius_m": radiusM, "subjects": subs,
 					"mirror_attempts": attempts, "note": ty.Note,
-				})
+					"partial": remark != "",
+				}
+				if remark != "" {
+					payload["partial_remark"] = remark
+				}
+				return flags.printJSONLive(cmd, payload)
 			}
-			return renderSubjects(cmd, flags, subs, ty, origin.Label)
+			return renderSubjects(cmd, flags, subs, ty, origin.Label, remark)
 		},
 	}
 	registerSearchFlags(cmd, &o)
@@ -154,11 +161,14 @@ origin, with that distance on each feature as distance_km.
 			if err != nil {
 				return usageErr(err)
 			}
-			subs, _, err := runQuery(ctx, cmd, flags, query, &area)
+			subs, _, remark, err := runQuery(ctx, cmd, flags, query, &area)
 			if err != nil {
 				return err
 			}
-			raw, err := subjects.GeoJSON(subs)
+			// The remark travels inside the document rather than ahead of it:
+			// stdout here is GeoJSON, and a prose line would make it
+			// unparseable for every caller that pipes this into a map.
+			raw, err := subjects.GeoJSONWithRemark(subs, remark)
 			if err != nil {
 				return err
 			}
@@ -174,9 +184,17 @@ origin, with that distance on each feature as distance_km.
 			if flags.asJSON {
 				// --json must emit JSON even when the payload went to a file;
 				// a prose confirmation line breaks any caller parsing stdout.
-				return flags.printJSONLive(cmd, map[string]any{
+				payload := map[string]any{
 					"written": outPth, "count": len(subs), "type": ty.Name,
-				})
+					"partial": remark != "",
+				}
+				if remark != "" {
+					payload["partial_remark"] = remark
+				}
+				return flags.printJSONLive(cmd, payload)
+			}
+			if remark != "" {
+				fmt.Fprintln(cmd.OutOrStdout(), partialNote(remark))
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "wrote %d %s to %s\n", len(subs), pluralizeType(ty.Name, len(subs)), outPth)
 			return nil

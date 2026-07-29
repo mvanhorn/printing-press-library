@@ -246,6 +246,15 @@ func CorridorBBox(lat1, lon1, lat2, lon2, padKM float64) []BBox {
 
 // GeoJSON renders subjects as a FeatureCollection.
 func GeoJSON(subs []Subject) ([]byte, error) {
+	return GeoJSONWithRemark(subs, "")
+}
+
+// GeoJSONWithRemark is GeoJSON with Overpass's truncation remark attached as a
+// FeatureCollection foreign member. The warning printed to stderr at query time
+// is gone the moment the file is opened again a week later, and a truncated
+// export is indistinguishable from a complete one on the map; RFC 7946 allows
+// foreign members, and readers that do not know the key ignore it.
+func GeoJSONWithRemark(subs []Subject, remark string) ([]byte, error) {
 	type feature struct {
 		Type     string         `json:"type"`
 		Geometry map[string]any `json:"geometry"`
@@ -278,9 +287,14 @@ func GeoJSON(subs []Subject) ([]byte, error) {
 	enc := json.NewEncoder(&buf)
 	enc.SetEscapeHTML(false)
 	enc.SetIndent("", "  ")
-	if err := enc.Encode(map[string]any{
+	doc := map[string]any{
 		"type": "FeatureCollection", "features": feats,
-	}); err != nil {
+	}
+	if remark != "" {
+		doc["partial"] = true
+		doc["partial_remark"] = remark
+	}
+	if err := enc.Encode(doc); err != nil {
 		return nil, err
 	}
 	// Encode appends a newline; callers print or write the bytes as-is.

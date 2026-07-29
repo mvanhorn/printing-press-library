@@ -82,6 +82,10 @@ These capabilities aren't available in any other tool for this API.
   overpass-pp-cli mirrors
   ```
 
+- **Check `partial` before you trust a count.** Overpass answers a query that hit its own server-side timeout or memory ceiling with usable elements *plus* a remark — the list is real but it undercounts, and nothing about the results themselves says so. `near --json` and `route --json` set `"partial": true` and `"partial_remark"`; `geojson` puts the same two keys on the FeatureCollection, so a saved `.geojson` still carries the caveat when it is reopened later. When `partial` is true, narrow the radius or raise `--query-timeout` before reporting a number.
+
+  The warning is never printed ahead of a JSON or GeoJSON document — it rides inside it, with a human-readable copy on stderr. Prose on stdout would make the response unparseable for exactly the queries most worth re-reading.
+
 ## Command Reference
 
 **geocoding** — Manage geocoding

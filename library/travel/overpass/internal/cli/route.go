@@ -88,7 +88,7 @@ judge that — check it before committing to a detour.
 				return usageErr(err)
 			}
 
-			subs, attempts, err := runQuery(ctx, cmd, flags, query, nil)
+			subs, attempts, remark, err := runQuery(ctx, cmd, flags, query, nil)
 			if err != nil {
 				return err
 			}
@@ -116,15 +116,25 @@ judge that — check it before committing to a detour.
 			sort.SliceStable(stops, func(i, j int) bool { return stops[i].AlongKM < stops[j].AlongKM })
 
 			if flags.asJSON {
-				return flags.printJSONLive(cmd, map[string]any{
+				// The truncation remark rides inside the document. Printed
+				// ahead of it, as prose, it would make stdout unparseable.
+				payload := map[string]any{
 					"type": ty.Name, "from": start, "to": end,
 					"route_km": total, "corridor_m": padM, "bboxes": boxes,
 					"stops": stops, "mirror_attempts": attempts,
-					"caveat": "corridor is a bounding box around the straight line, not a buffer around the road",
-				})
+					"caveat":  "corridor is a bounding box around the straight line, not a buffer around the road",
+					"partial": remark != "",
+				}
+				if remark != "" {
+					payload["partial_remark"] = remark
+				}
+				return flags.printJSONLive(cmd, payload)
 			}
 
 			out := cmd.OutOrStdout()
+			if remark != "" {
+				fmt.Fprintln(out, partialNote(remark))
+			}
 			fmt.Fprintln(out, bold(fmt.Sprintf("%d %s along the %.0f km between %s and %s",
 				len(stops), pluralizeType(ty.Name, len(stops)), total, from, to)))
 			if len(stops) == 0 {

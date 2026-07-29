@@ -143,7 +143,12 @@ func (o *searchOpts) resolveOrigin(ctx context.Context, cmd *cobra.Command, flag
 // --timeout is a per-request budget; sharing one deadline across every mirror
 // means a single slow host consumes the whole allowance and the remaining
 // mirrors are never tried, which defeats the point of having them.
-func runQuery(ctx context.Context, cmd *cobra.Command, flags *rootFlags, query string, origin *subjects.Area) ([]subjects.Subject, []subjects.Attempt, error) {
+//
+// The third return value is Overpass's own truncation remark, empty when the
+// answer is complete. It is returned rather than printed: `near --json`,
+// `route --json` and `geojson` all write a machine-readable document to stdout,
+// and prose written ahead of it makes that document unparseable.
+func runQuery(ctx context.Context, cmd *cobra.Command, flags *rootFlags, query string, origin *subjects.Area) ([]subjects.Subject, []subjects.Attempt, string, error) {
 	perMirror := flags.timeout
 	if perMirror <= 0 || perMirror > 45*time.Second {
 		// Cap the per-mirror wait. An Overpass instance that has not answered
@@ -155,18 +160,29 @@ func runQuery(ctx context.Context, cmd *cobra.Command, flags *rootFlags, query s
 	if overall > 150*time.Second {
 		overall = 150 * time.Second
 	}
-	ctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), overall)
+	// WithoutCancel drops the caller's per-request DEADLINE, which is the point
+	// of the paragraph above — but it drops cancellation with it, so a Ctrl-C
+	// or an MCP client hanging up would leave the loop working its way through
+	// every mirror for up to `overall`. Re-attach the command's root context,
+	// which carries the interrupt but not the per-request deadline.
+	runCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), overall)
 	defer cancel()
+	// Cobra leaves Context() nil until ExecuteC runs, and RunE is reachable
+	// directly from tests and from the MCP walker.
+	if root := cmd.Context(); root != nil {
+		stop := context.AfterFunc(root, cancel)
+		defer stop()
+	}
 
 	runner := subjects.NewRunner(perMirror)
-	body, attempts, err := runner.Run(ctx, query)
+	body, attempts, err := runner.Run(runCtx, query)
 	if err != nil {
 		// Report what each mirror actually said; a bare failure invites the
 		// user to blame their query when the hosts were simply overloaded.
 		for _, a := range attempts {
 			fmt.Fprintf(cmd.ErrOrStderr(), "  %s: %s\n", a.Mirror, a.Err)
 		}
-		return nil, attempts, apiErr(err)
+		return nil, attempts, "", apiErr(err)
 	}
 	if len(attempts) > 1 && !flags.quiet {
 		fmt.Fprintf(cmd.ErrOrStderr(), "note: %d mirror(s) were unavailable; served by %s\n",
@@ -174,13 +190,12 @@ func runQuery(ctx context.Context, cmd *cobra.Command, flags *rootFlags, query s
 	}
 	subs, remark, err := subjects.ParseElements(body, origin)
 	if err != nil {
-		return nil, attempts, apiErr(err)
+		return nil, attempts, "", apiErr(err)
 	}
 	if remark != "" {
-		// Overpass truncated server-side. Without this the table reads as a
-		// complete answer.
+		// Overpass truncated server-side. stderr only — every caller renders
+		// the remark itself, into whichever shape its stdout is carrying.
 		fmt.Fprintf(cmd.ErrOrStderr(), "warning: Overpass returned partial results — %s\n", remark)
-		fmt.Fprintf(cmd.OutOrStdout(), "note: these results are INCOMPLETE (%s); narrow the radius or raise --query-timeout\n", remark)
 	}
 	sort.SliceStable(subs, func(i, j int) bool {
 		if subs[i].DistanceKM != subs[j].DistanceKM {
@@ -188,12 +203,23 @@ func runQuery(ctx context.Context, cmd *cobra.Command, flags *rootFlags, query s
 		}
 		return subs[i].Name < subs[j].Name
 	})
-	return subs, attempts, nil
+	return subs, attempts, remark, nil
 }
 
-// renderSubjects prints a result table.
-func renderSubjects(cmd *cobra.Command, flags *rootFlags, subs []subjects.Subject, ty subjects.Type, where string) error {
+// partialNote is the human-readable line for an Overpass truncation remark.
+// Callers writing prose to stdout print it; callers writing JSON or GeoJSON
+// carry the raw remark in the document instead.
+func partialNote(remark string) string {
+	return fmt.Sprintf("note: these results are INCOMPLETE (%s); narrow the radius or raise --query-timeout", remark)
+}
+
+// renderSubjects prints a result table. remark carries Overpass's truncation
+// note, printed above the table so the count is never read as complete.
+func renderSubjects(cmd *cobra.Command, flags *rootFlags, subs []subjects.Subject, ty subjects.Type, where, remark string) error {
 	out := cmd.OutOrStdout()
+	if remark != "" {
+		fmt.Fprintln(out, partialNote(remark))
+	}
 	fmt.Fprintln(out, bold(fmt.Sprintf("%d %s near %s", len(subs), pluralizeType(ty.Name, len(subs)), where)))
 	if len(subs) == 0 {
 		fmt.Fprintln(out, "  nothing found. OpenStreetMap coverage is volunteer-contributed and uneven;")

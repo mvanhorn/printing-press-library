@@ -149,6 +149,8 @@ overpass-pp-cli geojson --at "Los Angeles" --type viewpoint --radius 10km --out 
 
 - **The response cache does not cover `near`, `route`, or `geojson`.** Those commands POST to Overpass through their own failover runner rather than the generated HTTP client, so nothing lands in the cache directory and `--no-cache` has nothing to bypass on this path. An identical repeated query re-hits a rate-limiting upstream at full cost. Only the `geocoding` and `overpass` endpoint commands use the cached client.
 
+- **A truncated answer is reported inside the document, never ahead of it.** When Overpass hits its own server-side timeout or memory ceiling it returns usable elements *plus* a remark, and the result undercounts reality. `near --json` and `route --json` carry `"partial": true` and `"partial_remark": "<Overpass's own text>"`; `geojson` carries the same two keys as FeatureCollection foreign members, so a saved `.geojson` still says so when it is reopened. A human-readable line goes to **stderr** in every mode, and to stdout only when stdout is already prose. Nothing is printed ahead of a JSON or GeoJSON document — that would make it unparseable for exactly the responses most worth reading.
+
 - **`near` and `route` regularly take more than 10 seconds.** Each one geocodes through Nominatim and then runs an Overpass query that may fail over across mirrors. Raise `--timeout` rather than assuming a hang, and run `overpass-pp-cli mirrors` when it feels slower than usual.
 
 ## Unique Features
