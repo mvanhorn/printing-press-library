@@ -41,19 +41,35 @@ func newNovelLossPatternsCmd(flags *rootFlags) *cobra.Command {
 		Use:         "loss-patterns [username]",
 		Short:       "Mechanically group official completed-game judgments by opening, performance, and phase.",
 		Example:     "  lichess-pp-cli loss-patterns a-named-player --max 30",
+		Args:        cobra.MaximumNArgs(1),
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) == 0 {
-				return cmd.Help()
+			username := ""
+			if len(args) == 1 {
+				username = args[0]
 			}
 			if dryRunOK(flags) {
-				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"username": args[0], "max_games": maxGames, "dry_run": true}, flags)
+				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"username": username, "max_games": maxGames, "dry_run": true}, flags)
 			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-			report, err := collectLossPatterns(cmd, c, args[0], maxGames)
+			if username == "" {
+				accountData, err := c.Get(cmd.Context(), "/api/account", nil)
+				if err != nil {
+					return classifyAPIError(err, flags)
+				}
+				var account map[string]any
+				if err := json.Unmarshal(accountData, &account); err != nil {
+					return fmt.Errorf("decode account response: %w", err)
+				}
+				username = stringValue(account["id"])
+				if username == "" {
+					return fmt.Errorf("account response did not contain a user id")
+				}
+			}
+			report, err := collectLossPatterns(cmd, c, username, maxGames)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

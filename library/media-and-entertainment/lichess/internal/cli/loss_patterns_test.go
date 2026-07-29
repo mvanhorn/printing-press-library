@@ -45,6 +45,24 @@ func TestNovelLossPatternsHelpWires(t *testing.T) {
 	}
 }
 
+func TestNovelLossPatternsWithoutUsernameUsesOptionalArgumentPath(t *testing.T) {
+	cmd := RootCmd()
+	cmd.SetArgs([]string{"loss-patterns", "--dry-run", "--json"})
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&out)
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("loss-patterns without username dry-run error = %v", err)
+	}
+	var got map[string]any
+	if err := json.Unmarshal(out.Bytes(), &got); err != nil {
+		t.Fatalf("loss-patterns without username output = %q: %v", out.String(), err)
+	}
+	if got["dry_run"] != true || got["username"] != "" {
+		t.Fatalf("loss-patterns without username dry-run = %#v", got)
+	}
+}
+
 func TestCollectLossPatternsCountsOnlyTheRequestedPlayersJudgments(t *testing.T) {
 	data := json.RawMessage(`{"winner":"black","perf":"rapid","opening":{"name":"` + strings.Repeat("x", 70*1024) + `"},"players":{"white":{"user":{"id":"alice"}},"black":{"user":{"id":"bob"}}},"division":{"middle":2,"end":4},"analysis":[{"judgment":{"name":"Inaccuracy"}},{"judgment":{"name":"Good move"}},{"judgment":{"name":"Mistake"}}]}`)
 	client := &fakeGamesClient{data: data}
