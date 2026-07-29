@@ -556,4 +556,4 @@ Parse `$ARGUMENTS`:
 
 **Records deleted in Priority remain in the local mirror**
 
-Sync is additive: upstream deletions are not tombstoned locally. Use `priority-pp-cli reconcile --resource <r>` to detect drift, and re-sync into a fresh mirror (`--db <new-path>` or delete the data file) when exact parity matters.
+Sync is additive: Priority's OData surface has no deletion feed, so upstream deletions are not tombstoned locally. Use `priority-pp-cli reconcile --resource <r>` to detect drift, and `priority-pp-cli reconcile --resource <r> --prune` to delete local rows the tenant no longer returns — pruning runs only after a provably complete live key enumeration (rate-limited; bounded by `--max-scan-pages`).

@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "priority-reconcile-prune",
+  "applied_at": "2026-07-29",
+  "base_run_id": "20260729-080245-fb79e74d",
+  "base_printing_press_version": "4.29.0",
+  "summary": "reconcile --prune deletes local rows absent from a complete live key enumeration, closing the upstream-deletion gap the additive sync framework cannot cover for this API.",
+  "reason": "Priority has no deletion feed and no tenant-scope body column, so the generated flat-reconcile path is unreachable (Greptile P1 on PR #1623); a full keyset sweep gated on provable completeness is the safe alternative.",
+  "files": [
+    "internal/cli/reconcile.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "planted stale rows pruned on both typed-table (parts, 2885-key enumeration) and resources-only (warehouses) paths; incomplete enumeration aborts with zero deletes."
+}
