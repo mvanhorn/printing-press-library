@@ -1170,6 +1170,27 @@ def check_flag_commands(cli_dir: Path, sources: list[Path], cli_binary: str, rep
         for raw_cmd_path, _positional, flags, _surface in extract_cli_invocations(src, cli_binary, cli_dir):
             cmd_path = list(raw_cmd_path)
             path_str = " ".join(cmd_path)
+            # The extractor under-resolves subcommands whose names contain an
+            # underscore — `messages post_message --text` yields cmd_path
+            # ["messages"] with "post_message" left among the positionals — so
+            # flags belonging to the subcommand were attributed to its parent and
+            # reported as "declared elsewhere but not on <parent>".
+            #
+            # check_positional_args already treats this shape as a false positive
+            # (see the snake_case note there), but that only downgraded its own
+            # finding; this check still emitted hard errors.
+            #
+            # Resolve it instead of suppressing it, but only as a fallback once the
+            # parent has been ruled out. Trying the child first would misread
+            # commands that take a resource name positionally — `export messages
+            # --format` and `tail messages --interval` both resolve
+            # ["export", "messages"] to a messages source file, which does not
+            # declare --format or --interval, turning working docs into errors.
+            fallback_path: list[str] | None = None
+            if len(cmd_path) == 1 and _positional and re.match(r"^[a-z][a-z0-9_-]+$", _positional[0]):
+                candidate = cmd_path + [_positional[0]]
+                if find_command_source(cli_dir, candidate)[0]:
+                    fallback_path = candidate
             for raw_flag in flags:
                 flag = raw_flag.lstrip("-")
                 key = (path_str, flag)
@@ -1182,6 +1203,15 @@ def check_flag_commands(cli_dir: Path, sources: list[Path], cli_binary: str, rep
                     continue
                 if cmd_files and flag_declared_via_helper(cli_dir, cmd_files, flag):
                     continue
+                # Parent ruled out — the flag may belong to an under-resolved
+                # subcommand left in the positionals (see fallback_path above).
+                if fallback_path:
+                    sub_files, _, _ = find_command_source(cli_dir, fallback_path)
+                    if sub_files and (
+                        flag_declared_in(sub_files, flag)
+                        or flag_declared_via_helper(cli_dir, sub_files, flag)
+                    ):
+                        continue
                 seen.add(key)
                 if flag_declared_in(all_files, flag):
                     report.findings.append(

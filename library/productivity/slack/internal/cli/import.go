@@ -96,6 +96,14 @@ but do not stop the import.`,
 			}
 
 			fmt.Fprintf(os.Stderr, "Import complete: %d succeeded, %d failed, %d skipped\n", success, failed, skipped)
+			// PATCH(amend-2026-07-25: fail the command when records were rejected) —
+			// detecting per-record failures above only mattered if the exit code moved
+			// with them. Returning nil meant a partial or total import failure exited 0,
+			// so a caller could not distinguish it from a clean run without parsing
+			// stderr. Same silent-success class this patch set exists to remove.
+			if failed > 0 {
+				return apiErr(fmt.Errorf("import completed with %d failed record(s) of %d attempted", failed, success+failed))
+			}
 			return nil
 		},
 	}
