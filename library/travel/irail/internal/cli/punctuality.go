@@ -63,7 +63,9 @@ func newNovelPunctualityCmd(flags *rootFlags) *cobra.Command {
 			"use it for today's live delay; use 'board' or 'route' for that.\n\n" +
 			"Departure, arrival and route captures are separate histories and are never\n" +
 			"aggregated together; pick one with --board-type. Route captures recorded by\n" +
-			"'observe' with --from and --to need --board-type route.\n\n" +
+			"'observe' with --from and --to need --board-type route, and must name the\n" +
+			"destination with --to so several routes out of one origin are not averaged\n" +
+			"into a figure that describes no single journey.\n\n" +
 			"This command never calls the API. It is empty until 'observe' has run.",
 		Example: `  irail-pp-cli punctuality --station Brussels-Central
   irail-pp-cli punctuality --station Brussels-Central --board-type arrival
@@ -82,6 +84,13 @@ func newNovelPunctualityCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				_ = cmd.Usage()
 				return usageErr(err)
+			}
+			// A station is usually the origin of several observed routes.
+			// Averaging them together produces a reliability figure for no
+			// single journey, so a route summary has to name its destination.
+			if boardType == "route" && flagTo == "" {
+				_ = cmd.Usage()
+				return usageErr(fmt.Errorf("--to is required with --board-type route"))
 			}
 
 			ctx, cancel := boundCtx(cmd.Context(), flags)
@@ -250,7 +259,7 @@ func newNovelPunctualityCmd(flags *rootFlags) *cobra.Command {
 	}
 
 	cmd.Flags().StringVar(&flagFrom, "from", "", "Origin station (alias for --station when analysing a route)")
-	cmd.Flags().StringVar(&flagTo, "to", "", "Destination, to restrict to route observations toward it")
+	cmd.Flags().StringVar(&flagTo, "to", "", "Destination: names the route with --board-type route, otherwise filters departures or arrivals by headsign")
 	cmd.Flags().StringVar(&flagStation, "station", "", "Station whose recorded observations to summarise")
 	cmd.Flags().StringVar(&flagVehicle, "vehicle", "", "Restrict to one train, e.g. IC 2843 or BE.NMBS.IC2843")
 	cmd.Flags().StringVar(&flagBoardType, "board-type", "departure", "Which recorded history to summarise: departure, arrival or route")

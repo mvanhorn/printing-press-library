@@ -301,6 +301,59 @@ func TestChangesRejectsRouteWithoutDestination(t *testing.T) {
 	}
 }
 
+// TestPunctualityRejectsRouteWithoutDestination mirrors the changes guard: a
+// station is usually the origin of several observed routes, so a route summary
+// without --to would average unrelated journeys into one reliability figure.
+func TestPunctualityRejectsRouteWithoutDestination(t *testing.T) {
+	_, path := seedStore(t)
+
+	cmd := RootCmd()
+	cmd.SetArgs([]string{"punctuality", "--from", "Ghent-Sint-Pieters", "--board-type", "route", "--db", path, "--json"})
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&out)
+	if err := cmd.Execute(); err == nil {
+		t.Fatalf("route summary without --to succeeded, want a usage error; output:\n%s", out.String())
+	}
+}
+
+// TestPunctualityScopesRouteByDestination is the positive control: once the
+// destination is named, only that route's observations are summarised.
+func TestPunctualityScopesRouteByDestination(t *testing.T) {
+	db, path := seedStore(t)
+	ctx := context.Background()
+
+	origin := canonical("Ghent-Sint-Pieters")
+	now := time.Now().Unix()
+
+	toBrussels := obs("route-bru", now, origin, "route", "BE.NMBS.IC1", 0)
+	toBrussels.Direction = canonical("Brussels-Central")
+	toAntwerp := obs("route-ant", now, origin, "route", "BE.NMBS.IC9", 1200)
+	toAntwerp.Direction = canonical("Antwerp-Central")
+
+	if _, err := db.InsertObservations(ctx, []store.Observation{toBrussels, toAntwerp}); err != nil {
+		t.Fatalf("insert observations: %v", err)
+	}
+
+	out := runPunctuality(t,
+		"--from", "Ghent-Sint-Pieters", "--to", "Brussels-Central",
+		"--board-type", "route", "--db", path, "--json")
+
+	var view punctualityView
+	if err := json.Unmarshal([]byte(out), &view); err != nil {
+		t.Fatalf("decode punctuality output %q: %v", out, err)
+	}
+	if view.Samples != 1 {
+		t.Fatalf("samples = %d, want 1 (destinations out of one origin are being merged)", view.Samples)
+	}
+	if len(view.Trains) != 1 || view.Trains[0].Vehicle != "BE.NMBS.IC1" {
+		t.Fatalf("got %+v, want only the Brussels route train", view.Trains)
+	}
+	if got := view.Trains[0].AvgDelaySec; got != 0 {
+		t.Fatalf("avg delay = %d, want 0 (the Antwerp route leaked in)", got)
+	}
+}
+
 // TestPunctualityRejectsUnknownBoardType guards the flag against silent
 // typos, which would otherwise return an empty history that looks like "no
 // trains were ever late".
