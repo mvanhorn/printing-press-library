@@ -688,3 +688,47 @@ func TestSelectBulkTargetsDoesNotAliasSetMap(t *testing.T) {
 		t.Fatal("mutating a change leaked back into the --set map")
 	}
 }
+
+// A bare, valid invocation of an audit command used to print that command's
+// own help and exit 0. To a shell caller that reads as success; to an agent
+// parsing --json it is prose where data should be, with no error to branch on.
+// Every command here must instead produce a result or fail loudly. Two of them
+// (seo audit, publish preview) legitimately run with no positional argument;
+// the other four need an id and must say so with a non-zero exit.
+func TestNovelCommandsNeverDegradeToHelpWhenInvokedBare(t *testing.T) {
+	// Redirect the whole data surface to a temp dir instead of passing --db.
+	// Passing any flag sets NFlag() > 0, which is exactly the condition the
+	// old guard tested -- a test that passes --db cannot observe the bug.
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	t.Setenv("XDG_DATA_HOME", home+"/data")
+	t.Setenv("XDG_CONFIG_HOME", home+"/config")
+	t.Setenv("XDG_STATE_HOME", home+"/state")
+	t.Setenv("XDG_CACHE_HOME", home+"/cache")
+
+	for _, args := range [][]string{
+		{"seo", "audit"},
+		{"redirects", "audit"},
+		{"publish", "preview"},
+		{"drift"},
+		{"items", "bulk-set"},
+		{"collections", "completeness"},
+	} {
+		name := strings.Join(args, " ")
+		t.Run(name, func(t *testing.T) {
+			root := newRootCmd(&rootFlags{})
+			var out strings.Builder
+			root.SetOut(&out)
+			root.SetErr(&out)
+			root.SilenceUsage = true
+			root.SetArgs(args)
+
+			err := root.Execute()
+			got := out.String()
+			helpShaped := strings.Contains(got, "Examples:") && strings.Contains(got, "Flags:")
+			if err == nil && helpShaped {
+				t.Fatalf("%q printed its own help and returned no error; want a result or an explicit failure", name)
+			}
+		})
+	}
+}

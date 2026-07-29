@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "bare-invocation-must-audit-not-help",
+  "applied_at": "2026-07-28",
+  "base_run_id": "20260728-073020-15799c7c",
+  "base_printing_press_version": "4.29.0",
+  "summary": "A bare, valid audit invocation must produce a result or fail loudly; it must never degrade to printing its own help with exit 0.",
+  "reason": "Six novel commands guarded on zero-args-zero-flags and returned Help(), so the most natural invocation silently did nothing while every flagged invocation worked. Commands needing an id now error non-zero instead.",
+  "files": ["internal/cli/seo_audit.go", "internal/cli/redirects_audit.go", "internal/cli/publish_preview.go", "internal/cli/drift.go", "internal/cli/items_bulk_set.go", "internal/cli/collections_completeness.go", "internal/cli/webflow_novel_behavior_test.go"],
+  "validated_outcome": "Regression test invokes each command truly bare (no flags, XDG redirected); confirmed to fail with the guard reintroduced and pass without it."
+}

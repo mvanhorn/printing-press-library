@@ -73,9 +73,6 @@ headers, so a large batch survives the 60-request-per-minute floor.
 			"pp:happy-args": "--set=category=updates",
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
-				return cmd.Help()
-			}
 			if dryRunOK(flags) {
 				return emitDryRun(cmd, flags, "would select matching CMS items and preview field changes")
 			}

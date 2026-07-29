@@ -78,9 +78,6 @@ bounds that fan-out.
 			"pp:no-error-path-probe": "true",
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
-				return cmd.Help()
-			}
 			if dryRunOK(flags) {
 				return emitDryRun(cmd, flags, "would summarize pending publish changes")
 			}
