@@ -553,3 +553,7 @@ Parse `$ARGUMENTS`:
    priority-pp-cli <command> [subcommand] [args] --agent
    ```
 4. If ambiguous, drill into subcommand help: `priority-pp-cli <command> --help`.
+
+**Records deleted in Priority remain in the local mirror**
+
+Sync is additive: upstream deletions are not tombstoned locally. Use `priority-pp-cli reconcile --resource <r>` to detect drift, and re-sync into a fresh mirror (`--db <new-path>` or delete the data file) when exact parity matters.

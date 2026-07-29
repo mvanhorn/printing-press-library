@@ -43,6 +43,12 @@ func newEntityDeleteCmd(flags *rootFlags) *cobra.Command {
 				return usageErr(fmt.Errorf("keyspec is required\nUsage: %s <%s>", cmd.CommandPath(), "keyspec"))
 			}
 			path = replacePathParam(path, "keyspec", args[1])
+			// Destructive remote delete: honor the CLI's confirmation contract.
+			// --dry-run previews via the client's dry-run path; a real delete
+			// requires the explicit --yes opt-in (no TTY prompt — agent-safe).
+			if !flags.yes && !flags.dryRun {
+				return usageErr(fmt.Errorf("deleting %s(%s) from the live tenant is irreversible; re-run with --yes to confirm, or --dry-run to preview", args[0], args[1]))
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err

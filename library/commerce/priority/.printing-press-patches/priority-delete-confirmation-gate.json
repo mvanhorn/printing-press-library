@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "priority-delete-confirmation-gate",
+  "applied_at": "2026-07-29",
+  "base_run_id": "20260729-080245-fb79e74d",
+  "base_printing_press_version": "4.29.0",
+  "summary": "entity delete and entity subform-delete require --yes (or --dry-run preview) before issuing the remote DELETE.",
+  "reason": "Generated DELETE endpoint commands execute immediately despite the CLI advertising confirmation-control flags (Greptile P1 on PR #1623); remote ERP deletes are irreversible.",
+  "files": [
+    "internal/cli/entity_delete.go",
+    "internal/cli/entity_write.go"
+  ],
+  "validated_outcome": "delete without --yes exits 2 with guidance; --dry-run previews; --yes executes."
+}

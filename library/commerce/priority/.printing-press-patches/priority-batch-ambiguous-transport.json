@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "priority-batch-ambiguous-transport",
+  "applied_at": "2026-07-29",
+  "base_run_id": "20260729-080245-fb79e74d",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Transport-level $batch failures are journaled as ambiguous; batch resume excludes them unless --include-ambiguous is passed.",
+  "reason": "Priority may commit a chunk even when the response is lost; blindly replaying non-idempotent writes would double-execute them (Greptile P1 on PR #1623).",
+  "files": [
+    "internal/cli/batch_resume.go"
+  ],
+  "validated_outcome": "resume of an ambiguous-only journal returns a verification note and replays nothing without the explicit flag."
+}

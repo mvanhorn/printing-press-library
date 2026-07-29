@@ -16,7 +16,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/mvanhorn/printing-press-library/library/commerce/priority/internal/store"
+	"priority-pp-cli/internal/store"
 )
 
 // readBodyInput resolves the JSON body from --data, @file syntax, or stdin.
@@ -313,6 +313,9 @@ func newEntitySubformDeleteCmd(flags *rootFlags) *cobra.Command {
 			if len(args) < 4 {
 				_ = cmd.Usage()
 				return usageErr(fmt.Errorf("form, keyspec, subform, and line are required"))
+			}
+			if !flags.yes && !flags.dryRun {
+				return usageErr(fmt.Errorf("deleting subform line %s(%s)/%s(%s) is irreversible; re-run with --yes to confirm, or --dry-run to preview", args[0], args[1], args[2], args[3]))
 			}
 			ctx, cancel := boundCtx(cmd.Context(), flags)
 			defer cancel()

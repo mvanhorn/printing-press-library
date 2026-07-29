@@ -19,8 +19,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/mvanhorn/printing-press-library/library/commerce/priority/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/commerce/priority/internal/store"
+	"priority-pp-cli/internal/client"
+	"priority-pp-cli/internal/store"
 )
 
 // pp:data-source live
@@ -201,7 +201,7 @@ func runJournaledBatch(cmd *cobra.Command, flags *rootFlags, ops []batchOp, sour
 			// Transport-level failure: mark the whole chunk failed with the error.
 			for i := start; i < end; i++ {
 				if _, uerr := db.DB().ExecContext(ctx,
-					`UPDATE pp_batch_ops SET error = ? WHERE journal_id = ? AND op_index = ?`, truncate(err.Error(), 300), jid, i); uerr != nil {
+					`UPDATE pp_batch_ops SET error = ? WHERE journal_id = ? AND op_index = ?`, "ambiguous-transport: "+truncate(err.Error(), 280), jid, i); uerr != nil {
 					return uerr
 				}
 				view.Failed++
@@ -349,6 +349,7 @@ Op shape: {"method":"POST","url":"FAMILY_LOG","id":"1","body":{...},"dependsOn":
 }
 
 func newNovelBatchResumeCmd(flags *rootFlags) *cobra.Command {
+	var includeAmbiguous bool
 	cmd := &cobra.Command{
 		Use:   "resume <journal-id>",
 		Short: "Re-run only the failed operations from a partially-failed $batch — Priority batches have no rollback",
@@ -403,17 +404,18 @@ or non-2xx, and submits them as a fresh journaled batch.`, "\n"),
 				return usageErr(fmt.Errorf("journal %d was recorded against tenant %s but the current base URL is %s; refusing to replay writes into a different Priority instance", jid, journalTenant, cur))
 			}
 			rows, err := db.DB().QueryContext(ctx,
-				`SELECT op_id, method, url, COALESCE(body,''), COALESCE(headers,''), COALESCE(depends_on,''), COALESCE(atomicity_group,'')
+				`SELECT op_id, method, url, COALESCE(body,''), COALESCE(headers,''), COALESCE(depends_on,''), COALESCE(atomicity_group,''), COALESCE(error,'')
 				 FROM pp_batch_ops WHERE journal_id = ? AND (status IS NULL OR status < 200 OR status >= 300) ORDER BY op_index`, jid)
 			if err != nil {
 				_ = db.Close()
 				return err
 			}
 			var ops []batchOp
+			ambiguousSkipped := 0
 			for rows.Next() {
 				var op batchOp
-				var body, headers, deps, group string
-				if err := rows.Scan(&op.ID, &op.Method, &op.URL, &body, &headers, &deps, &group); err != nil {
+				var body, headers, deps, group, opErr string
+				if err := rows.Scan(&op.ID, &op.Method, &op.URL, &body, &headers, &deps, &group, &opErr); err != nil {
 					_ = rows.Close()
 					_ = db.Close()
 					return err
@@ -428,6 +430,14 @@ or non-2xx, and submits them as a fresh journaled batch.`, "\n"),
 					op.DependsOn = strings.Split(deps, ",")
 				}
 				op.AtomicityGroup = group
+				// Ambiguous transport failures: Priority may have committed the
+				// whole chunk even though the response was lost. Replaying
+				// non-idempotent writes would double-execute them, so these
+				// ops are excluded unless --include-ambiguous is passed.
+				if strings.HasPrefix(opErr, "ambiguous-transport:") && !includeAmbiguous {
+					ambiguousSkipped++
+					continue
+				}
 				ops = append(ops, op)
 			}
 			if err := rows.Err(); err != nil {
@@ -438,8 +448,15 @@ or non-2xx, and submits them as a fresh journaled batch.`, "\n"),
 			_ = rows.Close()
 			_ = db.Close() // runJournaledBatch reopens; avoid two open handles
 
+			if ambiguousSkipped > 0 {
+				fmt.Fprintf(cmd.ErrOrStderr(), "warning: %d op(s) failed at the transport level and were skipped — the server may have already committed them. Verify tenant state (e.g. 'entity get'), then re-run with --include-ambiguous to replay them.\n", ambiguousSkipped)
+			}
 			if len(ops) == 0 {
-				view := batchRunView{JournalID: jid, Note: fmt.Sprintf("journal %d has no failed ops to resume", jid)}
+				note := fmt.Sprintf("journal %d has no failed ops to resume", jid)
+				if ambiguousSkipped > 0 {
+					note = fmt.Sprintf("journal %d has only %d ambiguous transport-failed op(s); verify tenant state and re-run with --include-ambiguous to replay them", jid, ambiguousSkipped)
+				}
+				view := batchRunView{JournalID: jid, Note: note}
 				return printJSONFiltered(cmd.OutOrStdout(), view, flags)
 			}
 			// Strip dependsOn references to ops that succeeded in the original
@@ -466,5 +483,6 @@ or non-2xx, and submits them as a fresh journaled batch.`, "\n"),
 			return runJournaledBatch(cmd, flags, ops, fmt.Sprintf("resume:%d", jid))
 		},
 	}
+	cmd.Flags().BoolVar(&includeAmbiguous, "include-ambiguous", false, "also re-submit ops whose original chunk failed at the transport level (the server may have already committed them — verify before using)")
 	return cmd
 }
