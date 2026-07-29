@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/mvanhorn/printing-press-library/library/productivity/granola/internal/granola"
 	"github.com/mvanhorn/printing-press-library/library/productivity/granola/internal/store"
 	"github.com/spf13/cobra"
 )
@@ -70,14 +69,16 @@ func newDBSchemaCmd(flags *rootFlags) *cobra.Command {
 			if _, err := os.Stat(dbPath); os.IsNotExist(err) {
 				return notFoundErr(fmt.Errorf("no local store at %s — run sync first", dbPath))
 			}
-			s, err := store.OpenWithContext(cmd.Context(), dbPath)
+			// Read-only by contract: inspection must not run migrations,
+			// EnsureSchema, or leave WAL/SHM files behind — least of all on
+			// an arbitrary --db file that may not even be a granola store.
+			// The snapshot open creates no side files at all; the schema
+			// printed is whatever the file actually contains.
+			s, err := store.OpenSnapshot(dbPath)
 			if err != nil {
 				return err
 			}
 			defer s.Close()
-			if err := granola.EnsureSchema(cmd.Context(), s.DB()); err != nil {
-				return err
-			}
 
 			rows, err := s.DB().QueryContext(cmd.Context(),
 				`SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' ORDER BY name`)

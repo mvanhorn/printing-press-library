@@ -107,6 +107,25 @@ func OpenReadOnly(dbPath string) (*Store, error) {
 	return &Store{db: db, path: dbPath}, nil
 }
 
+// OpenSnapshot opens dbPath read-only with immutable=1: SQLite treats the
+// file as a frozen snapshot and creates no -wal/-shm side files, which
+// plain mode=ro still needs on a WAL-mode database. This is the right
+// open for pure inspection of a file the caller may not own (db schema on
+// an arbitrary --db path) — the trade is that a write landing mid-read
+// yields an error or stale rows, never a corrupted file, so keep
+// snapshot connections short-lived and do not use this where a reader
+// must stay coherent with a concurrent writer.
+//
+// PATCH(granola-db-schema-discoverability)
+func OpenSnapshot(dbPath string) (*Store, error) {
+	db, err := sql.Open("sqlite", "file:"+dbPath+"?mode=ro&immutable=1&_pragma=temp_store(MEMORY)")
+	if err != nil {
+		return nil, fmt.Errorf("opening database (snapshot): %w", err)
+	}
+	db.SetMaxOpenConns(1)
+	return &Store{db: db, path: dbPath}, nil
+}
+
 // OpenWithContext opens or creates the SQLite store at dbPath. The
 // context is honored by the migration path: cancellation interrupts the
 // retry-on-SQLITE_BUSY loop and propagates ctx.Err() back to the caller

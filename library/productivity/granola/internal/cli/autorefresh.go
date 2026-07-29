@@ -38,6 +38,8 @@ import (
 //	              : no data dependency
 //	profile       : profile management is local-only
 //	feedback      : feedback is local-only (or remote-but-not-data)
+//	db            : store inspection is read-only by contract; refreshing
+//	                first would mutate the very state being inspected
 //
 // Names match cobra Use:; aliases (e.g. "sync-api") are matched as-is.
 var noRefreshCommands = map[string]struct{}{
@@ -52,6 +54,7 @@ var noRefreshCommands = map[string]struct{}{
 	"profile":       {},
 	"feedback":      {},
 	"which":         {},
+	"db":            {},
 }
 
 // refreshSurface labels which auth path a refreshResult came from so
