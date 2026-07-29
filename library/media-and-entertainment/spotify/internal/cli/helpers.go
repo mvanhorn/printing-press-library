@@ -1383,6 +1383,10 @@ func compactListFields(items []map[string]any) json.RawMessage {
 		// Identity
 		"id": true, "name": true, "title": true, "identifier": true,
 		"code": true, "slug": true, "key": true,
+		// `which --agent` match items are {entry, score}: entry carries the
+		// command and description the score refers to. Dropping it leaves a
+		// list of bare scores, so it rides the identity allowlist.
+		"entry": true,
 		// Categorization
 		"status": true, "state": true, "type": true, "kind": true, "priority": true,
 		// Communication

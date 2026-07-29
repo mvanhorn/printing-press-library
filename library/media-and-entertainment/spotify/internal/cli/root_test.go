@@ -312,6 +312,14 @@ func TestFilterFields(t *testing.T) {
 			input: deepEnvelope,
 			want:  deepEnvelope,
 		},
+		{
+			// `which --agent` matches are {entry, score}. entry is the
+			// identity of the match — dropping it under compaction leaves a
+			// list of bare scores that identify nothing.
+			name:  "compact which matches keep entry alongside score",
+			input: `{"matches":[{"entry":{"command":"search","description":"find tracks"},"score":3}]}`,
+			want:  `{"matches":[{"entry":{"command":"search","description":"find tracks"},"score":3}]}`,
+		},
 	}
 	for _, tc := range compactCases {
 		tc := tc
