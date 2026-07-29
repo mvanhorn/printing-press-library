@@ -20,6 +20,7 @@ func newNovelRevenueRollupCmd(flags *rootFlags) *cobra.Command {
 	var flagMonth string
 	var flagFrom string
 	var flagTo string
+	var flagMaxPages string
 
 	cmd := &cobra.Command{
 		Use:   "revenue-rollup",
@@ -29,7 +30,9 @@ func newNovelRevenueRollupCmd(flags *rootFlags) *cobra.Command {
 			"entries (and requires an explicit start/end date); this paginates the range and\n" +
 			"aggregates per group and currency in one command.\n\n" +
 			"Live command (needs a valid token). Defaults to the last 365 days unless --month\n" +
-			"or --from/--to is given.",
+			"or --from/--to is given. Scanning stops after --max-pages pages of 100 records;\n" +
+			"when that cap cuts the ledger short the output sets truncated=true and a warning\n" +
+			"goes to stderr, so partial totals are never presented as complete.",
 		Example:     "  hostex-pp-cli revenue-rollup --by property --month 2026-06 --agent",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -46,6 +49,13 @@ func newNovelRevenueRollupCmd(flags *rootFlags) *cobra.Command {
 			}
 			if by != "property" && by != "month" {
 				return usageErr(fmt.Errorf("--by must be 'property' or 'month'"))
+			}
+			maxPages, err := strconv.Atoi(strings.TrimSpace(flagMaxPages))
+			if err != nil || maxPages <= 0 {
+				return usageErr(fmt.Errorf("--max-pages must be a positive integer"))
+			}
+			if cliutil.IsDogfoodEnv() {
+				maxPages = 1
 			}
 
 			// Resolve the [start,end] date range.
@@ -76,11 +86,6 @@ func newNovelRevenueRollupCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			maxPages := 50
-			if cliutil.IsDogfoodEnv() {
-				maxPages = 1
-			}
-
 			type agg struct {
 				Group    string  `json:"group"`
 				Currency string  `json:"currency,omitempty"`
@@ -89,15 +94,18 @@ func newNovelRevenueRollupCmd(flags *rootFlags) *cobra.Command {
 				Net      float64 `json:"net"`
 				Count    int     `json:"count"`
 			}
+			const pageSize = 100
 			groups := map[string]*agg{}
 			scanned := 0
+			reportedTotal := 0
+			hitPageCap := false
 
 			for page := 0; page < maxPages; page++ {
 				params := map[string]string{
 					"start_date": start,
 					"end_date":   end,
-					"offset":     strconv.Itoa(page * 100),
-					"limit":      "100",
+					"offset":     strconv.Itoa(page * pageSize),
+					"limit":      strconv.Itoa(pageSize),
 				}
 				raw, err := c.Get(ctx, "/transactions", params)
 				if err != nil {
@@ -109,6 +117,9 @@ func newNovelRevenueRollupCmd(flags *rootFlags) *cobra.Command {
 				}
 				if err := json.Unmarshal(novUnwrapData(raw), &resp); err != nil {
 					return fmt.Errorf("decoding transactions page %d: %w", page, err)
+				}
+				if resp.Total > reportedTotal {
+					reportedTotal = resp.Total
 				}
 				if len(resp.Transactions) == 0 {
 					break
@@ -151,8 +162,26 @@ func newNovelRevenueRollupCmd(flags *rootFlags) *cobra.Command {
 					a.Net = a.Income - a.Expense
 					a.Count++
 				}
-				if len(resp.Transactions) < 100 {
+				if len(resp.Transactions) < pageSize {
 					break
+				}
+				// A full page on the last allowed iteration means the ledger
+				// almost certainly continues past the cap.
+				if page == maxPages-1 {
+					hitPageCap = true
+				}
+			}
+
+			truncated := revenueScanTruncated(scanned, reportedTotal, hitPageCap)
+			if truncated {
+				if reportedTotal > 0 {
+					fmt.Fprintf(cmd.ErrOrStderr(),
+						"warning: scanned %d of %d transactions before hitting the %d-page cap; income, expense and net are understated. Re-run with a larger --max-pages or a narrower date range.\n",
+						scanned, reportedTotal, maxPages)
+				} else {
+					fmt.Fprintf(cmd.ErrOrStderr(),
+						"warning: hit the %d-page cap after %d transactions and the ledger may continue; income, expense and net may be understated. Re-run with a larger --max-pages or a narrower date range.\n",
+						maxPages, scanned)
 				}
 			}
 
@@ -164,15 +193,21 @@ func newNovelRevenueRollupCmd(flags *rootFlags) *cobra.Command {
 				return rows[i].Net > rows[j].Net
 			})
 
+			// `truncated` is always emitted (no omitempty): an agent reading
+			// this JSON must see an explicit false before trusting the totals.
 			view := struct {
 				By                  string `json:"by"`
 				Range               string `json:"range"`
 				ScannedTransactions int    `json:"scanned_transactions"`
+				TotalTransactions   int    `json:"total_transactions,omitempty"`
+				Truncated           bool   `json:"truncated"`
 				Groups              []agg  `json:"groups"`
 			}{
 				By:                  by,
 				Range:               start + ".." + end,
 				ScannedTransactions: scanned,
+				TotalTransactions:   reportedTotal,
+				Truncated:           truncated,
 				Groups:              rows,
 			}
 			return novEmit(cmd, flags, view)
@@ -182,5 +217,18 @@ func newNovelRevenueRollupCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagMonth, "month", "", "Single month, format YYYY-MM (e.g. 2026-06)")
 	cmd.Flags().StringVar(&flagFrom, "from", "", "Range start date YYYY-MM-DD (use with --to)")
 	cmd.Flags().StringVar(&flagTo, "to", "", "Range end date YYYY-MM-DD (use with --from)")
+	cmd.Flags().StringVar(&flagMaxPages, "max-pages", "50", "Max 100-record pages to scan; output sets truncated=true when the cap is hit")
 	return cmd
+}
+
+// revenueScanTruncated reports whether the ledger scan stopped short of the
+// full result set, so the caller never presents partial sums as complete.
+// reportedTotal is the API's `total` and is authoritative whenever it is
+// present (> 0); Hostex does not always populate it, so hitPageCap — set when
+// the last allowed page came back full — is the fallback signal.
+func revenueScanTruncated(scanned, reportedTotal int, hitPageCap bool) bool {
+	if reportedTotal > 0 {
+		return scanned < reportedTotal
+	}
+	return hitPageCap
 }

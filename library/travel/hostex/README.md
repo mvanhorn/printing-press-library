@@ -198,6 +198,8 @@ These capabilities aren't available in any other tool for this API.
   hostex-pp-cli revenue-rollup --by property --month 2026-06 --agent
   ```
 
+  The scan stops after `--max-pages` pages of 100 ledger entries (default 50, so 5,000). When the range holds more than that, the output sets `truncated: true` and a warning goes to stderr rather than quietly understating the totals — re-run with a larger `--max-pages` or a narrower range.
+
 ## Recipes
 
 
@@ -224,6 +226,14 @@ hostex-pp-cli search "refund" --type conversations --db ./hostex.db
 ```
 
 After sync, full-text search runs locally with no API call and no rate-limit cost.
+
+### Confirm a revenue rollup is complete before reporting it
+
+```bash
+hostex-pp-cli revenue-rollup --by month --from 2026-01-01 --to 2026-12-31 --max-pages 200 --agent
+```
+
+The ledger scan is capped so a high-volume account can't pin the CLI. Read `truncated` before trusting the numbers: `true` means the range outran the cap and income, expense and net are all understated. Raise `--max-pages` or narrow the range until it reads `false`.
 
 ## Usage
 
