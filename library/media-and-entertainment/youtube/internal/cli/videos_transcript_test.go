@@ -106,6 +106,57 @@ func TestTranscriptCacheFallbackAlias(t *testing.T) {
 	}
 }
 
+// TestAliasUpgradeTrack covers the staleness guard on fallback alias rows:
+// when the video later gains captions in the requested language, an alias
+// cache hit must upgrade to the genuine track; when nothing changed, or the
+// track list is unreachable (offline), it must keep serving the cache.
+func TestAliasUpgradeTrack(t *testing.T) {
+	t.Run("requested language appeared after the fallback", func(t *testing.T) {
+		tracks := []captionTrack{
+			{LanguageCode: "it", Kind: "asr"},
+			{LanguageCode: "en", Kind: "asr"},
+		}
+		got, found := aliasUpgradeTrack(tracks, nil, "en")
+		if !found {
+			t.Fatal("want upgrade when the requested language is now available")
+		}
+		if got.LanguageCode != "en" {
+			t.Fatalf("upgrade picked %q, want en", got.LanguageCode)
+		}
+	})
+
+	t.Run("prefers manual over asr when upgrading", func(t *testing.T) {
+		tracks := []captionTrack{
+			{LanguageCode: "it", Kind: "asr"},
+			{LanguageCode: "en", Kind: "asr"},
+			{LanguageCode: "en", Kind: ""},
+		}
+		got, found := aliasUpgradeTrack(tracks, nil, "en")
+		if !found || got.Kind == "asr" {
+			t.Fatalf("want manual en track; got found=%v kind=%q", found, got.Kind)
+		}
+	})
+
+	t.Run("still no requested-language track keeps serving cache", func(t *testing.T) {
+		tracks := []captionTrack{{LanguageCode: "it", Kind: "asr"}}
+		if _, found := aliasUpgradeTrack(tracks, nil, "en"); found {
+			t.Fatal("want cache-serve when the requested language is still absent")
+		}
+	})
+
+	t.Run("track-list fetch failure (offline) keeps serving cache", func(t *testing.T) {
+		if _, found := aliasUpgradeTrack(nil, context.DeadlineExceeded, "en"); found {
+			t.Fatal("want cache-serve when the track list is unreachable")
+		}
+	})
+
+	t.Run("empty track list keeps serving cache", func(t *testing.T) {
+		if _, found := aliasUpgradeTrack(nil, nil, "en"); found {
+			t.Fatal("want cache-serve on an empty track list")
+		}
+	})
+}
+
 func TestRenderTranscript(t *testing.T) {
 	r := &transcriptResult{
 		VideoID:  "abc123def45",

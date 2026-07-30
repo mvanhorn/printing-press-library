@@ -11,7 +11,7 @@
     "internal/cli/videos_transcript.go",
     "internal/cli/root.go"
   ],
-  "validated_outcome": "No-key search exits 4 with the remediation hint; it-only video EX0Kz0SpqFs transcribes with default flags (fallback noted on stderr) and renders --format markdown/text; a second default-lang run is a pure cache hit (fallback writes the row under both the resolved language and the requested default key); explicit --lang en still exits 5 and never accepts the alias row; --limit and top-level `search` work. The `search` alias is mcp:hidden so the MCP tool surface is unchanged.",
+  "validated_outcome": "No-key search exits 4 with the remediation hint; it-only video EX0Kz0SpqFs transcribes with default flags (fallback noted on stderr) and renders --format markdown/text; a second default-lang run serves from cache — normal rows with zero requests, fallback alias rows after a single track-list revalidation that upgrades to requested-language captions published later (and degrades to the cache offline); explicit --lang en still exits 5 and never accepts the alias row; --limit and top-level `search` work. The `search` alias is mcp:hidden so the MCP tool surface is unchanged.",
   "patch_count": 3,
   "findings_addressed": ["F1", "F2", "F3", "F4", "F5"]
 }

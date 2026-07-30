@@ -148,11 +148,41 @@ func newYoutubeVideosTranscriptCmd(flags *rootFlags) *cobra.Command {
 			langExplicit := cmd.Flags().Changed("lang")
 			if !noCache {
 				if cached, ok := readTranscriptCache(ctx, videoID, lang); ok && cachedTranscriptUsable(cached, lang, langExplicit) {
-					if !langMatches(cached.Language, lang) {
-						fmt.Fprintf(cmd.ErrOrStderr(), "(no %q captions; using cached %s transcript)\n", lang, cached.Language)
+					if langMatches(cached.Language, lang) {
+						// Normal row: the cache holds exactly what was
+						// asked for. Serve it with zero requests.
+						fmt.Fprintln(cmd.ErrOrStderr(), "(from cache)")
+						return renderTranscript(cmd.OutOrStdout(), cached, format)
 					}
-					fmt.Fprintln(cmd.ErrOrStderr(), "(from cache)")
-					return renderTranscript(cmd.OutOrStdout(), cached, format)
+					// Alias row: the cache holds a fallback substitute, not
+					// the requested language. Revalidate the track list with
+					// a single player request so captions published in the
+					// requested language after the fallback replace the
+					// substitute instead of being masked forever. On any
+					// fetch failure (offline included) serve the cache.
+					tracks, terr := fetchCaptionTracks(ctx, videoID)
+					upgrade, found := aliasUpgradeTrack(tracks, terr, lang)
+					if !found {
+						fmt.Fprintf(cmd.ErrOrStderr(), "(no %q captions; using cached %s transcript)\n", lang, cached.Language)
+						fmt.Fprintln(cmd.ErrOrStderr(), "(from cache)")
+						return renderTranscript(cmd.OutOrStdout(), cached, format)
+					}
+					kind := "manual"
+					if upgrade.Kind == "asr" {
+						kind = "asr"
+					}
+					result, ferr := fetchJSON3Transcript(ctx, upgrade, videoID, lang, kind)
+					if ferr != nil {
+						fmt.Fprintf(cmd.ErrOrStderr(), "(%q captions exist but fetching them failed: %v; using cached %s transcript)\n", lang, ferr, cached.Language)
+						fmt.Fprintln(cmd.ErrOrStderr(), "(from cache)")
+						return renderTranscript(cmd.OutOrStdout(), cached, format)
+					}
+					// Replace the alias row with the genuine transcript:
+					// the INSERT OR REPLACE under the requested key
+					// overwrites the substitute.
+					fmt.Fprintf(cmd.ErrOrStderr(), "(%q captions now available; replacing cached %s fallback)\n", lang, cached.Language)
+					writeTranscriptCache(ctx, result)
+					return renderTranscript(cmd.OutOrStdout(), result, format)
 				}
 			}
 
@@ -193,7 +223,8 @@ func newYoutubeVideosTranscriptCmd(flags *rootFlags) *cobra.Command {
 			// a transcript cached by an earlier run (e.g. an explicit
 			// --lang run, or a pre-alias version of this CLI) is reused
 			// instead of re-fetched — and backfill the alias row so the next
-			// default-lang invocation hits the cache without any network.
+			// default-lang invocation serves from cache (after the single
+			// track-list revalidation that guards alias staleness above).
 			if effLang != lang && !noCache {
 				if cached, ok := readTranscriptCache(ctx, videoID, effLang); ok {
 					writeTranscriptCache(ctx, cached, lang)
@@ -675,6 +706,23 @@ func writeTranscriptCache(ctx context.Context, result *transcriptResult, cacheKe
 			`INSERT OR REPLACE INTO transcripts (video_id, lang, kind, json, fetched_at) VALUES (?, ?, ?, ?, ?)`,
 			result.VideoID, key, result.Kind, blob, time.Now().Unix())
 	}
+}
+
+// aliasUpgradeTrack decides what to do on a cache hit against a fallback
+// alias row. It returns (track, true) when the requested language is now
+// available upstream and the cached substitute should be replaced with the
+// genuine transcript; it returns (nil, false) — keep serving the cached
+// substitute — when the track list could not be fetched (offline included)
+// or still contains no requested-language track.
+func aliasUpgradeTrack(tracks []captionTrack, fetchErr error, lang string) (*captionTrack, bool) {
+	if fetchErr != nil || len(tracks) == 0 {
+		return nil, false
+	}
+	picked, err := pickCaptionTrack(tracks, lang)
+	if err != nil {
+		return nil, false
+	}
+	return picked, true
 }
 
 // cachedTranscriptUsable reports whether a cached row satisfies this
