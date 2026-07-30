@@ -4,6 +4,7 @@ package cli
 
 import (
 	"context"
+	"errors"
 	"strings"
 	"testing"
 )
@@ -145,8 +146,18 @@ func TestAliasUpgradeTrack(t *testing.T) {
 	})
 
 	t.Run("track-list fetch failure (offline) keeps serving cache", func(t *testing.T) {
-		if _, found := aliasUpgradeTrack(nil, context.DeadlineExceeded, "en"); found {
+		if _, found := aliasUpgradeTrack(nil, errors.New("innertube request failed: no route to host"), "en"); found {
 			t.Fatal("want cache-serve when the track list is unreachable")
+		}
+	})
+
+	t.Run("probe deadline exceeded (slow upstream) keeps serving cache", func(t *testing.T) {
+		// The revalidation probe runs under its own short deadline
+		// (aliasRevalidateTimeout); a slow YouTube surfaces here as
+		// context.DeadlineExceeded and must fall back to the cache
+		// instead of blocking the invocation.
+		if _, found := aliasUpgradeTrack(nil, context.DeadlineExceeded, "en"); found {
+			t.Fatal("want cache-serve when the probe deadline is exceeded")
 		}
 	})
 

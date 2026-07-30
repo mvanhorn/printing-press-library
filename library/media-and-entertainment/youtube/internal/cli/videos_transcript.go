@@ -45,6 +45,13 @@ const (
 	watchPageUserAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"
 )
 
+// aliasRevalidateTimeout bounds the track-list probe that guards fallback
+// alias cache hits against staleness. A cache hit must stay fast: when
+// YouTube is slow or unreachable the probe fails within this deadline and
+// the cached substitute is served, instead of every default invocation
+// hanging for the full 15s HTTP client timeout.
+const aliasRevalidateTimeout = 3 * time.Second
+
 type transcriptSegment struct {
 	StartMs    int64  `json:"start_ms"`
 	DurationMs int64  `json:"duration_ms"`
@@ -158,9 +165,14 @@ func newYoutubeVideosTranscriptCmd(flags *rootFlags) *cobra.Command {
 					// the requested language. Revalidate the track list with
 					// a single player request so captions published in the
 					// requested language after the fallback replace the
-					// substitute instead of being masked forever. On any
-					// fetch failure (offline included) serve the cache.
-					tracks, terr := fetchCaptionTracks(ctx, videoID)
+					// substitute instead of being masked forever. The probe
+					// carries its own short deadline: a cache hit must stay
+					// fast, so when YouTube is slow or unreachable the probe
+					// gives up quickly and the cached substitute is served
+					// (same degraded path as any other fetch failure).
+					probeCtx, probeCancel := context.WithTimeout(ctx, aliasRevalidateTimeout)
+					tracks, terr := fetchCaptionTracks(probeCtx, videoID)
+					probeCancel()
 					upgrade, found := aliasUpgradeTrack(tracks, terr, lang)
 					if !found {
 						fmt.Fprintf(cmd.ErrOrStderr(), "(no %q captions; using cached %s transcript)\n", lang, cached.Language)
