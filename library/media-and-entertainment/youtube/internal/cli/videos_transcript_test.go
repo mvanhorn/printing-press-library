@@ -3,6 +3,7 @@
 package cli
 
 import (
+	"context"
 	"strings"
 	"testing"
 )
@@ -48,6 +49,61 @@ func TestPickSoleLanguageTrack(t *testing.T) {
 			t.Fatal("want error for empty track set")
 		}
 	})
+}
+
+// TestTranscriptCacheFallbackAlias covers the fallback cache-key contract:
+// a first default-lang run that fell back to the sole non-English track
+// writes the row under both the resolved language and the requested default
+// key, so a second default-lang run is a pure cache hit (no network) —
+// while an explicit --lang that doesn't match still refuses the alias row.
+func TestTranscriptCacheFallbackAlias(t *testing.T) {
+	t.Setenv("HOME", t.TempDir()) // isolate the on-disk cache DB
+	ctx := context.Background()
+
+	res := &transcriptResult{
+		VideoID:  "vid1234abcd",
+		Language: "it",
+		Kind:     "asr",
+		Segments: []transcriptSegment{{StartMs: 0, DurationMs: 1000, Text: "ciao"}},
+		Text:     "ciao",
+	}
+
+	// First default-lang (--lang en) run: fallback resolved "it"; the
+	// write-through stores the resolved key plus the requested default key.
+	writeTranscriptCache(ctx, res, "it", "en")
+
+	// Second default-lang run: the lookup under the default key must hit.
+	cached, ok := readTranscriptCache(ctx, "vid1234abcd", "en")
+	if !ok {
+		t.Fatal("want cache hit under the default key after fallback aliasing")
+	}
+	if cached.Language != "it" {
+		t.Fatalf("alias row must keep the true language; got %q", cached.Language)
+	}
+	if !cachedTranscriptUsable(cached, "en", false) {
+		t.Fatal("default-lang request must accept the fallback alias row")
+	}
+
+	// An explicit --lang en must not be satisfied by the Italian alias row.
+	if cachedTranscriptUsable(cached, "en", true) {
+		t.Fatal("explicit --lang en must reject an alias row whose language is it")
+	}
+
+	// An explicit --lang it hits the primary row and is usable.
+	cachedIt, ok := readTranscriptCache(ctx, "vid1234abcd", "it")
+	if !ok {
+		t.Fatal("want cache hit under the resolved language key")
+	}
+	if !cachedTranscriptUsable(cachedIt, "it", true) {
+		t.Fatal("explicit --lang it must accept the primary row")
+	}
+
+	// Historical single-key behavior is preserved when no keys are passed.
+	res2 := &transcriptResult{VideoID: "vid5678efgh", Language: "en", Kind: "manual", Segments: res.Segments, Text: "hi"}
+	writeTranscriptCache(ctx, res2)
+	if _, ok := readTranscriptCache(ctx, "vid5678efgh", "en"); !ok {
+		t.Fatal("want cache hit under the result's own language when no keys passed")
+	}
 }
 
 func TestRenderTranscript(t *testing.T) {

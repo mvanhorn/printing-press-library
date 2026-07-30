@@ -141,9 +141,16 @@ func newYoutubeVideosTranscriptCmd(flags *rootFlags) *cobra.Command {
 			ctx, cancel := context.WithTimeout(cmd.Context(), 20*time.Second)
 			defer cancel()
 
-			// 1. Cache lookup unless --no-cache
+			// 1. Cache lookup unless --no-cache. Alias rows written after a
+			// language fallback carry the resolved language under the
+			// requested (default) key; they satisfy default-lang requests
+			// but must not satisfy an explicit --lang that doesn't match.
+			langExplicit := cmd.Flags().Changed("lang")
 			if !noCache {
-				if cached, ok := readTranscriptCache(ctx, videoID, lang); ok {
+				if cached, ok := readTranscriptCache(ctx, videoID, lang); ok && cachedTranscriptUsable(cached, lang, langExplicit) {
+					if !langMatches(cached.Language, lang) {
+						fmt.Fprintf(cmd.ErrOrStderr(), "(no %q captions; using cached %s transcript)\n", lang, cached.Language)
+					}
 					fmt.Fprintln(cmd.ErrOrStderr(), "(from cache)")
 					return renderTranscript(cmd.OutOrStdout(), cached, format)
 				}
@@ -165,7 +172,7 @@ func newYoutubeVideosTranscriptCmd(flags *rootFlags) *cobra.Command {
 			effLang := lang
 			picked, perr := pickCaptionTrack(tracks, lang)
 			if perr != nil {
-				if cmd.Flags().Changed("lang") {
+				if langExplicit {
 					return apiErr(perr)
 				}
 				fallback, fberr := pickSoleLanguageTrack(tracks)
@@ -181,14 +188,34 @@ func newYoutubeVideosTranscriptCmd(flags *rootFlags) *cobra.Command {
 				kind = "asr"
 			}
 
+			// 3b. The fallback resolved a different language than the cache
+			// lookup key. Re-check the cache under the resolved language so
+			// a transcript cached by an earlier run (e.g. an explicit
+			// --lang run, or a pre-alias version of this CLI) is reused
+			// instead of re-fetched — and backfill the alias row so the next
+			// default-lang invocation hits the cache without any network.
+			if effLang != lang && !noCache {
+				if cached, ok := readTranscriptCache(ctx, videoID, effLang); ok {
+					writeTranscriptCache(ctx, cached, lang)
+					fmt.Fprintln(cmd.ErrOrStderr(), "(from cache)")
+					return renderTranscript(cmd.OutOrStdout(), cached, format)
+				}
+			}
+
 			// 4. Fetch the json3 transcript.
 			result, ferr := fetchJSON3Transcript(ctx, picked, videoID, effLang, kind)
 			if ferr != nil {
 				return apiErr(ferr)
 			}
 
-			// 5. Write-through cache (best effort)
-			writeTranscriptCache(ctx, result)
+			// 5. Write-through cache (best effort). After a fallback, write
+			// the row under both the resolved language and the requested
+			// (default) key so subsequent default-lang runs hit the cache.
+			cacheKeys := []string{effLang}
+			if effLang != lang {
+				cacheKeys = append(cacheKeys, lang)
+			}
+			writeTranscriptCache(ctx, result, cacheKeys...)
 
 			return renderTranscript(cmd.OutOrStdout(), result, format)
 		},
@@ -624,7 +651,13 @@ func readTranscriptCache(ctx context.Context, videoID, lang string) (*transcript
 	return &result, true
 }
 
-func writeTranscriptCache(ctx context.Context, result *transcriptResult) {
+// writeTranscriptCache stores the result under one or more cache keys.
+// With no explicit keys it uses the result's own language (the historical
+// behavior). After a language fallback the caller passes both the resolved
+// language and the requested default so future default-lang lookups hit.
+// The stored blob always carries the true Language; the key is only the
+// lookup handle.
+func writeTranscriptCache(ctx context.Context, result *transcriptResult, cacheKeys ...string) {
 	db, err := transcriptDB(ctx)
 	if err != nil {
 		return
@@ -634,7 +667,27 @@ func writeTranscriptCache(ctx context.Context, result *transcriptResult) {
 	if err != nil {
 		return
 	}
-	_, _ = db.DB().ExecContext(ctx,
-		`INSERT OR REPLACE INTO transcripts (video_id, lang, kind, json, fetched_at) VALUES (?, ?, ?, ?, ?)`,
-		result.VideoID, result.Language, result.Kind, blob, time.Now().Unix())
+	if len(cacheKeys) == 0 {
+		cacheKeys = []string{result.Language}
+	}
+	for _, key := range cacheKeys {
+		_, _ = db.DB().ExecContext(ctx,
+			`INSERT OR REPLACE INTO transcripts (video_id, lang, kind, json, fetched_at) VALUES (?, ?, ?, ?, ?)`,
+			result.VideoID, key, result.Kind, blob, time.Now().Unix())
+	}
+}
+
+// cachedTranscriptUsable reports whether a cached row satisfies this
+// request. Default-lang requests accept whatever the row resolved to
+// (including fallback alias rows); an explicit --lang only accepts a row
+// whose actual language matches, so an alias row can never mask the
+// "no caption track matches" contract of an explicit request.
+func cachedTranscriptUsable(cached *transcriptResult, lang string, explicit bool) bool {
+	if cached == nil {
+		return false
+	}
+	if !explicit {
+		return true
+	}
+	return langMatches(cached.Language, lang)
 }
