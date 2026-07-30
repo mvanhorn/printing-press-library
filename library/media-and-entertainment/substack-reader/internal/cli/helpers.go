@@ -17,6 +17,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -1084,10 +1085,18 @@ func printOutputWithFlagsMeta(w io.Writer, data json.RawMessage, flags *rootFlag
 // compactVerboseListFields are prose-shaped fields stripped from list-item
 // projections. On lists, "body"/"content"/"html"/"markdown" are verbose
 // noise and the row's identity is carried by id/name/title/etc.
+// PATCH(amend-2026-07-31: honor the --compact "key fields only" promise on
+// corpus rows) — archived Substack posts carry the full indexed body in
+// _pp_body_text plus bulk media/preview fields; without these entries the
+// data-driven keep rule below re-admitted them (they appear in ~100% of rows)
+// and `search --agent` emitted entire article bodies per hit.
 var compactVerboseListFields = map[string]bool{
 	"description": true, "body": true, "content": true,
 	"comments": true, "attachments": true, "html": true, "markdown": true,
 	"_links": true, "links": true,
+	"_pp_body_text": true, "body_html": true, "body_markdown": true,
+	"body_json": true, "truncated_body_text": true,
+	"audio_items": true, "cover_image": true,
 }
 
 // compactVerboseObjectFields are metadata fields stripped from single-object
@@ -1161,13 +1170,31 @@ func compactListFields(items []map[string]any) json.RawMessage {
 		"date": true,
 		// Versioning
 		"version": true,
+		// Post identity (Substack corpus rows)
+		"post_date": true, "audience": true, "subtitle": true,
+		"canonical_url": true, "wordcount": true, "snippet": true,
 	}
 	if len(items) > 0 {
 		keyCounts := map[string]int{}
+		disqualified := map[string]bool{}
+		informative := map[string]bool{}
 		for _, item := range items {
-			for k := range item {
+			for k, v := range item {
 				if compactVerboseListFields[k] {
 					continue
+				}
+				// The frequency extension exists to keep short identifying
+				// values from novel payloads, not to re-admit bulk fields the
+				// compact contract promises to strip. Only short scalars
+				// qualify; one long-string, object, or array value anywhere
+				// disqualifies the key (the static allow-list is unaffected).
+				if !isCompactScalar(v) {
+					disqualified[k] = true
+				} else if s, ok := v.(string); ok && len(s) > compactScalarMaxLen {
+					disqualified[k] = true
+				}
+				if v != nil {
+					informative[k] = true
 				}
 				keyCounts[k]++
 			}
@@ -1181,8 +1208,10 @@ func compactListFields(items []map[string]any) json.RawMessage {
 		if len(items) >= 2 && threshold > len(items)-1 {
 			threshold = len(items) - 1
 		}
+		// A key that is null in every sampled row carries no information —
+		// admitting it only pads the compact projection with noise.
 		for k, count := range keyCounts {
-			if count >= threshold {
+			if count >= threshold && !disqualified[k] && informative[k] {
 				keepFields[k] = true
 			}
 		}
@@ -1196,6 +1225,14 @@ func compactListFields(items []map[string]any) json.RawMessage {
 				compact[k] = v
 			}
 		}
+		// Compact rows stay self-describing: when the projection dropped the
+		// body/preview prose, carry a bounded snippet so agents can judge
+		// relevance without refetching the full row.
+		if _, ok := compact["snippet"]; !ok {
+			if s := compactSnippet(item); s != "" {
+				compact["snippet"] = s
+			}
+		}
 		if len(compact) == 0 {
 			compact = item
 		}
@@ -1203,6 +1240,39 @@ func compactListFields(items []map[string]any) json.RawMessage {
 	}
 	result, _ := json.Marshal(filtered)
 	return result
+}
+
+// compactScalarMaxLen bounds string values admitted by the data-driven keep
+// rule and the derived snippet: long prose belongs to full output, not
+// --compact projections.
+const compactScalarMaxLen = 200
+
+// mdImagePattern strips markdown image embeds from snippet sources — archived
+// bodies routinely open with a cover image, which would otherwise make every
+// snippet a CDN URL instead of prose.
+var mdImagePattern = regexp.MustCompile(`!\[[^\]]*\]\([^)]*\)`)
+
+// compactSnippet derives a short preview for a compact list row from the
+// item's prose fields, in payload-priority order: the FTS-indexed body first,
+// then Substack's own truncated preview, then the description/subtitle.
+func compactSnippet(item map[string]any) string {
+	for _, k := range []string{"_pp_body_text", "truncated_body_text", "description"} {
+		s, ok := item[k].(string)
+		if !ok {
+			continue
+		}
+		s = mdImagePattern.ReplaceAllString(s, " ")
+		s = strings.Join(strings.Fields(s), " ")
+		if s == "" {
+			continue
+		}
+		r := []rune(s)
+		if len(r) > compactScalarMaxLen {
+			return string(r[:compactScalarMaxLen]) + "…"
+		}
+		return s
+	}
+	return ""
 }
 
 // isCompactScalar reports whether v is a small primitive (string, number,

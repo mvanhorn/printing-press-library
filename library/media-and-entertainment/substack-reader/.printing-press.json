@@ -92,5 +92,11 @@
       "grade": "A",
       "total": 91
     }
-  }
+  },
+  "contributors": [
+    {
+      "handle": "giuseppebisemi",
+      "name": "Giuseppe Bisemi"
+    }
+  ]
 }

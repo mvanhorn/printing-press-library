@@ -2,6 +2,9 @@
 
 **Read any Substack publication as a local, full-text-searchable corpus — keyless for free posts, your own session for what you subscribe to.**
 
+Created by [@maxswinguy](https://github.com/maxswinguy) (Maxime Delavergne).
+Contributors: [@giuseppebisemi](https://github.com/giuseppebisemi) (Giuseppe Bisemi).
+
 Substack Reader archives whole publications into a local SQLite mirror you can search, SQL-query, and read offline. Free posts need no login; paid posts you're entitled to unlock with your own session cookie — never redistributed, always opt-in. Unlike every other Substack tool it builds a corpus that compounds instead of fetching live per call.
 
 ## Install
@@ -140,12 +143,12 @@ substack-reader-pp-cli read astralcodexten/open-thread-441
 These capabilities aren't available in any other tool for this API.
 
 ### Local corpus that compounds
-- **`archive`** — Archive a whole Substack publication into a local SQLite mirror you can read, search, and query offline — no other Substack tool builds a persistent corpus.
+- **`archive`** — Archive a whole Substack publication into a local SQLite mirror you can read, search, and query offline — no other Substack tool builds a persistent corpus. `--limit 0` walks the whole archive; when a run stops at `--limit` instead of exhausting the archive, the output says so (JSON carries `"exhausted": false`) — never treat a limit-stopped run as a complete archive.
 
   _Reach for this to turn a live newsletter into a durable, queryable knowledge base instead of re-fetching every time._
 
   ```bash
-  substack-reader-pp-cli archive astralcodexten --limit 200
+  substack-reader-pp-cli archive astralcodexten --limit 0
   ```
 - **`sql`** — Run read-only SQL over your local Substack corpus for arbitrary analytics — post cadence, audience mix, longest posts — from data you've already archived.
 
@@ -156,12 +159,13 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ### Entitlement-aware reading
-- **`read`** — Read a post's full text; free posts keyless, and paid posts you subscribe to via your own session cookie — with an honest 'preview only, you're not entitled' signal.
+- **`read`** — Read one or more posts' full text in a single call; free posts keyless, and paid posts you subscribe to via your own session cookie — with an honest 'preview only, you're not entitled' signal. With several posts, JSON mode emits an array of envelopes (a failed post becomes a `{"post", "error"}` entry and the rest still return); a single post keeps the single-object envelope.
 
-  _Use to pull a specific post's full text into an agent workflow, respecting exactly what the user is entitled to._
+  _Use to pull posts' full text into an agent workflow — several slugs in one call, no shell loop — respecting exactly what the user is entitled to._
 
   ```bash
   substack-reader-pp-cli read astralcodexten/open-thread-441
+  substack-reader-pp-cli read astralcodexten/slug-one astralcodexten/slug-two --agent --select slug,subtitle
   ```
 
 ### Topic & comparative intelligence
@@ -185,10 +189,10 @@ These capabilities aren't available in any other tool for this API.
 ### Build a searchable corpus
 
 ```bash
-substack-reader-pp-cli archive astralcodexten --limit 200 && substack-reader-pp-cli search "prediction markets"
+substack-reader-pp-cli archive astralcodexten --limit 0 && substack-reader-pp-cli search "prediction markets"
 ```
 
-Mirror a publication then search it offline with FTS ranking.
+Mirror a whole publication (`--limit 0` = no cap) then search it offline with FTS ranking. Compact/agent search hits carry key fields plus a bounded `snippet` — never full post bodies; use `read` (or `--select`) when you want a hit's full text.
 
 ### Narrow a large post to fields
 
@@ -197,6 +201,14 @@ substack-reader-pp-cli read astralcodexten/open-thread-441 --agent --select titl
 ```
 
 Pull only the fields an agent needs from a verbose post object.
+
+### Read several posts in one call
+
+```bash
+substack-reader-pp-cli read astralcodexten/slug-one astralcodexten/slug-two astralcodexten/slug-three --agent --select slug,subtitle,audience
+```
+
+Batch-read a list of slugs without a shell loop; JSON mode returns an array of post envelopes, and one bad slug doesn't sink the rest.
 
 ### Audience mix analytics
 
