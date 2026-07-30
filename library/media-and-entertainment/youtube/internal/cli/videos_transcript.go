@@ -102,14 +102,20 @@ type json3Response struct {
 	Events []json3Event `json:"events"`
 }
 
+// PATCH(amend-2026-07-30: first-guess usability) — when --lang is not
+// explicitly set, fall back to the only available caption language instead of
+// hard-failing on non-English videos; add --format markdown|text so consumers
+// don't hand-roll segment-JSON converters.
+
 func newYoutubeVideosTranscriptCmd(flags *rootFlags) *cobra.Command {
 	var lang string
 	var noCache bool
+	var format string
 
 	cmd := &cobra.Command{
 		Use:         "videos-transcript <videoId|url>",
 		Short:       "Fetch video transcript via InnerTube (no OAuth needed)",
-		Example:     "  youtube-pp-cli youtube videos-transcript dQw4w9WgXcQ --lang en\n  youtube-pp-cli youtube videos-transcript 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
+		Example:     "  youtube-pp-cli youtube videos-transcript dQw4w9WgXcQ --lang en\n  youtube-pp-cli youtube videos-transcript dQw4w9WgXcQ --format markdown\n  youtube-pp-cli youtube videos-transcript 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -118,6 +124,12 @@ func newYoutubeVideosTranscriptCmd(flags *rootFlags) *cobra.Command {
 			videoID := parseVideoID(strings.TrimSpace(args[0]))
 			if videoID == "" {
 				return usageErr(fmt.Errorf("could not extract a video ID from %q", args[0]))
+			}
+			switch format {
+			case "json", "markdown", "text":
+				// valid
+			default:
+				return usageErr(fmt.Errorf("invalid --format value %q: must be json, markdown, or text", format))
 			}
 
 			if dryRunOK(flags) {
@@ -133,9 +145,7 @@ func newYoutubeVideosTranscriptCmd(flags *rootFlags) *cobra.Command {
 			if !noCache {
 				if cached, ok := readTranscriptCache(ctx, videoID, lang); ok {
 					fmt.Fprintln(cmd.ErrOrStderr(), "(from cache)")
-					enc := json.NewEncoder(cmd.OutOrStdout())
-					enc.SetIndent("", "  ")
-					return enc.Encode(cached)
+					return renderTranscript(cmd.OutOrStdout(), cached, format)
 				}
 			}
 
@@ -148,10 +158,23 @@ func newYoutubeVideosTranscriptCmd(flags *rootFlags) *cobra.Command {
 				return apiErr(fmt.Errorf("video has no captions"))
 			}
 
-			// 3. Pick the track matching --lang.
+			// 3. Pick the track matching --lang. When --lang was left at its
+			// default and doesn't match, fall back to the only available
+			// caption language rather than hard-failing: the caller didn't
+			// ask for English, the flag default did.
+			effLang := lang
 			picked, perr := pickCaptionTrack(tracks, lang)
 			if perr != nil {
-				return apiErr(perr)
+				if cmd.Flags().Changed("lang") {
+					return apiErr(perr)
+				}
+				fallback, fberr := pickSoleLanguageTrack(tracks)
+				if fberr != nil {
+					return apiErr(fmt.Errorf("%v; pass --lang to pick one", perr))
+				}
+				picked = fallback
+				effLang = picked.LanguageCode
+				fmt.Fprintf(cmd.ErrOrStderr(), "(no %q captions; using the only available track: %s)\n", lang, trackLabel(picked))
 			}
 			kind := "manual"
 			if picked.Kind == "asr" {
@@ -159,7 +182,7 @@ func newYoutubeVideosTranscriptCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			// 4. Fetch the json3 transcript.
-			result, ferr := fetchJSON3Transcript(ctx, picked, videoID, lang, kind)
+			result, ferr := fetchJSON3Transcript(ctx, picked, videoID, effLang, kind)
 			if ferr != nil {
 				return apiErr(ferr)
 			}
@@ -167,16 +190,67 @@ func newYoutubeVideosTranscriptCmd(flags *rootFlags) *cobra.Command {
 			// 5. Write-through cache (best effort)
 			writeTranscriptCache(ctx, result)
 
-			enc := json.NewEncoder(cmd.OutOrStdout())
-			enc.SetIndent("", "  ")
-			return enc.Encode(result)
+			return renderTranscript(cmd.OutOrStdout(), result, format)
 		},
 	}
 
-	cmd.Flags().StringVar(&lang, "lang", "en", "Caption language code")
+	cmd.Flags().StringVar(&lang, "lang", "en", "Caption language code (auto-falls back to the only available language when left at the default)")
 	cmd.Flags().BoolVar(&noCache, "no-cache", false, "Skip cache and force fresh fetch")
+	cmd.Flags().StringVar(&format, "format", "json", "Output format: json (segments), markdown (timestamped lines), text (plain transcript)")
 
 	return cmd
+}
+
+// pickSoleLanguageTrack returns the best track when every available caption
+// track shares one language (prefer manual over asr). It errors when tracks
+// span multiple languages — that choice belongs to the caller.
+func pickSoleLanguageTrack(tracks []captionTrack) (*captionTrack, error) {
+	var picked *captionTrack
+	for i := range tracks {
+		t := &tracks[i]
+		if picked != nil && t.LanguageCode != picked.LanguageCode {
+			return nil, fmt.Errorf("multiple caption languages available")
+		}
+		if picked == nil || (picked.Kind == "asr" && t.Kind != "asr") {
+			picked = t
+		}
+	}
+	if picked == nil {
+		return nil, fmt.Errorf("no caption tracks")
+	}
+	return picked, nil
+}
+
+func trackLabel(t *captionTrack) string {
+	if t.Kind == "asr" {
+		return t.LanguageCode + " (asr)"
+	}
+	return t.LanguageCode
+}
+
+// renderTranscript writes a transcript in the requested --format. json keeps
+// the historical segment envelope; markdown emits timestamped lines ready to
+// paste into a doc; text emits the plain concatenated transcript.
+func renderTranscript(w io.Writer, r *transcriptResult, format string) error {
+	switch format {
+	case "markdown":
+		var b strings.Builder
+		fmt.Fprintf(&b, "# Transcript — %s\n\n", r.VideoID)
+		fmt.Fprintf(&b, "_language: %s (%s)_\n\n", r.Language, r.Kind)
+		for _, s := range r.Segments {
+			sec := s.StartMs / 1000
+			fmt.Fprintf(&b, "**[%02d:%02d]** %s\n", sec/60, sec%60, s.Text)
+		}
+		_, err := io.WriteString(w, b.String())
+		return err
+	case "text":
+		_, err := fmt.Fprintln(w, r.Text)
+		return err
+	default:
+		enc := json.NewEncoder(w)
+		enc.SetIndent("", "  ")
+		return enc.Encode(r)
+	}
 }
 
 // transcriptHTTPClient returns a fresh client. We avoid the Data-API client

@@ -86,8 +86,8 @@ func newRootCmd(flags *rootFlags) *cobra.Command {
 		Long: `Youtube CLI — Search YouTube in bulk, grab transcripts, get embed snippets — for the photo-keywords-to-blog-post workflow.
 
 Highlights (not in the official API docs):
-  • youtube search-bulk   Take a list of search terms from stdin or args, return top-N YouTube videos per term in one JSON document with titles, channels, embed URLs, and thumbnails.
-  • youtube videos-transcript   Fetch the spoken-content transcript of a YouTube video using the timedtext endpoint. Works for auto-generated and manual captions on any public video. Caches into the local store.
+  • youtube search-bulk   Take a list of search terms from stdin or args, return top-N YouTube videos per term in one JSON document with titles, channels, embed URLs, and thumbnails. Also available as top-level 'search'.
+  • youtube videos-transcript   Fetch the spoken-content transcript of a YouTube video using the timedtext endpoint. Works for auto-generated and manual captions on any public video. Auto-falls back to the only available caption language, renders --format markdown|text, and caches into the local store.
   • youtube videos-embed   Print embed HTML, iframe, or markdown-style embed for a video ID. Direct copy-paste into a blog draft.
   • youtube videos-related   Find videos related to a target video using topicDetails + same-channel + tag overlap from the local store. Best-effort replacement for the deprecated relatedToVideoId parameter.
   • youtube videos-comments   Fetch top comments on a video, ranked locally by likeCount. Pulls up to 5 pages from commentThreads.list and sorts so most-liked floats regardless of API order.
@@ -176,6 +176,10 @@ See README.md or the bundled SKILL.md for recipes.`,
 		return nil
 	}
 	rootCmd.AddCommand(newYoutubeCmd(flags))
+	// PATCH(amend-2026-07-30: first-guess usability) — top-level `search`
+	// alias for `youtube search-bulk`; the natural first invocation used to
+	// dead-end on unknown command.
+	rootCmd.AddCommand(newSearchCmd(flags))
 	rootCmd.AddCommand(newDoctorCmd(flags))
 	rootCmd.AddCommand(newAuthCmd(flags))
 	rootCmd.AddCommand(newAgentContextCmd(rootCmd))

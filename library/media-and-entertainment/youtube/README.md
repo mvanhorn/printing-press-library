@@ -9,6 +9,7 @@ Learn more at [YouTube Data API v3](https://developers.google.com/youtube/v3).
 **Sample use case:** [justinwfu/pictovideo](https://github.com/justinwfu/pictovideo) — photo-keywords → candidate-video → embedded blog draft pipeline using this CLI.
 
 Created by [@justinwfu](https://github.com/justinwfu) (Justin).
+Contributors: [@giuseppebisemi](https://github.com/giuseppebisemi) (Giuseppe Bisemi).
 
 ## Install
 
@@ -127,6 +128,8 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 API-key only — set `YOUTUBE_API_KEY` and you're done. Read-only public-data operations only (10,000 quota units/day default). Write operations are not configured; this CLI is for discovery and research, not channel management.
 
+Search commands preflight the key: with no key configured they exit with code 4 and the exact remediation steps (`YOUTUBE_API_KEY` or `youtube-pp-cli auth set-token <key>`) instead of relaying Google's opaque 403 per term. `videos-transcript` needs no key at all.
+
 ## Quick Start
 
 ```bash
@@ -139,8 +142,16 @@ youtube-pp-cli youtube search-list --q "sourdough scoring" --max-results 5 --jso
 # Bulk search from positional args — the photo-keywords -> videos shape (use --stdin to read from a file/pipe instead).
 youtube-pp-cli youtube search-bulk "sourdough scoring" "latte art" --top 3 --json
 
+# Same thing, first-guess spelling: top-level alias + --limit.
+youtube-pp-cli search "sourdough scoring" --limit 3 --json
+
 # Fetch the transcript to verify topic relevance before picking the video.
+# When the video has captions in only one language, the default --lang en
+# auto-falls back to it, so non-English videos work without a retry.
 youtube-pp-cli youtube videos-transcript dQw4w9WgXcQ --lang en
+
+# Transcript as paste-ready timestamped markdown (or plain text with --format text).
+youtube-pp-cli youtube videos-transcript dQw4w9WgXcQ --format markdown
 
 # Get a markdown embed snippet for the blog draft.
 youtube-pp-cli youtube videos-embed dQw4w9WgXcQ --format markdown
@@ -159,19 +170,21 @@ youtube-pp-cli youtube videos-related dQw4w9WgXcQ --limit 5
 These capabilities aren't available in any other tool for this API.
 
 ### Blog-post composition
-- **`youtube search-bulk`** — Take a list of search terms from stdin or args, return top-N YouTube videos per term in one JSON document with titles, channels, embed URLs, and thumbnails.
+- **`youtube search-bulk`** — Take a list of search terms from stdin or args, return top-N YouTube videos per term in one JSON document with titles, channels, embed URLs, and thumbnails. Also exposed as top-level `search`, with `--limit` accepted as an alias for `--top`. A missing API key fails fast with remediation steps instead of a buried per-term 403, and a run where every term failed exits non-zero.
 
   _When you have N search terms from an upstream pipeline (image labels, photo tags, scraped keywords), reach for this instead of looping single searches._
 
   ```bash
   youtube-pp-cli youtube search-bulk "sourdough scoring" "latte art" --top 3
+  youtube-pp-cli search "sourdough scoring" --limit 3
   ```
-- **`youtube videos-transcript`** — Fetch the spoken-content transcript of a YouTube video using the timedtext endpoint. Works for auto-generated and manual captions on any public video. Caches into the local store.
+- **`youtube videos-transcript`** — Fetch the spoken-content transcript of a YouTube video using the timedtext endpoint. Works for auto-generated and manual captions on any public video. When `--lang` is left at its default and doesn't match, it auto-falls back to the only available caption language; `--format markdown|text` renders timestamped markdown or plain text besides the JSON segment envelope. Caches into the local store.
 
   _Read the transcript before deciding whether a candidate video actually fits the topic of the blog post or photo._
 
   ```bash
   youtube-pp-cli youtube videos-transcript dQw4w9WgXcQ --lang en --json
+  youtube-pp-cli youtube videos-transcript dQw4w9WgXcQ --format markdown
   ```
 - **`youtube videos-embed`** — Print embed HTML, iframe, or markdown-style embed for a video ID. Direct copy-paste into a blog draft.
 
