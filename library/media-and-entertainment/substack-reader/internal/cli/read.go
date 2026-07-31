@@ -30,6 +30,20 @@ type readResult struct {
 	err       error
 }
 
+// runReadBatch runs fetch once per post, minting a FRESH context for each so
+// every post gets its own --timeout budget. A shared batch-wide deadline would
+// make one slow post starve all later ones into "context deadline exceeded";
+// per-post budgets keep batch semantics identical to N single-post runs.
+func runReadBatch(args []string, newCtx func() (context.Context, context.CancelFunc), fetch func(ctx context.Context, arg string) readResult) []readResult {
+	results := make([]readResult, 0, len(args))
+	for _, arg := range args {
+		ctx, cancel := newCtx()
+		results = append(results, fetch(ctx, arg))
+		cancel()
+	}
+	return results
+}
+
 // readOnePost fetches and classifies a single post. It is the loop body of the
 // batch read: same anonymous-then-authenticated two-fetch dance the single-post
 // command always did, factored out so `read a b c` stops requiring a bash
@@ -187,9 +201,6 @@ silent downgrade.`,
 				return nil
 			}
 
-			ctx, cancel := boundCtx(cmd.Context(), flags)
-			defer cancel()
-
 			// Load the optional Tier-1 session once for the whole batch.
 			// LoadSession errors only when an EXPLICIT SUBSTACK_COOKIE_FILE was
 			// selected but is unusable — an authoritative config error we
@@ -201,10 +212,17 @@ silent downgrade.`,
 				return sessErr
 			}
 
-			results := make([]readResult, 0, len(args))
+			// Each post gets its OWN --timeout budget: a shared pre-loop
+			// context made the deadline cumulative across the batch, so a
+			// slow early post starved every later one into
+			// "context deadline exceeded" (Greptile round-1 finding).
+			results := runReadBatch(args,
+				func() (context.Context, context.CancelFunc) { return boundCtx(cmd.Context(), flags) },
+				func(ctx context.Context, arg string) readResult { return readOnePost(ctx, cmd, arg, sess) })
+
 			failed := 0
-			for _, arg := range args {
-				res := readOnePost(ctx, cmd, arg, sess)
+			for i := range results {
+				res := &results[i]
 				if res.err != nil {
 					failed++
 					if len(args) == 1 {
@@ -212,10 +230,9 @@ silent downgrade.`,
 						// error is the command result, not an array entry.
 						return res.err
 					}
-					fmt.Fprintf(cmd.ErrOrStderr(), "warning: %s: %v\n", arg, res.err)
-					res.envelope = map[string]any{"post": arg, "error": res.err.Error()}
+					fmt.Fprintf(cmd.ErrOrStderr(), "warning: %s: %v\n", args[i], res.err)
+					res.envelope = map[string]any{"post": args[i], "error": res.err.Error()}
 				}
-				results = append(results, res)
 			}
 			if failed == len(args) {
 				return fmt.Errorf("all %d posts failed to read", len(args))

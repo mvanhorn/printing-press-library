@@ -152,6 +152,20 @@ func tagSourceHost(raw json.RawMessage, host string) json.RawMessage {
 	return out
 }
 
+// archiveStopHint explains a non-exhausted walk in terms of who stopped it.
+// The user's own --limit gets a rerun hint; the dogfood-env cap names itself
+// instead — telling a --limit 0 caller to "rerun with --limit 0" would be a
+// useless loop (Greptile round-1 finding).
+func archiveStopHint(exhausted, dogfoodCapped bool, userLimit, capValue int) string {
+	if exhausted {
+		return ""
+	}
+	if dogfoodCapped {
+		return fmt.Sprintf("(stopped at %d posts: dogfood mode caps archive walks at %d; run outside dogfood mode for the rest)", capValue, capValue)
+	}
+	return fmt.Sprintf("(stopped at --limit %d; the archive has more posts — rerun with a higher --limit or --limit 0 for all)", userLimit)
+}
+
 // pp:data-source live
 func newNovelArchiveCmd(flags *rootFlags) *cobra.Command {
 	var limit int
@@ -230,9 +244,13 @@ func newNovelArchiveCmd(flags *rootFlags) *cobra.Command {
 			if limit <= 0 {
 				limit = int(^uint(0) >> 1) // math.MaxInt without the import
 			}
+			// The dogfood cap is OURS, not the user's: keep userLimit intact
+			// and remember who stopped the walk, so the stop hint never tells
+			// a --limit 0 caller to "rerun with --limit 0".
+			dogfoodCapped := false
 			if cliutil.IsDogfoodEnv() && limit > pageSize {
 				limit = pageSize
-				userLimit = pageSize
+				dogfoodCapped = true
 			}
 
 			sc := substack.NewClient()
@@ -321,8 +339,8 @@ func newNovelArchiveCmd(flags *rootFlags) *cobra.Command {
 				})
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "Archived %d posts from %s into %s\n", archived, base, dbPath)
-			if !exhausted {
-				fmt.Fprintf(cmd.OutOrStdout(), "  (stopped at --limit %d; the archive has more posts — rerun with a higher --limit or --limit 0 for all)\n", userLimit)
+			if hint := archiveStopHint(exhausted, dogfoodCapped, userLimit, pageSize); hint != "" {
+				fmt.Fprintf(cmd.OutOrStdout(), "  %s\n", hint)
 			}
 			if !metadataOnly {
 				fmt.Fprintf(cmd.OutOrStdout(), "  (%d post bodies fetched for full-text search", bodies)
