@@ -52,6 +52,12 @@ func parseBatchTrips(values []string) ([]batchTrip, error) {
 		if !ok || orig == "" || dest == "" {
 			return nil, fmt.Errorf("invalid --trip %q: route must be ORIG>DEST (e.g. SEA>DEN)", raw)
 		}
+		// PATCH(greptile-1639): Cut splits at the FIRST '>', so orig can never
+		// carry one — but "SEA>DEN>LAX" would leave "DEN>LAX" as the
+		// destination and reach Google as a junk code. Fail in preflight.
+		if strings.Contains(dest, ">") {
+			return nil, fmt.Errorf("invalid --trip %q: route must be a single ORIG>DEST pair (extra '>' found; multi-leg itineraries use --segment)", raw)
+		}
 		depart, ret, _ := strings.Cut(dates, "@")
 		depart, ret = strings.TrimSpace(depart), strings.TrimSpace(ret)
 		if depart == "" {
@@ -64,6 +70,13 @@ func parseBatchTrips(values []string) ([]batchTrip, error) {
 			if _, err := time.Parse("2006-01-02", d); err != nil {
 				return nil, fmt.Errorf("invalid --trip %q: date %q must be YYYY-MM-DD", raw, d)
 			}
+		}
+		// PATCH(greptile-1639): a reversed round trip is a deterministic
+		// input error — catch it in preflight instead of spending network
+		// budget. Same-day returns are legitimate. ISO dates compare
+		// lexicographically, and both are format-validated above.
+		if ret != "" && ret < depart {
+			return nil, fmt.Errorf("invalid --trip %q: return date %s must be on or after departure %s", raw, ret, depart)
 		}
 		trips = append(trips, batchTrip{
 			Origin:        strings.ToUpper(orig),

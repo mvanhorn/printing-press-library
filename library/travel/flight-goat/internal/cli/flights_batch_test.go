@@ -36,10 +36,54 @@ func TestParseBatchTrips(t *testing.T) {
 }
 
 func TestParseBatchTripsRejectsMalformed(t *testing.T) {
-	for _, bad := range []string{"SEADEN@2026-09-14", "SEA>DEN", "SEA>@2026-09-14", "SEA>DEN@notadate", "SEA>DEN@2026-09-14@notadate"} {
+	// PATCH(greptile-1639): the last three cases are the reported P1s — an
+	// extra route delimiter left a junk destination, and a reversed round
+	// trip passed preflight; both reached Google and burned rate-limit
+	// budget on a deterministically invalid search.
+	for _, bad := range []string{
+		"SEADEN@2026-09-14", "SEA>DEN", "SEA>@2026-09-14", "SEA>DEN@notadate", "SEA>DEN@2026-09-14@notadate",
+		"SEA>DEN>LAX@2026-09-14",
+		"SEA>DEN@2026-09-17@2026-09-15",
+		"SEA>DEN>LAX@2026-09-15@2026-09-17",
+	} {
 		if _, err := parseBatchTrips([]string{bad}); err == nil {
 			t.Errorf("parseBatchTrips(%q) = nil error, want parse failure", bad)
 		}
+	}
+}
+
+// PATCH(greptile-1639): a same-day return is a legitimate itinerary — the
+// reversed-date guard must not reject it.
+func TestParseBatchTripsAcceptsSameDayReturn(t *testing.T) {
+	trips, err := parseBatchTrips([]string{"SEA>DEN@2026-09-15@2026-09-15"})
+	if err != nil {
+		t.Fatalf("parseBatchTrips same-day return: %v", err)
+	}
+	if trips[0].DepartureDate != "2026-09-15" || trips[0].ReturnDate != "2026-09-15" {
+		t.Errorf("trip mismatch: %+v", trips[0])
+	}
+}
+
+// PATCH(greptile-1639): both new preflight rejections must exit 2 (usage),
+// not 5 (API) — the whole point is failing before any network call.
+func TestFlightsCmdRejectsMalformedTripWithExit2(t *testing.T) {
+	for _, tc := range []struct{ name, trip string }{
+		{"extra-route-delimiter", "SEA>DEN>LAX@2026-09-14"},
+		{"reversed-round-trip", "SEA>DEN@2026-09-17@2026-09-15"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			cmd := newGfFlightsCmd(&rootFlags{})
+			cmd.SetArgs([]string{"--trip", tc.trip})
+			cmd.SetOut(&bytes.Buffer{})
+			cmd.SetErr(&bytes.Buffer{})
+			err := cmd.Execute()
+			if err == nil {
+				t.Fatalf("--trip %q accepted, want usage error", tc.trip)
+			}
+			if ExitCode(err) != 2 {
+				t.Fatalf("ExitCode = %d, want 2 (usage error); err = %v", ExitCode(err), err)
+			}
+		})
 	}
 }
 
