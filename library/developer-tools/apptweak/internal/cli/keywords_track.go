@@ -108,16 +108,15 @@ func newNovelKeywordsTrackCmd(flags *rootFlags) *cobra.Command {
 }
 
 // parseSinceDays parses a duration string like "7d" or "30d" and returns the number of days.
+// Only the "d" (days) suffix is accepted; other units (e.g. "h") return an error.
 func parseSinceDays(since string) (int, error) {
 	s := strings.TrimSpace(since)
-	s = strings.TrimSuffix(s, "d")
-	s = strings.TrimSuffix(s, "h")
-	n, err := strconv.Atoi(s)
-	if err != nil {
-		return 7, nil // default to 7 days
+	if !strings.HasSuffix(s, "d") {
+		return 0, fmt.Errorf("expected a value like \"7d\" or \"30d\"; got %q", since)
 	}
-	if n <= 0 {
-		return 7, nil
+	n, err := strconv.Atoi(strings.TrimSuffix(s, "d"))
+	if err != nil || n <= 0 {
+		return 0, fmt.Errorf("expected a positive integer number of days, e.g. \"7d\"; got %q", since)
 	}
 	return n, nil
 }

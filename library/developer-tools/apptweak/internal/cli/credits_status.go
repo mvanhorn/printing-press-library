@@ -4,12 +4,12 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 
-	"github.com/mvanhorn/printing-press-library/library/developer-tools/apptweak/internal/config"
 	"github.com/spf13/cobra"
 )
 
@@ -37,17 +37,17 @@ func newNovelCreditsStatusCmd(flags *rootFlags) *cobra.Command {
 				return nil
 			}
 
-			cfg, err := config.Load(flags.configPath)
+			c, err := flags.newClient()
 			if err != nil {
-				return fmt.Errorf("loading config: %w", err)
+				return err
 			}
 
-			apiKey := cfg.ApptweakApiKey
+			apiKey := c.Config.ApptweakApiKey
 			if apiKey == "" {
 				return fmt.Errorf("no API key configured; run 'apptweak-pp-cli auth login' or set APPTWEAK_API_KEY")
 			}
 
-			body, err := fetchCreditsStatus(apiKey)
+			body, err := fetchCreditsStatus(c.HTTPClient, cmd.Context(), apiKey)
 			if err != nil {
 				return fmt.Errorf("fetching credits: %w", err)
 			}
@@ -59,14 +59,14 @@ func newNovelCreditsStatusCmd(flags *rootFlags) *cobra.Command {
 	return cmd
 }
 
-// fetchCreditsStatus makes a raw HTTP call to the AppTweak account credits endpoint.
-func fetchCreditsStatus(apiKey string) ([]byte, error) {
-	req, err := http.NewRequest("GET", "https://public-api.apptweak.com/api/public/apptweak/account/credits", nil)
+// fetchCreditsStatus calls the AppTweak account credits endpoint via the shared HTTP client.
+func fetchCreditsStatus(httpClient *http.Client, ctx context.Context, apiKey string) ([]byte, error) {
+	req, err := http.NewRequestWithContext(ctx, "GET", "https://public-api.apptweak.com/api/public/apptweak/account/credits", nil)
 	if err != nil {
 		return nil, err
 	}
 	req.Header.Set("x-apptweak-key", apiKey)
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}

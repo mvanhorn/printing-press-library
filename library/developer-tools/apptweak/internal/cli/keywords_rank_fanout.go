@@ -114,11 +114,9 @@ func newNovelKeywordsRankFanoutCmd(flags *rootFlags) *cobra.Command {
 					out.FetchFailures = append(out.FetchFailures, fmt.Sprintf("%s: %s", res.country, res.err.Error()))
 					continue
 				}
-				// Parse the API response to extract per-keyword ranks
-				// The API returns keyword ranking data; extract rank for each keyword
-				var parsed map[string]json.RawMessage
-				if err := json.Unmarshal(res.data, &parsed); err != nil {
-					out.FetchFailures = append(out.FetchFailures, fmt.Sprintf("%s: parse error: %s", res.country, err.Error()))
+				// Accept both object and array response shapes before extracting ranks.
+				if !json.Valid(res.data) {
+					out.FetchFailures = append(out.FetchFailures, fmt.Sprintf("%s: invalid JSON response", res.country))
 					continue
 				}
 

@@ -96,11 +96,14 @@ func newNovelReviewsSentimentCmd(flags *rootFlags) *cobra.Command {
 				avg = float64(sum) / float64(total)
 			}
 
-			sentiment := "neutral"
-			if avg >= 4.0 {
-				sentiment = "positive"
-			} else if avg < 3.0 {
-				sentiment = "negative"
+			sentiment := "unknown"
+			if total > 0 {
+				sentiment = "neutral"
+				if avg >= 4.0 {
+					sentiment = "positive"
+				} else if avg < 3.0 {
+					sentiment = "negative"
+				}
 			}
 
 			out := reviewsSentimentOutput{
