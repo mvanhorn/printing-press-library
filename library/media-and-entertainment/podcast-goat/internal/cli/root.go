@@ -137,7 +137,8 @@ Highlights (not in the official API docs):
   • episode get --explain   Dry-run shows which source tier will fire and why earlier tiers were skipped, with projected cost before any paid call.
   • episode quote   FTS5 phrase search returns the matched segment plus N surrounding segments preserving the canonical speaker shape and deeplink timestamp.
   • source compare   For an episode resolvable on multiple sources, fetch all available adapters and diff segment count, token count, distinct speakers, label confidence.
-  • episode get --bilingual   yt-dlp dual-language auto-subs, greedy nearest-neighbor alignment, emits one markdown file with paired Chinese + auto-translated English per turn.
+  • episode get --lang   Fetch YouTube auto-subs in any single language yt-dlp knows (e.g. --lang it); the default stays en.
+  • episode info --probe   Spend-free availability check against spoken.md's search endpoint — answers "does this source have the episode" before any paid call.
   • auth services   One-row-per-service table of cookie age, expiry, last-fetch result, with remediation hint when stale.
   • speakers list   Aggregate speaker names across the cached corpus with episode counts, optionally filtered by show.
   • budget show --by-show   Pivot spend.jsonl joined to episodes by URL; group by show, provider, month to attribute cost.

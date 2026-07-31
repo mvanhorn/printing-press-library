@@ -113,6 +113,16 @@ func (a *Adapter) Search(ctx context.Context, q string) (*SearchHit, error) {
 	return &hit, nil
 }
 
+// Probe answers "does spoken.md actually have this episode?" without fetching
+// (and therefore without spending): it runs the same URL→hit resolution Fetch
+// uses, but stops at the search endpoint. The search endpoint works with the
+// demo key, so coverage can be checked before buying a full key. Returns the
+// matched hit on availability, or a NotApplicableError-wrapped err when
+// spoken.md has no result for the URL.
+func (a *Adapter) Probe(ctx context.Context, episodeURL string) (*SearchHit, error) {
+	return a.resolveByURL(ctx, episodeURL)
+}
+
 // resolveByURL is the URL → SearchHit resolution flow. It tries the raw URL
 // first (works for Apple Podcasts + Spotify URLs spoken.md indexes by id);
 // on no-results, fetches the publisher page and re-searches by extracted title.
