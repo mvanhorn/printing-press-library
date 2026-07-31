@@ -1,6 +1,6 @@
 ---
 name: pp-flight-goat
-description: "Printing Press CLI for Flight Goat. AeroAPI is a simple, query-based API that gives software developers access to a variety of FlightAware's flight data."
+description: "Printing Press CLI for Flight Goat. Search real Google Flights fares, cheapest dates, Kayak routes, and FlySoar price checks with no API key — plus optional FlightAware AeroAPI flight status, delay, and alert data."
 author: "Matt Van Horn"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
@@ -36,6 +36,39 @@ go install github.com/mvanhorn/printing-press-library/library/travel/flight-goat
 ```
 
 If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
+
+## Unique Capabilities: fare search without an API key
+
+The headline commands hit consumer fare sources directly and need no credentials — do not present the CLI as AeroAPI-gated. FlightAware AeroAPI (documented below) is secondary and optional.
+
+- `flight-goat-pp-cli flights <origin> <destination> <date>` — Google Flights fare search: real prices, legs, airlines. Round trip with `--return`, multi-city with repeated `--segment`, batch probes with repeated `--trip`.
+- `flight-goat-pp-cli dates <origin> <destination>` — cheapest-date scan across a travel window.
+- `flight-goat-pp-cli explore <airport>` / `flight-goat-pp-cli longhaul <airport>` — Kayak nonstop and long-haul route discovery.
+- `flight-goat-pp-cli soar <origin> <destination> <date>` — FlySoar (Duffel NDC/GDS) second price opinion with booking handoff.
+- `flight-goat-pp-cli assess` — delayed-flight/rebooking decision support.
+
+Booking deeplinks in each result's `booking_urls` quote the same `--currency` the search ran in.
+
+### Bulk fare probes: use --trip with --pace, never a shell loop
+
+Google rate-limits fare traffic per IP. Parallel shell loops over `flights` invocations trigger HTTP 429 blocks that can outlast 15 minutes. Run bulk probes in one paced invocation instead:
+
+```bash
+# Three independent searches, 3s apart, one JSON envelope with per-trip rows
+flight-goat-pp-cli flights \
+  --trip "SEA>DEN@2026-09-14" \
+  --trip "PDX>DEN@2026-09-15@2026-09-17" \
+  --trip "SFO>DEN@2026-09-15" \
+  --pace 3s --currency EUR --agent
+```
+
+`--trip` takes `ORIG>DEST@DEPART` or `ORIG>DEST@DEPART@RETURN` (same grammar family as `--segment`) and replaces the positional args; all filter flags (`--currency`, `--stops`, `--class`, `--airlines`, `--time`, `--passengers`) apply to every trip. Per-trip rows land in the envelope's `results[]` with `status` `ok`/`error`/`skipped`.
+
+Rate-limit semantics:
+
+- Transient 429s are retried automatically (2s/5s/12s backoff) before a command fails.
+- On a persistent 429 a batch stops early — continuing would deepen the IP block — the partial envelope is still emitted, and the exit code is 7 (rate limited).
+- While Google is blocked, `soar` and `explore`/`longhaul` use different backends and keep working; `doctor` documents the same contract under `google_flights`.
 
 # Introduction
 AeroAPI is a simple, query-based API that gives software developers access

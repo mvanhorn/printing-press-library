@@ -186,6 +186,11 @@ var fetchSearchPage = func(ctx context.Context, pageURL string) (string, error) 
 	if err != nil {
 		return "", fmt.Errorf("reading fallback search page: %w", err)
 	}
+	if resp.StatusCode == http.StatusTooManyRequests {
+		// PATCH(amend-2026-07-31): same sentinel as the RPC path — the block
+		// is IP-level and the HTML body is a useless interstitial.
+		return "", fmt.Errorf("fallback search page: %w", ErrRateLimited)
+	}
 	if resp.StatusCode != http.StatusOK {
 		snippet := string(body)
 		if len(snippet) > 200 {
@@ -553,9 +558,13 @@ func datesViaHTML(ctx context.Context, opts DatesOptions, from, to time.Time, cu
 	var out []DatePrice
 	var firstErr error
 	failedDays := 0
+	rateLimited := false
 	for _, r := range results {
 		if r.err != nil {
 			failedDays++
+			if errors.Is(r.err, ErrRateLimited) {
+				rateLimited = true
+			}
 			if firstErr == nil {
 				firstErr = r.err
 			}
@@ -564,12 +573,23 @@ func datesViaHTML(ctx context.Context, opts DatesOptions, from, to time.Time, cu
 			out = append(out, *r.price)
 		}
 	}
+	// PATCH(review-2026-07-31): a 429 mid-range must never read as a clean
+	// success. With zero usable days, surface the typed rate-limit error so
+	// the CLI exits 7 with the pacing hint; with partial days, keep the data
+	// (partial results are the point) but name the rate limit in the note so
+	// agents see the coverage is incomplete and why.
+	if len(out) == 0 && rateLimited {
+		return nil, "", fmt.Errorf("dates HTML fallback: %w", ErrRateLimited)
+	}
 	if len(out) == 0 && firstErr != nil {
 		return nil, "", fmt.Errorf("dates HTML fallback failed for every day in range: %w", firstErr)
 	}
 	note := htmlFallbackNote
 	if failedDays > 0 {
 		note += fmt.Sprintf("; %d day(s) in range could not be fetched and are absent from the result", failedDays)
+		if rateLimited {
+			note += " (google rate limited some fetches — HTTP 429; date coverage is incomplete, retry later or space queries)"
+		}
 	}
 	return out, note, nil
 }

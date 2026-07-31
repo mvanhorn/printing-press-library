@@ -74,6 +74,38 @@ func RootCmd() *cobra.Command {
 // The named return feeds the deferred journal write: one site after
 // ExecuteC returns covers every outcome, including RunE errors (a
 // Cobra PostRun hook would be skipped on RunE error, so none is used).
+// deliverFn is a test seam over Deliver.
+var deliverFn = Deliver
+
+// flushDeliver routes buffered command output to the --deliver sink.
+//
+// PATCH(review-2026-08-01): the sink receives whatever reached stdout, even
+// when the command failed — a batch cut short by a rate limit (exit 7) or
+// closed with per-trip failures (exit 5) has its partial envelope buffered,
+// and dropping it loses exactly the results the partial-tolerant contract
+// promises (same failure shape as docs/solutions/devx/
+// full-text-fanout-partial-failures.md). Rules:
+//
+//   - no sink buffer: return err unchanged;
+//   - empty buffer on failure: nothing to deliver, return err unchanged;
+//   - delivery failure: warn on stderr; it replaces the outcome only when
+//     the command itself succeeded — a command error always wins.
+func flushDeliver(flags *rootFlags, err error) error {
+	if flags.deliverBuf == nil {
+		return err
+	}
+	if err != nil && flags.deliverBuf.Len() == 0 {
+		return err
+	}
+	if derr := deliverFn(flags.deliverSink, flags.deliverBuf.Bytes(), flags.compact); derr != nil {
+		fmt.Fprintf(os.Stderr, "warning: deliver to %s:%s failed: %v\n", flags.deliverSink.Scheme, flags.deliverSink.Target, derr)
+		if err == nil {
+			return derr
+		}
+	}
+	return err
+}
+
 func Execute() (retErr error) {
 	var flags rootFlags
 	rootCmd := newRootCmd(&flags)
@@ -101,24 +133,16 @@ func Execute() (retErr error) {
 			// these up.
 			journalFailedFlag = flagStr
 			if suggestion := suggestFlag(flagStr, rootCmd); suggestion != "" {
-				// Cobra already printed `Error: unknown flag: --foob` before
-				// returning; the wrap below attaches the hint to err.Error()
-				// for downstream consumers and exit-code classification, but
-				// would never reach stderr now that main.go no longer prints
-				// err. Emit the hint explicitly so the suggestion still
-				// shows up under Cobra's error line.
-				fmt.Fprintf(os.Stderr, "hint: did you mean --%s?\n", suggestion)
+				// PATCH(amend-2026-07-31): with SilenceErrors set, main.go is
+				// the single printer of the returned error, so wrapping the
+				// hint into err is enough — the previous explicit stderr
+				// print would now duplicate it.
 				err = fmt.Errorf("%w\nhint: did you mean --%s?", err, suggestion)
 				journalSuggestedFlag = "--" + suggestion
 			}
 		}
 	}
-	if err == nil && flags.deliverBuf != nil {
-		if derr := Deliver(flags.deliverSink, flags.deliverBuf.Bytes(), flags.compact); derr != nil {
-			fmt.Fprintf(os.Stderr, "warning: deliver to %s:%s failed: %v\n", flags.deliverSink.Scheme, flags.deliverSink.Target, derr)
-			return derr
-		}
-	}
+	err = flushDeliver(&flags, err)
 	if err != nil && isCobraUsageError(err) {
 		// Cobra/pflag pre-RunE errors (unknown flag, unknown command,
 		// missing required, etc.) never flow through usageErr() because
@@ -181,7 +205,11 @@ func newRootCmd(flags *rootFlags) *cobra.Command {
 Add --agent to any command for JSON output + non-interactive mode.
 Run 'flight-goat-pp-cli doctor' to verify auth and connectivity.`,
 		SilenceUsage: true,
-		Version:      version,
+		// PATCH(amend-2026-07-31): main.go prints the returned error and
+		// exits; without SilenceErrors cobra printed it too, so every
+		// failure (e.g. a Google 429) showed up twice on stderr.
+		SilenceErrors: true,
+		Version:       version,
 	}
 	rootCmd.SetVersionTemplate("flight-goat-pp-cli {{ .Version }}\n")
 

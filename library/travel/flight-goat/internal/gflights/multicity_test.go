@@ -16,7 +16,7 @@ func TestMultiCityBookingURL_ShapeAndDecode(t *testing.T) {
 		{Origin: "NRT", Destination: "ICN", DepartureDate: "2026-08-28"},
 		{Origin: "ICN", Destination: "SFO", DepartureDate: "2026-09-05"},
 	}
-	u, err := MultiCityBookingURL(segments)
+	u, err := MultiCityBookingURL(segments, "")
 	if err != nil {
 		t.Fatalf("build URL: %v", err)
 	}
@@ -60,10 +60,33 @@ func TestMultiCityBookingURL_ShapeAndDecode(t *testing.T) {
 	}
 }
 
+// PATCH(review-2026-07-31): the multi-city deeplink must quote the searched
+// currency like the single-pair booking URL builder does.
+func TestMultiCityBookingURL_PropagatesCurrency(t *testing.T) {
+	segs := []Segment{
+		{Origin: "SFO", Destination: "NRT", DepartureDate: "2026-08-15"},
+		{Origin: "NRT", Destination: "SFO", DepartureDate: "2026-09-05"},
+	}
+	u, err := MultiCityBookingURL(segs, "eur")
+	if err != nil {
+		t.Fatalf("MultiCityBookingURL: %v", err)
+	}
+	if !strings.Contains(u, "curr=EUR") {
+		t.Errorf("expected curr=EUR in URL; got %s", u)
+	}
+	u, err = MultiCityBookingURL(segs, "")
+	if err != nil {
+		t.Fatalf("MultiCityBookingURL: %v", err)
+	}
+	if !strings.Contains(u, "curr=USD") {
+		t.Errorf("expected curr=USD fallback in URL; got %s", u)
+	}
+}
+
 func TestMultiCityBookingURL_RejectsSingleSegment(t *testing.T) {
 	_, err := MultiCityBookingURL([]Segment{
 		{Origin: "SFO", Destination: "NRT", DepartureDate: "2026-08-15"},
-	})
+	}, "")
 	if err == nil || !strings.Contains(err.Error(), ">= 2") {
 		t.Errorf("expected >=2 error, got %v", err)
 	}
@@ -73,7 +96,7 @@ func TestMultiCityBookingURL_RejectsBadDate(t *testing.T) {
 	_, err := MultiCityBookingURL([]Segment{
 		{Origin: "SFO", Destination: "NRT", DepartureDate: "08-15-2026"},
 		{Origin: "NRT", Destination: "SFO", DepartureDate: "2026-09-05"},
-	})
+	}, "")
 	if err == nil || !strings.Contains(err.Error(), "YYYY-MM-DD") {
 		t.Errorf("expected date format error, got %v", err)
 	}

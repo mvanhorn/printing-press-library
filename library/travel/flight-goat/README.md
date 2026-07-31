@@ -46,7 +46,7 @@ Our AeroAPI push notification [testing interface](/commercial/aeroapi/send.rvt)
 provides a quick and easy way to test the delivery of customized alerts via AeroAPI push.
 
 Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
-Contributors: [@lloydarmbrust](https://github.com/lloydarmbrust) (Lloyd Armbrust), [@tmchow](https://github.com/tmchow) (Trevin Chow), [@omarshahine](https://github.com/omarshahine) (Omar Shahine).
+Contributors: [@lloydarmbrust](https://github.com/lloydarmbrust) (Lloyd Armbrust), [@tmchow](https://github.com/tmchow) (Trevin Chow), [@omarshahine](https://github.com/omarshahine) (Omar Shahine), [@giuseppebisemi](https://github.com/giuseppebisemi) (Giuseppe Bisemi).
 
 ## Install
 
@@ -253,6 +253,32 @@ Relocation is one-way. Unsetting `FLIGHT_GOAT_HOME` does not move files back to 
 Existing installs keep working because the platform-default rung matches the legacy layout. On the first auth write, stored secrets leave `config.toml` and are consolidated into `credentials.toml` under the data directory. Run `flight-goat-pp-cli doctor --fail-on warn` to check path and credential-location warnings in automation.
 
 ## Commands
+
+### Fare search (no API key)
+
+The headline commands query consumer fare sources directly — no `FLIGHT_GOAT_API_KEY` needed. FlightAware AeroAPI (the resources below) is secondary and optional.
+
+- **`flight-goat-pp-cli flights <origin> <destination> <date>`** - Google Flights fare search with real prices, durations, airlines, and leg details. Round trip with `--return`, multi-city with repeated `--segment`, batch probes with repeated `--trip`.
+- **`flight-goat-pp-cli dates <origin> <destination>`** - Cheapest-date scan for a route across a travel window.
+- **`flight-goat-pp-cli explore <airport>`** / **`flight-goat-pp-cli longhaul <airport>`** - Kayak nonstop and long-haul route discovery.
+- **`flight-goat-pp-cli soar <origin> <destination> <date>`** - FlySoar (Duffel NDC/GDS) second price opinion with a booking handoff.
+- **`flight-goat-pp-cli assess`** - Delayed-flight/rebooking decision support.
+
+Booking deeplinks in each result's `booking_urls` quote the same `--currency` the search ran in.
+
+#### Bulk fare probes with built-in pacing
+
+Google rate-limits fare traffic per IP; parallel shell loops over `flights` trigger HTTP 429 blocks that can outlast 15 minutes. Run bulk probes in one paced invocation:
+
+```bash
+flight-goat-pp-cli flights \
+  --trip "SEA>DEN@2026-09-14" \
+  --trip "PDX>DEN@2026-09-15@2026-09-17" \
+  --trip "SFO>DEN@2026-09-15" \
+  --pace 3s --currency EUR --agent
+```
+
+`--trip` takes `ORIG>DEST@DEPART` or `ORIG>DEST@DEPART@RETURN` and replaces the positional args; every filter flag applies to all trips. The single JSON envelope carries per-trip rows (`status` `ok`/`error`/`skipped`). Transient 429s retry automatically (2s/5s/12s backoff); on a persistent 429 the batch stops early, the partial envelope is still emitted, and the exit code is 7 (rate limited). `soar` and `explore` use different backends and keep working while Google is blocked.
 
 ### aircraft
 
