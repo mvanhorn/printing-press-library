@@ -1,0 +1,108 @@
+{
+  "target_url": "https://studio.us.screencloud.com/apps/REDACTED/REDACTED",
+  "captured_at": "2026-07-31T17:55:04Z",
+  "interaction_rounds": 5,
+  "auth": {
+    "type": "in_app_browser_session_plus_api_key_replay",
+    "site": "studio.us.screencloud.com",
+    "credentials_persisted": false
+  },
+  "entries": [
+    {
+      "method": "POST",
+      "url": "https://graphql.us.screencloud.com/graphql",
+      "request_headers": {"Content-Type": "application/json"},
+      "response_headers": {"Content-Type": "application/json; charset=utf-8"},
+      "request_body": "{\"query\":\"query VerifyScreenCloudAuthentication { currentOrgId }\"}",
+      "response_body": "{\"data\":{\"currentOrgId\":\"REDACTED\"},\"meta\":{\"graphqlQueryCost\":1}}",
+      "response_status": 200,
+      "response_content_type": "application/json; charset=utf-8",
+      "classification": "",
+      "is_noise": false
+    },
+    {
+      "method": "POST",
+      "url": "https://graphql.us.screencloud.com/graphql",
+      "request_headers": {"Content-Type": "application/json"},
+      "response_headers": {"Content-Type": "application/json; charset=utf-8"},
+      "request_body": "{\"query\":\"query PlaygroundsCatalog { allApps(first: 500) { totalCount nodes { id name slug isInstalled } } }\"}",
+      "response_body": "{\"data\":{\"allApps\":{\"totalCount\":88,\"nodes\":[{\"id\":\"ba2b1fd2-412d-48ea-a06f-296477dd3e32\",\"name\":\"Playgrounds\",\"slug\":\"playgrounds\",\"isInstalled\":true}]}},\"meta\":{\"graphqlQueryCost\":1}}",
+      "response_status": 200,
+      "response_content_type": "application/json; charset=utf-8",
+      "classification": "",
+      "is_noise": false
+    },
+    {
+      "method": "POST",
+      "url": "https://graphql.us.screencloud.com/graphql",
+      "request_headers": {"Content-Type": "application/json"},
+      "response_headers": {"Content-Type": "application/json; charset=utf-8"},
+      "request_body": "{\"query\":\"mutation MintManagementToken($input: AppManagementJwtRequestInput!) { createSignedAppManagementJwt(input: $input) { signedAppManagementToken tokenType expiresAt } }\",\"variables\":{\"input\":{\"spaceId\":\"REDACTED\"}}}",
+      "response_body": "{\"data\":{\"createSignedAppManagementJwt\":{\"signedAppManagementToken\":\"REDACTED\",\"tokenType\":\"REDACTED\",\"expiresAt\":0}}}",
+      "response_status": 200,
+      "response_content_type": "application/json; charset=utf-8",
+      "classification": "",
+      "is_noise": false
+    },
+    {
+      "method": "POST",
+      "url": "https://graphql.us.screencloud.com/graphql",
+      "request_headers": {"Content-Type": "application/json"},
+      "response_headers": {"Content-Type": "application/json; charset=utf-8"},
+      "request_body": "{\"query\":\"mutation MintViewerToken($input: AppViewerJwtRequestInput!) { createSignedAppViewerJwt(input: $input) { signedAppViewerToken tokenType expiresAt } }\",\"variables\":{\"input\":{\"spaceId\":\"REDACTED\"}}}",
+      "response_body": "{\"data\":{\"createSignedAppViewerJwt\":{\"signedAppViewerToken\":\"REDACTED\",\"tokenType\":\"REDACTED\",\"expiresAt\":0}}}",
+      "response_status": 200,
+      "response_content_type": "application/json; charset=utf-8",
+      "classification": "",
+      "is_noise": false
+    },
+    {
+      "method": "GET",
+      "url": "https://api-playgrounds.screencloudapps.com/templates",
+      "request_headers": {},
+      "response_headers": {"Content-Type": "application/json"},
+      "request_body": "",
+      "response_body": "{\"templates\":[{\"name\":\"REDACTED\",\"description\":\"REDACTED\",\"thumbnailUrl\":\"REDACTED\",\"files\":{\"html\":\"REDACTED\",\"css\":\"REDACTED\",\"js\":\"REDACTED\",\"scriptType\":\"javascript\"},\"lastModified\":0,\"data\":{},\"tags\":[]}]}",
+      "response_status": 200,
+      "response_content_type": "application/json",
+      "classification": "",
+      "is_noise": false
+    },
+    {
+      "method": "GET",
+      "url": "https://api-playgrounds.screencloudapps.com/files/REDACTED",
+      "request_headers": {},
+      "response_headers": {"Content-Type": "application/json"},
+      "request_body": "",
+      "response_body": "{\"files\":{\"html\":\"REDACTED\",\"css\":\"REDACTED\",\"js\":\"REDACTED\",\"scriptType\":\"javascript\"},\"lastModified\":\"REDACTED\",\"location\":\"REDACTED\"}",
+      "response_status": 200,
+      "response_content_type": "application/json",
+      "classification": "",
+      "is_noise": false
+    },
+    {
+      "method": "GET",
+      "url": "https://api-playgrounds.screencloudapps.com/data/REDACTED",
+      "request_headers": {},
+      "response_headers": {"Content-Type": "application/json"},
+      "request_body": "",
+      "response_body": "{\"data\":{},\"lastModified\":\"REDACTED\",\"location\":\"REDACTED\"}",
+      "response_status": 200,
+      "response_content_type": "application/json",
+      "classification": "",
+      "is_noise": false
+    },
+    {
+      "method": "GET",
+      "url": "https://api-playgrounds.screencloudapps.com/apps/REDACTED",
+      "request_headers": {},
+      "response_headers": {"Content-Type": "text/html"},
+      "request_body": "",
+      "response_body": "<!doctype html><html><body>REDACTED_PLAYGROUNDS_PACKAGE</body></html>",
+      "response_status": 200,
+      "response_content_type": "text/html",
+      "classification": "",
+      "is_noise": false
+    }
+  ]
+}

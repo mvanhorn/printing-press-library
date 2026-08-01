@@ -1,0 +1,51 @@
+version: 2
+project_name: screencloud-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: screencloud-pp-cli
+    main: ./cmd/screencloud-pp-cli
+    binary: screencloud-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/marketing/screencloud/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: screencloud-pp-mcp
+    main: ./cmd/screencloud-pp-mcp
+    binary: screencloud-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: screencloud-pp-cli
+    repository:
+      owner: benhof
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "A Playgrounds release and fleet-operations CLI that understands both Studio and the app content service."
+    install: |
+      bin.install "screencloud-pp-cli"
+      bin.install "screencloud-pp-mcp"

@@ -1,0 +1,66 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-01T18:18:51.563298Z",
+  "printing_press_version": "4.29.0",
+  "api_name": "screencloud",
+  "display_name": "ScreenCloud",
+  "cli_name": "screencloud-pp-cli",
+  "creator": {
+    "handle": "BenHof",
+    "name": "BenHof"
+  },
+  "owner": "benhof",
+  "printer": "BenHof",
+  "printer_name": "BenHof",
+  "spec_path": "screencloud-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:b82fd19ed4cc6714a1758ee11aa5fbcbf20e727ada84fcd3c55333f5189fdc57",
+  "run_id": "20260731-132333-5e8894d6",
+  "category": "marketing",
+  "description": "A Playgrounds release and fleet-operations CLI that understands both Studio and the app content service.",
+  "mcp_binary": "screencloud-pp-mcp",
+  "mcp_tool_count": 1,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "SCREENCLOUD_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Release impact map",
+      "command": "playgrounds impact",
+      "description": "Map the synchronized spaces, channels, playlists, and screens related to a reviewed Playgrounds working copy before publishing."
+    },
+    {
+      "name": "Fleet readiness audit",
+      "command": "playgrounds readiness",
+      "description": "Find missing, inactive, outdated, dangling, and inconsistent Playgrounds deployments across the organization."
+    },
+    {
+      "name": "Privacy-preserving config drift",
+      "command": "playgrounds config-drift",
+      "description": "Detect structurally divergent Playgrounds configurations without storing or revealing private values."
+    },
+    {
+      "name": "Interrupted-create reconciler",
+      "command": "playgrounds create-reconcile",
+      "description": "Turn a partial create receipt into a resume or cleanup plan; a no-op conclusion requires live verification."
+    },
+    {
+      "name": "Playgrounds contract check",
+      "command": "playgrounds contract-check",
+      "description": "Verify the current management and viewer content contracts after minting ephemeral scoped JWTs, without changing Playgrounds content."
+    },
+    {
+      "name": "Preview drift queue",
+      "command": "playgrounds preview-drift",
+      "description": "Find unpublished previews, production-ahead conflicts, and preview work that has waited too long."
+    },
+    {
+      "name": "Least-privilege capability matrix",
+      "command": "auth capabilities",
+      "description": "Explain whether the current identity appears able to run a supported mapped command without exposing token material or raw effective grants."
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "stage": "studio_instance_created",
+  "app_instance_id": "00000000-0000-4000-8000-000000000003",
+  "app_uuid": "00000000-0000-4000-8000-000000000001",
+  "space_id": "00000000-0000-4000-8000-000000000002",
+  "studio_instance_created": true,
+  "files_uploaded": false,
+  "data_uploaded": false
+}

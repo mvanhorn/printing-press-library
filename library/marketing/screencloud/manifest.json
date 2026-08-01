@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "screencloud-pp-mcp",
+  "display_name": "ScreenCloud",
+  "version": "0.1.0",
+  "description": "A Playgrounds release and fleet-operations CLI that understands both Studio and the app content service.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/screencloud-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/screencloud-pp-mcp",
+      "args": [],
+      "env": {
+        "SCREENCLOUD_API_KEY": "${user_config.screencloud_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "screencloud_api_key": {
+      "type": "string",
+      "title": "SCREENCLOUD_API_KEY",
+      "description": "Sets SCREENCLOUD_API_KEY for the ScreenCloud MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

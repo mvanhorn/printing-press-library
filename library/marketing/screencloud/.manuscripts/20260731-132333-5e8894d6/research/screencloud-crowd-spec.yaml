@@ -1,0 +1,31 @@
+name: screencloud
+description: Discovered API spec for screencloud (crowd-sniff)
+version: 0.1.0
+base_url: https://graphql.us.screencloud.com/graphql
+spec_source: community
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+config:
+    format: toml
+    path: ~/.config/screencloud-pp-cli/config.toml
+resources:
+    workramp:
+        description: Operations on instant-auth
+        endpoints:
+            create_instant_auth:
+                method: POST
+                path: /workramp/instant-auth
+                description: POST /workramp/instant-auth
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: official-sdk
+types: {}

@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/screencloud-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260731-132333-5e8894d6",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}
