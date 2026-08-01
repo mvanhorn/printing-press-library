@@ -39,10 +39,6 @@ func init() {
 		root.AddCommand(newScreenCloudSyncCmd(flags))
 		root.AddCommand(newScreenCloudSearchCmd(flags))
 
-		if auth, _, err := root.Find([]string{"auth"}); err == nil && auth != root {
-			auth.AddCommand(newAuthInspectCmd(flags))
-			auth.AddCommand(newNovelAuthCapabilitiesCmd(flags))
-		}
 		if graphql, _, err := root.Find([]string{"graphql"}); err == nil && graphql != root {
 			graphql.AddCommand(newGraphQLRequestCmd(flags), newGraphQLParseCmd(flags), newGraphQLAtlasCmd(flags))
 		}

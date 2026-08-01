@@ -7,8 +7,10 @@
   "summary": "Preserve ScreenCloud trust boundaries, explicit mutation confirmation, incomplete-evidence handling, and guarded Playgrounds workflows across regeneration.",
   "reason": "Studio organization keys must never cross into Playgrounds, private app data and ephemeral JWTs must not be persisted or printed, and partial synchronization or permission evidence must fail closed instead of producing healthy or authorized conclusions.",
   "files": [
-    "internal/cli/root.go",
-    "internal/cli/promoted_graphql.go",
+		"internal/cli/root.go",
+		"internal/cli/auth.go",
+		"internal/cli/promoted_graphql.go",
+		"internal/cli/screencloud_commands.go",
     "internal/cli/screencloud_api.go",
     "internal/cli/screencloud_sync.go",
     "internal/cli/auth_capabilities.go",
