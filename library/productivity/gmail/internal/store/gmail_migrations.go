@@ -38,7 +38,12 @@ type ScheduledSend struct {
 	// message actually went out instead of guessing.
 	MessageIDHeader string `json:"message_id_header,omitempty"`
 	Attempts        int    `json:"attempts,omitempty"`
-	LastError       string `json:"error,omitempty"`
+	// DraftID is the Gmail draft this item was staged into before sending.
+	// Gmail deletes a draft when it is sent, so drafts.get is a strongly
+	// consistent answer to "did this already go out?" — unlike a search on
+	// Message-ID, which depends on index latency.
+	DraftID   string `json:"draft_id,omitempty"`
+	LastError string `json:"error,omitempty"`
 }
 
 // EnsureGmailSchema creates the hand-authored tables if absent. Safe to call
@@ -79,6 +84,7 @@ func (s *Store) EnsureGmailSchema() error {
 		`ALTER TABLE scheduled_sends ADD COLUMN claimed_at DATETIME`,
 		`ALTER TABLE scheduled_sends ADD COLUMN message_id TEXT NOT NULL DEFAULT ''`,
 		`ALTER TABLE scheduled_sends ADD COLUMN attempts INTEGER NOT NULL DEFAULT 0`,
+		`ALTER TABLE scheduled_sends ADD COLUMN draft_id TEXT NOT NULL DEFAULT ''`,
 	} {
 		if _, err := s.db.Exec(stmt); err != nil && !strings.Contains(err.Error(), "duplicate column name") {
 			return fmt.Errorf("migrating scheduled_sends: %w", err)
@@ -142,7 +148,7 @@ func scanScheduledSend(rows *sql.Rows) (ScheduledSend, error) {
 	err := rows.Scan(&it.ID, &it.To, &it.Cc, &it.Bcc, &it.Subject, &it.BodyText,
 		&it.BodyHTML, &atts, &it.ThreadID, &it.InReplyTo, &it.References,
 		&it.SendAt, &it.CreatedAt, &it.Status, &sentAt, &it.GmailID, &it.LastError,
-		&it.MessageIDHeader, &it.Attempts)
+		&it.MessageIDHeader, &it.Attempts, &it.DraftID)
 	if err != nil {
 		return it, err
 	}
@@ -156,7 +162,7 @@ func scanScheduledSend(rows *sql.Rows) (ScheduledSend, error) {
 
 const scheduledSendCols = `id, to_addrs, cc, bcc, subject, body_text, body_html,
 	attachments, thread_id, in_reply_to, refs, send_at, created_at, status,
-	sent_at, gmail_message_id, last_error, message_id, attempts`
+	sent_at, gmail_message_id, last_error, message_id, attempts, draft_id`
 
 // ListScheduledSends returns queue items, newest-scheduled first. status ""
 // means all statuses.
@@ -287,6 +293,19 @@ func (s *Store) DeferScheduledSend(id int64, reason string) error {
 		WHERE id = ? AND status = 'sending'`, reason, id)
 	if err != nil {
 		return fmt.Errorf("deferring scheduled send %d: %w", id, err)
+	}
+	return nil
+}
+
+// RecordScheduledSendDraft persists the Gmail draft id for a claimed item.
+// Written before the send is attempted so a crash mid-send leaves a
+// recoverable handle rather than an unanswerable question.
+func (s *Store) RecordScheduledSendDraft(id int64, draftID string) error {
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	_, err := s.db.Exec(`UPDATE scheduled_sends SET draft_id = ? WHERE id = ?`, draftID, id)
+	if err != nil {
+		return fmt.Errorf("recording draft id for scheduled send %d: %w", id, err)
 	}
 	return nil
 }

@@ -29,14 +29,19 @@ func init() {
 }
 
 type pullResult struct {
-	Mode          string `json:"mode"` // full | incremental
-	Messages      int    `json:"messages_stored"`
-	Labels        int    `json:"labels_stored"`
-	Skipped       int    `json:"skipped"`
-	Deleted       int    `json:"deleted,omitempty"`
-	HistoryID     string `json:"history_id"`
-	WindowQuery   string `json:"window_query,omitempty"`
-	CursorExpired bool   `json:"cursor_expired,omitempty"`
+	Mode        string `json:"mode"` // full | incremental
+	Messages    int    `json:"messages_stored"`
+	Labels      int    `json:"labels_stored"`
+	Skipped     int    `json:"skipped"`
+	Deleted     int    `json:"deleted,omitempty"`
+	HistoryID   string `json:"history_id"`
+	WindowQuery string `json:"window_query,omitempty"`
+	// DeletionsReconciled records whether this run could safely prune rows
+	// for mail deleted upstream. A partial or narrowed listing cannot: an
+	// absent id then means "not fetched", not "deleted".
+	DeletionsReconciled    bool   `json:"deletions_reconciled"`
+	ReconcileSkippedReason string `json:"deletions_not_reconciled_because,omitempty"`
+	CursorExpired          bool   `json:"cursor_expired,omitempty"`
 }
 
 // pullStoreMessages hydrates ids (full format: headers + body for FTS) and
@@ -347,12 +352,28 @@ func runMailboxPull(cmd *cobra.Command, flags *rootFlags, opts mailboxPullOption
 		// Only prune when the listing was complete and nothing was skipped —
 		// a truncated or partial listing cannot distinguish "deleted upstream"
 		// from "not returned this time".
-		if !metadataOnly && skipped == 0 && len(ids) < limit && query == "" {
+		switch {
+		case skipped > 0:
+			res.DeletionsReconciled = false
+			res.ReconcileSkippedReason = "some messages could not be fetched, so an absent id cannot be read as deleted"
+		case len(ids) >= limit:
+			res.DeletionsReconciled = false
+			res.ReconcileSkippedReason = fmt.Sprintf("listing hit --limit %d, so it is not a complete view of the window", limit)
+		case query != "":
+			res.DeletionsReconciled = false
+			res.ReconcileSkippedReason = "--query narrows the listing, so messages outside it are not absent, just unlisted"
+		default:
 			pruned, err := pruneMissingInWindow(cmd, db, ids, days)
 			if err != nil {
 				return fmt.Errorf("reconciling deleted messages: %w", err)
 			}
 			res.Deleted = pruned
+			res.DeletionsReconciled = true
+		}
+		if !res.DeletionsReconciled {
+			fmt.Fprintf(cmd.ErrOrStderr(),
+				"note: upstream deletions were not reconciled this run (%s); re-run 'gmail-pp-cli pull --full' without --query and with a limit above the window size to prune them\n",
+				res.ReconcileSkippedReason)
 		}
 
 		if n, err := pullLabels(cmd, c, db); err == nil {

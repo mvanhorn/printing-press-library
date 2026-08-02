@@ -10,6 +10,7 @@ package cli
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -17,6 +18,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/mvanhorn/printing-press-library/library/productivity/gmail/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/productivity/gmail/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/productivity/gmail/internal/gmailmail"
 	"github.com/mvanhorn/printing-press-library/library/productivity/gmail/internal/store"
@@ -346,6 +348,34 @@ func deliverDue(cmd *cobra.Command, flags *rootFlags, db *store.Store) (schedule
 				continue
 			}
 		}
+
+		// Strongly consistent recovery: if a previous attempt staged a draft,
+		// ask for that draft by id. Gmail deletes a draft the moment it is
+		// sent, so "gone" means delivered and "present" means not yet — no
+		// dependence on search-index latency.
+		if item.DraftID != "" {
+			exists, err := draftExists(cmd, flags, item.DraftID)
+			if err != nil {
+				if deferErr := db.DeferScheduledSend(item.ID,
+					fmt.Sprintf("draft lookup failed, delivery deferred: %v", err)); deferErr != nil {
+					return res, deferErr
+				}
+				res.Deferred = append(res.Deferred, item.ID)
+				fmt.Fprintf(cmd.ErrOrStderr(),
+					"item #%d: could not read the staged draft (%v); leaving it queued rather than risking a duplicate\n",
+					item.ID, err)
+				continue
+			}
+			if !exists {
+				// The draft is gone, so the previous attempt's send succeeded.
+				if finishErr := db.FinishScheduledSend(item.ID, "", nil); finishErr != nil {
+					return res, finishErr
+				}
+				res.Sent = append(res.Sent, item.ID)
+				fmt.Fprintf(cmd.ErrOrStderr(), "item #%d was already delivered by an interrupted run; not resending\n", item.ID)
+				continue
+			}
+		}
 		var attach []string
 		_ = json.Unmarshal(item.Attachments, &attach)
 		compose := gmailmail.Compose{
@@ -368,7 +398,7 @@ func deliverDue(cmd *cobra.Command, flags *rootFlags, db *store.Store) (schedule
 			res.Failed = append(res.Failed, item.ID)
 			continue
 		}
-		gmailID, sendErr := gmailSendRaw(cmd.Context(), c, raw, item.ThreadID)
+		gmailID, sendErr := sendViaDraft(cmd, c, db, item, raw)
 		if finishErr := db.FinishScheduledSend(item.ID, gmailID, sendErr); finishErr != nil {
 			return res, finishErr
 		}
@@ -475,4 +505,64 @@ func findSentByMessageID(cmd *cobra.Command, flags *rootFlags, messageID string)
 		return "", false, nil
 	}
 	return ids[0], true, nil
+}
+
+// draftExists reports whether a staged draft is still present. Gmail removes
+// the draft when it is sent, so absence is proof of delivery.
+func draftExists(cmd *cobra.Command, flags *rootFlags, draftID string) (bool, error) {
+	c, err := flags.newClient()
+	if err != nil {
+		return false, err
+	}
+	_, err = c.Get(cmd.Context(), "/gmail/v1/users/me/drafts/"+draftID, map[string]string{"format": "minimal"})
+	if err == nil {
+		return true, nil
+	}
+	var apiErr *client.APIError
+	if errors.As(err, &apiErr) && apiErr.StatusCode == 404 {
+		return false, nil
+	}
+	return false, err
+}
+
+// sendViaDraft stages the message as a Gmail draft, records the draft id, then
+// sends that draft. The recorded id is a durable handle: if the process dies
+// after the send, the next run resolves the outcome with a direct drafts.get
+// instead of guessing, which is what keeps an interrupted run from delivering
+// the same email twice.
+func sendViaDraft(cmd *cobra.Command, c *client.Client, db *store.Store, item store.ScheduledSend, raw string) (string, error) {
+	draftID := item.DraftID
+	if draftID == "" {
+		msg := map[string]any{"raw": raw}
+		if item.ThreadID != "" {
+			msg["threadId"] = item.ThreadID
+		}
+		data, _, err := c.Post(cmd.Context(), "/gmail/v1/users/me/drafts", map[string]any{"message": msg})
+		if err != nil {
+			return "", err
+		}
+		var created struct {
+			ID string `json:"id"`
+		}
+		if err := json.Unmarshal(data, &created); err != nil || created.ID == "" {
+			return "", fmt.Errorf("parsing created draft for scheduled send %d", item.ID)
+		}
+		draftID = created.ID
+		// Persist before sending: a crash here leaves an unsent draft, which
+		// is recoverable, instead of an unattributable send.
+		if err := db.RecordScheduledSendDraft(item.ID, draftID); err != nil {
+			return "", err
+		}
+	}
+	data, _, err := c.Post(cmd.Context(), "/gmail/v1/users/me/drafts/send", map[string]string{"id": draftID})
+	if err != nil {
+		return "", err
+	}
+	var sent struct {
+		ID string `json:"id"`
+	}
+	if err := json.Unmarshal(data, &sent); err != nil {
+		return "", fmt.Errorf("parsing draft send response: %w", err)
+	}
+	return sent.ID, nil
 }

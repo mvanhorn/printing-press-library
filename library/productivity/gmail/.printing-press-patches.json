@@ -125,6 +125,25 @@
         "internal/store/gmail_migrations.go"
       ],
       "validated_outcome": "DeferScheduledSend returns the item to pending with a recorded reason and it remains due for a later run; covered by TestDeferScheduledSendReturnsItemToPending."
+    },
+    {
+      "id": "gmail-schedule-draft-staged-send",
+      "summary": "Stage each scheduled message as a Gmail draft, persist the draft id, then send that draft.",
+      "reason": "Message-ID search alone still left a duplicate window: Gmail's search index can lag a just-sent message, so a crash-then-retry could read not-found and resend. Gmail deletes a draft the instant it is sent, so drafts.get on a persisted id is a strongly consistent answer to whether delivery happened.",
+      "files": [
+        "internal/cli/schedule.go",
+        "internal/store/gmail_migrations.go"
+      ],
+      "validated_outcome": "draft_id persists before the send is attempted; recovery resolves via drafts.get (404 = delivered, 200 = still queued) with no dependence on search latency."
+    },
+    {
+      "id": "gmail-pull-reports-reconciliation-status",
+      "summary": "Report whether upstream deletions were reconciled, and why not when they were not.",
+      "reason": "The prune is deliberately skipped on partial or narrowed listings, but skipping silently left users believing the mirror was authoritative when stale rows could remain.",
+      "files": [
+        "internal/cli/pull.go"
+      ],
+      "validated_outcome": "pull emits deletions_reconciled plus deletions_not_reconciled_because in JSON and a stderr note naming the remedy."
     }
   ]
 }
