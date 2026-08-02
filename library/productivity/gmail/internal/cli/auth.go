@@ -372,7 +372,12 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			w := cmd.OutOrStdout()
-			authed := cfg.AccessToken != ""
+			// A refresh token plus client credentials is a working auth state:
+			// the client mints an access token on first use. Reporting FAIL
+			// here told users they were unauthenticated while every command
+			// against the live API succeeded.
+			authed := cfg.AccessToken != "" ||
+				(cfg.RefreshToken != "" && cfg.ClientID != "")
 			// JSON envelope: {authenticated, verified, source, config}.
 			if flags.asJSON {
 				out := map[string]any{

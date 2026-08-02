@@ -8,42 +8,75 @@
       "id": "gmail-user-id-defaults-to-me",
       "summary": "Default the {userId} template var to \"me\" instead of a placeholder outside verify mode.",
       "reason": "Every Gmail path is /users/{userId}/...; \"me\" is the only value that makes sense for a personal OAuth token, so the generated placeholder made every request 404 until GMAIL_USER_ID was set by hand.",
-      "files": ["internal/config/config.go"],
+      "files": [
+        "internal/config/config.go"
+      ],
       "validated_outcome": "users-profile me and all generated endpoint commands resolve against the live API without GMAIL_USER_ID set."
     },
     {
       "id": "gmail-credentials-merge-refresh-only",
       "summary": "Treat a refresh-token-only config as incomplete so the access token still merges from the credentials file.",
       "reason": "hasCompleteCredentialFields returned true when only RefreshToken was set, so config.Load skipped the credentials-file merge and left AccessToken empty; the generated TestPartialConfigCredentialsMergeMissingFields failed out of the box.",
-      "files": ["internal/config/config.go"],
+      "files": [
+        "internal/config/config.go"
+      ],
       "validated_outcome": "go test ./internal/config ./internal/cliutil passes; partial-config merge test green."
     },
     {
       "id": "gmail-sync-delegates-to-mailbox-pull",
       "summary": "Bare `sync` delegates to the hand-authored mailbox pull flow instead of an empty resource loop.",
       "reason": "messages.list returns bare ids, so the generic per-resource sync could never hydrate a useful local store; the emitted defaultSyncResources was empty and `sync` was a runtime no-op while framework hints still told users to run it.",
-      "files": ["internal/cli/sync.go", "internal/cli/pull.go"],
+      "files": [
+        "internal/cli/sync.go",
+        "internal/cli/pull.go"
+      ],
       "validated_outcome": "sync with no flags mirrored 1262 live messages, 0 skipped; dogfood's sync-no-op warning cleared."
     },
     {
       "id": "gmail-resource-read-paths",
       "summary": "Populate the emitted resourceReadPaths/resourceReadConfigs maps for messages, threads, labels, drafts, and filters.",
       "reason": "The generator emitted empty maps, leaving `tail` with zero valid resources (a runtime no-op) and `export`'s batch mode without a resolvable list path.",
-      "files": ["internal/cli/resource_paths.go", "internal/cli/export.go", "internal/cli/gmail_helpers.go"],
+      "files": [
+        "internal/cli/resource_paths.go",
+        "internal/cli/export.go",
+        "internal/cli/gmail_helpers.go"
+      ],
       "validated_outcome": "verify's resource-path checks for tail and export cleared; verify pass rate 100%."
     },
     {
       "id": "gmail-static-novel-command-registration",
       "summary": "Register root-level novel commands via guarded direct rootCmd.AddCommand instead of the addNovelCommandIfAbsent indirection.",
       "reason": "The indirection hides registrations from every static command-tree consumer, so dogfood's depth check reported `schedule send` as registered under drafts/messages and the scorecard missed the novel leaves.",
-      "files": ["internal/cli/root.go"],
+      "files": [
+        "internal/cli/root.go"
+      ],
       "validated_outcome": "dogfood novel-feature depth mismatch cleared; 6/6 novel features detected."
     },
     {
       "id": "gmail-tail-example-fix",
       "summary": "Point tail's help example at a real resource instead of the nonexistent \"events\" resource.",
       "reason": "The generated example referenced a resource this spec does not define, so copy-pasting it failed.",
-      "files": ["internal/cli/tail.go"]
+      "files": [
+        "internal/cli/tail.go"
+      ]
+    },
+    {
+      "id": "gmail-filters-static-subcommand-registration",
+      "summary": "Register the filters diff/apply leaves with direct cmd.AddCommand instead of addNovelCommandIfAbsent.",
+      "reason": "The indirection hides child registrations from static command-tree analysis, so the library's skill verifier parsed `filters diff --file` as a positional arg plus an unknown flag on `filters`.",
+      "files": [
+        "internal/cli/filters.go"
+      ],
+      "validated_outcome": "Library CI check 'Validate SKILL.md against shipped CLI source' passes."
+    },
+    {
+      "id": "gmail-auth-status-accepts-refresh-token",
+      "summary": "Treat refresh token plus client id as authenticated in `auth status`.",
+      "reason": "The generated check was `cfg.AccessToken != \"\"`, so a refresh-token-only config reported FAIL while every live command succeeded by minting a token on demand.",
+      "files": [
+        "internal/cli/auth.go"
+      ],
+      "validated_outcome": "auth status reports credentials present; users-profile returns live data with the same config."
     }
   ]
 }
