@@ -52,6 +52,7 @@ func BatchGetMessages(ctx context.Context, c RawSender, ids []string, format str
 	// silently dropped: an empty result and a rate-limited result must never
 	// look the same to the caller.
 	pending := append([]string(nil), ids...)
+	terminalFailures := 0
 	for attempt := 0; attempt <= batchRetries; attempt++ {
 		if len(pending) == 0 {
 			break
@@ -61,7 +62,7 @@ func BatchGetMessages(ctx context.Context, c RawSender, ids []string, format str
 			delay := time.Duration(1<<(attempt-1)) * time.Second
 			select {
 			case <-ctx.Done():
-				return out, len(pending), ctx.Err()
+				return out, len(pending) + terminalFailures, ctx.Err()
 			case <-time.After(delay):
 			}
 		}
@@ -71,21 +72,22 @@ func BatchGetMessages(ctx context.Context, c RawSender, ids []string, format str
 			if end > len(pending) {
 				end = len(pending)
 			}
-			msgs, retry, err := batchGetChunk(ctx, c, pending[start:end], format, metadataHeaders)
+			msgs, retry, term, err := batchGetChunk(ctx, c, pending[start:end], format, metadataHeaders)
 			if err != nil {
-				return out, len(pending), err
+				return out, len(pending) + terminalFailures, err
 			}
 			out = append(out, msgs...)
 			throttled = append(throttled, retry...)
+			terminalFailures += term
 		}
 		pending = throttled
 	}
-	return out, len(pending), nil
+	return out, len(pending) + terminalFailures, nil
 }
 
 // batchGetChunk returns the messages it recovered plus the ids whose
 // sub-request was rate-limited and should be retried.
-func batchGetChunk(ctx context.Context, c RawSender, ids []string, format string, metadataHeaders []string) ([]Message, []string, error) {
+func batchGetChunk(ctx context.Context, c RawSender, ids []string, format string, metadataHeaders []string) ([]Message, []string, int, error) {
 	var body bytes.Buffer
 	w := multipart.NewWriter(&body)
 	for i, id := range ids {
@@ -94,7 +96,7 @@ func batchGetChunk(ctx context.Context, c RawSender, ids []string, format string
 		ph.Set("Content-ID", fmt.Sprintf("<item-%d>", i))
 		part, err := w.CreatePart(ph)
 		if err != nil {
-			return nil, nil, fmt.Errorf("building batch part: %w", err)
+			return nil, nil, 0, fmt.Errorf("building batch part: %w", err)
 		}
 		q := url.Values{}
 		if format != "" {
@@ -105,24 +107,24 @@ func batchGetChunk(ctx context.Context, c RawSender, ids []string, format string
 		}
 		reqLine := fmt.Sprintf("GET /gmail/v1/users/me/messages/%s?%s HTTP/1.1\r\n\r\n", url.PathEscape(id), q.Encode())
 		if _, err := part.Write([]byte(reqLine)); err != nil {
-			return nil, nil, fmt.Errorf("writing batch part: %w", err)
+			return nil, nil, 0, fmt.Errorf("writing batch part: %w", err)
 		}
 	}
 	if err := w.Close(); err != nil {
-		return nil, nil, fmt.Errorf("closing batch body: %w", err)
+		return nil, nil, 0, fmt.Errorf("closing batch body: %w", err)
 	}
 
 	contentType := "multipart/mixed; boundary=" + w.Boundary()
 	resp, status, err := c.SendRaw(ctx, "POST", "/batch/gmail/v1", nil, body.Bytes(), contentType, map[string]string{"Accept": "multipart/mixed"})
 	if err != nil {
-		return nil, nil, fmt.Errorf("batch request: %w", err)
+		return nil, nil, 0, fmt.Errorf("batch request: %w", err)
 	}
 	if status < 200 || status >= 300 {
-		return nil, nil, fmt.Errorf("batch request returned HTTP %d", status)
+		return nil, nil, 0, fmt.Errorf("batch request returned HTTP %d", status)
 	}
-	msgs, throttledIdx, err := parseBatchResponseIndexed([]byte(resp))
+	msgs, throttledIdx, terminal, err := parseBatchResponseIndexed([]byte(resp))
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, 0, err
 	}
 	// Map throttled part positions back to the ids that produced them.
 	var retry []string
@@ -131,7 +133,7 @@ func batchGetChunk(ctx context.Context, c RawSender, ids []string, format string
 			retry = append(retry, ids[i])
 		}
 	}
-	return msgs, retry, nil
+	return msgs, retry, terminal, nil
 }
 
 // binaryEnvelope mirrors the generated client's base64 wrapper. The client
@@ -165,34 +167,35 @@ func unwrapBinaryEnvelope(body []byte) []byte {
 // ParseBatchResponse splits a multipart/mixed batch response into messages.
 // The second return is the count of parts that did not yield a message.
 func ParseBatchResponse(body []byte) ([]Message, int, error) {
-	msgs, throttled, err := parseBatchResponseIndexed(body)
-	return msgs, len(throttled), err
+	msgs, throttled, terminal, err := parseBatchResponseIndexed(body)
+	return msgs, len(throttled) + terminal, err
 }
 
 // parseBatchResponseIndexed additionally reports the positions of parts whose
 // sub-request was rate-limited, so the caller can retry exactly those ids.
 // The boundary is recovered from the body's first delimiter line, since the
 // generated client does not expose response headers.
-func parseBatchResponseIndexed(body []byte) ([]Message, []int, error) {
+func parseBatchResponseIndexed(body []byte) ([]Message, []int, int, error) {
 	body = unwrapBinaryEnvelope(body)
 	trimmed := bytes.TrimLeft(body, "\r\n \t")
 	if !bytes.HasPrefix(trimmed, []byte("--")) {
 		// Not multipart: either a top-level error envelope or a single JSON body.
 		var single Message
 		if err := json.Unmarshal(trimmed, &single); err == nil && single.ID != "" {
-			return []Message{single}, nil, nil
+			return []Message{single}, nil, 0, nil
 		}
-		return nil, nil, fmt.Errorf("unexpected batch response shape (no multipart boundary)")
+		return nil, nil, 0, fmt.Errorf("unexpected batch response shape (no multipart boundary)")
 	}
 	firstLine, _, _ := bytes.Cut(trimmed, []byte("\n"))
 	boundary := strings.TrimSuffix(strings.TrimPrefix(strings.TrimSpace(string(firstLine)), "--"), "--")
 	if boundary == "" {
-		return nil, nil, fmt.Errorf("could not recover multipart boundary from batch response")
+		return nil, nil, 0, fmt.Errorf("could not recover multipart boundary from batch response")
 	}
 
 	mr := multipart.NewReader(bytes.NewReader(body), boundary)
 	var out []Message
 	var retryable []int
+	terminal := 0
 	for idx := 0; ; idx++ {
 		p, err := mr.NextPart()
 		if err != nil {
@@ -208,11 +211,13 @@ func parseBatchResponseIndexed(body []byte) ([]Message, []int, error) {
 			// missing messages; they need to be asked for again.
 			retryable = append(retryable, idx)
 		default:
-			// Terminal failure for this part (404, malformed, and so on).
-			retryable = append(retryable, idx)
+			// Terminal for this part (400, 404, malformed). Re-sending would
+			// spend quota and backoff to arrive at the same answer, so count
+			// it as failed now instead of feeding it back into the retry set.
+			terminal++
 		}
 	}
-	return out, retryable, nil
+	return out, retryable, terminal, nil
 }
 
 // isRetryableStatus reports whether an inner sub-request status warrants a retry.

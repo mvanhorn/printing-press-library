@@ -77,6 +77,44 @@
         "internal/cli/auth.go"
       ],
       "validated_outcome": "auth status reports credentials present; users-profile returns live data with the same config."
+    },
+    {
+      "id": "gmail-schedule-crash-safe-idempotency",
+      "summary": "Stamp an RFC 5322 Message-ID at queue time and verify delivery against Gmail before re-sending a previously attempted item.",
+      "reason": "Stale-claim recovery requeued items that had already been accepted by Gmail but crashed before the completion write, so an interrupted run delivered the same email twice.",
+      "files": [
+        "internal/gmailmail/build.go",
+        "internal/store/gmail_migrations.go",
+        "internal/cli/schedule.go"
+      ],
+      "validated_outcome": "Message-ID persists in scheduled_sends; deliverDue queries rfc822msgid: for any item with attempts>1 and marks it sent instead of resending."
+    },
+    {
+      "id": "gmail-pull-cursor-holds-on-skip",
+      "summary": "Hold the history cursor when any changed message failed to store instead of advancing past it.",
+      "reason": "Advancing to the newest historyId after a skip stepped the window past those ids permanently, so they never reached the mirror, search, or analytics.",
+      "files": [
+        "internal/cli/pull.go"
+      ],
+      "validated_outcome": "Incremental pull reports the held cursor on stderr and retries the ids on the next run; clean runs still advance."
+    },
+    {
+      "id": "gmail-pull-prunes-deleted-on-resync",
+      "summary": "Reconcile upstream deletions during the windowed resync that follows a cursor expiry.",
+      "reason": "The resync only upserted; messages deleted while the cursor was expired lingered in offline search and analytics forever.",
+      "files": [
+        "internal/cli/pull.go"
+      ],
+      "validated_outcome": "pruneMissingInWindow deletes in-window rows Gmail no longer lists, and only runs when the listing was complete (not limit-truncated, not query-narrowed, nothing skipped)."
+    },
+    {
+      "id": "gmail-batch-terminal-not-retried",
+      "summary": "Count terminal per-part batch statuses (400/404) as failed instead of feeding them back into the retry set.",
+      "reason": "Terminal failures were retried through all four backoff rounds, spending quota and up to fifteen seconds to reach the same answer.",
+      "files": [
+        "internal/gmailmail/batch.go"
+      ],
+      "validated_outcome": "A 404 part returns after one call with no backoff; only 403/429/5xx are retried."
     }
   ]
 }

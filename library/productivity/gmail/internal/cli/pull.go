@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"math"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 
@@ -289,11 +290,22 @@ func runMailboxPull(cmd *cobra.Command, flags *rootFlags, opts mailboxPullOption
 						res.Deleted++
 					}
 				}
-				res.HistoryID = newest
+				// Only advance the cursor when every changed message landed.
+				// Saving `newest` after a skip steps the window past those ids
+				// permanently, so they would never reach the mirror, search, or
+				// analytics again. Holding the old cursor retries them next run.
+				cursorToSave := newest
+				if skipped > 0 {
+					cursorToSave = cursor
+					fmt.Fprintf(cmd.ErrOrStderr(),
+						"holding history cursor at %s: %d message(s) were not stored and will be retried on the next pull\n",
+						cursor, skipped)
+				}
+				res.HistoryID = cursorToSave
 				if n, err := pullLabels(cmd, c, db); err == nil {
 					res.Labels = n
 				}
-				if err := db.SaveSyncState("messages", newest, stored); err != nil {
+				if err := db.SaveSyncState("messages", cursorToSave, stored); err != nil {
 					return fmt.Errorf("saving sync cursor: %w", err)
 				}
 				return pullReport(cmd, flags, res)
@@ -328,6 +340,21 @@ func runMailboxPull(cmd *cobra.Command, flags *rootFlags, opts mailboxPullOption
 			return classifyAPIError(err, flags)
 		}
 		res.Messages, res.Skipped = stored, skipped
+
+		// Reconcile deletions. A windowed resync runs precisely when the
+		// history cursor expired, which is when deletions were missed: without
+		// this, upstream-deleted mail lingers in search and analytics forever.
+		// Only prune when the listing was complete and nothing was skipped —
+		// a truncated or partial listing cannot distinguish "deleted upstream"
+		// from "not returned this time".
+		if !metadataOnly && skipped == 0 && len(ids) < limit && query == "" {
+			pruned, err := pruneMissingInWindow(cmd, db, ids, days)
+			if err != nil {
+				return fmt.Errorf("reconciling deleted messages: %w", err)
+			}
+			res.Deleted = pruned
+		}
+
 		if n, err := pullLabels(cmd, c, db); err == nil {
 			res.Labels = n
 		}
@@ -349,4 +376,50 @@ func pullReport(cmd *cobra.Command, flags *rootFlags, res pullResult) error {
 		fmt.Fprintln(cmd.ErrOrStderr(), "note: history cursor had expired; ran a windowed resync")
 	}
 	return nil
+}
+
+// pruneMissingInWindow deletes local messages inside the resync window that
+// Gmail no longer returns. Callers must only invoke this when the listing was
+// complete (not truncated by --limit, not narrowed by --query, nothing
+// skipped); otherwise an absent id means "not fetched", not "deleted".
+func pruneMissingInWindow(cmd *cobra.Command, db *store.Store, ids []string, days int) (int, error) {
+	if len(ids) == 0 {
+		return 0, nil
+	}
+	present := make(map[string]bool, len(ids))
+	for _, id := range ids {
+		present[id] = true
+	}
+	cutoff := time.Now().AddDate(0, 0, -days).UTC().Format(time.RFC3339)
+	rows, err := db.DB().QueryContext(cmd.Context(),
+		`SELECT id FROM messages WHERE COALESCE(json_extract(data,'$.internal_ts'),'') >= ?`, cutoff)
+	if err != nil {
+		return 0, err
+	}
+	var stale []string
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			rows.Close()
+			return 0, err
+		}
+		if !present[id] {
+			stale = append(stale, id)
+		}
+	}
+	rows.Close()
+	if err := rows.Err(); err != nil {
+		return 0, err
+	}
+	pruned := 0
+	for _, id := range stale {
+		if _, err := db.DB().ExecContext(cmd.Context(), `DELETE FROM messages WHERE id = ?`, id); err != nil {
+			return pruned, err
+		}
+		pruned++
+	}
+	if pruned > 0 {
+		fmt.Fprintf(cmd.ErrOrStderr(), "pruned %d message(s) deleted upstream\n", pruned)
+	}
+	return pruned, nil
 }

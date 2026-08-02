@@ -32,7 +32,13 @@ type ScheduledSend struct {
 	SentAt      sql.NullTime    `json:"-"`
 	SentAtJSON  string          `json:"sent_at,omitempty"`
 	GmailID     string          `json:"gmail_message_id,omitempty"`
-	LastError   string          `json:"error,omitempty"`
+	// MessageIDHeader is the RFC 5322 Message-ID stamped on the outbound
+	// message. Gmail indexes it, so it doubles as a crash-safe idempotency
+	// key: after an interrupted attempt we can ask the server whether the
+	// message actually went out instead of guessing.
+	MessageIDHeader string `json:"message_id_header,omitempty"`
+	Attempts        int    `json:"attempts,omitempty"`
+	LastError       string `json:"error,omitempty"`
 }
 
 // EnsureGmailSchema creates the hand-authored tables if absent. Safe to call
@@ -69,9 +75,14 @@ func (s *Store) EnsureGmailSchema() error {
 	}
 	// claimed_at backs stale-claim recovery. Added after the initial schema,
 	// so tolerate the duplicate-column error on existing databases.
-	if _, err := s.db.Exec(`ALTER TABLE scheduled_sends ADD COLUMN claimed_at DATETIME`); err != nil &&
-		!strings.Contains(err.Error(), "duplicate column name") {
-		return fmt.Errorf("adding claimed_at column: %w", err)
+	for _, stmt := range []string{
+		`ALTER TABLE scheduled_sends ADD COLUMN claimed_at DATETIME`,
+		`ALTER TABLE scheduled_sends ADD COLUMN message_id TEXT NOT NULL DEFAULT ''`,
+		`ALTER TABLE scheduled_sends ADD COLUMN attempts INTEGER NOT NULL DEFAULT 0`,
+	} {
+		if _, err := s.db.Exec(stmt); err != nil && !strings.Contains(err.Error(), "duplicate column name") {
+			return fmt.Errorf("migrating scheduled_sends: %w", err)
+		}
 	}
 	return nil
 }
@@ -114,10 +125,10 @@ func (s *Store) CreateScheduledSend(item ScheduledSend) (int64, error) {
 		atts = "[]"
 	}
 	res, err := s.db.Exec(`INSERT INTO scheduled_sends
-		(to_addrs, cc, bcc, subject, body_text, body_html, attachments, thread_id, in_reply_to, refs, send_at)
-		VALUES (?,?,?,?,?,?,?,?,?,?,?)`,
+		(to_addrs, cc, bcc, subject, body_text, body_html, attachments, thread_id, in_reply_to, refs, send_at, message_id)
+		VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`,
 		item.To, item.Cc, item.Bcc, item.Subject, item.BodyText, item.BodyHTML,
-		atts, item.ThreadID, item.InReplyTo, item.References, item.SendAt.UTC())
+		atts, item.ThreadID, item.InReplyTo, item.References, item.SendAt.UTC(), item.MessageIDHeader)
 	if err != nil {
 		return 0, fmt.Errorf("queueing scheduled send: %w", err)
 	}
@@ -130,7 +141,8 @@ func scanScheduledSend(rows *sql.Rows) (ScheduledSend, error) {
 	var sentAt sql.NullTime
 	err := rows.Scan(&it.ID, &it.To, &it.Cc, &it.Bcc, &it.Subject, &it.BodyText,
 		&it.BodyHTML, &atts, &it.ThreadID, &it.InReplyTo, &it.References,
-		&it.SendAt, &it.CreatedAt, &it.Status, &sentAt, &it.GmailID, &it.LastError)
+		&it.SendAt, &it.CreatedAt, &it.Status, &sentAt, &it.GmailID, &it.LastError,
+		&it.MessageIDHeader, &it.Attempts)
 	if err != nil {
 		return it, err
 	}
@@ -144,7 +156,7 @@ func scanScheduledSend(rows *sql.Rows) (ScheduledSend, error) {
 
 const scheduledSendCols = `id, to_addrs, cc, bcc, subject, body_text, body_html,
 	attachments, thread_id, in_reply_to, refs, send_at, created_at, status,
-	sent_at, gmail_message_id, last_error`
+	sent_at, gmail_message_id, last_error, message_id, attempts`
 
 // ListScheduledSends returns queue items, newest-scheduled first. status ""
 // means all statuses.
@@ -206,7 +218,8 @@ func (s *Store) DueScheduledSends(now time.Time) ([]ScheduledSend, error) {
 func (s *Store) ClaimScheduledSend(id int64) (bool, error) {
 	s.writeMu.Lock()
 	defer s.writeMu.Unlock()
-	res, err := s.db.Exec(`UPDATE scheduled_sends SET status = 'sending', claimed_at = ?
+	res, err := s.db.Exec(`UPDATE scheduled_sends
+		SET status = 'sending', claimed_at = ?, attempts = attempts + 1
 		WHERE id = ? AND status = 'pending'`, time.Now().UTC(), id)
 	if err != nil {
 		return false, fmt.Errorf("claiming scheduled send %d: %w", id, err)

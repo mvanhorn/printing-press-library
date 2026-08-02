@@ -25,6 +25,7 @@ type Compose struct {
 	Text        string
 	HTML        string
 	Attachments []string // local file paths
+	MessageID   string   // RFC 5322 Message-ID for this message; also an idempotency key
 	InReplyTo   string   // Message-ID header value of the message being replied to
 	References  string   // References header chain for threading
 	Date        time.Time
@@ -140,6 +141,7 @@ func (c Compose) BuildRFC2822() ([]byte, error) {
 	}
 	writeHeader("In-Reply-To", sanitizeMessageIDList(c.InReplyTo))
 	writeHeader("References", sanitizeMessageIDList(c.References))
+	writeHeader("Message-ID", sanitizeMessageIDList(c.MessageID))
 	writeHeader("MIME-Version", "1.0")
 
 	bodyPart := func(mimeType, content string) string {
@@ -253,4 +255,15 @@ func ReferencesChain(parentReferences, parentMessageID string) string {
 		return parentMessageID
 	}
 	return strings.TrimSpace(parentReferences) + " " + parentMessageID
+}
+
+// NewMessageID mints an RFC 5322 Message-ID. Setting it before a send makes
+// the send verifiable after a crash: Gmail indexes the header, so
+// `rfc822msgid:<id>` answers "did this actually go out?" without guessing.
+func NewMessageID() (string, error) {
+	var b [16]byte
+	if _, err := rand.Read(b[:]); err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("<%s.gmail-pp-cli@localhost>", hex.EncodeToString(b[:])), nil
 }

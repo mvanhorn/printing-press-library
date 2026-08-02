@@ -10,6 +10,7 @@ import (
 	"net/textproto"
 	"strings"
 	"testing"
+	"time"
 )
 
 // fakeSender answers batch POSTs with a canned multipart response echoing one
@@ -172,5 +173,58 @@ func TestBatchGetMessagesTransportError(t *testing.T) {
 func TestParseBatchResponseRejectsGarbage(t *testing.T) {
 	if _, _, err := ParseBatchResponse([]byte("not multipart at all")); err == nil {
 		t.Fatal("expected error for non-multipart body")
+	}
+}
+
+// A terminal per-part status (404, 400) must not re-enter the retry set:
+// re-sending spends quota and backoff to reach the same answer.
+func TestBatchTerminalFailuresAreNotRetried(t *testing.T) {
+	f := &fakeSender{perIDFail: map[string]bool{"gone": true}}
+	start := time.Now()
+	msgs, skipped, err := BatchGetMessages(context.Background(), f, []string{"ok", "gone"}, "metadata", nil)
+	elapsed := time.Since(start)
+	if err != nil {
+		t.Fatalf("BatchGetMessages error = %v", err)
+	}
+	if skipped != 1 {
+		t.Fatalf("skipped = %d, want 1", skipped)
+	}
+	if len(msgs) != 1 || msgs[0].ID != "ok" {
+		t.Fatalf("msgs = %+v, want only ok", msgs)
+	}
+	if f.calls != 1 {
+		t.Fatalf("calls = %d, want 1 (a 404 must not trigger retry rounds)", f.calls)
+	}
+	if elapsed > 500*time.Millisecond {
+		t.Fatalf("terminal failure incurred %v of backoff; it should return immediately", elapsed)
+	}
+}
+
+func TestNewMessageIDIsUniqueAndWellFormed(t *testing.T) {
+	a, err := NewMessageID()
+	if err != nil {
+		t.Fatalf("NewMessageID error = %v", err)
+	}
+	b, _ := NewMessageID()
+	if a == b {
+		t.Fatal("NewMessageID returned the same id twice; it is used as an idempotency key")
+	}
+	if !strings.HasPrefix(a, "<") || !strings.HasSuffix(a, ">") || !strings.Contains(a, "@") {
+		t.Fatalf("NewMessageID = %q, want an RFC 5322 <local@domain> form", a)
+	}
+}
+
+// The Message-ID must actually reach the wire: it is what makes an interrupted
+// send verifiable against the server.
+func TestBuildRFC2822EmitsMessageID(t *testing.T) {
+	id, _ := NewMessageID()
+	raw, err := Compose{
+		To: []string{"a@example.com"}, Subject: "s", Text: "body", MessageID: id,
+	}.BuildRFC2822()
+	if err != nil {
+		t.Fatalf("BuildRFC2822 error = %v", err)
+	}
+	if !strings.Contains(string(raw), "Message-ID: "+id+"\r\n") {
+		t.Fatalf("Message-ID header missing from:\n%s", raw)
 	}
 }

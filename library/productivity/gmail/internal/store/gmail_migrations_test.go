@@ -126,3 +126,41 @@ func TestScheduledSendCancelAndReschedule(t *testing.T) {
 		t.Fatalf("all list = %+v, %v", all, err)
 	}
 }
+
+// The Message-ID is the crash-safe idempotency key: it must survive the
+// round-trip so an interrupted run can verify delivery instead of resending.
+func TestScheduledSendPersistsMessageIDAndAttempts(t *testing.T) {
+	s := openScheduleTestStore(t)
+	id, err := s.CreateScheduledSend(ScheduledSend{
+		To: "a@example.com", Subject: "x", BodyText: "y",
+		SendAt: time.Now().Add(-time.Minute), MessageIDHeader: "<abc@gmail-pp-cli>",
+	})
+	if err != nil {
+		t.Fatalf("CreateScheduledSend: %v", err)
+	}
+	items, err := s.ListScheduledSends("pending", 10)
+	if err != nil || len(items) != 1 {
+		t.Fatalf("list = %+v, %v", items, err)
+	}
+	if items[0].MessageIDHeader != "<abc@gmail-pp-cli>" {
+		t.Fatalf("MessageIDHeader = %q, want it persisted", items[0].MessageIDHeader)
+	}
+	if items[0].Attempts != 0 {
+		t.Fatalf("Attempts = %d, want 0 before any claim", items[0].Attempts)
+	}
+	if ok, err := s.ClaimScheduledSend(id); err != nil || !ok {
+		t.Fatalf("claim: %v %v", ok, err)
+	}
+	// A crash here leaves the item in 'sending'; recovery must requeue it AND
+	// preserve the attempt count so the sender knows to verify before resending.
+	if n, err := s.RequeueStaleClaims(time.Now().Add(StaleClaimTimeout + time.Minute)); err != nil || n != 1 {
+		t.Fatalf("RequeueStaleClaims = %d, %v; want 1 recovered", n, err)
+	}
+	items, _ = s.ListScheduledSends("pending", 10)
+	if len(items) != 1 {
+		t.Fatalf("item was not requeued: %+v", items)
+	}
+	if items[0].Attempts < 1 {
+		t.Fatalf("Attempts = %d after a claim+requeue; the verify-before-resend path keys off this", items[0].Attempts)
+	}
+}

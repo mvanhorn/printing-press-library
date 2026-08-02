@@ -92,12 +92,19 @@ func newScheduleSendCmd(flags *rootFlags) *cobra.Command {
 				return fmt.Errorf("opening database: %w", err)
 			}
 			defer db.Close()
+			// Stamp the Message-ID now, not at send time: it is what makes an
+			// interrupted attempt verifiable against the server later.
+			msgID, err := gmailmail.NewMessageID()
+			if err != nil {
+				return fmt.Errorf("generating message id: %w", err)
+			}
 			id, err := db.CreateScheduledSend(store.ScheduledSend{
 				To: strings.Join(f.to, ", "), Cc: strings.Join(f.cc, ", "), Bcc: strings.Join(f.bcc, ", "),
 				Subject: f.subject, BodyText: body, BodyHTML: f.htmlBody,
-				Attachments: json.RawMessage(atts),
-				ThreadID:    f.threadID,
-				SendAt:      sendAt,
+				Attachments:     json.RawMessage(atts),
+				ThreadID:        f.threadID,
+				SendAt:          sendAt,
+				MessageIDHeader: msgID,
 			})
 			if err != nil {
 				return err
@@ -308,6 +315,19 @@ func deliverDue(cmd *cobra.Command, flags *rootFlags, db *store.Store) (schedule
 		if !claimed {
 			continue // another runner got it first
 		}
+		// A prior attempt may have reached Gmail before the process died. Ask
+		// the server whether this exact Message-ID is already in the mailbox
+		// rather than assuming it is not: assuming would double-send.
+		if item.Attempts > 1 && item.MessageIDHeader != "" {
+			if sentID, found, err := findSentByMessageID(cmd, flags, item.MessageIDHeader); err == nil && found {
+				if finishErr := db.FinishScheduledSend(item.ID, sentID, nil); finishErr != nil {
+					return res, finishErr
+				}
+				res.Sent = append(res.Sent, item.ID)
+				fmt.Fprintf(cmd.ErrOrStderr(), "item #%d was already delivered by an interrupted run; not resending\n", item.ID)
+				continue
+			}
+		}
 		var attach []string
 		_ = json.Unmarshal(item.Attachments, &attach)
 		compose := gmailmail.Compose{
@@ -320,6 +340,7 @@ func deliverDue(cmd *cobra.Command, flags *rootFlags, db *store.Store) (schedule
 			Attachments: attach,
 			InReplyTo:   item.InReplyTo,
 			References:  item.References,
+			MessageID:   item.MessageIDHeader,
 		}
 		raw, buildErr := compose.BuildRaw()
 		if buildErr != nil {
@@ -411,4 +432,24 @@ or keep a resident worker with --watch.`,
 	cmd.Flags().StringVar(&interval, "interval", "30s", "Poll interval with --watch (min 10s)")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: resolved data directory data.db)")
 	return cmd
+}
+
+// findSentByMessageID asks Gmail whether a Message-ID is already in the
+// mailbox. Gmail indexes the header under the rfc822msgid: operator, so this
+// turns "did the interrupted attempt actually send?" into a lookup instead of
+// a guess.
+func findSentByMessageID(cmd *cobra.Command, flags *rootFlags, messageID string) (string, bool, error) {
+	c, err := flags.newClient()
+	if err != nil {
+		return "", false, err
+	}
+	trimmed := strings.Trim(messageID, "<>")
+	ids, err := gmailListIDs(cmd.Context(), c, "rfc822msgid:"+trimmed, 1)
+	if err != nil {
+		return "", false, err
+	}
+	if len(ids) == 0 {
+		return "", false, nil
+	}
+	return ids[0], true, nil
 }
