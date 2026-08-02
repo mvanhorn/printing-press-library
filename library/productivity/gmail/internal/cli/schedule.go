@@ -319,61 +319,46 @@ func deliverDue(cmd *cobra.Command, flags *rootFlags, db *store.Store) (schedule
 		if !claimed {
 			continue // another runner got it first
 		}
-		// A prior attempt may have reached Gmail before the process died. Ask
-		// the server whether this exact Message-ID is already in the mailbox
-		// rather than assuming it is not: assuming would double-send.
-		if item.Attempts > 1 && item.MessageIDHeader != "" {
-			sentID, found, lookupErr := findSentByMessageID(cmd, flags, item.MessageIDHeader)
-			switch {
-			case lookupErr != nil:
-				// The check is inconclusive, not negative. messages.send has no
-				// native idempotency, so sending now risks a second copy in the
-				// recipient's inbox. Defer instead: a delayed email is
-				// recoverable, a duplicate one is not.
-				if deferErr := db.DeferScheduledSend(item.ID,
-					fmt.Sprintf("duplicate check failed, delivery deferred: %v", lookupErr)); deferErr != nil {
-					return res, deferErr
-				}
-				res.Deferred = append(res.Deferred, item.ID)
-				fmt.Fprintf(cmd.ErrOrStderr(),
-					"item #%d: could not confirm whether an earlier attempt already delivered it (%v); leaving it queued rather than risking a duplicate\n",
-					item.ID, lookupErr)
-				continue
-			case found:
-				if finishErr := db.FinishScheduledSend(item.ID, sentID, nil); finishErr != nil {
-					return res, finishErr
-				}
-				res.Sent = append(res.Sent, item.ID)
-				fmt.Fprintf(cmd.ErrOrStderr(), "item #%d was already delivered by an interrupted run; not resending\n", item.ID)
-				continue
-			}
-		}
-
-		// Strongly consistent recovery: if a previous attempt staged a draft,
-		// ask for that draft by id. Gmail deletes a draft the moment it is
-		// sent, so "gone" means delivered and "present" means not yet — no
-		// dependence on search-index latency.
-		if item.DraftID != "" {
-			exists, err := draftExists(cmd, flags, item.DraftID)
+		// Resolve what an interrupted prior attempt actually did before
+		// deciding to send again. Three outcomes, and only one of them
+		// permits a send.
+		if item.Attempts > 1 {
+			outcome, reason, err := resolveInterruptedAttempt(cmd, flags, item)
 			if err != nil {
 				if deferErr := db.DeferScheduledSend(item.ID,
-					fmt.Sprintf("draft lookup failed, delivery deferred: %v", err)); deferErr != nil {
+					fmt.Sprintf("could not determine the outcome of the previous attempt, delivery deferred: %v", err)); deferErr != nil {
 					return res, deferErr
 				}
 				res.Deferred = append(res.Deferred, item.ID)
 				fmt.Fprintf(cmd.ErrOrStderr(),
-					"item #%d: could not read the staged draft (%v); leaving it queued rather than risking a duplicate\n",
+					"item #%d: could not determine whether an earlier attempt delivered it (%v); leaving it queued rather than risking a duplicate\n",
 					item.ID, err)
 				continue
 			}
-			if !exists {
-				// The draft is gone, so the previous attempt's send succeeded.
-				if finishErr := db.FinishScheduledSend(item.ID, "", nil); finishErr != nil {
+			switch outcome {
+			case attemptDelivered:
+				if finishErr := db.FinishScheduledSend(item.ID, reason, nil); finishErr != nil {
 					return res, finishErr
 				}
 				res.Sent = append(res.Sent, item.ID)
 				fmt.Fprintf(cmd.ErrOrStderr(), "item #%d was already delivered by an interrupted run; not resending\n", item.ID)
 				continue
+			case attemptStagedNotSent:
+				// Draft survives, so reuse it. sendViaDraft sends this id
+				// rather than creating a second draft.
+			case attemptNotStaged:
+				// The staged draft is gone and no sent copy exists, so it was
+				// discarded before it went out. Drop the stale handle so this
+				// run stages a fresh draft instead of reporting a false
+				// success on a message that never left.
+				if item.DraftID != "" {
+					if clearErr := db.ClearScheduledSendDraft(item.ID); clearErr != nil {
+						return res, clearErr
+					}
+					item.DraftID = ""
+					fmt.Fprintf(cmd.ErrOrStderr(),
+						"item #%d: the staged draft was removed without being sent; re-staging and delivering now\n", item.ID)
+				}
 			}
 		}
 		var attach []string
@@ -507,8 +492,59 @@ func findSentByMessageID(cmd *cobra.Command, flags *rootFlags, messageID string)
 	return ids[0], true, nil
 }
 
-// draftExists reports whether a staged draft is still present. Gmail removes
-// the draft when it is sent, so absence is proof of delivery.
+// attemptOutcome is what an interrupted send actually accomplished.
+type attemptOutcome int
+
+const (
+	// attemptDelivered: the message is in the mailbox; do not send again.
+	attemptDelivered attemptOutcome = iota
+	// attemptStagedNotSent: the staged draft is still there, so it never went
+	// out. Send that draft — do not stage a second one.
+	attemptStagedNotSent
+	// attemptNotStaged: nothing survives from the previous attempt (no draft,
+	// no sent copy). Stage fresh and send.
+	attemptNotStaged
+)
+
+// resolveInterruptedAttempt determines whether a previous attempt delivered
+// the message. A missing draft is NOT sufficient evidence of delivery on its
+// own — a draft can also be deleted by hand before it is ever sent — so the
+// Message-ID is what distinguishes "sent" from "discarded". An error return
+// means the question is unanswered, and the caller must defer rather than
+// guess in either direction.
+func resolveInterruptedAttempt(cmd *cobra.Command, flags *rootFlags, item store.ScheduledSend) (attemptOutcome, string, error) {
+	if item.DraftID != "" {
+		exists, err := draftExists(cmd, flags, item.DraftID)
+		if err != nil {
+			return attemptNotStaged, "", err
+		}
+		if exists {
+			// Gmail deletes a draft when it sends it, so a draft that is still
+			// present was never sent. Reuse it rather than staging a second.
+			return attemptStagedNotSent, "", nil
+		}
+		// The draft is gone. That means sent, or discarded by hand — the
+		// Message-ID is what tells them apart.
+		if item.MessageIDHeader == "" {
+			return attemptNotStaged, "", fmt.Errorf("draft %s is gone and no Message-ID was recorded, so delivery cannot be confirmed", item.DraftID)
+		}
+	}
+	if item.MessageIDHeader == "" {
+		// Nothing was ever staged and there is no id to search: the previous
+		// attempt did not reach Gmail.
+		return attemptNotStaged, "", nil
+	}
+	sentID, found, err := findSentByMessageID(cmd, flags, item.MessageIDHeader)
+	if err != nil {
+		return attemptNotStaged, "", err
+	}
+	if found {
+		return attemptDelivered, sentID, nil
+	}
+	return attemptNotStaged, "", nil
+}
+
+// draftExists reports whether a staged draft is still present.
 func draftExists(cmd *cobra.Command, flags *rootFlags, draftID string) (bool, error) {
 	c, err := flags.newClient()
 	if err != nil {

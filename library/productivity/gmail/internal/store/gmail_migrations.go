@@ -309,3 +309,16 @@ func (s *Store) RecordScheduledSendDraft(id int64, draftID string) error {
 	}
 	return nil
 }
+
+// ClearScheduledSendDraft drops a stale draft handle so the next attempt
+// stages a fresh draft. Used when the recorded draft was deleted without ever
+// being sent.
+func (s *Store) ClearScheduledSendDraft(id int64) error {
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	_, err := s.db.Exec(`UPDATE scheduled_sends SET draft_id = '' WHERE id = ?`, id)
+	if err != nil {
+		return fmt.Errorf("clearing draft id for scheduled send %d: %w", id, err)
+	}
+	return nil
+}

@@ -144,6 +144,16 @@
         "internal/cli/pull.go"
       ],
       "validated_outcome": "pull emits deletions_reconciled plus deletions_not_reconciled_because in JSON and a stderr note naming the remedy."
+    },
+    {
+      "id": "gmail-schedule-tristate-recovery",
+      "summary": "Resolve an interrupted send into delivered / staged-not-sent / not-staged instead of treating a missing draft as proof of delivery.",
+      "reason": "A draft can disappear because it was sent OR because someone deleted it, so 404-means-delivered silently marked never-sent mail as delivered and blocked any retry. The Message-ID search is what distinguishes the two, and a surviving draft is reused rather than re-staged.",
+      "files": [
+        "internal/cli/schedule.go",
+        "internal/store/gmail_migrations.go"
+      ],
+      "validated_outcome": "ClearScheduledSendDraft drops a stale handle and the item stays due; covered by TestClearScheduledSendDraft. An unanswerable lookup still defers."
     }
   ]
 }

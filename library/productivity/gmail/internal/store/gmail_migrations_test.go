@@ -196,3 +196,35 @@ func TestDeferScheduledSendReturnsItemToPending(t *testing.T) {
 		t.Fatalf("deferred item is not due for retry: %+v %v", due, err)
 	}
 }
+
+// A stale draft handle must be droppable so a discarded draft can be re-staged
+// rather than reported as a false success.
+func TestClearScheduledSendDraft(t *testing.T) {
+	s := openScheduleTestStore(t)
+	id, err := s.CreateScheduledSend(ScheduledSend{
+		To: "a@example.com", Subject: "x", BodyText: "y",
+		SendAt: time.Now().Add(-time.Minute), MessageIDHeader: "<d@gmail-pp-cli>",
+	})
+	if err != nil {
+		t.Fatalf("CreateScheduledSend: %v", err)
+	}
+	if err := s.RecordScheduledSendDraft(id, "draft-123"); err != nil {
+		t.Fatalf("RecordScheduledSendDraft: %v", err)
+	}
+	items, _ := s.ListScheduledSends("pending", 10)
+	if len(items) != 1 || items[0].DraftID != "draft-123" {
+		t.Fatalf("draft id not persisted: %+v", items)
+	}
+	if err := s.ClearScheduledSendDraft(id); err != nil {
+		t.Fatalf("ClearScheduledSendDraft: %v", err)
+	}
+	items, _ = s.ListScheduledSends("pending", 10)
+	if items[0].DraftID != "" {
+		t.Fatalf("draft id not cleared: %q", items[0].DraftID)
+	}
+	// The item must still be deliverable after the handle is dropped.
+	due, err := s.DueScheduledSends(time.Now())
+	if err != nil || len(due) != 1 {
+		t.Fatalf("item not due after clearing draft: %+v %v", due, err)
+	}
+}
