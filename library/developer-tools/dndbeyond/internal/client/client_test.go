@@ -38,6 +38,25 @@ func TestReadResponseBodyEnforcesLimit(t *testing.T) {
 	}
 }
 
+func TestGetRejectsOversizedResponseBody(t *testing.T) {
+	t.Parallel()
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write(bytes.Repeat([]byte("a"), maxResponseBodyBytes+1))
+	}))
+	t.Cleanup(server.Close)
+
+	c := New(&config.Config{BaseURL: server.URL}, time.Second, 0)
+	c.HTTPClient = server.Client()
+	c.NoCache = true
+
+	_, err := c.Get(context.Background(), "/oversized", nil)
+	if err == nil || !strings.Contains(err.Error(), "response body exceeds") {
+		t.Fatalf("Get() oversized response error = %v, want response body limit error", err)
+	}
+}
+
 func TestTruncateBody(t *testing.T) {
 	t.Parallel()
 

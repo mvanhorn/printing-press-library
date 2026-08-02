@@ -12,6 +12,6 @@
     "internal/client/client.go",
     "internal/client/client_test.go"
   ],
-  "validated_outcome": "focused character privacy and response-limit tests pass; full live dogfood passed 79/79; publish validation rerun",
+  "validated_outcome": "focused character privacy and client response-limit integration tests pass; full live dogfood passed 79/79; publish validation rerun",
   "findings_addressed": ["F1", "F2"]
 }
