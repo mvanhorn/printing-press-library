@@ -164,3 +164,35 @@ func TestScheduledSendPersistsMessageIDAndAttempts(t *testing.T) {
 		t.Fatalf("Attempts = %d after a claim+requeue; the verify-before-resend path keys off this", items[0].Attempts)
 	}
 }
+
+// An inconclusive duplicate check must leave the item queued, not send it:
+// messages.send has no native idempotency, so a duplicate is unrecoverable
+// while a delay is not.
+func TestDeferScheduledSendReturnsItemToPending(t *testing.T) {
+	s := openScheduleTestStore(t)
+	id, err := s.CreateScheduledSend(ScheduledSend{
+		To: "a@example.com", Subject: "x", BodyText: "y",
+		SendAt: time.Now().Add(-time.Minute), MessageIDHeader: "<k@gmail-pp-cli>",
+	})
+	if err != nil {
+		t.Fatalf("CreateScheduledSend: %v", err)
+	}
+	if ok, err := s.ClaimScheduledSend(id); err != nil || !ok {
+		t.Fatalf("claim: %v %v", ok, err)
+	}
+	if err := s.DeferScheduledSend(id, "duplicate check failed: network unreachable"); err != nil {
+		t.Fatalf("DeferScheduledSend: %v", err)
+	}
+	items, err := s.ListScheduledSends("pending", 10)
+	if err != nil || len(items) != 1 {
+		t.Fatalf("deferred item is not pending again: %+v %v", items, err)
+	}
+	if items[0].LastError == "" {
+		t.Fatal("deferral did not record a reason")
+	}
+	// It must remain deliverable on a later run.
+	due, err := s.DueScheduledSends(time.Now())
+	if err != nil || len(due) != 1 {
+		t.Fatalf("deferred item is not due for retry: %+v %v", due, err)
+	}
+}

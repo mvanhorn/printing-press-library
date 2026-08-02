@@ -115,6 +115,16 @@
         "internal/gmailmail/batch.go"
       ],
       "validated_outcome": "A 404 part returns after one call with no backoff; only 403/429/5xx are retried."
+    },
+    {
+      "id": "gmail-schedule-defers-on-inconclusive-dedup",
+      "summary": "Defer delivery when the Message-ID duplicate check errors instead of falling through to a send.",
+      "reason": "Treating a transient lookup failure as 'not sent' reintroduced the duplicate-delivery window the Message-ID key exists to close; messages.send has no native idempotency, so a duplicate is unrecoverable while a delay is not.",
+      "files": [
+        "internal/cli/schedule.go",
+        "internal/store/gmail_migrations.go"
+      ],
+      "validated_outcome": "DeferScheduledSend returns the item to pending with a recorded reason and it remains due for a later run; covered by TestDeferScheduledSendReturnsItemToPending."
     }
   ]
 }

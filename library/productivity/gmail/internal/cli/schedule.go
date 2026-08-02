@@ -277,8 +277,10 @@ func newScheduleEditCmd(flags *rootFlags) *cobra.Command {
 }
 
 type scheduleRunResult struct {
-	Sent     []int64 `json:"sent_ids"`
-	Failed   []int64 `json:"failed_ids"`
+	Sent   []int64 `json:"sent_ids"`
+	Failed []int64 `json:"failed_ids"`
+	// Deferred items stayed queued because delivery could not be proven safe.
+	Deferred []int64 `json:"deferred_ids,omitempty"`
 	Requeued int     `json:"requeued,omitempty"`
 	Pending  int     `json:"still_pending"`
 }
@@ -319,7 +321,23 @@ func deliverDue(cmd *cobra.Command, flags *rootFlags, db *store.Store) (schedule
 		// the server whether this exact Message-ID is already in the mailbox
 		// rather than assuming it is not: assuming would double-send.
 		if item.Attempts > 1 && item.MessageIDHeader != "" {
-			if sentID, found, err := findSentByMessageID(cmd, flags, item.MessageIDHeader); err == nil && found {
+			sentID, found, lookupErr := findSentByMessageID(cmd, flags, item.MessageIDHeader)
+			switch {
+			case lookupErr != nil:
+				// The check is inconclusive, not negative. messages.send has no
+				// native idempotency, so sending now risks a second copy in the
+				// recipient's inbox. Defer instead: a delayed email is
+				// recoverable, a duplicate one is not.
+				if deferErr := db.DeferScheduledSend(item.ID,
+					fmt.Sprintf("duplicate check failed, delivery deferred: %v", lookupErr)); deferErr != nil {
+					return res, deferErr
+				}
+				res.Deferred = append(res.Deferred, item.ID)
+				fmt.Fprintf(cmd.ErrOrStderr(),
+					"item #%d: could not confirm whether an earlier attempt already delivered it (%v); leaving it queued rather than risking a duplicate\n",
+					item.ID, lookupErr)
+				continue
+			case found:
 				if finishErr := db.FinishScheduledSend(item.ID, sentID, nil); finishErr != nil {
 					return res, finishErr
 				}
@@ -413,7 +431,12 @@ or keep a resident worker with --watch.`,
 					if wantsJSONOutput(cmd, flags) {
 						return printJSONFiltered(cmd.OutOrStdout(), res, flags)
 					}
-					fmt.Fprintf(cmd.OutOrStdout(), "sent %d, failed %d, %d still pending\n", len(res.Sent), len(res.Failed), res.Pending)
+					if len(res.Deferred) > 0 {
+						fmt.Fprintf(cmd.OutOrStdout(), "sent %d, failed %d, deferred %d, %d still pending\n",
+							len(res.Sent), len(res.Failed), len(res.Deferred), res.Pending)
+					} else {
+						fmt.Fprintf(cmd.OutOrStdout(), "sent %d, failed %d, %d still pending\n", len(res.Sent), len(res.Failed), res.Pending)
+					}
 					return nil
 				}
 				if len(res.Sent) > 0 || len(res.Failed) > 0 {

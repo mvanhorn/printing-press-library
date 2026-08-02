@@ -275,3 +275,18 @@ func (s *Store) UpdateScheduledSendTime(id int64, sendAt time.Time) (bool, error
 	n, err := res.RowsAffected()
 	return n == 1, err
 }
+
+// DeferScheduledSend returns a claimed item to pending without sending it,
+// recording why. Used when delivery cannot be proven safe — an inconclusive
+// duplicate check must never fall through to a send.
+func (s *Store) DeferScheduledSend(id int64, reason string) error {
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	_, err := s.db.Exec(`UPDATE scheduled_sends
+		SET status = 'pending', last_error = ?
+		WHERE id = ? AND status = 'sending'`, reason, id)
+	if err != nil {
+		return fmt.Errorf("deferring scheduled send %d: %w", id, err)
+	}
+	return nil
+}
