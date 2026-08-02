@@ -536,7 +536,7 @@ var characterAllowedKeys = map[string]bool{
 	"initiative": true, "level": true, "max_hp": true, "max-hp": true, "modifier": true,
 	"name": true, "proficiency": true, "race": true, "range": true, "saving_throws": true,
 	"saves": true, "score": true, "skills": true, "source": true, "speed": true, "spells": true,
-	"type": true, "uses": true, "description": true, "equipped": true, "quantity": true,
+	"type": true, "uses": true, "equipped": true, "quantity": true,
 	"qty": true, "weight": true, "slot": true,
 	"pdf_fields": true, "value": true,
 }

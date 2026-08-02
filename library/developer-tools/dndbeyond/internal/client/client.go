@@ -31,6 +31,8 @@ import (
 
 const BinaryResponseHeader = "X-Printing-Press-Binary-Response"
 
+const maxResponseBodyBytes = 16 << 20
+
 type Client struct {
 	BaseURL           string
 	Config            *config.Config
@@ -1007,10 +1009,9 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 			return nil, 0, lastErr
 		}
 
-		respBody, err := io.ReadAll(resp.Body)
-		_ = resp.Body.Close()
+		respBody, err := readResponseBody(resp)
 		if err != nil {
-			return nil, 0, fmt.Errorf("reading response: %w", err)
+			return nil, 0, err
 		}
 
 		// Pace to the server-advertised budget when it ships rate-limit
@@ -1101,6 +1102,22 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 	}
 
 	return nil, 0, lastErr
+}
+
+func readResponseBody(resp *http.Response) ([]byte, error) {
+	if resp == nil || resp.Body == nil {
+		return nil, fmt.Errorf("reading response: empty response body")
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(io.LimitReader(resp.Body, maxResponseBodyBytes+1))
+	if err != nil {
+		return nil, fmt.Errorf("reading response: %w", err)
+	}
+	if len(body) > maxResponseBodyBytes {
+		return nil, fmt.Errorf("response body exceeds %d MiB limit", maxResponseBodyBytes>>20)
+	}
+	return body, nil
 }
 
 func safeEndpointClass(method, path string) string {

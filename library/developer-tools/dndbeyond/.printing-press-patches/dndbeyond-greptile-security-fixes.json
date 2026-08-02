@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "dndbeyond-greptile-security-fixes",
+  "applied_at": "2026-08-02",
+  "base_run_id": "20260802T050505Z-f9535648",
+  "base_printing_press_version": "4.30.0",
+  "summary": "fix(dndbeyond): omit narrative descriptions and cap response bodies",
+  "reason": "Greptile review identified privacy leakage through generic descriptions and unbounded response buffering.",
+  "files": [
+    "internal/cli/characters.go",
+    "internal/cli/characters_test.go",
+    "internal/client/client.go",
+    "internal/client/client_test.go"
+  ],
+  "validated_outcome": "focused character privacy and response-limit tests pass; full live dogfood passed 79/79; publish validation rerun",
+  "findings_addressed": ["F1", "F2"]
+}

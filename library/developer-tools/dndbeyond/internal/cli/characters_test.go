@@ -15,6 +15,7 @@ func TestNormalizeCharacterSnapshotOmitsPrivateFields(t *testing.T) {
 			"name":"Moss Lantern",
 			"id":"123456",
 			"type":"Character",
+			"description":"private narrative",
 			"race":"Elf",
 			"level":"5",
 			"classes":{"Wizard":"5"},
@@ -38,7 +39,7 @@ func TestNormalizeCharacterSnapshotOmitsPrivateFields(t *testing.T) {
 		t.Fatalf("read_only = %#v, want true", got["read_only"])
 	}
 	text := string(out)
-	for _, forbidden := range []string{"redacted-value", "private text", "email", "backstory", "unexpected"} {
+	for _, forbidden := range []string{"redacted-value", "private text", "private narrative", "email", "backstory", "unexpected"} {
 		if strings.Contains(text, forbidden) {
 			t.Errorf("normalized output contains forbidden value/key %q: %s", forbidden, text)
 		}

@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -19,6 +20,23 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/dndbeyond/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/dndbeyond/internal/platform"
 )
+
+func TestReadResponseBodyEnforcesLimit(t *testing.T) {
+	t.Parallel()
+
+	body, err := readResponseBody(&http.Response{Body: io.NopCloser(bytes.NewReader(bytes.Repeat([]byte("a"), maxResponseBodyBytes)))})
+	if err != nil {
+		t.Fatalf("readResponseBody() at limit returned error: %v", err)
+	}
+	if len(body) != maxResponseBodyBytes {
+		t.Fatalf("readResponseBody() returned %d bytes at limit, want %d", len(body), maxResponseBodyBytes)
+	}
+
+	_, err = readResponseBody(&http.Response{Body: io.NopCloser(bytes.NewReader(bytes.Repeat([]byte("a"), maxResponseBodyBytes+1)))})
+	if err == nil || !strings.Contains(err.Error(), "response body exceeds") {
+		t.Fatalf("readResponseBody() oversized response error = %v, want response body limit error", err)
+	}
+}
 
 func TestTruncateBody(t *testing.T) {
 	t.Parallel()
