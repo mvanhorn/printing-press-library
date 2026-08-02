@@ -18,7 +18,10 @@ func newNovelFiltersCmd(flags *rootFlags) *cobra.Command {
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE:        parentNoSubcommandRunE(flags),
 	}
-	addNovelCommandIfAbsent(cmd, newNovelFiltersDiffCmd(flags))
-	addNovelCommandIfAbsent(cmd, newNovelFiltersApplyCmd(flags))
+	// Registered directly rather than through addNovelCommandIfAbsent: the
+	// indirection hides these leaves from static command-tree analysis, so
+	// `filters diff` reads as a positional arg on `filters` to the verifier.
+	cmd.AddCommand(newNovelFiltersDiffCmd(flags))
+	cmd.AddCommand(newNovelFiltersApplyCmd(flags))
 	return cmd
 }
