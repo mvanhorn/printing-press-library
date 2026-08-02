@@ -417,7 +417,7 @@ func addPDFCharacterField(character map[string]any, pdfFields *[]any, label stri
 
 func isPDFNarrativeField(label string) bool {
 	key := strings.ToLower(strings.NewReplacer(" ", "", "_", "", "-", "", ".", "", "/", "").Replace(label))
-	for _, fragment := range []string{"personality", "ideal", "bond", "flaw", "appearance", "history", "goal", "alignment", "height", "weight", "age"} {
+	for _, fragment := range []string{"description", "personality", "ideal", "bond", "flaw", "appearance", "history", "goal", "alignment", "height", "weight", "age"} {
 		if strings.Contains(key, fragment) {
 			return true
 		}
