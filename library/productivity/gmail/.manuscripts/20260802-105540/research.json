@@ -1,0 +1,297 @@
+{
+  "api_name": "gmail",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "googleworkspace/cli (gws)",
+      "url": "https://github.com/googleworkspace/cli",
+      "language": "Rust",
+      "install_method": "",
+      "stars": 30100,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Gmail-MCP-Server",
+      "url": "https://github.com/GongRzhe/Gmail-MCP-Server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 1167,
+      "last_updated": "",
+      "command_count": 19,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "gmailctl",
+      "url": "https://github.com/mbrt/gmailctl",
+      "language": "Go",
+      "install_method": "",
+      "stars": 2200,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Got Your Back (GYB)",
+      "url": "https://github.com/GAM-team/got-your-back",
+      "language": "Python",
+      "install_method": "",
+      "stars": 3100,
+      "last_updated": "",
+      "command_count": 9,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "shinzo-labs/gmail-mcp",
+      "url": "https://github.com/shinzo-labs/gmail-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 56,
+      "last_updated": "",
+      "command_count": 64,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "simplegmail",
+      "url": "https://github.com/jeremyephron/simplegmail",
+      "language": "Python",
+      "install_method": "",
+      "stars": 407,
+      "last_updated": "",
+      "command_count": 25,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ezgmail",
+      "url": "https://github.com/asweigart/ezgmail",
+      "language": "Python",
+      "install_method": "",
+      "stars": 272,
+      "last_updated": "",
+      "command_count": 14,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "lieer",
+      "url": "https://github.com/gauteh/lieer",
+      "language": "Python",
+      "install_method": "",
+      "stars": 648,
+      "last_updated": "",
+      "command_count": 7,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-02T05:45:00Z",
+  "novel_features": [
+    {
+      "name": "Scheduled send queue",
+      "command": "schedule send",
+      "description": "Write an email now and have it sent at any future time, even though the Gmail API itself has no schedule-send. Delivery requires `schedule run` from cron/launchd (or `schedule run --watch`).",
+      "rationale": "Gmail's schedule-send is UI-only; a local SQLite outbox plus a due-time processor builds the missing capability with idempotent, never-double-send semantics.",
+      "example": "gmail-pp-cli schedule send --to prospect@example.com --subject \"Following up\" --body-file pitch.txt --at \"2026-08-04T09:00:00\"",
+      "why_it_matters": "Reach for this whenever a user asks to send an email later, at a specific time, or in another timezone; no other Gmail API tool can do it. Tell the user to wire `gmail-pp-cli schedule run` into cron, or the queue will sit undelivered.",
+      "group": "What the API itself lacks"
+    },
+    {
+      "name": "Sender leaderboard",
+      "command": "senders",
+      "description": "See who actually fills your mailbox: per-sender message count, unread count, total size, and first/last seen.",
+      "rationale": "Requires a GROUP BY over the entire synced mailbox in local SQLite; the live API would need tens of thousands of quota-metered fetches to answer it.",
+      "example": "gmail-pp-cli senders --limit 20 --agent",
+      "why_it_matters": "Use this before any cleanup or unsubscribe pass to rank which senders matter; the live API cannot aggregate by sender at all. Requires a populated local mirror: run `gmail-pp-cli pull` first.",
+      "group": "Local mailbox intelligence"
+    },
+    {
+      "name": "Storage hogs",
+      "command": "storage",
+      "description": "Rank senders and years by mailbox bytes consumed, with the exact cleanup command printed next to each group.",
+      "rationale": "Aggregates synced sizeEstimate locally and pairs every group with a ready-to-run find query and batch cleanup invocation.",
+      "example": "gmail-pp-cli storage --group-by sender --agent",
+      "why_it_matters": "Use when the user is near their storage quota or asks what is taking up space in Gmail. Requires a populated local mirror: run `gmail-pp-cli pull` first.",
+      "group": "Local mailbox intelligence"
+    },
+    {
+      "name": "Follow-up tracker",
+      "command": "followups",
+      "description": "List threads where the last word was theirs (you owe a reply) or yours (they never replied), aged past N days.",
+      "rationale": "A SQL window query over local threads, messages, and sendAs identities; via the live API this is a per-thread fetch storm at 20 quota units per message.",
+      "example": "gmail-pp-cli followups --direction out --days 3 --agent",
+      "why_it_matters": "Use for outreach chasing (who never replied) and inbox accountability (what do I owe); no Gmail search operator can express either. Requires a populated local mirror: run `gmail-pp-cli pull` first.",
+      "group": "Local mailbox intelligence"
+    },
+    {
+      "name": "Unsubscribe audit",
+      "command": "unsub",
+      "description": "Rank mailing lists by volume and unread ratio, and emit each list's unsubscribe target ready to act on.",
+      "rationale": "Joins stored List-Unsubscribe headers with per-sender stats from the local store; Gmail exposes the header only one message at a time.",
+      "example": "gmail-pp-cli unsub --min-count 10 --agent",
+      "why_it_matters": "Use when the user wants to cut inbox noise; the unread ratio identifies lists they never actually read. Requires a populated local mirror: run `gmail-pp-cli pull` first.",
+      "group": "Local mailbox intelligence"
+    },
+    {
+      "name": "Filters as code",
+      "command": "filters diff",
+      "description": "Keep Gmail filters in a version-controlled YAML file; diff against live settings and apply the reconciliation plan.",
+      "rationale": "Three-way diff between a declarative file and the live filter list with a dry-run plan, absorbing gmailctl's niche without its Jsonnet complexity.",
+      "example": "gmail-pp-cli filters diff --file filters.yaml",
+      "why_it_matters": "Use when the user manages filters across machines or wants filter changes reviewed before they touch the account.",
+      "group": "What the API itself lacks"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Scheduled send queue",
+      "command": "schedule send",
+      "description": "Write an email now and have it sent at any future time, even though the Gmail API itself has no schedule-send. Delivery requires `schedule run` from cron/launchd (or `schedule run --watch`).",
+      "rationale": "Gmail's schedule-send is UI-only; a local SQLite outbox plus a due-time processor builds the missing capability with idempotent, never-double-send semantics.",
+      "example": "gmail-pp-cli schedule send --to prospect@example.com --subject \"Following up\" --body-file pitch.txt --at \"2026-08-04T09:00:00\"",
+      "why_it_matters": "Reach for this whenever a user asks to send an email later, at a specific time, or in another timezone; no other Gmail API tool can do it. Tell the user to wire `gmail-pp-cli schedule run` into cron, or the queue will sit undelivered.",
+      "group": "What the API itself lacks"
+    },
+    {
+      "name": "Sender leaderboard",
+      "command": "senders",
+      "description": "See who actually fills your mailbox: per-sender message count, unread count, total size, and first/last seen.",
+      "rationale": "Requires a GROUP BY over the entire synced mailbox in local SQLite; the live API would need tens of thousands of quota-metered fetches to answer it.",
+      "example": "gmail-pp-cli senders --limit 20 --agent",
+      "why_it_matters": "Use this before any cleanup or unsubscribe pass to rank which senders matter; the live API cannot aggregate by sender at all. Requires a populated local mirror: run `gmail-pp-cli pull` first.",
+      "group": "Local mailbox intelligence"
+    },
+    {
+      "name": "Storage hogs",
+      "command": "storage",
+      "description": "Rank senders and years by mailbox bytes consumed, with the exact cleanup command printed next to each group.",
+      "rationale": "Aggregates synced sizeEstimate locally and pairs every group with a ready-to-run find query and batch cleanup invocation.",
+      "example": "gmail-pp-cli storage --group-by sender --agent",
+      "why_it_matters": "Use when the user is near their storage quota or asks what is taking up space in Gmail. Requires a populated local mirror: run `gmail-pp-cli pull` first.",
+      "group": "Local mailbox intelligence"
+    },
+    {
+      "name": "Follow-up tracker",
+      "command": "followups",
+      "description": "List threads where the last word was theirs (you owe a reply) or yours (they never replied), aged past N days.",
+      "rationale": "A SQL window query over local threads, messages, and sendAs identities; via the live API this is a per-thread fetch storm at 20 quota units per message.",
+      "example": "gmail-pp-cli followups --direction out --days 3 --agent",
+      "why_it_matters": "Use for outreach chasing (who never replied) and inbox accountability (what do I owe); no Gmail search operator can express either. Requires a populated local mirror: run `gmail-pp-cli pull` first.",
+      "group": "Local mailbox intelligence"
+    },
+    {
+      "name": "Unsubscribe audit",
+      "command": "unsub",
+      "description": "Rank mailing lists by volume and unread ratio, and emit each list's unsubscribe target ready to act on.",
+      "rationale": "Joins stored List-Unsubscribe headers with per-sender stats from the local store; Gmail exposes the header only one message at a time.",
+      "example": "gmail-pp-cli unsub --min-count 10 --agent",
+      "why_it_matters": "Use when the user wants to cut inbox noise; the unread ratio identifies lists they never actually read. Requires a populated local mirror: run `gmail-pp-cli pull` first.",
+      "group": "Local mailbox intelligence"
+    },
+    {
+      "name": "Filters as code",
+      "command": "filters diff",
+      "description": "Keep Gmail filters in a version-controlled YAML file; diff against live settings and apply the reconciliation plan.",
+      "rationale": "Three-way diff between a declarative file and the live filter list with a dry-run plan, absorbing gmailctl's niche without its Jsonnet complexity.",
+      "example": "gmail-pp-cli filters diff --file filters.yaml",
+      "why_it_matters": "Use when the user manages filters across machines or wants filter changes reviewed before they touch the account.",
+      "group": "What the API itself lacks"
+    }
+  ],
+  "narrative": {
+    "display_name": "Gmail",
+    "headline": "Every Gmail API surface plus the things Gmail itself will not give you: scheduled sends, sender analytics, follow-up tracking, and an offline full-text mailbox.",
+    "value_prop": "gmail-pp-cli mirrors your mailbox into local SQLite with gmail-pp-cli pull (incremental history sync), so search, sender leaderboards, storage analytics, and follow-up tracking run instantly and cost zero quota. It also fills the API's biggest gap with a local scheduled-send queue, and ships agent-native output on every command.",
+    "auth_narrative": "Gmail uses OAuth2. Run `gmail-pp-cli auth login` once: it opens a browser consent flow using OAuth client credentials supplied via --client-id/--client-secret, the GMAIL_CLIENT_ID / GMAIL_CLIENT_SECRET environment variables, or an interactive prompt. Tokens are stored locally and refresh automatically. For headless use, set GMAIL_ACCESS_TOKEN to a pre-minted token.",
+    "quickstart": [
+      {
+        "command": "gmail-pp-cli doctor --dry-run",
+        "comment": "Verify the binary, config, and auth wiring before touching the API"
+      },
+      {
+        "command": "gmail-pp-cli find \"is:unread newer_than:2d\"",
+        "comment": "Live Gmail search with the same operators as the Gmail search box"
+      },
+      {
+        "command": "gmail-pp-cli pull --since 30d",
+        "comment": "Mirror recent mail (headers plus decoded bodies) into local SQLite so analytics and offline search work"
+      },
+      {
+        "command": "gmail-pp-cli triage",
+        "comment": "Unread summary grouped by sender and category"
+      },
+      {
+        "command": "gmail-pp-cli senders --limit 10",
+        "comment": "Who fills your mailbox: counts, unread, and size per sender from the local store"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "403 accessNotConfigured or API disabled errors",
+        "fix": "Enable the Gmail API for your GCP project: https://console.cloud.google.com/apis/library/gmail.googleapis.com then retry"
+      },
+      {
+        "symptom": "invalid_grant or token expired after 7 days",
+        "fix": "Your OAuth consent screen is in Testing mode; publish the app or re-run gmail-pp-cli auth login to re-consent"
+      },
+      {
+        "symptom": "429 rateLimitExceeded during pull",
+        "fix": "Re-run gmail-pp-cli pull with a narrower window such as --since 7d; the client backs off automatically and the saved history cursor resumes incrementally"
+      },
+      {
+        "symptom": "search or senders returns nothing but find works",
+        "fix": "Local analytics need a populated mirror; run gmail-pp-cli pull --since 30d first"
+      },
+      {
+        "symptom": "scheduled email did not send",
+        "fix": "The queue only fires while gmail-pp-cli schedule run is invoked (cron) or running with --watch; check gmail-pp-cli schedule list for pending items"
+      }
+    ],
+    "when_to_use": "Reach for gmail-pp-cli when an agent task involves reading, searching, sending, or cleaning up Gmail: triaging unread mail, replying with correct threading, scheduling a send for later, harvesting attachments, or answering mailbox-wide questions like who emails me most or what is eating my storage. The local SQLite mirror (populated by `gmail-pp-cli pull`) makes it the right choice for any question spanning more than a page of messages, where raw API calls would burn quota and context. Do not use it for non-Gmail mailboxes (Outlook, IMAP, Yahoo), for Google Calendar, Contacts, or Drive, for Workspace admin-console tasks such as managing users or org policies, or for drafting copy that is never going to be sent.",
+    "recipes": [
+      {
+        "title": "Morning triage",
+        "command": "gmail-pp-cli triage --agent",
+        "explanation": "Unread mail grouped by sender and category in compact agent-shaped JSON, ready for a summarize-and-archive loop."
+      },
+      {
+        "title": "Narrow a live list for an agent",
+        "command": "gmail-pp-cli messages list me --q \"has:attachment newer_than:7d\" --agent --select messages.id,messages.threadId",
+        "explanation": "Typed endpoint call with dotted-path field selection so the agent gets ids without the verbose envelope."
+      },
+      {
+        "title": "Schedule tomorrow's follow-up",
+        "command": "gmail-pp-cli schedule send --to alex@example.com --subject \"Re: proposal\" --body-file followup.txt --in 18h",
+        "explanation": "Queues the send locally; a cron-invoked schedule run fires it at the due time, exactly once."
+      },
+      {
+        "title": "Chase silent prospects",
+        "command": "gmail-pp-cli followups --direction out --days 3 --agent",
+        "explanation": "Sent threads where nobody replied in 3 days, from the local store at zero quota cost."
+      },
+      {
+        "title": "Cut inbox noise",
+        "command": "gmail-pp-cli unsub --min-count 10 --agent",
+        "explanation": "Mailing lists ranked by volume and never-read ratio with their unsubscribe targets."
+      }
+    ],
+    "trigger_phrases": [
+      "check my email",
+      "triage my inbox",
+      "schedule an email for later",
+      "who emails me the most",
+      "clean up my gmail storage",
+      "use gmail",
+      "run gmail-pp-cli"
+    ]
+  }
+}

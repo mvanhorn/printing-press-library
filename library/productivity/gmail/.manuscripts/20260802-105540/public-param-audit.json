@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "summary": {
+    "total": 3,
+    "pending": 0,
+    "resolved": 0,
+    "accepted": 3
+  },
+  "findings": [
+    {
+      "id": "drafts.list.params.q",
+      "resource": "drafts",
+      "endpoint": "list",
+      "location": "params",
+      "wire_name": "q",
+      "type": "string",
+      "description": "Only return draft messages matching the specified query. Supports the same query format as the Gmail search box. For example, `\"from:someuser@example.com rfc822msgid: is:unread\"`.",
+      "endpoint_path": "/gmail/v1/users/{userId}/drafts",
+      "endpoint_description": "Lists the drafts in the user's mailbox.",
+      "reasons": [
+        "one-letter-wire-name"
+      ],
+      "decision": "skip",
+      "source_evidence": "Official Gmail API docs, every SDK (googleapis, simplegmail, ezgmail), gws CLI, and both major MCP servers expose this parameter as 'q' — it is the ecosystem-standard name for the Gmail search query.",
+      "skip_reason": "q is the universally recognized Gmail search-query parameter name; renaming on generated endpoint commands would break parity with all Gmail documentation. The hand-built 'find' command provides the friendly positional-query UX."
+    },
+    {
+      "id": "messages.list.params.q",
+      "resource": "messages",
+      "endpoint": "list",
+      "location": "params",
+      "wire_name": "q",
+      "type": "string",
+      "description": "Only return messages matching the specified query. Supports the same query format as the Gmail search box. For example, `\"from:someuser@example.com rfc822msgid: is:unread\"`. Parameter cannot be used when accessing the api using the gmail.metadata scope.",
+      "endpoint_path": "/gmail/v1/users/{userId}/messages",
+      "endpoint_description": "Lists the messages in the user's mailbox.",
+      "reasons": [
+        "one-letter-wire-name"
+      ],
+      "decision": "skip",
+      "source_evidence": "Official Gmail API docs, every SDK (googleapis, simplegmail, ezgmail), gws CLI, and both major MCP servers expose this parameter as 'q' — it is the ecosystem-standard name for the Gmail search query.",
+      "skip_reason": "q is the universally recognized Gmail search-query parameter name; renaming on generated endpoint commands would break parity with all Gmail documentation. The hand-built 'find' command provides the friendly positional-query UX."
+    },
+    {
+      "id": "threads.list.params.q",
+      "resource": "threads",
+      "endpoint": "list",
+      "location": "params",
+      "wire_name": "q",
+      "type": "string",
+      "description": "Only return threads matching the specified query. Supports the same query format as the Gmail search box. For example, `\"from:someuser@example.com rfc822msgid: is:unread\"`. Parameter cannot be used when accessing the api using the gmail.metadata scope.",
+      "endpoint_path": "/gmail/v1/users/{userId}/threads",
+      "endpoint_description": "Lists the threads in the user's mailbox.",
+      "reasons": [
+        "one-letter-wire-name"
+      ],
+      "decision": "skip",
+      "source_evidence": "Official Gmail API docs, every SDK (googleapis, simplegmail, ezgmail), gws CLI, and both major MCP servers expose this parameter as 'q' — it is the ecosystem-standard name for the Gmail search query.",
+      "skip_reason": "q is the universally recognized Gmail search-query parameter name; renaming on generated endpoint commands would break parity with all Gmail documentation. The hand-built 'find' command provides the friendly positional-query UX."
+    }
+  ]
+}

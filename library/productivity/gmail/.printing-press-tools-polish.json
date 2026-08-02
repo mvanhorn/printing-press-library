@@ -1,0 +1,24 @@
+{
+  "timestamp": "2026-08-02T09:18:53.494977Z",
+  "cli_dir": "\u003ccli-dir\u003e/gmail-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 451,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated framework file (platform client template shared by every printed CLI); the Short is accurate for the operation (lists saved platform client profile names from local config, no parameters). A richer default like 'List saved API client profile names from local config' needs a generator-template fix; flagged as a retro candidate."
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 691,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated framework file (teach/learnings template). The command supports --query/--source/--resource/--warnings/confidence filters that the Short omits; the parameter-aware rewrite ('List recorded search learnings filtered by query, source, resource, and confidence') belongs in the generator template so all printed CLIs inherit it; flagged as a retro candidate."
+    }
+  ]
+}

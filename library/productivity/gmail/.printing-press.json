@@ -1,0 +1,57 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-02T09:21:33.330445Z",
+  "printing_press_version": "4.30.0",
+  "api_name": "gmail",
+  "cli_name": "gmail-pp-cli",
+  "printer": "rahulbansal16",
+  "printer_name": "Rahul Bansal",
+  "spec_url": "https://gmail.googleapis.com/$discovery/rest?version=v1",
+  "spec_path": "gmail-openapi.yaml",
+  "run_id": "20260802-105540",
+  "category": "productivity",
+  "description": "Every Gmail API surface plus the things Gmail itself will not give you: scheduled sends, sender analytics, follow-up tracking, and an offline full-text mailbox.",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Scheduled send queue",
+      "command": "schedule send",
+      "description": "Write an email now and have it sent at any future time, even though the Gmail API itself has no schedule-send. Delivery requires `schedule run` from cron/launchd (or `schedule run --watch`)."
+    },
+    {
+      "name": "Sender leaderboard",
+      "command": "senders",
+      "description": "See who actually fills your mailbox: per-sender message count, unread count, total size, and first/last seen."
+    },
+    {
+      "name": "Storage hogs",
+      "command": "storage",
+      "description": "Rank senders and years by mailbox bytes consumed, with the exact cleanup command printed next to each group."
+    },
+    {
+      "name": "Follow-up tracker",
+      "command": "followups",
+      "description": "List threads where the last word was theirs (you owe a reply) or yours (they never replied), aged past N days."
+    },
+    {
+      "name": "Unsubscribe audit",
+      "command": "unsub",
+      "description": "Rank mailing lists by volume and unread ratio, and emit each list's unsubscribe target ready to act on."
+    },
+    {
+      "name": "Filters as code",
+      "command": "filters diff",
+      "description": "Keep Gmail filters in a version-controlled YAML file; diff against live settings and apply the reconciliation plan."
+    }
+  ]
+}
