@@ -1,0 +1,5 @@
+{
+  "descriptions": {
+    "pages_rules_glossary": "Fetch the public 2024 D&D Beyond rules glossary page. Returns the rendered glossary page content for browsing rule-term definitions and links; use this for the glossary landing page rather than a specific Basic Rules section."
+  }
+}

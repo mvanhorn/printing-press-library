@@ -1,0 +1,61 @@
+{
+  "api_name": "dndbeyond",
+  "novelty_score": 7,
+  "alternatives": [
+    {
+      "name": "Beyond20",
+      "url": "https://beyond20.here-for-more.info/",
+      "language": "javascript",
+      "install_method": "browser-extension",
+      "stars": 0,
+      "last_updated": "2026-06-07",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": true
+    },
+    {
+      "name": "D\u0026D Beyond character-sheet export",
+      "url": "https://dndbeyond-support.wizards.com/hc/en-us/articles/7747238449556-Export-Sheet",
+      "language": "service",
+      "install_method": "web",
+      "stars": 0,
+      "last_updated": "2025-10-01",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": true
+    }
+  ],
+  "gaps": [
+    "D\u0026D Beyond does not publish a supported private character-data API for this CLI.",
+    "Browser/session-backed live character discovery and dice forwarding remain out of scope.",
+    "Image-only PDFs that require OCR are not claimed as supported."
+  ],
+  "patterns": [
+    "Beyond20 uses browser access to a live D\u0026D Beyond sheet; this CLI instead accepts user-authorized local snapshots.",
+    "D\u0026D Beyond officially supports exporting a character sheet to PDF; a local read-only importer makes that artifact agent-readable without account access."
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-02T05:07:00Z",
+  "novel_features": [
+    {
+      "name": "Local character snapshot and PDF inspection",
+      "command": "characters inspect",
+      "description": "Normalize a user-supplied D\u0026D Beyond or Beyond20 character snapshot or exported PDF.",
+      "rationale": "The printed public-rules surface needs a bounded way to share character-sheet information without claiming a private D\u0026D Beyond API or requiring browser automation.",
+      "example": "dndbeyond-pp-cli characters inspect --file character.pdf --agent",
+      "why_it_matters": "Agents can read a user's authorized character artifact while keeping account access and mutations out of the CLI.",
+      "group": "Local character sharing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Local character snapshot and PDF inspection",
+      "command": "characters inspect",
+      "description": "Normalize a user-supplied D\u0026D Beyond or Beyond20 character snapshot or exported PDF.",
+      "rationale": "The printed public-rules surface needs a bounded way to share character-sheet information without claiming a private D\u0026D Beyond API or requiring browser automation.",
+      "example": "dndbeyond-pp-cli characters inspect --file character.pdf --agent",
+      "why_it_matters": "Agents can read a user's authorized character artifact while keeping account access and mutations out of the CLI.",
+      "group": "Local character sharing"
+    }
+  ]
+}

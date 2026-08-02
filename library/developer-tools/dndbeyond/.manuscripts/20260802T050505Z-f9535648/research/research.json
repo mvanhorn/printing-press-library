@@ -1,0 +1,40 @@
+{
+  "api_name": "dndbeyond",
+  "novelty_score": 7,
+  "alternatives": [
+    {
+      "name": "Beyond20",
+      "url": "https://beyond20.here-for-more.info/",
+      "language": "javascript",
+      "install_method": "browser-extension",
+      "has_auth_support": true
+    },
+    {
+      "name": "D&D Beyond character-sheet export",
+      "url": "https://dndbeyond-support.wizards.com/hc/en-us/articles/7747238449556-Export-Sheet",
+      "language": "service",
+      "install_method": "web",
+      "has_auth_support": true
+    }
+  ],
+  "gaps": [
+    "No supported private character-data API is claimed.",
+    "Browser/session-backed discovery, dice forwarding, and OCR are out of scope."
+  ],
+  "patterns": [
+    "Use a user-authorized local snapshot or official exported PDF rather than account automation."
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-02T05:07:00Z",
+  "novel_features": [
+    {
+      "name": "Local character snapshot and PDF inspection",
+      "command": "characters inspect",
+      "description": "Normalize a user-supplied D&D Beyond or Beyond20 character snapshot or exported PDF.",
+      "rationale": "Bounded local sharing covers the requested character-sheet use without a private API.",
+      "example": "dndbeyond-pp-cli characters inspect --file character.pdf --agent",
+      "why_it_matters": "Agents can read an authorized character artifact without account access or mutations.",
+      "group": "Local character sharing"
+    }
+  ]
+}
