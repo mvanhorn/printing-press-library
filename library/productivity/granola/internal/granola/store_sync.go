@@ -299,6 +299,24 @@ type SyncOptions struct {
 	// clear -- leaving the run upsert-only. It does not touch the other path's
 	// row_source scoping, which guards a different failure.
 	Degraded bool
+
+	// PATCH(api-transcript-hydrate): who owns the transcript rows this run
+	// writes. Empty means RowSourceCache, the historical behavior.
+	//
+	// On a degraded run the transcripts did not come from the cache -- they
+	// were fetched from the API into an otherwise-empty Cache -- so stamping
+	// them 'cache' would misreport their provenance and, worse, feed
+	// prepareSegmentRewrite's cross-source comparison a false "the cache holds
+	// N segments" that could block a later genuine API refresh.
+	TranscriptOwner string
+}
+
+// transcriptOwner resolves the row_source for transcript writes.
+func (o SyncOptions) transcriptOwner() string {
+	if o.TranscriptOwner != "" {
+		return o.TranscriptOwner
+	}
+	return RowSourceCache
 }
 
 // SyncFromCache writes a fully-read desktop cache into the store.
@@ -445,7 +463,7 @@ func SyncFromCacheWithOptions(ctx context.Context, db *sql.DB, cache *Cache, opt
 		if opts.Degraded && len(segs) == 0 {
 			continue
 		}
-		preserved, err := prepareSegmentRewrite(ctx, tx, id, RowSourceCache, len(segs))
+		preserved, err := prepareSegmentRewrite(ctx, tx, id, opts.transcriptOwner(), len(segs))
 		if err != nil {
 			return res, err
 		}
@@ -459,7 +477,7 @@ func SyncFromCacheWithOptions(ctx context.Context, db *sql.DB, cache *Cache, opt
 			// speaker_name / diarization_label stay NULL: the desktop cache
 			// never carried resolved speaker identity.
 			_, err := tx.ExecContext(ctx, `INSERT INTO transcript_segments(meeting_id,idx,source,text,start_ts_ms,end_ts_ms,confidence,row_source) VALUES (?,?,?,?,?,?,?,?)`,
-				id, i, seg.Source, seg.Text, startMs, endMs, seg.Confidence, RowSourceCache)
+				id, i, seg.Source, seg.Text, startMs, endMs, seg.Confidence, opts.transcriptOwner())
 			if err != nil {
 				return res, fmt.Errorf("upsert segment %s/%d: %w", id, i, err)
 			}

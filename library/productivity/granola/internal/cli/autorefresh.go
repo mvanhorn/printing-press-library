@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/productivity/granola/internal/granola"
 	"github.com/spf13/cobra"
 )
 
@@ -235,7 +236,7 @@ func encryptedCachePresent() bool {
 func (p refreshPlan) run(ctx context.Context, flags *rootFlags) []refreshResult {
 	var out []refreshResult
 	if p.cache {
-		res, err := runCacheSync(ctx)
+		res, err := runCacheSync(ctx, granola.AutoRefreshTranscriptBudget)
 		// Cache refresh is "ok" when the decrypt + SQLite upsert
 		// succeeded, even if document-API hydration was unable to
 		// reach /v2/get-documents (HydrateErr) or the sync_state

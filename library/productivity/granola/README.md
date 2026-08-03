@@ -138,7 +138,11 @@ Three paths fill the local SQLite store:
 
 ### Capability split
 
-With a CLI-owned session, hydrated by `sync`: meetings, titles, timestamps, attendees, calendar events. Transcripts, folders, panels, recipes and chats are not hydrated on this tier yet, so transcript-dependent commands (`talktime`, `memo run`, `attendee brief`, `collect`, `folder stream`) return empty until they are.
+With a CLI-owned session, hydrated by `sync`: meetings, titles, timestamps, attendees, calendar events, and transcripts.
+
+Transcripts backfill incrementally, because there is no bulk transcript endpoint — `sync` pulls them one meeting at a time, newest first, up to `--transcript-budget` (default 250) per run. It reports how many remain; re-run to continue, or use `--transcript-budget -1` for all of them. Meetings with no recording are asked about once and then skipped permanently. A non-zero `transcripts_remaining` means "not fetched yet", not "no transcript exists".
+
+Folders and folder membership, panels, recipes and chats are not hydrated on this tier.
 
 With a `GRANOLA_API_KEY`, hydrated by `sync-api`: all of the above plus transcripts, note summaries (`summary_markdown`), folders and folder membership.
 

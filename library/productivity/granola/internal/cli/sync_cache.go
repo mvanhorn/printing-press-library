@@ -45,6 +45,15 @@ type CacheSyncResult struct {
 	Degraded   bool
 	DecryptErr error
 
+	// PATCH(api-transcript-hydrate): what the transcript backfill did this run.
+	// TranscriptsRemaining is the operator-facing number: a bounded run that
+	// leaves work behind must say so, or the user cannot tell "that is all of
+	// them" from "run it again".
+	TranscriptsFetched   int
+	TranscriptSegments   int
+	TranscriptsRemaining int
+	TranscriptErr        error
+
 	// PATCH(api-detail-hydrate): transcript timestamps the store layer could
 	// not parse. Non-fatal like HydrateErr, but it must reach the operator:
 	// an unparseable timestamp is stored as 0 and reads back blank, so without
@@ -74,6 +83,11 @@ func (r CacheSyncResult) TotalRows() int {
 // emit one ndjson summary line so downstream agents and existing sync
 // callers see a consistent shape.
 func newSyncCacheCmd(flags *rootFlags) *cobra.Command {
+	// PATCH(api-transcript-hydrate): bounds the per-run transcript backfill.
+	// There is no bulk transcript endpoint, so a full first backfill is one
+	// rate-limited call per meeting; a default cap keeps `sync` a command
+	// rather than an errand, and the summary reports what is left.
+	transcriptBudget := granola.DefaultTranscriptBudget
 	cmd := &cobra.Command{
 		Use:   "sync",
 		Short: "Sync Granola's local cache file into the SQLite store",
@@ -93,7 +107,7 @@ The hydration is idempotent: re-running replaces every row.`,
 			if dryRunOK(flags) {
 				return nil
 			}
-			res, err := runCacheSync(cmd.Context())
+			res, err := runCacheSync(cmd.Context(), transcriptBudget)
 			if err != nil {
 				return err
 			}
@@ -115,6 +129,18 @@ The hydration is idempotent: re-running replaces every row.`,
 			}
 			if res.HydrateErr != nil {
 				summary["documents_fetch_error"] = res.HydrateErr.Error()
+			}
+			if res.Degraded {
+				// Never let a degraded run read as a clean one.
+				summary["degraded"] = true
+				summary["degraded_reason"] = "desktop cache unreadable; synced over the API"
+			}
+			if res.TranscriptsFetched > 0 || res.TranscriptsRemaining > 0 {
+				summary["transcripts_fetched"] = res.TranscriptsFetched
+				summary["transcripts_remaining"] = res.TranscriptsRemaining
+			}
+			if res.TranscriptErr != nil {
+				summary["transcript_fetch_error"] = res.TranscriptErr.Error()
 			}
 			if res.UnparsedTimestamps > 0 {
 				summary["unparsed_timestamps"] = res.UnparsedTimestamps
@@ -140,9 +166,21 @@ The hydration is idempotent: re-running replaces every row.`,
 			if res.PreservationWarning != "" {
 				fmt.Fprintf(cmd.ErrOrStderr(), "warning: %s\n", res.PreservationWarning)
 			}
+			if res.TranscriptErr != nil {
+				fmt.Fprintf(cmd.ErrOrStderr(), "warning: transcript backfill stopped early: %v\n", res.TranscriptErr)
+			}
+			if res.TranscriptsRemaining > 0 {
+				// The whole point of reporting this: a bounded run that stops
+				// with work left must not look like it finished.
+				fmt.Fprintf(cmd.ErrOrStderr(),
+					"%d transcripts still to fetch; re-run `granola-pp-cli sync` to continue (or --transcript-budget -1 for all)\n",
+					res.TranscriptsRemaining)
+			}
 			return nil
 		},
 	}
+	cmd.Flags().IntVar(&transcriptBudget, "transcript-budget", granola.DefaultTranscriptBudget,
+		"Max transcripts to backfill this run (0 disables the backfill, -1 fetches all remaining)")
 	return cmd
 }
 
@@ -157,7 +195,7 @@ The hydration is idempotent: re-running replaces every row.`,
 // the SyncState record doctor reads. It is best-effort with respect to document
 // hydration (returned in result.HydrateErr) but returns an error when the cache
 // itself cannot be opened — the caller decides whether that is fatal.
-func runCacheSync(ctx context.Context) (CacheSyncResult, error) {
+func runCacheSync(ctx context.Context, transcriptBudget int) (CacheSyncResult, error) {
 	started := time.Now()
 	degraded := false
 	var decryptErr error
@@ -200,7 +238,26 @@ func runCacheSync(ctx context.Context) (CacheSyncResult, error) {
 		return CacheSyncResult{Duration: time.Since(started)}, err
 	}
 	defer s.Close()
-	sres, err := granola.SyncFromCacheWithOptions(ctx, s.DB(), c, granola.SyncOptions{Degraded: degraded})
+
+	// PATCH(api-transcript-hydrate): on a degraded run the cache carries no
+	// transcripts, so pull them over the API before the upsert. Without this
+	// the run syncs titles and attendees and leaves every transcript-dependent
+	// command returning empty, which reads as "no transcripts" rather than
+	// "not synced". Bounded and resumable: see HydrateTranscriptsFromAPI.
+	var tres granola.TranscriptHydrateResult
+	var transcriptErr error
+	if degraded && transcriptBudget != 0 {
+		tres, transcriptErr = granola.HydrateTranscriptsFromAPI(ctx, s.DB(), c, nil, transcriptBudget)
+	}
+
+	syncOpts := granola.SyncOptions{Degraded: degraded}
+	if degraded {
+		// Transcripts on this path came from the API, not the cache. Label them
+		// accordingly so provenance stays honest and the cross-source retention
+		// check compares real counts.
+		syncOpts.TranscriptOwner = granola.RowSourceAPI
+	}
+	sres, err := granola.SyncFromCacheWithOptions(ctx, s.DB(), c, syncOpts)
 	if err != nil {
 		return CacheSyncResult{Duration: time.Since(started)}, err
 	}
@@ -221,6 +278,11 @@ func runCacheSync(ctx context.Context) (CacheSyncResult, error) {
 		Degraded:         degraded,
 		DecryptErr:       decryptErr,
 		Duration:         time.Since(started),
+
+		TranscriptsFetched:   tres.WithSegments,
+		TranscriptSegments:   tres.Segments,
+		TranscriptsRemaining: tres.Remaining,
+		TranscriptErr:        transcriptErr,
 
 		UnparsedTimestamps: sres.UnparsedTimestamps,
 		TimestampWarning:   sres.TimestampWarning,

@@ -64,8 +64,13 @@ Read this before telling a user their data is missing. An empty result on a migr
 - meetings, titles, timestamps
 - attendees
 - calendar events
+- **transcripts** (full segment list)
 
-Not hydrated on this tier yet: transcripts, folders, panels, recipes, chats. Transcript and folder endpoints do accept the CLI session, so this is a scope boundary of the current sync, not a hard limit. Commands that depend on transcripts (`talktime`, `memo run`, `attendee brief`, `collect`, `folder stream`) will return empty until those surfaces are hydrated. Say that plainly rather than presenting an empty result as an answer.
+Transcripts backfill incrementally. There is no bulk transcript endpoint, so `sync` fetches them one meeting at a time, newest first, up to `--transcript-budget` (default 250) per run. When work remains the command says so on stderr and records how many; re-run `sync` to continue, or pass `--transcript-budget -1` to fetch all remaining in one go. Meetings that genuinely have no recording are asked about once and then skipped forever.
+
+**This matters when answering questions.** Before telling a user a meeting has no transcript, check whether the backfill has reached it. `sync` reports `transcripts_remaining` in its summary; a non-zero value means "not fetched yet", not "no transcript exists". Commands that depend on transcripts (`talktime`, `memo run`, `attendee brief`, `collect`) will be thin until the backfill completes.
+
+Not hydrated on this tier: folders and folder membership, panels, recipes, chats.
 
 **With a `GRANOLA_API_KEY`, hydrated by `sync-api`:**
 
