@@ -610,7 +610,7 @@ func isSensitiveCharacterKey(key string) bool {
 	if characterSensitiveKeys[canonical] {
 		return true
 	}
-	for _, fragment := range []string{"email", "token", "cookie", "password", "secret", "account", "username", "userid", "player", "backstory", "notes", "private", "session"} {
+	for _, fragment := range []string{"email", "token", "cookie", "password", "secret", "account", "username", "userid", "player", "backstory", "notes", "private", "session", "phone", "address", "ssn", "dateofbirth", "dob"} {
 		if strings.Contains(canonical, fragment) {
 			return true
 		}

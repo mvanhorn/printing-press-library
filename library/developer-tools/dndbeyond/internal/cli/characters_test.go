@@ -67,6 +67,10 @@ func TestCharacterSnapshotFromPDFFormJSON(t *testing.T) {
 				{"id":"hp","value":"27"},
 				{"id":"email","value":"redacted-value"},
 				{"id":"Description","value":"private description"},
+				{"id":"Phone","value":"555-0100"},
+				{"id":"Address","value":"123 Main Street"},
+				{"id":"SSN","value":"123-45-6789"},
+				{"id":"Date of Birth","value":"1990-01-01"},
 				{"id":"personality-traits","value":"private narrative"},
 				{"id":"ray-of-frost","value":"1d8 cold"}
 			]
@@ -81,7 +85,7 @@ func TestCharacterSnapshotFromPDFFormJSON(t *testing.T) {
 		t.Fatalf("normalizeCharacterSnapshotWithFormat() error = %v", err)
 	}
 	text := string(normalized)
-	for _, forbidden := range []string{"redacted-value", "email", "private description", "Description", "private narrative", "personality-traits"} {
+	for _, forbidden := range []string{"redacted-value", "email", "private description", "Description", "555-0100", "123 Main Street", "123-45-6789", "1990-01-01", "Phone", "Address", "SSN", "Date of Birth", "private narrative", "personality-traits"} {
 		if strings.Contains(text, forbidden) {
 			t.Errorf("normalized PDF output contains forbidden value/key %q: %s", forbidden, text)
 		}
@@ -100,6 +104,10 @@ func TestCharacterSnapshotFromPDFWidgetFields(t *testing.T) {
 		{Label: "STR", Value: "8"},
 		{Label: "PLAYER NAME", Value: "redacted-value"},
 		{Label: "Description", Value: "private description"},
+		{Label: "Phone", Value: "555-0100"},
+		{Label: "Address", Value: "123 Main Street"},
+		{Label: "SSN", Value: "123-45-6789"},
+		{Label: "Date of Birth", Value: "1990-01-01"},
 		{Label: "Backstory", Value: "private narrative"},
 		{Label: "Wpn Name", Value: "Ray of Frost"},
 	})
@@ -111,7 +119,7 @@ func TestCharacterSnapshotFromPDFWidgetFields(t *testing.T) {
 		t.Fatalf("normalizeCharacterSnapshotWithFormat() error = %v", err)
 	}
 	text := string(normalized)
-	for _, forbidden := range []string{"redacted-value", "PLAYER NAME", "private description", "Description", "private narrative", "Backstory"} {
+	for _, forbidden := range []string{"redacted-value", "PLAYER NAME", "private description", "Description", "555-0100", "123 Main Street", "123-45-6789", "1990-01-01", "Phone", "Address", "SSN", "Date of Birth", "private narrative", "Backstory"} {
 		if strings.Contains(text, forbidden) {
 			t.Errorf("normalized widget output contains forbidden value/key %q: %s", forbidden, text)
 		}
