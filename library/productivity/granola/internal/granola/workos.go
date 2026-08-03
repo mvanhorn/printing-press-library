@@ -167,6 +167,12 @@ const (
 	// to this file on exactly those installs. Refresh stays allowed on
 	// genuinely legacy installs that never had an encrypted store.
 	TokenSourceStoredAccounts
+	// PATCH(cli-owned-workos-session): TokenSourceCLISession: a session this
+	// CLI obtained itself through the device authorization grant and stores
+	// under its own data directory. This is the one chain the CLI owns, so D6
+	// does not apply -- refreshing it cannot sign the desktop app or the
+	// browser out, because neither holds it.
+	TokenSourceCLISession
 )
 
 // in-process token cache. Survives across multiple calls in one CLI run.
@@ -214,6 +220,11 @@ func (e *refreshRefusedError) Unwrap() error { return ErrRefreshRefused }
 // had one.
 func refreshRefusalFor(src TokenSource) error {
 	switch src {
+	case TokenSourceCLISession:
+		// PATCH(cli-owned-workos-session): never refused. The CLI owns this
+		// chain outright; no other client holds it, so rotating it cannot
+		// strand anyone. Every desktop-owned arm below is unchanged.
+		return nil
 	case TokenSourceEncryptedSupabase, TokenSourcePlaintextSupabaseDesktopFallback:
 		return ErrRefreshRefused
 	case TokenSourceStoredAccounts:
@@ -276,6 +287,32 @@ func loadTokensRaw() (workosTokens, TokenSource, error) {
 			ExpiresIn:    3600,
 			TokenType:    "Bearer",
 		}, TokenSourceEnvOverride, nil
+	}
+
+	// PATCH(cli-owned-workos-session): the CLI's own session outranks every
+	// desktop-owned probe below. It is the only chain the CLI may refresh, and
+	// on a post-migration install it is the only one that still works at all --
+	// supabase.json.enc needs the entitlement-gated DEK, and the plaintext
+	// files Granola stopped writing are stale fossils. The env override stays
+	// ahead of it so a deliberate GRANOLA_WORKOS_TOKEN still wins.
+	if s, err := LoadCLISession(); err == nil {
+		expiresIn := 0
+		if !s.ExpiresAt.IsZero() {
+			expiresIn = int(time.Until(s.ExpiresAt).Seconds())
+		}
+		return workosTokens{
+			AccessToken:  s.AccessToken,
+			RefreshToken: s.RefreshToken,
+			ObtainedAt:   s.ObtainedAt.UnixMilli(),
+			ExpiresIn:    expiresIn,
+			TokenType:    "Bearer",
+		}, TokenSourceCLISession, nil
+	} else if !errors.Is(err, ErrNoCLISession) {
+		// A corrupt session, an interrupted rotation, or unsafe permissions are
+		// states the user must be told about. Falling through to the desktop
+		// probes here would replace an actionable message with a confusing
+		// "no token found" three probes later.
+		return workosTokens{}, TokenSourceUnknown, err
 	}
 
 	if tok, src, err := loadFromSupabaseJSON(); err == nil {
@@ -505,6 +542,45 @@ func RefreshAccessToken(refreshToken string) (RefreshAccessTokenResponse, error)
 	if parsed.ExpiresIn > 0 {
 		cachedExpiry = time.Now().Add(time.Duration(parsed.ExpiresIn) * time.Second)
 	}
+	src := cachedSource
 	tokenMu.Unlock()
+
+	// PATCH(cli-owned-workos-session): persist the rotated pair for a
+	// CLI-owned session before returning.
+	//
+	// Granola's refresh proxy was observed returning the same refresh token
+	// rather than a rotated one, so this is not currently a
+	// consume-and-replace exchange. Persist anyway: the WorkOS endpoint behind
+	// it *is* single-use, and if the proxy ever starts passing that through, an
+	// unpersisted replacement would strand the session with no recovery but a
+	// fresh login. Failing loudly beats returning a token whose refresh half
+	// was silently lost.
+	if src == TokenSourceCLISession {
+		if err := persistRotatedCLISession(parsed); err != nil {
+			return RefreshAccessTokenResponse{}, err
+		}
+	}
 	return parsed, nil
+}
+
+// persistRotatedCLISession writes a refreshed pair back to the CLI-owned
+// session file, preserving the account identity fields the refresh response
+// does not carry.
+func persistRotatedCLISession(parsed RefreshAccessTokenResponse) error {
+	s, err := LoadCLISession()
+	if err != nil && !errors.Is(err, ErrNoCLISession) {
+		return fmt.Errorf("granola refresh: reload session before persist: %w", err)
+	}
+	s.AccessToken = parsed.AccessToken
+	if parsed.RefreshToken != "" {
+		s.RefreshToken = parsed.RefreshToken
+	}
+	if parsed.ExpiresIn > 0 {
+		s.ExpiresAt = time.Now().Add(time.Duration(parsed.ExpiresIn) * time.Second).UTC()
+	}
+	s.ObtainedAt = time.Now().UTC()
+	if err := SaveCLISession(s); err != nil {
+		return fmt.Errorf("granola refresh: persist rotated session: %w", err)
+	}
+	return nil
 }

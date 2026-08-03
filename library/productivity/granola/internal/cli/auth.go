@@ -16,6 +16,7 @@ func newAuthCmd(flags *rootFlags) *cobra.Command {
 		Short: "Manage authentication for Granola",
 	}
 
+	cmd.AddCommand(newAuthLoginCmd(flags))
 	cmd.AddCommand(newAuthSetupCmd(flags))
 	cmd.AddCommand(newAuthStatusCmd(flags))
 	cmd.AddCommand(newAuthSetTokenCmd(flags))

@@ -311,6 +311,8 @@ func tokenSourceLabel(s granola.TokenSource) string {
 		return "stored_accounts"
 	case granola.TokenSourcePlaintextSupabaseDesktopFallback:
 		return "plaintext_supabase_desktop_fallback"
+	case granola.TokenSourceCLISession:
+		return "cli_session"
 	}
 	return "unknown"
 }
