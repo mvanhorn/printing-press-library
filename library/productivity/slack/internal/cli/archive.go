@@ -18,5 +18,6 @@ func newNovelArchiveCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.AddCommand(newNovelArchiveCoverageCmd(flags))
 	cmd.AddCommand(newNovelArchiveRecallCmd(flags))
+	cmd.AddCommand(newNovelArchiveSyncCmd(flags))
 	return cmd
 }
