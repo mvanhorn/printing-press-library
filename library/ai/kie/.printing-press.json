@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-08-03T07:56:19Z",
+  "printing_press_version": "4.30.1",
+  "api_name": "kie",
+  "display_name": "Kie.ai",
+  "cli_name": "kie-pp-cli",
+  "creator": {
+    "handle": "kelvincushman",
+    "name": "Kelvin Cushman"
+  },
+  "owner": "kelvincushman",
+  "printer": "kelvincushman",
+  "printer_name": "Kelvin Cushman",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:7ea2f9e12b88998cd088620d07b3beb76cc67bdf760e2c201f42217df31754b0",
+  "run_id": "20260803T075619Z-899a6d3a",
+  "catalog_entry": "kie",
+  "category": "ai",
+  "description": "Unified CLI for Kie.ai's AI generation platform: 120+ Market models (image, video, audio) via one create/query task pair, plus dedicated Suno, Veo3.1, Runway, Flux Kontext, 4o Image, and per-model chat completion endpoints.",
+  "mcp_binary": "kie-pp-mcp",
+  "mcp_ready": "full",
+  "api_version": "1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "KIE_BEARER_AUTH"
+  ],
+  "auth_key_url": "https://kie.ai/api-key",
+  "catalog_description": "Unified CLI for Kie.ai's AI generation platform: 120+ Market models (image, video, audio) via one create/query task pair, plus dedicated Suno, Veo3.1, Runway, Flux Kontext, 4o Image, and per-model chat completion endpoints."
+}

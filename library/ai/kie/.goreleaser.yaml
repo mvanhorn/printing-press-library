@@ -1,0 +1,51 @@
+version: 2
+project_name: kie-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: kie-pp-cli
+    main: ./cmd/kie-pp-cli
+    binary: kie-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/ai/kie/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: kie-pp-mcp
+    main: ./cmd/kie-pp-mcp
+    binary: kie-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: kie-pp-cli
+    repository:
+      owner: kelvincushman
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Unified API for Kie.ai's AI generation platform: image, video, music, and chat models, plus account and file utilities."
+    install: |
+      bin.install "kie-pp-cli"
+      bin.install "kie-pp-mcp"

@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "api_name": "kie",
+  "run_id": "20260803T075619Z-899a6d3a",
+  "status": "pass",
+  "level": "structural-only",
+  "checks": {
+    "go_build": "pass",
+    "go_vet": "pass",
+    "go_test": "pass",
+    "cli_help": "pass",
+    "cli_version": "pass",
+    "scorecard_percentage": 88,
+    "scorecard_grade": "A",
+    "live_api_verification": "not_run"
+  },
+  "auth_context": {
+    "type": "api_key",
+    "env_var": "KIE_BEARER_AUTH"
+  },
+  "notes": "No Kie.ai API key was available at generation time, so live_api_verification (path_validity, auth_protocol, real request/response shape checks) was not performed. All 70 endpoints are structurally derived from Kie.ai's own published per-endpoint OpenAPI fragments (docs.kie.ai), not inferred from prose, which is the primary confidence basis for correctness in place of live dogfooding. cli-printing-press scorecard's unscored dimensions for this reason: path_validity, auth_protocol, live_api_verification."
+}

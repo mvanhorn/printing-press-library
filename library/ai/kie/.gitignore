@@ -1,0 +1,6 @@
+/kie
+/kie-pp-cli
+/kie-pp-mcp
+*.db
+*.sqlite
+.DS_Store
