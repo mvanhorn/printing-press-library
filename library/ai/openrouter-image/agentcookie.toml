@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "openrouter-image-pp-cli"
+display_name = "OpenRouter"
+description = "Every image model on OpenRouter, one key: generate, rank, estimate, and batch with a local cost ledger."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/openrouter-image-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+OPENROUTER_API_KEY = true
