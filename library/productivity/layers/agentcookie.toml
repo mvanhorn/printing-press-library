@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "layers-pp-cli"
+display_name = "Layers Digital"
+description = "School announcements, agenda events, account context, and a private local search surface in one agent-ready CLI."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/layers-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+LAYERS_TOKEN = true

@@ -1,0 +1,106 @@
+{
+  "api_name": "layers",
+  "novelty_score": 8,
+  "alternatives": [],
+  "gaps": [
+    "Authentication depends on a current account token from a signed-in user session.",
+    "Writes beyond preferences remain intentionally unsupported until safely captured and verified."
+  ],
+  "patterns": [
+    "multi-service portal",
+    "read-mostly",
+    "local SQLite search",
+    "in-memory derived session"
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-03T17:00:00Z",
+  "novel_features": [
+    {
+      "name": "Unified local school search",
+      "command": "search",
+      "description": "Search previously synchronized school data across Layers services from one local, pipeable index.",
+      "rationale": "Requires normalizing multiple portal APIs into the CLI's private SQLite store rather than wrapping one endpoint.",
+      "example": "layers-pp-cli search \"local\" --data-source local --agent",
+      "why_it_matters": "Use this when an agent needs a fast cross-service lookup without repeatedly downloading verbose portal responses.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Unified local school search",
+      "command": "search",
+      "description": "Search previously synchronized school data across Layers services from one local, pipeable index.",
+      "rationale": "Requires normalizing multiple portal APIs into the CLI's private SQLite store rather than wrapping one endpoint.",
+      "example": "layers-pp-cli search \"local\" --data-source local --agent",
+      "why_it_matters": "Use this when an agent needs a fast cross-service lookup without repeatedly downloading verbose portal responses.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "LAYERS_TOKEN"
+  },
+  "narrative": {
+    "display_name": "Layers Digital",
+    "headline": "School announcements, agenda events, account context, and a private local search surface in one agent-ready CLI.",
+    "value_prop": "The CLI unifies the Layers portal and its embedded announcements and agenda services behind stable JSON commands. App-scoped sessions are derived only in process memory, while sync and search support repeated agent workflows without persisting credentials.",
+    "auth_narrative": "Set LAYERS_TOKEN and LAYERS_COMMUNITY_ID in the process environment. The CLI derives embedded-app sessions in memory and never prints or persists them.",
+    "quickstart": [
+      {
+        "command": "layers-pp-cli doctor --dry-run",
+        "comment": "Verify local setup without making a network request."
+      },
+      {
+        "command": "layers-pp-cli context --agent",
+        "comment": "Confirm the selected school context."
+      },
+      {
+        "command": "layers-pp-cli post-delivery --batch-size 20 --filters '{}' --agent",
+        "comment": "Read the first page of announcements through an in-memory app session."
+      },
+      {
+        "command": "layers-pp-cli view --months '[\"august-2026\"]' --agent",
+        "comment": "Synchronize agenda events for a localized month slug."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "The context command says community-id is required.",
+        "fix": "Set LAYERS_COMMUNITY_ID to the active school community slug and retry."
+      },
+      {
+        "symptom": "An embedded-app command returns HTTP 400.",
+        "fix": "Refresh LAYERS_TOKEN from a current signed-in browser session; the CLI will derive a fresh app session in memory."
+      }
+    ],
+    "when_to_use": "Use this CLI for non-interactive Layers Digital reads, JSON pipelines, MCP access, and private local search. Prefer the school portal when a workflow requires visual review or an unsupported write operation.",
+    "anti_triggers": [
+      "Do not use this CLI to send announcements or alter agenda events.",
+      "Do not use this CLI for school systems outside Layers Digital.",
+      "Do not use cached local data when the latest portal state is mandatory."
+    ],
+    "recipes": [
+      {
+        "title": "Compact announcements",
+        "command": "layers-pp-cli post-delivery --batch-size 20 --filters '{}' --agent --select hits._id,hits.title,next",
+        "explanation": "Read a page while limiting the JSON fields retained by the agent."
+      },
+      {
+        "title": "Agenda month",
+        "command": "layers-pp-cli view --months '[\"august-2026\"]' --agent",
+        "explanation": "Fetch one localized calendar month without mutating the portal."
+      },
+      {
+        "title": "Offline school search",
+        "command": "layers-pp-cli search \"local\" --data-source local --agent",
+        "explanation": "Search the private SQLite snapshot without a network request."
+      }
+    ],
+    "trigger_phrases": [
+      "check Layers announcements",
+      "show the school agenda",
+      "search my Layers school data",
+      "use Layers Digital",
+      "run Layers"
+    ]
+  }
+}

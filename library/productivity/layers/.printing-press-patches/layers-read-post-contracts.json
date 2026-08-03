@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "layers-read-post-contracts",
+  "applied_at": "2026-08-03",
+  "base_run_id": "20260803-133603",
+  "base_printing_press_version": "4.30.1",
+  "summary": "Match embedded-app authentication and read bodies used by the official web clients.",
+  "reason": "The embedded announcements and agenda APIs require a locally derived portal session plus explicit null cursor fields and localized agenda month slugs.",
+  "files": [
+    "internal/cli/portal_session.go",
+    "internal/cli/portal_session_test.go",
+    "internal/cli/promoted_me.go",
+    "internal/cli/promoted_post-delivery.go",
+    "internal/cli/promoted_view.go",
+    "README.md"
+  ],
+  "validated_outcome": "All 15 captured read endpoints and the preferences mutation dry-run passed against the live portal; app sessions remained process-only."
+}
