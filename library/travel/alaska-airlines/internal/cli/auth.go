@@ -13,6 +13,7 @@ import (
 	"github.com/spf13/cobra"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -816,9 +817,21 @@ func extractViaCookiesCLI(domain string) (string, error) {
 }
 
 // parseCookieString splits a "name1=value1; name2=value2" string into a map.
+//
+// Two real-world quirks are handled here:
+//
+//  1. Separators are not guaranteed to include a space. barnardb/cookies emits
+//     "a=1;b=2" with no space after the semicolon, so splitting on "; " would
+//     collapse the entire header into a single entry and every lookup would miss.
+//     Split on ";" and trim instead.
+//
+//  2. Chrome stores several Alaska cookie names percent-encoded — "AS%5FACNT",
+//     "AS%5FNAME", "as%5Fpers" — while callers look them up by their canonical
+//     names (AS_ACNT, AS_NAME, as_pers). Register a decoded alias alongside the
+//     raw name so both spellings resolve. The raw name is never overwritten.
 func parseCookieString(cookies string) map[string]string {
 	m := make(map[string]string)
-	for _, pair := range strings.Split(cookies, "; ") {
+	for _, pair := range strings.Split(cookies, ";") {
 		pair = strings.TrimSpace(pair)
 		if pair == "" {
 			continue
@@ -827,7 +840,18 @@ func parseCookieString(cookies string) map[string]string {
 		if idx < 0 {
 			continue
 		}
-		m[pair[:idx]] = pair[idx+1:]
+		name := strings.TrimSpace(pair[:idx])
+		if name == "" {
+			continue
+		}
+		value := pair[idx+1:]
+		m[name] = value
+
+		if decoded, err := url.QueryUnescape(name); err == nil && decoded != name {
+			if _, exists := m[decoded]; !exists {
+				m[decoded] = value
+			}
+		}
 	}
 	return m
 }
