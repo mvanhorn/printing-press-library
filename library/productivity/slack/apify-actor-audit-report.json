@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/slack-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260801-150754-271fdf29",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

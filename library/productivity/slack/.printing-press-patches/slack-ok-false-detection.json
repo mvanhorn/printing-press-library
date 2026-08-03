@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "slack-ok-false-detection",
+  "applied_at": "2026-08-03",
+  "base_run_id": "20260801-150754-271fdf29",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Detect Slack ok:false API errors in the generated sync loop before the response is stored as a record, and classify capability limits as per-resource warnings rather than run failures.",
+  "reason": "Slack signals failure with HTTP 200 plus {\"ok\":false,\"error\":\"...\"}. The generated syncResource loop inspects only transport-level errors, so an ok:false envelope falls through item extraction to upsertSingleObject and is persisted as a legitimate record under id=<resource>. The run then reports success with a corrupted mirror, indistinguishable downstream from a genuinely empty workspace. Every archive-backed command (archive recall, catchup, threads stale, health, users activity) reads that mirror, so one bad token silently poisons the whole product surface. This is a regression of the same defect patched against the previously published CLI; the fresh generation did not carry the fix. The guard additionally distinguishes capability limits from broken credentials: Slack splits its surface across bot and user tokens and no scope grant crosses that line, so not_allowed_token_type / missing_scope / not_in_channel downgrade to per-resource warnings (mirroring the existing HTTP-403 handling) while not_authed / invalid_auth / token_revoked / account_inactive stay hard errors.",
+  "validated_outcome": "Reproduced against the live Slack API. Before the patch an invalid token produced {\"event\":\"sync_summary\",\"total_records\":2,\"success\":2,\"errored\":0} and left two rows whose data was {\"ok\":false,\"error\":\"not_authed\"}. After the patch the same run reports sync_error events with \"slack error: invalid_auth\", total_records=0, success=0, errored=2, exit 1, and the resources table holds 0 rows. Isolation check: the pre-existing mock-mode data-pipeline failure reproduces with this guard disabled, so the guard is not its cause. Table-driven tests assert the guard fires on ok:false with and without an error code; does not fire on ok:true, on payloads with no ok field, on the dry-run sentinel, on arrays, on a non-boolean ok, or on non-JSON bodies; and that not_authed/invalid_auth/token_revoked/account_inactive are never downgraded to warnings.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/archive_sync.go",
+    "internal/cli/archive_sync_test.go"
+  ],
+  "upstream": "The generator should emit a response-envelope error hook for APIs that report failure in a 200 body. A per-spec `error_envelope` declaration (field path, truthiness, and an access-denied code list) would let the sync loop fail or warn generically instead of every Slack-shaped CLI re-patching sync.go by hand."
+}

@@ -1,0 +1,21 @@
+{
+  "timestamp": "2026-08-03T17:03:12.378126Z",
+  "cli_dir": "\u003ccli-dir\u003e/slack",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 692,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; needs generator-template fix. teach.go is the framework learn-loop surface, emitted byte-identically into every printed CLI, so the richer Short belongs in the generator template rather than this one tree: a local edit would be reverted by the next print and would help no other CLI. The Short is verb-led and accurate but not parameter-aware.",
+      "spec_source_material": "Not spec-derived. Cobra Short at internal/cli/teach.go:692 on the generated learn-loop command. No tools-manifest.json entry exists: learn-loop commands reach MCP through the runtime cobratree walker, not the typed-endpoint manifest (manifest holds 91 typed endpoint tools, zero learn/teach/recall entries).",
+      "target_description": "List learnings recorded by the teach loop, filtered by query substring, source, resource, action, or minimum confidence; --warnings surfaces only entries the teach log flagged.",
+      "gap_analysis": "The generator emits this Short as a fixed string in the learn-loop template, so no per-CLI input changes it, and mcp-descriptions.json cannot reach it because that override file is keyed by tools-manifest.json tool names and shell-out learn commands are absent from the manifest. Fixing it requires editing the learn-loop template in the Printing Press itself, which lifts every printed CLI at once. Surfaced as a retro candidate."
+    }
+  ],
+  "progress": {
+    "last_processed_finding_id": "thin-short:list:teach.go:692"
+  }
+}

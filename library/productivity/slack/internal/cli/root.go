@@ -4,55 +4,212 @@
 package cli
 
 import (
-	"encoding/json"
+	"bytes"
+	"errors"
 	"fmt"
+	"io"
+	"os"
 	"strings"
 	"text/tabwriter"
 	"time"
 
-	"bytes"
-	"io"
-	"os"
-
 	"github.com/mvanhorn/printing-press-library/library/productivity/slack/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/productivity/slack/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/productivity/slack/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/productivity/slack/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/productivity/slack/internal/store"
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 )
 
 var version = "2026.7.2"
 
 type rootFlags struct {
-	asJSON       bool
-	compact      bool
-	csv          bool
-	plain        bool
-	quiet        bool
-	dryRun       bool
-	noCache      bool
-	noInput      bool
-	yes          bool
-	agent        bool
-	selectFields string
-	configPath   string
-	timeout      time.Duration
-	rateLimit    float64
-	dataSource   string
-	profileName  string
-	deliverSpec  string
-	deliverBuf   *bytes.Buffer
-	deliverSink  DeliverSink
+	asJSON     bool
+	compact    bool
+	csv        bool
+	plain      bool
+	quiet      bool
+	dryRun     bool
+	noCache    bool
+	noInput    bool
+	idempotent bool
+	yes        bool
+	agent      bool
+	// noLearn disables both teach (write) and recall (read) for this
+	// invocation. Mirrors the SLACK_NO_LEARN env var.
+	noLearn bool
+	// allowPartialFailure downgrades a detected response-body partial-failure
+	// (e.g. Google Ads `partialFailureError`) from a non-zero exit to a
+	// stderr warning. Default false so silent partial successes surface as
+	// failures by default.
+	allowPartialFailure bool
+	selectFields        string
+	configPath          string
+	homePath            string
+	profileName         string
+	deliverSpec         string
+	timeout             time.Duration
+	rateLimit           float64
+	maxAge              time.Duration
+	dataSource          string
+	freshnessMeta       any
+
+	// deliverBuf captures command output when --deliver is set to a
+	// non-stdout sink. Flushed to the sink after Execute returns.
+	deliverBuf  *bytes.Buffer
+	deliverSink DeliverSink
+}
+
+// novelCommandHooks are optional hooks for hand-authored command extensions.
+// A markerless file in package cli may register one from init without editing
+// this generated root, so force regeneration preserves both the source and
+// wiring. Registration is additive: independent extensions never replace one
+// another.
+var novelCommandHooks []func(root *cobra.Command, flags *rootFlags)
+
+func registerNovelCommand(hook func(root *cobra.Command, flags *rootFlags)) {
+	novelCommandHooks = append(novelCommandHooks, hook)
+}
+
+// clientHooks let preserved package-local extensions configure a newly-created
+// client without editing generated code. Hooks are additive and run once per
+// client construction; they must not perform provider-specific behavior here.
+var clientHooks []func(*client.Client) error
+
+func registerClientHook(hook func(*client.Client) error) {
+	clientHooks = append(clientHooks, hook)
+}
+
+// RootCmd returns the Cobra command tree without executing it. The MCP server
+// uses this to mirror every user-facing command as an agent tool.
+func RootCmd() *cobra.Command {
+	var flags rootFlags
+	return newRootCmd(&flags)
 }
 
 // Execute runs the CLI in non-interactive mode: never prompts, all values via flags or stdin.
-func Execute() error {
+// The named return feeds the deferred journal write: one site after
+// ExecuteC returns covers every outcome, including RunE errors (a
+// Cobra PostRun hook would be skipped on RunE error, so none is used).
+func Execute() (retErr error) {
 	var flags rootFlags
+	rootCmd := newRootCmd(&flags)
 
+	executedCmd, err := rootCmd.ExecuteC()
+	var journalFailedFlag, journalSuggestedFlag string
+	defer func() {
+		journalInvocation(&flags, rootCmd, executedCmd, retErr, journalFailedFlag, journalSuggestedFlag)
+		// Derivation runs after the journal write so the entry this
+		// invocation just recorded is visible to the tail scan.
+		deriveFlagCorrections(&flags, rootCmd, executedCmd)
+	}()
+	if errors.Is(err, pflag.ErrHelp) {
+		return nil
+	}
+	if err != nil && strings.Contains(err.Error(), "unknown flag") {
+		msg := err.Error()
+		// Extract the flag name from the error message (e.g., "unknown flag: --foob")
+		if idx := strings.Index(msg, "unknown flag: "); idx >= 0 {
+			flagStr := strings.TrimSpace(msg[idx+len("unknown flag: "):])
+			// Parse-failure journal enrichment: PersistentPreRunE never
+			// runs for flag-parse failures, so this is the only place the
+			// failed flag (and its did-you-mean suggestion, when one
+			// exists) is observable. The deferred journal write picks
+			// these up.
+			journalFailedFlag = flagStr
+			if suggestion := suggestFlag(flagStr, rootCmd); suggestion != "" {
+				// Cobra already printed `Error: unknown flag: --foob` before
+				// returning; the wrap below attaches the hint to err.Error()
+				// for downstream consumers and exit-code classification, but
+				// would never reach stderr now that main.go no longer prints
+				// err. Emit the hint explicitly so the suggestion still
+				// shows up under Cobra's error line.
+				fmt.Fprintf(os.Stderr, "hint: did you mean --%s?\n", suggestion)
+				err = fmt.Errorf("%w\nhint: did you mean --%s?", err, suggestion)
+				journalSuggestedFlag = "--" + suggestion
+			}
+		}
+	}
+	if err == nil && flags.deliverBuf != nil {
+		if derr := Deliver(flags.deliverSink, flags.deliverBuf.Bytes(), flags.compact); derr != nil {
+			fmt.Fprintf(os.Stderr, "warning: deliver to %s:%s failed: %v\n", flags.deliverSink.Scheme, flags.deliverSink.Target, derr)
+			return derr
+		}
+	}
+	if err != nil && isCobraUsageError(err) {
+		// Cobra/pflag pre-RunE errors (unknown flag, unknown command,
+		// missing required, etc.) never flow through usageErr() because
+		// they originate inside rootCmd.Execute() before any user RunE
+		// runs. Without this wrap, ExitCode() falls through to the
+		// default and emits 1 — clobbering the conventional code-2 for
+		// usage errors that the helpers.go contract already promises.
+		return usageErr(err)
+	}
+	return err
+}
+
+// isCobraUsageError reports whether err matches one of Cobra/pflag's
+// pre-RunE usage-error shapes. Detection is by message prefix to match
+// the same approach the unknown-flag hint path uses above; neither
+// Cobra nor pflag exports typed sentinels for these.
+//
+// Patterns are anchored to the literal punctuation Cobra and pflag
+// emit so an application's own RunE error that happens to contain the
+// substring "required flag" or "invalid argument" doesn't get
+// misclassified as a usage error.
+//
+// Patterns covered (Cobra v1.x + pflag v1.x as of 2026-05):
+//   - "unknown flag: --foo"                            (pflag)
+//   - "unknown shorthand flag: 'x' in -x"              (pflag)
+//   - "unknown command \"foo\" for ..."                (Cobra)
+//   - "required flag \"foo\" not set"                  (Cobra, single missing)
+//   - "required flag(s) \"foo\" not set"               (Cobra, multiple missing)
+//   - "flag needs an argument: --foo"                  (pflag, missing value)
+//   - "invalid argument \"x\" for \"--y\" flag: ..."   (pflag, parse failure)
+//
+// Cobra emits the singular form ("required flag") when exactly one
+// MarkFlagRequired flag is missing, and the plural form ("required
+// flag(s)") only when multiple are missing on the same command. Both
+// shapes must be anchored to avoid matching app-level errors that
+// happen to mention "required flag" as prose; the trailing space + quote
+// (`required flag "`) is the literal punctuation cobra emits.
+//
+// Returns false for nil err.
+func isCobraUsageError(err error) bool {
+	if err == nil {
+		return false
+	}
+	msg := err.Error()
+	return strings.HasPrefix(msg, "unknown flag") ||
+		strings.HasPrefix(msg, "unknown shorthand flag") ||
+		strings.HasPrefix(msg, "unknown command") ||
+		strings.HasPrefix(msg, `required flag "`) ||
+		strings.HasPrefix(msg, `required flag(s) "`) ||
+		strings.HasPrefix(msg, "flag needs an argument:") ||
+		strings.HasPrefix(msg, `invalid argument "`)
+}
+
+func newRootCmd(flags *rootFlags) *cobra.Command {
 	rootCmd := &cobra.Command{
-		Use:           "slack-pp-cli",
-		Short:         "Send messages, search conversations, monitor channels, and manage your Slack workspace from the terminal",
-		SilenceUsage:  true,
-		SilenceErrors: true,
-		Version:       version,
+		Use:   "slack-pp-cli",
+		Short: `Slack CLI — Every Slack read your token can make, mirrored to local SQLite so your history outlives Slack's own retention wall.`,
+		Long: `Slack CLI — Every Slack read your token can make, mirrored to local SQLite so your history outlives Slack's own retention wall.
+
+Highlights (not in the official API docs):
+  • archive recall   Find messages in your local archive, including ones Slack has already hidden behind the 90-day retention wall.
+  • archive coverage   Show what date range your local mirror actually holds per channel, and where the gaps are.
+  • catchup   See what happened while you were away: new volume per channel, messages that mention you, and threads still waiting on your reply.
+  • threads stale   List threads across the archive where the last reply is not yours and nobody has answered since.
+  • health   Compare your channels by messages per day, distinct posters, median first-reply latency, and days idle.
+  • users activity   Profile where one person posts, which threads they carry, and when they were last seen.
+  • users whois   Turn an opaque Slack ID, handle, or email into one card with shared channels, timezone, DND state, and last-seen.
+
+Agent mode: add --agent to any command for JSON output + non-interactive mode.
+Health check: run 'slack-pp-cli doctor' to verify auth and connectivity.
+See README.md or the bundled SKILL.md for recipes.`,
+		SilenceUsage: true,
+		Version:      version,
 	}
 	rootCmd.SetVersionTemplate("slack-pp-cli {{ .Version }}\n")
 
@@ -62,22 +219,29 @@ func Execute() error {
 	rootCmd.PersistentFlags().BoolVar(&flags.plain, "plain", false, "Output as plain tab-separated text")
 	rootCmd.PersistentFlags().BoolVar(&flags.quiet, "quiet", false, "Bare output, one value per line")
 	rootCmd.PersistentFlags().StringVar(&flags.configPath, "config", "", "Config file path")
-	rootCmd.PersistentFlags().DurationVar(&flags.timeout, "timeout", 30*time.Second, "Request timeout")
+	rootCmd.PersistentFlags().StringVar(&flags.homePath, "home", "", "Root directory for config, data, state, and cache files")
+	rootCmd.PersistentFlags().DurationVar(&flags.timeout, "timeout", 60*time.Second, "Request timeout")
 	rootCmd.PersistentFlags().BoolVar(&flags.dryRun, "dry-run", false, "Show request without sending")
 	rootCmd.PersistentFlags().BoolVar(&flags.noCache, "no-cache", false, "Bypass response cache")
 	rootCmd.PersistentFlags().BoolVar(&flags.noInput, "no-input", false, "Disable all interactive prompts (for CI/agents)")
+	rootCmd.PersistentFlags().BoolVar(&flags.idempotent, "idempotent", false, "Treat already-existing create results as a successful no-op")
 	rootCmd.PersistentFlags().StringVar(&flags.selectFields, "select", "", "Comma-separated fields to include in output (e.g. --select id,name,status)")
 	rootCmd.PersistentFlags().BoolVar(&flags.yes, "yes", false, "Skip confirmation prompts (for agents and scripts)")
 	rootCmd.PersistentFlags().BoolVar(&noColor, "no-color", false, "Disable colored output")
 	rootCmd.PersistentFlags().BoolVar(&humanFriendly, "human-friendly", false, "Enable colored output and rich formatting")
 	rootCmd.PersistentFlags().BoolVar(&flags.agent, "agent", false, "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)")
+	rootCmd.PersistentFlags().BoolVar(&flags.noLearn, "no-learn", false, "Disable the teach/recall learning loop for this invocation")
+	rootCmd.PersistentFlags().BoolVar(&flags.allowPartialFailure, "allow-partial-failure", false, "Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit")
 	rootCmd.PersistentFlags().StringVar(&flags.dataSource, "data-source", "auto", "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only)")
+	rootCmd.PersistentFlags().DurationVar(&flags.maxAge, "max-age", 30*time.Minute, "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables")
+	rootCmd.PersistentFlags().StringVar(&flags.profileName, "profile", "", "Apply values from a saved profile (see 'slack-pp-cli profile list')")
+	rootCmd.PersistentFlags().StringVar(&flags.deliverSpec, "deliver", "", "Route output to a sink: stdout (default), file:<path>, webhook:<url>")
 	rootCmd.PersistentFlags().Float64Var(&flags.rateLimit, "rate-limit", 0, "Max requests per second (0 to disable)")
 
-	rootCmd.PersistentFlags().StringVar(&flags.profileName, "profile", "", "Apply values from a saved profile")
-	rootCmd.PersistentFlags().StringVar(&flags.deliverSpec, "deliver", "", "Route output to a sink: stdout (default), file:<path>, webhook:<url>")
-
 	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
+		if _, err := cliutil.SetHomeOverride(flags.homePath); err != nil {
+			return err
+		}
 		if flags.deliverSpec != "" {
 			sink, err := ParseDeliverSink(flags.deliverSpec)
 			if err != nil {
@@ -95,7 +259,11 @@ func Execute() error {
 				return err
 			}
 			if profile == nil {
-				return fmt.Errorf("profile %q not found", flags.profileName)
+				available := ListProfileNames()
+				if len(available) == 0 {
+					return fmt.Errorf("profile %q not found (no profiles saved yet; run '%s profile save <name> --<flag> <value>')", flags.profileName, cmd.Root().Name())
+				}
+				return fmt.Errorf("profile %q not found; available: %s", flags.profileName, strings.Join(available, ", "))
 			}
 			if err := ApplyProfileToFlags(cmd, profile); err != nil {
 				return err
@@ -124,62 +292,313 @@ func Execute() error {
 		default:
 			return fmt.Errorf("invalid --data-source value %q: must be auto, live, or local", flags.dataSource)
 		}
+		// Seed entity_lookups from spec.Learn.EntityLookupSeeds once per
+		// process. Skipped for framework commands that should never
+		// touch the local store (auth, doctor, help, etc.) and for
+		// --no-learn invocations so deterministic agent flows don't
+		// race a background seed.
+		if !noLearnActive(flags) && !shouldSkipLearnHook(cmd.CommandPath()) {
+			runLearnInitOnce(cmd.Context())
+			runPlaybookInitOnce(cmd.Context())
+		}
 		return nil
 	}
-	rootCmd.AddCommand(newDoctorCmd(&flags))
-	rootCmd.AddCommand(newAuthCmd(&flags))
-	rootCmd.AddCommand(newExportCmd(&flags))
-	rootCmd.AddCommand(newImportCmd(&flags))
-	rootCmd.AddCommand(newSearchCmd(&flags))
-	rootCmd.AddCommand(newSyncCmd(&flags))
-	rootCmd.AddCommand(newTailCmd(&flags))
-	rootCmd.AddCommand(newAnalyticsCmd(&flags))
-	rootCmd.AddCommand(newHealthCmd(&flags))
-	rootCmd.AddCommand(newDigestCmd(&flags))
-	rootCmd.AddCommand(newThreadsStaleCmd(&flags))
-	rootCmd.AddCommand(newQuietCmd(&flags))
-	rootCmd.AddCommand(newTrendsCmd(&flags))
-	rootCmd.AddCommand(newResponseTimesCmd(&flags))
-	rootCmd.AddCommand(newActivityCmd(&flags))
-	rootCmd.AddCommand(newFunnyCmd(&flags))
-	rootCmd.AddCommand(newWorkflowCmd(&flags))
-	rootCmd.AddCommand(newAPICmd(&flags))
-	rootCmd.AddCommand(newUsergroupsPromotedCmd(&flags))
-	rootCmd.AddCommand(newMessagesPromotedCmd(&flags))
-	rootCmd.AddCommand(newStarsPromotedCmd(&flags))
-	rootCmd.AddCommand(newDndPromotedCmd(&flags))
-	rootCmd.AddCommand(newConversationsPromotedCmd(&flags))
-	rootCmd.AddCommand(newReactionsPromotedCmd(&flags))
-	rootCmd.AddCommand(newFilesPromotedCmd(&flags))
-	rootCmd.AddCommand(newBotsPromotedCmd(&flags))
-	rootCmd.AddCommand(newUsersPromotedCmd(&flags))
-	rootCmd.AddCommand(newEmojiPromotedCmd(&flags))
-	rootCmd.AddCommand(newTeamPromotedCmd(&flags))
-	rootCmd.AddCommand(newRemindersPromotedCmd(&flags))
-	rootCmd.AddCommand(newPinsPromotedCmd(&flags))
-	rootCmd.AddCommand(newVersionCliCmd())
+	rootCmd.AddCommand(newAuthApiCmd(flags))
+	rootCmd.AddCommand(newConversationsCmd(flags))
+	rootCmd.AddCommand(newDndCmd(flags))
+	rootCmd.AddCommand(newFilesCmd(flags))
+	rootCmd.AddCommand(newMessagesCmd(flags))
+	rootCmd.AddCommand(newPinsCmd(flags))
+	rootCmd.AddCommand(newReactionsCmd(flags))
+	rootCmd.AddCommand(newRemindersCmd(flags))
+	rootCmd.AddCommand(newStarsCmd(flags))
+	rootCmd.AddCommand(newTeamCmd(flags))
+	rootCmd.AddCommand(newUsergroupsCmd(flags))
+	rootCmd.AddCommand(newUsersCmd(flags))
+	rootCmd.AddCommand(newDoctorCmd(flags))
+	rootCmd.AddCommand(newAuthCmd(flags))
+	rootCmd.AddCommand(newAgentContextCmd(rootCmd))
+	rootCmd.AddCommand(newProfileCmd(flags))
+	rootCmd.AddCommand(newFeedbackCmd(flags))
+	rootCmd.AddCommand(newWhichCmd(flags))
+	rootCmd.AddCommand(newExportCmd(flags))
+	rootCmd.AddCommand(newImportCmd(flags))
+	rootCmd.AddCommand(newSearchCmd(flags))
+	rootCmd.AddCommand(newSyncCmd(flags))
+	rootCmd.AddCommand(newTailCmd(flags))
+	rootCmd.AddCommand(newAnalyticsCmd(flags))
+	rootCmd.AddCommand(newWorkflowCmd(flags))
+	rootCmd.AddCommand(newNovelArchiveCmd(flags))
+	rootCmd.AddCommand(newNovelCatchupCmd(flags))
+	rootCmd.AddCommand(newNovelHealthCmd(flags))
+	rootCmd.AddCommand(newNovelThreadsCmd(flags))
+	rootCmd.AddCommand(newAPICmd(flags))
+	rootCmd.AddCommand(newApiTestPromotedCmd(flags))
+	rootCmd.AddCommand(newBotsPromotedCmd(flags))
+	rootCmd.AddCommand(newChatDeleteScheduledMessagePromotedCmd(flags))
+	rootCmd.AddCommand(newChatMeMessagePromotedCmd(flags))
+	rootCmd.AddCommand(newChatPostEphemeralPromotedCmd(flags))
+	rootCmd.AddCommand(newChatUnfurlPromotedCmd(flags))
+	rootCmd.AddCommand(newConversationsClosePromotedCmd(flags))
+	rootCmd.AddCommand(newConversationsJoinPromotedCmd(flags))
+	rootCmd.AddCommand(newConversationsKickPromotedCmd(flags))
+	rootCmd.AddCommand(newConversationsLeavePromotedCmd(flags))
+	rootCmd.AddCommand(newConversationsOpenPromotedCmd(flags))
+	rootCmd.AddCommand(newConversationsRenamePromotedCmd(flags))
+	rootCmd.AddCommand(newEmojiPromotedCmd(flags))
+	rootCmd.AddCommand(newFilesCommentsDeletePromotedCmd(flags))
+	rootCmd.AddCommand(newFilesRemoteAddPromotedCmd(flags))
+	rootCmd.AddCommand(newFilesRemoteInfoPromotedCmd(flags))
+	rootCmd.AddCommand(newFilesRemoteListPromotedCmd(flags))
+	rootCmd.AddCommand(newFilesRemoteRemovePromotedCmd(flags))
+	rootCmd.AddCommand(newFilesRemoteSharePromotedCmd(flags))
+	rootCmd.AddCommand(newFilesRemoteUpdatePromotedCmd(flags))
+	rootCmd.AddCommand(newFilesRevokePublicUrlPromotedCmd(flags))
+	rootCmd.AddCommand(newFilesSharedPublicUrlPromotedCmd(flags))
+	rootCmd.AddCommand(newSearchApiPromotedCmd(flags))
+	rootCmd.AddCommand(newTeamIntegrationLogsPromotedCmd(flags))
+	rootCmd.AddCommand(newTeamProfileGetPromotedCmd(flags))
+	rootCmd.AddCommand(newUsergroupsDisablePromotedCmd(flags))
+	rootCmd.AddCommand(newUsergroupsEnablePromotedCmd(flags))
+	rootCmd.AddCommand(newUsersConversationsPromotedCmd(flags))
+	rootCmd.AddCommand(newUsersDeletePhotoPromotedCmd(flags))
+	rootCmd.AddCommand(newUsersIdentityPromotedCmd(flags))
+	rootCmd.AddCommand(newUsersSetActivePromotedCmd(flags))
+	rootCmd.AddCommand(newUsersSetPhotoPromotedCmd(flags))
+	rootCmd.AddCommand(newVersionCmd())
+	// Self-learning loop commands. newLearnConfig (defined in
+	// learn_init.go) reads spec.Learn.TickerPatterns + Stopwords and
+	// returns a configured *entities.Config every call site shares;
+	// initLearn seeds entity_lookups from spec.Learn.EntityLookupSeeds
+	// once per process via the PersistentPreRunE hook above.
+	learnCfg := newLearnConfig()
+	rootCmd.AddCommand(newTeachCmd(flags, learnCfg))
+	rootCmd.AddCommand(newRecallCmd(flags, learnCfg))
+	rootCmd.AddCommand(newLearningsCmd(flags, learnCfg))
+	rootCmd.AddCommand(newTeachPatternCmd(flags))
+	rootCmd.AddCommand(newTeachLookupCmd(flags))
+	rootCmd.AddCommand(newTeachPlaybookCmd(flags, learnCfg))
+	rootCmd.AddCommand(newPlaybookCmd(flags, learnCfg))
+	for _, hook := range novelCommandHooks {
+		hook(rootCmd, flags)
+	}
 
-	rootCmd.AddCommand(newProfileCmd(&flags))
-	rootCmd.AddCommand(newFeedbackCmd(&flags))
+	return rootCmd
+}
 
-	err := rootCmd.Execute()
-	if err != nil && strings.Contains(err.Error(), "unknown flag") {
-		msg := err.Error()
-		// Extract the flag name from the error message (e.g., "unknown flag: --foob")
-		if idx := strings.Index(msg, "unknown flag: "); idx >= 0 {
-			flagStr := strings.TrimSpace(msg[idx+len("unknown flag: "):])
-			if suggestion := suggestFlag(flagStr, rootCmd); suggestion != "" {
-				return fmt.Errorf("%w\nhint: did you mean --%s?", err, suggestion)
+// learnHookSkipList enumerates framework command path segments that any
+// future PersistentPreRunE recall hook must NOT trigger on. Today the
+// teach/recall path is invoked explicitly by the agent, so there is
+// no consumer of this list at runtime; the skip-list ships in v1 as
+// forward-looking framework so a later auto-recall hook (modeled on
+// the granola autorefresh shape) can consult it without re-deriving
+// the set in every PR.
+//
+// Names match any segment of Cobra's CommandPath. Aliases (e.g. "sync-api")
+// are matched as-is.
+var learnHookSkipList = map[string]struct{}{
+	"auth":          {},
+	"doctor":        {},
+	"help":          {},
+	"sync":          {},
+	"profile":       {},
+	"feedback":      {},
+	"which":         {},
+	"agent-context": {},
+	"completion":    {},
+	"version":       {},
+}
+
+// shouldSkipLearnHook reports whether a recall pre-run hook should
+// short-circuit for commandPath.
+func shouldSkipLearnHook(commandPath string) bool {
+	for _, segment := range strings.Fields(commandPath) {
+		if _, skip := learnHookSkipList[segment]; skip {
+			return true
+		}
+	}
+	return false
+}
+
+// journalInvocation records the invocation in the learn journal from
+// Execute()'s single post-ExecuteC site. Fail-open by construction:
+// learn.JournalInvocation never returns an error and warns to stderr
+// at most once, so journaling can never fail or slow the command.
+//
+// Known accepted gap: for a flag-parse failure PersistentPreRunE never
+// runs, so a --home/--profile relocation was never applied and the
+// parse-failure entry lands in the default state dir rather than the
+// relocated one. Successful runs journal post-run, after the override
+// took effect, so their entries land in the relocated dir.
+func journalInvocation(flags *rootFlags, rootCmd, executed *cobra.Command, err error, failedFlag, suggestedFlag string) {
+	// The master --no-learn switch kills journaling too. On the
+	// parse-failure path the flag was never parsed into rootFlags, so
+	// the raw args are consulted as well.
+	if noLearnActive(flags) || argsDisableLearn(os.Args[1:]) {
+		return
+	}
+	exitCode := 0
+	errorClass := ""
+	if err != nil {
+		exitCode = ExitCode(err)
+		if isCobraUsageError(err) {
+			errorClass = "usage"
+		} else {
+			errorClass = "runtime"
+		}
+	}
+	// Resolve bool-ness of flags against the executed command's
+	// registry so the argv shape doesn't misread "--json list" as a
+	// valued flag. On parse failures executed may be nil or root.
+	target := executed
+	if target == nil {
+		target = rootCmd
+	}
+	isBoolFlag := func(name string) bool {
+		f := target.Flags().Lookup(name)
+		if f == nil {
+			f = target.InheritedFlags().Lookup(name)
+		}
+		if f == nil && len(name) == 1 {
+			f = target.Flags().ShorthandLookup(name)
+		}
+		return f != nil && f.Value.Type() == "bool"
+	}
+	learn.JournalInvocation(learn.JournalEntry{
+		Cmd:           journalVerbChain(rootCmd, executed),
+		ArgvShape:     learn.JournalArgvShape(os.Args[1:], isBoolFlag),
+		ExitCode:      exitCode,
+		ErrorClass:    errorClass,
+		FailedFlag:    failedFlag,
+		SuggestedFlag: suggestedFlag,
+	})
+}
+
+// journalVerbChain resolves the subcommand verb chain for the journal
+// entry. When ExecuteC resolved a command, its CommandPath is
+// authoritative. On the parse-failure path where no command resolved,
+// the chain is derived by matching os.Args tokens against registered
+// command names only — an unmatched token may be a positional value
+// and is never recorded (matching stops there, conservatively).
+func journalVerbChain(rootCmd, executed *cobra.Command) []string {
+	if executed != nil && executed != rootCmd {
+		parts := strings.Fields(executed.CommandPath())
+		if len(parts) > 1 {
+			return parts[1:]
+		}
+	}
+	var chain []string
+	current := rootCmd
+	for _, tok := range os.Args[1:] {
+		if strings.HasPrefix(tok, "-") {
+			// Flag token; a separated flag value that follows is an
+			// unmatched token and stops the walk below.
+			continue
+		}
+		next := findSubcommand(current, tok)
+		if next == nil {
+			break
+		}
+		// Record the canonical registered name (resolving aliases),
+		// never the raw token.
+		chain = append(chain, next.Name())
+		current = next
+	}
+	return chain
+}
+
+func findSubcommand(cmd *cobra.Command, name string) *cobra.Command {
+	for _, c := range cmd.Commands() {
+		if c.Name() == name || c.HasAlias(name) {
+			return c
+		}
+	}
+	return nil
+}
+
+// argsDisableLearn reports whether the raw args carry the master
+// --no-learn switch. Needed on the parse-failure journal path where
+// pflag never populated rootFlags; an explicit --no-learn=false does
+// not disable.
+func argsDisableLearn(args []string) bool {
+	for _, tok := range args {
+		if tok == "--no-learn" {
+			return true
+		}
+		if v, ok := strings.CutPrefix(tok, "--no-learn="); ok {
+			switch strings.ToLower(strings.TrimSpace(v)) {
+			case "false", "0", "no":
+			default:
+				return true
 			}
 		}
 	}
-	if err == nil && flags.deliverBuf != nil {
-		if derr := Deliver(flags.deliverSink, flags.deliverBuf.Bytes(), flags.compact); derr != nil {
-			fmt.Fprintf(os.Stderr, "warning: deliver to %s:%s failed: %v\n", flags.deliverSink.Scheme, flags.deliverSink.Target, derr)
-			return derr
+	return false
+}
+
+// learnFamilyCommands are the commands whose own invocations must
+// never trigger a derivation pass — deriving off the learn surface's
+// own journal traffic would compound into derive-on-derive noise.
+// Their entries still land in the journal; only the pass is skipped.
+var learnFamilyCommands = map[string]struct{}{
+	"teach":          {},
+	"recall":         {},
+	"learnings":      {},
+	"playbook":       {},
+	"teach-pattern":  {},
+	"teach-lookup":   {},
+	"teach-playbook": {},
+}
+
+// deriveFlagCorrections runs the post-run flag-correction derivation
+// pass from Execute()'s single post-ExecuteC site, right after the
+// invocation's own journal entry lands. Best-effort and silent: it is
+// skipped under every switch the journal honors, and any failure is
+// swallowed — derivation may never fail, slow, or add output to the
+// command that triggered it.
+func deriveFlagCorrections(flags *rootFlags, rootCmd, executed *cobra.Command) {
+	if noLearnActive(flags) || argsDisableLearn(os.Args[1:]) || learn.JournalCaptureDisabled() {
+		return
+	}
+	chain := journalVerbChain(rootCmd, executed)
+	if len(chain) > 0 {
+		if _, isLearn := learnFamilyCommands[chain[0]]; isLearn {
+			return
 		}
 	}
-	return err
+	flagExists := func(name string) bool {
+		return commandTreeHasFlag(rootCmd, strings.TrimLeft(name, "-"))
+	}
+	// The opener is lazy: the pass touches SQLite only when it paired
+	// a correction, so framework-only invocations never create the
+	// learn database from this path.
+	openStore := func() (learn.CandidateStore, error) {
+		return store.Open(learnDBPath(""))
+	}
+	_ = learn.DeriveFlagCorrections(openStore, flagExists)
+}
+
+// commandTreeHasFlag reports whether any command in the tree registers
+// a flag with the given name (long name or single-letter shorthand).
+// The derivation pairing rule only heals flags that resolve nowhere —
+// a name that exists on any command, even a sibling of the failed one,
+// is a usage error rather than an alias candidate.
+func commandTreeHasFlag(cmd *cobra.Command, name string) bool {
+	if name == "" {
+		return false
+	}
+	if cmd.Flags().Lookup(name) != nil || cmd.PersistentFlags().Lookup(name) != nil {
+		return true
+	}
+	if len(name) == 1 && cmd.Flags().ShorthandLookup(name) != nil {
+		return true
+	}
+	for _, child := range cmd.Commands() {
+		if commandTreeHasFlag(child, name) {
+			return true
+		}
+	}
+	return false
 }
 
 func ExitCode(err error) int {
@@ -198,13 +617,16 @@ func (f *rootFlags) newClient() (*client.Client, error) {
 	c := client.New(cfg, f.timeout, f.rateLimit)
 	c.DryRun = f.dryRun
 	c.NoCache = f.noCache
+	for _, hook := range clientHooks {
+		if err := hook(c); err != nil {
+			return nil, err
+		}
+	}
 	return c, nil
 }
 
 func (f *rootFlags) printJSON(w *cobra.Command, v any) error {
-	enc := json.NewEncoder(w.OutOrStdout())
-	enc.SetIndent("", "  ")
-	return enc.Encode(v)
+	return printJSONFiltered(w.OutOrStdout(), v, f)
 }
 
 func (f *rootFlags) printTable(w *cobra.Command, headers []string, rows [][]string) error {
@@ -231,14 +653,4 @@ func (f *rootFlags) printTable(w *cobra.Command, headers []string, rows [][]stri
 		fmt.Fprintln(tw, line)
 	}
 	return tw.Flush()
-}
-
-func newVersionCliCmd() *cobra.Command {
-	return &cobra.Command{
-		Use:   "version",
-		Short: "Print version",
-		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Printf("slack-pp-cli %s\n", version)
-		},
-	}
 }
