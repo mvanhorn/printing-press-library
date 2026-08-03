@@ -14,4 +14,3 @@ session-state.json
 *.db-shm
 *.db-wal
 .DS_Store
-
