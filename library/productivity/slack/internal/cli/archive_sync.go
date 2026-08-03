@@ -14,6 +14,7 @@ package cli
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -139,6 +140,31 @@ var slackAccessDeniedCodes = map[string]bool{
 	"team_access_not_granted": true,
 }
 
+// resumeCursorResourceType stores per-channel history pagination state in the
+// ordinary resources table, so a capped run can continue where it stopped
+// instead of re-downloading the newest pages forever.
+const resumeCursorResourceType = "archive_sync_cursor"
+
+func loadResumeCursor(ctx context.Context, db *store.Store, channelID string) string {
+	var raw sql.NullString
+	err := db.DB().QueryRowContext(ctx,
+		`SELECT json_extract(data, '$.cursor') FROM resources WHERE resource_type = ? AND id = ?`,
+		resumeCursorResourceType, channelID).Scan(&raw)
+	if err != nil || !raw.Valid {
+		return ""
+	}
+	return raw.String
+}
+
+func saveResumeCursor(db *store.Store, channelID, cursor string) {
+	payload, err := json.Marshal(map[string]string{"cursor": cursor, "channel": channelID})
+	if err != nil {
+		return
+	}
+	// Best-effort: a failed bookmark costs re-download, never correctness.
+	_ = db.Upsert(resumeCursorResourceType, channelID, payload)
+}
+
 // injectChannel stamps the owning channel id onto a history message.
 // conversations.history omits it (the channel is in the request, not the
 // response), but every local reader resolves a message's channel from
@@ -161,13 +187,17 @@ func injectChannel(raw json.RawMessage, channelID string) (json.RawMessage, stri
 }
 
 type archiveSyncChannelResult struct {
-	Channel string `json:"channel"`
-	Name    string `json:"channel_name"`
-	Stored  int    `json:"messages_stored"`
-	Pages   int    `json:"pages_fetched"`
-	Threads int    `json:"thread_replies_stored"`
-	Capped  bool   `json:"page_cap_reached"`
-	Error   string `json:"error,omitempty"`
+	Channel      string `json:"channel"`
+	Name         string `json:"channel_name"`
+	Stored       int    `json:"messages_stored"`
+	Pages        int    `json:"pages_fetched"`
+	Threads      int    `json:"thread_replies_stored"`
+	Capped       bool   `json:"page_cap_reached"`
+	Resumed      bool   `json:"resumed_from_saved_cursor,omitempty"`
+	NextCursor   string `json:"next_cursor,omitempty"`
+	ThreadErrors int    `json:"thread_errors,omitempty"`
+	ThreadError  string `json:"thread_error,omitempty"`
+	Error        string `json:"error,omitempty"`
 }
 
 type archiveSyncReport struct {
@@ -188,6 +218,7 @@ func newNovelArchiveSyncCmd(flags *rootFlags) *cobra.Command {
 		maxPages     int
 		pageSize     int
 		withThreads  bool
+		restart      bool
 	)
 
 	cmd := &cobra.Command{
@@ -277,7 +308,7 @@ func newNovelArchiveSyncCmd(flags *rootFlags) *cobra.Command {
 
 			report := archiveSyncReport{Channels: make([]archiveSyncChannelResult, 0, len(targets)), Since: sinceFlag}
 			for _, ch := range targets {
-				res := syncChannelHistory(ctx, c, db, ch, oldest, pageSize, maxPages, withThreads)
+				res := syncChannelHistory(ctx, c, db, ch, oldest, pageSize, maxPages, withThreads, restart)
 				report.Channels = append(report.Channels, res)
 				report.TotalStored += res.Stored
 				report.TotalThreads += res.Threads
@@ -325,6 +356,7 @@ func newNovelArchiveSyncCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().IntVar(&maxPages, "max-pages", 5, "Maximum history pages to fetch per channel")
 	cmd.Flags().IntVar(&pageSize, "page-size", 200, "Messages per API page (Slack caps this at 1000)")
 	cmd.Flags().BoolVar(&withThreads, "with-threads", false, "Also fetch replies for messages that have a thread")
+	cmd.Flags().BoolVar(&restart, "restart", false, "Ignore saved pagination bookmarks and start from the newest page")
 	return cmd
 }
 
@@ -356,9 +388,15 @@ func selectSyncChannels(channels map[string]localChannel, filter string) []local
 // syncChannelHistory pages one channel's history into the store. Errors are
 // returned on the result rather than aborting the whole run so one
 // inaccessible channel cannot hide every other channel's data.
-func syncChannelHistory(ctx context.Context, c *client.Client, db *store.Store, ch localChannel, oldest string, pageSize, maxPages int, withThreads bool) archiveSyncChannelResult {
+func syncChannelHistory(ctx context.Context, c *client.Client, db *store.Store, ch localChannel, oldest string, pageSize, maxPages int, withThreads, restart bool) archiveSyncChannelResult {
 	res := archiveSyncChannelResult{Channel: ch.ID, Name: ch.Label()}
 	cursor := ""
+	if !restart && oldest == "" {
+		// Resume a previously capped run rather than restarting at the newest
+		// page; otherwise repeated syncs never reach older history.
+		cursor = loadResumeCursor(ctx, db, ch.ID)
+		res.Resumed = cursor != ""
+	}
 	for page := 0; page < maxPages; page++ {
 		params := map[string]string{
 			"channel": ch.ID,
@@ -394,55 +432,79 @@ func syncChannelHistory(ctx context.Context, c *client.Client, db *store.Store, 
 			}
 			res.Stored++
 			if withThreads {
-				res.Threads += syncThreadReplies(ctx, c, db, ch.ID, stamped, pageSize)
+				n, threadErr := syncThreadReplies(ctx, c, db, ch.ID, stamped, pageSize, maxPages)
+				res.Threads += n
+				if threadErr != nil {
+					// Surface rather than swallow: a thread that failed to
+					// mirror is missing data, not an empty thread.
+					res.ThreadErrors++
+					if res.ThreadError == "" {
+						res.ThreadError = threadErr.Error()
+					}
+				}
 			}
 		}
 		cursor = env.ResponseMetadata.NextCursor
 		if cursor == "" || !env.HasMore {
+			saveResumeCursor(db, ch.ID, "") // history exhausted; clear the bookmark
 			return res
 		}
 	}
 	res.Capped = true
+	res.NextCursor = cursor
+	saveResumeCursor(db, ch.ID, cursor)
 	return res
 }
 
-// syncThreadReplies stores replies for a parent that has a thread. Reply
-// failures are non-fatal: a missing thread should not discard the parent.
-func syncThreadReplies(ctx context.Context, c *client.Client, db *store.Store, channelID string, parent json.RawMessage, pageSize int) int {
+// syncThreadReplies stores every reply page for a parent that has a thread.
+// It returns the number stored and any error, so the caller can report a
+// partially-mirrored thread instead of reporting the channel as clean.
+func syncThreadReplies(ctx context.Context, c *client.Client, db *store.Store, channelID string, parent json.RawMessage, pageSize, maxPages int) (int, error) {
 	var p struct {
 		TS         string `json:"ts"`
 		ThreadTS   string `json:"thread_ts"`
 		ReplyCount int    `json:"reply_count"`
 	}
 	if err := json.Unmarshal(parent, &p); err != nil || p.ReplyCount == 0 {
-		return 0
+		return 0, nil
 	}
 	threadTS := p.ThreadTS
 	if threadTS == "" {
 		threadTS = p.TS
 	}
-	raw, err := c.Get(ctx, "/conversations.replies", map[string]string{
-		"channel": channelID,
-		"ts":      threadTS,
-		"limit":   strconv.Itoa(pageSize),
-	})
-	if err != nil {
-		return 0
-	}
-	env, err := decodeSlackEnvelope(raw)
-	if err != nil {
-		return 0
-	}
 	stored := 0
-	for _, m := range env.Messages {
-		stamped, ts, err := injectChannel(m, channelID)
-		if err != nil || ts == threadTS {
-			continue // skip the parent, already stored by the caller
+	cursor := ""
+	for page := 0; page < maxPages; page++ {
+		params := map[string]string{
+			"channel": channelID,
+			"ts":      threadTS,
+			"limit":   strconv.Itoa(pageSize),
 		}
-		if upErr := db.Upsert("conversations_replies", channelID+":"+ts, stamped); upErr != nil {
-			return stored
+		if cursor != "" {
+			params["cursor"] = cursor
 		}
-		stored++
+		raw, err := c.Get(ctx, "/conversations.replies", params)
+		if err != nil {
+			return stored, fmt.Errorf("thread %s: %w", threadTS, err)
+		}
+		env, err := decodeSlackEnvelope(raw)
+		if err != nil {
+			return stored, fmt.Errorf("thread %s: %w", threadTS, err)
+		}
+		for _, m := range env.Messages {
+			stamped, ts, err := injectChannel(m, channelID)
+			if err != nil || ts == threadTS {
+				continue // skip the parent, already stored by the caller
+			}
+			if upErr := db.Upsert("conversations_replies", channelID+":"+ts, stamped); upErr != nil {
+				return stored, fmt.Errorf("thread %s: storing reply %s: %w", threadTS, ts, upErr)
+			}
+			stored++
+		}
+		cursor = env.ResponseMetadata.NextCursor
+		if cursor == "" || !env.HasMore {
+			return stored, nil
+		}
 	}
-	return stored
+	return stored, nil
 }

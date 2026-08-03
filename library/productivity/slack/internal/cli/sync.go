@@ -523,6 +523,28 @@ func syncResource(ctx context.Context, c interface {
 			return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("fetching %s: %w", resource, err), Duration: time.Since(started)}
 		}
 
+		// pp:patch slack-ok-false-detection
+		// Slack signals failure with HTTP 200 plus {"ok":false,"error":"..."}.
+		// The generic sync loop only inspects transport errors, so without this
+		// guard the error object falls through extractPageItems and is stored
+		// as a legitimate record, and the run reports success with a corrupt
+		// mirror. Capability limits (wrong token type, missing scope) are a
+		// per-resource warning, mirroring the HTTP-403 handling above; genuine
+		// credential failures stay hard errors.
+		if slackErr := slackEnvelopeError(data); slackErr != nil {
+			code := slackEnvelopeErrorCode(data)
+			if slackAccessDeniedCodes[code] {
+				if !humanFriendly {
+					fmt.Fprintln(syncEvents, syncWarningJSON(resource, "", 0, code, slackErr.Error()))
+				}
+				return syncResult{Resource: resource, Count: totalCount, Warn: fmt.Errorf("skipped due to insufficient access: %s (%s)", resource, code), Duration: time.Since(started)}
+			}
+			if !humanFriendly {
+				fmt.Fprintln(syncEvents, syncErrorJSON(resource, "", slackErr))
+			}
+			return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("fetching %s: %w", resource, slackErr), Duration: time.Since(started)}
+		}
+
 		// Dry-run sentinel: client.dryRun returns `{"dry_run": true}` instead
 		// of a real response when --dry-run is set. The upsert path below
 		// would otherwise fail with "missing id for <resource>" because the
