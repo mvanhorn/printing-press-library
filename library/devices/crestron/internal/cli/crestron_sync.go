@@ -293,8 +293,18 @@ version and date are still recorded; only the notes are skipped.
 					}
 				}
 
-				if err := st.UpsertReleases(ctx, releases); err != nil {
+				// Write with a fresh context, matching the products walk above:
+				// a crawl budget that expired mid-walk must not discard the
+				// releases already gathered.
+				writeCtx, writeCancel := context.WithTimeout(context.WithoutCancel(ctx), 2*time.Minute)
+				err := st.UpsertReleases(writeCtx, releases)
+				writeCancel()
+				if err != nil {
 					return fmt.Errorf("writing releases: %w", err)
+				}
+				if ctxErr := ctx.Err(); ctxErr != nil {
+					rep.Warnings = append(rep.Warnings,
+						"crawl budget reached (--max-duration); partial results were saved")
 				}
 				rep.Releases = len(releases)
 			}

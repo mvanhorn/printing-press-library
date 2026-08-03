@@ -19,26 +19,28 @@ import (
 )
 
 type submittalModel struct {
-	Model      string   `json:"model"`
-	Assets     int      `json:"assets"`
-	Downloaded int      `json:"downloaded"`
-	Kinds      []string `json:"asset_kinds,omitempty"`
-	Missing    []string `json:"missing_kinds,omitempty"`
-	Dir        string   `json:"dir,omitempty"`
-	Source     string   `json:"source,omitempty"`
-	NeedsSync  bool     `json:"needs_sync,omitempty"`
-	Unknown    bool     `json:"unknown_model,omitempty"`
-	Error      string   `json:"error,omitempty"`
+	Model        string   `json:"model"`
+	Assets       int      `json:"assets"`
+	Downloaded   int      `json:"downloaded"`
+	FailedAssets int      `json:"failed_assets,omitempty"`
+	Kinds        []string `json:"asset_kinds,omitempty"`
+	Missing      []string `json:"missing_kinds,omitempty"`
+	Dir          string   `json:"dir,omitempty"`
+	Source       string   `json:"source,omitempty"`
+	NeedsSync    bool     `json:"needs_sync,omitempty"`
+	Unknown      bool     `json:"unknown_model,omitempty"`
+	Error        string   `json:"error,omitempty"`
 }
 
 type submittalView struct {
-	Models      []submittalModel `json:"models"`
-	OutDir      string           `json:"out_dir,omitempty"`
-	TotalAssets int              `json:"total_assets"`
-	Downloaded  int              `json:"downloaded"`
-	DryRun      bool             `json:"listed_only"`
-	Failures    []submittalModel `json:"fetch_failures,omitempty"`
-	Note        string           `json:"note,omitempty"`
+	Models       []submittalModel `json:"models"`
+	OutDir       string           `json:"out_dir,omitempty"`
+	TotalAssets  int              `json:"total_assets"`
+	Downloaded   int              `json:"downloaded"`
+	FailedAssets int              `json:"failed_assets,omitempty"`
+	DryRun       bool             `json:"listed_only"`
+	Failures     []submittalModel `json:"fetch_failures,omitempty"`
+	Note         string           `json:"note,omitempty"`
 }
 
 // expectedKinds are the asset classes a complete submittal package usually
@@ -189,6 +191,7 @@ Do NOT use it to merely list one product's assets; use 'product resources'.
 					for _, a := range selected {
 						body, err := c.Get(ctx, a.URL, nil)
 						if err != nil {
+							entry.FailedAssets++
 							continue
 						}
 						name := sanitizeFilename(a.Title)
@@ -198,11 +201,13 @@ Do NOT use it to merely list one product's assets; use 'product resources'.
 							name += ".pdf"
 						}
 						if err := os.WriteFile(filepath.Join(dir, name), body, 0o600); err != nil {
+							entry.FailedAssets++
 							continue
 						}
 						entry.Downloaded++
 						view.Downloaded++
 					}
+					view.FailedAssets += entry.FailedAssets
 				}
 				view.Models = append(view.Models, entry)
 			}
@@ -223,6 +228,13 @@ Do NOT use it to merely list one product's assets; use 'product resources'.
 			if len(view.Failures) > 0 {
 				fmt.Fprintf(cmd.ErrOrStderr(), "warning: %d of %d models could not be resolved; totals cover the remaining %d\n",
 					len(view.Failures), len(view.Models), len(view.Models)-len(view.Failures))
+			}
+			// A package missing assets still exits 0 — the models resolved and
+			// the rest of the package is usable — but saying nothing would let
+			// an incomplete submittal read as a complete one.
+			if view.FailedAssets > 0 {
+				fmt.Fprintf(cmd.ErrOrStderr(), "warning: %d asset(s) could not be downloaded; the package under %s is incomplete\n",
+					view.FailedAssets, flagOut)
 			}
 			if view.DryRun {
 				view.Note = "no --out given, so assets were listed but not downloaded"
