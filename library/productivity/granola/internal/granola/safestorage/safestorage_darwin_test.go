@@ -113,7 +113,10 @@ func TestLoadDEK_MigratedScheme(t *testing.T) {
 	}
 	msg := err.Error()
 	for _, want := range []string{
-		"Business or Enterprise",
+		// The remedy names the path that actually works now. It used to say a
+		// Business/Enterprise API key was required; `auth login` gives the CLI
+		// its own session and needs no paid workspace.
+		"auth login",
 		"remains readable",
 		"GRANOLA_SAFESTORAGE_KEY_OVERRIDE",
 	} {
@@ -254,7 +257,7 @@ func TestDecrypt_StaleDEKFileAfterFailedMigration(t *testing.T) {
 	if !strings.Contains(err.Error(), "stale key file") {
 		t.Errorf("expected the stale-key-file wording, got: %v", err)
 	}
-	if !strings.Contains(err.Error(), "Business or Enterprise") {
+	if !strings.Contains(err.Error(), "auth login") {
 		t.Errorf("stale-key-file error should carry the same remedy text, got: %v", err)
 	}
 }

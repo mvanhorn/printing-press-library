@@ -41,31 +41,37 @@ If `--version` reports "command not found" after install, the runtime cannot see
 
 ## Two Data Paths — Read This Before Running Anything
 
-Granola desktop now keeps its data-encryption key in a macOS data-protection keychain group gated by an entitlement bound to Granola's own Apple Team ID. No third-party binary can read that key. On a current install this means the encrypted desktop cache (`cache-v6.json.enc`) and `granola.db` are permanently unreadable by this CLI, and so is `supabase.json.enc` — which takes the internal-API token path down with it.
+Granola desktop keeps its data-encryption key in a macOS data-protection keychain group gated by an entitlement bound to Granola's own Apple Team ID. No third-party binary can read that key, so the encrypted desktop cache (`cache-v6.json.enc`), the SQLCipher store `granola.db`, and `supabase.json.enc` are all unreadable by this CLI on a current install.
 
-Two paths fill the local SQLite store. The CLI ships both:
+That does **not** leave the CLI without data. Run `granola-pp-cli auth login` once: the CLI signs in to Granola with its own session and syncs meetings over the API, no key and no paid workspace required. You approve one browser page; after that the session refreshes silently on every command. It never touches the Granola desktop app's session or your browser's.
+
+Three paths fill the local SQLite store:
 
 | Path | Hydrate with | Works on a current install? |
 |---|---|---|
-| Granola public REST API → local store | `sync-api` | **Yes**, with a `GRANOLA_API_KEY`. |
-| Desktop encrypted cache → local store | `sync` | **No.** Fails with a migrated-scheme error naming the entitlement-gated keychain group. Still works on pre-migration Granola builds, and on a machine holding a pre-migration `storage.dek`. |
+| CLI-owned session → local store | `auth login`, then `sync` | **Yes.** The default answer. Meetings, titles, timestamps, attendees. |
+| Granola public REST API → local store | `sync-api` | **Yes**, but only with a `GRANOLA_API_KEY`, which needs a Business or Enterprise workspace. |
+| Desktop encrypted cache → local store | `sync` | **Only on pre-migration builds**, or on a machine holding a pre-migration `storage.dek` supplied through `GRANOLA_SAFESTORAGE_KEY_OVERRIDE`. Otherwise `sync` runs degraded and reports so. |
 
-**Reading already-synced data needs no API key at all.** Every read command serves from the local store first and falls back to the desktop cache only when the store has no row and a cache is actually readable. Neither step makes a network call or consults a key. The key is only needed to fetch *new* data.
-
-So the normal flow on a current install is: set `GRANOLA_API_KEY`, run `granola-pp-cli sync-api` once, then read freely — offline and keyless from then on.
+**Reading already-synced data needs no credential at all.** Every read command serves from the local store first and falls back to the desktop cache only when the store has no row and a cache is actually readable. Neither step makes a network call or consults a key. Credentials are only needed to fetch *new* data.
 
 ### Capability split
 
-Available from the public API, hydrated by `sync-api`, readable from the store:
+Read this before telling a user their data is missing. An empty result on a migrated install usually means "not synced on this tier", not "you have none".
+
+**With a CLI-owned session (`auth login`), hydrated by `sync`:**
 
 - meetings, titles, timestamps
 - attendees
 - calendar events
-- transcripts (full segment list)
-- note summaries (`summary_markdown`)
-- folders and folder membership
 
-Cache-only, and therefore **unavailable on a migrated install**:
+Not hydrated on this tier yet: transcripts, folders, panels, recipes, chats. Transcript and folder endpoints do accept the CLI session, so this is a scope boundary of the current sync, not a hard limit. Commands that depend on transcripts (`talktime`, `memo run`, `attendee brief`, `collect`, `folder stream`) will return empty until those surfaces are hydrated. Say that plainly rather than presenting an empty result as an answer.
+
+**With a `GRANOLA_API_KEY`, hydrated by `sync-api`:**
+
+- everything above, plus transcripts (full segment list), note summaries (`summary_markdown`), folders and folder membership
+
+**Cache-only, and therefore unavailable on a migrated install regardless of credential:**
 
 - AI panels — `panel get`, and the `--panel` inlining in `attendee brief` and `folder stream`
 - recipes and panel templates — `recipes list`, `recipes describe`
@@ -73,6 +79,10 @@ Cache-only, and therefore **unavailable on a migrated install**:
 - workspaces — `workspaces list`
 
 When one of those is asked for on a migrated install, say the data is not reachable. Do not synthesize a panel, a recipe result, or a chat thread from transcript text.
+
+### Why `auth login` when Granola desktop is already signed in
+
+Because the desktop's session is not shareable. Its token lives behind the entitlement-gated key, and the refresh tokens the desktop and your browser hold are single-use — refreshing one signs *that* client out. So the CLI holds a chain of its own instead of borrowing. `auth login` stores it under the CLI's own data directory, readable only by you; `auth logout` removes it. Deleting it locally does not revoke it upstream.
 
 ## When to Use This CLI
 

@@ -73,6 +73,22 @@ func collectEncryptedStoreReport(report map[string]any) {
 			report["encrypted_store_hint"] = "Decrypt succeeded; document hydration from /v2/get-documents failed (auth or network). Cached transcripts/folders/recipes are still usable; meetings list may be stale."
 		}
 	case granola.DecryptStatusFailed:
+		// PATCH(api-sync-survives-unreadable-cache): a migrated install is a
+		// permanent, expected state, not a failure to act on. Reporting it as
+		// ERROR alongside a working CLI session read as "the CLI is broken"
+		// when meetings were syncing fine.
+		if state.LastDecryptErrorClass == "scheme_migrated" {
+			report["encrypted_store"] = "DEGRADED desktop cache unreadable (Granola moved the key out of reach); meetings sync over the API"
+			if granola.HasCLISession() {
+				report["encrypted_store_hint"] = "Nothing to do. Transcripts, folders, recipes, panels and chats stay empty unless you supply GRANOLA_SAFESTORAGE_KEY_OVERRIDE from a pre-migration storage.dek."
+			} else {
+				report["encrypted_store_hint"] = "Run `granola-pp-cli auth login` so the CLI can fetch meetings over the API."
+			}
+			if state.LastDecryptErrorMsg != "" {
+				report["encrypted_store_error"] = state.LastDecryptErrorMsg
+			}
+			return
+		}
 		msg := "ERROR last sync failed to decrypt"
 		if state.LastDecryptErrorClass != "" {
 			msg = fmt.Sprintf("ERROR last sync failed to decrypt (%s)", state.LastDecryptErrorClass)
