@@ -153,9 +153,7 @@ func Load(configPath string) (*Config, error) {
 		cfg.Headers["community-id"] = v
 	}
 	// Label config-file-derived credentials so doctor can distinguish
-	// "credentials persisted on disk" from "no credentials at all" — without
-	// this, users who saved via set-token without an env var see a blank
-	// auth_source and can't tell whether their config is being picked up.
+	// legacy or externally managed credentials from "no credentials at all".
 	// The label is the literal "config" rather than "config:<path>"; the
 	// config file path is exposed separately as report["config_path"], and
 	// embedding it in auth_source leaks the user's home directory through

@@ -23,7 +23,6 @@ func newAuthCmd(flags *rootFlags) *cobra.Command {
 
 	cmd.AddCommand(newAuthSetupCmd(flags))
 	cmd.AddCommand(newAuthStatusCmd(flags))
-	cmd.AddCommand(newAuthSetTokenCmd(flags))
 	cmd.AddCommand(newAuthLogoutCmd(flags))
 
 	return cmd
@@ -44,7 +43,6 @@ func newAuthSetupCmd(_ *rootFlags) *cobra.Command {
 			fmt.Fprintln(w, "")
 			fmt.Fprintln(w, "Then set:")
 			fmt.Fprintln(w, "  export LAYERS_TOKEN=\"your-token-here\"")
-			fmt.Fprintln(w, "  layers-pp-cli auth set-token <token>")
 			if !launch {
 				return nil
 			}
@@ -117,7 +115,6 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 				fmt.Fprintln(w, "")
 				fmt.Fprintln(w, "Set your token:")
 				fmt.Fprintln(w, "  export LAYERS_TOKEN=\"your-token-here\"")
-				fmt.Fprintf(w, "  layers-pp-cli auth set-token <token>\n")
 				return authErr(fmt.Errorf("no credentials configured"))
 			}
 
@@ -127,60 +124,6 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 			return nil
 		},
 	}
-}
-
-func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
-	return &cobra.Command{
-		Use:     "set-token <token>",
-		Short:   "Save an API token to the credentials file",
-		Example: "  layers-pp-cli auth set-token YOUR_TOKEN_HERE",
-		Args:    cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			cfg, err := config.Load(flags.configPath)
-			if err != nil {
-				return configErr(err)
-			}
-
-			// Clear any legacy auth_header so AuthHeader() falls through to
-			// the newly-saved credential. Without this, a pre-existing
-			// auth_header value (common after regenerate) shadows the saved
-			// token and set-token silently has no effect. Silent clear (no
-			// log line): a masked-tail variant could leak token bytes through
-			// scripted dogfood that captures stderr.
-			cfg.AuthHeaderVal = ""
-			if err := cfg.SaveTokens("", "", args[0], "", cfg.TokenExpiry); err != nil {
-				return configErr(fmt.Errorf("saving token: %w", err))
-			}
-
-			savePath := credentialSavePath(cfg)
-			// JSON envelope: {saved, config_path, credentials_path}.
-			if flags.asJSON {
-				out := map[string]any{
-					"saved":       true,
-					"config_path": cfg.Path,
-				}
-				if !cfg.AgentcookieManagedByExternalStore() {
-					out["credentials_path"] = savePath
-				}
-				return printJSONFiltered(cmd.OutOrStdout(), out, flags)
-			}
-			fmt.Fprintf(cmd.OutOrStdout(), "Token saved to %s\n", savePath)
-			return nil
-		},
-	}
-}
-
-func credentialSavePath(cfg *config.Config) string {
-	if cfg != nil && cfg.AgentcookieManagedByExternalStore() {
-		return cfg.Path
-	}
-	if path, err := cliutil.CredentialsFilePath(); err == nil {
-		return path
-	}
-	if cfg != nil {
-		return cfg.Path
-	}
-	return ""
 }
 
 func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {

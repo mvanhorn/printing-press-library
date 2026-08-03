@@ -623,19 +623,19 @@ func classifyAPIError(err error, flags *rootFlags) error {
 		return authErr(err)
 	case strings.Contains(msg, "HTTP 400") && cliutil.LooksLikeAuthError(msg):
 		return authErr(fmt.Errorf("%w\nhint: the API rejected the request — this usually means auth is missing or invalid."+
-			"\n      Set it with: layers-pp-cli auth set-token <token> or export LAYERS_TOKEN=\"your-token-here\""+
+			"\n      Set it for this process: export LAYERS_TOKEN=\"your-token-here\""+
 			"\n      See API docs: https://api.layers.digital"+
 			"\n      Run 'layers-pp-cli doctor' to check auth status."+
 			"\n      Response: "+cliutil.SanitizeErrorBody(msg), err))
 	case strings.Contains(msg, "HTTP 401"):
 		return authErr(fmt.Errorf("%w\nhint: check your token."+
-			"\n      Set it with: layers-pp-cli auth set-token <token> or export LAYERS_TOKEN=\"your-token-here\""+
+			"\n      Set it for this process: export LAYERS_TOKEN=\"your-token-here\""+
 			"\n      See API docs: https://api.layers.digital"+
 			"\n      Run 'layers-pp-cli doctor' to check auth status.", err))
 	case strings.Contains(msg, "HTTP 403"):
 		return authErr(fmt.Errorf("%w\nhint: permission denied. Your credentials are valid but lack access to this resource."+
 			"\n      Check that your credentials have the required permissions and match the API's expected auth scheme."+
-			"\n      Set it with: layers-pp-cli auth set-token <token> or export LAYERS_TOKEN=\"your-token-here\""+
+			"\n      Set it for this process: export LAYERS_TOKEN=\"your-token-here\""+
 			"\n      See API docs: https://api.layers.digital"+
 			"\n      Run 'layers-pp-cli doctor' to check auth status.", err))
 	case strings.Contains(msg, "HTTP 404"):
@@ -2732,7 +2732,7 @@ func printProvenance(cmd *cobra.Command, count int, prov DataProvenance) {
 func nonJSONPayloadError(data json.RawMessage) error {
 	trimmed := bytes.TrimSpace(data)
 	if len(trimmed) > 0 && trimmed[0] == '<' {
-		return authErr(fmt.Errorf("not authenticated or session expired; API returned HTML instead of JSON. " + "Set it with: layers-pp-cli auth set-token <token> or export LAYERS_TOKEN=\"your-token-here\""))
+		return authErr(fmt.Errorf("not authenticated or session expired; API returned HTML instead of JSON. Set it for this process: export LAYERS_TOKEN=\"your-token-here\""))
 	}
 	if len(trimmed) == 0 {
 		return apiErr(fmt.Errorf("API returned an empty response body; expected JSON"))

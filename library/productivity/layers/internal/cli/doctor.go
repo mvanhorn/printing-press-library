@@ -136,7 +136,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				configured, authSource := doctorAuthConfiguredState(cfg)
 				if !configured {
 					report["auth"] = "not configured"
-					report["auth_hint"] = "Set it with: layers-pp-cli auth set-token <token> or export LAYERS_TOKEN=\"your-token-here\""
+					report["auth_hint"] = "Set it for this process with: export LAYERS_TOKEN=\"your-token-here\""
 					report["auth_docs_url"] = "https://api.layers.digital"
 				} else {
 					authConfigured = true
@@ -498,9 +498,9 @@ func collectCredentialsLocationReport(report map[string]any, cfg *config.Config)
 	}
 	if credsPresent && len(locations) > 1 {
 		if legacySecretsElsewhere != "" {
-			report["credentials_location_warning"] = "WARN credentials stored in more than one location; legacy secrets remain at " + legacySecretsElsewhere + "; run auth set-token or auth logout to consolidate and remove legacy secrets"
+			report["credentials_location_warning"] = "WARN credentials stored in more than one location; legacy secrets remain at " + legacySecretsElsewhere + "; run auth logout to remove stored credentials and use LAYERS_TOKEN"
 		} else {
-			report["credentials_location_warning"] = "WARN credentials stored in more than one location; current reads use credentials file; run auth set-token or auth logout to consolidate"
+			report["credentials_location_warning"] = "WARN credentials stored in more than one location; current reads use credentials file; run auth logout and use LAYERS_TOKEN"
 		}
 	}
 }
