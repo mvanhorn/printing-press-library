@@ -36,6 +36,15 @@ type CacheSyncResult struct {
 	StateWriteErr    error
 	Duration         time.Duration
 
+	// PATCH(api-sync-survives-unreadable-cache): Degraded reports that the
+	// desktop cache could not be decrypted and only API-derived documents were
+	// synced; DecryptErr carries why. Cache-derived surfaces (transcripts,
+	// folders, recipes, panels, chat threads) are all zero on such a run, so
+	// reporting it as a clean sync would read as "you have no transcripts"
+	// rather than "transcripts were not synced".
+	Degraded   bool
+	DecryptErr error
+
 	// PATCH(api-detail-hydrate): transcript timestamps the store layer could
 	// not parse. Non-fatal like HydrateErr, but it must reach the operator:
 	// an unparseable timestamp is stored as 0 and reads back blank, so without
@@ -150,24 +159,48 @@ The hydration is idempotent: re-running replaces every row.`,
 // itself cannot be opened — the caller decides whether that is fatal.
 func runCacheSync(ctx context.Context) (CacheSyncResult, error) {
 	started := time.Now()
+	degraded := false
+	var decryptErr error
 	c, err := openGranolaCache()
 	if err != nil {
 		// PATCH(encrypted-cache): record the decrypt failure so doctor
 		// can report it without itself prompting the Keychain.
 		recordSyncDecryptStatus(err)
-		return CacheSyncResult{Duration: time.Since(started)}, err
+
+		// PATCH(api-sync-survives-unreadable-cache): a migrated install can
+		// never decrypt again, so failing here strands the one path that still
+		// works — /v2/get-documents, which needs no cache content at all.
+		// Degrade instead of aborting, and carry the decrypt error so the run
+		// is never reported as clean.
+		//
+		// Only a classified migration degrades. A plain ErrKeyUnavailable on a
+		// non-migrated install still has a working remedy (sign into Granola
+		// desktop); degrading it would hide that remedy behind a silently
+		// thinner sync.
+		if !errors.Is(err, safestorage.ErrSchemeMigrated) {
+			return CacheSyncResult{Duration: time.Since(started)}, err
+		}
+		degraded = true
+		decryptErr = err
+		c = &granola.Cache{Documents: map[string]granola.Document{}}
 	}
 	// PATCH(encrypted-cache): Granola desktop moved documents
 	// out of cache-v6.json into the API around May 2026. Hydrate
 	// from /v2/get-documents so SyncFromCache's meeting upsert
 	// loop has something to iterate.
 	docsFetched, hydrateErr := granola.HydrateDocumentsFromAPI(c, nil)
+	// On a degraded run the hydrate is the whole run: there is no cache
+	// content to fall back on, so a hydrate failure means nothing was synced.
+	if degraded && hydrateErr != nil {
+		return CacheSyncResult{Degraded: true, DecryptErr: decryptErr, Duration: time.Since(started)},
+			fmt.Errorf("cache unreadable and API hydrate failed: %w", hydrateErr)
+	}
 	s, err := openGranolaStore(ctx)
 	if err != nil {
 		return CacheSyncResult{Duration: time.Since(started)}, err
 	}
 	defer s.Close()
-	sres, err := granola.SyncFromCache(ctx, s.DB(), c)
+	sres, err := granola.SyncFromCacheWithOptions(ctx, s.DB(), c, granola.SyncOptions{Degraded: degraded})
 	if err != nil {
 		return CacheSyncResult{Duration: time.Since(started)}, err
 	}
@@ -185,6 +218,8 @@ func runCacheSync(ctx context.Context) (CacheSyncResult, error) {
 		ChatMessages:     sres.ChatMessages,
 		DocumentsFetched: docsFetched,
 		HydrateErr:       hydrateErr,
+		Degraded:         degraded,
+		DecryptErr:       decryptErr,
 		Duration:         time.Since(started),
 
 		UnparsedTimestamps: sres.UnparsedTimestamps,
@@ -200,6 +235,17 @@ func runCacheSync(ctx context.Context) (CacheSyncResult, error) {
 		LastDecryptStatus:    granola.DecryptStatusOK,
 		LastTokenSource:      tokenSourceLabel(granola.CurrentTokenSource()),
 		LastDocumentsFetched: docsFetched,
+	}
+	// PATCH(api-sync-survives-unreadable-cache): a degraded run did sync
+	// documents, but it never decrypted anything. Claiming DecryptStatusOK
+	// here would overwrite the failure recordSyncDecryptStatus just stored and
+	// make doctor report a healthy encrypted store on a migrated install.
+	if degraded {
+		state.LastDecryptStatus = granola.DecryptStatusFailed
+		state.LastDecryptErrorClass = decryptErrorClass(decryptErr)
+		if decryptErr != nil {
+			state.LastDecryptErrorMsg = decryptErr.Error()
+		}
 	}
 	if hydrateErr != nil {
 		state.LastHydrateErrorMsg = hydrateErr.Error()
@@ -223,17 +269,32 @@ func recordSyncDecryptStatus(err error) {
 		LastDecryptStatus:   granola.DecryptStatusFailed,
 		LastDecryptErrorMsg: err.Error(),
 	}
-	switch {
-	case errors.Is(err, safestorage.ErrKeyUnavailable):
-		state.LastDecryptErrorClass = "key_unavailable"
-	case errors.Is(err, safestorage.ErrDecryptFailed):
-		state.LastDecryptErrorClass = "decrypt_failed"
-	case errors.Is(err, safestorage.ErrUnsupportedPlatform):
-		state.LastDecryptErrorClass = "unsupported_platform"
-	default:
-		state.LastDecryptErrorClass = "other"
-	}
+	state.LastDecryptErrorClass = decryptErrorClass(err)
 	_ = granola.WriteSyncState(state)
+}
+
+// decryptErrorClass maps a cache-load error onto the stable class string
+// doctor reads out of the sync state.
+//
+// PATCH(api-sync-survives-unreadable-cache): ErrSchemeMigrated must be tested
+// first. migratedSchemeError.Is deliberately matches ErrKeyUnavailable too, so
+// a plain key_unavailable arm ahead of it swallows every migrated install --
+// which is how doctor came to print the unreachable "approve the Keychain
+// prompt" remedy for a state where no prompt can ever appear.
+func decryptErrorClass(err error) string {
+	switch {
+	case err == nil:
+		return ""
+	case errors.Is(err, safestorage.ErrSchemeMigrated):
+		return "scheme_migrated"
+	case errors.Is(err, safestorage.ErrKeyUnavailable):
+		return "key_unavailable"
+	case errors.Is(err, safestorage.ErrDecryptFailed):
+		return "decrypt_failed"
+	case errors.Is(err, safestorage.ErrUnsupportedPlatform):
+		return "unsupported_platform"
+	}
+	return "other"
 }
 
 // tokenSourceLabel returns a human-readable + JSON-stable label for the
@@ -248,6 +309,8 @@ func tokenSourceLabel(s granola.TokenSource) string {
 		return "encrypted_supabase"
 	case granola.TokenSourceStoredAccounts:
 		return "stored_accounts"
+	case granola.TokenSourcePlaintextSupabaseDesktopFallback:
+		return "plaintext_supabase_desktop_fallback"
 	}
 	return "unknown"
 }

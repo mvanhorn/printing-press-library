@@ -285,7 +285,30 @@ type SyncResult struct {
 // SyncFromCache pushes every row from cache into the SQLite store. Uses
 // REPLACE semantics so re-running is idempotent. Single transaction so
 // readers never see a partial state.
+// SyncOptions controls how a cache sync writes into the store.
+type SyncOptions struct {
+	// Degraded reports that the desktop cache could not be decrypted, so
+	// Documents was hydrated from /v2/get-documents into an otherwise empty
+	// Cache. It changes what an absent cache-derived row means: on a healthy
+	// run "absent" means deleted upstream and the cache path retires its own
+	// stale rows; on a degraded run it means unreadable, and retiring anything
+	// would destroy rows that can never be re-synced once the DEK is gone.
+	//
+	// Degraded therefore suppresses the cache path's own-source retirement --
+	// the cache-scoped folder_memberships clear and the zero-incoming segment
+	// clear -- leaving the run upsert-only. It does not touch the other path's
+	// row_source scoping, which guards a different failure.
+	Degraded bool
+}
+
+// SyncFromCache writes a fully-read desktop cache into the store.
 func SyncFromCache(ctx context.Context, db *sql.DB, cache *Cache) (SyncResult, error) {
+	return SyncFromCacheWithOptions(ctx, db, cache, SyncOptions{})
+}
+
+// SyncFromCacheWithOptions is SyncFromCache with explicit options. See
+// SyncOptions.Degraded for the one behavioral difference.
+func SyncFromCacheWithOptions(ctx context.Context, db *sql.DB, cache *Cache, opts SyncOptions) (SyncResult, error) {
 	var res SyncResult
 	if cache == nil {
 		return res, fmt.Errorf("nil cache")
@@ -412,6 +435,16 @@ func SyncFromCache(ctx context.Context, db *sql.DB, cache *Cache) (SyncResult, e
 		// PATCH(transcript-retention-preserves-larger): and when the cache's
 		// copy is smaller than the API's, this meeting is skipped outright
 		// rather than allowed to take ownership. See prepareSegmentRewrite.
+		//
+		// PATCH(api-sync-survives-unreadable-cache): on a degraded run the
+		// cache is unreadable, not empty, so len(segs) == 0 for every meeting.
+		// Falling through would hand prepareSegmentRewrite incoming == 0 and
+		// delete this meeting's stored cache-owned transcript -- for every
+		// meeting the API hydrate returned. Skip instead: there is nothing to
+		// write and nothing legitimate to retire.
+		if opts.Degraded && len(segs) == 0 {
+			continue
+		}
 		preserved, err := prepareSegmentRewrite(ctx, tx, id, RowSourceCache, len(segs))
 		if err != nil {
 			return res, err
@@ -438,8 +471,14 @@ func SyncFromCache(ctx context.Context, db *sql.DB, cache *Cache) (SyncResult, e
 	// PATCH(api-detail-hydrate): this DELETE used to be unscoped, which wiped
 	// every API-hydrated folder membership on each cache sync — including
 	// memberships for meetings the cache has never heard of.
-	if _, err := tx.ExecContext(ctx, `DELETE FROM folder_memberships WHERE row_source = ?`, RowSourceCache); err != nil {
-		return res, err
+	//
+	// PATCH(api-sync-survives-unreadable-cache): skipped entirely on a degraded
+	// run. cache.DocumentLists is empty because the cache could not be read, so
+	// this clear would delete every cache-owned membership and re-insert none.
+	if !opts.Degraded {
+		if _, err := tx.ExecContext(ctx, `DELETE FROM folder_memberships WHERE row_source = ?`, RowSourceCache); err != nil {
+			return res, err
+		}
 	}
 	for fid, md := range cache.DocumentListsMetadata {
 		_, err := tx.ExecContext(ctx, `INSERT OR REPLACE INTO folders(id,title,parent_id,workspace_id,owner_id,preset) VALUES (?,?,?,?,?,?)`,

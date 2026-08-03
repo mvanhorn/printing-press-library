@@ -81,6 +81,13 @@ type refreshResult struct {
 	rows     int
 	duration time.Duration
 	err      error
+
+	// PATCH(api-sync-survives-unreadable-cache): the run succeeded but the
+	// desktop cache was unreadable, so only API-derived documents were synced.
+	// Rendered as its own state because "ok" would hide that transcripts,
+	// folders, recipes, panels, and chats are all missing by circumstance
+	// rather than because the user has none.
+	degraded bool
 }
 
 // runAutoRefresh is the entry point the PersistentPreRunE hook calls.
@@ -243,6 +250,7 @@ func (p refreshPlan) run(ctx context.Context, flags *rootFlags) []refreshResult 
 			rows:     res.TotalRows(),
 			duration: res.Duration,
 			err:      err,
+			degraded: res.Degraded,
 		})
 	}
 	if p.api {
@@ -306,6 +314,12 @@ func emitProvenanceLine(w io.Writer, results []refreshResult) {
 // per-surface.
 func formatRefreshFragment(r refreshResult) string {
 	dur := formatRefreshDuration(r.duration)
+	if r.ok && r.degraded {
+		// PATCH(api-sync-survives-unreadable-cache): distinct from both ok and
+		// failed. Rows were written, so "failed" would be wrong; the cache was
+		// never read, so "ok" would imply transcripts and folders are current.
+		return fmt.Sprintf("%s=degraded, API only (%s, %d rows)", r.surface, dur, r.rows)
+	}
 	if r.ok {
 		return fmt.Sprintf("%s=ok (%s, %d rows)", r.surface, dur, r.rows)
 	}
