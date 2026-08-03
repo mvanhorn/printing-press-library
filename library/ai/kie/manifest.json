@@ -15,12 +15,12 @@
       "command": "${__dirname}/bin/kie-pp-mcp",
       "args": [],
       "env": {
-        "KIE_BEARER_AUTH": "${user_config.kie_api_key}"
+        "KIE_BEARER_AUTH": "${user_config.kie_bearer_auth}"
       }
     }
   },
   "user_config": {
-    "kie_api_key": {
+    "kie_bearer_auth": {
       "type": "string",
       "title": "KIE_BEARER_AUTH",
       "description": "Sets KIE_BEARER_AUTH for the Kie.ai MCP server. Get a credential from https://kie.ai/api-key.",

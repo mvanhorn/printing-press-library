@@ -21,7 +21,11 @@ import (
 // guidance that production agents need a remote option.
 
 const (
-	defaultHTTPAddr = ":7777"
+	// Loopback-only by default: the http transport otherwise binds every
+	// interface with no client authentication, exposing credentialed API
+	// calls and local SQLite state to any network-reachable client. Pass
+	// --addr to opt into a wider bind (e.g. a container's 0.0.0.0:7777).
+	defaultHTTPAddr = "127.0.0.1:7777"
 )
 
 // version is the printed MCP server's version, overridable at build time via ldflags.

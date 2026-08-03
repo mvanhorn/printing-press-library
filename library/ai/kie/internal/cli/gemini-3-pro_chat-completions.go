@@ -299,7 +299,7 @@ func newGemini3ProChatCompletionsCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyResponseFormatJsonSchemaName, "response-format-json-schema-name", "", "Only structured_output value")
 	cmd.Flags().StringVar(&bodyResponseFormatJsonSchemaStrict, "response-format-json-schema-strict", "", "Enable strict mode?")
 	cmd.Flags().StringVar(&bodyResponseFormatType, "response-format-type", "", "Only json_schema value")
-	cmd.Flags().BoolVar(&bodyStream, "stream", true, "If set to true, partial message deltas will be sent as server-sent events. Default is true.")
+	cmd.Flags().BoolVar(&bodyStream, "stream", false, "If set to true, partial message deltas will be sent as server-sent events. Default is false in this CLI (unset --json/--agent output cannot render raw SSE frames); pass --stream to get provider streaming behavior.")
 	cmd.Flags().StringVar(&bodyTools, "tools", "", "An optional array of tools the model may call. The array can contain multiple objects. Supports two formats: 1.")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin (use this for deeply nested fields not exposed as flags)")
 

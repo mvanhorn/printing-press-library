@@ -26,5 +26,12 @@
     "KIE_BEARER_AUTH"
   ],
   "auth_key_url": "https://kie.ai/api-key",
+  "novel_features": [
+    {
+      "name": "Unified Market Catalog Access",
+      "command": "kie-ai-jobs market-create-task",
+      "description": "Single create/query command pair that reaches all 120+ Kie.ai Market models via a --model identifier and JSON --input, instead of one generated command per model."
+    }
+  ],
   "catalog_description": "Unified CLI for Kie.ai's AI generation platform: 120+ Market models (image, video, audio) via one create/query task pair, plus dedicated Suno, Veo3.1, Runway, Flux Kontext, 4o Image, and per-model chat completion endpoints."
 }

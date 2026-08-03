@@ -1,0 +1,24 @@
+{
+  "schema_version": 2,
+  "id": "chat-completions-stream-default-false",
+  "applied_at": "2026-08-03",
+  "base_run_id": "20260803T075619Z-899a6d3a",
+  "base_printing_press_version": "4.30.1",
+  "summary": "11 of the 12 per-model chat-completions commands (all Gemini/Claude chat variants; grok_responses.go is the sole exception with proper SSE handling) must default --stream to false; a reprint that regenerates these files with --stream defaulting true again breaks default-invocation JSON/agent output, because the generic response decoder cannot parse the SSE frames the live API returns when stream=true.",
+  "reason": "Kie.ai's chat-completions endpoints for these models document stream:true as their own API default, and the spec faithfully carried that default into the generated CLI flag. But only grok_responses.go's generated body sends the Accept: text/event-stream + X-Printing-Press-Text-Response header pair and decodes the resulting text envelope; the other 11 commands POST through the plain JSON response path, which fails or returns unparsed raw SSE frames whenever the endpoint actually streams. Flipping the flag default to false (still overridable with --stream) makes the CLI's own default invocation match what its response handling can actually decode.",
+  "files": [
+    "internal/cli/gemini-2-5-flash_chat-completions.go",
+    "internal/cli/gemini-2-5-pro_chat-completions.go",
+    "internal/cli/gemini_3-6-flash.go",
+    "internal/cli/gemini_3-flash-v1betamodels.go",
+    "internal/cli/gemini-3-pro_chat-completions.go",
+    "internal/cli/gemini_3-5-flash.go",
+    "internal/cli/promoted_claude.go",
+    "internal/cli/promoted_gemini-3-5-flash-openai.go",
+    "internal/cli/promoted_gemini-3-1-pro.go",
+    "internal/cli/promoted_gemini-3-6-flash-openai.go",
+    "internal/cli/promoted_gemini-3-flash.go"
+  ],
+  "validated_outcome": "go build ./... and go vet ./... pass; no live-API confirmation was possible (no Kie.ai API key available at generation time) that stream=false actually returns a clean JSON body for every one of these 11 endpoints -- flag this for live verification once a credential is available.",
+  "upstream_issue": ""
+}

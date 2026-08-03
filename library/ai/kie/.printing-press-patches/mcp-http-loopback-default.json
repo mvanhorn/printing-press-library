@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "mcp-http-loopback-default",
+  "applied_at": "2026-08-03",
+  "base_run_id": "20260803T075619Z-899a6d3a",
+  "base_printing_press_version": "4.30.1",
+  "summary": "kie-pp-mcp's http transport must default to a loopback bind (127.0.0.1:7777), not all-interfaces (:7777); a reprint that regenerates cmd/kie-pp-mcp/main.go with a bare-port default reintroduces an unauthenticated network listener exposing credentialed API and local SQLite tools to any reachable client.",
+  "reason": "server.NewStreamableHTTPServer as wired here performs no client authentication. A bare ':7777' default binds every interface, so any host that can reach the port gets full access to credentialed Kie.ai API calls and local learn/store data with zero auth. --addr remains available for an intentional wider bind (e.g. a container's 0.0.0.0:7777).",
+  "files": ["cmd/kie-pp-mcp/main.go"],
+  "validated_outcome": "go build ./... passes; --addr flag still overrides the default for callers that intentionally want a non-loopback bind.",
+  "upstream_issue": ""
+}

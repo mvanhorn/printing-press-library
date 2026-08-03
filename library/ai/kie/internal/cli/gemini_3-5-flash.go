@@ -268,7 +268,7 @@ func newGemini35FlashCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyContents, "contents", "", "Conversation input for Gemini.")
 	cmd.Flags().BoolVar(&bodyGenerationConfigThinkingConfigIncludeThoughts, "generation-config-thinking-config-include-thoughts", false, "Whether to include thought output.")
 	cmd.Flags().StringVar(&bodyGenerationConfigThinkingConfigThinkingLevel, "generation-config-thinking-config-thinking-level", "", "Thinking level.")
-	cmd.Flags().BoolVar(&bodyStream, "stream", true, "If set to true, the provider returns stream chunks.")
+	cmd.Flags().BoolVar(&bodyStream, "stream", false, "If set to true, the provider returns stream chunks.")
 	cmd.Flags().StringVar(&bodyTools, "tools", "", "Optional Gemini tools. Supports googleSearch and functionDeclarations.")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 

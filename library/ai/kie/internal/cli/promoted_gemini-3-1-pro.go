@@ -161,7 +161,7 @@ func newGemini31ProPromotedCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().BoolVar(&bodyIncludeThoughts, "include-thoughts", true, "Whether to include thoughts in the response.")
 	cmd.Flags().StringVar(&bodyMessages, "messages", "", "An array of message objects. Each message has a role and content.")
 	cmd.Flags().StringVar(&bodyReasoningEffort, "reasoning-effort", "high", "The effort level for the model to use for reasoning.")
-	cmd.Flags().BoolVar(&bodyStream, "stream", true, "If set to true, partial message deltas will be sent as server-sent events. Default is true.")
+	cmd.Flags().BoolVar(&bodyStream, "stream", false, "If set to true, partial message deltas will be sent as server-sent events. Default is false in this CLI (unset --json/--agent output cannot render raw SSE frames); pass --stream to get provider streaming behavior.")
 	cmd.Flags().StringVar(&bodyTools, "tools", "", "An optional array of tools the model may call. The array can contain multiple objects.")
 
 	// Wire sibling endpoints and sub-resources as subcommands

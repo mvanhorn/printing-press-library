@@ -168,7 +168,7 @@ func newClaudePromotedCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().Float64Var(&bodyMaxTokens, "max-tokens", 4096.000000, "Optional Claude output token limit. Leave empty to use the default of 4096.")
 	cmd.Flags().StringVar(&bodyMessages, "messages", "", "Conversation messages in chronological order.")
 	cmd.Flags().StringVar(&bodyModel, "model", "", "Model name. It must match the current document.")
-	cmd.Flags().BoolVar(&bodyStream, "stream", true, "If set to true, the response is returned as an SSE stream.")
+	cmd.Flags().BoolVar(&bodyStream, "stream", false, "If set to true, the response is returned as an SSE stream.")
 	cmd.Flags().BoolVar(&bodyThinkingFlag, "thinking-flag", false, "Project-specific thinking flag used by the current Claude adapter.")
 	cmd.Flags().StringVar(&bodyTools, "tools", "", "Optional callable tools. Each tool includes a name, description, and input_schema.")
 
