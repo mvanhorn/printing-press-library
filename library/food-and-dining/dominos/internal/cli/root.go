@@ -34,6 +34,7 @@ type rootFlags struct {
 	agent         bool
 	selectFields  string
 	configPath    string
+	market        string
 	profileName   string
 	deliverSpec   string
 	timeout       time.Duration
@@ -110,6 +111,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.PersistentFlags().BoolVar(&flags.plain, "plain", false, "Output as plain tab-separated text")
 	rootCmd.PersistentFlags().BoolVar(&flags.quiet, "quiet", false, "Bare output, one value per line")
 	rootCmd.PersistentFlags().StringVar(&flags.configPath, "config", "", "Config file path")
+	rootCmd.PersistentFlags().StringVar(&flags.market, "market", "", "Domino's market: us or ca (overrides config and DOMINOS_MARKET)")
 	rootCmd.PersistentFlags().DurationVar(&flags.timeout, "timeout", 30*time.Second, "Request timeout")
 	rootCmd.PersistentFlags().BoolVar(&flags.dryRun, "dry-run", false, "Show request without sending")
 	rootCmd.PersistentFlags().BoolVar(&flags.noCache, "no-cache", false, "Bypass response cache")
@@ -126,6 +128,13 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.PersistentFlags().Float64Var(&flags.rateLimit, "rate-limit", 0, "Max requests per second (0 to disable)")
 
 	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
+		if flags.market != "" {
+			market, err := config.NormalizeMarket(flags.market)
+			if err != nil {
+				return usageErr(err)
+			}
+			flags.market = market
+		}
 		if flags.deliverSpec != "" {
 			sink, err := ParseDeliverSink(flags.deliverSpec)
 			if err != nil {
@@ -181,6 +190,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newCustomerCmd(flags))
 	rootCmd.AddCommand(newGraphqlCmd(flags))
 	rootCmd.AddCommand(newOrdersCmd(flags))
+	rootCmd.AddCommand(newCheckoutCmd(flags))
 	rootCmd.AddCommand(newStoresCmd(flags))
 	rootCmd.AddCommand(newDoctorCmd(flags))
 	rootCmd.AddCommand(newAuthCmd(flags))
@@ -214,7 +224,7 @@ func ExitCode(err error) int {
 }
 
 func (f *rootFlags) newClient() (*client.Client, error) {
-	cfg, err := config.Load(f.configPath)
+	cfg, err := f.loadConfig()
 	if err != nil {
 		return nil, configErr(err)
 	}
@@ -222,6 +232,19 @@ func (f *rootFlags) newClient() (*client.Client, error) {
 	c.DryRun = f.dryRun
 	c.NoCache = f.noCache
 	return c, nil
+}
+
+func (f *rootFlags) loadConfig() (*config.Config, error) {
+	cfg, err := config.Load(f.configPath)
+	if err != nil {
+		return nil, err
+	}
+	if f.market != "" {
+		if err := cfg.SetMarket(f.market); err != nil {
+			return nil, err
+		}
+	}
+	return cfg, nil
 }
 
 func (f *rootFlags) printJSON(w *cobra.Command, v any) error {

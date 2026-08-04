@@ -7,6 +7,7 @@ import (
 
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/dominos/internal/cartstore"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/dominos/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/dominos/internal/config"
 
 	"github.com/spf13/cobra"
 )
@@ -96,6 +97,11 @@ total and an ETA estimate but does not place.`,
 // Shared between `order-quick`, `template order`, and any future
 // composer that wants the same shape.
 func placeQuickOrder(cmd *cobra.Command, flags *rootFlags, cart *cartstore.Cart, confirm, etaWatch bool) error {
+	if confirm {
+		if err := rejectCanadianPlacement(flags); err != nil {
+			return err
+		}
+	}
 	c, err := flags.newClient()
 	if err != nil {
 		return err
@@ -171,4 +177,15 @@ func placeQuickOrder(cmd *cobra.Command, flags *rootFlags, cart *cartstore.Cart,
 		_ = pollTrackerUntilDelivered(cmd, flags, c, result.TrackerPhone)
 	}
 	return printJSONFiltered(cmd.OutOrStdout(), result, flags)
+}
+
+func rejectCanadianPlacement(flags *rootFlags) error {
+	cfg, err := flags.loadConfig()
+	if err != nil {
+		return configErr(err)
+	}
+	if cfg.Market == config.MarketCanada {
+		return usageErr(fmt.Errorf("Canadian order placement is not supported; use checkout preview and place the order through Domino's Canada"))
+	}
+	return nil
 }

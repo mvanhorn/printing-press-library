@@ -86,6 +86,13 @@ func (c *Client) Get(path string, params map[string]string) (json.RawMessage, er
 	return c.GetWithHeaders(path, params, nil)
 }
 
+// GetUncached bypasses both cache reads and writes. Use it for account-scoped
+// responses whose raw payload must not be retained locally.
+func (c *Client) GetUncached(path string, params map[string]string) (json.RawMessage, error) {
+	result, _, err := c.do("GET", path, params, nil, nil)
+	return result, err
+}
+
 func (c *Client) GetWithHeaders(path string, params map[string]string, headers map[string]string) (json.RawMessage, error) {
 	// Check cache for GET requests
 	if !c.NoCache && !c.DryRun && c.cacheDir != "" {
@@ -106,10 +113,16 @@ func (c *Client) ProbeGet(path string) (int, error) {
 }
 
 func (c *Client) cacheKey(path string, params map[string]string) string {
-	key := path
-	for k, v := range params {
-		key += k + "=" + v
+	key := c.BaseURL + "\n"
+	if c.Config != nil {
+		key += c.Config.Market + "\n"
 	}
+	key += path + "\n"
+	query := url.Values{}
+	for k, v := range params {
+		query.Set(k, v)
+	}
+	key += query.Encode()
 	h := sha256.Sum256([]byte(key))
 	return hex.EncodeToString(h[:8])
 }
@@ -235,6 +248,9 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 		if authHeader != "" {
 			req.Header.Set("Authorization", authHeader)
 		}
+		for k, v := range c.defaultHeaders() {
+			req.Header.Set(k, v)
+		}
 		// Per-endpoint header overrides (e.g., different API version per resource)
 		for k, v := range headerOverrides {
 			req.Header.Set(k, v)
@@ -331,8 +347,42 @@ func (c *Client) dryRun(method, targetURL, path string, params map[string]string
 	if authHeader != "" {
 		fmt.Fprintf(os.Stderr, "  %s: %s\n", "Authorization", maskToken(authHeader))
 	}
+	previewHeaders := make(map[string]string)
+	for k, v := range c.defaultHeaders() {
+		previewHeaders[k] = v
+	}
+	for k, v := range headerOverrides {
+		previewHeaders[k] = v
+	}
+	headerNames := make([]string, 0, len(previewHeaders))
+	for k := range previewHeaders {
+		headerNames = append(headerNames, k)
+	}
+	sort.Strings(headerNames)
+	for _, k := range headerNames {
+		value := previewHeaders[k]
+		if isSensitiveHeader(k) {
+			value = maskToken(value)
+		}
+		fmt.Fprintf(os.Stderr, "  %s: %s\n", k, value)
+	}
 	fmt.Fprintf(os.Stderr, "\n(dry run - no request sent)\n")
 	return json.RawMessage(`{"dry_run": true}`), 0, nil
+}
+
+func isSensitiveHeader(name string) bool {
+	normalized := strings.ToLower(strings.TrimSpace(name))
+	if normalized == "authorization" || normalized == "proxy-authorization" || normalized == "cookie" || normalized == "set-cookie" {
+		return true
+	}
+	return strings.Contains(normalized, "token") || strings.Contains(normalized, "secret") || strings.Contains(normalized, "api-key") || strings.HasSuffix(normalized, "-key")
+}
+
+func (c *Client) defaultHeaders() map[string]string {
+	if c.Config == nil {
+		return nil
+	}
+	return c.Config.DefaultHeaders()
 }
 
 func (c *Client) ConfiguredTimeout() time.Duration {
