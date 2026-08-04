@@ -509,7 +509,11 @@ func (v *granolaRead) storeFolders() []granola.DocumentListMetadata {
 		return nil
 	}
 	rows, err := v.store.DB().QueryContext(v.ctx,
-		`SELECT id, title, parent_id, workspace_id, preset FROM folders ORDER BY id ASC`)
+		// PATCH(catalog-provenance-and-merge): description and is_favourited
+		// are selected here because the write path now persists them. Without
+		// this, a store-only install keeps reporting an empty description and a
+		// false favourite flag for folders that have both.
+		`SELECT id, title, parent_id, workspace_id, preset, description, is_favourited FROM folders ORDER BY id ASC`)
 	if err != nil {
 		return nil
 	}
@@ -517,13 +521,16 @@ func (v *granolaRead) storeFolders() []granola.DocumentListMetadata {
 	var out []granola.DocumentListMetadata
 	for rows.Next() {
 		var f granola.DocumentListMetadata
-		var parent, workspace, preset sql.NullString
-		if err := rows.Scan(&f.ID, &f.Title, &parent, &workspace, &preset); err != nil {
+		var parent, workspace, preset, description sql.NullString
+		var favourited sql.NullBool
+		if err := rows.Scan(&f.ID, &f.Title, &parent, &workspace, &preset, &description, &favourited); err != nil {
 			return out
 		}
 		f.ParentDocumentListID = parent.String
 		f.WorkspaceID = workspace.String
 		f.Preset = preset.String
+		f.Description = description.String
+		f.IsFavourited = favourited.Bool
 		out = append(out, f)
 	}
 	return out

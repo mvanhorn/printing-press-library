@@ -70,7 +70,10 @@ var granolaSchemaSQL = []string{
 		parent_id TEXT,
 		workspace_id TEXT,
 		owner_id TEXT,
-		preset TEXT
+		preset TEXT,
+		description TEXT,
+		is_favourited INTEGER NOT NULL DEFAULT 0,
+		row_source TEXT NOT NULL DEFAULT 'cache'
 	)`,
 
 	`CREATE TABLE IF NOT EXISTS folder_memberships (
@@ -86,7 +89,8 @@ var granolaSchemaSQL = []string{
 		slug TEXT,
 		title TEXT,
 		description TEXT,
-		category TEXT
+		category TEXT,
+		row_source TEXT NOT NULL DEFAULT 'cache'
 	)`,
 	`CREATE INDEX IF NOT EXISTS idx_panel_templates_slug ON panel_templates(slug)`,
 
@@ -96,14 +100,16 @@ var granolaSchemaSQL = []string{
 		name TEXT,
 		description TEXT,
 		category TEXT,
-		source TEXT
+		source TEXT,
+		row_source TEXT NOT NULL DEFAULT 'cache'
 	)`,
 	`CREATE INDEX IF NOT EXISTS idx_recipes_slug ON recipes(slug)`,
 
 	`CREATE TABLE IF NOT EXISTS recipes_usage (
 		recipe_id TEXT PRIMARY KEY,
 		total_count INTEGER NOT NULL DEFAULT 0,
-		last_used_at TEXT
+		last_used_at TEXT,
+		row_source TEXT NOT NULL DEFAULT 'cache'
 	)`,
 
 	`CREATE TABLE IF NOT EXISTS chat_threads (
@@ -173,6 +179,23 @@ var granolaAddedColumns = []struct{ table, column, decl string }{
 	{"attendees", "row_source", "TEXT NOT NULL DEFAULT 'cache'"},
 	{"folder_memberships", "row_source", "TEXT NOT NULL DEFAULT 'cache'"},
 	{"transcript_segments", "row_source", "TEXT NOT NULL DEFAULT 'cache'"},
+	// The catalog tables. These four describe things rather than meetings —
+	// folders, panel templates, recipes and their usage counters — and both
+	// data paths write them, so they need the same ownership marker for the
+	// same reason: a row's creator must stay identifiable after any number of
+	// later upserts from the other path.
+	{"folders", "row_source", "TEXT NOT NULL DEFAULT 'cache'"},
+	{"panel_templates", "row_source", "TEXT NOT NULL DEFAULT 'cache'"},
+	{"recipes", "row_source", "TEXT NOT NULL DEFAULT 'cache'"},
+	{"recipes_usage", "row_source", "TEXT NOT NULL DEFAULT 'cache'"},
+	// Folder metadata the cache has always carried on DocumentListMetadata and
+	// the write path silently dropped, so `folder list` reported an empty
+	// description and a never-favourited folder for every store-backed read.
+	// is_favourited is NOT NULL DEFAULT 0 rather than nullable: the cache
+	// always states the flag, and "unknown" is not a value any reader wants to
+	// render for a boolean.
+	{"folders", "description", "TEXT"},
+	{"folders", "is_favourited", "INTEGER NOT NULL DEFAULT 0"},
 	// Speaker identity the public API can resolve and the cache never
 	// carried. Deliberately nullable: cache-sourced rows leave these NULL so
 	// downstream commands stay source-agnostic.
@@ -309,12 +332,37 @@ type SyncOptions struct {
 	// prepareSegmentRewrite's cross-source comparison a false "the cache holds
 	// N segments" that could block a later genuine API refresh.
 	TranscriptOwner string
+
+	// CatalogOwner is who owns the catalog rows this run creates: folders,
+	// panel_templates, recipes and recipes_usage. Empty means RowSourceCache,
+	// the historical behavior. Shaped exactly like TranscriptOwner above, and
+	// for the same reason.
+	//
+	// This is a field rather than a literal at each write site because the
+	// catalog is not cache-only property: an API-driven refresh writes the
+	// same four tables and has to be able to claim the rows it creates. A
+	// hard-coded 'cache' at four call sites leaves that caller nowhere to hook
+	// in, and mislabelling API-created rows as cache-owned is unrecoverable --
+	// once the marker is wrong nothing downstream can tell the two apart.
+	//
+	// It only decides ownership of rows this run CREATES. Every catalog upsert
+	// leaves row_source out of its ON CONFLICT SET list, so an existing row
+	// keeps the owner that created it no matter which path touches it next.
+	CatalogOwner string
 }
 
 // transcriptOwner resolves the row_source for transcript writes.
 func (o SyncOptions) transcriptOwner() string {
 	if o.TranscriptOwner != "" {
 		return o.TranscriptOwner
+	}
+	return RowSourceCache
+}
+
+// catalogOwner resolves the row_source for folder / panel / recipe writes.
+func (o SyncOptions) catalogOwner() string {
+	if o.CatalogOwner != "" {
+		return o.CatalogOwner
 	}
 	return RowSourceCache
 }
@@ -499,8 +547,37 @@ func SyncFromCacheWithOptions(ctx context.Context, db *sql.DB, cache *Cache, opt
 		}
 	}
 	for fid, md := range cache.DocumentListsMetadata {
-		_, err := tx.ExecContext(ctx, `INSERT OR REPLACE INTO folders(id,title,parent_id,workspace_id,owner_id,preset) VALUES (?,?,?,?,?,?)`,
-			fid, md.Title, md.ParentDocumentListID, md.WorkspaceID, "", md.Preset)
+		// PATCH(catalog-provenance-and-merge): merge, never REPLACE — see the
+		// meetings upsert above. REPLACE deleted the row and inserted a fresh
+		// one, which blanked every column this payload does not carry and
+		// silently reassigned row_source to whichever path ran last.
+		//
+		// is_favourited cannot use the NULLIF idiom: it is a boolean, so
+		// "false" and "absent" are the same value and no expression over the
+		// incoming column alone can tell them apart. Provenance can. Only the
+		// path that owns the row is allowed to clear the flag, which keeps a
+		// user's un-favourite working on the path that knows about it while
+		// stopping a writer that simply does not carry the field from silently
+		// resetting the other path's value.
+		favourited := 0
+		if md.IsFavourited {
+			favourited = 1
+		}
+		_, err := tx.ExecContext(ctx, `INSERT INTO folders(
+			id, title, parent_id, workspace_id, owner_id, preset,
+			description, is_favourited, row_source
+		) VALUES (?,?,?,?,?,?,?,?,?)
+		ON CONFLICT(id) DO UPDATE SET
+			title         = COALESCE(NULLIF(excluded.title, ''), folders.title),
+			parent_id     = COALESCE(NULLIF(excluded.parent_id, ''), folders.parent_id),
+			workspace_id  = COALESCE(NULLIF(excluded.workspace_id, ''), folders.workspace_id),
+			owner_id      = COALESCE(NULLIF(excluded.owner_id, ''), folders.owner_id),
+			preset        = COALESCE(NULLIF(excluded.preset, ''), folders.preset),
+			description   = COALESCE(NULLIF(excluded.description, ''), folders.description),
+			is_favourited = CASE WHEN excluded.row_source = folders.row_source
+				THEN excluded.is_favourited ELSE folders.is_favourited END`,
+			fid, md.Title, md.ParentDocumentListID, md.WorkspaceID, "", md.Preset,
+			md.Description, favourited, opts.catalogOwner())
 		if err != nil {
 			return res, fmt.Errorf("upsert folder %s: %w", fid, err)
 		}
@@ -523,8 +600,15 @@ func SyncFromCacheWithOptions(ctx context.Context, db *sql.DB, cache *Cache, opt
 
 	// panel_templates
 	for _, p := range cache.PanelTemplates {
-		_, err := tx.ExecContext(ctx, `INSERT OR REPLACE INTO panel_templates(id,slug,title,description,category) VALUES (?,?,?,?,?)`,
-			p.ID, p.Slug, p.Title, p.Description, p.Category)
+		// PATCH(catalog-provenance-and-merge): merge, never REPLACE — see the
+		// folders upsert above.
+		_, err := tx.ExecContext(ctx, `INSERT INTO panel_templates(id,slug,title,description,category,row_source) VALUES (?,?,?,?,?,?)
+		ON CONFLICT(id) DO UPDATE SET
+			slug        = COALESCE(NULLIF(excluded.slug, ''), panel_templates.slug),
+			title       = COALESCE(NULLIF(excluded.title, ''), panel_templates.title),
+			description = COALESCE(NULLIF(excluded.description, ''), panel_templates.description),
+			category    = COALESCE(NULLIF(excluded.category, ''), panel_templates.category)`,
+			p.ID, p.Slug, p.Title, p.Description, p.Category, opts.catalogOwner())
 		if err != nil {
 			return res, fmt.Errorf("upsert panel %s: %w", p.ID, err)
 		}
@@ -533,8 +617,19 @@ func SyncFromCacheWithOptions(ctx context.Context, db *sql.DB, cache *Cache, opt
 
 	// recipes
 	for _, r := range cache.RecipesAll() {
-		_, err := tx.ExecContext(ctx, `INSERT OR REPLACE INTO recipes(id,slug,name,description,category,source) VALUES (?,?,?,?,?,?)`,
-			r.ID, r.Slug, r.Name, r.Config.Description, r.Category, r.Source)
+		// PATCH(catalog-provenance-and-merge): merge, never REPLACE — see the
+		// folders upsert above. `source` here is the recipe's origin collection
+		// (public/user/shared), which is unrelated to row_source: one says
+		// which Granola list the recipe came from, the other which of this
+		// CLI's two data paths wrote the row.
+		_, err := tx.ExecContext(ctx, `INSERT INTO recipes(id,slug,name,description,category,source,row_source) VALUES (?,?,?,?,?,?,?)
+		ON CONFLICT(id) DO UPDATE SET
+			slug        = COALESCE(NULLIF(excluded.slug, ''), recipes.slug),
+			name        = COALESCE(NULLIF(excluded.name, ''), recipes.name),
+			description = COALESCE(NULLIF(excluded.description, ''), recipes.description),
+			category    = COALESCE(NULLIF(excluded.category, ''), recipes.category),
+			source      = COALESCE(NULLIF(excluded.source, ''), recipes.source)`,
+			r.ID, r.Slug, r.Name, r.Config.Description, r.Category, r.Source, opts.catalogOwner())
 		if err != nil {
 			return res, fmt.Errorf("upsert recipe %s: %w", r.ID, err)
 		}
@@ -545,7 +640,16 @@ func SyncFromCacheWithOptions(ctx context.Context, db *sql.DB, cache *Cache, opt
 	for rid, u := range cache.RecipesUsage {
 		count := int64(0)
 		fmt.Sscanf(u.TotalCount, "%d", &count)
-		_, err := tx.ExecContext(ctx, `INSERT OR REPLACE INTO recipes_usage(recipe_id,total_count,last_used_at) VALUES (?,?,?)`, rid, count, u.LastUsedAt)
+		// PATCH(catalog-provenance-and-merge): merge, never REPLACE — see the
+		// folders upsert above. NULLIF(...,0) is the integer form of the same
+		// idiom: TotalCount is a string on the cache record and an absent or
+		// unparseable one leaves count at 0, which must not overwrite a stored
+		// total. A genuine decrease still lands, so this is not a latch.
+		_, err := tx.ExecContext(ctx, `INSERT INTO recipes_usage(recipe_id,total_count,last_used_at,row_source) VALUES (?,?,?,?)
+		ON CONFLICT(recipe_id) DO UPDATE SET
+			total_count  = COALESCE(NULLIF(excluded.total_count, 0), recipes_usage.total_count),
+			last_used_at = COALESCE(NULLIF(excluded.last_used_at, ''), recipes_usage.last_used_at)`,
+			rid, count, u.LastUsedAt, opts.catalogOwner())
 		if err != nil {
 			return res, fmt.Errorf("upsert recipe usage %s: %w", rid, err)
 		}
@@ -947,12 +1051,22 @@ func upsertAPIMemberships(ctx context.Context, tx *sql.Tx, n *APINote, res *APIS
 		}
 		seen[fid] = true
 		// Create the folder row when it is missing, but never clobber
-		// cache-supplied folder metadata (parent_id, workspace_id, preset)
-		// that the API does not carry.
+		// cache-supplied folder metadata (parent_id, workspace_id, preset,
+		// description, is_favourited) that the API does not carry — which is
+		// why the SET list names title and nothing else.
+		//
+		// PATCH(catalog-provenance-and-merge): stamp row_source='api' on
+		// creation. This path has always created folder rows, so without the
+		// stamp the first run after the migration would file every genuinely
+		// API-created folder under the column's 'cache' default and nothing
+		// afterwards could tell the two apart. row_source stays out of the SET
+		// list for the usual reason: a cache-created folder the API also knows
+		// about keeps its cache ownership.
 		if _, err := tx.ExecContext(ctx,
-			`INSERT INTO folders(id,title,parent_id,workspace_id,owner_id,preset) VALUES (?,?,'','','','')
+			`INSERT INTO folders(id,title,parent_id,workspace_id,owner_id,preset,description,is_favourited,row_source)
+			 VALUES (?,?,'','','','','',0,?)
 			 ON CONFLICT(id) DO UPDATE SET title = COALESCE(NULLIF(folders.title,''), excluded.title)`,
-			fid, m.Label()); err != nil {
+			fid, m.Label(), RowSourceAPI); err != nil {
 			return fmt.Errorf("upsert api folder %s: %w", fid, err)
 		}
 		res.Folders++
