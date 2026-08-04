@@ -142,11 +142,13 @@ With a CLI-owned session, hydrated by `sync`: meetings, titles, timestamps, atte
 
 Transcripts backfill incrementally, because there is no bulk transcript endpoint — `sync` pulls them one meeting at a time, newest first, up to `--transcript-budget` (default 250) per run. It reports how many remain; re-run to continue, or use `--transcript-budget -1` for all of them. Meetings with no recording are asked about once and then skipped permanently. A non-zero `transcripts_remaining` means "not fetched yet", not "no transcript exists".
 
-Folders and folder membership, panels, recipes and chats are not hydrated on this tier.
+Recipes, panel templates, folders and folder membership hydrate on this tier too — each is a single API call, refreshed on every degraded `sync`.
 
-With a `GRANOLA_API_KEY`, hydrated by `sync-api`: all of the above plus transcripts, note summaries (`summary_markdown`), folders and folder membership.
+With a `GRANOLA_API_KEY`, hydrated by `sync-api`: all of the above plus note summaries (`summary_markdown`).
 
-Cache-only, and therefore unavailable on a migrated install regardless of credential: AI panels (`panel get`, and the `--panel` inlining in `attendee brief` and `folder stream`), recipes and panel templates, AI chat threads, and workspaces.
+Live on the same session, needing no sync: AI panels (`panel get`, and the `--panel` inlining in `attendee brief` and `folder stream`) and workspaces (`workspaces list`). Both read from the API on each call. Note `panel get` has no local fallback, so a lapsed session breaks it where other commands degrade to stored data.
+
+Frozen but readable: AI chat threads (`chat list`, `chat get`). Granola exposes no chat endpoint, so those threads are whatever the last desktop-cache sync captured and no re-sync adds more. Store-served reads carry a `staleness` block saying whether a surface can advance and when it was last refreshed.
 
 ## Authentication
 

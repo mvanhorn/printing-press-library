@@ -70,23 +70,23 @@ Transcripts backfill incrementally. There is no bulk transcript endpoint, so `sy
 
 **This matters when answering questions.** Before telling a user a meeting has no transcript, check whether the backfill has reached it. `sync` reports `transcripts_remaining` in its summary; a non-zero value means "not fetched yet", not "no transcript exists". Commands that depend on transcripts (`talktime`, `memo run`, `attendee brief`, `collect`) will be thin until the backfill completes.
 
-Not hydrated on this tier: folders and folder membership, panels, recipes, chats.
+- recipes and panel templates — `recipes list`, `recipes describe`
+- folders and folder membership — `folder list`, `folder stream`
 
-**With a `GRANOLA_API_KEY`, hydrated by `sync-api`:**
-
-- everything above, plus transcripts (full segment list), note summaries (`summary_markdown`), folders and folder membership
-
-**Cache-only, and therefore unavailable on a migrated install regardless of credential:**
+**Live on the same session, no sync needed:**
 
 - AI panels — `panel get`, and the `--panel` inlining in `attendee brief` and `folder stream`
 - workspaces — `workspaces list`
 
-**Frozen but still readable, served from whatever the last desktop-cache `sync` stored:**
+Both read straight from the API on each call, so they need no store rows. The tradeoff is that `panel get` is the one read command with no local fallback at all: if the session lapses it fails hard where everything else degrades to stored data.
 
-- recipes and panel templates — `recipes list`, `recipes describe`
-- AI chat threads — `chat list`, `chat get`
+**With a `GRANOLA_API_KEY`, hydrated by `sync-api`:** everything above plus note summaries (`summary_markdown`).
 
-The cache sync writes these four tables into the local store, so they keep answering after the desktop cache stops decrypting. What they cannot do is advance. `recipes list`, `recipes describe` and `chat list` therefore report the store's last-sync timestamp in both their human and JSON output (a `staleness` block carrying `last_sync_at` and `refreshable`), and `chat list` additionally states that the thread set can never be refreshed — Granola's internal API exposes no chat endpoint at all. Quote that timestamp when you use the data; a chat thread set can sit weeks behind the meetings it discusses.
+**Frozen but still readable — AI chat threads (`chat list`, `chat get`):**
+
+Chats are the one surface that cannot advance. Granola's internal API exposes no chat endpoint (seven namings probed on 7.465.0, 2026-08-03, all 404), so the threads in the store are whatever the last desktop-cache sync captured and no re-sync will add more. `chat list` says so in both its human and JSON output.
+
+**Read the `staleness` block before answering from any of this.** Store-served reads carry one when the desktop cache is unreadable: `refreshable` tells you whether the surface can advance, `last_catalog_sync_at` dates refreshable surfaces like recipes, and `last_cache_sync_at` dates frozen ones like chats. A chat set can sit weeks behind the meetings it discusses — quote the date rather than presenting it as current.
 
 When something in the first group is asked for on a migrated install, say the data is not reachable. Do not synthesize a panel, a recipe result, or a chat thread from transcript text.
 
