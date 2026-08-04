@@ -415,7 +415,7 @@ Do NOT use it to run a budgeted batch; use 'batch' instead.`,
 					}
 					var outPath string
 					if isDir {
-						name := safeName(flagModel) + "-" + time.Now().Format("20060102-150405") + fmt.Sprintf("-%d", i) + ext
+						name := safeName(flagModel) + "-" + time.Now().Format("20060102-150405") + fmt.Sprintf("-%d-%d", nextLedgerSeq(), i) + ext
 						outPath = filepath.Join(orDefault(flagOutput, "."), name)
 					} else if len(resp.Data) > 1 {
 						// Multiple images with a file --output: suffix each image
@@ -518,18 +518,27 @@ func safeName(s string) string {
 	return strings.Trim(s, "-")
 }
 
-// ledgerSeq disambiguates ledger ids created within the same clock tick.
-// Second-resolution ids collide when two generations for the same model land
-// in the same second, and the ledger's INSERT OR REPLACE would silently
-// overwrite the first row, losing its parameters, output path, and cost.
+// ledgerSeq disambiguates ledger ids and directory output names created
+// within the same clock tick. Second-resolution ids collide when two
+// generations for the same model land in the same second, and the ledger's
+// INSERT OR REPLACE would silently overwrite the first row, losing its
+// parameters, output path, and cost.
 var ledgerSeq uint64
+
+// nextLedgerSeq atomically advances the per-process sequence. Every call
+// consumes a unique value, so directory output names derived from it never
+// collide even when the ledger write that would normally advance the counter
+// fails.
+func nextLedgerSeq() uint64 {
+	ledgerSeq++
+	return ledgerSeq
+}
 
 // newLedgerID builds a collision-resistant generation id: unix nanoseconds
 // plus a per-process sequence suffix, so ids are unique even for back-to-back
 // generations of the same model in the same instant.
 func newLedgerID(model string) string {
-	ledgerSeq++
-	return fmt.Sprintf("gen-%d-%d-%s", time.Now().UnixNano(), ledgerSeq, safeName(model))
+	return fmt.Sprintf("gen-%d-%d-%s", time.Now().UnixNano(), nextLedgerSeq(), safeName(model))
 }
 
 func extFromMediaType(mt string) string {
