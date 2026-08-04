@@ -36,6 +36,7 @@ func TestAuthLogoutClearsCLISession(t *testing.T) {
 		t.Fatal("precondition: session should exist before logout")
 	}
 
+	epochBefore := granola.RevocationEpoch()
 	flags := &rootFlags{configPath: filepath.Join(dir, "config.json")}
 	cmd := newAuthLogoutCmd(flags)
 	cmd.SetOut(&bytes.Buffer{})
@@ -49,5 +50,11 @@ func TestAuthLogoutClearsCLISession(t *testing.T) {
 	}
 	if granola.HasCLISession() {
 		t.Error("still signed in after logout")
+	}
+	// Logout must also record the revocation, which is how a token rotation
+	// running concurrently in another process learns not to republish the
+	// session it is midway through writing.
+	if after := granola.RevocationEpoch(); after == epochBefore {
+		t.Error("logout did not record a revocation; a concurrent refresh can restore the session after logout reports success")
 	}
 }

@@ -547,6 +547,25 @@ func TestPersist_LogoutRacingTheRenameDoesNotResurrectTheSession(t *testing.T) {
 
 // The mirror case: a rotation that completes with no logout anywhere near it
 // must not be mistaken for a raced one and have its own work deleted.
+// The interleaving test above drives noteRevocation directly, which proves the
+// mechanism but not that logout is wired to it. That gap is not theoretical: the
+// epoch helper shipped once with no caller at all, and every test still passed
+// because they exercised the primitive rather than the command. This asserts the
+// connection itself.
+func TestClearCLISessionAdvancesTheRevocationEpoch(t *testing.T) {
+	sessionSandbox(t)
+	if err := SaveCLISession(sampleSession()); err != nil {
+		t.Fatalf("SaveCLISession: %v", err)
+	}
+	before := RevocationEpoch()
+	if err := ClearCLISession(); err != nil {
+		t.Fatalf("ClearCLISession: %v", err)
+	}
+	if after := RevocationEpoch(); after == before {
+		t.Fatal("logout did not record a revocation; a rotation racing it has no way to learn the logout happened and will republish the session")
+	}
+}
+
 func TestPersist_UnracedRotationKeepsItsSession(t *testing.T) {
 	sessionSandbox(t)
 	if err := SaveCLISession(sampleSession()); err != nil {

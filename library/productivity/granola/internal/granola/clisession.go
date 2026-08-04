@@ -395,10 +395,19 @@ func (h RotationHandle) Complete() { h.Abort() }
 func ClearCLISession() error {
 	refreshMu.Lock()
 	defer refreshMu.Unlock()
-	// Session first, marker second. If the session removal fails, the marker
-	// must survive: clearing it first would turn a failed logout into a session
-	// that loads as perfectly healthy, hiding an interrupted rotation the user
-	// still needs to repair.
+	// Revocation first, before anything is removed. A rotation in another
+	// process re-reads this epoch after publishing its replacement, so recording
+	// the logout ahead of the removal is what stops a mid-flight rename from
+	// resurrecting the credential: either that rotation observes this and
+	// deletes what it wrote, or its rename preceded this write and therefore
+	// precedes the removal below, which then takes the rotated file.
+	if err := noteRevocation(); err != nil {
+		return err
+	}
+	// Session next, marker last. If the session removal fails, the marker must
+	// survive: clearing it first would turn a failed logout into a session that
+	// loads as perfectly healthy, hiding an interrupted rotation the user still
+	// needs to repair.
 	if err := os.Remove(CLISessionPath()); err != nil && !os.IsNotExist(err) {
 		return fmt.Errorf("clisession: remove: %w", err)
 	}
