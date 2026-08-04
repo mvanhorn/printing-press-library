@@ -52,14 +52,14 @@ func (s *Store) EnsureOpenRouterImageTables(ctx context.Context) error {
 
 // GenerationEntry is one row of the local generation ledger.
 type GenerationEntry struct {
-	ID        string    `json:"id"`
-	Model     string    `json:"model"`
-	Prompt    string    `json:"prompt"`
-	Params    string    `json:"params,omitempty"`
-	CostUSD   float64   `json:"cost_usd"`
-	Tokens    string    `json:"tokens,omitempty"`
-	OutputPath string   `json:"output_path,omitempty"`
-	CreatedAt time.Time `json:"created_at"`
+	ID         string    `json:"id"`
+	Model      string    `json:"model"`
+	Prompt     string    `json:"prompt"`
+	Params     string    `json:"params,omitempty"`
+	CostUSD    float64   `json:"cost_usd"`
+	Tokens     string    `json:"tokens,omitempty"`
+	OutputPath string    `json:"output_path,omitempty"`
+	CreatedAt  time.Time `json:"created_at"`
 }
 
 // LedgerGeneration records a completed generation in the ledger.

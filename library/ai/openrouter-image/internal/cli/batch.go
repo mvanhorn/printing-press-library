@@ -142,26 +142,33 @@ Do NOT use it to estimate one model's cost interactively; use 'cost-estimate' in
 			}
 
 			// Budget gate: if any row lacks pricing when a budget is set, or
-			// the total exceeds the budget, abort before any spend.
-			view.UnderBudget = view.TotalEstimate <= budget
+			// the total exceeds the budget, abort before any spend. A row
+			// without cached pricing estimates at $0, so it must not silently
+			// keep the run under budget and then spend credits the cap cannot
+			// bound.
+			missingPricing := false
+			for _, item := range view.Rows {
+				if item.Status == "error" {
+					missingPricing = true
+					break
+				}
+			}
+			view.UnderBudget = view.TotalEstimate <= budget && !missingPricing
 			if budget > 0 && !view.UnderBudget {
-				view.Note = fmt.Sprintf("total estimate $%.2f exceeds budget $%.2f; no images were generated", view.TotalEstimate, budget)
+				switch {
+				case missingPricing:
+					view.Note = "one or more rows lack cached pricing; run sync first so the budget gate can enforce the cap"
+				default:
+					view.Note = fmt.Sprintf("total estimate $%.2f exceeds budget $%.2f; no images were generated", view.TotalEstimate, budget)
+				}
 				if flags.asJSON || flags.agent || !isTerminal(cmd.OutOrStdout()) {
 					return printJSONFiltered(cmd.OutOrStdout(), view, flags)
 				}
 				for _, item := range view.Rows {
 					fmt.Fprintf(cmd.OutOrStdout(), "row %d: %s $%.4f\n", item.Row, item.Model, item.Estimate)
 				}
-				fmt.Fprintf(cmd.OutOrStdout(), "total $%.2f exceeds budget $%.2f; no images generated\n", view.TotalEstimate, budget)
+				fmt.Fprintf(cmd.OutOrStdout(), "%s\n", view.Note)
 				return nil
-			}
-			if budget > 0 {
-				for _, item := range view.Rows {
-					if item.Status == "error" {
-						view.Note = "one or more rows lack cached pricing; re-sync for accurate gating"
-						break
-					}
-				}
 			}
 
 			if flags.dryRun {
@@ -224,7 +231,7 @@ Do NOT use it to estimate one model's cost interactively; use 'cost-estimate' in
 				}
 				// Ledger write.
 				paramsJSON, _ := json.Marshal(body)
-				ledgerID := fmt.Sprintf("gen-%d-%s", nowUnix(), safeName(r.Model))
+				ledgerID := newLedgerID(r.Model)
 				entry := store.GenerationEntry{
 					ID:         ledgerID,
 					Model:      r.Model,

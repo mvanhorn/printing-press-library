@@ -13,15 +13,15 @@ import (
 
 func TestCheapestOutputUnit(t *testing.T) {
 	tests := []struct {
-		name      string
-		body      string
-		wantCost  float64
-		wantProv  string
-		wantUnit  string
+		name     string
+		body     string
+		wantCost float64
+		wantProv string
+		wantUnit string
 	}{
 		{
-			name: "single endpoint per-image",
-			body: `{"id":"openai/gpt-image-1","endpoints":[{"provider_name":"OpenAI","provider_slug":"openai","pricing":[{"billable":"output_image","unit":"image","cost_usd":0.02}]}]}`,
+			name:     "single endpoint per-image",
+			body:     `{"id":"openai/gpt-image-1","endpoints":[{"provider_name":"OpenAI","provider_slug":"openai","pricing":[{"billable":"output_image","unit":"image","cost_usd":0.02}]}]}`,
 			wantCost: 0.02, wantProv: "openai", wantUnit: "image",
 		},
 		{
@@ -32,18 +32,18 @@ func TestCheapestOutputUnit(t *testing.T) {
 			wantCost: 0.01, wantProv: "b", wantUnit: "image",
 		},
 		{
-			name: "per-token unit preserved",
-			body: `{"id":"openai/gpt-image-1","endpoints":[{"provider_slug":"openai","pricing":[{"billable":"output_image","unit":"token","cost_usd":0.00004}]}]}`,
+			name:     "per-token unit preserved",
+			body:     `{"id":"openai/gpt-image-1","endpoints":[{"provider_slug":"openai","pricing":[{"billable":"output_image","unit":"token","cost_usd":0.00004}]}]}`,
 			wantCost: 0.00004, wantProv: "openai", wantUnit: "token",
 		},
 		{
-			name: "input-only pricing ignored",
-			body: `{"id":"x/y","endpoints":[{"provider_slug":"a","pricing":[{"billable":"input_reference","unit":"image","cost_usd":0.5}]}]}`,
+			name:     "input-only pricing ignored",
+			body:     `{"id":"x/y","endpoints":[{"provider_slug":"a","pricing":[{"billable":"input_reference","unit":"image","cost_usd":0.5}]}]}`,
 			wantCost: 0, wantProv: "", wantUnit: "",
 		},
 		{
-			name: "empty endpoints",
-			body: `{"id":"x/y","endpoints":[]}`,
+			name:     "empty endpoints",
+			body:     `{"id":"x/y","endpoints":[]}`,
 			wantCost: 0, wantProv: "", wantUnit: "",
 		},
 	}

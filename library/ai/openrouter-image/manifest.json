@@ -1,7 +1,7 @@
 {
   "manifest_version": "0.3",
   "name": "openrouter-image-pp-mcp",
-  "display_name": "OpenRouter",
+  "display_name": "OpenRouter Images",
   "version": "1.0.0",
   "description": "Every image model on OpenRouter, one key: generate, rank, estimate, and batch with a local cost ledger.",
   "author": {

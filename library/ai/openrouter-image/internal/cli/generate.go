@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"time"
 
@@ -29,6 +30,92 @@ type generateResult struct {
 	Images   []generatedImg `json:"images"`
 	Usage    *genUsage      `json:"usage,omitempty"`
 	LedgerID string         `json:"ledger_id,omitempty"`
+}
+
+// imagesResponse mirrors the POST /images success payload. It is shared by
+// generate, batch, and regenerate so streaming (SSE) and plain-JSON response
+// bodies parse identically everywhere.
+type imagesResponse struct {
+	Created int64 `json:"created"`
+	Data    []struct {
+		Index     int    `json:"index"`
+		B64JSON   string `json:"b64_json"`
+		MediaType string `json:"media_type"`
+	} `json:"data"`
+	Usage *genUsage `json:"usage"`
+}
+
+// parseImagesResponse decodes a POST /images response body. When stream is
+// true the API returns text/event-stream: each `data:` line carries a JSON
+// event, and b64_json fragments for the same image index may arrive across
+// several events, so they are concatenated in arrival order. Non-streaming
+// responses are plain JSON and decode directly.
+func parseImagesResponse(body []byte, stream bool) (imagesResponse, error) {
+	var resp imagesResponse
+	if !stream {
+		err := json.Unmarshal(body, &resp)
+		return resp, err
+	}
+	frags := map[int][]string{}
+	mediaTypes := map[int]string{}
+	var usage *genUsage
+	for _, payload := range ssePayloads(body) {
+		if payload == "[DONE]" {
+			continue
+		}
+		var ev imagesResponse
+		if err := json.Unmarshal([]byte(payload), &ev); err != nil {
+			continue // keepalive/comment events that are not JSON
+		}
+		if ev.Usage != nil {
+			usage = ev.Usage
+		}
+		for _, img := range ev.Data {
+			frags[img.Index] = append(frags[img.Index], img.B64JSON)
+			if img.MediaType != "" {
+				mediaTypes[img.Index] = img.MediaType
+			}
+		}
+	}
+	if len(frags) == 0 {
+		return resp, fmt.Errorf("streamed response contained no image data")
+	}
+	indexes := make([]int, 0, len(frags))
+	for i := range frags {
+		indexes = append(indexes, i)
+	}
+	sort.Ints(indexes)
+	for _, i := range indexes {
+		resp.Data = append(resp.Data, struct {
+			Index     int    `json:"index"`
+			B64JSON   string `json:"b64_json"`
+			MediaType string `json:"media_type"`
+		}{
+			Index:     i,
+			B64JSON:   strings.Join(frags[i], ""),
+			MediaType: mediaTypes[i],
+		})
+	}
+	resp.Usage = usage
+	return resp, nil
+}
+
+// ssePayloads extracts the JSON payload of every `data:` line in an SSE body.
+// Lines that are not data events (comments, event names, blank lines) are
+// skipped.
+func ssePayloads(body []byte) []string {
+	var payloads []string
+	for _, line := range strings.Split(string(body), "\n") {
+		trimmed := strings.TrimSpace(line)
+		if !strings.HasPrefix(trimmed, "data:") {
+			continue
+		}
+		payload := strings.TrimSpace(strings.TrimPrefix(trimmed, "data:"))
+		if payload != "" {
+			payloads = append(payloads, payload)
+		}
+	}
+	return payloads
 }
 
 type generatedImg struct {
@@ -188,15 +275,11 @@ Do NOT use it to run a budgeted batch; use 'batch' instead.`,
 				return apiErr(fmt.Errorf("images: HTTP %d: %s", statusCode, truncateJSON(string(data), 300)))
 			}
 
-			var resp struct {
-				Created int64 `json:"created"`
-				Data    []struct {
-					B64JSON   string `json:"b64_json"`
-					MediaType string `json:"media_type"`
-				} `json:"data"`
-				Usage *genUsage `json:"usage"`
-			}
-			if err := json.Unmarshal(data, &resp); err != nil {
+			// Streaming requests return text/event-stream; parse SSE events and
+			// concatenate b64_json fragments per image index. Non-streaming
+			// responses are plain JSON and go through the same parser.
+			resp, err := parseImagesResponse(data, flagStream)
+			if err != nil {
 				return fmt.Errorf("parsing generation response: %w", err)
 			}
 			if len(resp.Data) == 0 {
@@ -226,6 +309,12 @@ Do NOT use it to run a budgeted batch; use 'batch' instead.`,
 					if isDir {
 						name := safeName(flagModel) + "-" + time.Now().Format("20060102-150405") + fmt.Sprintf("-%d", i) + ext
 						outPath = filepath.Join(orDefault(flagOutput, "."), name)
+					} else if len(resp.Data) > 1 {
+						// Multiple images with a file --output: suffix each image
+						// so later writes do not overwrite earlier ones.
+						fileExt := filepath.Ext(flagOutput)
+						base := strings.TrimSuffix(flagOutput, fileExt)
+						outPath = fmt.Sprintf("%s-%d%s", base, i, fileExt)
 					} else {
 						outPath = flagOutput
 					}
@@ -247,7 +336,7 @@ Do NOT use it to run a budgeted batch; use 'batch' instead.`,
 			if db, err := store.OpenWithContext(ctx, dbPath); err == nil {
 				_ = db.EnsureOpenRouterImageTables(ctx)
 				paramsJSON, _ := json.Marshal(body)
-				ledgerID := fmt.Sprintf("gen-%d-%s", time.Now().Unix(), safeName(flagModel))
+				ledgerID := newLedgerID(flagModel)
 				entry := store.GenerationEntry{
 					ID:         ledgerID,
 					Model:      flagModel,
@@ -319,6 +408,20 @@ func safeName(s string) string {
 		return '-'
 	}, s)
 	return strings.Trim(s, "-")
+}
+
+// ledgerSeq disambiguates ledger ids created within the same clock tick.
+// Second-resolution ids collide when two generations for the same model land
+// in the same second, and the ledger's INSERT OR REPLACE would silently
+// overwrite the first row, losing its parameters, output path, and cost.
+var ledgerSeq uint64
+
+// newLedgerID builds a collision-resistant generation id: unix nanoseconds
+// plus a per-process sequence suffix, so ids are unique even for back-to-back
+// generations of the same model in the same instant.
+func newLedgerID(model string) string {
+	ledgerSeq++
+	return fmt.Sprintf("gen-%d-%d-%s", time.Now().UnixNano(), ledgerSeq, safeName(model))
 }
 
 func extFromMediaType(mt string) string {

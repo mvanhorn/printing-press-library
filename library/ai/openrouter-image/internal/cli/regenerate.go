@@ -11,6 +11,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -103,14 +104,11 @@ Do NOT use it for a brand-new prompt; use 'generate' instead.`,
 				return apiErr(fmt.Errorf("regenerate: HTTP %d: %s", statusCode, truncateJSON(string(data), 300)))
 			}
 
-			var resp struct {
-				Data []struct {
-					B64JSON   string `json:"b64_json"`
-					MediaType string `json:"media_type"`
-				} `json:"data"`
-				Usage *genUsage `json:"usage"`
-			}
-			if err := json.Unmarshal(data, &resp); err != nil {
+			// The replayed body may include stream:true, so the response can
+			// be text/event-stream; parseImagesResponse handles both shapes.
+			streamed, _ := body["stream"].(bool)
+			resp, err := parseImagesResponse(data, streamed)
+			if err != nil {
 				return fmt.Errorf("parsing regeneration response: %w", err)
 			}
 
@@ -128,11 +126,19 @@ Do NOT use it for a brand-new prompt; use 'generate' instead.`,
 						if err != nil {
 							return err
 						}
+						outPath := flagOutput
+						if len(resp.Data) > 1 {
+							// Multiple images with a file --output: suffix each
+							// image so later writes do not overwrite earlier ones.
+							fileExt := filepath.Ext(flagOutput)
+							base := strings.TrimSuffix(flagOutput, fileExt)
+							outPath = fmt.Sprintf("%s-%d%s", base, i, fileExt)
+						}
 						// #nosec G306 -- output images need read permission for the user's tools
-						if err := os.WriteFile(flagOutput, raw, 0o644); err != nil {
+						if err := os.WriteFile(outPath, raw, 0o644); err != nil {
 							return fmt.Errorf("writing regenerated image: %w", err)
 						}
-						gi.SavedTo = flagOutput
+						gi.SavedTo = outPath
 					}
 					res.Images = append(res.Images, gi)
 				}
@@ -140,7 +146,7 @@ Do NOT use it for a brand-new prompt; use 'generate' instead.`,
 
 			// Record the re-run in the ledger.
 			paramsJSON, _ := json.Marshal(body)
-			newID := fmt.Sprintf("gen-%d-%s", nowUnix(), safeName(entry.Model))
+			newID := newLedgerID(entry.Model)
 			newEntry := store.GenerationEntry{
 				ID:         newID,
 				Model:      entry.Model,
