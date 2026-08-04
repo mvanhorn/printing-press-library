@@ -240,6 +240,32 @@ func refreshRefusalFor(src TokenSource) error {
 	return nil
 }
 
+// awaitRotatedCLISession waits, briefly and bounded, for the process holding
+// the rotation marker to publish its result. A short wait is right: the holder
+// is mid-HTTP-exchange, and the alternative -- returning immediately -- pushes a
+// spurious failure at a caller whose session is about to be perfectly valid.
+// Giving up returns false rather than exchanging, because spending a single-use
+// chain twice is the outcome this whole path exists to prevent.
+func awaitRotatedCLISession(presented string) (RefreshAccessTokenResponse, bool) {
+	const (
+		window = 10 * time.Second
+		step   = 100 * time.Millisecond
+	)
+	deadline := time.Now().Add(window)
+	for time.Now().Before(deadline) {
+		time.Sleep(step)
+		if fresh, ok := rotatedCLISessionToken(presented); ok {
+			return fresh, true
+		}
+		// The holder cleared its marker without rotating -- it failed
+		// harmlessly, so there is nothing to wait for.
+		if _, err := os.Stat(rotationMarkerPath()); err != nil {
+			return RefreshAccessTokenResponse{}, false
+		}
+	}
+	return RefreshAccessTokenResponse{}, false
+}
+
 // rotatedCLISessionToken reports whether the stored session has already moved
 // past the refresh token this caller presented, and returns it when so. That is
 // the signal that another goroutine won the race and rotated; reusing its
@@ -538,6 +564,7 @@ func RefreshAccessToken(refreshToken string) (RefreshAccessTokenResponse, error)
 	// exchanged flips once the remote call has returned a usable token, i.e.
 	// once the presented refresh token may already be spent upstream.
 	exchanged := false
+	var rotationHandle RotationHandle
 	if src == TokenSourceCLISession {
 		refreshMu.Lock()
 		defer refreshMu.Unlock()
@@ -550,9 +577,20 @@ func RefreshAccessToken(refreshToken string) (RefreshAccessTokenResponse, error)
 		if fresh, ok := rotatedCLISessionToken(refreshToken); ok {
 			return fresh, nil
 		}
-		if err := BeginRotation(); err != nil {
+		handle, err := BeginRotation()
+		if errors.Is(err, ErrRotationInProgress) {
+			// Another process holds the marker. Never exchange alongside it:
+			// the chain is single-use, so a second exchange spends the token it
+			// is rotating. Wait for it to publish, then reuse its result.
+			if fresh, ok := awaitRotatedCLISession(refreshToken); ok {
+				return fresh, nil
+			}
 			return RefreshAccessTokenResponse{}, err
 		}
+		if err != nil {
+			return RefreshAccessTokenResponse{}, err
+		}
+		rotationHandle = handle
 		// The marker must survive exactly one outcome: the remote exchange
 		// succeeded and the local write did not. That is the unrecoverable
 		// window -- the presented token is dead upstream and no replacement
@@ -561,7 +599,7 @@ func RefreshAccessToken(refreshToken string) (RefreshAccessTokenResponse, error)
 		// transport blip. On success SaveCLISession has already removed it.
 		defer func() {
 			if !exchanged {
-				AbortRotation()
+				rotationHandle.Abort()
 			}
 		}()
 	}

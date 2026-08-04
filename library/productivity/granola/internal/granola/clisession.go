@@ -174,23 +174,65 @@ func SaveCLISession(s CLISession) error {
 	return nil
 }
 
-// BeginRotation records that an exchange is about to happen.
-func BeginRotation() error {
+// ErrRotationInProgress reports that another process holds the rotation marker.
+// The caller must not exchange: the chain is single-use, so a second exchange
+// spends the token the holder is already rotating.
+var ErrRotationInProgress = errors.New("granola: another process is rotating this session")
+
+// RotationHandle is proof of exclusive rotation ownership. Only the holder can
+// clear the marker it created.
+type RotationHandle struct{ nonce string }
+
+// BeginRotation claims exclusive rotation ownership across processes.
+//
+// An in-process mutex is not sufficient here. Two CLI invocations run
+// concurrently in normal use -- an agent driving several commands, or
+// auto-refresh firing from two shells -- and each has its own mutex. Without
+// O_EXCL both would create the marker, both would exchange the same single-use
+// token, and the loser would then delete the winner's marker on abort, so a
+// crash before the winner's durable write would leave a consumed token on disk
+// with nothing to detect it. That is precisely the state the marker exists for.
+//
+// The nonce makes aborts ownership-aware: a process may only clear a marker it
+// wrote. A marker left by a dead process therefore survives, which is intended
+// -- that session really is unrecoverable, and `auth login` clears it by writing
+// a new session.
+func BeginRotation() (RotationHandle, error) {
 	if err := ensureOwnerOnlyDir(filepath.Dir(CLISessionPath())); err != nil {
-		return err
+		return RotationHandle{}, err
 	}
-	f, err := os.OpenFile(rotationMarkerPath(), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
+	nonce := fmt.Sprintf("%d-%d", os.Getpid(), time.Now().UnixNano())
+	f, err := os.OpenFile(rotationMarkerPath(), os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o600)
 	if err != nil {
-		return fmt.Errorf("clisession: begin rotation: %w", err)
+		if os.IsExist(err) {
+			return RotationHandle{}, ErrRotationInProgress
+		}
+		return RotationHandle{}, fmt.Errorf("clisession: begin rotation: %w", err)
 	}
-	f.Close()
-	return nil
+	if _, werr := f.WriteString(nonce); werr != nil {
+		f.Close()
+		os.Remove(rotationMarkerPath())
+		return RotationHandle{}, fmt.Errorf("clisession: begin rotation: %w", werr)
+	}
+	if cerr := f.Close(); cerr != nil {
+		os.Remove(rotationMarkerPath())
+		return RotationHandle{}, fmt.Errorf("clisession: begin rotation: %w", cerr)
+	}
+	return RotationHandle{nonce: nonce}, nil
 }
 
-// AbortRotation clears the marker after an exchange that failed before
-// consuming anything, so a refused or network-failed refresh does not look
-// like an interrupted one on the next run.
-func AbortRotation() { os.Remove(rotationMarkerPath()) }
+// Abort clears the marker only when this handle still owns it, so a process
+// that failed harmlessly cannot erase another's in-flight rotation.
+func (h RotationHandle) Abort() {
+	if h.nonce == "" {
+		return
+	}
+	got, err := os.ReadFile(rotationMarkerPath())
+	if err != nil || string(got) != h.nonce {
+		return
+	}
+	os.Remove(rotationMarkerPath())
+}
 
 // ClearCLISession removes the session. Backs `auth logout`.
 func ClearCLISession() error {

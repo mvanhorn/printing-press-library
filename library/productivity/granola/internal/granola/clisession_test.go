@@ -140,7 +140,7 @@ func TestCLISessionInterruptedRotationDetected(t *testing.T) {
 	if err := SaveCLISession(sampleSession()); err != nil {
 		t.Fatalf("SaveCLISession: %v", err)
 	}
-	if err := BeginRotation(); err != nil {
+	if _, err := BeginRotation(); err != nil {
 		t.Fatalf("BeginRotation: %v", err)
 	}
 	// Process "dies" here: marker present, replacement never written.
@@ -162,12 +162,44 @@ func TestCLISessionAbortRotationClearsMarker(t *testing.T) {
 	if err := SaveCLISession(sampleSession()); err != nil {
 		t.Fatalf("SaveCLISession: %v", err)
 	}
-	if err := BeginRotation(); err != nil {
+	h, err := BeginRotation()
+	if err != nil {
 		t.Fatalf("BeginRotation: %v", err)
 	}
-	AbortRotation()
+	h.Abort()
 	if _, err := LoadCLISession(); err != nil {
 		t.Fatalf("a refused refresh must not look like an interrupted one: %v", err)
+	}
+}
+
+// Two CLI processes run concurrently in normal use, and each has its own
+// in-process mutex. Only an exclusive marker stops both from spending the same
+// single-use chain.
+func TestCLISessionRotationIsExclusiveAcrossProcesses(t *testing.T) {
+	sessionSandbox(t)
+	if err := SaveCLISession(sampleSession()); err != nil {
+		t.Fatalf("SaveCLISession: %v", err)
+	}
+	first, err := BeginRotation()
+	if err != nil {
+		t.Fatalf("first BeginRotation: %v", err)
+	}
+	if _, err := BeginRotation(); !errors.Is(err, ErrRotationInProgress) {
+		t.Fatalf("second process acquired the marker; want ErrRotationInProgress, got %v", err)
+	}
+	// A loser must not be able to clear the winner's marker, or a crash before
+	// the winner's durable write leaves a spent token undetectable.
+	loser := RotationHandle{}
+	loser.Abort()
+	if _, err := os.Stat(rotationMarkerPath()); err != nil {
+		t.Error("a non-owning abort removed the marker")
+	}
+	if _, err := LoadCLISession(); !errors.Is(err, ErrSessionInterrupted) {
+		t.Error("marker no longer signals an interrupted rotation")
+	}
+	first.Abort()
+	if _, err := os.Stat(rotationMarkerPath()); err == nil {
+		t.Error("the owning handle failed to clear its own marker")
 	}
 }
 
