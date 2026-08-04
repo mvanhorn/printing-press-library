@@ -264,6 +264,11 @@ func heldSessionGeneration() sessionGeneration {
 	return sessionGeneration{accessToken: cachedAccess}
 }
 
+// ErrSessionLoggedOutDuringRotation reports that the session was removed while
+// a refresh was in flight. The rotation is abandoned rather than completed:
+// finishing it would recreate the credential logout just deleted.
+var ErrSessionLoggedOutDuringRotation = errors.New("granola: session was logged out during rotation")
+
 // adoptRotated installs another process's rotation result into this process's
 // token cache.
 //
@@ -736,6 +741,13 @@ func RefreshAccessToken(refreshToken string) (RefreshAccessTokenResponse, error)
 	// was silently lost.
 	if src == TokenSourceCLISession {
 		if err := persistRotatedCLISession(parsed); err != nil {
+			if errors.Is(err, ErrSessionLoggedOutDuringRotation) {
+				// Logout won. The marker only exists to flag a session that
+				// needs recovering, and there is no longer a session -- leaving
+				// it would tell the user to re-login to repair something they
+				// deliberately deleted. Clear it and report the logout.
+				rotationHandle.Abort()
+			}
 			return RefreshAccessTokenResponse{}, err
 		}
 	}
@@ -749,7 +761,15 @@ func persistRotatedCLISession(parsed RefreshAccessTokenResponse) error {
 	// Unmarked: this runs inside the refresh lock with our own in-flight marker
 	// set, so the marked loader would refuse to read the session being replaced.
 	s, err := loadCLISessionUnmarked()
-	if err != nil && !errors.Is(err, ErrNoCLISession) {
+	if errors.Is(err, ErrNoCLISession) {
+		// The session vanished mid-rotation, which means `auth logout` ran.
+		// Writing here would resurrect the credential the user just removed and
+		// report logout as having succeeded, so abandon the rotation instead.
+		// The exchanged token is discarded; the user is logged out, which is
+		// what they asked for.
+		return ErrSessionLoggedOutDuringRotation
+	}
+	if err != nil {
 		return fmt.Errorf("granola refresh: reload session before persist: %w", err)
 	}
 	s.AccessToken = parsed.AccessToken

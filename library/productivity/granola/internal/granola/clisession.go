@@ -256,7 +256,16 @@ func (h RotationHandle) Abort() {
 }
 
 // ClearCLISession removes the session. Backs `auth logout`.
+//
+// Serialized against refreshes in this process, and safe against one in
+// another: a concurrent persist that finds the session gone abandons its
+// rotation rather than recreating the credential (see
+// ErrSessionLoggedOutDuringRotation). Without both halves, a refresh completing
+// during logout would silently restore the session the user just removed while
+// logout reported success.
 func ClearCLISession() error {
+	refreshMu.Lock()
+	defer refreshMu.Unlock()
 	os.Remove(rotationMarkerPath())
 	if err := os.Remove(CLISessionPath()); err != nil && !os.IsNotExist(err) {
 		return fmt.Errorf("clisession: remove: %w", err)

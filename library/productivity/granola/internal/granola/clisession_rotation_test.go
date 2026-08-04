@@ -311,6 +311,44 @@ func TestRefresh_ReChecksAfterAcquiringMarker(t *testing.T) {
 	}
 }
 
+// Logout must win against an in-flight refresh. A rotation that completes after
+// the session is removed would recreate the credential the user just deleted,
+// while logout had already reported success.
+func TestRefresh_LogoutDuringRotationIsNotReversed(t *testing.T) {
+	armCLISession(t, time.Hour)
+
+	orig := refreshClient
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// The user logs out while this exchange is in flight. Remove the
+		// session directly rather than via ClearCLISession, which would block
+		// on the refresh lock this caller holds -- the point here is the
+		// cross-process case, where no shared lock exists.
+		os.Remove(CLISessionPath())
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte(`{"access_token":"post-logout","refresh_token":"post-logout-r","expires_in":3600}`))
+	}))
+	defer srv.Close()
+	SetRefreshHTTPClient(&http.Client{Transport: &rewriteTransport{target: srv.URL}})
+	defer SetRefreshHTTPClient(orig)
+
+	_, err := RefreshAccessToken("old-refresh")
+	if !errors.Is(err, ErrSessionLoggedOutDuringRotation) {
+		t.Fatalf("want ErrSessionLoggedOutDuringRotation, got %v", err)
+	}
+	// The credential must stay gone.
+	if _, statErr := os.Stat(CLISessionPath()); statErr == nil {
+		t.Error("the rotation recreated a session the user had logged out of")
+	}
+	if _, loadErr := LoadCLISession(); !errors.Is(loadErr, ErrNoCLISession) {
+		t.Errorf("want ErrNoCLISession after logout, got %v", loadErr)
+	}
+	// And no marker is left implying an interrupted rotation on a session that
+	// no longer exists.
+	if _, mErr := os.Stat(rotationMarkerPath()); mErr == nil {
+		t.Error("marker survived a logout-abandoned rotation")
+	}
+}
+
 // A marker whose directory entry cannot be made durable must not authorize an
 // exchange: spending a single-use token with no recoverable record of it is the
 // failure the marker exists to prevent.
