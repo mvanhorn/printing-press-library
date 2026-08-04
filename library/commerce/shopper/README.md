@@ -226,10 +226,10 @@ shopper-pp-cli cashback optimize --store programada --agent
 
 Computes the cheapest catalog additions to cross the next cashback threshold using your live cart and synced product data.
 
-### Cross-store spend rollup for last 6 months
+### Cross-store spend rollup for last 12 months
 
 ```bash
-shopper-pp-cli orders spend --months 6 --agent --select store,month,total
+shopper-pp-cli orders spend --agent --select store,month,total
 ```
 
 Queries all 6 storefronts and returns a month-by-store spend matrix for budgeting analysis.

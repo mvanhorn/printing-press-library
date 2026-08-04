@@ -23,6 +23,8 @@ import (
 	"github.com/spf13/pflag"
 )
 
+var version = "2026.7.1"
+
 type rootFlags struct {
 	asJSON     bool
 	compact    bool
@@ -399,7 +401,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newAddressPromotedCmd(flags))
 	rootCmd.AddCommand(newOrdersPromotedCmd(flags))
 	rootCmd.AddCommand(newSessionPromotedCmd(flags))
-	rootCmd.AddCommand(newVersionCmd())
+	rootCmd.AddCommand(newVersionCliCmd())
 	// Self-learning loop commands. newLearnConfig (defined in
 	// learn_init.go) reads spec.Learn.TickerPatterns + Stopwords and
 	// returns a configured *entities.Config every call site shares;
@@ -713,4 +715,14 @@ func (f *rootFlags) printTable(w *cobra.Command, headers []string, rows [][]stri
 		fmt.Fprintln(tw, line)
 	}
 	return tw.Flush()
+}
+
+func newVersionCliCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "version",
+		Short: "Print version",
+		Run: func(cmd *cobra.Command, args []string) {
+			fmt.Printf("%s %s\n", cmd.Root().Name(), version)
+		},
+	}
 }
