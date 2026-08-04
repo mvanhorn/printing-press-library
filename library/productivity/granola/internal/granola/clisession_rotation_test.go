@@ -465,3 +465,37 @@ func TestRefresh_SpentTokenWithUnusableBodyKeepsMarker(t *testing.T) {
 		t.Error("the spent-token state must surface as an actionable error")
 	}
 }
+
+// A rotation that fully succeeded must leave no marker. This is easy to get
+// wrong and slow to notice: a fresh marker does not block a load, so the
+// session keeps working for as long as the staleness window, and only then does
+// a perfectly valid session begin reporting itself as an interrupted rotation
+// and demanding a fresh login.
+func TestRefresh_SuccessfulRotationLeavesNoMarker(t *testing.T) {
+	armCLISession(t, time.Hour)
+	orig := refreshClient
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte(`{"access_token":"rotated-access","refresh_token":"rotated-refresh","expires_in":3600}`))
+	}))
+	t.Cleanup(srv.Close)
+	SetRefreshHTTPClient(&http.Client{Transport: &rewriteTransport{target: srv.URL}})
+	t.Cleanup(func() { SetRefreshHTTPClient(orig) })
+
+	if _, err := RefreshAccessToken("old-refresh"); err != nil {
+		t.Fatalf("RefreshAccessToken: %v", err)
+	}
+	if _, err := os.Stat(rotationMarkerPath()); err == nil {
+		t.Fatal("a successful rotation left its marker behind; the session will demand a re-login once it goes stale")
+	}
+	// Prove it by aging what should not be there: the session must still load.
+	if _, err := LoadCLISession(); err != nil {
+		t.Errorf("session unusable after a successful rotation: %v", err)
+	}
+	// And the next rotation must be able to acquire the marker.
+	h, err := BeginRotation()
+	if err != nil {
+		t.Fatalf("a leaked marker blocked the next rotation: %v", err)
+	}
+	h.Abort()
+}

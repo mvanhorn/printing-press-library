@@ -830,6 +830,8 @@ func RefreshAccessToken(refreshToken string) (RefreshAccessTokenResponse, error)
 			}
 			return RefreshAccessTokenResponse{}, err
 		}
+		// The replacement is durable, so the window the marker guards is closed.
+		rotationHandle.Complete()
 	}
 	return parsed, nil
 }

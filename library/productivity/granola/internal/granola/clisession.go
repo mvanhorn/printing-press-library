@@ -316,6 +316,18 @@ func (h RotationHandle) Abort() {
 	os.Remove(rotationMarkerPath())
 }
 
+// Complete clears the marker after a rotation whose replacement is durably on
+// disk. Same nonce-checked removal as Abort; the separate name exists because
+// the success path must clear the marker too, and previously relied on
+// SaveCLISession doing it unconditionally -- which had to stop, since an
+// unconditional remove there deletes other processes' live markers.
+//
+// Forgetting this leak is invisible for two minutes: a fresh marker no longer
+// blocks a load, so the session keeps working right up until the marker ages
+// past the stale threshold and a valid session starts reporting itself as an
+// interrupted rotation.
+func (h RotationHandle) Complete() { h.Abort() }
+
 // ClearCLISession removes the session. Backs `auth logout`.
 //
 // Serialized against refreshes in this process, and safe against one in
