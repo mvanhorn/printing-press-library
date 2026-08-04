@@ -240,6 +240,25 @@ func refreshRefusalFor(src TokenSource) error {
 	return nil
 }
 
+// sessionGeneration identifies a published version of the stored session.
+//
+// Keying rotation detection on the refresh token changing was wrong: Granola's
+// refresh proxy is observed to return the SAME refresh token, so a waiter would
+// never see the winner's result and would time out despite a valid new access
+// token sitting on disk. ObtainedAt advances on every persisted rotation
+// regardless, and the access token is carried too so a same-instant rotation is
+// still caught.
+type sessionGeneration struct {
+	accessToken string
+}
+
+// heldSessionGeneration describes the credential this process currently holds.
+func heldSessionGeneration() sessionGeneration {
+	tokenMu.Lock()
+	defer tokenMu.Unlock()
+	return sessionGeneration{accessToken: cachedAccess}
+}
+
 // adoptRotated installs another process's rotation result into this process's
 // token cache.
 //
@@ -266,7 +285,7 @@ func adoptRotated(r RefreshAccessTokenResponse) RefreshAccessTokenResponse {
 // spurious failure at a caller whose session is about to be perfectly valid.
 // Giving up returns false rather than exchanging, because spending a single-use
 // chain twice is the outcome this whole path exists to prevent.
-func awaitRotatedCLISession(presented string) (RefreshAccessTokenResponse, bool) {
+func awaitRotatedCLISession(seen sessionGeneration) (RefreshAccessTokenResponse, bool) {
 	const (
 		window = 10 * time.Second
 		step   = 100 * time.Millisecond
@@ -274,7 +293,7 @@ func awaitRotatedCLISession(presented string) (RefreshAccessTokenResponse, bool)
 	deadline := time.Now().Add(window)
 	for time.Now().Before(deadline) {
 		time.Sleep(step)
-		if fresh, ok := rotatedCLISessionToken(presented); ok {
+		if fresh, ok := rotatedCLISessionToken(seen); ok {
 			return fresh, true
 		}
 		// The holder cleared its marker without rotating -- it failed
@@ -286,16 +305,18 @@ func awaitRotatedCLISession(presented string) (RefreshAccessTokenResponse, bool)
 	return RefreshAccessTokenResponse{}, false
 }
 
-// rotatedCLISessionToken reports whether the stored session has already moved
-// past the refresh token this caller presented, and returns it when so. That is
-// the signal that another goroutine won the race and rotated; reusing its
-// result is what stops the loser from spending a single-use chain twice.
-func rotatedCLISessionToken(presented string) (RefreshAccessTokenResponse, bool) {
+// rotatedCLISessionToken reports whether the stored session has advanced past
+// the generation this caller snapshotted, and returns it when so. That is the
+// signal that another goroutine or process won the race; reusing its result is
+// what stops the loser from spending a single-use chain twice.
+func rotatedCLISessionToken(seen sessionGeneration) (RefreshAccessTokenResponse, bool) {
 	s, err := loadCLISessionUnmarked()
 	if err != nil || s.AccessToken == "" {
 		return RefreshAccessTokenResponse{}, false
 	}
-	if presented == "" || s.RefreshToken == presented {
+	// Advanced when the stored credential is not the one this caller holds.
+	advanced := seen.accessToken != "" && s.AccessToken != seen.accessToken
+	if !advanced {
 		return RefreshAccessTokenResponse{}, false
 	}
 	if s.ExpiresAt.IsZero() || time.Until(s.ExpiresAt) < time.Minute {
@@ -586,6 +607,14 @@ func RefreshAccessToken(refreshToken string) (RefreshAccessTokenResponse, error)
 	exchanged := false
 	var rotationHandle RotationHandle
 	if src == TokenSourceCLISession {
+		// The reference point is what THIS caller holds, not what is on disk:
+		// by the time we look, a winner may already have published, and a disk
+		// snapshot would compare that result against itself and miss it. The
+		// cached access token is the credential this caller was using when it
+		// decided to refresh, so "stored differs from mine" is exactly the
+		// question worth asking -- and it stays true when the provider
+		// preserves the refresh token, which Granola's proxy is observed to do.
+		seen := heldSessionGeneration()
 		refreshMu.Lock()
 		defer refreshMu.Unlock()
 		// Another goroutine may have completed a refresh while this one waited.
@@ -594,7 +623,7 @@ func RefreshAccessToken(refreshToken string) (RefreshAccessTokenResponse, error)
 		// spending the chain again. Keying on rotation rather than on remaining
 		// validity matters: a caller refreshing after a 401 holds a token the
 		// server has already rejected, and must not be told it is still good.
-		if fresh, ok := rotatedCLISessionToken(refreshToken); ok {
+		if fresh, ok := rotatedCLISessionToken(seen); ok {
 			return adoptRotated(fresh), nil
 		}
 		handle, err := BeginRotation()
@@ -602,7 +631,7 @@ func RefreshAccessToken(refreshToken string) (RefreshAccessTokenResponse, error)
 			// Another process holds the marker. Never exchange alongside it:
 			// the chain is single-use, so a second exchange spends the token it
 			// is rotating. Wait for it to publish, then reuse its result.
-			if fresh, ok := awaitRotatedCLISession(refreshToken); ok {
+			if fresh, ok := awaitRotatedCLISession(seen); ok {
 				return adoptRotated(fresh), nil
 			}
 			return RefreshAccessTokenResponse{}, err

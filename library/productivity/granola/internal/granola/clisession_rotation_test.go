@@ -63,6 +63,22 @@ func refreshServerSeeingMarker(t *testing.T, calls *atomic.Int32, markerSeen *at
 	t.Cleanup(func() { SetRefreshHTTPClient(orig) })
 }
 
+// refreshServerRefusing arms a server that must never be reached. It keeps
+// these tests offline and turns "the code exchanged when it should not have"
+// into a clear failure rather than a call to the real endpoint.
+func refreshServerRefusing(t *testing.T, calls *atomic.Int32, markerSeen *atomic.Bool) {
+	t.Helper()
+	orig := refreshClient
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		calls.Add(1)
+		w.WriteHeader(http.StatusTeapot)
+		w.Write([]byte(`{"error":"this exchange should not have happened"}`))
+	}))
+	t.Cleanup(srv.Close)
+	SetRefreshHTTPClient(&http.Client{Transport: &rewriteTransport{target: srv.URL}})
+	t.Cleanup(func() { SetRefreshHTTPClient(orig) })
+}
+
 // The marker exists to catch a crash between a spent remote token and a durable
 // local write. Written after the exchange it would never witness that window,
 // so this asserts the server sees it already on disk.
@@ -187,6 +203,10 @@ func TestRefresh_WaiterAdoptsRotatedTokensIntoCache(t *testing.T) {
 		t.Fatalf("SaveCLISession: %v", err)
 	}
 
+	var calls atomic.Int32
+	var seenMarker atomic.Bool
+	refreshServerRefusing(t, &calls, &seenMarker)
+
 	got, err := RefreshAccessToken("old-refresh")
 	if err != nil {
 		t.Fatalf("RefreshAccessToken: %v", err)
@@ -202,6 +222,51 @@ func TestRefresh_WaiterAdoptsRotatedTokensIntoCache(t *testing.T) {
 	}
 	if cached != "winner-access" {
 		t.Errorf("in-process cache = %q, want winner-access; the retry would replay a rejected token", cached)
+	}
+}
+
+// Granola's refresh proxy is observed to return the SAME refresh token, so
+// detection keyed on that token changing would never fire for the provider this
+// CLI actually talks to: the waiter would time out while a valid new access
+// token sat on disk.
+func TestRefresh_DetectsRotationWhenRefreshTokenIsPreserved(t *testing.T) {
+	armCLISession(t, time.Hour)
+
+	// Winner publishes a new access token while preserving the refresh token,
+	// exactly as Granola's proxy does.
+	if err := SaveCLISession(CLISession{
+		AccessToken:  "winner-access",
+		RefreshToken: "old-refresh", // unchanged on purpose
+		ExpiresAt:    time.Now().Add(time.Hour).UTC(),
+		ObtainedAt:   time.Now().Add(time.Second).UTC(),
+		AccountEmail: "someone@example.com",
+	}); err != nil {
+		t.Fatalf("SaveCLISession: %v", err)
+	}
+
+	// Arm a server that fails loudly. If the code exchanges instead of
+	// recognising the winner, the test fails on this rather than reaching the
+	// real endpoint.
+	var calls atomic.Int32
+	var seenMarker atomic.Bool
+	refreshServerRefusing(t, &calls, &seenMarker)
+
+	got, err := RefreshAccessToken("old-refresh")
+	if err != nil {
+		t.Fatalf("waiter did not recognise a rotation that preserved the refresh token: %v", err)
+	}
+	if got.AccessToken != "winner-access" {
+		t.Errorf("returned %q, want winner-access", got.AccessToken)
+	}
+	cached, _, err := LoadAccessToken()
+	if err != nil {
+		t.Fatalf("LoadAccessToken: %v", err)
+	}
+	if cached != "winner-access" {
+		t.Errorf("in-process cache = %q, want winner-access", cached)
+	}
+	if calls.Load() != 0 {
+		t.Errorf("exchanged %d times despite a published winner", calls.Load())
 	}
 }
 
