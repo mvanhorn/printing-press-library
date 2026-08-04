@@ -1,0 +1,311 @@
+name: nisifilters
+description: "Read-only CLI for the public WordPress + WooCommerce catalog and content of nisifilters.it (NiSi Italia photographic filters)"
+version: "0.1.0"
+base_url: "https://nisifilters.it/wp-json/wp/v2"
+health_check_path: "/posts?per_page=1"
+category: commerce
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/nisifilters-pp-cli/config.toml"
+
+resources:
+  products:
+    description: "WooCommerce shop products (NiSi filters, holders, kits) — public Store API"
+    endpoints:
+      list:
+        method: GET
+        path: "https://nisifilters.it/wp-json/wc/store/v1/products"
+        description: "List shop products"
+        params:
+          - {name: page, type: int, default: 1, description: "Page of results (1-based)"}
+          - {name: per_page, type: int, default: 20, description: "Results per page (max 100)"}
+          - {name: search, type: string, description: "Search products by name / description"}
+          - {name: category, type: string, description: "Filter by product category term ID"}
+          - {name: orderby, type: string, default: date, enum: [date, price, popularity, rating, title, menu_order], description: "Field to sort by"}
+          - {name: order, type: string, default: desc, enum: [asc, desc], description: "Sort direction"}
+          - {name: on_sale, type: bool, description: "Only products currently on sale"}
+          - {name: min_price, type: string, description: "Minimum price filter"}
+          - {name: max_price, type: string, description: "Maximum price filter"}
+        response: {type: array, item: Product}
+      get:
+        method: GET
+        path: "https://nisifilters.it/wp-json/wc/store/v1/products/{id}"
+        description: "Get a single product by numeric ID"
+        params:
+          - {name: id, type: int, required: true, positional: true, description: "Product ID"}
+        response: {type: object, item: Product}
+
+  product_categories:
+    description: "WooCommerce product categories — public Store API"
+    endpoints:
+      list:
+        method: GET
+        path: "https://nisifilters.it/wp-json/wc/store/v1/products/categories"
+        description: "List product categories"
+        params:
+          - {name: page, type: int, default: 1, description: "Page of results"}
+          - {name: per_page, type: int, default: 100, description: "Results per page (max 100)"}
+          - {name: orderby, type: string, default: name, enum: [name, slug, count, menu_order], description: "Field to sort by"}
+        response: {type: array, item: Term}
+
+
+  posts:
+    description: "Public blog / Academy posts"
+    endpoints:
+      list:
+        method: GET
+        path: "/posts"
+        description: "List published posts"
+        params:
+          - {name: page, type: int, default: 1, description: "Page of results"}
+          - {name: per_page, type: int, default: 20, description: "Results per page (max 100)"}
+          - {name: search, type: string, description: "Full-text search across post title and content"}
+          - {name: categories, type: string, description: "Comma-separated category IDs"}
+          - {name: tags, type: string, description: "Comma-separated tag IDs"}
+          - {name: orderby, type: string, default: date, enum: [date, title, slug, modified, id, relevance], description: "Field to sort by"}
+          - {name: order, type: string, default: desc, enum: [asc, desc], description: "Sort direction"}
+          - {name: slug, type: string, description: "Filter by exact post slug"}
+        response: {type: array, item: Post}
+      get:
+        method: GET
+        path: "/posts/{id}"
+        description: "Get a single post by numeric ID"
+        params:
+          - {name: id, type: int, required: true, positional: true, description: "Post ID"}
+        response: {type: object, item: Post}
+
+  pages:
+    description: "Public site pages"
+    endpoints:
+      list:
+        method: GET
+        path: "/pages"
+        description: "List published pages"
+        params:
+          - {name: page, type: int, default: 1, description: "Page of results"}
+          - {name: per_page, type: int, default: 20, description: "Results per page (max 100)"}
+          - {name: search, type: string, description: "Full-text search across page title and content"}
+          - {name: slug, type: string, description: "Filter by exact page slug"}
+        response: {type: array, item: Page}
+      get:
+        method: GET
+        path: "/pages/{id}"
+        description: "Get a single page by numeric ID"
+        params:
+          - {name: id, type: int, required: true, positional: true, description: "Page ID"}
+        response: {type: object, item: Page}
+
+  media:
+    description: "Media library (images / attachments)"
+    endpoints:
+      list:
+        method: GET
+        path: "/media"
+        description: "List media library items"
+        params:
+          - {name: page, type: int, default: 1, description: "Page of results"}
+          - {name: per_page, type: int, default: 20, description: "Results per page (max 100)"}
+          - {name: search, type: string, description: "Search media by title / alt text"}
+          - {name: media_type, type: string, enum: [image, video, audio, application, text], description: "Filter by media type"}
+        response: {type: array, item: Media}
+      get:
+        method: GET
+        path: "/media/{id}"
+        description: "Get a single media item by numeric ID (resolves source_url)"
+        params:
+          - {name: id, type: int, required: true, positional: true, description: "Media item ID"}
+        response: {type: object, item: Media}
+
+  categories:
+    description: "Post categories"
+    endpoints:
+      list:
+        method: GET
+        path: "/categories"
+        description: "List post categories"
+        params:
+          - {name: page, type: int, default: 1, description: "Page of results"}
+          - {name: per_page, type: int, default: 100, description: "Results per page (max 100)"}
+          - {name: search, type: string, description: "Search categories by name"}
+        response: {type: array, item: Term}
+      get:
+        method: GET
+        path: "/categories/{id}"
+        description: "Get a single category by numeric ID"
+        params:
+          - {name: id, type: int, required: true, positional: true, description: "Category ID"}
+        response: {type: object, item: Term}
+
+  tags:
+    description: "Post tags"
+    endpoints:
+      list:
+        method: GET
+        path: "/tags"
+        description: "List post tags"
+        params:
+          - {name: page, type: int, default: 1, description: "Page of results"}
+          - {name: per_page, type: int, default: 100, description: "Results per page (max 100)"}
+          - {name: search, type: string, description: "Search tags by name"}
+        response: {type: array, item: Term}
+      get:
+        method: GET
+        path: "/tags/{id}"
+        description: "Get a single tag by numeric ID"
+        params:
+          - {name: id, type: int, required: true, positional: true, description: "Tag ID"}
+        response: {type: object, item: Term}
+
+  comments:
+    description: "Public comments"
+    endpoints:
+      list:
+        method: GET
+        path: "/comments"
+        description: "List approved public comments"
+        params:
+          - {name: page, type: int, default: 1, description: "Page of results"}
+          - {name: per_page, type: int, default: 20, description: "Results per page (max 100)"}
+          - {name: post, type: string, description: "Comma-separated post IDs"}
+          - {name: search, type: string, description: "Search comment content"}
+        response: {type: array, item: Comment}
+      get:
+        method: GET
+        path: "/comments/{id}"
+        description: "Get a single comment by numeric ID"
+        params:
+          - {name: id, type: int, required: true, positional: true, description: "Comment ID"}
+        response: {type: object, item: Comment}
+
+  authors:
+    description: "Public authors"
+    endpoints:
+      list:
+        method: GET
+        path: "/users"
+        description: "List public authors"
+        params:
+          - {name: page, type: int, default: 1, description: "Page of results"}
+          - {name: per_page, type: int, default: 20, description: "Results per page (max 100)"}
+          - {name: search, type: string, description: "Search authors by name"}
+        response: {type: array, item: Author}
+      get:
+        method: GET
+        path: "/users/{id}"
+        description: "Get a single author by numeric ID"
+        params:
+          - {name: id, type: int, required: true, positional: true, description: "Author (user) ID"}
+        response: {type: object, item: Author}
+
+  find:
+    description: "Live global content search across the whole site (wp/v2 /search)"
+    endpoints:
+      list:
+        method: GET
+        path: "/search"
+        description: "Search all public content live"
+        params:
+          - {name: search, type: string, required: true, description: "Search query string"}
+          - {name: page, type: int, default: 1, description: "Page of results"}
+          - {name: per_page, type: int, default: 20, description: "Results per page (max 100)"}
+          - {name: subtype, type: string, description: "Restrict to a subtype (post, page, product)"}
+        response: {type: array, item: SearchResult}
+
+types:
+  Product:
+    fields:
+      - {name: id, type: int}
+      - {name: name, type: string}
+      - {name: slug, type: string}
+      - {name: permalink, type: string}
+      - {name: type, type: string}
+      - {name: sku, type: string}
+      - {name: description, type: string}
+      - {name: short_description, type: string}
+      - {name: prices, type: object}
+      - {name: price_html, type: string}
+      - {name: on_sale, type: bool}
+      - {name: is_in_stock, type: bool}
+      - {name: average_rating, type: string}
+      - {name: review_count, type: int}
+      - {name: categories, type: array}
+      - {name: attributes, type: array}
+      - {name: images, type: array}
+  Term:
+    fields:
+      - {name: id, type: int}
+      - {name: name, type: string}
+      - {name: slug, type: string}
+      - {name: count, type: int}
+      - {name: description, type: string}
+      - {name: parent, type: int}
+
+  Post:
+    fields:
+      - {name: id, type: int}
+      - {name: slug, type: string}
+      - {name: link, type: string}
+      - {name: date, type: string}
+      - {name: modified, type: string}
+      - {name: status, type: string}
+      - {name: type, type: string}
+      - {name: title, type: object}
+      - {name: excerpt, type: object}
+      - {name: content, type: object}
+      - {name: author, type: int}
+      - {name: featured_media, type: int}
+      - {name: categories, type: array}
+      - {name: tags, type: array}
+  Page:
+    fields:
+      - {name: id, type: int}
+      - {name: slug, type: string}
+      - {name: link, type: string}
+      - {name: date, type: string}
+      - {name: modified, type: string}
+      - {name: title, type: object}
+      - {name: excerpt, type: object}
+      - {name: content, type: object}
+      - {name: parent, type: int}
+      - {name: featured_media, type: int}
+  Media:
+    fields:
+      - {name: id, type: int}
+      - {name: slug, type: string}
+      - {name: link, type: string}
+      - {name: date, type: string}
+      - {name: title, type: object}
+      - {name: caption, type: object}
+      - {name: alt_text, type: string}
+      - {name: media_type, type: string}
+      - {name: mime_type, type: string}
+      - {name: source_url, type: string}
+      - {name: media_details, type: object}
+  Comment:
+    fields:
+      - {name: id, type: int}
+      - {name: post, type: int}
+      - {name: author_name, type: string}
+      - {name: date, type: string}
+      - {name: content, type: object}
+      - {name: link, type: string}
+  Author:
+    fields:
+      - {name: id, type: int}
+      - {name: name, type: string}
+      - {name: slug, type: string}
+      - {name: description, type: string}
+      - {name: link, type: string}
+      - {name: url, type: string}
+      - {name: avatar_urls, type: object}
+  SearchResult:
+    fields:
+      - {name: id, type: int}
+      - {name: title, type: string}
+      - {name: url, type: string}
+      - {name: type, type: string}
+      - {name: subtype, type: string}

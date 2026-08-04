@@ -1,0 +1,228 @@
+{
+  "api_name": "nisifilters",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-06T10:22:30Z",
+  "novel_features": [
+    {
+      "name": "Enriched shop view",
+      "command": "shop",
+      "description": "List filters joined with their categories — name, price, stock (in / backorder / out) — sorted by price.",
+      "rationale": "Joins WooCommerce products with categories locally; offline after sync.",
+      "example": "nisifilters-pp-cli shop --sort price --json",
+      "why_it_matters": "Use to scan the filter catalog with prices and categories in one view.",
+      "group": "Local joins that compound"
+    },
+    {
+      "name": "Variant explorer",
+      "command": "variants",
+      "description": "List a variable product's WooCommerce variations — variation id, attributes, price, stock — invisible via wp-json/wp/v2.",
+      "rationale": "wp/v2 only exposes parent products; the Store API's variation ids are resolved per-variant for price and availability.",
+      "example": "nisifilters-pp-cli variants 278495 --json",
+      "why_it_matters": "Use to get the exact variation_id and stock for a size (e.g. 82mm vs 95mm adapter ring) before building cart links.",
+      "group": "Local joins that compound"
+    },
+    {
+      "name": "Filter finder",
+      "command": "filters",
+      "description": "Discover available filter sizes/types from product attributes and find matching products.",
+      "rationale": "Correlates global attributes with each product's attribute values in the local store — a cross-product view no storefront endpoint returns.",
+      "example": "nisifilters-pp-cli filters --json",
+      "why_it_matters": "Reach for this to answer 'which sizes exist' or 'which products are 82mm' without clicking the storefront.",
+      "group": "Local joins that compound"
+    },
+    {
+      "name": "Agent-clean reader",
+      "command": "read",
+      "description": "Print one post, page, or product as title plus plain-text content, stripping the WordPress envelope.",
+      "rationale": "Collapses yoast_head, jetpack_*, class_list and _links into a bounded, agent-sized view from the local store.",
+      "example": "nisifilters-pp-cli read 289989",
+      "why_it_matters": "Use to read Academy guides without burning context on WordPress envelope fields.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Catalog and site digest",
+      "command": "digest",
+      "description": "Summarize the mirror: product count, price range, in-stock vs out, top categories, and content counts.",
+      "rationale": "A cross-entity aggregation over the local store that no upstream endpoint provides.",
+      "example": "nisifilters-pp-cli digest --json",
+      "why_it_matters": "Use for a one-shot overview of the catalog and site without paging every collection.",
+      "group": "Local joins that compound"
+    },
+    {
+      "name": "Recently changed",
+      "command": "since",
+      "description": "List posts and pages modified within a time window, across those types at once.",
+      "rationale": "Time-windowed scan of locally-stored modified timestamps; the API has no unified recently-changed endpoint. (Store API products lack timestamps, so they are excluded.)",
+      "example": "nisifilters-pp-cli since 30d --json",
+      "why_it_matters": "Use to answer 'what is new on the site' without checking each collection separately.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Image resolver",
+      "command": "image",
+      "description": "Resolve the featured image of a post or page, or a product's inline images, to full-resolution URLs.",
+      "rationale": "The source entity only stores a media ID; resolving it requires the locally-synced media table.",
+      "example": "nisifilters-pp-cli image 289989 --type posts --json",
+      "why_it_matters": "Use when you have a content item or product and need its actual image URL.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Enriched shop view",
+      "command": "shop",
+      "description": "List filters joined with their categories — name, price, stock (in / backorder / out) — sorted by price.",
+      "rationale": "Joins WooCommerce products with categories locally; offline after sync.",
+      "example": "nisifilters-pp-cli shop --sort price --json",
+      "why_it_matters": "Use to scan the filter catalog with prices and categories in one view.",
+      "group": "Local joins that compound"
+    },
+    {
+      "name": "Variant explorer",
+      "command": "variants",
+      "description": "List a variable product's WooCommerce variations — variation id, attributes, price, stock — invisible via wp-json/wp/v2.",
+      "rationale": "wp/v2 only exposes parent products; the Store API's variation ids are resolved per-variant for price and availability.",
+      "example": "nisifilters-pp-cli variants 278495 --json",
+      "why_it_matters": "Use to get the exact variation_id and stock for a size (e.g. 82mm vs 95mm adapter ring) before building cart links.",
+      "group": "Local joins that compound"
+    },
+    {
+      "name": "Filter finder",
+      "command": "filters",
+      "description": "Discover available filter sizes/types from product attributes and find matching products.",
+      "rationale": "Correlates global attributes with each product's attribute values in the local store — a cross-product view no storefront endpoint returns.",
+      "example": "nisifilters-pp-cli filters --json",
+      "why_it_matters": "Reach for this to answer 'which sizes exist' or 'which products are 82mm' without clicking the storefront.",
+      "group": "Local joins that compound"
+    },
+    {
+      "name": "Agent-clean reader",
+      "command": "read",
+      "description": "Print one post, page, or product as title plus plain-text content, stripping the WordPress envelope.",
+      "rationale": "Collapses yoast_head, jetpack_*, class_list and _links into a bounded, agent-sized view from the local store.",
+      "example": "nisifilters-pp-cli read 289989",
+      "why_it_matters": "Use to read Academy guides without burning context on WordPress envelope fields.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Catalog and site digest",
+      "command": "digest",
+      "description": "Summarize the mirror: product count, price range, in-stock vs out, top categories, and content counts.",
+      "rationale": "A cross-entity aggregation over the local store that no upstream endpoint provides.",
+      "example": "nisifilters-pp-cli digest --json",
+      "why_it_matters": "Use for a one-shot overview of the catalog and site without paging every collection.",
+      "group": "Local joins that compound"
+    },
+    {
+      "name": "Recently changed",
+      "command": "since",
+      "description": "List posts and pages modified within a time window, across those types at once.",
+      "rationale": "Time-windowed scan of locally-stored modified timestamps; the API has no unified recently-changed endpoint. (Store API products lack timestamps, so they are excluded.)",
+      "example": "nisifilters-pp-cli since 30d --json",
+      "why_it_matters": "Use to answer 'what is new on the site' without checking each collection separately.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Image resolver",
+      "command": "image",
+      "description": "Resolve the featured image of a post or page, or a product's inline images, to full-resolution URLs.",
+      "rationale": "The source entity only stores a media ID; resolving it requires the locally-synced media table.",
+      "example": "nisifilters-pp-cli image 289989 --type posts --json",
+      "why_it_matters": "Use when you have a content item or product and need its actual image URL.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "NiSi Italia",
+    "headline": "A read-only, offline-first mirror and search engine for the public NiSi Italia filter catalog and content.",
+    "value_prop": "Sync every public product, category, attribute, post, page, and media item into a local SQLite database, then search and browse it offline with agent-clean output. Includes a filter-finder (filters) that surfaces available sizes/types, an enriched priced shop view (shop), a clean content reader (read), and a catalog digest (digest) — all without authentication.",
+    "quickstart": [
+      {
+        "command": "nisifilters-pp-cli doctor --dry-run",
+        "comment": "Confirm the store is reachable before syncing"
+      },
+      {
+        "command": "nisifilters-pp-cli sync",
+        "comment": "Mirror the catalog and content into the local SQLite store"
+      },
+      {
+        "command": "nisifilters-pp-cli search \"polarizzatore\"",
+        "comment": "Offline full-text search across products and content"
+      },
+      {
+        "command": "nisifilters-pp-cli shop --sort price --json",
+        "comment": "Scan the catalog by price with categories and stock"
+      },
+      {
+        "command": "nisifilters-pp-cli digest",
+        "comment": "One-shot catalog and site overview"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "search or shop returns nothing",
+        "fix": "Run 'nisifilters-pp-cli sync' first; these read the local mirror, not the live site."
+      },
+      {
+        "symptom": "image shows no URL for a post",
+        "fix": "Sync media too: 'nisifilters-pp-cli sync' mirrors media so featured images resolve."
+      },
+      {
+        "symptom": "filters shows no sizes",
+        "fix": "Sync products and product attributes first; the finder reads the local mirror."
+      }
+    ],
+    "when_to_use": "Use this CLI to read, search, or mirror the public NiSi Italia store and content from the terminal or an agent: the filter catalog (ND, GND, polarizers, holders, kits), product categories and attributes, prices and stock, and Academy posts and pages. It is ideal for offline, scriptable, agent-clean catalog access without scraping the storefront.",
+    "anti_triggers": [
+      "Do not use this CLI to place orders, manage a cart, or check out — it only reads public product listings.",
+      "Do not use it to create, edit, or delete content — it is strictly read-only.",
+      "Do not use it for stores other than nisifilters.it; the base URL is fixed."
+    ],
+    "recipes": [
+      {
+        "title": "Mirror then search offline",
+        "command": "nisifilters-pp-cli sync \u0026\u0026 nisifilters-pp-cli search \"ND1000\"",
+        "explanation": "Sync once, then full-text search the catalog and content with no further network calls."
+      },
+      {
+        "title": "Cheapest filters first",
+        "command": "nisifilters-pp-cli shop --sort price --limit 10 --json",
+        "explanation": "List the ten lowest-priced products joined with their categories and stock."
+      },
+      {
+        "title": "Pick the right size variant before ordering",
+        "command": "nisifilters-pp-cli variants 278495 --json",
+        "explanation": "Variable products hide their sizes behind one parent id; this lists every variation with its own id, price, and stock — including backorder items that are still orderable."
+      },
+      {
+        "title": "Narrow a verbose product to a few fields",
+        "command": "nisifilters-pp-cli products list --per-page 5 --agent --select id,name,prices.price,categories.name",
+        "explanation": "WooCommerce products are large; --select with dotted paths returns only the fields you need."
+      },
+      {
+        "title": "Discover available filter sizes",
+        "command": "nisifilters-pp-cli filters --json",
+        "explanation": "Surface the product attributes (e.g. Dimensione) and their values from the local mirror."
+      },
+      {
+        "title": "What changed this month",
+        "command": "nisifilters-pp-cli since 30d",
+        "explanation": "Show posts and pages modified in the last 30 days."
+      }
+    ],
+    "trigger_phrases": [
+      "search nisifilters",
+      "find a NiSi filter",
+      "list NiSi products",
+      "what's new on nisifilters",
+      "read the NiSi academy post",
+      "use nisifilters",
+      "run nisifilters"
+    ]
+  }
+}

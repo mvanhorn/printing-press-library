@@ -1,0 +1,28 @@
+{
+  "timestamp": "2026-08-04T20:28:57.292783Z",
+  "cli_dir": "\u003ccli-dir\u003e/nisifilters",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "Brief but precise: 'profile client list' lists saved client-profile names, no params, JSON out; generated DO-NOT-EDIT file, elaboration adds no information"
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 691,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "Brief but precise: 'learnings list' lists recorded learnings with its own Example block showing filters; generated DO-NOT-EDIT file, Short is accurate"
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-08-04T16:30:08.02942Z"
+  }
+}

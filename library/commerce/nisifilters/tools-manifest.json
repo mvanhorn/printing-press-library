@@ -1,0 +1,502 @@
+{
+  "api_name": "nisifilters",
+  "base_url": "https://nisifilters.it/wp-json/wp/v2",
+  "description": "A read-only, offline-first mirror and search engine for the public NiSi Italia filter catalog and content.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "authors_get",
+      "description": "Get a single author by numeric ID. Required: id. Returns the Author.",
+      "method": "GET",
+      "path": "/users/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Author (user) ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "authors_list",
+      "description": "List public authors. Optional: page (default: 1), per_page (default: 20), search. Returns array of Author.",
+      "method": "GET",
+      "path": "/users",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page of results"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 100)"
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Search authors by name"
+        }
+      ]
+    },
+    {
+      "name": "categories_get",
+      "description": "Get a single category by numeric ID. Required: id. Returns the Term.",
+      "method": "GET",
+      "path": "/categories/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Category ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "categories_list",
+      "description": "List post categories. Optional: page (default: 1), per_page (default: 100), search. Returns array of Term.",
+      "method": "GET",
+      "path": "/categories",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page of results"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 100)"
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Search categories by name"
+        }
+      ]
+    },
+    {
+      "name": "comments_get",
+      "description": "Get a single comment by numeric ID. Required: id. Returns the Comment.",
+      "method": "GET",
+      "path": "/comments/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Comment ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "comments_list",
+      "description": "List approved public comments. Optional: page (default: 1), per_page (default: 20), post (plus 1 more). Returns array of Comment.",
+      "method": "GET",
+      "path": "/comments",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page of results"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 100)"
+        },
+        {
+          "name": "post",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated post IDs"
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Search comment content"
+        }
+      ]
+    },
+    {
+      "name": "find_list",
+      "description": "Search all public content live. Required: search. Optional: page (default: 1), per_page (default: 20), subtype. Returns array of SearchResult.",
+      "method": "GET",
+      "path": "/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Search query string",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page of results"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 100)"
+        },
+        {
+          "name": "subtype",
+          "type": "string",
+          "location": "query",
+          "description": "Restrict to a subtype (post, page, product)"
+        }
+      ]
+    },
+    {
+      "name": "media_get",
+      "description": "Get a single media item by numeric ID (resolves source_url). Required: id. Returns the Media.",
+      "method": "GET",
+      "path": "/media/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Media item ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "media_list",
+      "description": "List media library items. Optional: page (default: 1), per_page (default: 20), search (plus 1 more). Returns array of Media.",
+      "method": "GET",
+      "path": "/media",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page of results"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 100)"
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Search media by title / alt text"
+        },
+        {
+          "name": "media_type",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by media type"
+        }
+      ]
+    },
+    {
+      "name": "pages_get",
+      "description": "Get a single page by numeric ID. Required: id. Returns the Page.",
+      "method": "GET",
+      "path": "/pages/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Page ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pages_list",
+      "description": "List published pages. Optional: page (default: 1), per_page (default: 20), search (plus 1 more). Returns array of Page.",
+      "method": "GET",
+      "path": "/pages",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page of results"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 100)"
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Full-text search across page title and content"
+        },
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by exact page slug"
+        }
+      ]
+    },
+    {
+      "name": "posts_get",
+      "description": "Get a single post by numeric ID. Required: id. Returns the Post.",
+      "method": "GET",
+      "path": "/posts/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Post ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "posts_list",
+      "description": "List published posts. Optional: page (default: 1), per_page (default: 20), search (plus 5 more). Returns array of Post.",
+      "method": "GET",
+      "path": "/posts",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page of results"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 100)"
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Full-text search across post title and content"
+        },
+        {
+          "name": "categories",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated category IDs"
+        },
+        {
+          "name": "tags",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated tag IDs"
+        },
+        {
+          "name": "orderby",
+          "type": "string",
+          "location": "query",
+          "description": "Field to sort by"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Sort direction"
+        },
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by exact post slug"
+        }
+      ]
+    },
+    {
+      "name": "product_categories_list",
+      "description": "List product categories. Optional: page (default: 1), per_page (default: 100), orderby (default: name). Returns array of Term.",
+      "method": "GET",
+      "path": "https://nisifilters.it/wp-json/wc/store/v1/products/categories",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page of results"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 100)"
+        },
+        {
+          "name": "orderby",
+          "type": "string",
+          "location": "query",
+          "description": "Field to sort by"
+        }
+      ]
+    },
+    {
+      "name": "products_get",
+      "description": "Get a single product by numeric ID. Required: id. Returns the Product.",
+      "method": "GET",
+      "path": "https://nisifilters.it/wp-json/wc/store/v1/products/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Product ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "products_list",
+      "description": "List shop products. Optional: page (default: 1), per_page (default: 20), search (plus 6 more). Returns array of Product.",
+      "method": "GET",
+      "path": "https://nisifilters.it/wp-json/wc/store/v1/products",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page of results (1-based)"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 100)"
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Search products by name / description"
+        },
+        {
+          "name": "category",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by product category term ID"
+        },
+        {
+          "name": "orderby",
+          "type": "string",
+          "location": "query",
+          "description": "Field to sort by"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Sort direction"
+        },
+        {
+          "name": "on_sale",
+          "type": "bool",
+          "location": "query",
+          "description": "Only products currently on sale"
+        },
+        {
+          "name": "min_price",
+          "type": "string",
+          "location": "query",
+          "description": "Minimum price filter"
+        },
+        {
+          "name": "max_price",
+          "type": "string",
+          "location": "query",
+          "description": "Maximum price filter"
+        }
+      ]
+    },
+    {
+      "name": "tags_get",
+      "description": "Get a single tag by numeric ID. Required: id. Returns the Term.",
+      "method": "GET",
+      "path": "/tags/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Tag ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tags_list",
+      "description": "List post tags. Optional: page (default: 1), per_page (default: 100), search. Returns array of Term.",
+      "method": "GET",
+      "path": "/tags",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page of results"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 100)"
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Search tags by name"
+        }
+      ]
+    }
+  ]
+}

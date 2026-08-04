@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "nisifilters-pp-mcp",
+  "display_name": "NiSi Italia",
+  "version": "0.1.0",
+  "description": "A read-only, offline-first mirror and search engine for the public NiSi Italia filter catalog and content.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/nisifilters-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/nisifilters-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

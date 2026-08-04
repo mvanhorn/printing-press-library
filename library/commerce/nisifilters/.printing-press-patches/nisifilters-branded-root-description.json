@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "nisifilters-branded-root-description",
+  "applied_at": "2026-08-05",
+  "base_run_id": "20260606-122031",
+  "base_printing_press_version": "4.22.1",
+  "summary": "Restored the branded root command Short/Long description (read-only, offline-first mirror of NiSi Italia) over the regenerated boilerplate.",
+  "reason": "The 4.22.1-to-4.30.1 regen-merge reset root.go's Short/Long to generic generator boilerplate; the branded text is the CLI's public identity and must survive regeneration.",
+  "files": ["internal/cli/root.go"],
+  "validated_outcome": "nisifilters-pp-cli --help shows the branded description; full test suite and publish validate pass."
+}

@@ -1,0 +1,63 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-06-06T16:29:58.640527Z",
+  "printing_press_version": "4.22.1",
+  "api_name": "nisifilters",
+  "display_name": "NiSi Italia",
+  "cli_name": "nisifilters-pp-cli",
+  "creator": {
+    "handle": "chiotas",
+    "name": "chiotas"
+  },
+  "printer": "chiotas",
+  "printer_name": "chiotas",
+  "spec_path": "nisifilters-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:c4340dfaba20c20bb28f9cdd1b4c689c2f5121d2706e5bea62b94ccb5870d040",
+  "run_id": "20260606-122031",
+  "category": "commerce",
+  "description": "A read-only, offline-first mirror and search engine for the public NiSi Italia filter catalog and content.",
+  "mcp_binary": "nisifilters-pp-mcp",
+  "mcp_tool_count": 18,
+  "mcp_public_tool_count": 18,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Enriched shop view",
+      "command": "shop",
+      "description": "List filters joined with their categories — name, price, stock (in / backorder / out) — sorted by price."
+    },
+    {
+      "name": "Variant explorer",
+      "command": "variants",
+      "description": "List a variable product's WooCommerce variations — variation id, attributes, price, stock — invisible via wp-json/wp/v2."
+    },
+    {
+      "name": "Filter finder",
+      "command": "filters",
+      "description": "Discover available filter sizes/types from product attributes and find matching products."
+    },
+    {
+      "name": "Agent-clean reader",
+      "command": "read",
+      "description": "Print one post, page, or product as title plus plain-text content, stripping the WordPress envelope."
+    },
+    {
+      "name": "Catalog and site digest",
+      "command": "digest",
+      "description": "Summarize the mirror: product count, price range, in-stock vs out, top categories, and content counts."
+    },
+    {
+      "name": "Recently changed",
+      "command": "since",
+      "description": "List posts and pages modified within a time window, across those types at once."
+    },
+    {
+      "name": "Image resolver",
+      "command": "image",
+      "description": "Resolve the featured image of a post or page, or a product's inline images, to full-resolution URLs."
+    }
+  ]
+}
