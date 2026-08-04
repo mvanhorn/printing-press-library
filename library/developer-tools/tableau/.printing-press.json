@@ -1,28 +1,58 @@
 {
+  "schema_version": 1,
+  "generated_at": "2026-08-03T20:00:00Z",
+  "printing_press_version": "4.30.1",
   "api_name": "tableau",
+  "display_name": "Tableau",
   "cli_name": "tableau-workbook-pp-cli",
-  "display_name": "Tableau Workbook Compiler",
-  "description": "Agent-safe Tableau .twb compiler: inspect, bulk calcs, sheet/style clone, template-only dashboards, lint gate. Fixes illegal XML authoring failures.",
-  "category": "developer-tools",
-  "version": "0.3.0",
-  "binaries": [
-    "tableau-workbook-pp-cli",
-    "tableau-rest-pp-cli"
-  ],
   "creator": {
-    "name": "Jonathan Drake",
-    "handle": "JonathanDrake"
+    "handle": "drake",
+    "name": "Jonathan Drake"
   },
   "contributors": [],
-  "tags": [
-    "tableau",
-    "twb",
-    "xml",
-    "analytics",
-    "agent-native",
-    "rest"
+  "printer": "drake",
+  "printer_name": "Jonathan Drake",
+  "run_id": "20260803-tableau-handprint",
+  "catalog_entry": "tableau",
+  "category": "developer-tools",
+  "description": "Agent-safe Tableau workbook compiler (.twb/.twbx inspect, lint-gated mutations, bulk calcs, sheet/style clone, template-only dashboards) plus PAT REST bridge for download/publish.",
+  "catalog_description": "Agent-safe Tableau workbook compiler and REST bridge for Cloud/Server download and publish.",
+  "mcp_ready": "none",
+  "auth_type": "personal_access_token",
+  "auth_env_vars": [
+    "TABLEAU_SERVER",
+    "TABLEAU_SITE_CONTENT_URL",
+    "TABLEAU_PAT_NAME",
+    "TABLEAU_PAT_SECRET"
   ],
-  "homepage": "https://github.com/jonathan-drake/tableau-pp-cli",
+  "novel_features": [
+    {
+      "name": "Lint-gated workbook writes",
+      "command": "workbook lint",
+      "description": "Refuse illegal .twb structure (including Ann Jackson bold-enum and missing simple-id failures) before Desktop opens the file."
+    },
+    {
+      "name": "YoY calculated-field pack",
+      "command": "calc pack-yoy",
+      "description": "Bulk-add CY/PY/Delta/YoY% calculated fields for a measure list without hand-editing XML."
+    },
+    {
+      "name": "Template-only dashboard scaffold",
+      "command": "dashboard scaffold",
+      "description": "Add dashboards only from known-good layouts (single, two-pane, three-row, quad) or clone — never freeform LLM zone dumps."
+    },
+    {
+      "name": "Sheet style mimic",
+      "command": "style apply",
+      "description": "Copy style subtrees from a known-good worksheet onto others (Ann's successful mimic path)."
+    },
+    {
+      "name": "REST download/publish bridge",
+      "command": "workbooks download",
+      "description": "PAT-authenticated download and publish so agents can round-trip Cloud/Server workbooks through the local compiler."
+    }
+  ],
+  "homepage": "https://github.com/drake/tableau-pp-cli",
   "problem_frame": "https://annujackson.substack.com/p/xml-hacking-tableau-workbooks-with",
-  "notes": "Workbook engine is hand-built (file format). REST bridge is separate binary. Printing Press factory optional for REST amplify."
+  "notes": "Workbook engine is hand-built for undocumented .twb structure (Ann Jackson fix). REST companion binary is tableau-rest-pp-cli in cmd/."
 }

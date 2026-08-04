@@ -12,7 +12,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const version = "0.3.0"
+const version = "0.3.1"
+
+// allowDropPackage permits writing .twb from a .twbx source (drops package members).
+var allowDropPackage bool
 
 func main() {
 	root := newRootCmd()
@@ -55,6 +58,8 @@ func newRootCmd() *cobra.Command {
 	}
 	root.SetVersionTemplate("{{.Version}}\n")
 
+	root.PersistentFlags().BoolVar(&allowDropPackage, "allow-drop-package", false,
+		"allow writing .twb from a .twbx source (drops extracts/images/other package members)")
 	root.AddCommand(newWorkbookCmd())
 	root.AddCommand(newCalcCmd())
 	root.AddCommand(newSheetCmd())
@@ -68,6 +73,9 @@ func openWB(path string) (*twb.Workbook, error) {
 	wb, err := twb.Open(path)
 	if err != nil {
 		return nil, fail(cmdutil.ExitIO, "%v", err)
+	}
+	if allowDropPackage {
+		wb.AllowDropPackage = true
 	}
 	return wb, nil
 }

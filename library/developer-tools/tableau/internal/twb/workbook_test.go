@@ -381,3 +381,21 @@ func TestThreeRowScaffold(t *testing.T) {
 		t.Fatalf("%+v", issues)
 	}
 }
+
+func TestRefuseWriteFromTWBX(t *testing.T) {
+	wb, err := twb.Open(fixture(t, "official/TABLEAU_10_TWBX.twbx"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !wb.FromTWBX() {
+		t.Fatal("expected FromTWBX")
+	}
+	out := filepath.Join(t.TempDir(), "stripped.twb")
+	if err := wb.Write(out); err == nil {
+		t.Fatal("expected refuse write from twbx without AllowDropPackage")
+	}
+	wb.AllowDropPackage = true
+	if err := wb.Write(out); err != nil {
+		t.Fatal(err)
+	}
+}

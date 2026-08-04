@@ -41,8 +41,8 @@ func New(cfg Config) (*Client, error) {
 		return nil, fmt.Errorf("server URL is required")
 	}
 	server := strings.TrimRight(cfg.Server, "/")
-	if !strings.HasPrefix(server, "http://") && !strings.HasPrefix(server, "https://") {
-		return nil, fmt.Errorf("server URL must include scheme (https://...): %q", cfg.Server)
+	if !strings.HasPrefix(server, "https://") {
+		return nil, fmt.Errorf("server URL must use HTTPS (PAT credentials must not be sent over HTTP): %q", cfg.Server)
 	}
 	if cfg.APIVersion == "" {
 		cfg.APIVersion = DefaultAPIVersion

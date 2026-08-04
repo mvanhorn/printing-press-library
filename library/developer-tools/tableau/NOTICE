@@ -1,0 +1,10 @@
+tableau-workbook-pp-cli / tableau-rest-pp-cli
+Copyright 2026 Jonathan Drake and contributors
+
+Created by Jonathan Drake (@drake).
+
+This CLI was authored for agent-safe Tableau workbook compilation and REST I/O.
+Portions of the packaging shape follow CLI Printing Press library conventions
+(https://github.com/mvanhorn/cli-printing-press) by Matt Van Horn and Trevin Chow.
+
+CLI Printing Press is licensed separately under the MIT License.
