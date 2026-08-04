@@ -1,6 +1,7 @@
 package twb_test
 
 import (
+	"archive/zip"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -19,6 +20,39 @@ func fixture(t *testing.T, rel string) string {
 	}
 	return p
 }
+
+
+func writeTempTWBX(t *testing.T, twbXML []byte) string {
+	t.Helper()
+	dir := t.TempDir()
+	path := filepath.Join(dir, "pack.twbx")
+	f, err := os.Create(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.Close()
+	zw := zip.NewWriter(f)
+	w, err := zw.Create("Book1.twb")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := w.Write(twbXML); err != nil {
+		t.Fatal(err)
+	}
+	// extra package member (extract stand-in)
+	ex, err := zw.Create("Data/extract dummy.txt")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := ex.Write([]byte("x")); err != nil {
+		t.Fatal(err)
+	}
+	if err := zw.Close(); err != nil {
+		t.Fatal(err)
+	}
+	return path
+}
+
 
 func TestInspectAssignment1(t *testing.T) {
 	wb, err := twb.Open(fixture(t, "superstore/Assignment_1.twb"))
@@ -208,12 +242,21 @@ func TestLintRejectBold(t *testing.T) {
 }
 
 func TestOpenTWBX(t *testing.T) {
-	wb, err := twb.Open(fixture(t, "official/TABLEAU_10_TWBX.twbx"))
+	src := fixture(t, "official/empty_workbook.twb")
+	xml, err := os.ReadFile(src)
+	if err != nil {
+		t.Fatal(err)
+	}
+	path := writeTempTWBX(t, xml)
+	wb, err := twb.Open(path)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if wb.Root() == nil || wb.Root().Tag != "workbook" {
 		t.Fatal("expected workbook root from twbx")
+	}
+	if !wb.FromTWBX() {
+		t.Fatal("expected FromTWBX")
 	}
 }
 
@@ -383,7 +426,13 @@ func TestThreeRowScaffold(t *testing.T) {
 }
 
 func TestRefuseWriteFromTWBX(t *testing.T) {
-	wb, err := twb.Open(fixture(t, "official/TABLEAU_10_TWBX.twbx"))
+	src := fixture(t, "official/empty_workbook.twb")
+	xml, err := os.ReadFile(src)
+	if err != nil {
+		t.Fatal(err)
+	}
+	path := writeTempTWBX(t, xml)
+	wb, err := twb.Open(path)
 	if err != nil {
 		t.Fatal(err)
 	}
