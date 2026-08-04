@@ -1,0 +1,28 @@
+{
+  "api_name": "tableau",
+  "cli_name": "tableau-workbook-pp-cli",
+  "display_name": "Tableau Workbook Compiler",
+  "description": "Agent-safe Tableau .twb compiler: inspect, bulk calcs, sheet/style clone, template-only dashboards, lint gate. Fixes illegal XML authoring failures.",
+  "category": "developer-tools",
+  "version": "0.3.0",
+  "binaries": [
+    "tableau-workbook-pp-cli",
+    "tableau-rest-pp-cli"
+  ],
+  "creator": {
+    "name": "Jonathan Drake",
+    "handle": "JonathanDrake"
+  },
+  "contributors": [],
+  "tags": [
+    "tableau",
+    "twb",
+    "xml",
+    "analytics",
+    "agent-native",
+    "rest"
+  ],
+  "homepage": "https://github.com/jonathan-drake/tableau-pp-cli",
+  "problem_frame": "https://annujackson.substack.com/p/xml-hacking-tableau-workbooks-with",
+  "notes": "Workbook engine is hand-built (file format). REST bridge is separate binary. Printing Press factory optional for REST amplify."
+}

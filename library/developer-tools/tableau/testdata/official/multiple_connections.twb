@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='utf-8' ?>
+
+<!-- build main.16.0928.1300                                -->
+<workbook source-build='0.0.0 (0000.16.0928.1300)' source-platform='mac' version='10.1' xmlns:user='http://www.tableausoftware.com/xml/user'>
+  <datasources>
+    <datasource caption='xy (TestV1)' inline='true' name='sqlproxy.0uczajf02b02kv16u6atd08pslj5' version='10.1'>
+      <repository-location id='xyTestV1' path='/datasources' revision='1.0' />
+      <connection channel='http' class='sqlproxy' dbname='xyTestV1' directory='/dataserver' port='80' server='awesomeserver' username=''>
+        <relation name='sqlproxy' table='[sqlproxy]' type='table' />
+      </connection>
+    </datasource>
+    <datasource caption='xy+ (Multiple Connections)' inline='true' name='federated.1bw8gel1hkm5ms1c8jgrm0zixmde' version='10.1'>
+      <connection class='federated'>
+        <named-connections>
+          <named-connection caption='mysql55' name='mysql.0unbi0i1tfh602155zoou04tacme'>
+            <connection class='mysql' dbname='testv1' odbc-native-protocol='' port='' server='mysql55' source-charset='' username='test' />
+          </named-connection>
+          <named-connection caption='mssql2012.test' name='sqlserver.15j0kvj16xdjas1bs191w1ji441w'>
+            <connection authentication='sqlserver' class='sqlserver' dbname='TestV1' odbc-native-protocol='yes' one-time-sql='' server='mssql2012' username='test' />
+          </named-connection>
+        </named-connections>
+        <relation join='inner' type='join'>
+          <clause type='join'>
+            <expression op='='>
+              <expression op='[xy].[a]' />
+              <expression op='[xy1].[a]' />
+            </expression>
+          </clause>
+          <relation connection='mysql.0unbi0i1tfh602155zoou04tacme' name='xy' table='[xy]' type='table' />
+          <relation connection='sqlserver.15j0kvj16xdjas1bs191w1ji441w' name='xy1' table='[dbo].[xy]' type='table' />
+        </relation>
+      </connection>
+    </datasource>
+  </datasources>
+</workbook>

@@ -1,0 +1,13 @@
+version: 2
+project_name: tableau
+builds:
+  - id: workbook
+    main: ./cmd/tableau-workbook-pp-cli
+    binary: tableau-workbook-pp-cli
+    goos: [darwin, linux, windows]
+    goarch: [amd64, arm64]
+  - id: rest
+    main: ./cmd/tableau-rest-pp-cli
+    binary: tableau-rest-pp-cli
+    goos: [darwin, linux, windows]
+    goarch: [amd64, arm64]
