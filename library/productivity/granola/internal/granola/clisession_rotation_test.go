@@ -435,3 +435,33 @@ func TestRefresh_SpentTokenIsNotPresentedTwice(t *testing.T) {
 		t.Errorf("the spent refresh token was presented again: %d exchanges, want 1", got)
 	}
 }
+
+// A 200 is proof the endpoint rotated, so the presented token is spent no
+// matter what the body turns out to contain. Clearing the marker on a body that
+// fails to parse would delete the only record of the one unrecoverable state:
+// a consumed remote token with no replacement on disk. The session then looks
+// perfectly healthy while its refresh half is dead.
+func TestRefresh_SpentTokenWithUnusableBodyKeepsMarker(t *testing.T) {
+	armCLISession(t, time.Hour)
+	orig := refreshClient
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		// Rotated upstream, but the body never arrives intact.
+		w.Write([]byte(`{"access_token": "trunc`))
+	}))
+	t.Cleanup(srv.Close)
+	SetRefreshHTTPClient(&http.Client{Transport: &rewriteTransport{target: srv.URL}})
+	t.Cleanup(func() { SetRefreshHTTPClient(orig) })
+
+	if _, err := RefreshAccessToken("old-refresh"); err == nil {
+		t.Fatal("an unparseable refresh response must not report success")
+	}
+	if _, err := os.Stat(rotationMarkerPath()); err != nil {
+		t.Fatal("marker was cleared after a 200; the spent token now looks healthy and the loss is undetectable")
+	}
+	ageRotationMarker(t)
+	if _, err := LoadCLISession(); !errors.Is(err, ErrSessionInterrupted) {
+		t.Error("the spent-token state must surface as an actionable error")
+	}
+}
