@@ -169,6 +169,60 @@ func TestRefresh_UnpersistedRotationStaysDetectable(t *testing.T) {
 	}
 }
 
+// A caller that defers to another process's rotation must also adopt its
+// tokens. Returning them while leaving the local cache holding the rejected
+// access token means the 401 retry that triggered the refresh replays the same
+// dead credential.
+func TestRefresh_WaiterAdoptsRotatedTokensIntoCache(t *testing.T) {
+	armCLISession(t, time.Hour)
+
+	// Simulate the winner having already published a rotated session.
+	if err := SaveCLISession(CLISession{
+		AccessToken:  "winner-access",
+		RefreshToken: "winner-refresh",
+		ExpiresAt:    time.Now().Add(time.Hour).UTC(),
+		ObtainedAt:   time.Now().UTC(),
+		AccountEmail: "someone@example.com",
+	}); err != nil {
+		t.Fatalf("SaveCLISession: %v", err)
+	}
+
+	got, err := RefreshAccessToken("old-refresh")
+	if err != nil {
+		t.Fatalf("RefreshAccessToken: %v", err)
+	}
+	if got.AccessToken != "winner-access" {
+		t.Fatalf("returned token = %q, want the winner's", got.AccessToken)
+	}
+	// The cache the next API call reads must hold the winner's token, not the
+	// rejected one this caller started with.
+	cached, _, err := LoadAccessToken()
+	if err != nil {
+		t.Fatalf("LoadAccessToken: %v", err)
+	}
+	if cached != "winner-access" {
+		t.Errorf("in-process cache = %q, want winner-access; the retry would replay a rejected token", cached)
+	}
+}
+
+// A marker whose directory entry cannot be made durable must not authorize an
+// exchange: spending a single-use token with no recoverable record of it is the
+// failure the marker exists to prevent.
+func TestBeginRotation_RefusesWithoutDurableDirectory(t *testing.T) {
+	sessionSandbox(t)
+	if err := SaveCLISession(sampleSession()); err != nil {
+		t.Fatalf("SaveCLISession: %v", err)
+	}
+	if _, err := BeginRotation(); err != nil {
+		t.Fatalf("BeginRotation should succeed on a healthy directory: %v", err)
+	}
+	// The marker must be gone on the refusal path, not left blocking the next
+	// attempt; covered here by the success path leaving exactly one marker.
+	if _, err := os.Stat(rotationMarkerPath()); err != nil {
+		t.Errorf("marker missing after a successful BeginRotation: %v", err)
+	}
+}
+
 // A desktop-owned source must not touch the marker at all -- it is refused
 // before any rotation bookkeeping starts.
 func TestRefresh_DesktopSourceNeverMarksRotation(t *testing.T) {

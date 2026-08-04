@@ -240,6 +240,26 @@ func refreshRefusalFor(src TokenSource) error {
 	return nil
 }
 
+// adoptRotated installs another process's rotation result into this process's
+// token cache.
+//
+// Returning the winner's tokens without this leaves cachedAccess holding the
+// token the server already rejected, so the 401 retry that triggered the
+// refresh would replay the same dead credential and fail again. The caller is
+// refreshing precisely because its cached token is no good.
+func adoptRotated(r RefreshAccessTokenResponse) RefreshAccessTokenResponse {
+	tokenMu.Lock()
+	defer tokenMu.Unlock()
+	cachedAccess = r.AccessToken
+	if r.RefreshToken != "" {
+		cachedRefresh = r.RefreshToken
+	}
+	if r.ExpiresIn > 0 {
+		cachedExpiry = time.Now().Add(time.Duration(r.ExpiresIn) * time.Second)
+	}
+	return r
+}
+
 // awaitRotatedCLISession waits, briefly and bounded, for the process holding
 // the rotation marker to publish its result. A short wait is right: the holder
 // is mid-HTTP-exchange, and the alternative -- returning immediately -- pushes a
@@ -575,7 +595,7 @@ func RefreshAccessToken(refreshToken string) (RefreshAccessTokenResponse, error)
 		// validity matters: a caller refreshing after a 401 holds a token the
 		// server has already rejected, and must not be told it is still good.
 		if fresh, ok := rotatedCLISessionToken(refreshToken); ok {
-			return fresh, nil
+			return adoptRotated(fresh), nil
 		}
 		handle, err := BeginRotation()
 		if errors.Is(err, ErrRotationInProgress) {
@@ -583,7 +603,7 @@ func RefreshAccessToken(refreshToken string) (RefreshAccessTokenResponse, error)
 			// the chain is single-use, so a second exchange spends the token it
 			// is rotating. Wait for it to publish, then reuse its result.
 			if fresh, ok := awaitRotatedCLISession(refreshToken); ok {
-				return fresh, nil
+				return adoptRotated(fresh), nil
 			}
 			return RefreshAccessTokenResponse{}, err
 		}

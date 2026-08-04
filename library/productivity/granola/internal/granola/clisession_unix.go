@@ -30,14 +30,14 @@ func checkOwnerOnly(info os.FileInfo, path string) error {
 	return nil
 }
 
-// syncDir flushes the directory entry so the rename that published the session
-// survives a crash. Best-effort: a filesystem that rejects the open still
-// leaves the renamed file in place.
-func syncDir(dir string) {
+// syncDir flushes the directory entry so a newly created or renamed file
+// survives a crash. The error is returned rather than swallowed: callers differ
+// on whether an unsyncable directory is tolerable, and only they can judge.
+func syncDir(dir string) error {
 	d, err := os.Open(dir)
 	if err != nil {
-		return
+		return err
 	}
 	defer d.Close()
-	_ = d.Sync()
+	return d.Sync()
 }

@@ -169,7 +169,9 @@ func SaveCLISession(s CLISession) error {
 		os.Remove(tmp)
 		return fmt.Errorf("clisession: rename: %w", err)
 	}
-	syncDir(dir)
+	// Best-effort for the session itself: the rename already published the file,
+	// so an unsyncable directory costs durability of the entry, not the data.
+	_ = syncDir(dir)
 	os.Remove(rotationMarkerPath())
 	return nil
 }
@@ -228,7 +230,15 @@ func BeginRotation() (RotationHandle, error) {
 		os.Remove(rotationMarkerPath())
 		return RotationHandle{}, fmt.Errorf("clisession: begin rotation: %w", cerr)
 	}
-	syncDir(filepath.Dir(rotationMarkerPath()))
+	// Fatal here, unlike the session write. The marker's only job is to be
+	// findable after a crash, and it is claimed immediately before an exchange
+	// that spends a single-use token. If its directory entry cannot be made
+	// durable, refusing to rotate is strictly better than spending the token
+	// with no way to detect having lost the record of it.
+	if derr := syncDir(filepath.Dir(rotationMarkerPath())); derr != nil {
+		os.Remove(rotationMarkerPath())
+		return RotationHandle{}, fmt.Errorf("clisession: begin rotation: durable marker unavailable: %w", derr)
+	}
 	return RotationHandle{nonce: nonce}, nil
 }
 

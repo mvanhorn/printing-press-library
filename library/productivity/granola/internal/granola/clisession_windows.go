@@ -12,6 +12,9 @@ import "os"
 // path is left to the user profile directory's own ACLs.
 func checkOwnerOnly(info os.FileInfo, path string) error { return nil }
 
-// syncDir is a no-op on Windows: directory handles are not syncable the way
-// they are on Unix, and the rename above is already atomic on NTFS.
-func syncDir(dir string) {}
+// syncDir is a no-op on Windows and reports success. Directory handles are not
+// syncable there the way they are on Unix; durability of a newly created entry
+// comes from the file's own FlushFileBuffers, which callers perform before
+// reaching here. Returning nil is therefore accurate rather than optimistic --
+// there is no pending directory flush left outstanding.
+func syncDir(dir string) error { return nil }
