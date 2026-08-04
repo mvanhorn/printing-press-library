@@ -45,11 +45,41 @@ type imagesResponse struct {
 	Usage *genUsage `json:"usage"`
 }
 
+// sseImageEvent is the union of the streaming image event shapes documented
+// by the OpenRouter API. Image data arrives in several places depending on
+// event type:
+//
+//   - image_generation.partial_image / image_generation.completed carry
+//     b64_json and partial_image_index at the top level;
+//   - response.image_generation_call.partial_image carries partial_image_b64;
+//   - ImageStreamingResponse wraps the same payload in a nested data object.
+//
+// Every shape is captured here so fragments merge correctly regardless of
+// which variant the upstream emits.
+type sseImageEvent struct {
+	Type            string    `json:"type"`
+	B64JSON         string    `json:"b64_json"`
+	PartialImageB64 string    `json:"partial_image_b64"`
+	PartialImageIdx *int      `json:"partial_image_index"`
+	Index           *int      `json:"index"`
+	MediaType       string    `json:"media_type"`
+	Created         int64     `json:"created"`
+	Usage           *genUsage `json:"usage"`
+	Error           *struct {
+		Code    string `json:"code"`
+		Message string `json:"message"`
+		Type    string `json:"type"`
+	} `json:"error"`
+	Data json.RawMessage `json:"data"`
+}
+
 // parseImagesResponse decodes a POST /images response body. When stream is
 // true the API returns text/event-stream: each `data:` line carries a JSON
-// event, and b64_json fragments for the same image index may arrive across
-// several events, so they are concatenated in arrival order. Non-streaming
-// responses are plain JSON and decode directly.
+// event. b64_json fragments for the same image index may arrive across
+// several events, so they are concatenated in arrival order; an
+// image_generation.completed event carries the final image and supersedes
+// earlier fragments for its index. Non-streaming responses are plain JSON and
+// decode directly.
 func parseImagesResponse(body []byte, stream bool) (imagesResponse, error) {
 	var resp imagesResponse
 	if !stream {
@@ -57,42 +87,120 @@ func parseImagesResponse(body []byte, stream bool) (imagesResponse, error) {
 		return resp, err
 	}
 	frags := map[int][]string{}
+	complete := map[int]string{}
 	mediaTypes := map[int]string{}
 	var usage *genUsage
 	for _, payload := range ssePayloads(body) {
 		if payload == "[DONE]" {
 			continue
 		}
-		var ev imagesResponse
+		var ev sseImageEvent
 		if err := json.Unmarshal([]byte(payload), &ev); err != nil {
 			continue // keepalive/comment events that are not JSON
+		}
+		if ev.Error != nil {
+			return resp, fmt.Errorf("stream error: %s (%s)", ev.Error.Message, ev.Error.Code)
 		}
 		if ev.Usage != nil {
 			usage = ev.Usage
 		}
-		for _, img := range ev.Data {
-			frags[img.Index] = append(frags[img.Index], img.B64JSON)
-			if img.MediaType != "" {
-				mediaTypes[img.Index] = img.MediaType
+		if ev.Created != 0 {
+			resp.Created = ev.Created
+		}
+		idx := 0
+		if ev.PartialImageIdx != nil {
+			idx = *ev.PartialImageIdx
+		} else if ev.Index != nil {
+			idx = *ev.Index
+		}
+		if ev.MediaType != "" {
+			mediaTypes[idx] = ev.MediaType
+		}
+		switch {
+		case ev.B64JSON != "":
+			if ev.Type == "image_generation.completed" {
+				complete[idx] = ev.B64JSON
+			} else {
+				frags[idx] = append(frags[idx], ev.B64JSON)
+			}
+		case ev.PartialImageB64 != "":
+			frags[idx] = append(frags[idx], ev.PartialImageB64)
+		case len(ev.Data) > 0 && ev.Data[0] == '[':
+			// Nested data array shape (data[].b64_json), tolerated for
+			// compatibility with wrapper-style stream payloads.
+			var arr []struct {
+				Index     int    `json:"index"`
+				B64JSON   string `json:"b64_json"`
+				MediaType string `json:"media_type"`
+			}
+			if err := json.Unmarshal(ev.Data, &arr); err == nil {
+				for _, img := range arr {
+					if img.B64JSON != "" {
+						frags[img.Index] = append(frags[img.Index], img.B64JSON)
+					}
+					if img.MediaType != "" {
+						mediaTypes[img.Index] = img.MediaType
+					}
+				}
+			}
+		case len(ev.Data) > 0:
+			// Nested data object shape (ImageStreamingResponse).
+			var obj struct {
+				B64JSON         string `json:"b64_json"`
+				PartialImageB64 string `json:"partial_image_b64"`
+				PartialImageIdx *int   `json:"partial_image_index"`
+				Index           *int   `json:"index"`
+				MediaType       string `json:"media_type"`
+			}
+			if err := json.Unmarshal(ev.Data, &obj); err == nil {
+				nidx := 0
+				if obj.PartialImageIdx != nil {
+					nidx = *obj.PartialImageIdx
+				} else if obj.Index != nil {
+					nidx = *obj.Index
+				}
+				if obj.B64JSON != "" {
+					frags[nidx] = append(frags[nidx], obj.B64JSON)
+				}
+				if obj.PartialImageB64 != "" {
+					frags[nidx] = append(frags[nidx], obj.PartialImageB64)
+				}
+				if obj.MediaType != "" {
+					mediaTypes[nidx] = obj.MediaType
+				}
 			}
 		}
 	}
-	if len(frags) == 0 {
+	if len(frags) == 0 && len(complete) == 0 {
 		return resp, fmt.Errorf("streamed response contained no image data")
 	}
-	indexes := make([]int, 0, len(frags))
+	indexes := make([]int, 0, len(frags)+len(complete))
+	seen := map[int]bool{}
+	addIdx := func(i int) {
+		if !seen[i] {
+			seen[i] = true
+			indexes = append(indexes, i)
+		}
+	}
 	for i := range frags {
-		indexes = append(indexes, i)
+		addIdx(i)
+	}
+	for i := range complete {
+		addIdx(i)
 	}
 	sort.Ints(indexes)
 	for _, i := range indexes {
+		b64 := strings.Join(frags[i], "")
+		if final := complete[i]; final != "" {
+			b64 = final
+		}
 		resp.Data = append(resp.Data, struct {
 			Index     int    `json:"index"`
 			B64JSON   string `json:"b64_json"`
 			MediaType string `json:"media_type"`
 		}{
 			Index:     i,
-			B64JSON:   strings.Join(frags[i], ""),
+			B64JSON:   b64,
 			MediaType: mediaTypes[i],
 		})
 	}

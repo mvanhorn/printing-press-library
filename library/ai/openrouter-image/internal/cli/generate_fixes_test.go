@@ -1,6 +1,7 @@
 // Copyright 2026 neal-kyle and contributors. Licensed under Apache-2.0. See LICENSE.
-// Regression tests for review fixes: SSE stream parsing, collision-resistant
-// ledger ids, and multi-image output handling.
+// Regression tests for review fixes: SSE stream parsing (all documented
+// event shapes), collision-resistant ledger ids, and multi-image output
+// handling.
 
 package cli
 
@@ -26,18 +27,22 @@ func TestParseImagesResponsePlainJSON(t *testing.T) {
 	}
 }
 
-func TestParseImagesResponseSSE(t *testing.T) {
-	// Simulated text/event-stream: two fragment events for index 0 plus a
-	// usage event, terminated by [DONE].
+// TestParseImagesResponseSSETopLevel covers the documented
+// image_generation.partial_image / image_generation.completed events, which
+// carry b64_json at the top level of the SSE payload.
+func TestParseImagesResponseSSETopLevel(t *testing.T) {
 	body := []byte(strings.Join([]string{
 		"event: message",
-		`data: {"data":[{"index":0,"b64_json":"aGVs"}]}`,
+		`data: {"type":"image_generation.partial_image","partial_image_index":0,"b64_json":"aGVs"}`,
 		"",
 		"event: message",
-		`data: {"data":[{"index":0,"b64_json":"bG8="}]}`,
+		`data: {"type":"image_generation.partial_image","partial_image_index":0,"b64_json":"bG8="}`,
 		"",
 		"event: message",
-		`data: {"data":[{"index":1,"b64_json":"d29ybGQ=","media_type":"image/webp"}],"usage":{"cost":0.03,"total_tokens":15}}`,
+		`data: {"type":"image_generation.partial_image","partial_image_index":1,"b64_json":"d29y","media_type":"image/webp"}`,
+		"",
+		"event: message",
+		`data: {"type":"image_generation.completed","partial_image_index":1,"b64_json":"ZmluYWwx","media_type":"image/webp","created":1748372400,"usage":{"cost":0.03,"total_tokens":15}}`,
 		"",
 		"data: [DONE]",
 		"",
@@ -53,14 +58,77 @@ func TestParseImagesResponseSSE(t *testing.T) {
 	if resp.Data[0].B64JSON != "aGVsbG8=" {
 		t.Fatalf("fragment concat mismatch: %q", resp.Data[0].B64JSON)
 	}
-	if resp.Data[1].B64JSON != "d29ybGQ=" {
-		t.Fatalf("second image mismatch: %q", resp.Data[1].B64JSON)
+	// The completed event for index 1 supersedes its partial fragment.
+	if resp.Data[1].B64JSON != "ZmluYWwx" {
+		t.Fatalf("completed event did not supersede partial: %q", resp.Data[1].B64JSON)
 	}
 	if resp.Data[1].MediaType != "image/webp" {
 		t.Fatalf("media type mismatch: %q", resp.Data[1].MediaType)
 	}
 	if resp.Usage == nil || resp.Usage.Cost != 0.03 {
-		t.Fatalf("usage not merged from final event: %+v", resp.Usage)
+		t.Fatalf("usage not merged from completed event: %+v", resp.Usage)
+	}
+	if resp.Created != 1748372400 {
+		t.Fatalf("created not merged: %d", resp.Created)
+	}
+}
+
+// TestParseImagesResponseSSEPartialImageB64 covers the Responses-style
+// response.image_generation_call.partial_image event shape.
+func TestParseImagesResponseSSEPartialImageB64(t *testing.T) {
+	body := []byte(strings.Join([]string{
+		`data: {"type":"response.image_generation_call.in_progress","item_id":"call-123","sequence_number":1}`,
+		"",
+		`data: {"type":"response.image_generation_call.partial_image","item_id":"call-123","output_index":0,"partial_image_index":0,"partial_image_b64":"aGVsbG8=","sequence_number":3}`,
+		"",
+		`data: {"type":"response.image_generation_call.completed","item_id":"call-123","output_index":0,"sequence_number":4}`,
+		"",
+		"data: [DONE]",
+		"",
+	}, "\n"))
+	resp, err := parseImagesResponse(body, true)
+	if err != nil {
+		t.Fatalf("parseImagesResponse(sse) error = %v", err)
+	}
+	if len(resp.Data) != 1 {
+		t.Fatalf("want 1 image, got %d", len(resp.Data))
+	}
+	if resp.Data[0].B64JSON != "aGVsbG8=" {
+		t.Fatalf("partial_image_b64 not captured: %q", resp.Data[0].B64JSON)
+	}
+}
+
+// TestParseImagesResponseSSENestedObject covers the ImageStreamingResponse
+// shape, which wraps the event payload in a nested data object.
+func TestParseImagesResponseSSENestedObject(t *testing.T) {
+	body := []byte(strings.Join([]string{
+		`data: {"data":{"type":"image_generation.partial_image","partial_image_index":0,"b64_json":"aGVsbG8="}}`,
+		"",
+		"data: [DONE]",
+		"",
+	}, "\n"))
+	resp, err := parseImagesResponse(body, true)
+	if err != nil {
+		t.Fatalf("parseImagesResponse(sse) error = %v", err)
+	}
+	if len(resp.Data) != 1 {
+		t.Fatalf("want 1 image, got %d", len(resp.Data))
+	}
+	if resp.Data[0].B64JSON != "aGVsbG8=" {
+		t.Fatalf("nested object b64 not captured: %q", resp.Data[0].B64JSON)
+	}
+}
+
+// TestParseImagesResponseSSEError covers the image_generation stream error
+// event.
+func TestParseImagesResponseSSEError(t *testing.T) {
+	body := []byte(`data: {"type":"error","error":{"code":"upstream_error","message":"The upstream provider returned an error","type":"provider_error"}}`)
+	_, err := parseImagesResponse(body, true)
+	if err == nil {
+		t.Fatal("want error for stream error event, got nil")
+	}
+	if !strings.Contains(err.Error(), "upstream_error") {
+		t.Fatalf("error does not surface code: %v", err)
 	}
 }
 
