@@ -1,0 +1,218 @@
+{
+  "api_name": "rentalcarspain",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "aalvarezvarela/Rental-Car-Alert",
+      "url": "https://github.com/aalvarezvarela/Rental-Car-Alert",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-13T09:10:00Z",
+  "novel_features": [
+    {
+      "name": "Aggregator-vs-direct cross-check",
+      "command": "compare",
+      "description": "Compare DoYouSpain's cheapest offer for a supplier against that supplier's own booking site, side by side.",
+      "rationale": "Requires correlating an aggregator result with a live direct-supplier quote in one call — no site or API does this.",
+      "example": "rentalcarspain-pp-cli compare 20/08/2026 27/08/2026 --agent",
+      "why_it_matters": "Reach for this to confirm the aggregator price is real before booking, the way a careful renter double-checks the company directly.",
+      "group": "The renter's ritual"
+    },
+    {
+      "name": "Price drift over time",
+      "command": "drift",
+      "description": "Show how a saved Malaga search's cheapest full-insurance price has moved across your local snapshots.",
+      "rationale": "Requires a local time series of the same search; DoYouSpain only ever shows the current price.",
+      "example": "rentalcarspain-pp-cli drift agp-august --agent",
+      "why_it_matters": "Reach for this to decide whether to book now or wait, based on the actual trend not a guess.",
+      "group": "Local price memory"
+    },
+    {
+      "name": "Price-drop watch with target",
+      "command": "watch",
+      "description": "Re-quote a saved search and exit 0 when the cheapest full-insurance price is at or below your target, 10 otherwise.",
+      "rationale": "Cron-friendly re-quote loop with typed exit codes and local snapshots; replicates AutoSlash for the Spanish market, which has no such tool.",
+      "example": "rentalcarspain-pp-cli watch agp-august --target-price 250 --agent",
+      "why_it_matters": "Reach for this in a cron job to get alerted the moment a tracked Malaga rental drops to your price.",
+      "group": "Local price memory"
+    },
+    {
+      "name": "Cheapest-pickup-date sweep",
+      "command": "dates",
+      "description": "Fan out searches across a date window for a fixed rental length and rank pickup dates by cheapest total.",
+      "rationale": "No single DoYouSpain call spans multiple pickup dates; only a local fan-out with a shared store can rank them.",
+      "example": "rentalcarspain-pp-cli dates MAL02 --from 15/08/2026 --to 25/08/2026 --nights 7 --agent",
+      "why_it_matters": "Reach for this when your dates are flexible and you want the cheapest day to start the rental.",
+      "group": "Local price memory"
+    },
+    {
+      "name": "Saved searches",
+      "command": "saved",
+      "description": "Name and store a recurring Malaga search so watch and drift can re-run it.",
+      "rationale": "The site is stateless per query; named searches live only in the local SQLite store.",
+      "example": "rentalcarspain-pp-cli saved add agp-august MAL02 20/08/2026 27/08/2026",
+      "why_it_matters": "Reach for this to set up the searches that feed watch and drift.",
+      "group": "Local price memory"
+    },
+    {
+      "name": "Supplier price summary",
+      "command": "suppliers",
+      "description": "One line per supplier — Delpaso, Record Go, Wiber, Sixt and the rest — each with its cheapest full-insurance offer, ranked.",
+      "rationale": "Requires local aggregation across the parsed result set to collapse many offers into a per-supplier cheapest.",
+      "example": "rentalcarspain-pp-cli suppliers MAL02 20/08/2026 27/08/2026 --agent",
+      "why_it_matters": "Reach for this to see which of your usual companies is cheapest today without scrolling every offer.",
+      "group": "The renter's ritual"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Aggregator-vs-direct cross-check",
+      "command": "compare",
+      "description": "Compare DoYouSpain's cheapest offer for a supplier against that supplier's own booking site, side by side.",
+      "rationale": "Requires correlating an aggregator result with a live direct-supplier quote in one call — no site or API does this.",
+      "example": "rentalcarspain-pp-cli compare 20/08/2026 27/08/2026 --agent",
+      "why_it_matters": "Reach for this to confirm the aggregator price is real before booking, the way a careful renter double-checks the company directly.",
+      "group": "The renter's ritual"
+    },
+    {
+      "name": "Price drift over time",
+      "command": "drift",
+      "description": "Show how a saved Malaga search's cheapest full-insurance price has moved across your local snapshots.",
+      "rationale": "Requires a local time series of the same search; DoYouSpain only ever shows the current price.",
+      "example": "rentalcarspain-pp-cli drift agp-august --agent",
+      "why_it_matters": "Reach for this to decide whether to book now or wait, based on the actual trend not a guess.",
+      "group": "Local price memory"
+    },
+    {
+      "name": "Price-drop watch with target",
+      "command": "watch",
+      "description": "Re-quote a saved search and exit 0 when the cheapest full-insurance price is at or below your target, 10 otherwise.",
+      "rationale": "Cron-friendly re-quote loop with typed exit codes and local snapshots; replicates AutoSlash for the Spanish market, which has no such tool.",
+      "example": "rentalcarspain-pp-cli watch agp-august --target-price 250 --agent",
+      "why_it_matters": "Reach for this in a cron job to get alerted the moment a tracked Malaga rental drops to your price.",
+      "group": "Local price memory"
+    },
+    {
+      "name": "Cheapest-pickup-date sweep",
+      "command": "dates",
+      "description": "Fan out searches across a date window for a fixed rental length and rank pickup dates by cheapest total.",
+      "rationale": "No single DoYouSpain call spans multiple pickup dates; only a local fan-out with a shared store can rank them.",
+      "example": "rentalcarspain-pp-cli dates MAL02 --from 15/08/2026 --to 25/08/2026 --nights 7 --agent",
+      "why_it_matters": "Reach for this when your dates are flexible and you want the cheapest day to start the rental.",
+      "group": "Local price memory"
+    },
+    {
+      "name": "Saved searches",
+      "command": "saved",
+      "description": "Name and store a recurring Malaga search so watch and drift can re-run it.",
+      "rationale": "The site is stateless per query; named searches live only in the local SQLite store.",
+      "example": "rentalcarspain-pp-cli saved add agp-august MAL02 20/08/2026 27/08/2026",
+      "why_it_matters": "Reach for this to set up the searches that feed watch and drift.",
+      "group": "Local price memory"
+    },
+    {
+      "name": "Supplier price summary",
+      "command": "suppliers",
+      "description": "One line per supplier — Delpaso, Record Go, Wiber, Sixt and the rest — each with its cheapest full-insurance offer, ranked.",
+      "rationale": "Requires local aggregation across the parsed result set to collapse many offers into a per-supplier cheapest.",
+      "example": "rentalcarspain-pp-cli suppliers MAL02 20/08/2026 27/08/2026 --agent",
+      "why_it_matters": "Reach for this to see which of your usual companies is cheapest today without scrolling every offer.",
+      "group": "The renter's ritual"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "Rental Car Spain",
+    "headline": "Watch Málaga car-rental prices the way you already do — DoYouSpain's cheapest supplier, cross-checked direct, always with full insurance — now in one command with local price history and drop alerts.",
+    "value_prop": "Rental Car Spain searches DoYouSpain (the aggregator that surfaces the cheapest rental companies in an area) and quotes every price with the Full Insurance / Zero Excess tier by default. It cross-checks Delpaso's own site with 'compare', tracks prices over time with 'drift', and alerts on drops with 'watch' — the AutoSlash workflow, for Spain, that no other tool offers.",
+    "auth_narrative": "No account or API key needed — both sources are public sites. Rental Car Spain sends a plain (non-browser) User-Agent because DoYouSpain's WAF rejects spoofed Chrome clients; 'doctor' verifies this is working.",
+    "quickstart": [
+      {
+        "command": "rentalcarspain-pp-cli doctor --dry-run",
+        "comment": "Confirm both sources are reachable and the WAF-safe User-Agent is set."
+      },
+      {
+        "command": "rentalcarspain-pp-cli locations Malaga",
+        "comment": "Resolve a place name to a DoYouSpain code (Malaga Airport = MAL02)."
+      },
+      {
+        "command": "rentalcarspain-pp-cli search MAL02 20/08/2026 27/08/2026 --sort cheapest",
+        "comment": "Search Malaga Airport for a week in August, cheapest full-insurance offers first."
+      },
+      {
+        "command": "rentalcarspain-pp-cli suppliers MAL02 20/08/2026 27/08/2026",
+        "comment": "See the cheapest offer per supplier, including Delpaso, Record Go and Wiber."
+      },
+      {
+        "command": "rentalcarspain-pp-cli compare 20/08/2026 27/08/2026",
+        "comment": "Cross-check the aggregator's Delpaso price against Delpaso's own site."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "search returns no offers",
+        "fix": "Run 'rentalcarspain-pp-cli doctor'; if DoYouSpain returns HTTP 406 the User-Agent was spoofed as a browser — Rental Car Spain must send a plain UA."
+      },
+      {
+        "symptom": "dates use the wrong format",
+        "fix": "DoYouSpain dates are dd/mm/yyyy, e.g. 20/08/2026, not ISO."
+      },
+      {
+        "symptom": "Record Go or Wiber missing from results",
+        "fix": "They appear as suppliers within 'search'/'suppliers'; there is no standalone recordgo/wiber command (Record Go geo-blocks and Wiber requires a browser)."
+      }
+    ],
+    "when_to_use": "Use Rental Car Spain when renting a car in Malaga (or elsewhere in Spain) and you want the cheapest full-insurance price, want to track it over days, or want to confirm an aggregator price against the supplier directly. It is built around the workflow of watching DoYouSpain and booking with Delpaso, Record Go or Wiber.",
+    "anti_triggers": [
+      "Do not use it to actually book or pay for a rental — it quotes prices only.",
+      "Do not use it for flights or hotels — it is car rental only.",
+      "Do not expect live standalone Record Go or Wiber quotes — those come through the DoYouSpain aggregator."
+    ],
+    "recipes": [
+      {
+        "title": "Cheapest week in August at Malaga Airport",
+        "command": "rentalcarspain-pp-cli dates MAL02 --from 10/08/2026 --to 24/08/2026 --nights 7 --sort cheapest --agent",
+        "explanation": "Sweeps pickup dates across two weeks and ranks them by cheapest full-insurance total."
+      },
+      {
+        "title": "Only my usual companies",
+        "command": "rentalcarspain-pp-cli search MAL02 20/08/2026 27/08/2026 --supplier delpaso,recordgo,wiber --agent",
+        "explanation": "Filters the aggregator down to the three suppliers you book with."
+      },
+      {
+        "title": "Track a rental and alert on a drop",
+        "command": "rentalcarspain-pp-cli watch agp-august --target-price 250 --agent",
+        "explanation": "Re-quotes a saved search; exits 0 when at or below 250 EUR so cron can notify you."
+      },
+      {
+        "title": "Narrow the JSON for an agent",
+        "command": "rentalcarspain-pp-cli search MAL02 20/08/2026 27/08/2026 --agent --select offers.supplier,offers.car,offers.total,offers.full_insurance_total",
+        "explanation": "Returns only the fields an agent needs from a large result set."
+      },
+      {
+        "title": "Confirm the aggregator price directly",
+        "command": "rentalcarspain-pp-cli compare 20/08/2026 27/08/2026 --agent",
+        "explanation": "Puts DoYouSpain's cheapest Delpaso offer next to Delpaso's own quote with the delta."
+      }
+    ],
+    "trigger_phrases": [
+      "rent a car in Malaga",
+      "cheapest car hire Malaga airport",
+      "check DoYouSpain prices",
+      "compare Delpaso price",
+      "watch car rental price",
+      "use rentalcarspain",
+      "run rentalcarspain"
+    ]
+  }
+}
