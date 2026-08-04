@@ -214,10 +214,21 @@ func BeginRotation() (RotationHandle, error) {
 		os.Remove(rotationMarkerPath())
 		return RotationHandle{}, fmt.Errorf("clisession: begin rotation: %w", werr)
 	}
+	// The marker is a crash-durability device, so it has to be durable itself
+	// before the exchange it guards. Written but unsynced, a crash can lose it
+	// after the remote token is already spent -- leaving the dead token on disk
+	// looking usable, which is the exact state the marker exists to catch. Sync
+	// the file, then the directory, so the entry survives too.
+	if serr := f.Sync(); serr != nil {
+		f.Close()
+		os.Remove(rotationMarkerPath())
+		return RotationHandle{}, fmt.Errorf("clisession: begin rotation: %w", serr)
+	}
 	if cerr := f.Close(); cerr != nil {
 		os.Remove(rotationMarkerPath())
 		return RotationHandle{}, fmt.Errorf("clisession: begin rotation: %w", cerr)
 	}
+	syncDir(filepath.Dir(rotationMarkerPath()))
 	return RotationHandle{nonce: nonce}, nil
 }
 

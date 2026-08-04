@@ -203,6 +203,32 @@ func TestCLISessionRotationIsExclusiveAcrossProcesses(t *testing.T) {
 	}
 }
 
+// The marker guards a crash window, so it must be on disk before the exchange
+// it guards -- not merely written into a buffer that a crash discards.
+func TestCLISessionRotationMarkerIsDurableBeforeReturn(t *testing.T) {
+	sessionSandbox(t)
+	if err := SaveCLISession(sampleSession()); err != nil {
+		t.Fatalf("SaveCLISession: %v", err)
+	}
+	h, err := BeginRotation()
+	if err != nil {
+		t.Fatalf("BeginRotation: %v", err)
+	}
+	// Readable by an independent open the moment BeginRotation returns, with
+	// the owning nonce intact.
+	got, err := os.ReadFile(rotationMarkerPath())
+	if err != nil {
+		t.Fatalf("marker not readable after BeginRotation returned: %v", err)
+	}
+	if len(got) == 0 {
+		t.Error("marker is empty; a non-owning abort could not be distinguished from an owning one")
+	}
+	if _, err := LoadCLISession(); !errors.Is(err, ErrSessionInterrupted) {
+		t.Errorf("want ErrSessionInterrupted while a rotation is in flight, got %v", err)
+	}
+	h.Abort()
+}
+
 func TestCLISessionRedactsTokens(t *testing.T) {
 	s := sampleSession()
 	for _, rendered := range []string{s.String(), fmt.Sprintf("%v", s), fmt.Sprintf("%+v", s), fmt.Sprintf("%#v", s)} {
