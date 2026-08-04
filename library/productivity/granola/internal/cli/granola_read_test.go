@@ -741,9 +741,11 @@ func TestGranolaRead_RecipeAndChatReaders_EmptyEverywhere(t *testing.T) {
 //
 // Keep the reason honest: an entry here is a statement that the data simply
 // is not in the store, not a note that rerouting was skipped.
+// chat.go and recipes.go were retired from this list once they were rerouted
+// through openGranolaRead(): the store's recipes/recipes_usage/chat_threads/
+// chat_messages tables are populated by the cache sync, so that data outlives
+// the cache's decryptability and is not cache-only at read time.
 var cacheOnlyCallSites = map[string]string{
-	"chat.go":       "chat threads and messages are cache-only state; no API sync path fills chat_threads/chat_messages",
-	"recipes.go":    "recipes are cache-only state; the store's recipes table is populated from the cache alone",
 	"workspaces.go": "workspaces are cache-only state with an existing live fallback",
 	"sync_cache.go": "the cache-to-store sync is the writer; reading the cache is the whole point of the command",
 }

@@ -79,11 +79,16 @@ Not hydrated on this tier: folders and folder membership, panels, recipes, chats
 **Cache-only, and therefore unavailable on a migrated install regardless of credential:**
 
 - AI panels — `panel get`, and the `--panel` inlining in `attendee brief` and `folder stream`
-- recipes and panel templates — `recipes list`, `recipes describe`
-- AI chat threads — `chat list`, `chat get`
 - workspaces — `workspaces list`
 
-When one of those is asked for on a migrated install, say the data is not reachable. Do not synthesize a panel, a recipe result, or a chat thread from transcript text.
+**Frozen but still readable, served from whatever the last desktop-cache `sync` stored:**
+
+- recipes and panel templates — `recipes list`, `recipes describe`
+- AI chat threads — `chat list`, `chat get`
+
+The cache sync writes these four tables into the local store, so they keep answering after the desktop cache stops decrypting. What they cannot do is advance. `recipes list`, `recipes describe` and `chat list` therefore report the store's last-sync timestamp in both their human and JSON output (a `staleness` block carrying `last_sync_at` and `refreshable`), and `chat list` additionally states that the thread set can never be refreshed — Granola's internal API exposes no chat endpoint at all. Quote that timestamp when you use the data; a chat thread set can sit weeks behind the meetings it discusses.
+
+When something in the first group is asked for on a migrated install, say the data is not reachable. Do not synthesize a panel, a recipe result, or a chat thread from transcript text.
 
 ### Why `auth login` when Granola desktop is already signed in
 
@@ -171,7 +176,7 @@ These capabilities aren't available in any other tool for this API.
 
 ### Cache-native data
 
-These two read Granola desktop's own cache. `chat list` is cache-only and returns nothing on a migrated install; `calendar overlay` reads calendar events, which `sync-api` hydrates, so it keeps working.
+Both of these originate in Granola desktop's own cache. `chat list` reads the threads a cache `sync` already hydrated into the local store, so it keeps answering on a migrated install — but nothing can advance that set, and the output says so along with the last-sync timestamp. `calendar overlay` reads calendar events, which `sync-api` hydrates, so it keeps working.
 
 - **`chat list`** — List and dump Granola’s AI chat threads anchored to a meeting (entities.chat_thread + entities.chat_message in the cache).
 
@@ -329,7 +334,7 @@ Run `granola-pp-cli doctor` to see which paths resolve on this machine.
 | `OK ok` | Last successful cache sync recorded. Token source and document-fetch count are in the `--json` output. |
 | `ERROR last sync failed to decrypt (key_unavailable)` | Read the `encrypted_store_error` field in the `--json` output. If it names an entitlement-gated keychain group, this is the upstream key migration and **no Keychain approval or re-sync can fix it** — switch to `sync-api` with an API key. Only if the message does not mention the migration is signing back into Granola desktop the right move. |
 | `ERROR last sync failed to decrypt (decrypt_failed)` | Encryption scheme may have drifted with a Granola update. File an issue with the doctor output. |
-| Reads return empty after a successful `sync-api` | Check the capability split above — panels, recipes, chat, and workspaces are cache-only and have no API source. |
+| Reads return empty after a successful `sync-api` | Check the capability split above — panels and workspaces are cache-only and have no API source. Recipes and chat threads come from the last desktop-cache `sync`; if that never ran, there is nothing stored to serve. |
 
 ## Agent Mode
 

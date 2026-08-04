@@ -134,6 +134,79 @@ func errNoLocalGranolaData() error {
 	return notFoundErr(fmt.Errorf("no local Granola data available - run `granola-pp-cli sync-api` (or `granola-pp-cli sync` for a desktop-cache install) first"))
 }
 
+// storeStaleness is the disclosure a command attaches when it is answering
+// from the store on an install whose desktop cache will not decrypt. Serving
+// that data is the right call - it is the only copy left - but handing it over
+// without saying how old it is would be a claim the CLI cannot back: the store
+// is only ever as current as the last sync that wrote it, and for chat there
+// is no sync that can advance it at all.
+type storeStaleness struct {
+	// Source is always "store". It exists so a consumer can branch on the
+	// field rather than infer the path from the block's mere presence.
+	Source string `json:"source"`
+	// LastCacheSyncAt is RFC3339 UTC, omitted when no successful cache sync
+	// has ever been recorded on this machine
+	// on this machine.
+	LastCacheSyncAt string `json:"last_cache_sync_at,omitempty"`
+	// Refreshable is false when no code path can bring this data forward, so
+	// an agent can tell a frozen set from a merely stale one without parsing
+	// Notice.
+	Refreshable bool `json:"refreshable"`
+	// Notice is the human rendering of the fields above, printed to stderr.
+	Notice string `json:"notice"`
+}
+
+// staleness returns the disclosure to attach to store-served output, or nil
+// when a readable desktop cache means this view is not frozen and the command
+// should keep emitting exactly what it always did.
+//
+// frozenReason, when non-empty, states why the data set can never be brought
+// forward and flips Refreshable to false.
+func (v *granolaRead) staleness(frozenReason string) *storeStaleness {
+	if v == nil || v.hasCache() {
+		return nil
+	}
+	st := &storeStaleness{Source: "store", Refreshable: frozenReason == ""}
+	// Date these rows by the last successful CACHE decrypt, never by
+	// LastSyncAt. Auto-refresh runs an API sync on every invocation, so
+	// LastSyncAt always reads "just now" on a migrated install — reporting it
+	// here would tell the user that months-old cache rows are current, which is
+	// worse than disclosing nothing. A missing or malformed sync_state.json is
+	// "unknown", not an error: the data is still worth serving, just undatable.
+	age := "the date of the last successful cache sync is not recorded on this machine"
+	if s, err := granola.ReadSyncState(); err == nil && !s.LastCacheSyncAt.IsZero() {
+		st.LastCacheSyncAt = s.LastCacheSyncAt.UTC().Format(time.RFC3339)
+		age = "captured by the last successful cache sync on " + st.LastCacheSyncAt
+	}
+	st.Notice = "Served from the local store because the Granola desktop cache is unreadable; " + age + "."
+	if frozenReason != "" {
+		st.Notice += " " + frozenReason
+	}
+	return st
+}
+
+// writeStalenessNotice prints the human half of the disclosure to stderr,
+// where it cannot corrupt the JSON on stdout. Silent when there is nothing to
+// disclose or the caller asked for --quiet.
+func writeStalenessNotice(cmd *cobra.Command, flags *rootFlags, st *storeStaleness) {
+	if st == nil || cmd == nil || (flags != nil && flags.quiet) {
+		return
+	}
+	fmt.Fprintln(cmd.ErrOrStderr(), st.Notice)
+}
+
+// emitWithStaleness writes a list payload, wrapping it in a {key, staleness}
+// envelope only when there is a disclosure to carry. On a readable-cache
+// install st is nil and the bare list goes out unchanged, which is what keeps
+// legacy output byte-identical.
+func emitWithStaleness(cmd *cobra.Command, flags *rootFlags, key string, rows any, st *storeStaleness) error {
+	if st == nil {
+		return emitJSON(cmd, flags, rows)
+	}
+	writeStalenessNotice(cmd, flags, st)
+	return emitJSON(cmd, flags, map[string]any{key: rows, "staleness": st})
+}
+
 // Documents returns the union of store meetings and cache documents, keyed
 // by id. Store rows win field-by-field for the columns the store owns; the
 // cache supplies the fields it alone carries (TipTap notes, people, calendar

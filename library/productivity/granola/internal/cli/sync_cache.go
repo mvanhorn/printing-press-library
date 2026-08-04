@@ -293,7 +293,12 @@ func runCacheSync(ctx context.Context, transcriptBudget int) (CacheSyncResult, e
 	// PATCH(encrypted-cache): record success so doctor can report
 	// "ok (last decrypted: <time>)" without itself decrypting.
 	state := granola.SyncState{
-		LastSyncAt:           time.Now().UTC(),
+		LastSyncAt: time.Now().UTC(),
+		// PATCH(read-path-store-first-for-recipes-and-chats): stamp the cache
+		// sync time only on a genuine decrypt, so store-served reads can date
+		// cache-derived rows by when they were actually captured rather than by
+		// this run's API-only refresh.
+		LastCacheSyncAt:      cacheSyncedAt(degraded),
 		LastDecryptStatus:    granola.DecryptStatusOK,
 		LastTokenSource:      tokenSourceLabel(granola.CurrentTokenSource()),
 		LastDocumentsFetched: docsFetched,
@@ -333,6 +338,16 @@ func recordSyncDecryptStatus(err error) {
 	}
 	state.LastDecryptErrorClass = decryptErrorClass(err)
 	_ = granola.WriteSyncState(state)
+}
+
+// cacheSyncedAt returns now for a genuine cache decrypt and the zero time for a
+// degraded run, so a run that never read the cache cannot advance the date the
+// cache-derived rows are stamped with.
+func cacheSyncedAt(degraded bool) time.Time {
+	if degraded {
+		return time.Time{}
+	}
+	return time.Now().UTC()
 }
 
 // decryptErrorClass maps a cache-load error onto the stable class string

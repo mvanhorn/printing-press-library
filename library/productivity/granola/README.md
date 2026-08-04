@@ -406,7 +406,8 @@ Prefer the environment variable for `GRANOLA_API_KEY` over writing it into `conf
 
 - **`sync` fails naming an entitlement-gated keychain group** — This is the upstream Granola key migration, not a misconfiguration. No Keychain approval, re-sign-in, or re-run can recover the key. Set `GRANOLA_API_KEY` and hydrate with `sync-api` instead. Data already in the local store stays readable.
 - **doctor reports cache file not found** — Make sure Granola is installed and you’ve opened it at least once. Override the path with GRANOLA_CACHE_PATH=/custom/path/cache-v6.json. Not needed at all if you use the API path.
-- **`panel get` / `chat list` / `recipes list` / `workspaces list` return nothing** — Those four are cache-only and have no public-API source. On a migrated install they are unavailable; see the capability split above.
+- **`panel get` / `workspaces list` return nothing** — Those two are cache-only and have no public-API source. On a migrated install they are unavailable; see the capability split above.
+- **`recipes list` / `chat list` look out of date** — They serve what the last desktop-cache `sync` wrote to the local store, which is the only readable copy once the cache stops decrypting. Both report that sync's timestamp alongside the data, and `chat list` also reports that the thread set can never be refreshed: Granola's internal API exposes no chat endpoint.
 - **WorkOS token expired warning** — Open the Granola desktop app once — it refreshes the token. On a migrated install this path is gone entirely; use `GRANOLA_API_KEY` with `sync-api`.
 - **memo run --since reports duplicate_of** — A file with the same title-date-attendees fingerprint already exists in --to. Pick a different `--to` directory, remove the existing file, or `mv` it out of the way.
 - **Transcript missing for a recent meeting** — Granola hasn’t flushed it yet. Run warm <id> <q> --launch to bring it forward in the GUI, wait 30 s, then re-run preflight.
