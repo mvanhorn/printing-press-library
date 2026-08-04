@@ -182,7 +182,7 @@ func newNovelFiltersCmd(flags *rootFlags) *cobra.Command {
 	return cmd
 }
 
-// fgLoadProducts returns products from the store, or a live page when empty.
+// fgLoadProducts returns products from the store, or the full live catalog when empty.
 func fgLoadProducts(cmd *cobra.Command, flags *rootFlags) []json.RawMessage {
 	if db, err := fgOpenStore(cmd.Context()); err == nil {
 		defer db.Close()
@@ -194,11 +194,24 @@ func fgLoadProducts(cmd *cobra.Command, flags *rootFlags) []json.RawMessage {
 	if err != nil {
 		return nil
 	}
-	raw, err := c.Get(cmd.Context(), fgWooProductsURL, map[string]string{"per_page": strconv.Itoa(100)})
-	if err != nil || len(raw) == 0 {
-		return nil
+	const perPage = 100
+	var all []json.RawMessage
+	// ponytail: sequential page walk capped at 50 pages (5000 products, matching the store List cap)
+	for page := 1; page <= 50; page++ {
+		raw, gerr := c.Get(cmd.Context(), fgWooProductsURL, map[string]string{
+			"per_page": strconv.Itoa(perPage),
+			"page":     strconv.Itoa(page),
+		})
+		if gerr != nil || len(raw) == 0 {
+			break
+		}
+		items := fgSplitArray(raw)
+		all = append(all, items...)
+		if len(items) < perPage {
+			break
+		}
 	}
-	return fgSplitArray(raw)
+	return all
 }
 
 // productAttrValues returns a product's attributes as attrName -> set of term

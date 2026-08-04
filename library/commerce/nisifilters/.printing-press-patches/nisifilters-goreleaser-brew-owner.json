@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "nisifilters-goreleaser-brew-owner",
+  "applied_at": "2026-08-05",
+  "base_run_id": "20260606-122031",
+  "base_printing_press_version": "4.22.1",
+  "summary": "Filled the blank Homebrew tap repository.owner with the printer handle (chiotas) and replaced the malformed homepage URL with the library repo, matching library convention.",
+  "reason": "The 4.22.1 generator emitted goreleaser.yaml with an empty owner and a homepage of https://github.com//nisifilters-pp-cli, which GoReleaser cannot publish to; flagged P1 by Greptile on the publish PR.",
+  "files": [".goreleaser.yaml"],
+  "validated_outcome": "yaml parses; owner/homepage now match the pattern used by every other published commerce CLI."
+}
