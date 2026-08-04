@@ -39,7 +39,7 @@ If `--version` reports "command not found" after install, the runtime cannot see
 
 ## When to Use This CLI
 
-Use this CLI when an agent or power user needs to interact with Domino's outside a browser — building, pricing, and placing US orders, inspecting Canadian checkout readiness, tracking deliveries, comparing prices across stores, optimizing deal selection, or replaying saved order templates. Excellent for automation: every command supports --json, --dry-run, --agent, --select, and structured exit codes. The US market remains the default; use `--market ca` for Canadian Power API calls. Canadian support includes stores, menus, account order history, validation, pricing, saved-card count, and a non-ordering checkout preview. The US GraphQL loyalty/cart BFF and Canadian online-card tokenization are not supported on the Canadian path.
+Use this CLI when an agent or power user needs to interact with Domino's outside a browser — building, pricing, and placing US orders, inspecting Canadian checkout readiness, tracking deliveries, comparing prices across stores, optimizing deal selection, or replaying saved order templates. Excellent for automation: every command supports --json, --dry-run, --agent, --select, and structured exit codes. The US market remains the default; use `--market ca` for Canadian Power API calls. Canadian support includes stores, menus, account order history, validation, pricing, saved-card count, and a read-only checkout readiness preview. The US GraphQL loyalty/cart BFF and Canadian online-card tokenization are not supported on the Canadian path.
 
 ## Unique Capabilities
 

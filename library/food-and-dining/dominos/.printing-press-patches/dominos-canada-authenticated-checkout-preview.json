@@ -4,7 +4,7 @@
   "applied_at": "2026-08-03",
   "base_run_id": "20260505-175548",
   "base_printing_press_version": "3.9.1+pr639+dominos-rebase",
-  "summary": "Add market-aware Canadian authentication and Power API routing, sanitized saved-card status, and a non-ordering latest-order checkout preview.",
+  "summary": "Add market-aware Canadian authentication and Power API routing, sanitized saved-card status, and a read-only latest-order checkout readiness preview.",
   "reason": "The published CLI hardcoded the US storefront even though Domino's Canada exposes compatible Power endpoints. Canadian users could sign in only by manually redirecting the login browser, while order history, validation, pricing, and saved-card availability remained inaccessible through the CLI.",
   "files": [
     "internal/config/config.go",
