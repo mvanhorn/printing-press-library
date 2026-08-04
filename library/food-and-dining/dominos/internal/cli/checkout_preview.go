@@ -71,7 +71,10 @@ store payment capabilities. This command cannot place an order.`,
 				return classifyAPIError(err, flags)
 			}
 			validationOK, validationKnown := validationSucceeded(validation)
-			if validationKnown && !validationOK {
+			if !validationKnown {
+				return fmt.Errorf("Domino's validation response did not include a recognized success status")
+			}
+			if !validationOK {
 				return fmt.Errorf("latest account order did not pass Domino's validation")
 			}
 			priceBody := body
@@ -87,7 +90,10 @@ store payment capabilities. This command cannot place an order.`,
 				return classifyAPIError(err, flags)
 			}
 			pricingOK, pricingKnown := validationSucceeded(priced)
-			if pricingKnown && !pricingOK {
+			if !pricingKnown {
+				return fmt.Errorf("Domino's pricing response did not include a recognized success status")
+			}
+			if !pricingOK {
 				return fmt.Errorf("latest account order was rejected by Domino's pricing")
 			}
 			pricedTotal, err := extractCustomerTotal(priced)
@@ -118,23 +124,15 @@ store payment capabilities. This command cannot place an order.`,
 				}
 			}
 
-			var validationResult any
-			if validationKnown {
-				validationResult = validationOK
-			}
-			var pricingResult any
-			if pricingKnown {
-				pricingResult = pricingOK
-			}
 			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
 				"action":                "checkout_preview",
 				"source":                "latest_account_order",
 				"store_id":              storeID,
 				"service_method":        stringValue(order["ServiceMethod"]),
 				"validate_status":       validateStatus,
-				"validation_ok":         validationResult,
+				"validation_ok":         validationOK,
 				"price_status":          priceStatus,
-				"pricing_ok":            pricingResult,
+				"pricing_ok":            pricingOK,
 				"priced_total":          pricedTotal,
 				"saved_card_count":      cardCount,
 				"has_saved_cards":       cardCount > 0,
@@ -230,7 +228,14 @@ func validationSucceeded(data json.RawMessage) (bool, bool) {
 			case bool:
 				return typed, true
 			case float64:
-				return typed != -1, true
+				switch typed {
+				case -1:
+					return false, true
+				case 0, 1:
+					return true, true
+				default:
+					return false, false
+				}
 			case string:
 				switch {
 				case strings.EqualFold(typed, "ok"), strings.EqualFold(typed, "success"), strings.EqualFold(typed, "true"):

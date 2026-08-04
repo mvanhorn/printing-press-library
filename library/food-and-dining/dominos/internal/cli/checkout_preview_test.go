@@ -103,6 +103,12 @@ func TestValidationSucceededDistinguishesUnknownResponse(t *testing.T) {
 	if ok, known := validationSucceeded(json.RawMessage(`{"Status":-1}`)); !known || ok {
 		t.Fatalf("Status=-1 produced ok=%v known=%v", ok, known)
 	}
+	if ok, known := validationSucceeded(json.RawMessage(`{"Status":2}`)); known || ok {
+		t.Fatalf("unrecognized numeric status produced ok=%v known=%v", ok, known)
+	}
+	if ok, known := validationSucceeded(json.RawMessage(`{"Status":"2"}`)); known || ok {
+		t.Fatalf("unrecognized string status produced ok=%v known=%v", ok, known)
+	}
 	if ok, known := validationSucceeded(json.RawMessage(`{"message":"accepted"}`)); known || ok {
 		t.Fatalf("unknown response produced ok=%v known=%v", ok, known)
 	}
@@ -218,6 +224,71 @@ func TestCheckoutPreviewNeverCallsPlaceOrderAndRedactsHistoricalPayment(t *testi
 	}
 	if strings.Join(requested, "\n") != strings.Join(wantRequests, "\n") {
 		t.Fatalf("requests = %#v, want %#v", requested, wantRequests)
+	}
+}
+
+func TestCheckoutPreviewRejectsUnknownApplicationStatus(t *testing.T) {
+	tests := []struct {
+		name               string
+		validationResponse string
+		pricingResponse    string
+		wantRequests       int
+		wantError          string
+	}{
+		{
+			name:               "validation",
+			validationResponse: `{"message":"accepted"}`,
+			pricingResponse:    `{"Status":0,"Order":{"Amounts":{"Customer":42.17}}}`,
+			wantRequests:       2,
+			wantError:          "validation response did not include a recognized success status",
+		},
+		{
+			name:               "pricing",
+			validationResponse: `{"Status":0,"Order":{"StoreID":"54321","ServiceMethod":"Delivery","Products":[]}}`,
+			pricingResponse:    `{"Order":{"Amounts":{"Customer":42.17}}}`,
+			wantRequests:       3,
+			wantError:          "pricing response did not include a recognized success status",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var requested []string
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				requested = append(requested, r.Method+" "+r.URL.Path)
+				w.Header().Set("Content-Type", "application/json")
+				switch {
+				case r.Method == http.MethodGet && strings.HasSuffix(r.URL.Path, "/order"):
+					fmt.Fprint(w, `{"customerOrders":[{"order":{"StoreID":"54321","ServiceMethod":"Delivery","Products":[]}}]}`)
+				case r.Method == http.MethodPost && r.URL.Path == "/power/validate-order":
+					fmt.Fprint(w, tt.validationResponse)
+				case r.Method == http.MethodPost && r.URL.Path == "/power/price-order":
+					fmt.Fprint(w, tt.pricingResponse)
+				default:
+					t.Fatalf("unexpected request after unknown %s status: %s %s", tt.name, r.Method, r.URL.Path)
+				}
+			}))
+			defer server.Close()
+
+			configPath := filepath.Join(t.TempDir(), "config.toml")
+			configBody := fmt.Sprintf("base_url = %q\nmarket = 'ca'\naccess_token = 'test-token-more-than-twenty-characters'\ncustomer_id = 'customer-id'\n", server.URL)
+			if err := os.WriteFile(configPath, []byte(configBody), 0o600); err != nil {
+				t.Fatal(err)
+			}
+
+			flags := &rootFlags{}
+			cmd := newRootCmd(flags)
+			cmd.SetOut(io.Discard)
+			cmd.SetErr(io.Discard)
+			cmd.SetArgs([]string{"--config", configPath, "--json", "--no-cache", "checkout", "preview", "--last"})
+			err := cmd.Execute()
+			if err == nil || !strings.Contains(err.Error(), tt.wantError) {
+				t.Fatalf("checkout preview error = %v, want substring %q", err, tt.wantError)
+			}
+			if len(requested) != tt.wantRequests {
+				t.Fatalf("requests = %#v, want %d requests", requested, tt.wantRequests)
+			}
+		})
 	}
 }
 

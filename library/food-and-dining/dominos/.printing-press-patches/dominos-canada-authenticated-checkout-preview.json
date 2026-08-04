@@ -29,7 +29,7 @@
     "README.md",
     "SKILL.md"
   ],
-  "validated_outcome": "A live Canadian account-history call returned the latest order through the CLI client, and checkout preview validated and priced it while reporting saved-card availability without metadata. Automated tests prove that historical payment fields are stripped, raw account/card responses bypass cache, card metadata is never emitted, Canadian headers and credential binding are enforced, market caches are isolated, and Canadian placement paths are rejected.",
+  "validated_outcome": "A live Canadian account-history call returned the latest order through the CLI client, and checkout preview validated and priced it while reporting saved-card availability without metadata. Automated tests prove that historical payment fields are stripped, raw account/card responses bypass cache, card metadata is never emitted, unknown validation/pricing statuses fail closed, Canadian headers and credential binding are enforced, market caches are isolated, and Canadian placement paths are rejected.",
   "findings_addressed": [
     "US-only base URL and sign-in URL prevented Canadian authenticated use",
     "Canadian Power endpoints require market headers absent from the generated client",
