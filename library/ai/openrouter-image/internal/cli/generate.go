@@ -415,7 +415,7 @@ Do NOT use it to run a budgeted batch; use 'batch' instead.`,
 					}
 					var outPath string
 					if isDir {
-						name := safeName(flagModel) + "-" + time.Now().Format("20060102-150405") + fmt.Sprintf("-%d-%d", nextLedgerSeq(), i) + ext
+						name := safeName(flagModel) + "-" + time.Now().Format("20060102-150405") + fmt.Sprintf("-%d-%d-%d", time.Now().UnixNano(), os.Getpid(), i) + ext
 						outPath = filepath.Join(orDefault(flagOutput, "."), name)
 					} else if len(resp.Data) > 1 {
 						// Multiple images with a file --output: suffix each image
