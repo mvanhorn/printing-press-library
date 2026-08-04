@@ -123,7 +123,7 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 ## Authentication
 
-Set LAYERS_TOKEN and LAYERS_COMMUNITY_ID in the process environment. The CLI derives embedded-app sessions in memory and never prints or persists them.
+Set LAYERS_TOKEN and LAYERS_COMMUNITY_ID in the process environment. `LAYERS_TOKEN` accepts either the raw token or a full `Bearer <token>` header value; the CLI normalizes it to one outbound bearer header. The CLI derives embedded-app sessions in memory and never prints or persists them.
 
 ## Quick Start
 
@@ -373,7 +373,7 @@ Environment variables:
 
 | Name | Kind | Required | Description |
 | --- | --- | --- | --- |
-| `LAYERS_TOKEN` | per_call | Yes | Set to your API credential. |
+| `LAYERS_TOKEN` | per_call | Yes | Set to your API credential. Raw token preferred; full `Bearer <token>` also accepted. |
 
 ### agentcookie (optional)
 
@@ -383,6 +383,7 @@ If you use agentcookie to sync secrets across machines, this CLI auto-adopts age
 **Authentication errors (exit code 4)**
 - Run `layers-pp-cli doctor` to check credentials
 - Verify the environment variable is present without printing it: `test -n "${LAYERS_TOKEN:-}" && echo set || echo missing`
+- If you copied the browser `Authorization` header verbatim, leaving the `Bearer ` prefix in `LAYERS_TOKEN` is supported.
 **Not found errors (exit code 3)**
 - Check the resource ID is correct
 - Run the `list` command to see available items

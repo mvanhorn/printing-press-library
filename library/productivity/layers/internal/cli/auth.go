@@ -43,6 +43,7 @@ func newAuthSetupCmd(_ *rootFlags) *cobra.Command {
 			fmt.Fprintln(w, "")
 			fmt.Fprintln(w, "Then set:")
 			fmt.Fprintln(w, "  export LAYERS_TOKEN=\"your-token-here\"")
+			fmt.Fprintln(w, "  # Raw token preferred; a full 'Bearer <token>' value also works.")
 			if !launch {
 				return nil
 			}
@@ -115,6 +116,7 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 				fmt.Fprintln(w, "")
 				fmt.Fprintln(w, "Set your token:")
 				fmt.Fprintln(w, "  export LAYERS_TOKEN=\"your-token-here\"")
+				fmt.Fprintln(w, "  # Raw token preferred; a full 'Bearer <token>' value also works.")
 				return authErr(fmt.Errorf("no credentials configured"))
 			}
 

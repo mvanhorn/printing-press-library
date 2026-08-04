@@ -246,13 +246,14 @@ func (c *Config) AuthHeader() string {
 	}
 	// Env-var token wins over file-stored AccessToken (env > config convention).
 	if c.LayersToken != "" {
+		token := normalizeBearerToken(c.LayersToken)
 		if c.AuthSource == "" {
 			c.AuthSource = "env:LAYERS_TOKEN"
 		}
 		return applyAuthFormat("Bearer {token}", map[string]string{
-			"token":        c.LayersToken,
-			"LAYERS_TOKEN": c.LayersToken,
-			"access_token": c.LayersToken,
+			"token":        token,
+			"LAYERS_TOKEN": token,
+			"access_token": token,
 		})
 	}
 	if c.AccessToken != "" {
@@ -262,6 +263,17 @@ func (c *Config) AuthHeader() string {
 		return applyAuthFormat("Bearer {token}", map[string]string{"access_token": c.AccessToken, "token": c.AccessToken})
 	}
 	return ""
+}
+
+func normalizeBearerToken(value string) string {
+	value = strings.TrimSpace(value)
+	if scheme, token, ok := strings.Cut(value, " "); ok && strings.EqualFold(strings.TrimSpace(scheme), "Bearer") {
+		token = strings.TrimSpace(token)
+		if token != "" {
+			return token
+		}
+	}
+	return value
 }
 
 // Raw browser-session values count as credentials even when no header

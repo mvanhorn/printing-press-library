@@ -150,7 +150,7 @@ Search the private SQLite snapshot without a network request.
 
 ## Auth Setup
 
-Set LAYERS_TOKEN and LAYERS_COMMUNITY_ID in the process environment. The CLI derives embedded-app sessions in memory and never prints or persists them.
+Set LAYERS_TOKEN and LAYERS_COMMUNITY_ID in the process environment. `LAYERS_TOKEN` accepts either the raw token or a full `Bearer <token>` header value; the CLI normalizes it to one outbound bearer header. The CLI derives embedded-app sessions in memory and never prints or persists them.
 
 Run `layers-pp-cli doctor` to verify setup.
 

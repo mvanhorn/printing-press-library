@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "layers-bearer-token-normalization",
+  "applied_at": "2026-08-04",
+  "base_run_id": "20260803-133603",
+  "base_printing_press_version": "4.30.1",
+  "summary": "Normalize LAYERS_TOKEN so raw tokens and copied Bearer header values both produce one valid Authorization header.",
+  "reason": "Live Red House production testing showed users can paste the browser Authorization header verbatim into LAYERS_TOKEN, which previously double-prefixed Bearer and caused false InvalidToken failures.",
+  "files": [
+    "internal/config/config.go",
+    "internal/config/community_header_test.go",
+    "internal/cli/auth.go",
+    "internal/cli/helpers.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "Focused config, CLI, and client package tests passed locally after the auth normalization change."
+}
