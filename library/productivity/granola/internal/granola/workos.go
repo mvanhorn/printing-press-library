@@ -252,6 +252,11 @@ type sessionGeneration struct {
 	accessToken string
 }
 
+// beforeAcquireHook fires between the first generation check and the marker
+// acquire. Nil in production; a test sets it to simulate a winner publishing in
+// exactly that window, which is otherwise not reproducible.
+var beforeAcquireHook func()
+
 // heldSessionGeneration describes the credential this process currently holds.
 func heldSessionGeneration() sessionGeneration {
 	tokenMu.Lock()
@@ -626,6 +631,10 @@ func RefreshAccessToken(refreshToken string) (RefreshAccessTokenResponse, error)
 		if fresh, ok := rotatedCLISessionToken(seen); ok {
 			return adoptRotated(fresh), nil
 		}
+		// Test seam: lets a test publish a winner in the check/acquire gap.
+		if beforeAcquireHook != nil {
+			beforeAcquireHook()
+		}
 		handle, err := BeginRotation()
 		if errors.Is(err, ErrRotationInProgress) {
 			// Another process holds the marker. Never exchange alongside it:
@@ -640,17 +649,26 @@ func RefreshAccessToken(refreshToken string) (RefreshAccessTokenResponse, error)
 			return RefreshAccessTokenResponse{}, err
 		}
 		rotationHandle = handle
-		// The marker must survive exactly one outcome: the remote exchange
-		// succeeded and the local write did not. That is the unrecoverable
-		// window -- the presented token is dead upstream and no replacement
-		// reached disk. Every other failure left the stored token untouched, so
-		// clearing the marker avoids sending the user to auth login over a
-		// transport blip. On success SaveCLISession has already removed it.
+		// Registered before the re-check below, so an early return there still
+		// releases the marker. The marker must survive exactly one outcome: the
+		// remote exchange succeeded and the local write did not. That is the
+		// unrecoverable window -- the presented token is dead upstream and no
+		// replacement reached disk. Every other path left the stored token
+		// untouched, so clearing it avoids sending the user to auth login over
+		// a transport blip. On success SaveCLISession has already removed it.
 		defer func() {
 			if !exchanged {
 				rotationHandle.Abort()
 			}
 		}()
+		// Re-check now that the marker is held. The first check and the acquire
+		// are not atomic: a winner can persist its session and drop the marker
+		// in the gap between them, which would leave this caller holding a
+		// fresh marker and about to spend a refresh token already consumed.
+		// Checking again under the marker closes that window.
+		if fresh, ok := rotatedCLISessionToken(seen); ok {
+			return adoptRotated(fresh), nil
+		}
 	}
 
 	body, _ := json.Marshal(map[string]string{

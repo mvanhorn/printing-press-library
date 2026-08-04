@@ -270,6 +270,47 @@ func TestRefresh_DetectsRotationWhenRefreshTokenIsPreserved(t *testing.T) {
 	}
 }
 
+// The first generation check and the marker acquire are not atomic. A winner
+// that publishes and releases in that gap must still be seen, or this caller
+// holds a fresh marker and spends a refresh token that is already consumed.
+func TestRefresh_ReChecksAfterAcquiringMarker(t *testing.T) {
+	armCLISession(t, time.Hour)
+	var calls atomic.Int32
+	var seenMarker atomic.Bool
+	refreshServerRefusing(t, &calls, &seenMarker)
+
+	// Publish the winner's result only once this caller has passed its first
+	// check, so the sole chance to notice is the re-check under the marker.
+	orig := beforeAcquireHook
+	beforeAcquireHook = func() {
+		if err := SaveCLISession(CLISession{
+			AccessToken:  "winner-access",
+			RefreshToken: "old-refresh",
+			ExpiresAt:    time.Now().Add(time.Hour).UTC(),
+			ObtainedAt:   time.Now().Add(time.Second).UTC(),
+			AccountEmail: "someone@example.com",
+		}); err != nil {
+			t.Errorf("winner SaveCLISession: %v", err)
+		}
+	}
+	t.Cleanup(func() { beforeAcquireHook = orig })
+
+	got, err := RefreshAccessToken("old-refresh")
+	if err != nil {
+		t.Fatalf("a rotation published in the check/acquire gap was missed: %v", err)
+	}
+	if got.AccessToken != "winner-access" {
+		t.Errorf("returned %q, want winner-access", got.AccessToken)
+	}
+	if calls.Load() != 0 {
+		t.Errorf("spent the stale token %d times despite a published winner", calls.Load())
+	}
+	// The marker must not be left behind by the re-check path.
+	if _, err := os.Stat(rotationMarkerPath()); err == nil {
+		t.Error("marker survived a re-check early return")
+	}
+}
+
 // A marker whose directory entry cannot be made durable must not authorize an
 // exchange: spending a single-use token with no recoverable record of it is the
 // failure the marker exists to prevent.
