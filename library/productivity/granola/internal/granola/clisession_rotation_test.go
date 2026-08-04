@@ -1,0 +1,197 @@
+// Copyright 2026 Damien Stevens and contributors. Licensed under Apache-2.0.
+
+package granola
+
+import (
+	"errors"
+	"net/http"
+	"net/http/httptest"
+	"os"
+	"path/filepath"
+	"sync"
+	"sync/atomic"
+	"testing"
+	"time"
+)
+
+// armCLISession puts a CLI-owned session in place and points the token cache at
+// it, so RefreshAccessToken takes the CLI-owned branch.
+func armCLISession(t *testing.T, expiresIn time.Duration) {
+	t.Helper()
+	dir := filepath.Join(t.TempDir(), "granola-pp-cli")
+	t.Setenv("GRANOLA_CLI_SESSION_PATH", filepath.Join(dir, "session.json"))
+	t.Setenv("GRANOLA_SUPPORT_DIR", t.TempDir())
+	t.Setenv("GRANOLA_WORKOS_TOKEN", "")
+	t.Setenv("GRANOLA_WORKOS_REFRESH", "")
+	if err := SaveCLISession(CLISession{
+		AccessToken:  "old-access",
+		RefreshToken: "old-refresh",
+		ExpiresAt:    time.Now().Add(expiresIn).UTC(),
+		ObtainedAt:   time.Now().UTC(),
+		AccountEmail: "someone@example.com",
+	}); err != nil {
+		t.Fatalf("SaveCLISession: %v", err)
+	}
+	ResetTokenCache()
+	t.Cleanup(ResetTokenCache)
+	if _, err := LoadRefreshToken(); err != nil {
+		t.Fatalf("LoadRefreshToken: %v", err)
+	}
+	if src := CurrentTokenSource(); src != TokenSourceCLISession {
+		t.Fatalf("want TokenSourceCLISession, got %v", src)
+	}
+}
+
+// refreshServerSeeingMarker answers refreshes and records, per call, whether the
+// in-flight rotation marker was on disk at the moment the exchange happened.
+func refreshServerSeeingMarker(t *testing.T, calls *atomic.Int32, markerSeen *atomic.Bool, hold time.Duration) {
+	t.Helper()
+	orig := refreshClient
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		calls.Add(1)
+		if _, err := os.Stat(rotationMarkerPath()); err == nil {
+			markerSeen.Store(true)
+		}
+		if hold > 0 {
+			time.Sleep(hold)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte(`{"access_token":"new-access","refresh_token":"new-refresh","expires_in":3600}`))
+	}))
+	t.Cleanup(srv.Close)
+	SetRefreshHTTPClient(&http.Client{Transport: &rewriteTransport{target: srv.URL}})
+	t.Cleanup(func() { SetRefreshHTTPClient(orig) })
+}
+
+// The marker exists to catch a crash between a spent remote token and a durable
+// local write. Written after the exchange it would never witness that window,
+// so this asserts the server sees it already on disk.
+func TestRefresh_MarksRotationInFlightBeforeExchange(t *testing.T) {
+	armCLISession(t, time.Hour)
+	var calls atomic.Int32
+	var markerSeen atomic.Bool
+	refreshServerSeeingMarker(t, &calls, &markerSeen, 0)
+
+	if _, err := RefreshAccessToken("old-refresh"); err != nil {
+		t.Fatalf("RefreshAccessToken: %v", err)
+	}
+	if !markerSeen.Load() {
+		t.Error("rotation marker was not on disk during the exchange; an interrupted rotation would be undetectable")
+	}
+	// A completed rotation must not leave the marker behind, or the next run
+	// sends the user to auth login over a refresh that worked.
+	if _, err := LoadCLISession(); err != nil {
+		t.Errorf("session unusable after a successful rotation: %v", err)
+	}
+}
+
+// Single-use rotation makes an unserialized refresh unsafe: the loser's
+// exchange spends a token the winner already replaced.
+func TestRefresh_ConcurrentCallersExchangeOnce(t *testing.T) {
+	armCLISession(t, time.Hour)
+	var calls atomic.Int32
+	var markerSeen atomic.Bool
+	refreshServerSeeingMarker(t, &calls, &markerSeen, 40*time.Millisecond)
+
+	var wg sync.WaitGroup
+	errs := make([]error, 4)
+	for i := range errs {
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			_, errs[i] = RefreshAccessToken("old-refresh")
+		}(i)
+	}
+	wg.Wait()
+
+	for i, err := range errs {
+		if err != nil {
+			t.Errorf("caller %d: %v", i, err)
+		}
+	}
+	if got := calls.Load(); got != 1 {
+		t.Errorf("exchanges = %d, want 1; concurrent refreshes spend a single-use chain", got)
+	}
+}
+
+// A failure that never reached the server left the stored token untouched, so
+// reporting an interrupted rotation would send the user to auth login over a
+// transport blip.
+func TestRefresh_FailedExchangeClearsMarker(t *testing.T) {
+	armCLISession(t, time.Hour)
+	orig := refreshClient
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(`{"error":"boom"}`))
+	}))
+	defer srv.Close()
+	SetRefreshHTTPClient(&http.Client{Transport: &rewriteTransport{target: srv.URL}})
+	defer SetRefreshHTTPClient(orig)
+
+	if _, err := RefreshAccessToken("old-refresh"); err == nil {
+		t.Fatal("expected the refresh to fail")
+	}
+	if _, err := LoadCLISession(); err != nil {
+		t.Errorf("a failed exchange must leave the session usable, got %v", err)
+	}
+	if _, err := os.Stat(rotationMarkerPath()); err == nil {
+		t.Error("marker survived a failure that never spent the token")
+	}
+}
+
+// The one case the marker must survive: the remote exchange succeeded, so the
+// presented token may be dead upstream, and no replacement reached disk.
+func TestRefresh_UnpersistedRotationStaysDetectable(t *testing.T) {
+	armCLISession(t, time.Hour)
+	var calls atomic.Int32
+	var markerSeen atomic.Bool
+	refreshServerSeeingMarker(t, &calls, &markerSeen, 0)
+
+	// Make the durable write fail after the exchange has already happened.
+	if err := os.Remove(CLISessionPath()); err != nil {
+		t.Fatalf("remove session: %v", err)
+	}
+	if err := os.MkdirAll(CLISessionPath(), 0o700); err != nil {
+		t.Fatalf("occupy session path with a directory: %v", err)
+	}
+
+	_, err := RefreshAccessToken("old-refresh")
+	if err == nil {
+		t.Fatal("a refresh whose persist failed must not report success")
+	}
+	if _, statErr := os.Stat(rotationMarkerPath()); statErr != nil {
+		t.Fatal("marker was cleared after a spent exchange; the unrecoverable window is now invisible")
+	}
+	// And that state must surface as the actionable error, not as a usable session.
+	os.RemoveAll(CLISessionPath())
+	if _, loadErr := LoadCLISession(); !errors.Is(loadErr, ErrSessionInterrupted) {
+		t.Errorf("want ErrSessionInterrupted after an unpersisted rotation, got %v", loadErr)
+	}
+}
+
+// A desktop-owned source must not touch the marker at all -- it is refused
+// before any rotation bookkeeping starts.
+func TestRefresh_DesktopSourceNeverMarksRotation(t *testing.T) {
+	ResetTokenCache()
+	defer ResetTokenCache()
+	dir := filepath.Join(t.TempDir(), "granola-pp-cli")
+	t.Setenv("GRANOLA_CLI_SESSION_PATH", filepath.Join(dir, "session.json"))
+	support := t.TempDir()
+	t.Setenv("GRANOLA_SUPPORT_DIR", support)
+	t.Setenv("GRANOLA_WORKOS_TOKEN", "")
+	t.Setenv("GRANOLA_WORKOS_REFRESH", "")
+	if err := os.WriteFile(filepath.Join(support, "supabase.json.enc"), []byte("x"), 0o600); err != nil {
+		t.Fatalf("write enc: %v", err)
+	}
+	writeStoredAccounts(t, support)
+	if _, err := LoadRefreshToken(); err != nil {
+		t.Fatalf("LoadRefreshToken: %v", err)
+	}
+
+	if _, err := RefreshAccessToken("desktop-refresh"); !errors.Is(err, ErrRefreshRefused) {
+		t.Fatalf("want ErrRefreshRefused, got %v", err)
+	}
+	if _, err := os.Stat(rotationMarkerPath()); err == nil {
+		t.Error("a refused desktop refresh wrote a rotation marker")
+	}
+}

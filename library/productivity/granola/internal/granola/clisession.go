@@ -84,6 +84,21 @@ func rotationMarkerPath() string { return CLISessionPath() + ".rotating" }
 // marker survives, and ErrSessionPermissions when the file is group/world
 // readable or owned by another user.
 func LoadCLISession() (CLISession, error) {
+	// The marker is checked before the file itself: an interrupted rotation
+	// that also lost the session file is still an interrupted rotation, and
+	// reporting it as "no session" would hide the one state the marker exists
+	// to make visible.
+	if _, err := os.Stat(rotationMarkerPath()); err == nil {
+		return CLISession{}, ErrSessionInterrupted
+	}
+	return loadCLISessionUnmarked()
+}
+
+// loadCLISessionUnmarked reads the session without consulting the rotation
+// marker. Only for callers already holding the refresh lock, where the marker
+// is their own and would otherwise block them from reading the very session
+// they are about to replace.
+func loadCLISessionUnmarked() (CLISession, error) {
 	path := CLISessionPath()
 	info, err := os.Stat(path)
 	if err != nil {
@@ -94,9 +109,6 @@ func LoadCLISession() (CLISession, error) {
 	}
 	if err := checkOwnerOnly(info, path); err != nil {
 		return CLISession{}, err
-	}
-	if _, err := os.Stat(rotationMarkerPath()); err == nil {
-		return CLISession{}, ErrSessionInterrupted
 	}
 	data, err := os.ReadFile(path)
 	if err != nil {

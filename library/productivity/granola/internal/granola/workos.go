@@ -185,6 +185,11 @@ var (
 	// refreshClient is the HTTP client used for refresh calls. Tests may
 	// override it with a transport that mocks WorkOS responses.
 	refreshClient = &http.Client{Timeout: 15 * time.Second}
+	// refreshMu serializes the exchange-and-persist for the CLI-owned chain.
+	// Separate from tokenMu on purpose: tokenMu guards short in-process reads
+	// and must not be held across an HTTP round trip, while this one must span
+	// the whole rotation because the chain is single-use.
+	refreshMu sync.Mutex
 )
 
 // ErrRefreshRefused is returned by RefreshAccessToken when the in-memory
@@ -233,6 +238,28 @@ func refreshRefusalFor(src TokenSource) error {
 		}
 	}
 	return nil
+}
+
+// rotatedCLISessionToken reports whether the stored session has already moved
+// past the refresh token this caller presented, and returns it when so. That is
+// the signal that another goroutine won the race and rotated; reusing its
+// result is what stops the loser from spending a single-use chain twice.
+func rotatedCLISessionToken(presented string) (RefreshAccessTokenResponse, bool) {
+	s, err := loadCLISessionUnmarked()
+	if err != nil || s.AccessToken == "" {
+		return RefreshAccessTokenResponse{}, false
+	}
+	if presented == "" || s.RefreshToken == presented {
+		return RefreshAccessTokenResponse{}, false
+	}
+	if s.ExpiresAt.IsZero() || time.Until(s.ExpiresAt) < time.Minute {
+		return RefreshAccessTokenResponse{}, false
+	}
+	return RefreshAccessTokenResponse{
+		AccessToken:  s.AccessToken,
+		RefreshToken: s.RefreshToken,
+		ExpiresIn:    int(time.Until(s.ExpiresAt).Seconds()),
+	}, true
 }
 
 // SetRefreshHTTPClient swaps the HTTP client used for WorkOS refreshes.
@@ -487,11 +514,58 @@ func RefreshAccessToken(refreshToken string) (RefreshAccessTokenResponse, error)
 	// the network call. Single-CLI-invocation processes don't see this race
 	// in practice; long-running agents that call sync concurrently would.
 	tokenMu.Lock()
-	if refusal := refreshRefusalFor(cachedSource); refusal != nil {
+	src := cachedSource
+	if refusal := refreshRefusalFor(src); refusal != nil {
 		tokenMu.Unlock()
 		return RefreshAccessTokenResponse{}, refusal
 	}
 	tokenMu.Unlock()
+
+	// PATCH(cli-owned-workos-session): serialize the whole exchange-and-persist
+	// for the one chain the CLI owns, and mark it in flight first.
+	//
+	// tokenMu deliberately does not cover the network call -- holding it there
+	// would block every concurrent reader for the duration of an HTTP round
+	// trip. But an unserialized refresh is unsafe for a single-use chain: two
+	// callers both exchange, the loser gets invalid_grant, and the session is
+	// stranded with no recovery but a fresh login. A dedicated lock gives the
+	// serialization without the read stall.
+	//
+	// The marker is written before the exchange rather than after, because the
+	// unrecoverable window is precisely between a successful remote exchange
+	// and a durable local write. A marker written afterwards would never
+	// witness the crash it exists to detect.
+	// exchanged flips once the remote call has returned a usable token, i.e.
+	// once the presented refresh token may already be spent upstream.
+	exchanged := false
+	if src == TokenSourceCLISession {
+		refreshMu.Lock()
+		defer refreshMu.Unlock()
+		// Another goroutine may have completed a refresh while this one waited.
+		// Detect that by the stored refresh token no longer matching the one
+		// this caller presented, and hand back the winner's result rather than
+		// spending the chain again. Keying on rotation rather than on remaining
+		// validity matters: a caller refreshing after a 401 holds a token the
+		// server has already rejected, and must not be told it is still good.
+		if fresh, ok := rotatedCLISessionToken(refreshToken); ok {
+			return fresh, nil
+		}
+		if err := BeginRotation(); err != nil {
+			return RefreshAccessTokenResponse{}, err
+		}
+		// The marker must survive exactly one outcome: the remote exchange
+		// succeeded and the local write did not. That is the unrecoverable
+		// window -- the presented token is dead upstream and no replacement
+		// reached disk. Every other failure left the stored token untouched, so
+		// clearing the marker avoids sending the user to auth login over a
+		// transport blip. On success SaveCLISession has already removed it.
+		defer func() {
+			if !exchanged {
+				AbortRotation()
+			}
+		}()
+	}
+
 	body, _ := json.Marshal(map[string]string{
 		"refresh_token": refreshToken,
 	})
@@ -533,6 +607,7 @@ func RefreshAccessToken(refreshToken string) (RefreshAccessTokenResponse, error)
 	if parsed.AccessToken == "" {
 		return RefreshAccessTokenResponse{}, fmt.Errorf("granola refresh: empty access_token in response")
 	}
+	exchanged = true
 	// Cache the new pair in-process.
 	tokenMu.Lock()
 	cachedAccess = parsed.AccessToken
@@ -542,7 +617,6 @@ func RefreshAccessToken(refreshToken string) (RefreshAccessTokenResponse, error)
 	if parsed.ExpiresIn > 0 {
 		cachedExpiry = time.Now().Add(time.Duration(parsed.ExpiresIn) * time.Second)
 	}
-	src := cachedSource
 	tokenMu.Unlock()
 
 	// PATCH(cli-owned-workos-session): persist the rotated pair for a
@@ -567,7 +641,9 @@ func RefreshAccessToken(refreshToken string) (RefreshAccessTokenResponse, error)
 // session file, preserving the account identity fields the refresh response
 // does not carry.
 func persistRotatedCLISession(parsed RefreshAccessTokenResponse) error {
-	s, err := LoadCLISession()
+	// Unmarked: this runs inside the refresh lock with our own in-flight marker
+	// set, so the marked loader would refuse to read the session being replaced.
+	s, err := loadCLISessionUnmarked()
 	if err != nil && !errors.Is(err, ErrNoCLISession) {
 		return fmt.Errorf("granola refresh: reload session before persist: %w", err)
 	}
