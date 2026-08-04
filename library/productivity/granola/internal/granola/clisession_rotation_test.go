@@ -499,3 +499,107 @@ func TestRefresh_SuccessfulRotationLeavesNoMarker(t *testing.T) {
 	}
 	h.Abort()
 }
+
+// refreshMu only serializes logout against rotation inside one process. Across
+// processes -- the normal case, since each CLI invocation is its own process --
+// a logout can land after the rotation confirms the session still exists and
+// before its rename publishes the replacement. The rename then recreates the
+// credential after logout has already reported success, leaving the user signed
+// in with no indication anything went wrong.
+//
+// The interleaving is reproduced directly rather than by timing: logout's first
+// durable step is recording the revocation, and this test performs that step
+// while the session is still present, which is exactly the window where the
+// existence check cannot help.
+func TestPersist_LogoutRacingTheRenameDoesNotResurrectTheSession(t *testing.T) {
+	sessionSandbox(t)
+	if err := SaveCLISession(sampleSession()); err != nil {
+		t.Fatalf("SaveCLISession: %v", err)
+	}
+	h, err := BeginRotation()
+	if err != nil {
+		t.Fatalf("BeginRotation: %v", err)
+	}
+	t.Cleanup(h.Abort)
+
+	// Another process begins logging out: the revocation is recorded, but its
+	// removal of the session file has not happened yet. The rotation's existence
+	// check therefore still succeeds.
+	if err := noteRevocation(); err != nil {
+		t.Fatalf("noteRevocation: %v", err)
+	}
+
+	err = persistRotatedCLISession(RefreshAccessTokenResponse{
+		AccessToken:  "rotated-access",
+		RefreshToken: "rotated-refresh",
+		ExpiresIn:    3600,
+	}, h)
+	if !errors.Is(err, ErrSessionLoggedOutDuringRotation) {
+		t.Fatalf("want ErrSessionLoggedOutDuringRotation, got %v", err)
+	}
+	if _, statErr := os.Stat(CLISessionPath()); !os.IsNotExist(statErr) {
+		t.Error("the rotation republished a session after logout had been recorded; the user is signed in again despite logging out")
+	}
+	if HasCLISession() {
+		t.Error("still signed in after a logout that raced a rotation")
+	}
+}
+
+// The mirror case: a rotation that completes with no logout anywhere near it
+// must not be mistaken for a raced one and have its own work deleted.
+func TestPersist_UnracedRotationKeepsItsSession(t *testing.T) {
+	sessionSandbox(t)
+	if err := SaveCLISession(sampleSession()); err != nil {
+		t.Fatalf("SaveCLISession: %v", err)
+	}
+	h, err := BeginRotation()
+	if err != nil {
+		t.Fatalf("BeginRotation: %v", err)
+	}
+	if err := persistRotatedCLISession(RefreshAccessTokenResponse{
+		AccessToken:  "rotated-access",
+		RefreshToken: "rotated-refresh",
+		ExpiresIn:    3600,
+	}, h); err != nil {
+		t.Fatalf("persistRotatedCLISession: %v", err)
+	}
+	h.Complete()
+	got, err := LoadCLISession()
+	if err != nil {
+		t.Fatalf("LoadCLISession: %v", err)
+	}
+	if got.AccessToken != "rotated-access" {
+		t.Errorf("rotated token did not survive: %q", got.AccessToken)
+	}
+}
+
+// A logout that happens entirely before a later rotation must not make that
+// rotation delete its own result. The epoch is captured when the rotation
+// begins, so an older logout is already accounted for.
+func TestPersist_EarlierLogoutDoesNotAffectALaterRotation(t *testing.T) {
+	sessionSandbox(t)
+	if err := SaveCLISession(sampleSession()); err != nil {
+		t.Fatalf("SaveCLISession: %v", err)
+	}
+	if err := ClearCLISession(); err != nil {
+		t.Fatalf("ClearCLISession: %v", err)
+	}
+	// A fresh login after that logout.
+	if err := SaveCLISession(sampleSession()); err != nil {
+		t.Fatalf("SaveCLISession after re-login: %v", err)
+	}
+	h, err := BeginRotation()
+	if err != nil {
+		t.Fatalf("BeginRotation: %v", err)
+	}
+	if err := persistRotatedCLISession(RefreshAccessTokenResponse{
+		AccessToken: "rotated-access",
+		ExpiresIn:   3600,
+	}, h); err != nil {
+		t.Fatalf("a rotation after an unrelated earlier logout must succeed: %v", err)
+	}
+	h.Complete()
+	if !HasCLISession() {
+		t.Error("a stale logout record deleted a healthy rotation's session")
+	}
+}

@@ -816,7 +816,7 @@ func RefreshAccessToken(refreshToken string) (RefreshAccessTokenResponse, error)
 	// fresh login. Failing loudly beats returning a token whose refresh half
 	// was silently lost.
 	if src == TokenSourceCLISession {
-		if err := persistRotatedCLISession(parsed); err != nil {
+		if err := persistRotatedCLISession(parsed, rotationHandle); err != nil {
 			if errors.Is(err, ErrSessionLoggedOutDuringRotation) {
 				// Logout won. The marker only exists to flag a session that
 				// needs recovering, and there is no longer a session -- leaving
@@ -839,7 +839,7 @@ func RefreshAccessToken(refreshToken string) (RefreshAccessTokenResponse, error)
 // persistRotatedCLISession writes a refreshed pair back to the CLI-owned
 // session file, preserving the account identity fields the refresh response
 // does not carry.
-func persistRotatedCLISession(parsed RefreshAccessTokenResponse) error {
+func persistRotatedCLISession(parsed RefreshAccessTokenResponse, h RotationHandle) error {
 	// Unmarked: this runs inside the refresh lock with our own in-flight marker
 	// set, so the marked loader would refuse to read the session being replaced.
 	s, err := loadCLISessionUnmarked()
@@ -864,6 +864,18 @@ func persistRotatedCLISession(parsed RefreshAccessTokenResponse) error {
 	s.ObtainedAt = time.Now().UTC()
 	if err := SaveCLISession(s); err != nil {
 		return fmt.Errorf("granola refresh: persist rotated session: %w", err)
+	}
+	// The existence check above only closes the in-process race, which refreshMu
+	// already covers. Across processes a logout can land between that check and
+	// the rename, and the rename would then recreate the credential after logout
+	// reported success. Re-read the revocation epoch now that the file is
+	// published: if it moved, a logout happened somewhere inside this rotation,
+	// so remove what was just written rather than leave the user signed in.
+	if readRevocationEpoch() != h.Epoch() {
+		if rmErr := os.Remove(CLISessionPath()); rmErr != nil && !os.IsNotExist(rmErr) {
+			return fmt.Errorf("granola refresh: logout raced this rotation and the resurrected session could not be removed: %w", rmErr)
+		}
+		return ErrSessionLoggedOutDuringRotation
 	}
 	return nil
 }

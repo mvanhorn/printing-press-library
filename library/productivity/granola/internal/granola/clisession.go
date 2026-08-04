@@ -244,7 +244,63 @@ var ErrRotationInProgress = errors.New("granola: another process is rotating thi
 
 // RotationHandle is proof of exclusive rotation ownership. Only the holder can
 // clear the marker it created.
-type RotationHandle struct{ nonce string }
+type RotationHandle struct {
+	nonce string
+	// epoch is the revocation counter observed when the rotation began. A
+	// logout that lands anywhere inside the rotation changes it, which is how a
+	// rotation in one process learns that a logout in another process happened
+	// while it was mid-flight.
+	epoch string
+}
+
+// revocationEpochPath records that a logout occurred. Its content changes on
+// every logout; only inequality is compared, never ordering.
+func revocationEpochPath() string { return CLISessionPath() + ".revoked" }
+
+func readRevocationEpoch() string {
+	b, err := os.ReadFile(revocationEpochPath())
+	if err != nil {
+		return ""
+	}
+	return strings.TrimSpace(string(b))
+}
+
+// noteRevocation durably records a logout. It must run before the session file
+// is removed, which is what makes the protocol safe without a cross-process
+// lock: a rotation reads the epoch after publishing its replacement, so either
+// the rotation sees this write and deletes what it wrote, or its rename landed
+// before this write and therefore before the removal that follows it, and the
+// logout's own removal takes the rotated file.
+func noteRevocation() error {
+	path := revocationEpochPath()
+	if err := ensureOwnerOnlyDir(filepath.Dir(path)); err != nil {
+		return err
+	}
+	stamp := fmt.Sprintf("%d-%d", os.Getpid(), time.Now().UnixNano())
+	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
+	if err != nil {
+		return fmt.Errorf("clisession: record logout: %w", err)
+	}
+	if _, err := f.WriteString(stamp); err != nil {
+		f.Close()
+		return fmt.Errorf("clisession: record logout: %w", err)
+	}
+	if err := f.Sync(); err != nil {
+		f.Close()
+		return fmt.Errorf("clisession: record logout: %w", err)
+	}
+	if err := f.Close(); err != nil {
+		return fmt.Errorf("clisession: record logout: %w", err)
+	}
+	return syncDir(filepath.Dir(path))
+}
+
+// RevocationEpoch reports the current logout epoch. A rotation captures it at
+// the start and re-checks it after publishing.
+func RevocationEpoch() string { return readRevocationEpoch() }
+
+// Epoch exposes the revocation epoch captured when this rotation began.
+func (h RotationHandle) Epoch() string { return h.epoch }
 
 // BeginRotation claims exclusive rotation ownership across processes.
 //
@@ -300,7 +356,7 @@ func BeginRotation() (RotationHandle, error) {
 		os.Remove(rotationMarkerPath())
 		return RotationHandle{}, fmt.Errorf("clisession: begin rotation: durable marker unavailable: %w", derr)
 	}
-	return RotationHandle{nonce: nonce}, nil
+	return RotationHandle{nonce: nonce, epoch: readRevocationEpoch()}, nil
 }
 
 // Abort clears the marker only when this handle still owns it, so a process

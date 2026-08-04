@@ -148,7 +148,7 @@ func TestPersistRotatedCLISessionKeepsIdentity(t *testing.T) {
 		AccessToken:  "new-access",
 		RefreshToken: "new-refresh",
 		ExpiresIn:    3600,
-	})
+	}, RotationHandle{epoch: RevocationEpoch()})
 	if err != nil {
 		t.Fatalf("persistRotatedCLISession: %v", err)
 	}
@@ -177,7 +177,7 @@ func TestPersistRotatedKeepsExistingRefreshWhenOmitted(t *testing.T) {
 	if err := persistRotatedCLISession(RefreshAccessTokenResponse{
 		AccessToken: "new-access-only",
 		ExpiresIn:   3600,
-	}); err != nil {
+	}, RotationHandle{epoch: RevocationEpoch()}); err != nil {
 		t.Fatalf("persistRotatedCLISession: %v", err)
 	}
 	got, _ := LoadCLISession()
