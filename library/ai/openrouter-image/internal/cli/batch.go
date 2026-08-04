@@ -11,6 +11,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -204,14 +205,11 @@ Do NOT use it to estimate one model's cost interactively; use 'cost-estimate' in
 					item.Error = fmt.Sprintf("HTTP %d", statusCode)
 					continue
 				}
-				var resp struct {
-					Data []struct {
-						B64JSON   string `json:"b64_json"`
-						MediaType string `json:"media_type"`
-					} `json:"data"`
-					Usage *genUsage `json:"usage"`
-				}
-				if err := json.Unmarshal(data, &resp); err != nil {
+				// Use the shared response parser so streaming and plain-JSON
+				// responses (and every documented event shape) behave the
+				// same here as in generate/regenerate.
+				resp, err := parseImagesResponse(data, false)
+				if err != nil {
 					item.Status = "error"
 					item.Error = fmt.Sprintf("parse: %v", err)
 					continue
@@ -221,15 +219,40 @@ Do NOT use it to estimate one model's cost interactively; use 'cost-estimate' in
 					item.Cost = resp.Usage.Cost
 					view.TotalCost += resp.Usage.Cost
 				}
-				if len(resp.Data) > 0 && resp.Data[0].B64JSON != "" && r.Output != "" {
-					if raw, err := decodeB64(resp.Data[0].B64JSON); err == nil {
-						// #nosec G306 -- output images need read permission for the user's tools
-						if err := os.WriteFile(r.Output, raw, 0o644); err == nil {
-							item.SavedTo = r.Output
+				// Save every image the row paid for. With a file --output and
+				// multiple images, suffix each so later writes do not
+				// overwrite earlier ones.
+				if r.Output != "" {
+					saved := make([]string, 0, len(resp.Data))
+					for i, img := range resp.Data {
+						if img.B64JSON == "" {
+							continue
 						}
+						raw, err := decodeB64(img.B64JSON)
+						if err != nil {
+							item.Status = "error"
+							item.Error = fmt.Sprintf("decode image %d: %v", i, err)
+							break
+						}
+						outPath := r.Output
+						if len(resp.Data) > 1 {
+							fileExt := filepath.Ext(r.Output)
+							base := strings.TrimSuffix(r.Output, fileExt)
+							outPath = fmt.Sprintf("%s-%d%s", base, i, fileExt)
+						}
+						// #nosec G306 -- output images need read permission for the user's tools
+						if err := os.WriteFile(outPath, raw, 0o644); err != nil {
+							item.Status = "error"
+							item.Error = fmt.Sprintf("write image %d: %v", i, err)
+							break
+						}
+						saved = append(saved, outPath)
 					}
+					item.SavedTo = strings.Join(saved, ", ")
 				}
-				// Ledger write.
+				// Ledger write. A failed ledger write after a billed
+				// generation must surface, not silently vanish, or the cost
+				// never lands in the ledger and regenerate cannot find it.
 				paramsJSON, _ := json.Marshal(body)
 				ledgerID := newLedgerID(r.Model)
 				entry := store.GenerationEntry{
@@ -242,7 +265,11 @@ Do NOT use it to estimate one model's cost interactively; use 'cost-estimate' in
 				if resp.Usage != nil {
 					entry.CostUSD = resp.Usage.Cost
 				}
-				_ = db.LedgerGeneration(ctx, entry)
+				if err := db.LedgerGeneration(ctx, entry); err != nil {
+					item.Status = "error"
+					item.Error = fmt.Sprintf("ledger: %v", err)
+					continue
+				}
 				item.LedgerID = ledgerID
 			}
 
