@@ -54,6 +54,17 @@ type CacheSyncResult struct {
 	TranscriptsRemaining int
 	TranscriptErr        error
 
+	// PATCH(api-catalog-refresh): what the catalog refresh staged this run and
+	// why it did not. CatalogErr is non-fatal for the same reason HydrateErr
+	// is: recipes, panel templates and folders are three independent
+	// endpoints, and one of them rejecting the credential must not cost the
+	// user the meetings and transcripts the rest of the run synced.
+	CatalogRecipes        int
+	CatalogPanelTemplates int
+	CatalogFolders        int
+	CatalogMemberships    int
+	CatalogErr            error
+
 	// PATCH(api-detail-hydrate): transcript timestamps the store layer could
 	// not parse. Non-fatal like HydrateErr, but it must reach the operator:
 	// an unparseable timestamp is stored as 0 and reads back blank, so without
@@ -142,6 +153,9 @@ The hydration is idempotent: re-running replaces every row.`,
 			if res.TranscriptErr != nil {
 				summary["transcript_fetch_error"] = res.TranscriptErr.Error()
 			}
+			if res.CatalogErr != nil {
+				summary["catalog_refresh_error"] = res.CatalogErr.Error()
+			}
 			if res.UnparsedTimestamps > 0 {
 				summary["unparsed_timestamps"] = res.UnparsedTimestamps
 			}
@@ -168,6 +182,12 @@ The hydration is idempotent: re-running replaces every row.`,
 			}
 			if res.TranscriptErr != nil {
 				fmt.Fprintf(cmd.ErrOrStderr(), "warning: transcript backfill stopped early: %v\n", res.TranscriptErr)
+			}
+			if res.CatalogErr != nil {
+				// Non-fatal: the surfaces that did answer are already synced,
+				// and the counts above say which. Naming the failure keeps a
+				// stale recipe list from reading as an empty one.
+				fmt.Fprintf(cmd.ErrOrStderr(), "warning: catalog refresh incomplete: %v\n", res.CatalogErr)
 			}
 			if res.TranscriptsRemaining > 0 {
 				// The whole point of reporting this: a bounded run that stops
@@ -250,12 +270,29 @@ func runCacheSync(ctx context.Context, transcriptBudget int) (CacheSyncResult, e
 		tres, transcriptErr = granola.HydrateTranscriptsFromAPI(ctx, s.DB(), c, nil, transcriptBudget)
 	}
 
+	// PATCH(api-catalog-refresh): the same argument one surface over. Without
+	// this the degraded run leaves recipes, panel templates and folders frozen
+	// at the last successful decrypt while still answering as though they were
+	// current, so a folder or recipe created since then is invisible with no
+	// symptom the user can see. Each surface is a single call for the whole
+	// set, so unlike transcripts there is nothing to budget or resume.
+	var cres granola.CatalogHydrateResult
+	var catalogErr error
+	if degraded {
+		cres, catalogErr = granola.HydrateCatalogFromAPI(c, nil)
+	}
+
 	syncOpts := granola.SyncOptions{Degraded: degraded}
 	if degraded {
 		// Transcripts on this path came from the API, not the cache. Label them
 		// accordingly so provenance stays honest and the cross-source retention
 		// check compares real counts.
 		syncOpts.TranscriptOwner = granola.RowSourceAPI
+		// Same for the catalog rows this run creates. Ownership decides which
+		// path is allowed to retire a row later, so a folder or recipe the API
+		// created must not be filed under the cache path that can no longer
+		// read anything.
+		syncOpts.CatalogOwner = granola.RowSourceAPI
 	}
 	sres, err := granola.SyncFromCacheWithOptions(ctx, s.DB(), c, syncOpts)
 	if err != nil {
@@ -284,6 +321,12 @@ func runCacheSync(ctx context.Context, transcriptBudget int) (CacheSyncResult, e
 		TranscriptsRemaining: tres.Remaining,
 		TranscriptErr:        transcriptErr,
 
+		CatalogRecipes:        cres.Recipes,
+		CatalogPanelTemplates: cres.PanelTemplates,
+		CatalogFolders:        cres.Folders,
+		CatalogMemberships:    cres.Memberships,
+		CatalogErr:            catalogErr,
+
 		UnparsedTimestamps: sres.UnparsedTimestamps,
 		TimestampWarning:   sres.TimestampWarning,
 
@@ -298,7 +341,11 @@ func runCacheSync(ctx context.Context, transcriptBudget int) (CacheSyncResult, e
 		// sync time only on a genuine decrypt, so store-served reads can date
 		// cache-derived rows by when they were actually captured rather than by
 		// this run's API-only refresh.
-		LastCacheSyncAt:      cacheSyncedAt(degraded),
+		LastCacheSyncAt: cacheSyncedAt(degraded),
+		// PATCH(api-catalog-refresh): stamped only when the catalog refresh
+		// actually succeeded, so store-served recipe reads date themselves by
+		// when they were refreshed rather than by a cache sync that never ran.
+		LastCatalogSyncAt:    catalogSyncedAt(catalogErr, degraded),
 		LastDecryptStatus:    granola.DecryptStatusOK,
 		LastTokenSource:      tokenSourceLabel(granola.CurrentTokenSource()),
 		LastDocumentsFetched: docsFetched,
@@ -338,6 +385,16 @@ func recordSyncDecryptStatus(err error) {
 	}
 	state.LastDecryptErrorClass = decryptErrorClass(err)
 	_ = granola.WriteSyncState(state)
+}
+
+// catalogSyncedAt returns now only when this run refreshed the catalog
+// surfaces cleanly. A healthy-cache run never calls the API catalog, and a
+// failed refresh must not advance the date rows are stamped with.
+func catalogSyncedAt(catalogErr error, degraded bool) time.Time {
+	if !degraded || catalogErr != nil {
+		return time.Time{}
+	}
+	return time.Now().UTC()
 }
 
 // cacheSyncedAt returns now for a genuine cache decrypt and the zero time for a

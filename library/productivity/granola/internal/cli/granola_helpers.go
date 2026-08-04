@@ -147,7 +147,8 @@ type storeStaleness struct {
 	// LastCacheSyncAt is RFC3339 UTC, omitted when no successful cache sync
 	// has ever been recorded on this machine
 	// on this machine.
-	LastCacheSyncAt string `json:"last_cache_sync_at,omitempty"`
+	LastCacheSyncAt   string `json:"last_cache_sync_at,omitempty"`
+	LastCatalogSyncAt string `json:"last_catalog_sync_at,omitempty"`
 	// Refreshable is false when no code path can bring this data forward, so
 	// an agent can tell a frozen set from a merely stale one without parsing
 	// Notice.
@@ -173,8 +174,20 @@ func (v *granolaRead) staleness(frozenReason string) *storeStaleness {
 	// here would tell the user that months-old cache rows are current, which is
 	// worse than disclosing nothing. A missing or malformed sync_state.json is
 	// "unknown", not an error: the data is still worth serving, just undatable.
+	// Which clock dates these rows depends on whether the surface can be
+	// refreshed. Recipes and panel templates come back from the API catalog
+	// refresh, so they are dated by that; chat threads have no endpoint at all
+	// and stay dated by the last successful cache decrypt. Using the cache
+	// clock for a refreshable surface would report rows fetched seconds ago as
+	// months stale, which is the same misreport in the other direction.
 	age := "the date of the last successful cache sync is not recorded on this machine"
-	if s, err := granola.ReadSyncState(); err == nil && !s.LastCacheSyncAt.IsZero() {
+	s, err := granola.ReadSyncState()
+	switch {
+	case err != nil:
+	case frozenReason == "" && !s.LastCatalogSyncAt.IsZero():
+		st.LastCatalogSyncAt = s.LastCatalogSyncAt.UTC().Format(time.RFC3339)
+		age = "refreshed from the API on " + st.LastCatalogSyncAt
+	case !s.LastCacheSyncAt.IsZero():
 		st.LastCacheSyncAt = s.LastCacheSyncAt.UTC().Format(time.RFC3339)
 		age = "captured by the last successful cache sync on " + st.LastCacheSyncAt
 	}

@@ -172,6 +172,65 @@ type DocumentListMetadata struct {
 	Members              []DocPerson     `json:"members,omitempty"`
 	Rules                json.RawMessage `json:"rules,omitempty"`
 	IsFavourited         bool            `json:"is_favourited,omitempty"`
+
+	// PATCH(api-catalog-refresh): Documents is the membership the internal
+	// API returns inline on every list, which the desktop cache keeps in a
+	// separate documentLists map instead. Without this field the folder
+	// refresh would need a second per-folder call the API does not offer,
+	// and `folder` commands on a migrated install would list folders that
+	// appear to contain nothing.
+	//
+	// It stays empty on the cache path, where documentLists is authoritative.
+	Documents DocumentListEntries `json:"documents,omitempty"`
+}
+
+// DocumentListEntry is one membership row inside a document list's
+// `documents` array.
+type DocumentListEntry struct {
+	ID         string `json:"id,omitempty"`
+	DocumentID string `json:"document_id,omitempty"`
+}
+
+// MeetingID returns the document this entry points at. The array elements are
+// objects rather than bare ids: a join row names the document in document_id
+// while an expanded document names itself in id, so document_id wins whenever
+// both are present — on a join row `id` is the edge's own key, not a meeting.
+func (e DocumentListEntry) MeetingID() string {
+	if e.DocumentID != "" {
+		return e.DocumentID
+	}
+	return e.ID
+}
+
+// DocumentListEntries decodes the `documents` array, tolerating both the
+// array-of-objects the internal API returns and an array of bare ids.
+//
+// UnmarshalJSON deliberately never returns an error. This type is reached
+// through DocumentListMetadata, which LoadCache decodes as one map in a single
+// json.Unmarshal whose error it discards — and a custom unmarshaler's error,
+// unlike a field type mismatch, aborts the whole decode rather than being
+// accumulated. One folder carrying an unexpected `documents` shape would
+// therefore drop every folder decoded after it. An unknown shape yields no
+// membership instead, which is the same outcome as the field being absent.
+type DocumentListEntries []DocumentListEntry
+
+func (d *DocumentListEntries) UnmarshalJSON(b []byte) error {
+	var objs []DocumentListEntry
+	if err := json.Unmarshal(b, &objs); err == nil {
+		*d = objs
+		return nil
+	}
+	var ids []string
+	if err := json.Unmarshal(b, &ids); err == nil {
+		out := make(DocumentListEntries, 0, len(ids))
+		for _, id := range ids {
+			out = append(out, DocumentListEntry{ID: id})
+		}
+		*d = out
+		return nil
+	}
+	*d = nil
+	return nil
 }
 
 // ListRule is one rule in the listRules engine. The cache stores them as

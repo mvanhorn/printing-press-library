@@ -31,7 +31,15 @@ type SyncState struct {
 	// successful decrypt left them, often months earlier. Dating those rows by
 	// LastSyncAt tells the user their stale data is current, which is worse than
 	// saying nothing. Zero means no successful cache sync has been recorded.
-	LastCacheSyncAt       time.Time `json:"last_cache_sync_at,omitempty"`
+	LastCacheSyncAt time.Time `json:"last_cache_sync_at,omitempty"`
+	// LastCatalogSyncAt is when the API catalog refresh last succeeded.
+	//
+	// PATCH(api-catalog-refresh): recipes and panel templates are refreshable
+	// over the internal API, so dating them by LastCacheSyncAt would report
+	// rows refreshed seconds ago as frozen at a months-old cache sync. Chat
+	// threads have no endpoint and stay dated by LastCacheSyncAt. Zero means no
+	// catalog refresh has succeeded on this machine.
+	LastCatalogSyncAt     time.Time `json:"last_catalog_sync_at,omitempty"`
 	LastDecryptStatus     string    `json:"last_decrypt_status"` // "ok" | "failed" | "skipped"
 	LastDecryptErrorClass string    `json:"last_decrypt_error_class,omitempty"`
 	LastDecryptErrorMsg   string    `json:"last_decrypt_error_msg,omitempty"`
