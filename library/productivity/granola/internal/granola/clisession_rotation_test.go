@@ -178,8 +178,10 @@ func TestRefresh_UnpersistedRotationStaysDetectable(t *testing.T) {
 	if _, statErr := os.Stat(rotationMarkerPath()); statErr != nil {
 		t.Fatal("marker was cleared after a spent exchange; the unrecoverable window is now invisible")
 	}
-	// And that state must surface as the actionable error, not as a usable session.
+	// And that state must surface as the actionable error, not as a usable
+	// session, once the marker outlives any live rotation.
 	os.RemoveAll(CLISessionPath())
+	ageRotationMarker(t)
 	if _, loadErr := LoadCLISession(); !errors.Is(loadErr, ErrSessionInterrupted) {
 		t.Errorf("want ErrSessionInterrupted after an unpersisted rotation, got %v", loadErr)
 	}
@@ -357,13 +359,19 @@ func TestBeginRotation_RefusesWithoutDurableDirectory(t *testing.T) {
 	if err := SaveCLISession(sampleSession()); err != nil {
 		t.Fatalf("SaveCLISession: %v", err)
 	}
-	if _, err := BeginRotation(); err != nil {
-		t.Fatalf("BeginRotation should succeed on a healthy directory: %v", err)
+	// The marker's whole job is surviving a crash. If the directory entry cannot
+	// be made durable, a crash can lose the marker after the token is already
+	// spent, so beginning the rotation at all is worse than refusing it.
+	orig := syncDirFn
+	syncDirFn = func(string) error { return errors.New("simulated fsync failure") }
+	t.Cleanup(func() { syncDirFn = orig })
+
+	if _, err := BeginRotation(); err == nil {
+		t.Fatal("BeginRotation succeeded despite an undurable directory; a crash could now lose the marker on a spent token")
 	}
-	// The marker must be gone on the refusal path, not left blocking the next
-	// attempt; covered here by the success path leaving exactly one marker.
-	if _, err := os.Stat(rotationMarkerPath()); err != nil {
-		t.Errorf("marker missing after a successful BeginRotation: %v", err)
+	// And it must not leave the marker it could not make durable.
+	if _, err := os.Stat(rotationMarkerPath()); err == nil {
+		t.Error("a refused rotation left its marker behind")
 	}
 }
 
@@ -391,5 +399,39 @@ func TestRefresh_DesktopSourceNeverMarksRotation(t *testing.T) {
 	}
 	if _, err := os.Stat(rotationMarkerPath()); err == nil {
 		t.Error("a refused desktop refresh wrote a rotation marker")
+	}
+}
+
+// The dedup check compares the stored session against what the caller held when
+// it decided to refresh. That snapshot is taken before the lock, so it can land
+// in the window after the winner updates the cache and before it releases --
+// making the loser compare the winner's new token against itself, conclude
+// nothing rotated, and present its own already-spent refresh token a second
+// time. Spending a single-use chain twice breaks it permanently, so the spent
+// token is tracked exactly rather than inferred from the cache.
+func TestRefresh_SpentTokenIsNotPresentedTwice(t *testing.T) {
+	armCLISession(t, time.Hour)
+	var calls atomic.Int32
+	orig := refreshClient
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		calls.Add(1)
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte(`{"access_token":"rotated-access","refresh_token":"rotated-refresh","expires_in":3600}`))
+	}))
+	t.Cleanup(srv.Close)
+	SetRefreshHTTPClient(&http.Client{Transport: &rewriteTransport{target: srv.URL}})
+	t.Cleanup(func() { SetRefreshHTTPClient(orig) })
+
+	if _, err := RefreshAccessToken("chain-token-1"); err != nil {
+		t.Fatalf("first refresh: %v", err)
+	}
+	// Re-presenting the consumed token is the lost-snapshot case: the cache now
+	// holds the winner's result, so nothing cache-visible says a rotation
+	// happened, and only the spent-token record can stop a second exchange.
+	if _, err := RefreshAccessToken("chain-token-1"); err != nil {
+		t.Fatalf("second refresh with the spent token: %v", err)
+	}
+	if got := calls.Load(); got != 1 {
+		t.Errorf("the spent refresh token was presented again: %d exchanges, want 1", got)
 	}
 }

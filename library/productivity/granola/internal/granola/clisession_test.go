@@ -20,6 +20,18 @@ func sessionSandbox(t *testing.T) string {
 	return path
 }
 
+// ageRotationMarker backdates the marker past rotationStaleAfter, standing in
+// for the process that created it having died. Presence alone no longer means
+// interruption -- a fresh marker is a live rotation -- so every test about the
+// interrupted state has to age it first.
+func ageRotationMarker(t *testing.T) {
+	t.Helper()
+	old := time.Now().Add(-2 * rotationStaleAfter)
+	if err := os.Chtimes(rotationMarkerPath(), old, old); err != nil {
+		t.Fatalf("backdate marker: %v", err)
+	}
+}
+
 func sampleSession() CLISession {
 	return CLISession{
 		AccessToken:  "access-token-value-aaaaaaaaaaaaaaaa",
@@ -143,7 +155,14 @@ func TestCLISessionInterruptedRotationDetected(t *testing.T) {
 	if _, err := BeginRotation(); err != nil {
 		t.Fatalf("BeginRotation: %v", err)
 	}
-	// Process "dies" here: marker present, replacement never written.
+	// Still running: the session on disk is the pre-rotation credential, which
+	// is valid until the replacement lands. Other processes must keep working.
+	if _, err := LoadCLISession(); err != nil {
+		t.Fatalf("a live rotation must not break concurrent readers: %v", err)
+	}
+	// Process dies here: marker present, replacement never written, and enough
+	// time passes that no live rotation could still own it.
+	ageRotationMarker(t)
 	_, err := LoadCLISession()
 	if !errors.Is(err, ErrSessionInterrupted) {
 		t.Fatalf("want ErrSessionInterrupted, got %v", err)
@@ -188,12 +207,16 @@ func TestCLISessionRotationIsExclusiveAcrossProcesses(t *testing.T) {
 		t.Fatalf("second process acquired the marker; want ErrRotationInProgress, got %v", err)
 	}
 	// A loser must not be able to clear the winner's marker, or a crash before
-	// the winner's durable write leaves a spent token undetectable.
-	loser := RotationHandle{}
+	// the winner's durable write leaves a spent token undetectable. The nonce is
+	// non-empty and different: a zero handle is short-circuited by the empty-nonce
+	// guard, so it would pass even against an implementation that removed the
+	// marker unconditionally once a nonce was present.
+	loser := RotationHandle{nonce: "a-different-process-nonce"}
 	loser.Abort()
 	if _, err := os.Stat(rotationMarkerPath()); err != nil {
 		t.Error("a non-owning abort removed the marker")
 	}
+	ageRotationMarker(t)
 	if _, err := LoadCLISession(); !errors.Is(err, ErrSessionInterrupted) {
 		t.Error("marker no longer signals an interrupted rotation")
 	}
@@ -223,8 +246,9 @@ func TestCLISessionRotationMarkerIsDurableBeforeReturn(t *testing.T) {
 	if len(got) == 0 {
 		t.Error("marker is empty; a non-owning abort could not be distinguished from an owning one")
 	}
+	ageRotationMarker(t)
 	if _, err := LoadCLISession(); !errors.Is(err, ErrSessionInterrupted) {
-		t.Errorf("want ErrSessionInterrupted while a rotation is in flight, got %v", err)
+		t.Errorf("want ErrSessionInterrupted once the marker outlives a live rotation, got %v", err)
 	}
 	h.Abort()
 }
@@ -238,6 +262,43 @@ func TestCLISessionRedactsTokens(t *testing.T) {
 		if strings.Contains(rendered, s.RefreshToken) {
 			t.Errorf("refresh token leaked into %q", rendered)
 		}
+	}
+}
+
+// A login completing while another process rotates must not delete that
+// process's marker: a third process could then begin a concurrent exchange of
+// the same single-use chain, which is the one outcome the marker prevents.
+func TestSaveDoesNotClearAnotherProcessLiveMarker(t *testing.T) {
+	sessionSandbox(t)
+	if err := SaveCLISession(sampleSession()); err != nil {
+		t.Fatalf("SaveCLISession: %v", err)
+	}
+	holder, err := BeginRotation()
+	if err != nil {
+		t.Fatalf("BeginRotation: %v", err)
+	}
+	// An unrelated `auth login` lands mid-rotation.
+	if err := SaveCLISession(sampleSession()); err != nil {
+		t.Fatalf("SaveCLISession during rotation: %v", err)
+	}
+	if _, err := os.Stat(rotationMarkerPath()); err != nil {
+		t.Fatal("a concurrent save removed a live rotation's marker; two processes can now exchange the same chain")
+	}
+	if _, err := BeginRotation(); !errors.Is(err, ErrRotationInProgress) {
+		t.Error("exclusivity lost after a concurrent save")
+	}
+	holder.Abort()
+	// A stale marker is different: nothing live owns it, and a save is the
+	// recovery path, so it must be cleared or the user can never get out.
+	if _, err := BeginRotation(); err != nil {
+		t.Fatalf("re-acquire: %v", err)
+	}
+	ageRotationMarker(t)
+	if err := SaveCLISession(sampleSession()); err != nil {
+		t.Fatalf("SaveCLISession: %v", err)
+	}
+	if _, err := os.Stat(rotationMarkerPath()); err == nil {
+		t.Error("a stale marker survived a completed save; the user cannot recover")
 	}
 }
 

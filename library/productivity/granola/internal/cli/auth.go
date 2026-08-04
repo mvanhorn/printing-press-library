@@ -198,6 +198,14 @@ func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 			if err := cfg.ClearTokens(); err != nil {
 				return configErr(fmt.Errorf("clearing tokens: %w", err))
 			}
+			// PATCH(cli-owned-workos-session): the CLI-owned session is a
+			// separate credential from the config API key, and logout must
+			// remove both. Clearing only the key left a live access and refresh
+			// token on disk while reporting "credentials cleared".
+			if err := granola.ClearCLISession(); err != nil {
+				return fmt.Errorf("clearing CLI session: %w", err)
+			}
+			granola.ResetTokenCache()
 
 			// Identify which (if any) auth env var is still exported so the
 			// JSON envelope and the human prose can both surface it.

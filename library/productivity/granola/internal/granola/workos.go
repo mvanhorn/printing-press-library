@@ -309,6 +309,14 @@ func awaitRotatedCLISession(seen sessionGeneration) (RefreshAccessTokenResponse,
 		// The holder cleared its marker without rotating -- it failed
 		// harmlessly, so there is nothing to wait for.
 		if _, err := os.Stat(rotationMarkerPath()); err != nil {
+			// One more read before giving up. A save renames the session and
+			// then removes the marker, so the holder can publish in the gap
+			// between the read above and this stat -- and giving up here would
+			// report "rotation in progress" while the fresh token it produced is
+			// already sitting on disk.
+			if fresh, ok := rotatedCLISessionToken(seen); ok {
+				return fresh, true
+			}
 			return RefreshAccessTokenResponse{}, false
 		}
 	}
@@ -319,6 +327,31 @@ func awaitRotatedCLISession(seen sessionGeneration) (RefreshAccessTokenResponse,
 // the generation this caller snapshotted, and returns it when so. That is the
 // signal that another goroutine or process won the race; reusing its result is
 // what stops the loser from spending a single-use chain twice.
+// lastConsumedRefresh is the refresh token most recently spent by a completed
+// exchange in this process. Guarded by refreshMu. It exists so a caller holding
+// that exact token can recognise it as already spent even when the cache
+// comparison cannot see the rotation.
+var (
+	consumedMu          sync.Mutex
+	lastConsumedRefresh string
+)
+
+// recordConsumedRefresh and isConsumedRefresh guard the ledger with their own
+// mutex rather than refreshMu. ResetTokenCache clears it and is itself called
+// from inside the refreshMu-held logout branch, so reusing refreshMu here would
+// deadlock the very path that abandons a rotation.
+func recordConsumedRefresh(tok string) {
+	consumedMu.Lock()
+	lastConsumedRefresh = tok
+	consumedMu.Unlock()
+}
+
+func isConsumedRefresh(tok string) bool {
+	consumedMu.Lock()
+	defer consumedMu.Unlock()
+	return tok != "" && tok == lastConsumedRefresh
+}
+
 func rotatedCLISessionToken(seen sessionGeneration) (RefreshAccessTokenResponse, bool) {
 	s, err := loadCLISessionUnmarked()
 	if err != nil || s.AccessToken == "" {
@@ -329,13 +362,21 @@ func rotatedCLISessionToken(seen sessionGeneration) (RefreshAccessTokenResponse,
 	if !advanced {
 		return RefreshAccessTokenResponse{}, false
 	}
-	if s.ExpiresAt.IsZero() || time.Until(s.ExpiresAt) < time.Minute {
-		return RefreshAccessTokenResponse{}, false
+	// Deliberately no freshness gate. "Someone else rotated" and "the result
+	// looks fresh" are different questions, and answering the first with the
+	// second fails in the dangerous direction: a winner whose response omitted
+	// expires_in publishes a new access token over a stale expiry, and the loser
+	// would read that as "no rotation happened" and exchange the same single-use
+	// refresh token a second time. A token that turns out to be expired costs a
+	// 401 and a retry; a double exchange breaks the chain for good.
+	remaining := time.Until(s.ExpiresAt)
+	if s.ExpiresAt.IsZero() || remaining < 0 {
+		remaining = 0
 	}
 	return RefreshAccessTokenResponse{
 		AccessToken:  s.AccessToken,
 		RefreshToken: s.RefreshToken,
-		ExpiresIn:    int(time.Until(s.ExpiresAt).Seconds()),
+		ExpiresIn:    int(remaining.Seconds()),
 	}, true
 }
 
@@ -356,6 +397,7 @@ func ResetTokenCache() {
 	cachedRefresh = ""
 	cachedExpiry = time.Time{}
 	cachedSource = TokenSourceUnknown
+	recordConsumedRefresh("")
 }
 
 // CurrentTokenSource returns the origin of the in-process cached token.
@@ -624,9 +666,33 @@ func RefreshAccessToken(refreshToken string) (RefreshAccessTokenResponse, error)
 		// decided to refresh, so "stored differs from mine" is exactly the
 		// question worth asking -- and it stays true when the provider
 		// preserves the refresh token, which Granola's proxy is observed to do.
+		// Snapshotted before the lock on purpose: it must record what this
+		// caller was using when it decided to refresh, not what the winner
+		// published while this caller was blocked. Sampling under the lock reads
+		// the winner's own result, making "did anyone rotate?" compare the new
+		// token against itself -- every loser then concludes nothing happened.
 		seen := heldSessionGeneration()
 		refreshMu.Lock()
 		defer refreshMu.Unlock()
+		// The snapshot above can still be taken in the narrow window after the
+		// winner updates the cache and before it releases the lock, which would
+		// hide the rotation. That case is caught exactly rather than
+		// approximately: the winner records which refresh token it consumed, so
+		// a caller presenting that same token knows its own credential is spent
+		// and must adopt the winner's result instead of exchanging again.
+		if isConsumedRefresh(refreshToken) {
+			if stored, err := loadCLISessionUnmarked(); err == nil && stored.AccessToken != "" {
+				remaining := time.Until(stored.ExpiresAt)
+				if stored.ExpiresAt.IsZero() || remaining < 0 {
+					remaining = 0
+				}
+				return adoptRotated(RefreshAccessTokenResponse{
+					AccessToken:  stored.AccessToken,
+					RefreshToken: stored.RefreshToken,
+					ExpiresIn:    int(remaining.Seconds()),
+				}), nil
+			}
+		}
 		// Another goroutine may have completed a refresh while this one waited.
 		// Detect that by the stored refresh token no longer matching the one
 		// this caller presented, and hand back the winner's result rather than
@@ -710,6 +776,17 @@ func RefreshAccessToken(refreshToken string) (RefreshAccessTokenResponse, error)
 	if resp.StatusCode != http.StatusOK {
 		return RefreshAccessTokenResponse{}, fmt.Errorf("granola refresh: status %d: %s", resp.StatusCode, string(respBody))
 	}
+	// A 200 is proof the endpoint rotated, so the presented token is spent from
+	// here on regardless of what the body turns out to contain. Flipping this
+	// on parse success instead would let a truncated or malformed body clear
+	// the marker on an already-consumed token -- deleting the only evidence of
+	// the state the marker exists to record.
+	exchanged = true
+	// Recorded at the same moment for the same reason: the server has committed,
+	// so this refresh token is spent. A concurrent caller holding it must adopt
+	// the result rather than present it again. Written under refreshMu, which
+	// this function holds for its whole body.
+	recordConsumedRefresh(refreshToken)
 	var parsed RefreshAccessTokenResponse
 	if err := json.Unmarshal(respBody, &parsed); err != nil {
 		return RefreshAccessTokenResponse{}, fmt.Errorf("granola refresh: parse response: %w", err)
@@ -717,7 +794,6 @@ func RefreshAccessToken(refreshToken string) (RefreshAccessTokenResponse, error)
 	if parsed.AccessToken == "" {
 		return RefreshAccessTokenResponse{}, fmt.Errorf("granola refresh: empty access_token in response")
 	}
-	exchanged = true
 	// Cache the new pair in-process.
 	tokenMu.Lock()
 	cachedAccess = parsed.AccessToken
@@ -745,8 +821,12 @@ func RefreshAccessToken(refreshToken string) (RefreshAccessTokenResponse, error)
 				// Logout won. The marker only exists to flag a session that
 				// needs recovering, and there is no longer a session -- leaving
 				// it would tell the user to re-login to repair something they
-				// deliberately deleted. Clear it and report the logout.
+				// deliberately deleted. Clear it, and drop the in-process cache
+				// too: the tokens just exchanged are still in memory, and
+				// leaving them there would keep serving a credential the user
+				// removed from disk.
 				rotationHandle.Abort()
+				ResetTokenCache()
 			}
 			return RefreshAccessTokenResponse{}, err
 		}

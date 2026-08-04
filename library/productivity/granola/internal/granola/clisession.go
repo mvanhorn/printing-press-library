@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -78,6 +79,54 @@ func CLISessionPath() string {
 // mid-rotation.
 func rotationMarkerPath() string { return CLISessionPath() + ".rotating" }
 
+// rotationStaleAfter bounds how long a marker can plausibly belong to a live
+// rotation. The guarded window is a rate-limiter wait (~500ms at 2 req/s), one
+// HTTP exchange (15s client timeout), and an fsync'd write; two minutes is far
+// past that and still far short of a session's lifetime.
+//
+// The window exists because presence alone answers the wrong question. A marker
+// means "a rotation started", which is either one running now or one that died,
+// and only the second is a problem the user must repair. Treating both as
+// interruption made every concurrent command fail with "run auth login" while a
+// perfectly healthy refresh was in flight -- and sent the user to the one
+// command that then broke the exclusivity the marker exists to provide.
+const rotationStaleAfter = 2 * time.Minute
+
+// syncDirFn is the directory-fsync used by BeginRotation. It is a variable only
+// so a test can make it fail: the refusal it guards is unreachable on a healthy
+// filesystem, and a test that cannot induce the failure asserts nothing about
+// the refusal.
+var syncDirFn = syncDir
+
+// rotationMarkerState reports whether a marker exists and, if so, whether it is
+// old enough that the process holding it must be assumed dead.
+func rotationMarkerState() (present, stale bool) {
+	info, err := os.Stat(rotationMarkerPath())
+	if err != nil {
+		return false, false
+	}
+	return true, time.Since(info.ModTime()) > rotationStaleAfter
+}
+
+// clearRotationMarker removes the marker only when doing so is safe: either the
+// caller owns it (nonce match) or it is stale enough that no live rotation can
+// still be relying on it. An unconditional remove here would let one process
+// delete another's in-flight marker, and two processes would then exchange the
+// same single-use chain.
+func clearRotationMarker(ownedNonce string) {
+	got, err := os.ReadFile(rotationMarkerPath())
+	if err != nil {
+		return
+	}
+	owned := ownedNonce != "" && strings.TrimSpace(string(got)) == ownedNonce
+	if _, stale := rotationMarkerState(); !owned && !stale {
+		return
+	}
+	if err := os.Remove(rotationMarkerPath()); err == nil {
+		_ = syncDir(filepath.Dir(rotationMarkerPath()))
+	}
+}
+
 // LoadCLISession reads the stored session.
 //
 // Returns ErrNoCLISession when absent, ErrSessionInterrupted when a rotation
@@ -88,7 +137,12 @@ func LoadCLISession() (CLISession, error) {
 	// that also lost the session file is still an interrupted rotation, and
 	// reporting it as "no session" would hide the one state the marker exists
 	// to make visible.
-	if _, err := os.Stat(rotationMarkerPath()); err == nil {
+	//
+	// Only a stale marker means interrupted. A fresh one belongs to a rotation
+	// that is still running, and the session on disk is the pre-rotation
+	// credential -- still valid, since the replacement has not landed yet. Any
+	// other process may keep using it.
+	if present, stale := rotationMarkerState(); present && stale {
 		return CLISession{}, ErrSessionInterrupted
 	}
 	return loadCLISessionUnmarked()
@@ -144,7 +198,11 @@ func SaveCLISession(s CLISession) error {
 	if err != nil {
 		return fmt.Errorf("clisession: marshal: %w", err)
 	}
-	tmp := path + ".tmp"
+	// Uniquified: a fixed ".tmp" lets a second writer O_TRUNC the first one's
+	// partially written file, after which the first keeps writing at its old
+	// offset and renames a torn file into place. Two logins, or a login racing a
+	// rotation persist, are both unguarded by the marker.
+	tmp := fmt.Sprintf("%s.tmp.%d.%d", path, os.Getpid(), time.Now().UnixNano())
 	// 0600 on the temp file, because Rename preserves the source mode -- a
 	// 0644 temp file would land as a 0644 credential.
 	f, err := os.OpenFile(tmp, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
@@ -172,7 +230,10 @@ func SaveCLISession(s CLISession) error {
 	// Best-effort for the session itself: the rename already published the file,
 	// so an unsyncable directory costs durability of the entry, not the data.
 	_ = syncDir(dir)
-	os.Remove(rotationMarkerPath())
+	// Stale-only: a fresh marker belongs to another process's live rotation, and
+	// removing it would let a third process begin a concurrent exchange of the
+	// same single-use chain. The rotation owner clears its own marker by nonce.
+	clearRotationMarker("")
 	return nil
 }
 
@@ -235,7 +296,7 @@ func BeginRotation() (RotationHandle, error) {
 	// that spends a single-use token. If its directory entry cannot be made
 	// durable, refusing to rotate is strictly better than spending the token
 	// with no way to detect having lost the record of it.
-	if derr := syncDir(filepath.Dir(rotationMarkerPath())); derr != nil {
+	if derr := syncDirFn(filepath.Dir(rotationMarkerPath())); derr != nil {
 		os.Remove(rotationMarkerPath())
 		return RotationHandle{}, fmt.Errorf("clisession: begin rotation: durable marker unavailable: %w", derr)
 	}
@@ -266,10 +327,16 @@ func (h RotationHandle) Abort() {
 func ClearCLISession() error {
 	refreshMu.Lock()
 	defer refreshMu.Unlock()
-	os.Remove(rotationMarkerPath())
+	// Session first, marker second. If the session removal fails, the marker
+	// must survive: clearing it first would turn a failed logout into a session
+	// that loads as perfectly healthy, hiding an interrupted rotation the user
+	// still needs to repair.
 	if err := os.Remove(CLISessionPath()); err != nil && !os.IsNotExist(err) {
 		return fmt.Errorf("clisession: remove: %w", err)
 	}
+	// The session is gone, so any marker is now meaningless regardless of who
+	// owns it -- there is no credential left for a rotation to protect.
+	os.Remove(rotationMarkerPath())
 	return nil
 }
 
