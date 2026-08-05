@@ -1,0 +1,197 @@
+{
+  "api_name": "conductor",
+  "novelty_score": 9,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [
+    "queued-message false-idle",
+    "asynchronous cancellation",
+    "archive and reopen",
+    "read-only transcript SQL"
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-05T19:55:00Z",
+  "novel_features": [
+    {
+      "name": "Launch",
+      "command": "launch",
+      "description": "Create a workspace and first session, send a brief, and return the Conductor deep link.",
+      "rationale": "Combines workspace launch, message delivery, and identifiers into one bounded operator action.",
+      "example": "conductor-pp-cli launch --repository-url https://github.com/example/acme --branch main --harness codex --model gpt-5.4 --effort high --brief-file issue.md --agent",
+      "why_it_matters": "Use this when an agent needs a new isolated Conductor workspace and task in one call.",
+      "group": "Bounded agent orchestration"
+    },
+    {
+      "name": "Monitor",
+      "command": "monitor",
+      "description": "Poll a session until real completion while streaming only new transcript events.",
+      "rationale": "Correct completion needs status history plus transcript changes to avoid Conductor's queued false-idle race.",
+      "example": "conductor-pp-cli monitor sess_123 --timeout 30m --interval 5s --dry-run --agent",
+      "why_it_matters": "Use this instead of treating one idle response as proof that a queued task finished.",
+      "group": "Safe lifecycle control"
+    },
+    {
+      "name": "Steer",
+      "command": "steer",
+      "description": "Send follow-up guidance to an existing Conductor session with a clear delivery receipt.",
+      "rationale": "Turns the message primitive into an agent-safe intervention command.",
+      "example": "conductor-pp-cli steer sess_123 --message 'Run the focused tests before changing the schema' --dry-run --agent",
+      "why_it_matters": "Use this to correct or refine active work without creating another session.",
+      "group": "Safe lifecycle control"
+    },
+    {
+      "name": "Run",
+      "command": "run",
+      "description": "Launch, monitor, and collect the final transcript and deep link with explicit timeout rules.",
+      "rationale": "Joins asynchronous lifecycle operations into a single bounded receipt without merging or deploying.",
+      "example": "conductor-pp-cli run --repository-url https://github.com/example/acme --branch main --harness codex --model gpt-5.4 --effort high --brief-file issue.md --timeout 30m --agent",
+      "why_it_matters": "Use this when the caller needs a complete Conductor task receipt, not just a launched workspace.",
+      "group": "Bounded agent orchestration"
+    },
+    {
+      "name": "Plan and implement",
+      "command": "plan-implement",
+      "description": "Keep a planner or reviewer session separate from the implementation session in one workspace.",
+      "rationale": "Uses Conductor's multi-session workspace model to preserve role separation and context boundaries.",
+      "example": "conductor-pp-cli plan-implement --repository-url https://github.com/example/acme --branch main --planner-agent claude --implementer-agent codex --brief-file issue.md --agent",
+      "why_it_matters": "Use this when implementation should start from an explicit plan without mixing planner and coder context.",
+      "group": "Bounded agent orchestration"
+    },
+    {
+      "name": "Daily report",
+      "command": "daily-report",
+      "description": "Return recent Conductor session rows and mechanical activity totals from transcript search.",
+      "rationale": "The read-only transcript SQL endpoint can assemble cross-workspace activity without the desktop app.",
+      "example": "conductor-pp-cli daily-report --since 24h --limit 50 --agent",
+      "why_it_matters": "Use this for a compact, deterministic activity feed that another agent can analyze.",
+      "group": "Transcript operations"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Launch",
+      "command": "launch",
+      "description": "Create a workspace and first session, send a brief, and return the Conductor deep link.",
+      "rationale": "Combines workspace launch, message delivery, and identifiers into one bounded operator action.",
+      "example": "conductor-pp-cli launch --repository-url https://github.com/example/acme --branch main --harness codex --model gpt-5.4 --effort high --brief-file issue.md --agent",
+      "why_it_matters": "Use this when an agent needs a new isolated Conductor workspace and task in one call.",
+      "group": "Bounded agent orchestration"
+    },
+    {
+      "name": "Monitor",
+      "command": "monitor",
+      "description": "Poll a session until real completion while streaming only new transcript events.",
+      "rationale": "Correct completion needs status history plus transcript changes to avoid Conductor's queued false-idle race.",
+      "example": "conductor-pp-cli monitor sess_123 --timeout 30m --interval 5s --dry-run --agent",
+      "why_it_matters": "Use this instead of treating one idle response as proof that a queued task finished.",
+      "group": "Safe lifecycle control"
+    },
+    {
+      "name": "Steer",
+      "command": "steer",
+      "description": "Send follow-up guidance to an existing Conductor session with a clear delivery receipt.",
+      "rationale": "Turns the message primitive into an agent-safe intervention command.",
+      "example": "conductor-pp-cli steer sess_123 --message 'Run the focused tests before changing the schema' --dry-run --agent",
+      "why_it_matters": "Use this to correct or refine active work without creating another session.",
+      "group": "Safe lifecycle control"
+    },
+    {
+      "name": "Run",
+      "command": "run",
+      "description": "Launch, monitor, and collect the final transcript and deep link with explicit timeout rules.",
+      "rationale": "Joins asynchronous lifecycle operations into a single bounded receipt without merging or deploying.",
+      "example": "conductor-pp-cli run --repository-url https://github.com/example/acme --branch main --harness codex --model gpt-5.4 --effort high --brief-file issue.md --timeout 30m --agent",
+      "why_it_matters": "Use this when the caller needs a complete Conductor task receipt, not just a launched workspace.",
+      "group": "Bounded agent orchestration"
+    },
+    {
+      "name": "Plan and implement",
+      "command": "plan-implement",
+      "description": "Keep a planner or reviewer session separate from the implementation session in one workspace.",
+      "rationale": "Uses Conductor's multi-session workspace model to preserve role separation and context boundaries.",
+      "example": "conductor-pp-cli plan-implement --repository-url https://github.com/example/acme --branch main --planner-agent claude --implementer-agent codex --brief-file issue.md --agent",
+      "why_it_matters": "Use this when implementation should start from an explicit plan without mixing planner and coder context.",
+      "group": "Bounded agent orchestration"
+    },
+    {
+      "name": "Daily report",
+      "command": "daily-report",
+      "description": "Return recent Conductor session rows and mechanical activity totals from transcript search.",
+      "rationale": "The read-only transcript SQL endpoint can assemble cross-workspace activity without the desktop app.",
+      "example": "conductor-pp-cli daily-report --since 24h --limit 50 --agent",
+      "why_it_matters": "Use this for a compact, deterministic activity feed that another agent can analyze.",
+      "group": "Transcript operations"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "CONDUCTOR_API_KEY"
+  },
+  "narrative": {
+    "display_name": "Conductor Cloud",
+    "headline": "Every Conductor Cloud API primitive, plus bounded session orchestration that handles asynchronous lifecycle races.",
+    "value_prop": "Use `launch`, `monitor`, `steer`, and `run` to control coding-agent work without relying on the desktop app. The CLI treats status changes, transcript cursors, cancellation, and timeouts as one lifecycle instead of unrelated API calls.",
+    "auth_narrative": "Set `CONDUCTOR_API_KEY` to a Conductor Cloud API key. The CLI sends it only as a bearer token to `api.conductor.build` and never prints it.",
+    "quickstart": [
+      {
+        "command": "conductor-pp-cli doctor --dry-run",
+        "comment": "Check configuration and command wiring without credentials or network mutations."
+      },
+      {
+        "command": "conductor-pp-cli me --agent",
+        "comment": "Confirm the key resolves to the expected Conductor user and organization."
+      },
+      {
+        "command": "conductor-pp-cli projects list --limit 20 --agent",
+        "comment": "Find a project ID before launching a project-backed workspace."
+      },
+      {
+        "command": "conductor-pp-cli launch --repository-url https://github.com/example/acme --branch main --harness codex --model gpt-5.4 --effort high --brief 'Run the focused test suite' --dry-run --json",
+        "comment": "Preview a bounded launch payload before creating anything."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "The API returns UNAUTHORIZED.",
+        "fix": "Set a valid `CONDUCTOR_API_KEY` and rerun `conductor-pp-cli doctor`."
+      },
+      {
+        "symptom": "A session reports idle immediately after a message is queued.",
+        "fix": "Use `monitor`; it waits for working state or transcript movement before accepting a later idle state."
+      },
+      {
+        "symptom": "Cancellation returns before work has stopped.",
+        "fix": "Use the confirmation mode and poll until session status returns to idle."
+      }
+    ],
+    "when_to_use": "Use this CLI for Conductor Cloud project, workspace, session, message, and transcript operations. Prefer the workflow commands when a task spans several API calls or depends on asynchronous status. Do not use it to read Linear issues; ENG-526 owns that integration.",
+    "anti_triggers": [
+      "Reading or updating Linear issues",
+      "Merging pull requests or deploying code",
+      "Running local Conductor desktop-only workflows"
+    ],
+    "recipes": [
+      {
+        "title": "Monitor an existing session",
+        "command": "conductor-pp-cli monitor sess_123 --timeout 30m --interval 5s --agent",
+        "explanation": "Streams incremental events and returns only after the task has demonstrably started and later completed."
+      },
+      {
+        "title": "Send steering guidance",
+        "command": "conductor-pp-cli steer sess_123 --message 'Keep the change scoped to the parser' --agent",
+        "explanation": "Adds guidance to the current session without creating a second workspace."
+      },
+      {
+        "title": "Review recent work",
+        "command": "conductor-pp-cli daily-report --since 24h --limit 50 --agent",
+        "explanation": "Returns mechanical session activity for downstream review or reporting."
+      }
+    ],
+    "trigger_phrases": [
+      "launch this in Conductor",
+      "monitor this Conductor session",
+      "steer the Conductor agent",
+      "run this task in Conductor Cloud",
+      "show recent Conductor work"
+    ]
+  }
+}
