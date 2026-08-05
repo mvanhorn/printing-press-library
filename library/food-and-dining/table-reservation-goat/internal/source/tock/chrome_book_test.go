@@ -13,6 +13,7 @@ import (
 	"time"
 
 	cdproto "github.com/chromedp/cdproto"
+	"github.com/chromedp/cdproto/network"
 	"github.com/chromedp/chromedp"
 	"github.com/dop251/goja"
 )
@@ -61,6 +62,160 @@ func withTockDOMFixtureAtPath(t *testing.T, path, html string, run func(context.
 		t.Skipf("chromedp unavailable for DOM fixture: %v", err)
 	}
 	run(timed)
+}
+
+func TestTockConfirmNetworkTelemetry_FormPostRedirectMatrix(t *testing.T) {
+	tests := []struct {
+		name         string
+		postStatus   int
+		redirect     string
+		closePost    bool
+		wantStatus   int
+		wantPostFail bool
+	}{
+		{name: "post 302 then receipt get 200", postStatus: http.StatusFound, redirect: "/matrix-slug/receipt", wantStatus: http.StatusFound},
+		{name: "post 303 then receipt get 200", postStatus: http.StatusSeeOther, redirect: "/matrix-slug/receipt", wantStatus: http.StatusSeeOther},
+		{name: "post redirect then receipt loading failure", postStatus: http.StatusFound, redirect: "http://127.0.0.1:1/matrix-slug/receipt", wantStatus: http.StatusFound},
+		{name: "direct 2xx", postStatus: http.StatusOK, wantStatus: http.StatusOK},
+		{name: "direct non 2xx", postStatus: http.StatusUnprocessableEntity, wantStatus: http.StatusUnprocessableEntity},
+		{name: "pre response loading failure", closePost: true, wantPostFail: true},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			const checkoutPath = "/matrix-slug/checkout/confirm-purchase"
+			var srv *httptest.Server
+			srv = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				switch {
+				case r.Method == http.MethodPost && r.URL.Path == checkoutPath:
+					if tc.closePost {
+						hijacker, ok := w.(http.Hijacker)
+						if !ok {
+							t.Error("response writer cannot hijack")
+							return
+						}
+						conn, _, err := hijacker.Hijack()
+						if err != nil {
+							t.Errorf("hijack: %v", err)
+							return
+						}
+						_ = conn.Close()
+						return
+					}
+					if tc.redirect != "" {
+						http.Redirect(w, r, tc.redirect, tc.postStatus)
+						return
+					}
+					w.WriteHeader(tc.postStatus)
+					_, _ = w.Write([]byte(`<!doctype html><p>direct response</p>`))
+				case r.URL.Path == "/matrix-slug/receipt":
+					_, _ = w.Write([]byte(`<!doctype html><p>receipt</p>`))
+				default:
+					_, _ = w.Write([]byte(`<!doctype html><form method="post" action="` + checkoutPath + `"><button type="submit">Complete reservation</button></form>`))
+				}
+			}))
+			defer srv.Close()
+
+			allocCtx, cancelAlloc := chromedp.NewExecAllocator(context.Background(), append(chromedp.DefaultExecAllocatorOptions[:],
+				chromedp.Flag("headless", "new"), chromedp.Flag("no-sandbox", true), chromedp.Flag("disable-gpu", true))...)
+			defer cancelAlloc()
+			ctx, cancel := chromedp.NewContext(allocCtx)
+			defer cancel()
+			timed, cancelTimed := context.WithTimeout(ctx, 12*time.Second)
+			defer cancelTimed()
+			if err := chromedp.Run(timed, chromedp.Navigate(srv.URL+checkoutPath)); err != nil {
+				t.Skipf("chromedp unavailable for network fixture: %v", err)
+			}
+			telemetry := newTockConfirmTelemetry()
+			chromedp.ListenTarget(timed, telemetry.listen("matrix-slug"))
+			if err := chromedp.Run(timed, network.Enable()); err != nil {
+				t.Fatalf("enable network: %v", err)
+			}
+			clickErr := clickPlaceReservation(timed)
+			if clickErr != nil && !isTransientNavigationError(clickErr) && !tc.closePost {
+				t.Fatalf("submit confirm form: %v", clickErr)
+			}
+			deadline := time.Now().Add(3 * time.Second)
+			var got tockConfirmTelemetrySnapshot
+			for time.Now().Before(deadline) {
+				got = telemetry.read()
+				if got.ConfirmPostsSeen == 1 && (got.ConfirmPostLastStatus != 0 || got.ConfirmPostLoadingFailed) {
+					break
+				}
+				time.Sleep(20 * time.Millisecond)
+			}
+			if got.ConfirmPostsSeen != 1 || got.ConfirmPostLastStatus != tc.wantStatus || got.ConfirmPostLoadingFailed != tc.wantPostFail {
+				t.Fatalf("network telemetry = posts:%d status:%d failed:%v, want 1/%d/%v", got.ConfirmPostsSeen, got.ConfirmPostLastStatus, got.ConfirmPostLoadingFailed, tc.wantStatus, tc.wantPostFail)
+			}
+		})
+	}
+}
+
+func TestTockConfirmNetworkTelemetry_GenerationCorrelation(t *testing.T) {
+	t.Run("redirect receipt events do not overwrite post", func(t *testing.T) {
+		telemetry := newTockConfirmTelemetry()
+		listen := telemetry.listen("matrix-slug")
+		listen(&network.EventRequestWillBeSent{RequestID: "nav", Request: &network.Request{Method: http.MethodPost, URL: "https://example.test/matrix-slug/checkout/confirm-purchase"}})
+		listen(&network.EventRequestWillBeSent{RequestID: "nav", RedirectResponse: &network.Response{Status: 303}, Request: &network.Request{Method: http.MethodGet, URL: "https://example.test/matrix-slug/receipt"}})
+		listen(&network.EventResponseReceived{RequestID: "nav", Response: &network.Response{Status: 200}})
+		listen(&network.EventLoadingFailed{RequestID: "nav", ErrorText: "receipt failed"})
+		got := telemetry.read()
+		if got.ConfirmPostsSeen != 1 || got.ConfirmPostLastStatus != 303 || got.ConfirmPostLoadingFailed {
+			t.Fatalf("redirect telemetry = posts:%d status:%d failed:%v, want 1/303/false", got.ConfirmPostsSeen, got.ConfirmPostLastStatus, got.ConfirmPostLoadingFailed)
+		}
+	})
+
+	for _, tc := range []struct {
+		name   string
+		status int
+		failed bool
+	}{
+		{"direct 2xx", 204, false}, {"direct non 2xx", 422, false}, {"pre response loading failure", 0, true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			telemetry := newTockConfirmTelemetry()
+			listen := telemetry.listen("matrix-slug")
+			listen(&network.EventRequestWillBeSent{RequestID: "post", Request: &network.Request{Method: http.MethodPost, URL: "https://example.test/matrix-slug/checkout/confirm-purchase"}})
+			if tc.failed {
+				listen(&network.EventLoadingFailed{RequestID: "post"})
+			} else {
+				listen(&network.EventResponseReceived{RequestID: "post", Response: &network.Response{Status: int64(tc.status)}})
+			}
+			got := telemetry.read()
+			if got.ConfirmPostsSeen != 1 || got.ConfirmPostLastStatus != tc.status || got.ConfirmPostLoadingFailed != tc.failed {
+				t.Fatalf("direct telemetry = posts:%d status:%d failed:%v, want 1/%d/%v", got.ConfirmPostsSeen, got.ConfirmPostLastStatus, got.ConfirmPostLoadingFailed, tc.status, tc.failed)
+			}
+		})
+	}
+
+	t.Run("late older response cannot overwrite newest generation", func(t *testing.T) {
+		telemetry := newTockConfirmTelemetry()
+		listen := telemetry.listen("matrix-slug")
+		for _, id := range []network.RequestID{"first", "second"} {
+			listen(&network.EventRequestWillBeSent{RequestID: id, Request: &network.Request{Method: http.MethodPost, URL: "https://example.test/matrix-slug/checkout/confirm-purchase"}})
+		}
+		listen(&network.EventResponseReceived{RequestID: "second", Response: &network.Response{Status: 201}})
+		listen(&network.EventResponseReceived{RequestID: "first", Response: &network.Response{Status: 500}})
+		got := telemetry.read()
+		if got.ConfirmPostsSeen != 2 || got.ConfirmPostLastStatus != 201 {
+			t.Fatalf("late-response telemetry = posts:%d status:%d, want 2/201", got.ConfirmPostsSeen, got.ConfirmPostLastStatus)
+		}
+	})
+
+	t.Run("exact escaped path and method allowlist", func(t *testing.T) {
+		telemetry := newTockConfirmTelemetry()
+		listen := telemetry.listen("venue%2Fprivate")
+		for i, req := range []*network.Request{
+			{Method: http.MethodGet, URL: "https://example.test/venue%2Fprivate/checkout/confirm-purchase"},
+			{Method: http.MethodPost, URL: "https://example.test/venue%2Fprivate/checkout/confirm-purchase/extra"},
+			{Method: http.MethodPost, URL: "https://example.test/other/checkout/confirm-purchase"},
+			{Method: http.MethodPost, URL: "https://example.test/venue%2Fprivate/checkout/confirm-purchase"},
+		} {
+			listen(&network.EventRequestWillBeSent{RequestID: network.RequestID(fmt.Sprintf("req-%d", i)), Request: req})
+		}
+		if got := telemetry.read().ConfirmPostsSeen; got != 1 {
+			t.Fatalf("allowlisted post generations = %d, want 1", got)
+		}
+	})
 }
 
 func TestClickComboboxExperienceLayout_ChoosesStandardReservationForSmallParty(t *testing.T) {
@@ -233,6 +388,195 @@ func TestCheckoutPageStateHint_ReportsLegacyAndSemanticDialogs(t *testing.T) {
 			})
 		})
 	}
+}
+
+func TestClickPlaceReservation_BeaconCoherenceAndFormValidity(t *testing.T) {
+	html := `<!doctype html>
+		<button id="probe">Confirm something else</button>
+		<form><input required value=""><button id="actual" type="submit" onclick="event.preventDefault()">Complete reservation</button></form>`
+	withTockDOMFixtureAtPath(t, "/checkout/confirm-purchase", html, func(ctx context.Context) {
+		if err := clickPlaceReservation(ctx); err != nil {
+			t.Fatalf("first click: %v", err)
+		}
+		if err := clickPlaceReservation(ctx); err != nil {
+			t.Fatalf("second click: %v", err)
+		}
+		state, err := readTockCheckoutPageState(ctx)
+		if err != nil {
+			t.Fatalf("read checkout state: %v", err)
+		}
+		if state.ConfirmClicksReceived != 2 || !state.ConfirmClickTrusted {
+			t.Fatalf("beacon = count:%d trusted:%v, want 2/true (same-node listener must install once)", state.ConfirmClicksReceived, state.ConfirmClickTrusted)
+		}
+		if state.ConfirmTargetMatchesProbe {
+			t.Fatal("actual submit target unexpectedly matched the broad first probe")
+		}
+		if state.ConfirmFormValid || state.InvalidControlCount != 1 {
+			t.Fatalf("form telemetry = valid:%v invalid:%d, want false/1", state.ConfirmFormValid, state.InvalidControlCount)
+		}
+	})
+}
+
+func TestClickPlaceReservation_BeaconAbsentAfterNavigation(t *testing.T) {
+	var srv *httptest.Server
+	srv = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPost {
+			_, _ = w.Write([]byte(`<!doctype html><p>receipt</p>`))
+			return
+		}
+		_, _ = w.Write([]byte(`<!doctype html><form method="post"><button type="submit">Complete reservation</button></form>`))
+	}))
+	defer srv.Close()
+	allocCtx, cancelAlloc := chromedp.NewExecAllocator(context.Background(), append(chromedp.DefaultExecAllocatorOptions[:], chromedp.Flag("headless", "new"), chromedp.Flag("no-sandbox", true))...)
+	defer cancelAlloc()
+	ctx, cancel := chromedp.NewContext(allocCtx)
+	defer cancel()
+	timed, cancelTimed := context.WithTimeout(ctx, 10*time.Second)
+	defer cancelTimed()
+	if err := chromedp.Run(timed, chromedp.Navigate(srv.URL+"/checkout/confirm-purchase")); err != nil {
+		t.Skipf("chromedp unavailable for navigation fixture: %v", err)
+	}
+	if err := clickPlaceReservation(timed); err != nil && !isTransientNavigationError(err) {
+		t.Fatalf("click: %v", err)
+	}
+	if err := chromedp.Run(timed, chromedp.WaitVisible("p", chromedp.ByQuery)); err != nil {
+		t.Fatalf("wait navigation: %v", err)
+	}
+	var present bool
+	if err := chromedp.Run(timed, chromedp.Evaluate(`Boolean(window.__trgConfirmClickBeacon)`, &present)); err != nil {
+		t.Fatalf("read beacon: %v", err)
+	}
+	if present {
+		t.Fatal("click beacon survived full-document navigation")
+	}
+}
+
+func TestCheckoutPageStateHint_PaymentIframePresence(t *testing.T) {
+	tests := []struct {
+		name, html string
+		want       int
+	}{
+		{"absent", `<!doctype html>`, 0},
+		{"present src", `<!doctype html><iframe src="https://payments.example/braintree/field"></iframe>`, 1},
+		{"present name and title", `<!doctype html><iframe name="hosted-fields-cvv"></iframe><iframe title="PayPal"></iframe>`, 2},
+		{"unrelated", `<!doctype html><iframe src="https://example.test/map" title="venue map"></iframe>`, 0},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			withTockDOMFixture(t, tc.html, func(ctx context.Context) {
+				state, err := readTockCheckoutPageState(ctx)
+				if err != nil {
+					t.Fatalf("read state: %v", err)
+				}
+				if state.PaymentIframeCount != tc.want {
+					t.Fatalf("payment iframe count = %d, want %d", state.PaymentIframeCount, tc.want)
+				}
+			})
+		})
+	}
+	t.Run("rerendered", func(t *testing.T) {
+		withTockDOMFixture(t, `<!doctype html><div id="root"><iframe name="braintree-old"></iframe></div>`, func(ctx context.Context) {
+			if err := chromedp.Run(ctx, chromedp.Evaluate(`document.getElementById('root').innerHTML='<iframe title="hosted-fields-new"></iframe><iframe src="/ordinary"></iframe>'`, nil)); err != nil {
+				t.Fatalf("rerender: %v", err)
+			}
+			state, err := readTockCheckoutPageState(ctx)
+			if err != nil || state.PaymentIframeCount != 1 {
+				t.Fatalf("rerendered payment iframe = %d, %v, want 1", state.PaymentIframeCount, err)
+			}
+		})
+	})
+}
+
+func TestCheckoutPageStateHint_CanonicalAlertsAndPrivacy(t *testing.T) {
+	secrets := []string{"Ada Lovelace", "ada@example.test", "+1 919 555 0199", "query-token-secret", "4111111111111111"}
+	html := `<!doctype html>
+		<div role="alert">Payment failed for Ada Lovelace ada@example.test +1 919 555 0199 query-token-secret 4111111111111111</div>
+		<div class="checkout-error">Please try again for Ada Lovelace</div>
+		<div class="error-private">unclassified query-token-secret</div>
+		<p>Ada Lovelace ada@example.test +1 919 555 0199 query-token-secret 4111111111111111</p>`
+	withTockDOMFixtureAtPath(t, "/checkout/confirm-purchase?token=query-token-secret", html, func(ctx context.Context) {
+		hint := checkoutPageStateHintWithTelemetry(ctx, newTockConfirmTelemetry())
+		errorText := fmt.Errorf("receipt page never reached; checkout_state=%s", hint).Error()
+		for _, secret := range secrets {
+			if strings.Contains(hint, secret) {
+				t.Fatalf("checkout hint leaked %q: %s", secret, hint)
+			}
+			if strings.Contains(errorText, secret) {
+				t.Fatalf("checkout error leaked %q: %s", secret, errorText)
+			}
+		}
+		for _, want := range []string{`"alerts":["Payment","Try again","Other alert"]`, `"alert_count":3`} {
+			if !strings.Contains(hint, want) {
+				t.Fatalf("checkout hint missing %s: %s", want, hint)
+			}
+		}
+		if strings.Contains(hint, "query-token-secret") || strings.Contains(hint, "?") {
+			t.Fatalf("checkout hint exposed query material: %s", hint)
+		}
+	})
+}
+
+func TestConfirmEvidenceCombinationMatrix(t *testing.T) {
+	html := `<!doctype html><button onclick="event.preventDefault()">Complete reservation</button>`
+	withTockDOMFixtureAtPath(t, "/matrix-slug/checkout/confirm-purchase", html, func(ctx context.Context) {
+		noPost := newTockConfirmTelemetry()
+		before := checkoutPageStateHintWithTelemetry(ctx, noPost)
+		for _, want := range []string{`"confirm_clicks_received":0`, `"confirm_posts_seen":0`} {
+			if !strings.Contains(before, want) {
+				t.Fatalf("no-click/no-post hint missing %s: %s", want, before)
+			}
+		}
+		if err := clickPlaceReservation(ctx); err != nil {
+			t.Fatalf("trusted fixture click: %v", err)
+		}
+		afterClick := checkoutPageStateHintWithTelemetry(ctx, noPost)
+		for _, want := range []string{
+			`"confirm_clicks_received":1`, `"confirm_click_trusted":true`, `"confirm_posts_seen":0`,
+			`"confirm_target_matches_probe":true`, `"confirm_form_valid":true`, `"invalid_control_count":0`,
+		} {
+			if !strings.Contains(afterClick, want) {
+				t.Fatalf("click/no-post hint missing %s: %s", want, afterClick)
+			}
+		}
+
+		for _, tc := range []struct {
+			name   string
+			status int
+			failed bool
+		}{
+			{"click and post 2xx", 200, false},
+			{"click and post non 2xx", 409, false},
+			{"click and post loading failure", 0, true},
+		} {
+			t.Run(tc.name, func(t *testing.T) {
+				telemetry := newTockConfirmTelemetry()
+				listen := telemetry.listen("matrix-slug")
+				listen(&network.EventRequestWillBeSent{RequestID: "secret-request-id", Request: &network.Request{
+					URL: "https://example.test/matrix-slug/checkout/confirm-purchase?token=secret-query", Method: http.MethodPost,
+				}})
+				if tc.failed {
+					listen(&network.EventLoadingFailed{RequestID: "secret-request-id", ErrorText: "secret failure URL"})
+				} else {
+					listen(&network.EventResponseReceived{RequestID: "secret-request-id", Response: &network.Response{Status: int64(tc.status)}})
+				}
+				hint := checkoutPageStateHintWithTelemetry(ctx, telemetry)
+				for _, secret := range []string{"secret-request-id", "secret-query", "secret failure URL", "example.test"} {
+					if strings.Contains(hint, secret) {
+						t.Fatalf("network telemetry leaked %q: %s", secret, hint)
+					}
+				}
+				for _, want := range []string{
+					`"confirm_clicks_received":1`, `"confirm_click_trusted":true`, `"confirm_posts_seen":1`,
+					fmt.Sprintf(`"confirm_post_last_status":%d`, tc.status),
+					fmt.Sprintf(`"confirm_post_loading_failed":%v`, tc.failed),
+				} {
+					if !strings.Contains(hint, want) {
+						t.Fatalf("evidence hint missing %s: %s", want, hint)
+					}
+				}
+			})
+		}
+	})
 }
 
 func TestCheckoutPageStateHint_UncappedDialogAndSkipBooleans(t *testing.T) {
@@ -633,10 +977,12 @@ func TestWaitForReceiptThroughDialogs_OccludedConfirmDoesNotRetry(t *testing.T) 
 		</div>`
 	withTockDOMFixtureAtPath(t, "/checkout/confirm-purchase", html, func(ctx context.Context) {
 		retryCalls := 0
+		telemetry := newTockConfirmTelemetry()
 		err := chromedp.Run(ctx, chromedp.ActionFunc(func(actCtx context.Context) error {
-			_, waitErr := waitForReceiptThroughDialogsWithRetry(
+			_, waitErr := waitForReceiptThroughDialogsWithRetryTelemetry(
 				actCtx, 1500*time.Millisecond, dismissPostConfirmDialog, 400*time.Millisecond,
 				func(context.Context) error { retryCalls++; return nil },
+				telemetry,
 			)
 			return waitErr
 		}))
@@ -652,6 +998,10 @@ func TestWaitForReceiptThroughDialogs_OccludedConfirmDoesNotRetry(t *testing.T) 
 		}
 		if retryCalls != 0 {
 			t.Fatalf("retry calls = %d, want zero", retryCalls)
+		}
+		got := telemetry.read()
+		if got.RecognizedDialogSeen < 1 || got.OccludedSamples < 1 || got.IdleGuardSatisfied || got.RetryOutcome != retryOutcomeNotEligible {
+			t.Fatalf("wait counters = dialogs:%d occluded:%d idle:%v retry:%q", got.RecognizedDialogSeen, got.OccludedSamples, got.IdleGuardSatisfied, got.RetryOutcome)
 		}
 	})
 }
@@ -866,6 +1216,86 @@ func TestWaitForReceiptThroughDialogs_RetryClickContextCarriesReceiptDeadline(t 
 		}
 		if latest := start.Add(waitDeadline + 250*time.Millisecond); clickDeadline.After(latest) {
 			t.Fatalf("retry click deadline %v exceeds receipt deadline bound %v", clickDeadline, latest)
+		}
+	})
+}
+
+func TestClassifyTockConfirmRetryOutcome_TypedErrorsAndPrecedence(t *testing.T) {
+	targetErr := &cdproto.Error{Code: -32000, Message: "Inspected target navigated or closed"}
+	tests := []struct {
+		name string
+		err  error
+		want string
+	}{
+		{"dispatched", nil, retryOutcomeDispatched},
+		{"deadline", fmt.Errorf("wrapped: %w", context.DeadlineExceeded), retryOutcomeErrorDeadline},
+		{"target", fmt.Errorf("wrapped: %w", targetErr), retryOutcomeErrorTarget},
+		{"button missing", fmt.Errorf("wrapped: %w", errPlaceReservationButtonMissing), retryOutcomeErrorMissing},
+		{"button disabled", fmt.Errorf("wrapped: %w", errPlaceReservationButtonDisabled), retryOutcomeErrorDisabled},
+		{"other", errors.New("opaque"), retryOutcomeErrorOther},
+		{"wrapped deadline wins target", fmt.Errorf("both: %w", errors.Join(targetErr, context.DeadlineExceeded)), retryOutcomeErrorDeadline},
+		{"wrapped target wins missing", fmt.Errorf("both: %w", errors.Join(errPlaceReservationButtonMissing, targetErr)), retryOutcomeErrorTarget},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := classifyTockConfirmRetryOutcome(tc.err); got != tc.want {
+				t.Fatalf("outcome = %q, want %q", got, tc.want)
+			}
+		})
+	}
+}
+
+func TestWaitForReceiptThroughDialogs_RetryErrorBeforeDispatchRecorded(t *testing.T) {
+	withTockDOMFixtureAtPath(t, "/checkout/confirm-purchase", `<!doctype html><button>Complete reservation</button>`, func(ctx context.Context) {
+		targetErr := &cdproto.Error{Code: -32000, Message: "Inspected target navigated or closed"}
+		for _, tc := range []struct {
+			name      string
+			helperErr error
+			want      string
+		}{
+			{"deadline", fmt.Errorf("before dispatch: %w", context.DeadlineExceeded), retryOutcomeErrorDeadline},
+			{"target", fmt.Errorf("before dispatch: %w", targetErr), retryOutcomeErrorTarget},
+			{"missing", fmt.Errorf("before dispatch: %w", errPlaceReservationButtonMissing), retryOutcomeErrorMissing},
+			{"disabled", fmt.Errorf("before dispatch: %w", errPlaceReservationButtonDisabled), retryOutcomeErrorDisabled},
+			{"other", errors.New("before dispatch opaque"), retryOutcomeErrorOther},
+			{"dispatched", nil, retryOutcomeDispatched},
+		} {
+			t.Run(tc.name, func(t *testing.T) {
+				telemetry := newTockConfirmTelemetry()
+				calls := 0
+				err := chromedp.Run(ctx, chromedp.ActionFunc(func(actCtx context.Context) error {
+					_, waitErr := waitForReceiptThroughDialogsWithRetryTelemetry(actCtx, 800*time.Millisecond,
+						func(context.Context) (bool, error) { return false, nil }, 0,
+						func(context.Context) error { calls++; return tc.helperErr }, telemetry)
+					return waitErr
+				}))
+				if err == nil {
+					t.Fatal("expected receipt timeout")
+				}
+				got := telemetry.read()
+				if calls != 1 || got.RetryOutcome != tc.want || !got.IdleGuardSatisfied {
+					t.Fatalf("retry telemetry = calls:%d outcome:%q idle:%v, want 1/%q/true", calls, got.RetryOutcome, got.IdleGuardSatisfied, tc.want)
+				}
+			})
+		}
+	})
+}
+
+func TestWaitForReceiptThroughDialogs_DismissalTelemetryCountsDispatches(t *testing.T) {
+	html := `<!doctype html><button>Complete reservation</button>
+		<div role="dialog" aria-modal="true" style="padding:20px"><p>Enable text alerts from Tock</p><button onclick="this.closest('[role=dialog]').remove()">Skip</button></div>`
+	withTockDOMFixtureAtPath(t, "/checkout/confirm-purchase", html, func(ctx context.Context) {
+		telemetry := newTockConfirmTelemetry()
+		err := chromedp.Run(ctx, chromedp.ActionFunc(func(actCtx context.Context) error {
+			_, waitErr := waitForReceiptThroughDialogsInstrumented(actCtx, 900*time.Millisecond, telemetry)
+			return waitErr
+		}))
+		if err == nil {
+			t.Fatal("expected receipt timeout")
+		}
+		got := telemetry.read()
+		if got.RecognizedDialogSeen < 1 || got.DismissalsAttempted != 1 || got.DismissalsSucceeded != 1 {
+			t.Fatalf("dismissal telemetry = seen:%d attempted:%d succeeded:%d, want >=1/1/1", got.RecognizedDialogSeen, got.DismissalsAttempted, got.DismissalsSucceeded)
 		}
 	})
 }

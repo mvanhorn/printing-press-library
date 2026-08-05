@@ -29,6 +29,7 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"sync"
 	"time"
 
 	cdproto "github.com/chromedp/cdproto"
@@ -136,9 +137,14 @@ func (c *Client) ChromeBook(ctx context.Context, req BookRequest) (*BookResponse
 	if err != nil {
 		return nil, fmt.Errorf("tock chromebook: %w", err)
 	}
+	confirmTelemetry := newTockConfirmTelemetry()
+	// ListenTarget and Network.enable are target-session scoped. activeCtx is
+	// the final context returned after any venue/checkout target recovery.
+	chromedp.ListenTarget(activeCtx, confirmTelemetry.listen(url.PathEscape(req.VenueSlug)))
 
 	var receiptURL string
 	if err := chromedp.Run(activeCtx,
+		network.Enable(),
 		chromedp.Sleep(2*time.Second),
 		// Wait for the checkout page (URL contains /checkout/confirm-purchase).
 		chromedp.ActionFunc(func(actCtx context.Context) error {
@@ -181,7 +187,7 @@ func (c *Client) ChromeBook(ctx context.Context, req BookRequest) (*BookResponse
 		// Wait for receipt-page navigation, answering any post-confirm
 		// interstitial dialogs (e.g. the SMS opt-in) that block submission.
 		chromedp.ActionFunc(func(actCtx context.Context) error {
-			u, err := waitForReceiptThroughDialogs(actCtx, 30*time.Second)
+			u, err := waitForReceiptThroughDialogsInstrumented(actCtx, 30*time.Second, confirmTelemetry)
 			if err != nil {
 				// Distinguish "stalled on a required CVC we don't have" from
 				// generic checkout failure so machine callers get a typed,
@@ -189,7 +195,7 @@ func (c *Client) ChromeBook(ctx context.Context, req BookRequest) (*BookResponse
 				if req.CVC == "" && emptyCVCFieldPresent(actCtx) {
 					return ErrCVCRequired
 				}
-				return fmt.Errorf("%w; checkout_state=%s", err, checkoutPageStateHint(actCtx))
+				return fmt.Errorf("%w; checkout_state=%s", err, checkoutPageStateHintWithTelemetry(actCtx, confirmTelemetry))
 			}
 			receiptURL = u
 			return nil
@@ -433,17 +439,110 @@ type tockBookingPageState struct {
 }
 
 type tockCheckoutPageState struct {
-	Path                   string   `json:"path"`
-	ConfirmControlPresent  bool     `json:"confirm_control_present"`
-	ConfirmControlEnabled  bool     `json:"confirm_control_enabled"`
-	ConfirmOccluded        bool     `json:"confirm_occluded"`
-	DialogPresent          bool     `json:"dialog_present"`
-	SkipControlPresent     bool     `json:"skip_control_present"`
-	HasCVCField            bool     `json:"has_cvc_field"`
-	CheckboxCount          int      `json:"checkbox_count"`
-	RequiredUncheckedCount int      `json:"required_unchecked_count"`
-	SMSDialogPresent       bool     `json:"sms_dialog_present"`
-	VisibleControlLabels   []string `json:"visible_control_labels,omitempty"`
+	Path                      string   `json:"path"`
+	ConfirmControlPresent     bool     `json:"confirm_control_present"`
+	ConfirmControlEnabled     bool     `json:"confirm_control_enabled"`
+	ConfirmOccluded           bool     `json:"confirm_occluded"`
+	DialogPresent             bool     `json:"dialog_present"`
+	SkipControlPresent        bool     `json:"skip_control_present"`
+	HasCVCField               bool     `json:"has_cvc_field"`
+	CheckboxCount             int      `json:"checkbox_count"`
+	RequiredUncheckedCount    int      `json:"required_unchecked_count"`
+	SMSDialogPresent          bool     `json:"sms_dialog_present"`
+	ConfirmClicksReceived     int      `json:"confirm_clicks_received"`
+	ConfirmClickTrusted       bool     `json:"confirm_click_trusted"`
+	ConfirmTargetMatchesProbe bool     `json:"confirm_target_matches_probe"`
+	ConfirmFormValid          bool     `json:"confirm_form_valid"`
+	InvalidControlCount       int      `json:"invalid_control_count"`
+	Alerts                    []string `json:"alerts"`
+	AlertCount                int      `json:"alert_count"`
+	// Presence only: top-page code cannot inspect payment iframe readiness.
+	PaymentIframeCount   int      `json:"payment_iframe_count"`
+	VisibleControlLabels []string `json:"visible_control_labels,omitempty"`
+}
+
+type tockConfirmTelemetrySnapshot struct {
+	ConfirmPostsSeen         int    `json:"confirm_posts_seen"`
+	ConfirmPostLastStatus    int    `json:"confirm_post_last_status"`
+	ConfirmPostLoadingFailed bool   `json:"confirm_post_loading_failed"`
+	RetryOutcome             string `json:"retry_outcome"`
+	RecognizedDialogSeen     int    `json:"recognized_dialog_seen"`
+	DismissalsAttempted      int    `json:"dismissals_attempted"`
+	DismissalsSucceeded      int    `json:"dismissals_succeeded"`
+	StateReadFailures        int    `json:"state_read_failures"`
+	OccludedSamples          int    `json:"occluded_samples"`
+	IdleGuardSatisfied       bool   `json:"idle_guard_satisfied"`
+}
+
+type tockConfirmTelemetry struct {
+	mu                   sync.Mutex
+	matching             map[network.RequestID]int
+	lastStatusGeneration int
+	snapshot             tockConfirmTelemetrySnapshot
+}
+
+func newTockConfirmTelemetry() *tockConfirmTelemetry {
+	return &tockConfirmTelemetry{
+		matching: make(map[network.RequestID]int),
+		snapshot: tockConfirmTelemetrySnapshot{RetryOutcome: retryOutcomeNotEligible},
+	}
+}
+
+func (t *tockConfirmTelemetry) read() tockConfirmTelemetrySnapshot {
+	if t == nil {
+		return tockConfirmTelemetrySnapshot{RetryOutcome: retryOutcomeNotEligible}
+	}
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	return t.snapshot
+}
+
+func (t *tockConfirmTelemetry) update(fn func(*tockConfirmTelemetrySnapshot)) {
+	if t == nil {
+		return
+	}
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	fn(&t.snapshot)
+}
+
+func (t *tockConfirmTelemetry) listen(expectedEscapedSlug string) func(any) {
+	expectedPath := "/" + expectedEscapedSlug + "/checkout/confirm-purchase"
+	return func(ev any) {
+		t.mu.Lock()
+		defer t.mu.Unlock()
+		switch e := ev.(type) {
+		case *network.EventRequestWillBeSent:
+			if generation, ok := t.matching[e.RequestID]; ok && e.RedirectResponse != nil {
+				if generation >= t.lastStatusGeneration {
+					t.snapshot.ConfirmPostLastStatus = int(e.RedirectResponse.Status)
+					t.lastStatusGeneration = generation
+				}
+				delete(t.matching, e.RequestID)
+			}
+			if e.Request == nil || e.Request.Method != http.MethodPost {
+				return
+			}
+			u, err := url.Parse(e.Request.URL)
+			if err != nil || u.EscapedPath() != expectedPath {
+				return
+			}
+			t.snapshot.ConfirmPostsSeen++
+			t.matching[e.RequestID] = t.snapshot.ConfirmPostsSeen
+		case *network.EventResponseReceived:
+			if generation, ok := t.matching[e.RequestID]; ok && e.Response != nil && generation >= t.lastStatusGeneration {
+				t.snapshot.ConfirmPostLastStatus = int(e.Response.Status)
+				t.lastStatusGeneration = generation
+			}
+		case *network.EventLoadingFailed:
+			if _, ok := t.matching[e.RequestID]; ok {
+				t.snapshot.ConfirmPostLoadingFailed = true
+				delete(t.matching, e.RequestID)
+			}
+		case *network.EventLoadingFinished:
+			delete(t.matching, e.RequestID)
+		}
+	}
 }
 
 const tockCheckoutPageStateJS = `
@@ -484,6 +583,29 @@ const tockCheckoutPageStateJS = `
 		const legacySMS = Array.from(document.querySelectorAll(
 			'[data-testid="sms-confirmation-dialog-content"], #sms-confirmation-dialog-content'
 		)).some(rendered);
+		const alertCandidates = Array.from(document.querySelectorAll('[role="alert"], [class*="error" i]'))
+			.filter(rendered);
+		const alertTokens = [];
+		for (const candidate of alertCandidates.slice(0, 6)) {
+			// Bound source text before matching; raw text never leaves this closure.
+			const text = clean((candidate.textContent || '').slice(0, 512));
+			let token = 'Other alert';
+			if (/no longer available/i.test(text)) token = 'No longer available';
+			else if (/payment/i.test(text)) token = 'Payment';
+			else if (/card/i.test(text)) token = 'Card';
+			else if (/try again/i.test(text)) token = 'Try again';
+			else if (/sold out/i.test(text)) token = 'Sold out';
+			if (!alertTokens.includes(token)) alertTokens.push(token);
+		}
+		const paymentIframes = Array.from(document.querySelectorAll('iframe')).filter((frame) =>
+			/braintree|hosted-fields|paypal/i.test(
+				(frame.getAttribute('src') || '') + ' ' +
+				(frame.getAttribute('name') || '') + ' ' +
+				(frame.getAttribute('title') || '')
+			)
+		);
+		const clickBeacon = window.__trgConfirmClickBeacon || { count: 0, trusted: false };
+		const targetProbe = window.__trgConfirmTargetProbe || {};
 		const controls = allControls.map(accessibleName).filter(Boolean).slice(0, 16);
 		return {
 			path: location.pathname,
@@ -497,6 +619,14 @@ const tockCheckoutPageStateJS = `
 			checkbox_count: checkboxes.length,
 			required_unchecked_count: checkboxes.filter((el) => el.required && !el.checked).length,
 			sms_dialog_present: legacySMS || semanticDialogs.length > 0,
+			confirm_clicks_received: Number(clickBeacon.count) || 0,
+			confirm_click_trusted: Boolean(clickBeacon.trusted),
+			confirm_target_matches_probe: Boolean(targetProbe.matches),
+			confirm_form_valid: Boolean(targetProbe.formValid),
+			invalid_control_count: Number(targetProbe.invalidCount) || 0,
+			alerts: alertTokens,
+			alert_count: alertCandidates.length,
+			payment_iframe_count: paymentIframes.length,
 			visible_control_labels: controls
 		};
 	})()
@@ -1661,13 +1791,46 @@ func mustMarshalTockPageState(state any) string {
 // arrives: a query-free path, allowlisted controls, and boolean/count state for
 // confirmation, SMS, checkbox, and CVC inputs.
 func checkoutPageStateHint(ctx context.Context) string {
+	return checkoutPageStateHintWithTelemetry(ctx, nil)
+}
+
+func checkoutPageStateHintWithTelemetry(ctx context.Context, telemetry *tockConfirmTelemetry) string {
 	state, err := readTockCheckoutPageState(ctx)
 	if err != nil {
-		return `{"path":"<unavailable>"}`
+		state.Path = "<unavailable>"
+		state.Alerts = []string{}
+	} else {
+		state.Path = sanitizeTockPath(state.Path)
+		state.VisibleControlLabels = normalizeTockControlLabels(state.VisibleControlLabels)
+		state.Alerts = normalizeTockAlertTokens(state.Alerts)
 	}
-	state.Path = sanitizeTockPath(state.Path)
-	state.VisibleControlLabels = normalizeTockControlLabels(state.VisibleControlLabels)
-	return mustMarshalTockPageState(state)
+	return mustMarshalTockPageState(struct {
+		tockCheckoutPageState
+		tockConfirmTelemetrySnapshot
+	}{state, telemetry.read()})
+}
+
+func normalizeTockAlertTokens(tokens []string) []string {
+	allowed := map[string]struct{}{
+		"No longer available": {}, "Payment": {}, "Card": {},
+		"Try again": {}, "Sold out": {}, "Other alert": {},
+	}
+	out := make([]string, 0, 6)
+	seen := make(map[string]struct{}, 6)
+	for _, token := range tokens {
+		if _, ok := allowed[token]; !ok {
+			token = "Other alert"
+		}
+		if _, ok := seen[token]; ok {
+			continue
+		}
+		seen[token] = struct{}{}
+		out = append(out, token)
+		if len(out) == 6 {
+			break
+		}
+	}
+	return out
 }
 
 func readTockCheckoutPageState(ctx context.Context) (tockCheckoutPageState, error) {
@@ -1733,6 +1896,13 @@ func waitForReceiptThroughDialogs(ctx context.Context, deadline time.Duration) (
 	return waitForReceiptThroughDialogsWith(ctx, deadline, dismissPostConfirmDialog)
 }
 
+func waitForReceiptThroughDialogsInstrumented(ctx context.Context, deadline time.Duration, telemetry *tockConfirmTelemetry) (string, error) {
+	return waitForReceiptThroughDialogsWithRetryTelemetry(ctx, deadline,
+		func(dismissCtx context.Context) (bool, error) {
+			return dismissPostConfirmDialogWithTelemetry(dismissCtx, telemetry)
+		}, 5*time.Second, clickPlaceReservation, telemetry)
+}
+
 func waitForReceiptThroughDialogsWith(ctx context.Context, deadline time.Duration,
 	dismiss func(context.Context) (bool, error)) (string, error) {
 	return waitForReceiptThroughDialogsWithRetry(ctx, deadline, dismiss, 5*time.Second, clickPlaceReservation)
@@ -1741,6 +1911,39 @@ func waitForReceiptThroughDialogsWith(ctx context.Context, deadline time.Duratio
 func waitForReceiptThroughDialogsWithRetry(ctx context.Context, deadline time.Duration,
 	dismiss func(context.Context) (bool, error), retryDelay time.Duration,
 	retryClick func(context.Context) error) (string, error) {
+	return waitForReceiptThroughDialogsWithRetryTelemetry(ctx, deadline, dismiss, retryDelay, retryClick, nil)
+}
+
+const (
+	retryOutcomeNotEligible   = "not_eligible"
+	retryOutcomeDispatched    = "dispatched"
+	retryOutcomeErrorDeadline = "error_deadline"
+	retryOutcomeErrorTarget   = "error_target"
+	retryOutcomeErrorMissing  = "error_button_missing"
+	retryOutcomeErrorDisabled = "error_button_disabled"
+	retryOutcomeErrorOther    = "error_other"
+)
+
+func classifyTockConfirmRetryOutcome(err error) string {
+	switch {
+	case err == nil:
+		return retryOutcomeDispatched
+	case errors.Is(err, context.DeadlineExceeded):
+		return retryOutcomeErrorDeadline
+	case isTransientNavigationError(err):
+		return retryOutcomeErrorTarget
+	case errors.Is(err, errPlaceReservationButtonMissing):
+		return retryOutcomeErrorMissing
+	case errors.Is(err, errPlaceReservationButtonDisabled):
+		return retryOutcomeErrorDisabled
+	default:
+		return retryOutcomeErrorOther
+	}
+}
+
+func waitForReceiptThroughDialogsWithRetryTelemetry(ctx context.Context, deadline time.Duration,
+	dismiss func(context.Context) (bool, error), retryDelay time.Duration,
+	retryClick func(context.Context) error, telemetry *tockConfirmTelemetry) (string, error) {
 	stop := time.Now().Add(deadline)
 	retryUsed := false
 	dismissals := 0
@@ -1771,6 +1974,18 @@ func waitForReceiptThroughDialogsWithRetry(ctx context.Context, deadline time.Du
 			var err error
 			checkoutState, err = readTockCheckoutPageState(ctx)
 			stateOK = err == nil
+			if !stateOK {
+				telemetry.update(func(s *tockConfirmTelemetrySnapshot) { s.StateReadFailures++ })
+			} else {
+				telemetry.update(func(s *tockConfirmTelemetrySnapshot) {
+					if checkoutState.DialogPresent {
+						s.RecognizedDialogSeen++
+					}
+					if checkoutState.ConfirmOccluded {
+						s.OccludedSamples++
+					}
+				})
+			}
 			if !stateOK || checkoutState.DialogPresent {
 				idleSince = time.Time{}
 			} else if idleSince.IsZero() {
@@ -1806,13 +2021,17 @@ func waitForReceiptThroughDialogsWithRetry(ctx context.Context, deadline time.Du
 		if !retryUsed && stateOK && !idleSince.IsZero() && time.Since(idleSince) >= retryDelay &&
 			checkoutState.ConfirmControlPresent && checkoutState.ConfirmControlEnabled &&
 			!checkoutState.ConfirmOccluded {
+			telemetry.update(func(s *tockConfirmTelemetrySnapshot) { s.IdleGuardSatisfied = true })
 			retryUsed = true
 			// Bound the click by the receipt deadline: clickPlaceReservation
 			// polls a disabled control for up to 15s, and a click dispatched
 			// after the deadline would be reported as a timeout while the
 			// booking is still taking effect.
 			retryCtx, cancelRetry := context.WithDeadline(ctx, stop)
-			_ = retryClick(retryCtx)
+			retryErr := retryClick(retryCtx)
+			telemetry.update(func(s *tockConfirmTelemetrySnapshot) {
+				s.RetryOutcome = classifyTockConfirmRetryOutcome(retryErr)
+			})
 			cancelRetry()
 		}
 		select {
@@ -1827,6 +2046,10 @@ func waitForReceiptThroughDialogsWithRetry(ctx context.Context, deadline time.Du
 // its decline control with a trusted CDP click. Returns whether a control was
 // clicked. Accept controls and ambiguous modal stacks are left untouched.
 func dismissPostConfirmDialog(ctx context.Context) (bool, error) {
+	return dismissPostConfirmDialogWithTelemetry(ctx, nil)
+}
+
+func dismissPostConfirmDialogWithTelemetry(ctx context.Context, telemetry *tockConfirmTelemetry) (bool, error) {
 	js := `
 		(() => {
 			const dlgText = /stay in the know|text confirmation and updates|receive text|text alerts/i;
@@ -1906,6 +2129,7 @@ func dismissPostConfirmDialog(ctx context.Context) (bool, error) {
 		if err := input.DispatchMouseEvent(input.MouseMoved, pt.X, pt.Y).Do(actCtx); err != nil {
 			return err
 		}
+		telemetry.update(func(s *tockConfirmTelemetrySnapshot) { s.DismissalsAttempted++ })
 		press := input.DispatchMouseEvent(input.MousePressed, pt.X, pt.Y).
 			WithButton(input.Left).WithButtons(1).WithClickCount(1)
 		if err := press.Do(actCtx); err != nil {
@@ -1918,6 +2142,7 @@ func dismissPostConfirmDialog(ctx context.Context) (bool, error) {
 	if err := chromedp.Run(ctx, click); err != nil {
 		return false, err
 	}
+	telemetry.update(func(s *tockConfirmTelemetrySnapshot) { s.DismissalsSucceeded++ })
 	return true, nil
 }
 
@@ -2017,16 +2242,49 @@ func checkAcknowledgeIfPresent(ctx context.Context) error {
 	return nil
 }
 
+var (
+	errPlaceReservationButtonMissing  = errors.New("place-reservation button missing")
+	errPlaceReservationButtonDisabled = errors.New("place-reservation button disabled")
+)
+
 // clickPlaceReservation clicks the confirm button on the checkout page.
 func clickPlaceReservation(ctx context.Context) error {
 	js := `
 		(() => {
+			const clean = (s) => (s || '').replace(/\s+/g, ' ').trim();
+			const labelledByText = (el) => {
+				const ids = (el.getAttribute('aria-labelledby') || '').split(/\s+/).filter(Boolean);
+				return ids.map((id) => { const ref = document.getElementById(id); return ref ? ref.textContent : ''; }).join(' ');
+			};
+			const accessibleName = (el) => clean(
+				labelledByText(el) || el.getAttribute('aria-label') || el.textContent || el.getAttribute('title')
+			);
 			// Synthetic JS clicks (isTrusted=false) do not submit this form —
 			// confirmed live 2026-07-08: no alert, button present, click ignored.
 			// Tag the button; the Go side clicks it via trusted CDP input.
 			const tag = (b) => {
 				b.scrollIntoView({ block: 'center' });
 				b.setAttribute('data-trg-confirm', '1');
+				window.__trgConfirmClickBeacon = window.__trgConfirmClickBeacon || { count: 0, trusted: false };
+				if (b.getAttribute('data-trg-confirm-listener') !== '1') {
+					b.setAttribute('data-trg-confirm-listener', '1');
+					b.addEventListener('click', (event) => {
+						window.__trgConfirmClickBeacon.count++;
+						window.__trgConfirmClickBeacon.trusted = Boolean(event.isTrusted);
+					}, true);
+				}
+				const probe = Array.from(document.querySelectorAll('button[type="submit"], button'))
+					.find((el) => rendered(el) && /reservation|book|complete|confirm/i.test(accessibleName(el)));
+				const form = b.form;
+				// :invalid matching is passive; checkValidity() would dispatch
+				// cancelable 'invalid' events into the live page, which this
+				// behavior-neutral instrumentation must not do.
+				const invalidCount = form ? form.querySelectorAll(':invalid').length : 0;
+				window.__trgConfirmTargetProbe = {
+					matches: probe === b,
+					formValid: invalidCount === 0,
+					invalidCount: invalidCount
+				};
 			};
 			const rendered = (b) => {
 				if (!b || !b.isConnected || b.closest('[aria-hidden="true"]')) return false;
@@ -2072,9 +2330,9 @@ func clickPlaceReservation(ctx context.Context) error {
 		}
 		if time.Now().After(deadline) {
 			if label == nil {
-				return fmt.Errorf("place-reservation button not found")
+				return fmt.Errorf("%w", errPlaceReservationButtonMissing)
 			}
-			return fmt.Errorf("place-reservation button is disabled (%s) — payment context likely unavailable in this Chrome session; attach mode (TABLE_RESERVATION_GOAT_TOCK_CHROME_DEBUG_URL) is required for card-required venues", strings.TrimPrefix(s, "disabled:"))
+			return fmt.Errorf("%w (%s) — payment context likely unavailable in this Chrome session; attach mode (TABLE_RESERVATION_GOAT_TOCK_CHROME_DEBUG_URL) is required for card-required venues", errPlaceReservationButtonDisabled, strings.TrimPrefix(s, "disabled:"))
 		}
 		select {
 		case <-ctx.Done():
@@ -2083,7 +2341,7 @@ func clickPlaceReservation(ctx context.Context) error {
 		}
 	}
 	if label == nil {
-		return fmt.Errorf("place-reservation button not found")
+		return fmt.Errorf("%w", errPlaceReservationButtonMissing)
 	}
 	// Trusted browser-level click via CDP input — the page's handlers ignore
 	// synthetic JS events on this control. The click is dispatched at explicit
@@ -2107,7 +2365,7 @@ func clickPlaceReservation(ctx context.Context) error {
 		return fmt.Errorf("locating place-reservation control: %w", err)
 	}
 	if rectJSON == "" {
-		return fmt.Errorf("place-reservation button vanished before click")
+		return fmt.Errorf("%w before click", errPlaceReservationButtonMissing)
 	}
 	var pt struct{ X, Y float64 }
 	if err := json.Unmarshal([]byte(rectJSON), &pt); err != nil {
