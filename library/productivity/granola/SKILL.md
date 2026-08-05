@@ -213,7 +213,7 @@ sqlite3 ~/.local/share/granola-pp-cli/data.db \
   "select row_source, count(*) from meetings group by row_source;"
 ```
 
-The main tables: `meetings` (notes, timestamps, `row_source` = cache|api), `attendees`, `transcript_segments`, `folders` + `folder_memberships`, `panel_templates`, and `sync_state`. Treat the store as read-only from SQL — writes belong to `sync` and `sync-api`.
+The main tables: `meetings`, `attendees`, `transcript_segments`, `folders` + `folder_memberships`, `panel_templates`, `recipes` + `recipes_usage`, `chat_threads` + `chat_messages`, and `sync_state`. Since schema v4, `row_source` (= cache|api) marks provenance on the catalog tables too — folders, panel templates, recipes — not just meetings, and folders carry `description` and `is_favourited`. `db schema` is the authoritative list; this paragraph is the orientation. Treat the store as read-only from SQL — writes belong to `sync` and `sync-api`.
 
 ### Pipeline hygiene
 - **`duplicates scan`** — Hash (title, date-bucket, attendee-email-set) across the cache and a meeting-transcripts repo to surface duplicates at scale.
