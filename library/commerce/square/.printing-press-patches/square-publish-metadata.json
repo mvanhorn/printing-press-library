@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "square-publish-metadata",
+  "applied_at": "2026-08-05",
+  "base_run_id": "20260804-231253-e3946f62",
+  "base_printing_press_version": "4.30.0",
+  "summary": "Aligns publish metadata and generated documentation with the verified catalog get command and approved commerce category.",
+  "reason": "Promotion emitted a minimal manifest without category, attribution, or auth type, and endpoint metadata still named the command catalog_info after the generated command was normalized to catalog get.",
+  "files": [
+    ".printing-press.json",
+    "tools-manifest.json",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "Publishing category was approved by the operator and publish validation accepts the canonical install and command-reference sections."
+}

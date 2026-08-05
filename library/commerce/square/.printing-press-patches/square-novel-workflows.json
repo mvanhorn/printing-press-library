@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "id": "square-novel-workflows",
+  "applied_at": "2026-08-05",
+  "base_run_id": "20260804-231253-e3946f62",
+  "base_printing_press_version": "4.30.0",
+  "summary": "Implements six Square-specific reconciliation, history, service, webhook, and request-readiness workflows.",
+  "reason": "The generated endpoint surface alone cannot provide retained-history analysis or safe cross-resource operational workflows.",
+  "files": [
+    "internal/cli/reconcile_close.go",
+    "internal/cli/inventory_drift.go",
+    "internal/cli/customer_timeline.go",
+    "internal/cli/webhook_health.go",
+    "internal/cli/webhook_ingest.go",
+    "internal/cli/service_review.go",
+    "internal/cli/request_check.go",
+    "internal/cli/novel_square_local.go",
+    "internal/store/store.go",
+    "internal/syncer/sync.go"
+  ],
+  "validated_outcome": "Canonical shipcheck passed 7/7, runtime verification passed 250/250, and the custom output probe passed 6/6."
+}

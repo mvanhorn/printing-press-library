@@ -1,0 +1,66 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-05T16:04:46.9197724Z",
+  "printing_press_version": "4.30.0",
+  "api_name": "square",
+  "display_name": "Square",
+  "cli_name": "square-pp-cli",
+  "creator": {
+    "handle": "wirelesstkd",
+    "name": "matthew.martin"
+  },
+  "owner": "wirelesstkd",
+  "printer": "wirelesstkd",
+  "printer_name": "matthew.martin",
+  "spec_url": "https://raw.githubusercontent.com/square/connect-api-specification/master/api.json",
+  "spec_path": "square-openapi-enriched.json",
+  "spec_format": "openapi",
+  "spec_source": "official Square Connect API specification",
+  "run_id": "20260804-231253-e3946f62",
+  "category": "commerce",
+  "description": "The current Square v2 API surface, plus local reconciliation and history the remote API cannot provide by itself.",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "SQUARE_ACCESS_TOKEN"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "SQUARE_ACCESS_TOKEN",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": true
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Daily close reconciliation",
+      "command": "reconcile close",
+      "description": "Explain the difference between sales, collected payments, refunds, disputes, and payouts for each location."
+    },
+    {
+      "name": "Inventory drift",
+      "command": "inventory drift",
+      "description": "See which prices, variations, availability settings, and location counts changed since an earlier snapshot."
+    },
+    {
+      "name": "Customer timeline",
+      "command": "customer timeline",
+      "description": "Follow one customer's orders, payments, refunds, loyalty activity, invoices, and bookings in chronological order."
+    },
+    {
+      "name": "Webhook health",
+      "command": "webhook health",
+      "description": "Measure duplicate locally ingested webhook deliveries, ordering problems, delivery lag, gaps, and subscription changes."
+    },
+    {
+      "name": "Weekly service review",
+      "command": "service review",
+      "description": "Review completed, unpaid, and missed appointments alongside staff and location utilization."
+    },
+    {
+      "name": "Request readiness check",
+      "command": "request check",
+      "description": "Validate a planned Square request, environment, API version, mutation policy, and idempotency before anything is sent."
+    }
+  ]
+}
