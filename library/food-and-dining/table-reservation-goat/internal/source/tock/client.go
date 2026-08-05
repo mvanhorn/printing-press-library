@@ -40,6 +40,21 @@ type Client struct {
 	http    *http.Client
 	session *auth.Session
 	limiter *cliutil.AdaptiveLimiter
+	origin  string
+
+	// cancelViaUI is a narrow test seam for the HTTP-first cancel dispatcher.
+	// Production callers leave it nil and use chromeCancelReservation.
+	cancelViaUI func(context.Context, CancelRequest) (*CancelResponse, error)
+	// cancelUIPhaseTimeout shortens host-gated fixtures without changing the
+	// production deadline.
+	cancelUIPhaseTimeout time.Duration
+}
+
+func (c *Client) baseOrigin() string {
+	if c.origin != "" {
+		return strings.TrimRight(c.origin, "/")
+	}
+	return Origin
 }
 
 // New creates a Surf-backed Tock client with optional session cookies.
@@ -77,8 +92,12 @@ func New(s *auth.Session) (*Client, error) {
 // would be indistinguishable from "no data exists" — callers must surface
 // this error rather than treating it as a missing venue.
 func (c *Client) do429Aware(req *http.Request) (*http.Response, error) {
+	return c.do429AwareWithClient(c.http, req)
+}
+
+func (c *Client) do429AwareWithClient(httpClient *http.Client, req *http.Request) (*http.Response, error) {
 	c.limiter.Wait()
-	resp, err := c.http.Do(req)
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +118,7 @@ func (c *Client) do429Aware(req *http.Request) (*http.Response, error) {
 		}
 	}
 	c.limiter.Wait()
-	resp2, err := c.http.Do(clonedReq)
+	resp2, err := httpClient.Do(clonedReq)
 	if err != nil {
 		return nil, err
 	}

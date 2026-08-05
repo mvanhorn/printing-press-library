@@ -5,8 +5,13 @@ package tock
 import (
 	"context"
 	"errors"
+	"fmt"
+	"io"
+	"net/http"
+	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestBuildVenueDeepLinkURL_WithExperience(t *testing.T) {
@@ -77,6 +82,345 @@ func TestCancelRequiresIDs(t *testing.T) {
 	if !strings.Contains(err.Error(), "VenueSlug") || !strings.Contains(err.Error(), "PurchaseID") {
 		t.Errorf("Cancel error should name missing fields; got %v", err)
 	}
+}
+
+func TestCancelHTTPFirst_Direct404TriggersUIFallback(t *testing.T) {
+	var uiCalls int
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost || r.URL.Path != "/venue/receipt/cancel" {
+			t.Fatalf("unexpected request %s %s", r.Method, r.URL.Path)
+		}
+		http.Error(w, "missing", http.StatusNotFound)
+	}))
+	defer srv.Close()
+	c := newCancelHTTPTestClient(t, srv)
+	c.cancelViaUI = func(_ context.Context, req CancelRequest) (*CancelResponse, error) {
+		uiCalls++
+		return canceledResponse(req), nil
+	}
+	resp, err := c.Cancel(context.Background(), CancelRequest{VenueSlug: "venue", PurchaseID: 123})
+	if err != nil {
+		t.Fatalf("Cancel: %v", err)
+	}
+	if !resp.Canceled || uiCalls != 1 {
+		t.Fatalf("response=%+v uiCalls=%d, want canceled and one UI fallback", resp, uiCalls)
+	}
+}
+
+func TestCancelHTTPFirst_Direct404AfterCSRFRetryTriggersUIFallback(t *testing.T) {
+	var postCalls, uiCalls int
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			_, _ = io.WriteString(w, `<input type="hidden" name="csrf_token" value="fixture-token">`)
+		case http.MethodPost:
+			postCalls++
+			if postCalls == 1 {
+				http.Error(w, "csrf required", http.StatusForbidden)
+				return
+			}
+			if err := r.ParseForm(); err != nil {
+				t.Fatalf("ParseForm: %v", err)
+			}
+			if got := r.Form.Get("csrf_token"); got != "fixture-token" {
+				t.Fatalf("csrf_token=%q, want fixture-token", got)
+			}
+			http.Error(w, "endpoint missing", http.StatusNotFound)
+		default:
+			t.Fatalf("unexpected method %s", r.Method)
+		}
+	}))
+	defer srv.Close()
+	c := newCancelHTTPTestClient(t, srv)
+	c.cancelViaUI = func(_ context.Context, req CancelRequest) (*CancelResponse, error) {
+		uiCalls++
+		return canceledResponse(req), nil
+	}
+	resp, err := c.Cancel(context.Background(), CancelRequest{VenueSlug: "venue", PurchaseID: 123})
+	if err != nil {
+		t.Fatalf("Cancel: %v", err)
+	}
+	if !resp.Canceled || postCalls != 2 || uiCalls != 1 {
+		t.Fatalf("response=%+v postCalls=%d uiCalls=%d, want canceled, two POSTs, and one UI fallback", resp, postCalls, uiCalls)
+	}
+}
+
+func TestCancelHTTPFirst_CSRFRetryPreservesSuccessAndAuthFailure(t *testing.T) {
+	for _, tc := range []struct {
+		name        string
+		retryStatus int
+		retryBody   string
+		wantSuccess bool
+	}{
+		{name: "recognized success", retryStatus: http.StatusOK, retryBody: "Reservation canceled", wantSuccess: true},
+		{name: "still unauthorized", retryStatus: http.StatusUnauthorized, retryBody: "still unauthorized"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			postCalls := 0
+			srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				switch r.Method {
+				case http.MethodGet:
+					_, _ = io.WriteString(w, `<input type="hidden" name="csrf_token" value="fixture-token">`)
+				case http.MethodPost:
+					postCalls++
+					if postCalls == 1 {
+						http.Error(w, "csrf required", http.StatusForbidden)
+						return
+					}
+					if err := r.ParseForm(); err != nil {
+						t.Fatalf("ParseForm: %v", err)
+					}
+					if got := r.Form.Get("csrf_token"); got != "fixture-token" {
+						t.Fatalf("csrf_token=%q, want fixture-token", got)
+					}
+					w.WriteHeader(tc.retryStatus)
+					_, _ = io.WriteString(w, tc.retryBody)
+				default:
+					t.Fatalf("unexpected method %s", r.Method)
+				}
+			}))
+			defer srv.Close()
+			c := newCancelHTTPTestClient(t, srv)
+			uiCalls := 0
+			c.cancelViaUI = func(context.Context, CancelRequest) (*CancelResponse, error) {
+				uiCalls++
+				return nil, errors.New("must not be called")
+			}
+			resp, err := c.Cancel(context.Background(), CancelRequest{VenueSlug: "venue", PurchaseID: 123})
+			if tc.wantSuccess {
+				if err != nil || resp == nil || !resp.Canceled {
+					t.Fatalf("Cancel resp=%+v err=%v, want recognized success", resp, err)
+				}
+			} else {
+				if err == nil || !strings.Contains(err.Error(), "HTTP 401 after CSRF retry") {
+					t.Fatalf("Cancel err=%v, want preserved post-retry auth failure", err)
+				}
+			}
+			if postCalls != 2 || uiCalls != 0 {
+				t.Fatalf("postCalls=%d uiCalls=%d, want two POSTs and no UI fallback", postCalls, uiCalls)
+			}
+		})
+	}
+}
+
+func TestCancelHTTPFirst_AmbiguousOutcomesNeverTriggerUI(t *testing.T) {
+	tests := []struct {
+		name  string
+		setup func(t *testing.T, c *Client) func()
+	}{
+		{
+			name: "transport error",
+			setup: func(t *testing.T, c *Client) func() {
+				c.http = &http.Client{Transport: roundTripFunc(func(*http.Request) (*http.Response, error) {
+					return nil, errors.New("fixture transport failure")
+				})}
+				return func() {}
+			},
+		},
+		{
+			name: "timeout",
+			setup: func(t *testing.T, c *Client) func() {
+				srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+					time.Sleep(100 * time.Millisecond)
+					_, _ = io.WriteString(w, "late")
+				}))
+				c.http = srv.Client()
+				c.http.Timeout = 10 * time.Millisecond
+				c.origin = srv.URL
+				return srv.Close
+			},
+		},
+		{
+			name: "redirected final 404",
+			setup: func(t *testing.T, c *Client) func() {
+				srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+					if r.URL.Path == "/venue/receipt/cancel" {
+						http.Redirect(w, r, "/final-missing", http.StatusFound)
+						return
+					}
+					http.Error(w, "final missing", http.StatusNotFound)
+				}))
+				c.http = srv.Client()
+				c.origin = srv.URL
+				return srv.Close
+			},
+		},
+		{
+			name: "unrecognized 2xx",
+			setup: func(t *testing.T, c *Client) func() {
+				srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+					_, _ = io.WriteString(w, "unexpected success body")
+				}))
+				c.http = srv.Client()
+				c.origin = srv.URL
+				return srv.Close
+			},
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			c := newCancelHTTPTestClient(t, nil)
+			cleanup := tc.setup(t, c)
+			defer cleanup()
+			uiCalls := 0
+			c.cancelViaUI = func(context.Context, CancelRequest) (*CancelResponse, error) {
+				uiCalls++
+				return nil, errors.New("must not be called")
+			}
+			_, err := c.Cancel(context.Background(), CancelRequest{VenueSlug: "venue", PurchaseID: 123})
+			if err == nil {
+				t.Fatal("Cancel returned nil error for ambiguous outcome")
+			}
+			if uiCalls != 0 {
+				t.Fatalf("UI fallback calls=%d, want 0", uiCalls)
+			}
+		})
+	}
+}
+
+func TestCancelHTTPFirst_PreservesTypedNonFallbackSemantics(t *testing.T) {
+	tests := []struct {
+		name       string
+		status     int
+		body       string
+		wantIs     error
+		wantString string
+	}{
+		{name: "unauthorized", status: http.StatusUnauthorized, body: "auth", wantString: "HTTP 401"},
+		{name: "forbidden", status: http.StatusForbidden, body: "auth", wantString: "HTTP 403"},
+		{name: "past window", status: http.StatusGone, body: "gone", wantIs: ErrPastCancellationWindow},
+		{name: "canary", status: http.StatusOK, body: "unknown", wantIs: ErrCanaryUnrecognizedBody},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.Method == http.MethodGet {
+					w.WriteHeader(http.StatusOK)
+					_, _ = io.WriteString(w, "no tokens")
+					return
+				}
+				w.WriteHeader(tc.status)
+				_, _ = io.WriteString(w, tc.body)
+			}))
+			defer srv.Close()
+			c := newCancelHTTPTestClient(t, srv)
+			_, err := c.Cancel(context.Background(), CancelRequest{VenueSlug: "venue", PurchaseID: 123})
+			if err == nil {
+				t.Fatal("Cancel returned nil error")
+			}
+			if tc.wantIs != nil && !errors.Is(err, tc.wantIs) {
+				t.Fatalf("errors.Is(%v, %v)=false", err, tc.wantIs)
+			}
+			if tc.wantString != "" && !strings.Contains(err.Error(), tc.wantString) {
+				t.Fatalf("error %q missing %q", err, tc.wantString)
+			}
+		})
+	}
+}
+
+func TestCancelErrorsDoNotExposeURLsProviderCopyOrIdentifiers(t *testing.T) {
+	const (
+		slug     = "private-venue-slug"
+		purchase = 987654321
+	)
+	secrets := []string{slug, "987654321", "query-token-secret", "provider copy secret", "exploretock.com"}
+	tests := []struct {
+		name  string
+		setup func(t *testing.T, c *Client) func()
+	}{
+		{
+			name: "URL-bearing transport cause through outer wrap",
+			setup: func(_ *testing.T, c *Client) func() {
+				c.http = &http.Client{Transport: roundTripFunc(func(*http.Request) (*http.Response, error) {
+					return nil, errors.New(`Post "https://www.exploretock.com/private-venue-slug/receipt/cancel?purchaseId=987654321&token=query-token-secret": provider copy secret`)
+				})}
+				return func() {}
+			},
+		},
+		{
+			name: "HTTP provider body",
+			setup: func(_ *testing.T, c *Client) func() {
+				srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+					http.Error(w, "provider copy secret query-token-secret", http.StatusInternalServerError)
+				}))
+				c.http = srv.Client()
+				c.origin = srv.URL
+				return srv.Close
+			},
+		},
+		{
+			name: "malformed request URL",
+			setup: func(_ *testing.T, c *Client) func() {
+				c.origin = "://query-token-secret"
+				return func() {}
+			},
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			c := newCancelHTTPTestClient(t, nil)
+			cleanup := tc.setup(t, c)
+			defer cleanup()
+			_, err := c.Cancel(context.Background(), CancelRequest{VenueSlug: slug, PurchaseID: purchase})
+			if err == nil {
+				t.Fatal("Cancel returned nil error")
+			}
+			got := fmt.Errorf("outer cancel wrapper: %w", err).Error()
+			for _, secret := range secrets {
+				if strings.Contains(got, secret) {
+					t.Fatalf("privacy leak %q in %q", secret, got)
+				}
+			}
+			for cause := err; cause != nil; cause = errors.Unwrap(cause) {
+				for _, secret := range secrets {
+					if strings.Contains(cause.Error(), secret) {
+						t.Fatalf("privacy leak %q in unwrapped cause %q", secret, cause.Error())
+					}
+				}
+			}
+		})
+	}
+}
+
+func TestCancelTransportErrorPreservesSafeTypedCauses(t *testing.T) {
+	tests := []struct {
+		name  string
+		cause error
+		want  error
+	}{
+		{name: "deadline", cause: fmt.Errorf("URL-bearing wrapper: %w", context.DeadlineExceeded), want: context.DeadlineExceeded},
+		{name: "canceled", cause: fmt.Errorf("URL-bearing wrapper: %w", context.Canceled), want: context.Canceled},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			err := newCancelTransportError("transport error", tc.cause)
+			if !errors.Is(err, tc.want) {
+				t.Fatalf("errors.Is(%v, %v)=false", err, tc.want)
+			}
+			if strings.Contains(errors.Unwrap(err).Error(), "URL-bearing") {
+				t.Fatalf("raw wrapper leaked through safe cause: %v", errors.Unwrap(err))
+			}
+		})
+	}
+}
+
+type roundTripFunc func(*http.Request) (*http.Response, error)
+
+func (f roundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) { return f(req) }
+
+func newCancelHTTPTestClient(t *testing.T, srv *httptest.Server) *Client {
+	t.Helper()
+	c, err := New(nil)
+	if err != nil {
+		t.Fatalf("New: %v", err)
+	}
+	if srv != nil {
+		c.http = srv.Client()
+		c.origin = srv.URL
+	} else {
+		c.origin = "http://fixture.invalid"
+	}
+	return c
 }
 
 func TestExtractCSRFTokens(t *testing.T) {
