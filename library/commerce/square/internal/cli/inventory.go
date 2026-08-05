@@ -34,6 +34,6 @@ func newInventoryCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newInventoryUpdateAdjustmentCmd(flags))
 	cmd.AddCommand(newInventoryUpdateAdjustmentReasonCmd(flags))
 	cmd.AddCommand(newInventoryChangesCmd(flags))
-	addNovelCommandIfAbsent(cmd, newNovelInventoryDriftCmd(flags))
+	cmd.AddCommand(newNovelInventoryDriftCmd(flags))
 	return cmd
 }
