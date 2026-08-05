@@ -1231,7 +1231,9 @@ func TestClickPinnedSlotByTimeText_ExplicitCardInsulatesFromForeignFormLink(t *t
 		<form>
 		  <a href="/venue/experience/111111">Cross-sell</a>
 		  <section class="experience-card">
-		    <button onclick="window.clickedOwn = true;">6:15 PM Book</button>
+		    <!-- type=button: a typeless button in a form is type=submit, and the
+		         submit navigation races the test's read of window.clickedOwn -->
+		    <button type="button" onclick="window.clickedOwn = true;">6:15 PM Book</button>
 		  </section>
 		</form>`
 	withTockDOMFixtureAtPath(t, "/venue/experience/520126", html, func(ctx context.Context) {
