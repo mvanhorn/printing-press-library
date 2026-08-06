@@ -4,11 +4,11 @@
   "applied_at": "2026-08-06",
   "base_run_id": "20260806-100315-0ed5c3e3",
   "base_printing_press_version": "4.30.1",
-  "summary": "Do not advance the incremental sync watermark when consumed records were dropped for missing primary keys or failed hydration.",
+  "summary": "Advance the incremental sync watermark only when every consumed record was stored: extract/hydration failures AND silently-skipped records (scalar deletion tombstones) both hold the watermark.",
   "reason": "Greptile P1 on publish PR #1668: sync --resources deleted (scalar keys) advanced the watermark past records that were never stored, excluding them from all future incremental runs.",
   "files": [
     "internal/cli/sync.go"
   ],
-  "validated_outcome": "extractFailureTotal > 0 leaves the watermark untouched (SaveSyncProgress path preserves the prior watermark); build/tests pass.",
+  "validated_outcome": "extractFailureTotal > 0 or consumedTotal != totalCount leaves the watermark untouched (SaveSyncProgress preserves the prior watermark); build/tests pass.",
   "upstream_issue": null
 }

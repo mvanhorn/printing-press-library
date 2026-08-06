@@ -875,12 +875,14 @@ func syncResource(ctx context.Context, c interface {
 		return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("counting stored %s rows: %w", resource, countErr), Duration: time.Since(started)}
 	}
 	// Never advance the incremental watermark past records that were
-	// consumed but dropped (no extractable primary key / failed hydration):
-	// a moved watermark would exclude them from every future incremental
-	// run even though they were never stored.
+	// consumed but not stored. extractFailureTotal covers key-extraction and
+	// hydration failures; the consumed==stored equality additionally covers
+	// records UpsertBatch rejects as skipped without counting a failure
+	// (e.g. scalar deletion tombstones). A held watermark merely re-fetches
+	// next run; an advanced one silently loses records forever.
 	// PATCH(zotero-research-library-watermark-dropped-records)
 	watermark := time.Time{}
-	if extractFailureTotal == 0 {
+	if extractFailureTotal == 0 && consumedTotal == totalCount {
 		if outcome.complete {
 			watermark = requestedAt.Add(-syncWatermarkOverlap)
 		} else if capTruncated && sortEffective && timestampOrderSafe && timestampEvidence && !newestStoredAt.IsZero() {
