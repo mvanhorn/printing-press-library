@@ -20,6 +20,6 @@ func newWebhooksCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newWebhooksGetByIdCmd(flags))
 	cmd.AddCommand(newWebhooksListCmd(flags))
 	cmd.AddCommand(newWebhooksUpdateCmd(flags))
-	addNovelCommandIfAbsent(cmd, newNovelWebhooksHealthCmd(flags))
+	cmd.AddCommand(newNovelWebhooksHealthCmd(flags))
 	return cmd
 }
