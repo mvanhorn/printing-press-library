@@ -214,6 +214,35 @@ func SaveCredentials(creds *Credentials) error {
 	return AtomicWritePrivateFile(path, data, 0o600, 0o700)
 }
 
+// SaveCredentialsForConfig writes credentials to the sibling store of an
+// explicit config path, mirroring LoadCredentialsForConfig's resolution so
+// set-token and logout act on the credentials later loads will read.
+// PATCH(zotero-research-library-explicit-config-credentials)
+func SaveCredentialsForConfig(configPath string, creds *Credentials) error {
+	path, err := CredentialsFilePathForConfig(configPath)
+	if err != nil {
+		return err
+	}
+	data, err := toml.Marshal(credentialsFileFrom(creds)) // #nosec G117 -- credentials are intentionally persisted to a 0600 private file.
+	if err != nil {
+		return fmt.Errorf("marshaling credentials: %w", err)
+	}
+	return AtomicWritePrivateFile(path, data, 0o600, 0o700)
+}
+
+// RemoveCredentialsForConfig removes the sibling credential store of an
+// explicit config path. PATCH(zotero-research-library-explicit-config-credentials)
+func RemoveCredentialsForConfig(configPath string) error {
+	path, err := CredentialsFilePathForConfig(configPath)
+	if err != nil {
+		return err
+	}
+	if err := os.Remove(path); err != nil && !errors.Is(err, os.ErrNotExist) {
+		return fmt.Errorf("removing credentials: %w", err)
+	}
+	return nil
+}
+
 func RemoveCredentials() error {
 	path, err := credentialsPath()
 	if err != nil {

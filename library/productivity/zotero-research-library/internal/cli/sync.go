@@ -9,11 +9,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/mvanhorn/printing-press-library/library/productivity/zotero-research-library/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/productivity/zotero-research-library/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/productivity/zotero-research-library/internal/learn"
-	"github.com/mvanhorn/printing-press-library/library/productivity/zotero-research-library/internal/learn/lookups"
-	"github.com/mvanhorn/printing-press-library/library/productivity/zotero-research-library/internal/store"
 	"github.com/spf13/cobra"
 	"io"
 	"net/url"
@@ -25,6 +20,11 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+	"zotero-research-library-pp-cli/internal/client"
+	"zotero-research-library-pp-cli/internal/cliutil"
+	"zotero-research-library-pp-cli/internal/learn"
+	"zotero-research-library-pp-cli/internal/learn/lookups"
+	"zotero-research-library-pp-cli/internal/store"
 )
 
 // unresolvedPathKeyRE matches `{key}` placeholders left in a sync path
@@ -874,11 +874,18 @@ func syncResource(ctx context.Context, c interface {
 	if countErr != nil {
 		return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("counting stored %s rows: %w", resource, countErr), Duration: time.Since(started)}
 	}
+	// Never advance the incremental watermark past records that were
+	// consumed but dropped (no extractable primary key / failed hydration):
+	// a moved watermark would exclude them from every future incremental
+	// run even though they were never stored.
+	// PATCH(zotero-research-library-watermark-dropped-records)
 	watermark := time.Time{}
-	if outcome.complete {
-		watermark = requestedAt.Add(-syncWatermarkOverlap)
-	} else if capTruncated && sortEffective && timestampOrderSafe && timestampEvidence && !newestStoredAt.IsZero() {
-		watermark = newestStoredAt.Add(-syncWatermarkOverlap)
+	if extractFailureTotal == 0 {
+		if outcome.complete {
+			watermark = requestedAt.Add(-syncWatermarkOverlap)
+		} else if capTruncated && sortEffective && timestampOrderSafe && timestampEvidence && !newestStoredAt.IsZero() {
+			watermark = newestStoredAt.Add(-syncWatermarkOverlap)
+		}
 	}
 	if !watermark.IsZero() {
 		// A positional or opaque cursor was issued for the old since window.

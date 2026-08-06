@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/productivity/zotero-research-library/internal/cliutil"
 	"github.com/pelletier/go-toml/v2"
+	"zotero-research-library-pp-cli/internal/cliutil"
 )
 
 type Config struct {
@@ -21,6 +21,11 @@ type Config struct {
 	AuthSource         string            `toml:"-"`
 	CredentialSource   string            `toml:"-"`
 	AgentcookieManaged bool              `toml:"-"`
+	// explicitConfig records that this config was loaded from an explicit
+	// --config path, so credential mutations target that config's sibling
+	// credential store instead of the global one.
+	// PATCH(zotero-research-library-explicit-config-credentials)
+	explicitConfig bool
 	// configOwner records which on-disk file parseConfigData populated this
 	// config from ("config-kind path" or "legacy config path") so the
 	// credential-source fallback below reports where config-stored
@@ -52,6 +57,7 @@ func Load(configPath string) (*Config, error) {
 		return nil, err
 	}
 	cfg.Path = path
+	cfg.explicitConfig = explicitConfigFile
 
 	if explicitConfigFile {
 		// Keep non-secret settings from a readable config even when its permissions
@@ -375,7 +381,11 @@ func (c *Config) saveCredentialsFirst() error {
 		return nil
 	}
 	persisted := c.configForSave()
-	if err := cliutil.SaveCredentials(persisted.credentials()); err != nil {
+	if c.explicitConfig {
+		if err := cliutil.SaveCredentialsForConfig(c.Path, persisted.credentials()); err != nil {
+			return err
+		}
+	} else if err := cliutil.SaveCredentials(persisted.credentials()); err != nil {
 		return err
 	}
 	c.CredentialSource = "credentials file"
@@ -467,7 +477,11 @@ func (c *Config) ClearTokens() error {
 		// back; returning early would leave the secrets on disk.
 		return c.save()
 	}
-	if err := cliutil.RemoveCredentials(); err != nil {
+	if c.explicitConfig {
+		if err := cliutil.RemoveCredentialsForConfig(c.Path); err != nil {
+			return err
+		}
+	} else if err := cliutil.RemoveCredentials(); err != nil {
 		return err
 	}
 	return c.save()

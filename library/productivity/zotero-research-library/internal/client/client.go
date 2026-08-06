@@ -12,9 +12,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/mvanhorn/printing-press-library/library/productivity/zotero-research-library/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/productivity/zotero-research-library/internal/config"
-	"github.com/mvanhorn/printing-press-library/library/productivity/zotero-research-library/internal/platform"
 	"io"
 	"math"
 	"net"
@@ -27,6 +24,9 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"zotero-research-library-pp-cli/internal/cliutil"
+	"zotero-research-library-pp-cli/internal/config"
+	"zotero-research-library-pp-cli/internal/platform"
 )
 
 const BinaryResponseHeader = "X-Printing-Press-Binary-Response"
@@ -940,8 +940,15 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 			req.URL.RawQuery = q.Encode()
 		}
 
+		// Credential containment: the API key is only ever sent to Zotero
+		// origins. A hostile ZOTERO_RESEARCH_LIBRARY_BASE_URL must not be
+		// able to exfiltrate the key. PATCH(zotero-research-library-key-origin-guard)
 		if authHeader != "" {
-			req.Header.Set("Zotero-API-Key", authHeader)
+			if h := strings.ToLower(req.URL.Hostname()); h == "zotero.org" || strings.HasSuffix(h, ".zotero.org") {
+				req.Header.Set("Zotero-API-Key", authHeader)
+			} else {
+				fmt.Fprintf(os.Stderr, "warning: refusing to send Zotero-API-Key to non-Zotero host %q\n", req.URL.Hostname())
+			}
 		}
 		req.Header.Set("Zotero-API-Version", "3")
 		if c.Config != nil {
