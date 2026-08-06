@@ -195,17 +195,47 @@ func Load(configPath string) (*Config, error) {
 }
 
 func resolveConfigPath(configPath string) (string, bool, error) {
-	if strings.TrimSpace(configPath) != "" {
-		return configPath, true, nil
-	}
-	if path := os.Getenv("ZOTERO_RESEARCH_LIBRARY_CONFIG"); path != "" {
-		return path, true, nil
+	explicit := strings.TrimSpace(configPath)
+	if explicit == "" {
+		explicit = strings.TrimSpace(os.Getenv("ZOTERO_RESEARCH_LIBRARY_CONFIG"))
 	}
 	dir, err := cliutil.ConfigDir()
 	if err != nil {
+		if explicit != "" {
+			return explicit, true, nil
+		}
 		return "", false, err
 	}
-	return filepath.Join(dir, "config.toml"), false, nil
+	defaultPath := filepath.Join(dir, "config.toml")
+	if explicit == "" {
+		return defaultPath, false, nil
+	}
+	// Explicitly naming the default config file must behave exactly like the
+	// no-flag default — otherwise set-token writes the sibling store while a
+	// later no-flag run reads only the global one (split-brain credentials).
+	// PATCH(zotero-research-library-explicit-config-credentials)
+	if sameConfigFile(explicit, defaultPath) {
+		return defaultPath, false, nil
+	}
+	return explicit, true, nil
+}
+
+// sameConfigFile reports whether two paths name the same file, tolerating
+// relative segments and symlinks (best-effort when the file doesn't exist).
+// PATCH(zotero-research-library-explicit-config-credentials)
+func sameConfigFile(a, b string) bool {
+	absA, errA := filepath.Abs(a)
+	absB, errB := filepath.Abs(b)
+	if errA != nil || errB != nil {
+		return false
+	}
+	if realA, err := filepath.EvalSymlinks(absA); err == nil {
+		absA = realA
+	}
+	if realB, err := filepath.EvalSymlinks(absB); err == nil {
+		absB = realB
+	}
+	return filepath.Clean(absA) == filepath.Clean(absB)
 }
 
 func LegacyConfigPath() (string, error) {
