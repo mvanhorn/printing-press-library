@@ -13,11 +13,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/productivity/zotero-research-library/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/productivity/zotero-research-library/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/productivity/zotero-research-library/internal/config"
-	"github.com/mvanhorn/printing-press-library/library/productivity/zotero-research-library/internal/store"
 	"github.com/spf13/cobra"
+	"zotero-research-library-pp-cli/internal/client"
+	"zotero-research-library-pp-cli/internal/cliutil"
+	"zotero-research-library-pp-cli/internal/config"
+	"zotero-research-library-pp-cli/internal/store"
 )
 
 // Hand-coded auth flows can report credentials that are intentionally not
@@ -517,10 +517,22 @@ func collectCredentialsLocationReport(report map[string]any, cfg *config.Config)
 		return
 	}
 
+	// Inspect the store credential mutations actually target (the explicit
+	// config's sibling store when one is in use), and still surface a
+	// populated global store as an extra location so the consolidation
+	// warning fires when both hold values.
+	// PATCH(zotero-research-library-explicit-config-credentials)
 	locations := []string{}
-	credsPresent, err := cliutil.CredentialsFileHasValues()
-	if err == nil && credsPresent {
-		locations = append(locations, "credentials file")
+	activeStore := cfg.CredentialStorePath()
+	credsPresent := false
+	if ok, err := cliutil.CredentialsFileHasValuesAt(activeStore); err == nil && ok {
+		credsPresent = true
+		locations = append(locations, "credentials file ("+activeStore+")")
+	}
+	if globalPath, err := cliutil.CredentialsFilePath(); err == nil && globalPath != activeStore {
+		if ok, err := cliutil.CredentialsFileHasValuesAt(globalPath); err == nil && ok {
+			locations = append(locations, globalPath)
+		}
 	}
 	legacySecretsElsewhere := ""
 	for _, path := range legacyCredentialProbePaths(cfg) {

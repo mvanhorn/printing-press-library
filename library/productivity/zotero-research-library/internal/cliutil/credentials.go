@@ -171,6 +171,18 @@ func loadCredentials(path string, rejectInvalid bool) (*Credentials, bool, error
 	return &creds, true, nil
 }
 
+// CredentialsFileHasValuesAt reports whether the credential store at an
+// explicit path holds values — used by doctor to inspect the store that
+// mutations actually target rather than assuming the global one.
+// PATCH(zotero-research-library-explicit-config-credentials)
+func CredentialsFileHasValuesAt(path string) (bool, error) {
+	creds, ok, err := loadCredentials(path, false)
+	if err != nil || !ok {
+		return false, err
+	}
+	return creds.HasValues(), nil
+}
+
 func CredentialsFileHasValues() (bool, error) {
 	creds, ok, err := LoadCredentials()
 	if err != nil || !ok {
