@@ -34,9 +34,10 @@ var resourceDetailPaths = map[string]string{ // #nosec G101 -- endpoint paths, n
 	"venues":     "/venues/{venue_id}",
 }
 
-var resourceWritePaths = map[string]string{ // #nosec G101 -- endpoint paths, not credentials.
-	"stats": "/stats",
-}
+// The OpenField /stats POST is a QUERY endpoint, not a create: importing
+// records through it would silently report success while persisting nothing.
+// This API is read-only; no resource accepts imports. PATCH(catapult-openfield-connect-import-readonly)
+var resourceWritePaths = map[string]string{}
 
 var resourceReadConfigs = map[string]resourceReadConfig{
 	"activities":  {responsePath: "", pageSize: 100},

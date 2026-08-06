@@ -17,7 +17,7 @@
   "spec_checksum": "sha256:535fb8c8b67aceb33a832893b293cbef249c6d9cdfa6f613e0ae0f0a3ac05d8f",
   "run_id": "20260805-211628-9cef41ba",
   "category": "health",
-  "description": "Every Catapult GPS metric — ACWR, velocity benchmarks, load reports — from one command, with a local SQLite mirror for offline analysis.",
+  "description": "Every Catapult GPS metric \u2014 ACWR, velocity benchmarks, load reports \u2014 from one command, with a local SQLite mirror for offline analysis.",
   "mcp_binary": "catapult-openfield-connect-pp-mcp",
   "mcp_tool_count": 22,
   "mcp_ready": "full",
@@ -38,12 +38,12 @@
     {
       "name": "ACWR dashboard",
       "command": "acwr",
-      "description": "Instant acute:chronic workload ratios for any athlete or the full squad, color-coded into safe (0.8-1.3), caution, and danger (\u003e1.5) zones."
+      "description": "Instant acute:chronic workload ratios for any athlete or the full squad, color-coded into safe (0.8-1.3), caution, and danger (>1.5) zones."
     },
     {
       "name": "Weekly load report",
       "command": "report",
-      "description": "One-command weekly summary — total Player Load, session count, ACWR, max velocity vs PB, monotony, strain, and risk flags — exportable as markdown or CSV."
+      "description": "One-command weekly summary \u2014 total Player Load, session count, ACWR, max velocity vs PB, monotony, strain, and risk flags \u2014 exportable as markdown or CSV."
     },
     {
       "name": "Personal bests",
@@ -68,7 +68,8 @@
     {
       "name": "Period intensity heatmap",
       "command": "heatmap",
-      "description": "Renders an athlete-by-period intensity matrix for a session — ANSI heatmap on a terminal, JSON matrix for agents — surfacing where fatigue compounded."
+      "description": "Renders an athlete-by-period intensity matrix for a session \u2014 ANSI heatmap on a terminal, JSON matrix for agents \u2014 surfacing where fatigue compounded."
     }
-  ]
+  ],
+  "spec_source": "internal-yaml: authored from the official SBGSports/catapultr R client source (R/ofCloud.R) \u2014 Catapult OpenField Cloud API v6; endpoints verified against live tenant"
 }
