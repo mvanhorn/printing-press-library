@@ -1,0 +1,7 @@
+{
+  "descriptions": {
+    "teams_list": "List all teams in the Catapult OpenField account (GET /teams). No parameters. Returns an array of {id, name}. Call this first when a workflow needs a team id to scope athletes, activities, or load reports \u2014 team names are not accepted as filters elsewhere, ids are.",
+    "venues_list": "List all venues configured in the Catapult OpenField account (GET /venues). No parameters. Returns an array of {id, name}. Use this to discover venue ids; when you already have a venue_id, prefer venues_get to fetch just that venue.",
+    "customer_get": "Fetch the authenticated Catapult OpenField account profile (GET /customer/info). No parameters. Returns the customer id and account name. Use it to confirm which OpenField tenant the API token belongs to before syncing data or running stats queries; for unit preferences use customer_settings instead."
+  }
+}

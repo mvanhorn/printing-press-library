@@ -1,0 +1,51 @@
+version: 2
+project_name: catapult-openfield-connect-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: catapult-openfield-connect-pp-cli
+    main: ./cmd/catapult-openfield-connect-pp-cli
+    binary: catapult-openfield-connect-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/health/catapult-openfield-connect/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: catapult-openfield-connect-pp-mcp
+    main: ./cmd/catapult-openfield-connect-pp-mcp
+    binary: catapult-openfield-connect-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: catapult-openfield-connect-pp-cli
+    repository:
+      owner: erash11
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every Catapult GPS metric — ACWR, velocity benchmarks, load reports — from one command, with a local SQLite mirror for offline analysis."
+    install: |
+      bin.install "catapult-openfield-connect-pp-cli"
+      bin.install "catapult-openfield-connect-pp-mcp"

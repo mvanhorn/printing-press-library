@@ -1,0 +1,519 @@
+name: catapult-openfield-connect
+description: "Catapult OpenField GPS athlete monitoring CLI — ACWR, player load, velocity benchmarks, and load reports from a local SQLite mirror"
+version: "0.1.0"
+base_url: "https://us.catapultsports.com/api/v6"
+health_check_path: "/parameters"
+category: health
+
+auth:
+  type: bearer_token
+  header: "Authorization"
+  format: "Bearer {token}"
+  env_vars:
+    - CATAPULT_TOKEN
+
+cache:
+  enabled: true
+  stale_after: 24h
+
+config:
+  format: toml
+  path: "~/.config/catapult-openfield-connect-pp-cli/config.toml"
+
+learn:
+  entity_lookup_seeds:
+    metric:
+      - canonical: total_player_load
+        aliases: [player load, load, total load, workload]
+      - canonical: max_vel
+        aliases: [max velocity, top speed, peak velocity, max speed]
+      - canonical: total_distance
+        aliases: [distance, total meters, meterage]
+      - canonical: meterage_per_minute
+        aliases: [m/min, meters per minute, intensity]
+      - canonical: total_duration
+        aliases: [duration, session length]
+  synonyms:
+    "most recent": "latest"
+    "practice": "session"
+
+resources:
+  athletes:
+    description: "Athletes registered in the OpenField account"
+    endpoints:
+      list:
+        method: GET
+        path: "/athletes"
+        description: "List all athletes with physical attributes, jersey numbers, and positions"
+        response:
+          type: array
+          item: Athlete
+      bands:
+        method: GET
+        path: "/athletes/{athlete_id}/bands"
+        description: "Velocity/acceleration band thresholds configured for an athlete"
+        params:
+          - name: athlete_id
+            type: string
+            required: true
+            positional: true
+            description: "Athlete ID"
+          - name: band_name
+            type: string
+            description: "Filter to a single named band"
+        response:
+          type: array
+          item: Band
+      annotations:
+        method: GET
+        path: "/athletes/{athlete_id}/annotations"
+        description: "Annotations recorded against an athlete"
+        params:
+          - name: athlete_id
+            type: string
+            required: true
+            positional: true
+            description: "Athlete ID"
+        response:
+          type: array
+          item: Annotation
+  parameters:
+    description: "The 200+ metric catalog (Player Load, banded velocity, heart rate...)"
+    endpoints:
+      list:
+        method: GET
+        path: "/parameters"
+        description: "List every parameter (metric) available in OpenField, with slugs used by stats queries"
+        response:
+          type: array
+          item: Parameter
+  activities:
+    description: "Training sessions and matches"
+    endpoints:
+      list:
+        method: GET
+        path: "/activities"
+        description: "List activities (sessions and matches) with venue and timing"
+        params:
+          - name: startTime
+            flag_name: start-time
+            type: int
+            description: "Unix timestamp lower bound"
+          - name: endTime
+            flag_name: end-time
+            type: int
+            description: "Unix timestamp upper bound"
+        response:
+          type: array
+          item: Activity
+      get:
+        method: GET
+        path: "/activities/{activity_id}"
+        description: "Get one activity; use --embed all for tag/athlete detail"
+        params:
+          - name: activity_id
+            type: string
+            required: true
+            positional: true
+            description: "Activity ID"
+          - name: embed
+            type: string
+            description: "Set to 'all' to embed related entities"
+        response:
+          type: object
+          item: Activity
+      periods:
+        method: GET
+        path: "/activities/{activity_id}/periods"
+        description: "Periods (halves, quarters, drills) within an activity"
+        params:
+          - name: activity_id
+            type: string
+            required: true
+            positional: true
+            description: "Activity ID"
+        response:
+          type: array
+          item: Period
+      athletes:
+        method: GET
+        path: "/activities/{activity_id}/athletes"
+        description: "Athletes who participated in an activity"
+        params:
+          - name: activity_id
+            type: string
+            required: true
+            positional: true
+            description: "Activity ID"
+        response:
+          type: array
+          item: Athlete
+      devices:
+        method: GET
+        path: "/activities/{activity_id}/devices"
+        description: "Devices used in an activity"
+        params:
+          - name: activity_id
+            type: string
+            required: true
+            positional: true
+            description: "Activity ID"
+        response:
+          type: array
+          item: Device
+      annotations:
+        method: GET
+        path: "/activities/{activity_id}/annotations"
+        description: "Annotations on an activity"
+        params:
+          - name: activity_id
+            type: string
+            required: true
+            positional: true
+            description: "Activity ID"
+        response:
+          type: array
+          item: Annotation
+  periods:
+    description: "Periods across activities"
+    endpoints:
+      athletes:
+        method: GET
+        path: "/periods/{period_id}/athletes"
+        description: "Athletes in a period"
+        params:
+          - name: period_id
+            type: string
+            required: true
+            positional: true
+            description: "Period ID"
+        response:
+          type: array
+          item: Athlete
+      annotations:
+        method: GET
+        path: "/periods/{period_id}/annotations"
+        description: "Annotations on a period"
+        params:
+          - name: period_id
+            type: string
+            required: true
+            positional: true
+            description: "Period ID"
+        response:
+          type: array
+          item: Annotation
+  sensor:
+    description: "Raw 10Hz sensor data, IMA events, and velocity/acceleration efforts"
+    endpoints:
+      data:
+        method: GET
+        path: "/activities/{activity_id}/athletes/{athlete_id}/sensor"
+        description: "10Hz sensor stream for one athlete in one activity (large; requires sensor-read-only scope)"
+        params:
+          - name: activity_id
+            type: string
+            required: true
+            positional: true
+            description: "Activity ID"
+          - name: athlete_id
+            type: string
+            required: true
+            positional: true
+            description: "Athlete ID"
+        response:
+          type: array
+          item: SensorSample
+      events:
+        method: GET
+        path: "/activities/{activity_id}/athletes/{athlete_id}/events"
+        description: "IMA events (jumps, dives, sport-specific movements) for one athlete in one activity"
+        params:
+          - name: activity_id
+            type: string
+            required: true
+            positional: true
+            description: "Activity ID"
+          - name: athlete_id
+            type: string
+            required: true
+            positional: true
+            description: "Athlete ID"
+          - name: event_types
+            flag_name: event-types
+            type: string
+            required: true
+            description: "Comma-separated event types (e.g. ima_jump, rugby_union_scrum)"
+        response:
+          type: array
+          item: ImaEvent
+      efforts:
+        method: GET
+        path: "/activities/{activity_id}/athletes/{athlete_id}/efforts"
+        description: "Generation-2 velocity or acceleration efforts for one athlete in one activity"
+        params:
+          - name: activity_id
+            type: string
+            required: true
+            positional: true
+            description: "Activity ID"
+          - name: athlete_id
+            type: string
+            required: true
+            positional: true
+            description: "Athlete ID"
+          - name: effort_types
+            flag_name: effort-types
+            type: string
+            required: true
+            enum: [velocity, acceleration]
+            description: "Effort type: velocity or acceleration"
+        response:
+          type: array
+          item: Effort
+  stats:
+    description: "The stats query engine — computed metrics with grouping and filters"
+    endpoints:
+      query:
+        method: POST
+        path: "/stats"
+        description: "Query computed statistics. Body: parameter slugs, group_by dims (athlete, activity, period, position, team), and filters (date, activity_id, athlete_id, lastActivities...)"
+        example: "  catapult-openfield-connect-pp-cli stats query --parameters total_player_load,total_distance --group-by athlete --filters '[{\"name\":\"lastActivities\",\"comparison\":\"=\",\"values\":[\"5\"]}]' --json"
+        happy_args: "--parameters=total_player_load;--group-by=athlete;--filters=[{\"name\":\"lastActivities\",\"comparison\":\"=\",\"values\":[\"5\"]}]"
+        params:
+          - name: requested_only
+            flag_name: requested-only
+            type: bool
+            default: true
+            description: "Return only the requested parameters"
+          - name: source
+            type: string
+            description: "Set to annotation_stats to query the annotation database"
+        body:
+          properties:
+            parameters:
+              type: array
+              required: true
+              items:
+                type: string
+            group_by:
+              type: array
+              required: true
+              items:
+                type: string
+            filters:
+              type: array
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  comparison:
+                    type: string
+                  values:
+                    type: array
+                    items:
+                      type: string
+        response:
+          type: array
+          item: StatRow
+  teams:
+    description: "Teams in the account"
+    endpoints:
+      list:
+        method: GET
+        path: "/teams"
+        description: "List teams"
+        response:
+          type: array
+          item: Team
+  venues:
+    description: "Venues"
+    endpoints:
+      list:
+        method: GET
+        path: "/venues"
+        description: "List venues"
+        response:
+          type: array
+          item: Venue
+      get:
+        method: GET
+        path: "/venues/{venue_id}"
+        description: "Get one venue"
+        params:
+          - name: venue_id
+            type: string
+            required: true
+            positional: true
+            description: "Venue ID"
+        response:
+          type: object
+          item: Venue
+  customer:
+    description: "Account info and settings"
+    endpoints:
+      info:
+        method: GET
+        path: "/customer/info"
+        description: "Customer account info"
+        response:
+          type: object
+          item: CustomerInfo
+      settings:
+        method: GET
+        path: "/settings"
+        description: "User settings including velocity and distance units"
+        response:
+          type: object
+          item: Settings
+  annotations:
+    description: "Annotation metadata"
+    endpoints:
+      categories:
+        method: GET
+        path: "/annotation_categories"
+        description: "List annotation categories"
+        response:
+          type: array
+          item: AnnotationCategory
+
+types:
+  Athlete:
+    fields:
+      - name: id
+        type: string
+      - name: first_name
+        type: string
+      - name: last_name
+        type: string
+      - name: jersey
+        type: string
+      - name: position_name
+        type: string
+  Parameter:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: slug
+        type: string
+      - name: original_name
+        type: string
+  Activity:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: start_time
+        type: int
+      - name: end_time
+        type: int
+      - name: venue_name
+        type: string
+      - name: activity_athletes
+        type: string
+  Period:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: start_time
+        type: int
+      - name: end_time
+        type: int
+      - name: activity_id
+        type: string
+  Band:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: value
+        type: float
+  Annotation:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: category_name
+        type: string
+  AnnotationCategory:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+  Device:
+    fields:
+      - name: id
+        type: string
+      - name: device_id
+        type: string
+      - name: athlete_id
+        type: string
+  SensorSample:
+    fields:
+      - name: ts
+        type: float
+      - name: cs
+        type: float
+  ImaEvent:
+    fields:
+      - name: event_type
+        type: string
+      - name: start_time
+        type: float
+      - name: intensity
+        type: string
+  Effort:
+    fields:
+      - name: effort_type
+        type: string
+      - name: start_time
+        type: float
+      - name: band
+        type: string
+      - name: distance
+        type: float
+      - name: max_velocity
+        type: float
+  StatRow:
+    fields:
+      - name: athlete_id
+        type: string
+      - name: athlete_name
+        type: string
+      - name: activity_id
+        type: string
+      - name: period_id
+        type: string
+  Team:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+  Venue:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+  CustomerInfo:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+  Settings:
+    fields:
+      - name: velocity_unit
+        type: string
+      - name: distance_unit
+        type: string
