@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "bulk-set-apply-needs-a-resume-state-to-survive-rate-limiting",
+  "applied_at": "2026-08-05",
+  "base_run_id": "20260728-073020-15799c7c",
+  "base_printing_press_version": "4.29.0",
+  "summary": "When items bulk-set --apply stops early on an exhausted 429, it must persist which item IDs it already wrote (keyed by a signature of collection + --match + --set) so a re-run of the identical command skips those and reaches the untouched tail, instead of reselecting the same sorted head of the batch from the unchanged local mirror.",
+  "reason": "The local mirror this command selects from is opened read-only and is never updated after a write, so a bare re-run after a rate-limit stop reselects the exact same sorted matched list from scratch. Without tracking what was already applied, the re-run burns rate-limit budget resending writes to items that already succeeded and can make zero net forward progress on the remaining items if the per-minute cap is tight enough. The fix adds a small sidecar JSON file under the CLI's state dir (mirrors the teach command's existing pattern of a state-dir sidecar file) recording applied item IDs per signature; it is cleared whenever a run for that signature finishes without hitting the rate limit. A regen must keep the 'Re-run to continue where this left off' message backed by this resume state rather than reverting to a message that promises continuation the tool can't deliver.",
+  "files": ["internal/cli/items_bulk_set.go"],
+  "validated_outcome": "Unit tests TestBulkSetResumeRoundTrip and TestBulkSetResumeClearIgnoresOtherSignature confirm save/load/clear round-trips correctly and that finishing one --match/--set batch never wipes a different in-flight batch's resume state on the same collection.",
+  "upstream_issue": ""
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "bulk-set-coercion-must-consult-field-schema",
+  "applied_at": "2026-08-05",
+  "base_run_id": "20260728-073020-15799c7c",
+  "base_printing_press_version": "4.29.0",
+  "summary": "items bulk-set must only coerce a --set value to a JSON boolean when the collection schema says the field is a Switch; otherwise a plain-text field whose value is literally \"true\" or \"false\" gets silently retyped and Webflow rejects or mis-stores the write.",
+  "reason": "stringMapToAny coerced any value matching \"true\"/\"false\" (case-insensitive) to a JSON bool with no reference to the field's actual type. A regen must keep the coercion scoped to fields whose schema type is exactly \"Switch\" (fetched the same way collections_completeness already fetches collection schema: local mirror first, one live GET as fallback), and must default to leaving the value as a string when the schema is unavailable rather than guessing from the value.",
+  "files": ["internal/cli/items_bulk_set.go"],
+  "validated_outcome": "Unit test TestStringMapToAnyOnlyCoercesSwitchFields confirms a PlainText field valued \"false\" stays a JSON string while a Switch field valued \"true\" becomes a JSON bool.",
+  "upstream_issue": ""
+}
