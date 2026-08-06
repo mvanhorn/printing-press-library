@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "quentli-pp-cli"
+display_name = "Quentli"
+description = "Every Quentli payments, invoicing, and SAT tax-billing endpoint, plus offline collection, reconciliation, and at-risk-subscription intelligence no other Quentli tool has."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/quentli-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+QUENTLI_SECRET_KEY = true
