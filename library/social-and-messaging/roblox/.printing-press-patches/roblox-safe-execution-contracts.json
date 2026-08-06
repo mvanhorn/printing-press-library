@@ -9,14 +9,13 @@
   "files": [
     "internal/cli/root.go",
     "internal/cli/helpers.go",
-    "internal/cli/mutation_confirmation_test.go",
+    "internal/cli/root_test.go",
     "internal/mcp/code_orch.go",
-    "internal/mcp/code_orch_confirmation_test.go",
+    "internal/mcp/code_orch_writebody_test.go",
     "internal/cli/novel_helpers.go",
-    "internal/cli/novel_helpers_test.go",
+    "internal/cli/network_overlap_test.go",
     "internal/cli/network_overlap.go",
-    "internal/cli/auth.go",
-    "internal/cli/auth_security_test.go"
+    "internal/cli/auth.go"
   ],
   "validated_outcome": "Focused regression coverage and the full Go test suite, race detector, vet, govulncheck, formatting check, and publish-package verifier all pass."
 }

@@ -7,7 +7,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
+	"strconv"
+	"strings"
 	"testing"
+
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/cliutil"
+	"github.com/spf13/cobra"
 )
 
 // TestIsCobraUsageError covers the six pre-RunE error shapes Cobra and
@@ -75,6 +82,151 @@ func TestExitCode_UsageError_WrappedAsCode2(t *testing.T) {
 	wrapped := usageErr(errors.New("unknown flag: --foob"))
 	if got := ExitCode(wrapped); got != 2 {
 		t.Errorf("ExitCode(usageErr(...)) = %d, want 2 (POSIX usage convention)", got)
+	}
+}
+
+func TestRequireRemoteMutationConfirmation(t *testing.T) {
+	tests := []struct {
+		name        string
+		method      string
+		readOnly    bool
+		flags       rootFlags
+		wantBlocked bool
+	}{
+		{name: "post blocked", method: "POST", wantBlocked: true},
+		{name: "delete blocked case insensitive", method: "delete", wantBlocked: true},
+		{name: "yes confirms", method: "PATCH", flags: rootFlags{yes: true}},
+		{name: "dry run previews", method: "PUT", flags: rootFlags{dryRun: true}},
+		{name: "read only post exempt", method: "POST", readOnly: true},
+		{name: "get unaffected", method: "GET"},
+		{name: "unannotated unaffected"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			annotations := map[string]string{"pp:method": tt.method}
+			if tt.readOnly {
+				annotations["mcp:read-only"] = "true"
+			}
+			root := &cobra.Command{Use: "roblox-pp-cli"}
+			cmd := &cobra.Command{Use: "example", Annotations: annotations}
+			root.AddCommand(cmd)
+
+			err := requireRemoteMutationConfirmation(cmd, &tt.flags)
+			if !tt.wantBlocked {
+				if err != nil {
+					t.Fatalf("unexpected confirmation error: %v", err)
+				}
+				return
+			}
+			if err == nil {
+				t.Fatal("mutation without confirmation was allowed")
+			}
+			var cliErr *cliError
+			if !errors.As(err, &cliErr) || cliErr.code != 2 {
+				t.Fatalf("confirmation error = %T %v, want usage error with exit code 2", err, err)
+			}
+			for _, want := range []string{"--yes", "--dry-run", strings.ToUpper(tt.method)} {
+				if !strings.Contains(err.Error(), want) {
+					t.Fatalf("confirmation error %q missing %q", err, want)
+				}
+			}
+		})
+	}
+}
+
+func TestRootPreRunRejectsUnconfirmedRemoteMutation(t *testing.T) {
+	home := t.TempDir()
+	t.Cleanup(func() {
+		if _, err := cliutil.SetHomeOverride(""); err != nil {
+			t.Errorf("clearing home override: %v", err)
+		}
+	})
+	flags := &rootFlags{}
+	root := newRootCmd(flags)
+	root.SetArgs([]string{"avatar", "create", "--no-learn", "--home", home})
+	root.SilenceErrors = true
+
+	_, err := root.ExecuteC()
+	if err == nil {
+		t.Fatal("avatar mutation without --yes was allowed")
+	}
+	if !strings.Contains(err.Error(), "--yes") {
+		t.Fatalf("error %q does not explain how to confirm", err)
+	}
+}
+
+func TestEveryAnnotatedRemoteMutationIsCoveredByConfirmationGuard(t *testing.T) {
+	root := newRootCmd(&rootFlags{})
+	mutationCount := 0
+	var walk func(*cobra.Command)
+	walk = func(parent *cobra.Command) {
+		for _, cmd := range parent.Commands() {
+			method := strings.ToUpper(cmd.Annotations["pp:method"])
+			switch method {
+			case "DELETE", "POST", "PUT", "PATCH":
+				if strings.EqualFold(cmd.Annotations["mcp:read-only"], "true") {
+					break
+				}
+				mutationCount++
+				if err := requireRemoteMutationConfirmation(cmd, &rootFlags{}); err == nil {
+					t.Errorf("%s (%s) is not covered by the confirmation guard", cmd.CommandPath(), method)
+				}
+			}
+			walk(cmd)
+		}
+	}
+	walk(root)
+	if mutationCount == 0 {
+		t.Fatal("command tree contains no annotated mutations; confirmation coverage test is not exercising the generated surface")
+	}
+}
+
+func TestCopyFileIfExistsCreatesPrivateDestination(t *testing.T) {
+	dir := t.TempDir()
+	src := filepath.Join(dir, "source")
+	dst := filepath.Join(dir, "copy")
+	if err := os.WriteFile(src, []byte("cookie database contents"), 0o644); err != nil {
+		t.Fatalf("writing source: %v", err)
+	}
+	if err := os.WriteFile(dst, []byte("stale contents"), 0o644); err != nil {
+		t.Fatalf("writing pre-existing destination: %v", err)
+	}
+
+	if err := copyFileIfExists(src, dst); err != nil {
+		t.Fatalf("copyFileIfExists() error = %v", err)
+	}
+	info, err := os.Stat(dst)
+	if err != nil {
+		t.Fatalf("stat destination: %v", err)
+	}
+	if got := info.Mode().Perm(); got != 0o600 {
+		t.Fatalf("destination permissions = %04o, want 0600", got)
+	}
+	data, err := os.ReadFile(dst)
+	if err != nil {
+		t.Fatalf("reading destination: %v", err)
+	}
+	if string(data) != "cookie database contents" {
+		t.Fatalf("destination contents = %q", data)
+	}
+}
+
+func TestPycookiecheatScriptQuotesUntrustedPath(t *testing.T) {
+	path := filepath.Join("Profile \"; __import__('os').system('false'); #", "Cookies")
+	script := pycookiecheatScript(`.roblox.com\"); injected = True; #`, path)
+
+	pathLiteral := strconv.Quote(filepath.ToSlash(path))
+	domainLiteral := strconv.Quote(`https://roblox.com\"); injected = True; #`)
+	if !strings.Contains(script, "cookie_file="+pathLiteral) {
+		t.Fatalf("script does not contain safely quoted cookie path: %s", script)
+	}
+	if !strings.Contains(script, "chrome_cookies("+domainLiteral) {
+		t.Fatalf("script does not contain safely quoted domain: %s", script)
+	}
+	want := `import json; from pycookiecheat import chrome_cookies; print(json.dumps(chrome_cookies(` + domainLiteral + `, cookie_file=` + pathLiteral + `)))`
+	if script != want {
+		t.Fatalf("script = %q, want safely quoted source %q", script, want)
 	}
 }
 
