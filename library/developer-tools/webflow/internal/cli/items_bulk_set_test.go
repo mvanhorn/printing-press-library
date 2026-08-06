@@ -134,6 +134,78 @@ func TestBulkSetResumeClearIgnoresOtherSignature(t *testing.T) {
 	}
 }
 
+// TestBulkSetResumeSaveDoesNotOverwriteOtherSignature guards the regression
+// Greptile flagged: two different --match/--set batches on the same
+// collection, both rate-limited before either resumes, must not clobber each
+// other's saved progress. All batches share one sidecar file, so saving must
+// be a read-modify-write keyed by signature rather than a full overwrite.
+func TestBulkSetResumeSaveDoesNotOverwriteOtherSignature(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	t.Setenv("XDG_STATE_HOME", home+"/state")
+
+	sigA := bulkSetResumeSignature("c1", map[string]string{"status": "draft"}, map[string]string{"author": "editorial"})
+	sigB := bulkSetResumeSignature("c1", map[string]string{"status": "live"}, map[string]string{"author": "editorial"})
+
+	saveBulkSetResume(sigA, []string{"i1", "i2"})
+	saveBulkSetResume(sigB, []string{"i3"}) // a second batch, rate-limited before batch A resumes
+
+	gotA := loadBulkSetResume(sigA)
+	if !gotA["i1"] || !gotA["i2"] || len(gotA) != 2 {
+		t.Fatalf("batch A's resume state after batch B saved = %v, want {i1, i2} (batch B must not overwrite it)", gotA)
+	}
+	gotB := loadBulkSetResume(sigB)
+	if !gotB["i3"] || len(gotB) != 1 {
+		t.Fatalf("batch B's resume state = %v, want {i3}", gotB)
+	}
+}
+
+// TestSelectBulkTargetsAdvancesPastSkippedWindow guards the regression
+// Greptile flagged: when the total matched set is larger than --limit and
+// some already-applied items fall inside the sorted head, the window must
+// advance to the next untouched items instead of reselecting the same
+// already-done head and silently completing without touching the tail.
+func TestSelectBulkTargetsAdvancesPastSkippedWindow(t *testing.T) {
+	rows := make([]rawRow, 0, 5)
+	for _, name := range []string{"A", "B", "C", "D", "E"} {
+		rows = append(rows, rowOf(t, name, "c1", wfItem{ID: name, FieldData: map[string]any{"name": name, "status": "draft"}}))
+	}
+	set := map[string]string{"author": "editorial"}
+	match := map[string]string{"status": "draft"}
+
+	// A and B were already applied by a previous run and are the sorted head;
+	// without the fix a --limit 3 window would reselect them instead of
+	// advancing to the untouched tail (C, D, E).
+	skip := map[string]bool{"A": true, "B": true}
+
+	got := selectBulkTargets(rows, "c1", match, set, 3, skip)
+	if got.Matched != 5 {
+		t.Fatalf("Matched = %d, want 5", got.Matched)
+	}
+	if got.Skipped != 2 {
+		t.Fatalf("Skipped = %d, want 2", got.Skipped)
+	}
+	if len(got.Changes) != 3 {
+		t.Fatalf("len(Changes) = %d, want 3 (the untouched tail, not the already-applied head)", len(got.Changes))
+	}
+	for _, ch := range got.Changes {
+		if ch.Name == "A" || ch.Name == "B" {
+			t.Fatalf("window reselected an already-applied item: %+v", ch)
+		}
+	}
+	for _, want := range []string{"C", "D", "E"} {
+		found := false
+		for _, ch := range got.Changes {
+			if ch.Name == want {
+				found = true
+			}
+		}
+		if !found {
+			t.Fatalf("window missing untouched item %q: %+v", want, got.Changes)
+		}
+	}
+}
+
 // TestNovelItemsBulkSetHelpWires smoke-tests that the items bulk-set command
 // resolves at runtime and renders useful --help output. Catches wiring
 // regressions (missing AddCommand, panicking RunE on --help, etc.) before

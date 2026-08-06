@@ -141,7 +141,16 @@ headers, so a large batch survives the 60-request-per-minute floor.
 				liveSelection = true
 			}
 
-			view := selectBulkTargets(rows, collectionID, matchValues, setValues, limit)
+			// A prior run that stopped on an exhausted rate limit leaves a resume
+			// file recording which item IDs already got written under this exact
+			// collection+match+set signature. Excluding them here - before the
+			// --limit window is chosen - means a re-run's window is made of
+			// genuinely untouched items instead of reselecting the same already-
+			// applied head every time.
+			signature := bulkSetResumeSignature(collectionID, matchValues, setValues)
+			skip := loadBulkSetResume(signature)
+
+			view := selectBulkTargets(rows, collectionID, matchValues, setValues, limit, skip)
 			view.DryRun = !apply
 			view.Source = "local-mirror"
 			if liveSelection {
@@ -183,26 +192,19 @@ headers, so a large batch survives the 60-request-per-minute floor.
 				}
 			}
 
-			// A prior run that stopped on an exhausted rate limit leaves a resume
-			// file recording which item IDs already got written. Re-running the
-			// identical command (same collection, --match, --set) skips those
-			// instead of resending them, so forward progress reaches the
-			// untouched tail instead of redoing the same head of the sorted list.
-			signature := bulkSetResumeSignature(collectionID, matchValues, setValues)
-			skip := loadBulkSetResume(signature)
-			appliedIDs := make([]string, 0, len(view.Changes))
+			// Already-applied IDs (excluded from view.Changes above) still belong
+			// in the resume file if it needs saving again below, so this run's
+			// save doesn't forget everything a previous run already recorded.
+			appliedIDs := make([]string, 0, len(skip)+len(view.Changes))
+			for id := range skip {
+				appliedIDs = append(appliedIDs, id)
+			}
 
 			base := "/collections/" + escapeSeg(collectionID) + "/items/"
 			var firstErr error
 			rateLimited := false
 			for i := range view.Changes {
 				ch := &view.Changes[i]
-				if skip[ch.ItemID] {
-					ch.Status = "skipped"
-					view.Skipped++
-					appliedIDs = append(appliedIDs, ch.ItemID)
-					continue
-				}
 				// Per-item live path is /items/{item_id}/live. The plural
 				// /items/live is the *bulk* endpoint and takes an items array,
 				// so suffixing the collection path would 404 every write.
@@ -232,7 +234,14 @@ headers, so a large batch survives the 60-request-per-minute floor.
 				appliedIDs = append(appliedIDs, ch.ItemID)
 			}
 
-			if rateLimited {
+			// view.Matched counts every matched item; view.Skipped + len(view.Changes)
+			// is what this run actually accounted for (already-applied plus this
+			// run's window). When that is less than Matched, --limit truncated the
+			// window and untouched matches remain beyond it - the resume file must
+			// survive so the next run's window advances onto them, even though
+			// this run itself never hit the rate limit.
+			moreMatchesRemain := view.Skipped+len(view.Changes) < view.Matched
+			if rateLimited || moreMatchesRemain {
 				saveBulkSetResume(signature, appliedIDs)
 			} else {
 				clearBulkSetResume(signature)
@@ -374,11 +383,12 @@ func ambiguousBooleanSetField(set map[string]string) (string, bool) {
 // apply run resume without resending already-applied writes.
 const bulkSetResumeFileName = "bulk-set-resume.json"
 
-// bulkSetResumeState records which item IDs a previous apply run for this
-// exact signature already wrote, so a re-run can skip them.
-type bulkSetResumeState struct {
-	Signature  string   `json:"signature"`
-	AppliedIDs []string `json:"appliedItemIds"`
+// bulkSetResumeFile records applied item IDs per batch signature. Every
+// in-flight bulk-set batch (whatever its --match/--set) shares this one file,
+// so it must be keyed by signature rather than holding a single record -
+// otherwise saving one batch's progress overwrites every other batch's.
+type bulkSetResumeFile struct {
+	Batches map[string][]string `json:"batches"`
 }
 
 // bulkSetResumeSignature scopes resume state to one exact collection+match+set
@@ -416,77 +426,92 @@ func bulkSetResumePath() (string, error) {
 	return filepath.Join(dir, bulkSetResumeFileName), nil
 }
 
-// loadBulkSetResume returns the item IDs already applied under this exact
-// signature by a previous run that stopped early on rate limiting. A missing
-// file, a different signature, or any read error all resolve to "nothing to
-// skip" rather than blocking the command.
-func loadBulkSetResume(signature string) map[string]bool {
+// readBulkSetResumeFile loads every batch's resume state. A missing file, an
+// unreadable file, or a corrupt one all resolve to "no batches recorded"
+// rather than blocking the command - this state is a convenience, not a
+// source of truth the command depends on to be safe.
+func readBulkSetResumeFile() bulkSetResumeFile {
+	empty := bulkSetResumeFile{Batches: map[string][]string{}}
 	p, err := bulkSetResumePath()
 	if err != nil {
-		return nil
+		return empty
 	}
 	data, err := os.ReadFile(p) // #nosec G304 -- fixed filename under the CLI's own state dir.
 	if err != nil {
-		return nil
+		return empty
 	}
-	var state bulkSetResumeState
-	if jsonErr := json.Unmarshal(data, &state); jsonErr != nil || state.Signature != signature {
-		return nil
+	var file bulkSetResumeFile
+	if jsonErr := json.Unmarshal(data, &file); jsonErr != nil || file.Batches == nil {
+		return empty
 	}
-	out := make(map[string]bool, len(state.AppliedIDs))
-	for _, id := range state.AppliedIDs {
-		out[id] = true
-	}
-	return out
+	return file
 }
 
-// saveBulkSetResume persists which items were applied so a follow-up run of
-// the identical command skips them instead of resending. Best-effort: a write
-// failure only means the next run redoes some already-applied writes, which
-// wastes rate-limit budget but does not corrupt data (Webflow field sets are
-// idempotent).
-func saveBulkSetResume(signature string, appliedIDs []string) {
+// writeBulkSetResumeFile is best-effort: a write failure only means the next
+// run redoes some already-applied writes, which wastes rate-limit budget but
+// does not corrupt data (Webflow field sets are idempotent).
+func writeBulkSetResumeFile(file bulkSetResumeFile) {
 	p, err := bulkSetResumePath()
 	if err != nil {
 		return
 	}
-	data, err := json.Marshal(bulkSetResumeState{Signature: signature, AppliedIDs: appliedIDs})
+	data, err := json.Marshal(file)
 	if err != nil {
 		return
 	}
 	_ = os.WriteFile(p, data, 0o600)
 }
 
-// clearBulkSetResume removes a finished signature's resume state so a later,
+// loadBulkSetResume returns the item IDs already applied under this exact
+// signature by a previous run that stopped early on rate limiting.
+func loadBulkSetResume(signature string) map[string]bool {
+	ids, ok := readBulkSetResumeFile().Batches[signature]
+	if !ok {
+		return nil
+	}
+	out := make(map[string]bool, len(ids))
+	for _, id := range ids {
+		out[id] = true
+	}
+	return out
+}
+
+// saveBulkSetResume persists which items this signature's batch has applied
+// so a follow-up run of the identical command skips them instead of
+// resending. Read-modify-write against the shared file so saving this
+// batch's progress never overwrites a different signature's entry.
+func saveBulkSetResume(signature string, appliedIDs []string) {
+	file := readBulkSetResumeFile()
+	file.Batches[signature] = appliedIDs
+	writeBulkSetResumeFile(file)
+}
+
+// clearBulkSetResume removes one finished signature's entry so a later,
 // unrelated bulk-set on the same collection does not inherit a stale skip
-// list. Matches on signature so clearing one in-flight batch's file never
-// discards a different --match/--set batch's resume state.
+// list, while leaving every other signature's still-in-progress entry alone.
 func clearBulkSetResume(signature string) {
-	p, err := bulkSetResumePath()
-	if err != nil {
+	file := readBulkSetResumeFile()
+	if _, ok := file.Batches[signature]; !ok {
 		return
 	}
-	data, err := os.ReadFile(p) // #nosec G304 -- fixed filename under the CLI's own state dir.
-	if err != nil {
-		return
-	}
-	var state bulkSetResumeState
-	if jsonErr := json.Unmarshal(data, &state); jsonErr != nil || state.Signature != signature {
-		return
-	}
-	_ = os.Remove(p)
+	delete(file.Batches, signature)
+	writeBulkSetResumeFile(file)
 }
 
 // selectBulkTargets picks the items to change. Split out so it is testable
-// without a store or an API.
-func selectBulkTargets(rows []rawRow, collectionID string, match, set map[string]string, limit int) bulkSetView {
+// without a store or an API. skip holds item IDs a previous --apply run
+// already wrote for this exact collection+match+set signature; they are
+// excluded before the --limit window is chosen (not just marked within it),
+// so a re-run's window is made of the next genuinely untouched matches
+// instead of reselecting the same already-applied head forever.
+func selectBulkTargets(rows []rawRow, collectionID string, match, set map[string]string, limit int, skip map[string]bool) bulkSetView {
 	view := bulkSetView{
 		CollectionID: collectionID,
 		Match:        match,
 		Set:          set,
 		Changes:      make([]bulkSetChange, 0, 16),
 	}
-	matched := make([]bulkSetChange, 0, 16)
+	remaining := make([]bulkSetChange, 0, 16)
 
 	for _, r := range rows {
 		decoded := decodeRows[wfItem]([]rawRow{r})
@@ -502,11 +527,15 @@ func selectBulkTargets(rows []rawRow, collectionID string, match, set map[string
 			continue
 		}
 		view.Matched++
+		if skip[it.ID] {
+			view.Skipped++
+			continue
+		}
 		fields := make(map[string]string, len(set))
 		for k, v := range set {
 			fields[k] = v
 		}
-		matched = append(matched, bulkSetChange{
+		remaining = append(remaining, bulkSetChange{
 			ItemID: it.ID,
 			Name:   it.name(),
 			Fields: fields,
@@ -514,12 +543,12 @@ func selectBulkTargets(rows []rawRow, collectionID string, match, set map[string
 		})
 	}
 
-	sort.SliceStable(matched, func(i, j int) bool { return matched[i].Name < matched[j].Name })
-	if limit > 0 && len(matched) > limit {
-		view.Changes = matched[:limit]
-		view.Note = fmt.Sprintf("%d items matched; this run is capped at %d by --limit", len(matched), limit)
+	sort.SliceStable(remaining, func(i, j int) bool { return remaining[i].Name < remaining[j].Name })
+	if limit > 0 && len(remaining) > limit {
+		view.Changes = remaining[:limit]
+		view.Note = fmt.Sprintf("%d items still need this change; this run is capped at %d by --limit", len(remaining), limit)
 	} else {
-		view.Changes = matched
+		view.Changes = remaining
 	}
 	if view.Matched == 0 {
 		view.Note = "no items matched; check the --match keys against the collection's field slugs, or run 'webflow-pp-cli sync --resources items' if the mirror is stale"

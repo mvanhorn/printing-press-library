@@ -416,7 +416,7 @@ func TestSelectBulkTargetsMatchesAndCaps(t *testing.T) {
 	}
 	set := map[string]string{"category": "updates"}
 
-	got := selectBulkTargets(rows, "c1", map[string]string{"category": "news"}, set, 100)
+	got := selectBulkTargets(rows, "c1", map[string]string{"category": "news"}, set, 100, nil)
 	if got.ItemsScanned != 4 {
 		t.Fatalf("ItemsScanned = %d, want 4", got.ItemsScanned)
 	}
@@ -430,7 +430,7 @@ func TestSelectBulkTargetsMatchesAndCaps(t *testing.T) {
 		}
 	}
 
-	capped := selectBulkTargets(rows, "c1", map[string]string{"category": "news"}, set, 1)
+	capped := selectBulkTargets(rows, "c1", map[string]string{"category": "news"}, set, 1, nil)
 	if len(capped.Changes) != 1 {
 		t.Fatalf("--limit 1 produced %d changes", len(capped.Changes))
 	}
@@ -441,7 +441,7 @@ func TestSelectBulkTargetsMatchesAndCaps(t *testing.T) {
 
 func TestSelectBulkTargetsNoMatchExplainsItself(t *testing.T) {
 	rows := []rawRow{rowOf(t, "i1", "c1", wfItem{ID: "i1", FieldData: map[string]any{"category": "news"}})}
-	got := selectBulkTargets(rows, "c1", map[string]string{"category": "nope"}, map[string]string{"x": "y"}, 10)
+	got := selectBulkTargets(rows, "c1", map[string]string{"category": "nope"}, map[string]string{"x": "y"}, 10, nil)
 	if got.Matched != 0 || len(got.Changes) != 0 {
 		t.Fatalf("expected no matches, got %+v", got)
 	}
@@ -676,7 +676,7 @@ func TestSelectBulkTargetsDoesNotAliasSetMap(t *testing.T) {
 		rowOf(t, "i2", "c1", wfItem{ID: "i2", FieldData: map[string]any{"name": "B"}}),
 	}
 	set := map[string]string{"category": "updates"}
-	got := selectBulkTargets(rows, "c1", nil, set, 10)
+	got := selectBulkTargets(rows, "c1", nil, set, 10, nil)
 	if len(got.Changes) != 2 {
 		t.Fatalf("want 2 changes, got %d", len(got.Changes))
 	}
