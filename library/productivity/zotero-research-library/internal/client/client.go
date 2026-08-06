@@ -274,7 +274,7 @@ func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 		// cross-domain 3xx (open redirect or partner handoff) must not
 		// receive the auth credential, even though we are inside
 		// CheckRedirect where Go's automatic stripping has already run.
-		if req.URL.Host == via[0].URL.Host && isZoteroOrigin(req.URL.Hostname()) {
+		if req.URL.Host == via[0].URL.Host && isTrustedZoteroURL(req.URL) {
 			// Same-host hop on a trusted Zotero origin: reattach. A same-host
 			// redirect on a configured non-Zotero server must NOT get the key
 			// (same containment rule as the initial request).
@@ -293,11 +293,16 @@ func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 	return c
 }
 
-// isZoteroOrigin reports whether host is zotero.org or a subdomain — the only
-// origins ever allowed to receive Zotero-API-Key.
+// isTrustedZoteroURL reports whether a request URL may receive the
+// Zotero-API-Key: an https URL on zotero.org or a subdomain. Requiring the
+// scheme prevents cleartext-HTTP credential exposure to on-path attackers
+// even when the hostname is legitimate.
 // PATCH(zotero-research-library-key-origin-guard)
-func isZoteroOrigin(host string) bool {
-	h := strings.ToLower(host)
+func isTrustedZoteroURL(u *url.URL) bool {
+	if u == nil || u.Scheme != "https" {
+		return false
+	}
+	h := strings.ToLower(u.Hostname())
 	return h == "zotero.org" || strings.HasSuffix(h, ".zotero.org")
 }
 
@@ -971,7 +976,7 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 		// hostile ZOTERO_RESEARCH_LIBRARY_BASE_URL must not be able to
 		// exfiltrate the credential.
 		// PATCH(zotero-research-library-key-origin-guard)
-		if !isZoteroOrigin(req.URL.Hostname()) {
+		if !isTrustedZoteroURL(req.URL) {
 			if req.Header.Get("Zotero-API-Key") != "" {
 				req.Header.Del("Zotero-API-Key")
 				fmt.Fprintf(os.Stderr, "warning: refusing to send Zotero-API-Key to non-Zotero host %q\n", req.URL.Hostname())
