@@ -940,15 +940,8 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 			req.URL.RawQuery = q.Encode()
 		}
 
-		// Credential containment: the API key is only ever sent to Zotero
-		// origins. A hostile ZOTERO_RESEARCH_LIBRARY_BASE_URL must not be
-		// able to exfiltrate the key. PATCH(zotero-research-library-key-origin-guard)
 		if authHeader != "" {
-			if h := strings.ToLower(req.URL.Hostname()); h == "zotero.org" || strings.HasSuffix(h, ".zotero.org") {
-				req.Header.Set("Zotero-API-Key", authHeader)
-			} else {
-				fmt.Fprintf(os.Stderr, "warning: refusing to send Zotero-API-Key to non-Zotero host %q\n", req.URL.Hostname())
-			}
+			req.Header.Set("Zotero-API-Key", authHeader)
 		}
 		req.Header.Set("Zotero-API-Version", "3")
 		if c.Config != nil {
@@ -959,6 +952,18 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 		// Per-endpoint header overrides (e.g., different API version per resource)
 		for k, v := range headerOverrides {
 			req.Header.Set(k, v)
+		}
+		// Credential containment, applied AFTER every header source (auth,
+		// config headers, per-endpoint overrides) so none of them can leak
+		// the key: the API key is only ever sent to Zotero origins. A
+		// hostile ZOTERO_RESEARCH_LIBRARY_BASE_URL must not be able to
+		// exfiltrate the credential.
+		// PATCH(zotero-research-library-key-origin-guard)
+		if h := strings.ToLower(req.URL.Hostname()); h != "zotero.org" && !strings.HasSuffix(h, ".zotero.org") {
+			if req.Header.Get("Zotero-API-Key") != "" {
+				req.Header.Del("Zotero-API-Key")
+				fmt.Fprintf(os.Stderr, "warning: refusing to send Zotero-API-Key to non-Zotero host %q\n", req.URL.Hostname())
+			}
 		}
 		binaryResponse := strings.EqualFold(req.Header.Get(BinaryResponseHeader), "true")
 		if binaryResponse {
