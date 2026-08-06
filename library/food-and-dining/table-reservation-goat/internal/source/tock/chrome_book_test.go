@@ -187,6 +187,32 @@ func TestTockConfirmNetworkTelemetry_GenerationCorrelation(t *testing.T) {
 		})
 	}
 
+	t.Run("initial failure does not outlive a responding retry", func(t *testing.T) {
+		telemetry := newTockConfirmTelemetry()
+		listen := telemetry.listen("matrix-slug")
+		listen(&network.EventRequestWillBeSent{RequestID: "first", Request: &network.Request{Method: http.MethodPost, URL: "https://example.test/matrix-slug/checkout/confirm-purchase"}})
+		listen(&network.EventLoadingFailed{RequestID: "first"})
+		listen(&network.EventRequestWillBeSent{RequestID: "retry", Request: &network.Request{Method: http.MethodPost, URL: "https://example.test/matrix-slug/checkout/confirm-purchase"}})
+		listen(&network.EventResponseReceived{RequestID: "retry", Response: &network.Response{Status: 200}})
+		got := telemetry.read()
+		if got.ConfirmPostsSeen != 2 || got.ConfirmPostLastStatus != 200 || got.ConfirmPostLoadingFailed {
+			t.Fatalf("failure-then-retry telemetry = posts:%d status:%d failed:%v, want 2/200/false", got.ConfirmPostsSeen, got.ConfirmPostLastStatus, got.ConfirmPostLoadingFailed)
+		}
+	})
+
+	t.Run("retry failure after initial response keeps newest-attempt failure", func(t *testing.T) {
+		telemetry := newTockConfirmTelemetry()
+		listen := telemetry.listen("matrix-slug")
+		listen(&network.EventRequestWillBeSent{RequestID: "first", Request: &network.Request{Method: http.MethodPost, URL: "https://example.test/matrix-slug/checkout/confirm-purchase"}})
+		listen(&network.EventResponseReceived{RequestID: "first", Response: &network.Response{Status: 500}})
+		listen(&network.EventRequestWillBeSent{RequestID: "retry", Request: &network.Request{Method: http.MethodPost, URL: "https://example.test/matrix-slug/checkout/confirm-purchase"}})
+		listen(&network.EventLoadingFailed{RequestID: "retry"})
+		got := telemetry.read()
+		if got.ConfirmPostsSeen != 2 || got.ConfirmPostLastStatus != 500 || !got.ConfirmPostLoadingFailed {
+			t.Fatalf("response-then-retry-failure telemetry = posts:%d status:%d failed:%v, want 2/500/true", got.ConfirmPostsSeen, got.ConfirmPostLastStatus, got.ConfirmPostLoadingFailed)
+		}
+	})
+
 	t.Run("late older response cannot overwrite newest generation", func(t *testing.T) {
 		telemetry := newTockConfirmTelemetry()
 		listen := telemetry.listen("matrix-slug")

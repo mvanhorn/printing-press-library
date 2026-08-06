@@ -475,10 +475,11 @@ type tockConfirmTelemetrySnapshot struct {
 }
 
 type tockConfirmTelemetry struct {
-	mu                   sync.Mutex
-	matching             map[network.RequestID]int
-	lastStatusGeneration int
-	snapshot             tockConfirmTelemetrySnapshot
+	mu                    sync.Mutex
+	matching              map[network.RequestID]int
+	lastStatusGeneration  int
+	lastFailureGeneration int
+	snapshot              tockConfirmTelemetrySnapshot
 }
 
 func newTockConfirmTelemetry() *tockConfirmTelemetry {
@@ -518,6 +519,9 @@ func (t *tockConfirmTelemetry) listen(expectedEscapedSlug string) func(any) {
 					t.snapshot.ConfirmPostLastStatus = int(e.RedirectResponse.Status)
 					t.lastStatusGeneration = generation
 				}
+				if generation >= t.lastFailureGeneration {
+					t.snapshot.ConfirmPostLoadingFailed = false
+				}
 				delete(t.matching, e.RequestID)
 			}
 			if e.Request == nil || e.Request.Method != http.MethodPost {
@@ -530,13 +534,23 @@ func (t *tockConfirmTelemetry) listen(expectedEscapedSlug string) func(any) {
 			t.snapshot.ConfirmPostsSeen++
 			t.matching[e.RequestID] = t.snapshot.ConfirmPostsSeen
 		case *network.EventResponseReceived:
-			if generation, ok := t.matching[e.RequestID]; ok && e.Response != nil && generation >= t.lastStatusGeneration {
-				t.snapshot.ConfirmPostLastStatus = int(e.Response.Status)
-				t.lastStatusGeneration = generation
+			if generation, ok := t.matching[e.RequestID]; ok && e.Response != nil {
+				if generation >= t.lastStatusGeneration {
+					t.snapshot.ConfirmPostLastStatus = int(e.Response.Status)
+					t.lastStatusGeneration = generation
+				}
+				if generation >= t.lastFailureGeneration {
+					t.snapshot.ConfirmPostLoadingFailed = false
+				}
 			}
 		case *network.EventLoadingFailed:
-			if _, ok := t.matching[e.RequestID]; ok {
-				t.snapshot.ConfirmPostLoadingFailed = true
+			// Generation-aware so an initial-POST failure cannot outlive a
+			// responding retry: the flag always describes the newest attempt.
+			if generation, ok := t.matching[e.RequestID]; ok {
+				if generation >= t.lastStatusGeneration && generation >= t.lastFailureGeneration {
+					t.snapshot.ConfirmPostLoadingFailed = true
+					t.lastFailureGeneration = generation
+				}
 				delete(t.matching, e.RequestID)
 			}
 		case *network.EventLoadingFinished:
