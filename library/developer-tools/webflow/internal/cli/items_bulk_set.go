@@ -147,7 +147,7 @@ headers, so a large batch survives the 60-request-per-minute floor.
 			// --limit window is chosen - means a re-run's window is made of
 			// genuinely untouched items instead of reselecting the same already-
 			// applied head every time.
-			signature := bulkSetResumeSignature(collectionID, matchValues, setValues)
+			signature := bulkSetResumeSignature(collectionID, matchValues, setValues, live)
 			skip := loadBulkSetResume(signature)
 
 			view := selectBulkTargets(rows, collectionID, matchValues, setValues, limit, skip)
@@ -391,10 +391,13 @@ type bulkSetResumeFile struct {
 	Batches map[string][]string `json:"batches"`
 }
 
-// bulkSetResumeSignature scopes resume state to one exact collection+match+set
-// combination, so a different --match or --set on the same collection starts
-// its own slate instead of inheriting an unrelated skip list.
-func bulkSetResumeSignature(collectionID string, match, set map[string]string) string {
+// bulkSetResumeSignature scopes resume state to one exact collection+match+
+// set+live combination, so a different --match, --set, or --live on the same
+// collection starts its own slate instead of inheriting an unrelated skip
+// list. live must be included: it selects the write endpoint (staged item vs
+// /live), so an ID written through one is not "already applied" for the
+// other even when collection+match+set are identical.
+func bulkSetResumeSignature(collectionID string, match, set map[string]string, live bool) string {
 	h := sha256.New()
 	fmt.Fprintf(h, "collection=%s\n", collectionID)
 	for _, k := range sortedMapKeys(match) {
@@ -403,6 +406,7 @@ func bulkSetResumeSignature(collectionID string, match, set map[string]string) s
 	for _, k := range sortedMapKeys(set) {
 		fmt.Fprintf(h, "set:%s=%s\n", k, set[k])
 	}
+	fmt.Fprintf(h, "live=%v\n", live)
 	return hex.EncodeToString(h.Sum(nil))
 }
 

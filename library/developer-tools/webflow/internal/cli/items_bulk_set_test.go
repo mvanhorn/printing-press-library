@@ -51,8 +51,8 @@ func TestBulkSetResumeRoundTrip(t *testing.T) {
 	t.Setenv("HOME", home)
 	t.Setenv("XDG_STATE_HOME", home+"/state")
 
-	sigA := bulkSetResumeSignature("c1", map[string]string{"status": "draft"}, map[string]string{"author": "editorial"})
-	sigB := bulkSetResumeSignature("c1", map[string]string{"status": "live"}, map[string]string{"author": "editorial"})
+	sigA := bulkSetResumeSignature("c1", map[string]string{"status": "draft"}, map[string]string{"author": "editorial"}, false)
+	sigB := bulkSetResumeSignature("c1", map[string]string{"status": "live"}, map[string]string{"author": "editorial"}, false)
 	if sigA == sigB {
 		t.Fatal("different --match values must not produce the same signature")
 	}
@@ -123,14 +123,31 @@ func TestBulkSetResumeClearIgnoresOtherSignature(t *testing.T) {
 	t.Setenv("HOME", home)
 	t.Setenv("XDG_STATE_HOME", home+"/state")
 
-	sigA := bulkSetResumeSignature("c1", map[string]string{"status": "draft"}, map[string]string{"author": "editorial"})
-	sigB := bulkSetResumeSignature("c1", map[string]string{"status": "live"}, map[string]string{"author": "editorial"})
+	sigA := bulkSetResumeSignature("c1", map[string]string{"status": "draft"}, map[string]string{"author": "editorial"}, false)
+	sigB := bulkSetResumeSignature("c1", map[string]string{"status": "live"}, map[string]string{"author": "editorial"}, false)
 
 	saveBulkSetResume(sigA, []string{"i1"})
 	clearBulkSetResume(sigB) // finishing an unrelated batch
 
 	if got := loadBulkSetResume(sigA); !got["i1"] {
 		t.Fatalf("clearing signature B wiped signature A's resume state: %v", got)
+	}
+}
+
+// TestBulkSetResumeSignatureDistinguishesLiveTarget guards the regression
+// Greptile flagged: --live selects a different write endpoint (the staged
+// item vs its published /live counterpart), so an ID applied through one is
+// not "already applied" for the other even when collection+match+set are
+// identical. If the signature ignored --live, resuming after toggling it
+// would skip items that were never actually written through the requested
+// endpoint.
+func TestBulkSetResumeSignatureDistinguishesLiveTarget(t *testing.T) {
+	match := map[string]string{"status": "draft"}
+	set := map[string]string{"author": "editorial"}
+	staged := bulkSetResumeSignature("c1", match, set, false)
+	live := bulkSetResumeSignature("c1", match, set, true)
+	if staged == live {
+		t.Fatal("--live and non---live runs of the same collection+match+set must not share a resume signature")
 	}
 }
 
@@ -144,8 +161,8 @@ func TestBulkSetResumeSaveDoesNotOverwriteOtherSignature(t *testing.T) {
 	t.Setenv("HOME", home)
 	t.Setenv("XDG_STATE_HOME", home+"/state")
 
-	sigA := bulkSetResumeSignature("c1", map[string]string{"status": "draft"}, map[string]string{"author": "editorial"})
-	sigB := bulkSetResumeSignature("c1", map[string]string{"status": "live"}, map[string]string{"author": "editorial"})
+	sigA := bulkSetResumeSignature("c1", map[string]string{"status": "draft"}, map[string]string{"author": "editorial"}, false)
+	sigB := bulkSetResumeSignature("c1", map[string]string{"status": "live"}, map[string]string{"author": "editorial"}, false)
 
 	saveBulkSetResume(sigA, []string{"i1", "i2"})
 	saveBulkSetResume(sigB, []string{"i3"}) // a second batch, rate-limited before batch A resumes
