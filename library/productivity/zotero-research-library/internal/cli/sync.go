@@ -396,6 +396,72 @@ func wrapScalarTombstones(resource string, items []json.RawMessage) []json.RawMe
 	return out
 }
 
+// deletedTombstoneCategories are the per-type arrays the Zotero /deleted
+// endpoint returns in one response object. Order is fixed so flattened
+// output is deterministic.
+var deletedTombstoneCategories = []string{"collections", "items", "searches", "tags", "settings"}
+
+// flattenDeletedCategories converts the deleted endpoint's category map
+// ({"collections":[keys],"items":[keys],"searches":[keys],"tags":[...],
+// "settings":[...]}) into a single storable array so tombstones from every
+// category persist — extractPageItems' known-key strategy would otherwise
+// keep only the "items" array and silently drop deleted collections,
+// searches, and tags. Scalar entries become
+// {"key":"<category>/<value>","category":<category>} (the prefix keeps keys
+// from different categories from colliding in the store); tag objects use
+// their "tag" field; anything else passes through with the category noted
+// when possible. Returns ok=false when the response is not the
+// category-map shape (e.g. a plain array), leaving the legacy path intact.
+// PATCH(zotero-research-library-watermark-dropped-records)
+func flattenDeletedCategories(data json.RawMessage) ([]json.RawMessage, bool) {
+	var envelope map[string]json.RawMessage
+	if err := json.Unmarshal(data, &envelope); err != nil {
+		return nil, false
+	}
+	matched := 0
+	out := []json.RawMessage{}
+	for _, category := range deletedTombstoneCategories {
+		raw, ok := envelope[category]
+		if !ok {
+			continue
+		}
+		var entries []json.RawMessage
+		if err := json.Unmarshal(raw, &entries); err != nil {
+			continue
+		}
+		matched++
+		for _, entry := range entries {
+			var s string
+			if err := json.Unmarshal(entry, &s); err == nil {
+				if s == "" {
+					continue
+				}
+				wrapped, werr := json.Marshal(map[string]string{"key": category + "/" + s, "category": category})
+				if werr == nil {
+					out = append(out, wrapped)
+				}
+				continue
+			}
+			var obj map[string]json.RawMessage
+			if err := json.Unmarshal(entry, &obj); err == nil {
+				var tag string
+				if rawTag, ok := obj["tag"]; ok && json.Unmarshal(rawTag, &tag) == nil && tag != "" {
+					wrapped, werr := json.Marshal(map[string]string{"key": category + "/" + tag, "category": category})
+					if werr == nil {
+						out = append(out, wrapped)
+						continue
+					}
+				}
+			}
+			out = append(out, entry)
+		}
+	}
+	if matched == 0 {
+		return nil, false
+	}
+	return out, true
+}
+
 // syncResource handles the full paginated sync of a single resource.
 // It resumes from the last cursor unless sinceTS or full mode overrides it.
 // channel_workflow.go.tmpl mirrors the trailing dates arg conditional;
@@ -583,6 +649,15 @@ func syncResource(ctx context.Context, c interface {
 		// Try to extract items from the response.
 		// Strategy: try array first, then common wrapper keys.
 		items, nextCursor, hasMore := extractPageItems(data, pageSize.cursorParam, responsePathForResource(resource, path)...)
+		if resource == "deleted" {
+			// The /deleted response is a category map, not a paginated list;
+			// re-extract so tombstones from every category persist instead of
+			// only the "items" array extractPageItems' known keys would keep.
+			// PATCH(zotero-research-library-watermark-dropped-records)
+			if flattened, ok := flattenDeletedCategories(data); ok {
+				items = flattened
+			}
+		}
 		if sortEffective && maxPages > 0 {
 			for _, item := range items {
 				itemTimestamp, ok := restSyncTimestamp(item, sortField)
