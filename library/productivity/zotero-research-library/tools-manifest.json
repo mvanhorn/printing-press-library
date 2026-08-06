@@ -1,0 +1,374 @@
+{
+  "api_name": "zotero-research-library",
+  "base_url": "https://api.zotero.org/users/0",
+  "description": "Your entire Zotero research library, searchable offline — version-based incremental sync into SQLite with full-text search no other Zotero tool has.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "Zotero-API-Key",
+    "format": "{ZOTERO_API_KEY}",
+    "in": "header",
+    "env_vars": [
+      "ZOTERO_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "ZOTERO_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [
+    {
+      "name": "Zotero-API-Version",
+      "value": "3"
+    }
+  ],
+  "tools": [
+    {
+      "name": "collections_get",
+      "description": "One collection by key. Required: collection_key. Returns the Collection.",
+      "method": "GET",
+      "path": "/collections/{collection_key}",
+      "params": [
+        {
+          "name": "collection_key",
+          "type": "string",
+          "location": "path",
+          "description": "Collection key",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "collections_items",
+      "description": "Items in a collection (including children). Required: collection_key. Optional: q, limit (default: 25). Returns array of Item.",
+      "method": "GET",
+      "path": "/collections/{collection_key}/items",
+      "params": [
+        {
+          "name": "collection_key",
+          "type": "string",
+          "location": "path",
+          "description": "Collection key",
+          "required": true
+        },
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Quick search within the collection"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Page size (max 100)"
+        }
+      ]
+    },
+    {
+      "name": "collections_list",
+      "description": "All collections. Optional: since, limit (default: 25). Returns array of Collection.",
+      "method": "GET",
+      "path": "/collections",
+      "params": [
+        {
+          "name": "since",
+          "type": "int",
+          "location": "query",
+          "description": "Only collections modified after this library version"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Page size (max 100)"
+        }
+      ]
+    },
+    {
+      "name": "collections_subcollections",
+      "description": "Subcollections of a collection. Required: collection_key. Returns array of Collection.",
+      "method": "GET",
+      "path": "/collections/{collection_key}/collections",
+      "params": [
+        {
+          "name": "collection_key",
+          "type": "string",
+          "location": "path",
+          "description": "Parent collection key",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "collections_top",
+      "description": "Top-level collections. Returns array of Collection.",
+      "method": "GET",
+      "path": "/collections/top",
+      "params": []
+    },
+    {
+      "name": "deleted_list",
+      "description": "Keys of items/collections/searches/tags deleted since a library version. Required: since. Returns the Deleted.",
+      "method": "GET",
+      "path": "/deleted",
+      "params": [
+        {
+          "name": "since",
+          "type": "int",
+          "location": "query",
+          "description": "Library version cursor",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "fulltext_changed",
+      "description": "Attachment keys whose full-text content changed since a version. Required: since. Returns the FulltextVersions.",
+      "method": "GET",
+      "path": "/fulltext",
+      "params": [
+        {
+          "name": "since",
+          "type": "int",
+          "location": "query",
+          "description": "Fulltext version cursor",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "items_children",
+      "description": "Child notes and attachments of an item. Required: item_key. Returns array of Item.",
+      "method": "GET",
+      "path": "/items/{item_key}/children",
+      "params": [
+        {
+          "name": "item_key",
+          "type": "string",
+          "location": "path",
+          "description": "Parent item key",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "items_fulltext",
+      "description": "Full-text content of an attachment item. Required: item_key. Returns the Fulltext.",
+      "method": "GET",
+      "path": "/items/{item_key}/fulltext",
+      "params": [
+        {
+          "name": "item_key",
+          "type": "string",
+          "location": "path",
+          "description": "Attachment item key",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "items_get",
+      "description": "Get one item by key. Required: item_key. Optional: include, style. Returns the Item.",
+      "method": "GET",
+      "path": "/items/{item_key}",
+      "params": [
+        {
+          "name": "item_key",
+          "type": "string",
+          "location": "path",
+          "description": "Item key (8-char alphanumeric)",
+          "required": true
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Additional content: data,bib,citation (with style=\u003cCSL style\u003e)"
+        },
+        {
+          "name": "style",
+          "type": "string",
+          "location": "query",
+          "description": "CSL citation style for bib/citation includes"
+        }
+      ]
+    },
+    {
+      "name": "items_list",
+      "description": "List items. Supports q (phrase search), qmode=everything (includes fulltext), tag filters with || OR and - negation, itemType, and since=\u003cversion\u003e. Optional: q, qmode, item-type (plus 7 more). Returns array of Item.",
+      "method": "GET",
+      "path": "/items",
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Quick search phrase (titles and creators by default)"
+        },
+        {
+          "name": "qmode",
+          "type": "string",
+          "location": "query",
+          "description": "Search mode; 'everything' includes full-text content"
+        },
+        {
+          "name": "item-type",
+          "wire_name": "itemType",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by item type (supports || OR and - negation)"
+        },
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by tag (supports || OR and - negation)"
+        },
+        {
+          "name": "since",
+          "type": "int",
+          "location": "query",
+          "description": "Only objects modified after this library version"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field (dateAdded, dateModified, title, creator...)"
+        },
+        {
+          "name": "direction",
+          "type": "string",
+          "location": "query",
+          "description": "Sort direction"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Page size (max 100)"
+        },
+        {
+          "name": "start",
+          "type": "int",
+          "location": "query",
+          "description": "Zero-based result offset"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format: json (default), keys, versions, bibtex, ris, csljson..."
+        }
+      ]
+    },
+    {
+      "name": "items_top",
+      "description": "Top-level items only (no child notes/attachments). Optional: q, qmode, tag (plus 2 more). Returns array of Item.",
+      "method": "GET",
+      "path": "/items/top",
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Quick search phrase"
+        },
+        {
+          "name": "qmode",
+          "type": "string",
+          "location": "query",
+          "description": "Search mode"
+        },
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by tag"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Page size (max 100)"
+        },
+        {
+          "name": "start",
+          "type": "int",
+          "location": "query",
+          "description": "Zero-based result offset"
+        }
+      ]
+    },
+    {
+      "name": "items_trash",
+      "description": "Items in the trash. Optional: limit (default: 25). Returns array of Item.",
+      "method": "GET",
+      "path": "/items/trash",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Page size (max 100)"
+        }
+      ]
+    },
+    {
+      "name": "keys_current",
+      "description": "Resolve the current API key to userID, username, and access scopes (doctor probe + userID discovery). Returns the KeyInfo.",
+      "method": "GET",
+      "path": "/keys/current",
+      "params": []
+    },
+    {
+      "name": "searches_get",
+      "description": "One saved search. Required: search_key. Returns the SavedSearch.",
+      "method": "GET",
+      "path": "/searches/{search_key}",
+      "params": [
+        {
+          "name": "search_key",
+          "type": "string",
+          "location": "path",
+          "description": "Saved search key",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "searches_list",
+      "description": "All saved searches. Returns array of SavedSearch.",
+      "method": "GET",
+      "path": "/searches",
+      "params": []
+    },
+    {
+      "name": "tags_list",
+      "description": "All tags in the library. Optional: q, limit (default: 25). Returns array of Tag.",
+      "method": "GET",
+      "path": "/tags",
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Filter tags by name"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Page size (max 100)"
+        }
+      ]
+    }
+  ]
+}

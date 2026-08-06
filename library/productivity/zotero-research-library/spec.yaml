@@ -1,0 +1,433 @@
+name: zotero-research-library
+description: "Zotero Web API v3 CLI — incremental library sync into a local SQLite cache with FTS-backed research-grounding search"
+version: "0.2.0"
+base_url: "https://api.zotero.org/users/0"
+health_check_path: "/collections"
+category: productivity
+
+required_headers:
+  - name: Zotero-API-Version
+    value: "3"
+
+auth:
+  type: api_key
+  header: "Zotero-API-Key"
+  format: "{token}"
+  in: header
+  env_vars:
+    - ZOTERO_API_KEY
+
+config:
+  format: toml
+  path: "~/.config/zotero-research-library-pp-cli/config.toml"
+
+cache:
+  enabled: true
+  stale_after: 168h
+
+learn:
+  entity_lookup_seeds:
+    item_type:
+      - canonical: journalArticle
+        aliases: [article, paper, journal article]
+      - canonical: book
+        aliases: [monograph]
+      - canonical: bookSection
+        aliases: [chapter, book chapter]
+      - canonical: thesis
+        aliases: [dissertation, phd thesis]
+      - canonical: conferencePaper
+        aliases: [proceedings, conference]
+      - canonical: report
+        aliases: [white paper, technical report]
+  synonyms:
+    "most recent": "latest"
+    "papers": "items"
+    "references": "items"
+    "citations": "items"
+
+resources:
+  items:
+    description: "Bibliographic items in the library"
+    endpoints:
+      list:
+        method: GET
+        path: "/items"
+        description: "List items. Supports q (phrase search), qmode=everything (includes fulltext), tag filters with || OR and - negation, itemType, and since=<version>"
+        params:
+          - name: q
+            type: string
+            description: "Quick search phrase (titles and creators by default)"
+          - name: qmode
+            type: string
+            enum: [titleCreatorYear, everything]
+            description: "Search mode; 'everything' includes full-text content"
+          - name: itemType
+            flag_name: item-type
+            type: string
+            description: "Filter by item type (supports || OR and - negation)"
+          - name: tag
+            type: string
+            description: "Filter by tag (supports || OR and - negation)"
+          - name: since
+            type: int
+            description: "Only objects modified after this library version"
+          - name: sort
+            type: string
+            description: "Sort field (dateAdded, dateModified, title, creator...)"
+          - name: direction
+            type: string
+            enum: [asc, desc]
+            description: "Sort direction"
+          - name: limit
+            type: int
+            default: 25
+            description: "Page size (max 100)"
+          - name: start
+            type: int
+            description: "Zero-based result offset"
+          - name: format
+            type: string
+            description: "Response format: json (default), keys, versions, bibtex, ris, csljson..."
+        response:
+          type: array
+          item: Item
+        pagination:
+          type: offset
+          cursor_param: start
+          limit_param: limit
+      top:
+        method: GET
+        path: "/items/top"
+        pagination:
+          type: offset
+          cursor_param: start
+          limit_param: limit
+        description: "Top-level items only (no child notes/attachments)"
+        params:
+          - name: q
+            type: string
+            description: "Quick search phrase"
+          - name: qmode
+            type: string
+            enum: [titleCreatorYear, everything]
+            description: "Search mode"
+          - name: tag
+            type: string
+            description: "Filter by tag"
+          - name: limit
+            type: int
+            default: 25
+            description: "Page size (max 100)"
+          - name: start
+            type: int
+            description: "Zero-based result offset"
+        response:
+          type: array
+          item: Item
+      trash:
+        method: GET
+        path: "/items/trash"
+        pagination:
+          type: offset
+          cursor_param: start
+          limit_param: limit
+        description: "Items in the trash"
+        params:
+          - name: limit
+            type: int
+            default: 25
+            description: "Page size (max 100)"
+        response:
+          type: array
+          item: Item
+      get:
+        method: GET
+        path: "/items/{item_key}"
+        description: "Get one item by key"
+        params:
+          - name: item_key
+            type: string
+            required: true
+            positional: true
+            description: "Item key (8-char alphanumeric)"
+          - name: include
+            type: string
+            description: "Additional content: data,bib,citation (with style=<CSL style>)"
+          - name: style
+            type: string
+            description: "CSL citation style for bib/citation includes"
+        response:
+          type: object
+          item: Item
+      children:
+        method: GET
+        path: "/items/{item_key}/children"
+        description: "Child notes and attachments of an item"
+        params:
+          - name: item_key
+            type: string
+            required: true
+            positional: true
+            description: "Parent item key"
+        response:
+          type: array
+          item: Item
+      fulltext:
+        method: GET
+        path: "/items/{item_key}/fulltext"
+        description: "Full-text content of an attachment item"
+        params:
+          - name: item_key
+            type: string
+            required: true
+            positional: true
+            description: "Attachment item key"
+        response:
+          type: object
+          item: Fulltext
+  collections:
+    description: "Hierarchical collections organizing the library"
+    endpoints:
+      list:
+        method: GET
+        path: "/collections"
+        pagination:
+          type: offset
+          cursor_param: start
+          limit_param: limit
+        description: "All collections"
+        params:
+          - name: since
+            type: int
+            description: "Only collections modified after this library version"
+          - name: limit
+            type: int
+            default: 25
+            description: "Page size (max 100)"
+        response:
+          type: array
+          item: Collection
+      top:
+        method: GET
+        path: "/collections/top"
+        pagination:
+          type: offset
+          cursor_param: start
+          limit_param: limit
+        description: "Top-level collections"
+        response:
+          type: array
+          item: Collection
+      get:
+        method: GET
+        path: "/collections/{collection_key}"
+        description: "One collection by key"
+        params:
+          - name: collection_key
+            type: string
+            required: true
+            positional: true
+            description: "Collection key"
+        response:
+          type: object
+          item: Collection
+      subcollections:
+        method: GET
+        path: "/collections/{collection_key}/collections"
+        pagination:
+          type: offset
+          cursor_param: start
+          limit_param: limit
+        description: "Subcollections of a collection"
+        params:
+          - name: collection_key
+            type: string
+            required: true
+            positional: true
+            description: "Parent collection key"
+        response:
+          type: array
+          item: Collection
+      items:
+        method: GET
+        path: "/collections/{collection_key}/items"
+        pagination:
+          type: offset
+          cursor_param: start
+          limit_param: limit
+        description: "Items in a collection (including children)"
+        params:
+          - name: collection_key
+            type: string
+            required: true
+            positional: true
+            description: "Collection key"
+          - name: q
+            type: string
+            description: "Quick search within the collection"
+          - name: limit
+            type: int
+            default: 25
+            description: "Page size (max 100)"
+        response:
+          type: array
+          item: Item
+  tags:
+    description: "Tags across the library"
+    endpoints:
+      list:
+        method: GET
+        path: "/tags"
+        pagination:
+          type: offset
+          cursor_param: start
+          limit_param: limit
+        description: "All tags in the library"
+        params:
+          - name: q
+            type: string
+            description: "Filter tags by name"
+          - name: limit
+            type: int
+            default: 25
+            description: "Page size (max 100)"
+        response:
+          type: array
+          item: Tag
+  searches:
+    description: "Saved searches"
+    endpoints:
+      list:
+        method: GET
+        path: "/searches"
+        description: "All saved searches"
+        response:
+          type: array
+          item: SavedSearch
+      get:
+        method: GET
+        path: "/searches/{search_key}"
+        description: "One saved search"
+        params:
+          - name: search_key
+            type: string
+            required: true
+            positional: true
+            description: "Saved search key"
+        response:
+          type: object
+          item: SavedSearch
+  fulltext:
+    description: "Full-text content index"
+    endpoints:
+      changed:
+        method: GET
+        path: "/fulltext"
+        description: "Attachment keys whose full-text content changed since a version"
+        params:
+          - name: since
+            type: int
+            required: true
+            description: "Fulltext version cursor"
+        response:
+          type: object
+          item: FulltextVersions
+  deleted:
+    description: "Deletion tombstones for sync"
+    endpoints:
+      list:
+        method: GET
+        path: "/deleted"
+        description: "Keys of items/collections/searches/tags deleted since a library version"
+        params:
+          - name: since
+            type: int
+            required: true
+            description: "Library version cursor"
+        response:
+          type: object
+          item: Deleted
+  keys:
+    description: "API key introspection"
+    endpoints:
+      current:
+        method: GET
+        path: "/keys/current"
+        base_url: "https://api.zotero.org"
+        description: "Resolve the current API key to userID, username, and access scopes (doctor probe + userID discovery)"
+        response:
+          type: object
+          item: KeyInfo
+
+types:
+  Item:
+    fields:
+      - name: key
+        type: string
+      - name: version
+        type: int
+      - name: itemType
+        type: string
+      - name: title
+        type: string
+      - name: abstractNote
+        type: string
+      - name: DOI
+        type: string
+      - name: date
+        type: string
+      - name: dateAdded
+        type: string
+      - name: dateModified
+        type: string
+      - name: publicationTitle
+        type: string
+  Collection:
+    fields:
+      - name: key
+        type: string
+      - name: version
+        type: int
+      - name: name
+        type: string
+      - name: parentCollection
+        type: string
+  Tag:
+    fields:
+      - name: tag
+        type: string
+      - name: type
+        type: int
+  SavedSearch:
+    fields:
+      - name: key
+        type: string
+      - name: version
+        type: int
+      - name: name
+        type: string
+  Fulltext:
+    fields:
+      - name: content
+        type: string
+      - name: indexedChars
+        type: int
+      - name: totalChars
+        type: int
+  FulltextVersions:
+    fields:
+      - name: placeholder
+        type: string
+  Deleted:
+    fields:
+      - name: placeholder
+        type: string
+  KeyInfo:
+    fields:
+      - name: userID
+        type: int
+      - name: username
+        type: string
+      - name: key
+        type: string
