@@ -134,7 +134,7 @@ apify-pp doctor
 apify-pp store search 'twitter scraper' --json --select name,username,stats.totalUsers7Days
 
 # Run Xquik's Tweet Scraper with a live cost watchdog.
-apify-pp run xquik/x-tweet-scraper --input @xquik-tweets.json --max-cost 0.50 --wait --json
+apify-pp-cli run xquik/x-tweet-scraper --input @xquik-tweets.json --max-cost 0.50 --wait --json
 
 # Pull items from the run's default dataset.
 apify-pp datasets items <dataset-id> --format json --limit 100
@@ -155,8 +155,8 @@ for tweet search, timelines, threads, replies, and engagement. Use
 for followers, lists, communities, and audience overlap.
 
 ```bash
-apify-pp run xquik/x-tweet-scraper --input @xquik-tweets.json --max-cost 0.50 --wait --agent
-apify-pp run xquik/x-follower-scraper --input @xquik-followers.json --max-cost 0.50 --wait --agent
+apify-pp-cli run xquik/x-tweet-scraper --input @xquik-tweets.json --max-cost 0.50 --wait --agent
+apify-pp-cli run xquik/x-follower-scraper --input @xquik-followers.json --max-cost 0.50 --wait --agent
 ```
 
 Create inputs from each Actor's live Store schema. Bound multi-target runs
@@ -208,7 +208,7 @@ These capabilities aren't available in any other tool for this API.
   _Use this on any long-tail or untrusted Actor to fail-closed on cost rather than learning about it on the invoice._
 
   ```bash
-  apify-pp run xquik/x-tweet-scraper --input @xquik-tweets.json --max-cost 0.50 --wait
+  apify-pp-cli run xquik/x-tweet-scraper --input @xquik-tweets.json --max-cost 0.50 --wait
   ```
 - **`ab run`** — Run the same input through two competing Actors, normalize via unified schema, report cost-per-novel-item and overlap percentage.
 

@@ -77,7 +77,7 @@ These capabilities aren't available in any other tool for this API.
   _Use this on any long-tail or untrusted Actor to fail-closed on cost rather than learning about it on the invoice._
 
   ```bash
-  apify-pp run xquik/x-tweet-scraper --input @xquik-tweets.json --max-cost 0.50 --wait
+  apify-pp-cli run xquik/x-tweet-scraper --input @xquik-tweets.json --max-cost 0.50 --wait
   ```
 - **`ab run`** — Run the same input through two competing Actors, normalize via unified schema, report cost-per-novel-item and overlap percentage.
 
@@ -322,7 +322,7 @@ Create `xquik-tweets.json`:
 ```
 
 ```bash
-apify-pp run xquik/x-tweet-scraper --input @xquik-tweets.json --max-cost 0.50 --wait --agent
+apify-pp-cli run xquik/x-tweet-scraper --input @xquik-tweets.json --max-cost 0.50 --wait --agent
 ```
 
 `maxItems` caps the run. `maxItemsPerTarget` balances explicit targets.
@@ -347,7 +347,7 @@ Create `xquik-followers.json`:
 ```
 
 ```bash
-apify-pp run xquik/x-follower-scraper --input @xquik-followers.json --max-cost 0.50 --wait --agent
+apify-pp-cli run xquik/x-follower-scraper --input @xquik-followers.json --max-cost 0.50 --wait --agent
 ```
 
 Keep target metadata for multi-target runs. Use merge deduplication for audience overlap.
