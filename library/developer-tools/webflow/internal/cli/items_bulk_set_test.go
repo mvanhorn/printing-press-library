@@ -6,8 +6,14 @@ package cli
 
 import (
 	"bytes"
+	"context"
+	"encoding/json"
+	"fmt"
+	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/webflow/internal/store"
 )
 
 // TestStringMapToAnyOnlyCoercesSwitchFields guards against the boolean
@@ -65,6 +71,47 @@ func TestBulkSetResumeRoundTrip(t *testing.T) {
 	clearBulkSetResume(sigA)
 	if got := loadBulkSetResume(sigA); len(got) != 0 {
 		t.Fatalf("loadBulkSetResume after clear = %v, want empty", got)
+	}
+}
+
+// erroringFetcher always fails, simulating a live GET that cannot reach the
+// API (network down, auth revoked mid-run, etc.).
+type erroringFetcher struct{}
+
+func (erroringFetcher) Get(_ context.Context, _ string, _ map[string]string) (json.RawMessage, error) {
+	return nil, fmt.Errorf("simulated network failure")
+}
+
+// TestCollectionFieldTypesPropagatesFetchFailure guards the regression
+// Greptile flagged: when the local mirror has no schema for this collection
+// and the live fallback GET fails, collectionFieldTypes must return that
+// error rather than silently returning an empty type map (which would make
+// every Switch field look like a plain-text field to the caller).
+func TestCollectionFieldTypesPropagatesFetchFailure(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "test.db")
+	s, err := store.OpenWithContext(context.Background(), dbPath)
+	if err != nil {
+		t.Fatalf("open store: %v", err)
+	}
+	defer func() { _ = s.Close() }()
+	lq := &localQuery{db: s, ctx: context.Background()}
+
+	types, err := collectionFieldTypes(lq, erroringFetcher{}, "c1")
+	if err == nil {
+		t.Fatalf("expected an error when local schema is absent and the live fetch fails, got types=%v", types)
+	}
+}
+
+// TestAmbiguousBooleanSetField confirms the guard that decides whether a
+// schema-fetch failure actually matters: only a --set value that is
+// literally "true"/"false" is ambiguous between a Switch field and text.
+func TestAmbiguousBooleanSetField(t *testing.T) {
+	if _, found := ambiguousBooleanSetField(map[string]string{"headline": "hello"}); found {
+		t.Fatal("a non-boolean-looking value must not be reported as ambiguous")
+	}
+	field, found := ambiguousBooleanSetField(map[string]string{"headline": "hello", "featured": "True"})
+	if !found || field != "featured" {
+		t.Fatalf("ambiguousBooleanSetField = (%q, %v), want (\"featured\", true)", field, found)
 	}
 }
 

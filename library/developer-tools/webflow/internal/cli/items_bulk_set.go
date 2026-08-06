@@ -169,7 +169,19 @@ headers, so a large batch survives the 60-request-per-minute floor.
 			// the schema, a plain-text field whose value happens to be the literal
 			// string "true" or "false" would be sent as a JSON boolean and rejected
 			// (or silently mistyped) by Webflow; only a Switch field should coerce.
-			fieldTypes := collectionFieldTypes(lq, c, collectionID)
+			fieldTypes, ferr := collectionFieldTypes(lq, c, collectionID)
+			if ferr != nil {
+				// A schema fetch failure only matters when it leaves a --set
+				// value ambiguous between "the literal string true/false" and
+				// "a Switch field's boolean". Refuse to guess in that case
+				// instead of risking a silent wrong-type write; any other
+				// --set value is unaffected by not knowing the field's type.
+				if amb, found := ambiguousBooleanSetField(setValues); found {
+					return apiErr(fmt.Errorf(
+						"could not fetch the collection schema to confirm whether %q is a Switch (boolean) field: %w; refusing to guess since --set %s=%s means something different for a Switch field than a text field. Re-run once the schema is reachable",
+						amb, ferr, amb, setValues[amb]))
+				}
+			}
 
 			// A prior run that stopped on an exhausted rate limit leaves a resume
 			// file recording which item IDs already got written. Re-running the
@@ -307,10 +319,12 @@ func stringMapToAny(m map[string]string, fieldTypes map[string]string) map[strin
 
 // collectionFieldTypes returns slug -> Webflow field type for a collection,
 // preferring the local mirror and falling back to one live GET, mirroring the
-// schema lookup collections_completeness uses. A schema miss returns an empty
-// map rather than an error: stringMapToAny then leaves every value as a
-// string instead of guessing a type from the value.
-func collectionFieldTypes(lq *localQuery, c liveFetcher, collectionID string) map[string]string {
+// schema lookup collections_completeness uses. It returns a non-nil error
+// only when neither source produced a schema and the live fetch itself
+// failed (as opposed to legitimately returning zero fields), so a caller can
+// tell "the schema says this field isn't a Switch" apart from "the field's
+// type could not be determined at all".
+func collectionFieldTypes(lq *localQuery, c liveFetcher, collectionID string) (map[string]string, error) {
 	var schemaRows []rawRow
 	for _, table := range []string{"sites_collections", "collections"} {
 		if !lq.hasTable(table) {
@@ -323,8 +337,9 @@ func collectionFieldTypes(lq *localQuery, c liveFetcher, collectionID string) ma
 			break
 		}
 	}
+	var fetchErr error
 	if len(schemaRows) == 0 {
-		schemaRows, _ = lq.fetchOne(c, "/collections/"+escapeSeg(collectionID), collectionID)
+		schemaRows, fetchErr = lq.fetchOne(c, "/collections/"+escapeSeg(collectionID), collectionID)
 	}
 	types := map[string]string{}
 	colls := decodeRows[wfCollection](schemaRows)
@@ -335,7 +350,24 @@ func collectionFieldTypes(lq *localQuery, c liveFetcher, collectionID string) ma
 			}
 		}
 	}
-	return types
+	if len(types) == 0 && fetchErr != nil {
+		return types, fetchErr
+	}
+	return types, nil
+}
+
+// ambiguousBooleanSetField reports the first (in sorted key order, for a
+// deterministic error message) --set field whose value is literally "true"
+// or "false" - the only values whose written JSON type actually depends on
+// whether the field is a Switch.
+func ambiguousBooleanSetField(set map[string]string) (string, bool) {
+	for _, k := range sortedMapKeys(set) {
+		switch strings.ToLower(set[k]) {
+		case "true", "false":
+			return k, true
+		}
+	}
+	return "", false
 }
 
 // bulkSetResumeFileName is the sidecar state file that lets a rate-limited
