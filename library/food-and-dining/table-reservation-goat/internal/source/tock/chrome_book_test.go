@@ -208,8 +208,8 @@ func TestTockConfirmNetworkTelemetry_GenerationCorrelation(t *testing.T) {
 		listen(&network.EventRequestWillBeSent{RequestID: "retry", Request: &network.Request{Method: http.MethodPost, URL: "https://example.test/matrix-slug/checkout/confirm-purchase"}})
 		listen(&network.EventLoadingFailed{RequestID: "retry"})
 		got := telemetry.read()
-		if got.ConfirmPostsSeen != 2 || got.ConfirmPostLastStatus != 500 || !got.ConfirmPostLoadingFailed {
-			t.Fatalf("response-then-retry-failure telemetry = posts:%d status:%d failed:%v, want 2/500/true", got.ConfirmPostsSeen, got.ConfirmPostLastStatus, got.ConfirmPostLoadingFailed)
+		if got.ConfirmPostsSeen != 2 || got.ConfirmPostLastStatus != 0 || !got.ConfirmPostLoadingFailed {
+			t.Fatalf("response-then-retry-failure telemetry = posts:%d status:%d failed:%v, want 2/0/true (failed retry owns the status field)", got.ConfirmPostsSeen, got.ConfirmPostLastStatus, got.ConfirmPostLoadingFailed)
 		}
 	})
 

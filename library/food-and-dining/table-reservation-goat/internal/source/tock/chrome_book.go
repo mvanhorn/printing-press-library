@@ -550,6 +550,13 @@ func (t *tockConfirmTelemetry) listen(expectedEscapedSlug string) func(any) {
 				if generation >= t.lastStatusGeneration && generation >= t.lastFailureGeneration {
 					t.snapshot.ConfirmPostLoadingFailed = true
 					t.lastFailureGeneration = generation
+					if generation > t.lastStatusGeneration {
+						// The failed attempt owns the status field too: keeping
+						// an older generation's status beside this failure would
+						// read as contradictory evidence.
+						t.snapshot.ConfirmPostLastStatus = 0
+						t.lastStatusGeneration = generation
+					}
 				}
 				delete(t.matching, e.RequestID)
 			}
