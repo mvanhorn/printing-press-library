@@ -373,6 +373,29 @@ Resource scoping:
 	return cmd
 }
 
+// wrapScalarTombstones converts scalar deletion keys from the deleted
+// resource into storable {"key": ...} objects. Non-scalar items and other
+// resources pass through untouched.
+// PATCH(zotero-research-library-watermark-dropped-records)
+func wrapScalarTombstones(resource string, items []json.RawMessage) []json.RawMessage {
+	if resource != "deleted" {
+		return items
+	}
+	out := make([]json.RawMessage, 0, len(items))
+	for _, item := range items {
+		var s string
+		if err := json.Unmarshal(item, &s); err == nil && s != "" {
+			wrapped, err := json.Marshal(map[string]string{"key": s})
+			if err == nil {
+				out = append(out, wrapped)
+				continue
+			}
+		}
+		out = append(out, item)
+	}
+	return out
+}
+
 // syncResource handles the full paginated sync of a single resource.
 // It resumes from the last cursor unless sinceTS or full mode overrides it.
 // channel_workflow.go.tmpl mirrors the trailing dates arg conditional;
@@ -634,6 +657,12 @@ func syncResource(ctx context.Context, c interface {
 		fetchedThisPage := len(items)
 		_, hydrationEnabled := itemHydrationPaths[resource]
 		items, hydrateFailures := hydrateScalarItems(ctx, c, resource, items)
+		// Deletion tombstones arrive as scalar keys the store cannot ingest;
+		// wrap them as {"key": ...} objects so they persist and the run makes
+		// incremental progress instead of refetching and rejecting the same
+		// tombstones forever.
+		// PATCH(zotero-research-library-watermark-dropped-records)
+		items = wrapScalarTombstones(resource, items)
 
 		// Batch upsert all items from this page. UpsertBatch returns
 		// (stored, extractFailures, err): stored counts rows actually
