@@ -478,8 +478,24 @@ func (c *Config) ClearTokens() error {
 		return c.save()
 	}
 	if c.explicitConfig {
+		// Remove the store loading actually consulted: the sibling when it
+		// held values; otherwise loading fell back to the global store, so
+		// that fallback must be cleared too or logout would report success
+		// while later commands reload the untouched global credential.
+		// PATCH(zotero-research-library-explicit-config-credentials)
+		siblingHadValues := false
+		if path, err := cliutil.CredentialsFilePathForConfig(c.Path); err == nil {
+			if ok, err := cliutil.CredentialsFileHasValuesAt(path); err == nil && ok {
+				siblingHadValues = true
+			}
+		}
 		if err := cliutil.RemoveCredentialsForConfig(c.Path); err != nil {
 			return err
+		}
+		if !siblingHadValues {
+			if err := cliutil.RemoveCredentials(); err != nil {
+				return err
+			}
 		}
 	} else if err := cliutil.RemoveCredentials(); err != nil {
 		return err
