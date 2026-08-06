@@ -31,10 +31,22 @@ func newNovelNetworkOverlapCmd(flags *rootFlags) *cobra.Command {
 			return err
 		}
 		out := map[string]any{"user_a": a, "user_b": b}
-		fa := fetchArray(cmd, c, "https://friends.roblox.com/v1/users/"+a+"/friends", nil)
-		fb := fetchArray(cmd, c, "https://friends.roblox.com/v1/users/"+b+"/friends", nil)
-		ga := fetchArray(cmd, c, "https://groups.roblox.com/v2/users/"+a+"/groups/roles", nil)
-		gb := fetchArray(cmd, c, "https://groups.roblox.com/v2/users/"+b+"/groups/roles", nil)
+		fa, err := fetchArray(cmd, c, "https://friends.roblox.com/v1/users/"+a+"/friends", nil)
+		if err != nil {
+			return fmt.Errorf("fetching friends for --user-a: %w", err)
+		}
+		fb, err := fetchArray(cmd, c, "https://friends.roblox.com/v1/users/"+b+"/friends", nil)
+		if err != nil {
+			return fmt.Errorf("fetching friends for --user-b: %w", err)
+		}
+		ga, err := fetchArray(cmd, c, "https://groups.roblox.com/v2/users/"+a+"/groups/roles", nil)
+		if err != nil {
+			return fmt.Errorf("fetching groups for --user-a: %w", err)
+		}
+		gb, err := fetchArray(cmd, c, "https://groups.roblox.com/v2/users/"+b+"/groups/roles", nil)
+		if err != nil {
+			return fmt.Errorf("fetching groups for --user-b: %w", err)
+		}
 		out["shared_friends"] = intersectByNestedID(fa, fb, "id")
 		out["shared_groups"] = intersectByNestedID(ga, gb, "group.id")
 		return printBundle(cmd, flags, out)

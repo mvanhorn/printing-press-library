@@ -284,6 +284,9 @@ See README.md or the bundled SKILL.md for recipes.`,
 				noColor = true
 			}
 		}
+		if err := requireRemoteMutationConfirmation(cmd, flags); err != nil {
+			return err
+		}
 		switch flags.dataSource {
 		case "auto", "live", "local":
 			// valid

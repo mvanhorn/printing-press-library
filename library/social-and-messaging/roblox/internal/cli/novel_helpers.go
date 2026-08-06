@@ -3,6 +3,7 @@
 package cli
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"strconv"
@@ -34,19 +35,24 @@ func printBundle(cmd *cobra.Command, flags *rootFlags, out map[string]any) error
 	}
 	return printOutputWithFlags(cmd.OutOrStdout(), raw, flags)
 }
-func fetchArray(cmd *cobra.Command, c *client.Client, path string, params map[string]string) []map[string]any {
+func fetchArray(cmd *cobra.Command, c *client.Client, path string, params map[string]string) ([]map[string]any, error) {
 	raw, err := c.Get(cmd.Context(), path, params)
 	if err != nil {
-		return nil
+		return nil, fmt.Errorf("requesting %s: %w", path, err)
 	}
 	var env map[string]json.RawMessage
-	if json.Unmarshal(raw, &env) != nil {
-		return nil
+	if err := json.Unmarshal(raw, &env); err != nil {
+		return nil, fmt.Errorf("decoding response envelope from %s: %w", path, err)
 	}
-	data := env["data"]
+	data, ok := env["data"]
+	if !ok || bytes.Equal(bytes.TrimSpace(data), []byte("null")) {
+		return nil, fmt.Errorf("response from %s is missing a data array", path)
+	}
 	var rows []map[string]any
-	_ = json.Unmarshal(data, &rows)
-	return rows
+	if err := json.Unmarshal(data, &rows); err != nil {
+		return nil, fmt.Errorf("decoding data array from %s: %w", path, err)
+	}
+	return rows, nil
 }
 func intersectByNestedID(a, b []map[string]any, path string) []map[string]any {
 	seen := map[string]bool{}

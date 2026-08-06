@@ -156,6 +156,26 @@ func apiErr(err error) error       { return &cliError{code: 5, err: err} }
 func configErr(err error) error    { return &cliError{code: 10, err: err} }
 func rateLimitErr(err error) error { return &cliError{code: 7, err: err} }
 
+// requireRemoteMutationConfirmation prevents generated write commands from
+// treating the presence of credentials as authorization to change remote
+// state. Agent mode sets --yes explicitly; humans and scripts must either
+// confirm the mutation or preview it with --dry-run.
+func requireRemoteMutationConfirmation(cmd *cobra.Command, flags *rootFlags) error {
+	if cmd == nil || flags == nil || flags.yes || flags.dryRun {
+		return nil
+	}
+	if strings.EqualFold(cmd.Annotations["mcp:read-only"], "true") {
+		return nil
+	}
+	method := strings.ToUpper(strings.TrimSpace(cmd.Annotations["pp:method"]))
+	switch method {
+	case "DELETE", "POST", "PUT", "PATCH":
+		return usageErr(fmt.Errorf("%s sends a remote %s request; rerun with --yes to confirm or --dry-run to preview", cmd.CommandPath(), method))
+	default:
+		return nil
+	}
+}
+
 // partialFailureErr signals that the upstream API returned a 2xx with a
 // body shape indicating some operations in a batch failed (e.g. Google
 // Ads `partialFailureError`, similar shapes from Drive batch, Sheets

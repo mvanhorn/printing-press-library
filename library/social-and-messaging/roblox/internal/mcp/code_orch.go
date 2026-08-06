@@ -42,9 +42,12 @@ func RegisterCodeOrchestrationTools(s *server.MCPServer) {
 
 	s.AddTool(
 		mcplib.NewTool("roblox_execute",
-			mcplib.WithDescription("Execute one roblox API endpoint by its endpoint_id (from roblox_search). Params are passed as a JSON object; path placeholders and query strings are resolved automatically."),
+			mcplib.WithDescription("Execute one roblox API endpoint by its endpoint_id (from roblox_search). Params are passed as a JSON object; path placeholders and query strings are resolved automatically. Mutating endpoints require confirm=true."),
 			mcplib.WithString("endpoint_id", mcplib.Required(), mcplib.Description("Endpoint identifier returned by roblox_search (e.g., \"users.list\").")),
 			mcplib.WithObject("params", mcplib.Description("Parameters for the endpoint. Path placeholders match by name; remaining entries become query string on GET/DELETE or JSON body on POST/PUT/PATCH.")),
+			mcplib.WithBoolean("confirm", mcplib.Description("Required for endpoints that mutate remote state (POST, PUT, PATCH, or DELETE).")),
+			mcplib.WithReadOnlyHintAnnotation(false),
+			mcplib.WithDestructiveHintAnnotation(true),
 		),
 		handleCodeOrchExecute,
 	)
@@ -2479,6 +2482,12 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 	if ep == nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("unknown endpoint_id %q — call roblox_search to discover valid ids", id)), nil
 	}
+	if codeOrchMethodMutates(ep.Method) {
+		confirmed, _ := args["confirm"].(bool)
+		if !confirmed {
+			return mcplib.NewToolResultError(fmt.Sprintf("%s endpoint %q can change remote state; set confirm=true to execute it", ep.Method, ep.ID)), nil
+		}
+	}
 
 	params, _ := args["params"].(map[string]any)
 	if params == nil {
@@ -2565,6 +2574,15 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 		return mcplib.NewToolResultError(err.Error()), nil
 	}
 	return mcplib.NewToolResultText(bound.EndpointResponse(ep.Method, data)), nil
+}
+
+func codeOrchMethodMutates(method string) bool {
+	switch strings.ToUpper(strings.TrimSpace(method)) {
+	case "DELETE", "POST", "PUT", "PATCH":
+		return true
+	default:
+		return false
+	}
 }
 
 // codeOrchWriteBody returns the value handed to the client layer as the

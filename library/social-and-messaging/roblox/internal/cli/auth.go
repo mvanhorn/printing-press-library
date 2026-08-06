@@ -20,6 +20,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -608,15 +609,12 @@ func readProfileDisplayName(prefsPath string) string {
 // inspectCookiesForDomain copies the Cookies DB (plus WAL/SHM) to temp and counts matching rows.
 // Uses sqlite3 when available; host_key is plaintext so no decryption is needed.
 func inspectCookiesForDomain(cookiesDB, domainPattern string, requiredCookies []string) (count int, requiredCount int, missing []string) {
-	tmpFile, err := os.CreateTemp("", "cookies-probe-*.db")
+	tmpDir, err := os.MkdirTemp("", "roblox-cookies-probe-*")
 	if err != nil {
 		return 0, 0, append([]string{}, requiredCookies...)
 	}
-	tmpPath := tmpFile.Name()
-	tmpFile.Close()
-	defer os.Remove(tmpPath)
-	defer os.Remove(tmpPath + "-wal")
-	defer os.Remove(tmpPath + "-shm")
+	defer os.RemoveAll(tmpDir)
+	tmpPath := filepath.Join(tmpDir, "Cookies")
 
 	// Copy the database file plus WAL/SHM to avoid Chrome's WAL lock
 	// and to include uncommitted cookie writes that are still in the WAL.
@@ -691,13 +689,20 @@ func copyFileIfExists(src, dst string) error {
 		return err
 	}
 	defer in.Close()
-	out, err := os.Create(dst)
+	out, err := os.OpenFile(dst, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
 	if err != nil {
 		return err
 	}
-	defer out.Close()
-	_, err = io.Copy(out, in)
-	return err
+	if err := out.Chmod(0o600); err != nil {
+		_ = out.Close()
+		return err
+	}
+	_, copyErr := io.Copy(out, in)
+	closeErr := out.Close()
+	if copyErr != nil {
+		return copyErr
+	}
+	return closeErr
 }
 
 // resolveChromeProfile determines which Chrome profile to read cookies from.
@@ -952,20 +957,7 @@ func extractViaPycookiecheat(tool cookieTool, domain string, profile chromeProfi
 		cookiePath = filepath.Join(profile.DataDir, profile.Dir, "Cookies")
 	}
 
-	var script string
-	if cookiePath != "" {
-		// Use forward slashes so Python doesn't interpret backslashes as escapes on Windows
-		safePath := filepath.ToSlash(cookiePath)
-		script = fmt.Sprintf(
-			`import json; from pycookiecheat import chrome_cookies; print(json.dumps(chrome_cookies("https://%s", cookie_file="%s")))`,
-			cleanDomain, safePath,
-		)
-	} else {
-		script = fmt.Sprintf(
-			`import json; from pycookiecheat import chrome_cookies; print(json.dumps(chrome_cookies("https://%s")))`,
-			cleanDomain,
-		)
-	}
+	script := pycookiecheatScript(cleanDomain, cookiePath)
 
 	var out bytes.Buffer
 	cmd := exec.Command(tool.pyBin, append(append([]string{}, tool.pyArgs...), "-c", script)...)
@@ -985,6 +977,17 @@ func extractViaPycookiecheat(tool cookieTool, domain string, profile chromeProfi
 		parts = append(parts, name+"="+value)
 	}
 	return strings.Join(parts, "; "), nil
+}
+
+func pycookiecheatScript(domain, cookiePath string) string {
+	domainLiteral := strconv.Quote("https://" + strings.TrimPrefix(domain, "."))
+	if cookiePath == "" {
+		return fmt.Sprintf(`import json; from pycookiecheat import chrome_cookies; print(json.dumps(chrome_cookies(%s)))`, domainLiteral)
+	}
+	// Forward slashes keep Windows paths portable; strconv.Quote keeps profile
+	// names and paths inside a Python string literal rather than executable code.
+	pathLiteral := strconv.Quote(filepath.ToSlash(cookiePath))
+	return fmt.Sprintf(`import json; from pycookiecheat import chrome_cookies; print(json.dumps(chrome_cookies(%s, cookie_file=%s)))`, domainLiteral, pathLiteral)
 }
 
 func extractViaPycookiecheatCLI(tool cookieTool, domain string, profile chromeProfile) (string, error) {
