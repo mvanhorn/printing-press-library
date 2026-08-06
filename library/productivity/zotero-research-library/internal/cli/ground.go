@@ -11,13 +11,15 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/mvanhorn/printing-press-library/library/productivity/zotero-research-library/internal/store"
 	"github.com/spf13/cobra"
+	"github.com/mvanhorn/printing-press-library/library/productivity/zotero-research-library/internal/store"
 )
 
 func init() {
 	registerNovelCommand(func(root *cobra.Command, flags *rootFlags) {
-		addNovelCommandIfAbsent(root, newNovelGroundCmd(flags))
+		if !hasSubcommandNamed(root, "ground") {
+			root.AddCommand(newNovelGroundCmd(flags))
+		}
 	})
 }
 

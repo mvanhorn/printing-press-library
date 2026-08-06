@@ -16,8 +16,14 @@ func newNovelCacheCmd(flags *rootFlags) *cobra.Command {
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE:        parentNoSubcommandRunE(flags),
 	}
-	addNovelCommandIfAbsent(cmd, newNovelCacheStatusCmd(flags))
-	addNovelCommandIfAbsent(cmd, newNovelCacheReindexCmd(flags))
-	addNovelCommandIfAbsent(cmd, newNovelCacheIndexFulltextCmd(flags))
+	if !hasSubcommandNamed(cmd, "status") {
+		cmd.AddCommand(newNovelCacheStatusCmd(flags))
+	}
+	if !hasSubcommandNamed(cmd, "reindex") {
+		cmd.AddCommand(newNovelCacheReindexCmd(flags))
+	}
+	if !hasSubcommandNamed(cmd, "index-fulltext") {
+		cmd.AddCommand(newNovelCacheIndexFulltextCmd(flags))
+	}
 	return cmd
 }

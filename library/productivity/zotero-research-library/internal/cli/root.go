@@ -13,14 +13,14 @@ import (
 	"text/tabwriter"
 	"time"
 
+	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 	"github.com/mvanhorn/printing-press-library/library/productivity/zotero-research-library/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/productivity/zotero-research-library/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/productivity/zotero-research-library/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/productivity/zotero-research-library/internal/learn"
 	"github.com/mvanhorn/printing-press-library/library/productivity/zotero-research-library/internal/platform"
 	"github.com/mvanhorn/printing-press-library/library/productivity/zotero-research-library/internal/store"
-	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
 )
 
 type rootFlags struct {
@@ -77,13 +77,20 @@ func registerNovelCommand(hook func(root *cobra.Command, flags *rootFlags)) {
 	novelCommandHooks = append(novelCommandHooks, hook)
 }
 
-func addNovelCommandIfAbsent(parent *cobra.Command, candidate *cobra.Command) {
+// hasSubcommandNamed reports whether parent already registered a subcommand
+// with the given name, so novel commands can defer to a generated or
+// hook-registered command that claimed the name first. Call sites guard a
+// direct cmd.AddCommand(newNovelXxxCmd(...)) call with it rather than routing
+// through a helper: the public library's SKILL.md verifier discovers child
+// commands by scanning for that exact AddCommand-with-constructor pattern, and
+// an indirection hides the child (and its flags) from doc validation.
+func hasSubcommandNamed(parent *cobra.Command, name string) bool {
 	for _, existing := range parent.Commands() {
-		if existing.Name() == candidate.Name() {
-			return
+		if existing.Name() == name {
+			return true
 		}
 	}
-	parent.AddCommand(candidate)
+	return false
 }
 
 // clientHooks let preserved package-local extensions configure a newly-created
@@ -397,9 +404,15 @@ See README.md or the bundled SKILL.md for recipes.`,
 	for _, hook := range novelCommandHooks {
 		hook(rootCmd, flags)
 	}
-	addNovelCommandIfAbsent(rootCmd, newNovelCacheCmd(flags))
-	addNovelCommandIfAbsent(rootCmd, newNovelCiteCmd(flags))
-	addNovelCommandIfAbsent(rootCmd, newNovelGroundCmd(flags))
+	if !hasSubcommandNamed(rootCmd, "cache") {
+		rootCmd.AddCommand(newNovelCacheCmd(flags))
+	}
+	if !hasSubcommandNamed(rootCmd, "cite") {
+		rootCmd.AddCommand(newNovelCiteCmd(flags))
+	}
+	if !hasSubcommandNamed(rootCmd, "ground") {
+		rootCmd.AddCommand(newNovelGroundCmd(flags))
+	}
 	// Attach the conditional platform identity command last so ordinary,
 	// promoted, and novel API-owned `whoami` commands all win the name.
 	if registeredPlatformSource != nil {

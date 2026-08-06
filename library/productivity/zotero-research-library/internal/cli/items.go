@@ -21,6 +21,8 @@ func newItemsCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newItemsListCmd(flags))
 	cmd.AddCommand(newItemsTopCmd(flags))
 	cmd.AddCommand(newItemsTrashCmd(flags))
-	addNovelCommandIfAbsent(cmd, newNovelItemsRecentCmd(flags))
+	if !hasSubcommandNamed(cmd, "recent") {
+		cmd.AddCommand(newNovelItemsRecentCmd(flags))
+	}
 	return cmd
 }

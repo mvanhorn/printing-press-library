@@ -20,6 +20,8 @@ func newCollectionsCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newCollectionsListCmd(flags))
 	cmd.AddCommand(newCollectionsSubcollectionsCmd(flags))
 	cmd.AddCommand(newCollectionsTopCmd(flags))
-	addNovelCommandIfAbsent(cmd, newNovelCollectionsTreeCmd(flags))
+	if !hasSubcommandNamed(cmd, "tree") {
+		cmd.AddCommand(newNovelCollectionsTreeCmd(flags))
+	}
 	return cmd
 }
