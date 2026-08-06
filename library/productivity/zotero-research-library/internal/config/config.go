@@ -487,6 +487,26 @@ func (c *Config) ClearTokens() error {
 	return c.save()
 }
 
+// CredentialStorePath reports where credential mutations for this config
+// persist: the explicit config's sibling store when one is in use, the
+// config file itself under agentcookie management, else the global store.
+// PATCH(zotero-research-library-explicit-config-credentials)
+func (c *Config) CredentialStorePath() string {
+	if c.AgentcookieManagedByExternalStore() {
+		return c.Path
+	}
+	if c.explicitConfig {
+		if path, err := cliutil.CredentialsFilePathForConfig(c.Path); err == nil {
+			return path
+		}
+		return c.Path
+	}
+	if path, err := cliutil.CredentialsFilePath(); err == nil {
+		return path
+	}
+	return c.Path
+}
+
 func (c *Config) markEnvOverride(field string) {
 	if c.envOverrides == nil {
 		c.envOverrides = map[string]bool{}

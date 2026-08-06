@@ -7,9 +7,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/mvanhorn/printing-press-library/library/productivity/zotero-research-library/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/productivity/zotero-research-library/internal/config"
 	"github.com/spf13/cobra"
+	"zotero-research-library-pp-cli/internal/cliutil"
+	"zotero-research-library-pp-cli/internal/config"
 )
 
 func newAuthCmd(flags *rootFlags) *cobra.Command {
@@ -149,14 +149,14 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 }
 
 func credentialSavePath(cfg *config.Config) string {
-	if cfg != nil && cfg.AgentcookieManagedByExternalStore() {
-		return cfg.Path
+	// Config owns the routing decision (explicit-config sibling store vs
+	// global) so the reported path always matches where SaveCredentials
+	// actually wrote. PATCH(zotero-research-library-explicit-config-credentials)
+	if cfg != nil {
+		return cfg.CredentialStorePath()
 	}
 	if path, err := cliutil.CredentialsFilePath(); err == nil {
 		return path
-	}
-	if cfg != nil {
-		return cfg.Path
 	}
 	return ""
 }
