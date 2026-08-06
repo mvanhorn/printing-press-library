@@ -196,7 +196,12 @@ func newNovelDunningCmd(flags *rootFlags) *cobra.Command {
 			for _, r := range rows {
 				totByCur[r.Currency] += r.OutstandingTotal
 			}
-			fmt.Fprintf(cmd.OutOrStdout(), "\nTotal outstanding across %d customers:\n", len(rows))
+			// One customer may span several currency rows; report distinct customers.
+			customerSet := map[string]struct{}{}
+			for _, r := range rows {
+				customerSet[r.Customer.ID] = struct{}{}
+			}
+			fmt.Fprintf(cmd.OutOrStdout(), "\nTotal outstanding across %d customers:\n", len(customerSet))
 			currencies := make([]string, 0, len(totByCur))
 			for c := range totByCur {
 				currencies = append(currencies, c)
