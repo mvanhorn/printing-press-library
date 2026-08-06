@@ -26,9 +26,9 @@ func newContactCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newContactUpdateCmd(flags))
 	cmd.AddCommand(newContactUpdateLifecycleCmd(flags))
 	cmd.AddCommand(newContactUpsertCmd(flags))
-	addNovelCommandIfAbsent(cmd, newNovelContactByTagCmd(flags))
-	addNovelCommandIfAbsent(cmd, newNovelContactFieldGapsCmd(flags))
-	addNovelCommandIfAbsent(cmd, newNovelContactIdleCmd(flags))
-	addNovelCommandIfAbsent(cmd, newNovelContactSearchCmd(flags))
+	cmd.AddCommand(newNovelContactByTagCmd(flags))
+	cmd.AddCommand(newNovelContactFieldGapsCmd(flags))
+	cmd.AddCommand(newNovelContactIdleCmd(flags))
+	cmd.AddCommand(newNovelContactSearchCmd(flags))
 	return cmd
 }

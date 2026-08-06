@@ -18,7 +18,7 @@ func newNovelReportCmd(flags *rootFlags) *cobra.Command {
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE:        parentNoSubcommandRunE(flags),
 	}
-	addNovelCommandIfAbsent(cmd, newNovelReportChannelMixCmd(flags))
-	addNovelCommandIfAbsent(cmd, newNovelReportWorkloadCmd(flags))
+	cmd.AddCommand(newNovelReportChannelMixCmd(flags))
+	cmd.AddCommand(newNovelReportWorkloadCmd(flags))
 	return cmd
 }
