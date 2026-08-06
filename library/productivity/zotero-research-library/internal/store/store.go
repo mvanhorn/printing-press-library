@@ -1961,7 +1961,14 @@ func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, 
 			// landed in earlier loop iterations.
 			return stored, extractFailures, fmt.Errorf("upserting %s/%s: %w", resourceType, storageID, err)
 		}
-		stored++
+		// stored is incremented only after the typed-table projection below
+		// also succeeds: a record whose typed row failed must not count as
+		// stored, or sync's consumed==stored equality would advance the
+		// incremental watermark past a row that typed-table-backed offline
+		// commands cannot see — permanently, since it would never be
+		// refetched. Counting it unstored holds the watermark so the next
+		// incremental run retries the projection.
+		// PATCH(zotero-research-library-watermark-dropped-records)
 
 		// Backfill the typed child table's NOT NULL scope column from the item's
 		// own parent reference when the dependent-sync path injection is absent
@@ -1998,6 +2005,7 @@ func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, 
 		if _, err := tx.Exec("RELEASE SAVEPOINT " + savepoint); err != nil {
 			return stored, extractFailures, fmt.Errorf("release savepoint for %s/%s: %w", resourceType, storageID, err)
 		}
+		stored++
 	}
 
 	// Warn when every decoded item in a batch lacks an extractable ID — this
