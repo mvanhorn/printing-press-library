@@ -32,7 +32,6 @@ func RegisterIntents(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("at_risk_subscriptions_before_renewals",
 			mcplib.WithDescription("List active subscriptions tied to expired or unconfirmed payment methods so you can fix cards before they churn."),
-			mcplib.WithString("slug", mcplib.Required(), mcplib.Description("Override the recipe's positional slug value.")),
 		),
 		handleAtRiskSubscriptionsBeforeRenewals,
 	)
@@ -44,15 +43,7 @@ func handleAtRiskSubscriptionsBeforeRenewals(ctx context.Context, req mcplib.Cal
 		return mcplib.NewToolResultError(fmt.Sprintf("companion CLI binary not found: %v", recipeCLIPathErr)), nil
 	}
 
-	input := req.GetArguments()
-	args := []string{}
-	args = append(args, "subs")
-	var missingSlug bool
-	args, missingSlug = appendRecipePositional(args, input["slug"], true)
-	if missingSlug {
-		return mcplib.NewToolResultError("slug is required"), nil
-	}
-	args = append(args, "--json")
+	args := []string{"subs", "at-risk", "--json"}
 
 	out, err := cobratree.RunCLICommand(ctx, recipeCLIPath, args)
 	if err != nil {

@@ -22,25 +22,18 @@ func TestRecipeIntentHandlerBuildsRecipeArgs(t *testing.T) {
 	recipeCLIPath = writeRecipeIntentRecorder(t)
 	recipeCLIPathErr = nil
 
-	req := mcplib.CallToolRequest{Params: mcplib.CallToolParams{Arguments: map[string]any{
-		"slug": "required-value",
-	}}}
+	req := mcplib.CallToolRequest{}
 	result, err := handleAtRiskSubscriptionsBeforeRenewals(context.Background(), req)
 	if err != nil {
 		t.Fatalf("handler returned transport error: %v", err)
 	}
 	got := strings.TrimSpace(recipeToolText(t, result))
-	want := strings.Join([]string{
-		"subs",
-		"required-value",
-		"--json",
-	}, " ")
-	if got != want {
-		t.Fatalf("handler output = %q, want %q", got, want)
+	if got != "subs at-risk --json" {
+		t.Fatalf("handler output = %q, want %q", got, "subs at-risk --json")
 	}
 }
 
-func TestRecipeIntentHandlerOverridesParams(t *testing.T) {
+func TestRecipeIntentHandlerIgnoresUnsupportedParams(t *testing.T) {
 	oldPath, oldErr := recipeCLIPath, recipeCLIPathErr
 	t.Cleanup(func() {
 		recipeCLIPath, recipeCLIPathErr = oldPath, oldErr
@@ -48,16 +41,18 @@ func TestRecipeIntentHandlerOverridesParams(t *testing.T) {
 	recipeCLIPath = writeRecipeIntentRecorder(t)
 	recipeCLIPathErr = nil
 
+	// subs at-risk is whole-portfolio: it takes no slug positional, so any
+	// leftover argument must not be injected into the command path.
 	req := mcplib.CallToolRequest{Params: mcplib.CallToolParams{Arguments: map[string]any{
-		"slug": "required-value",
+		"slug": "should-not-be-passed",
 	}}}
 	result, err := handleAtRiskSubscriptionsBeforeRenewals(context.Background(), req)
 	if err != nil {
 		t.Fatalf("handler returned transport error: %v", err)
 	}
-	got := recipeToolText(t, result)
-	if !strings.Contains(got, "required-value") {
-		t.Fatalf("positional override for slug missing from %q", got)
+	got := strings.TrimSpace(recipeToolText(t, result))
+	if got != "subs at-risk --json" {
+		t.Fatalf("handler output = %q, want %q", got, "subs at-risk --json")
 	}
 }
 

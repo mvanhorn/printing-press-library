@@ -35,6 +35,13 @@ type dunningRow struct {
 	NextAction           string          `json:"next_action"`
 }
 
+// dunningGroupKey groups outstanding rows by customer AND currency so that
+// amounts in different currencies are never summed under a single label.
+type dunningGroupKey struct {
+	customer string
+	currency string
+}
+
 type invoice struct {
 	ID          string  `json:"id"`
 	CustomerID  string  `json:"customerId"`
@@ -109,7 +116,7 @@ func newNovelDunningCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			now := time.Now().UTC()
-			group := map[string]*dunningRow{}
+			group := map[dunningGroupKey]*dunningRow{}
 			for _, inv := range invs {
 				if inv.IsPaid {
 					continue
@@ -125,7 +132,8 @@ func newNovelDunningCmd(flags *rootFlags) *cobra.Command {
 				if since > 0 && now.Sub(due) > since {
 					continue
 				}
-				tr := group[inv.CustomerID]
+				key := dunningGroupKey{customer: inv.CustomerID, currency: inv.Currency}
+				tr := group[key]
 				if tr == nil {
 					tr = &dunningRow{Currency: inv.Currency}
 					tr.Customer.ID = inv.CustomerID
@@ -134,7 +142,7 @@ func newNovelDunningCmd(flags *rootFlags) *cobra.Command {
 						tr.Customer.Email = c.Email
 						tr.Customer.PhoneNumber = c.PhoneNumber
 					}
-					group[inv.CustomerID] = tr
+					group[key] = tr
 				}
 				tr.OutstandingTotal += outstanding
 				tr.InvoiceCount++
@@ -149,9 +157,6 @@ func newNovelDunningCmd(flags *rootFlags) *cobra.Command {
 				}
 				if tr.OldestDueDate == "" || due.Before(cliutil.ParseStoredTime(tr.OldestDueDate)) {
 					tr.OldestDueDate = inv.DueDate
-				}
-				if tr.Currency == "" {
-					tr.Currency = inv.Currency
 				}
 			}
 			rows := make([]dunningRow, 0, len(group))
@@ -187,15 +192,22 @@ func newNovelDunningCmd(flags *rootFlags) *cobra.Command {
 			if err := printAutoTable(cmd.OutOrStdout(), table); err != nil {
 				return err
 			}
-			var total float64
-			cur := "MXN"
-			if len(rows) > 0 && rows[0].Currency != "" {
-				cur = rows[0].Currency
-			}
+			totByCur := map[string]float64{}
 			for _, r := range rows {
-				total += r.OutstandingTotal
+				totByCur[r.Currency] += r.OutstandingTotal
 			}
-			fmt.Fprintf(cmd.OutOrStdout(), "\nTotal outstanding: %s across %d customers\n", formatMoneyMinor(total, cur), len(rows))
+			fmt.Fprintf(cmd.OutOrStdout(), "\nTotal outstanding across %d customers:\n", len(rows))
+			currencies := make([]string, 0, len(totByCur))
+			for c := range totByCur {
+				currencies = append(currencies, c)
+			}
+			sort.Strings(currencies)
+			for _, c := range currencies {
+				if c == "" {
+					c = "MXN"
+				}
+				fmt.Fprintf(cmd.OutOrStdout(), "  %s\n", formatMoneyMinor(totByCur[c], c))
+			}
 			return nil
 		},
 	}
