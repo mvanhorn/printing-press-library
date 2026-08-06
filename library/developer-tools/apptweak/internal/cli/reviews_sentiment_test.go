@@ -3,8 +3,61 @@
 
 package cli
 
-import "testing"
+import (
+	"encoding/json"
+	"testing"
+)
 
-func TestNovelReviewsSentimentCommandTODO(t *testing.T) {
-	t.Skip("TODO: implement table-driven tests for reviews sentiment")
+func TestClassifySentiment(t *testing.T) {
+	tests := []struct {
+		total int
+		avg   float64
+		want  string
+	}{
+		{0, 0.0, "unknown"},  // Greptile fix: zero reviews must not be "negative"
+		{5, 4.5, "positive"},
+		{5, 4.0, "positive"}, // boundary: exactly 4.0 → positive
+		{5, 3.9, "neutral"},
+		{5, 3.0, "neutral"},  // boundary: exactly 3.0 → neutral (not negative)
+		{5, 2.9, "negative"},
+		{5, 1.0, "negative"},
+		{1, 3.5, "neutral"},
+	}
+	for _, tc := range tests {
+		got := classifySentiment(tc.total, tc.avg)
+		if got != tc.want {
+			t.Errorf("classifySentiment(%d, %g) = %q, want %q", tc.total, tc.avg, got, tc.want)
+		}
+	}
+}
+
+func TestExtractReviewRatingsEmpty(t *testing.T) {
+	for _, input := range []string{"{}", "[]", `{"content": []}`, `{"content": {"reviews": []}}`} {
+		ratings := extractReviewRatings(json.RawMessage(input))
+		if len(ratings) != 0 {
+			t.Errorf("extractReviewRatings(%q): expected empty, got %v", input, ratings)
+		}
+	}
+}
+
+func TestExtractReviewRatingsArray(t *testing.T) {
+	data := json.RawMessage(`[{"rating":5},{"rating":2},{"score":4}]`)
+	got := extractReviewRatings(data)
+	if len(got) != 3 {
+		t.Fatalf("expected 3 ratings, got %v", got)
+	}
+	want := []int{5, 2, 4}
+	for i, v := range want {
+		if got[i] != v {
+			t.Errorf("rating[%d]: got %d, want %d", i, got[i], v)
+		}
+	}
+}
+
+func TestExtractReviewRatingsNested(t *testing.T) {
+	data := json.RawMessage(`{"content":{"reviews":[{"rating":3},{"rating":5}]}}`)
+	got := extractReviewRatings(data)
+	if len(got) != 2 {
+		t.Fatalf("expected 2 ratings, got %v", got)
+	}
 }

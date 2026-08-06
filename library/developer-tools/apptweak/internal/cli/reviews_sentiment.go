@@ -96,15 +96,7 @@ func newNovelReviewsSentimentCmd(flags *rootFlags) *cobra.Command {
 				avg = float64(sum) / float64(total)
 			}
 
-			sentiment := "unknown"
-			if total > 0 {
-				sentiment = "neutral"
-				if avg >= 4.0 {
-					sentiment = "positive"
-				} else if avg < 3.0 {
-					sentiment = "negative"
-				}
-			}
+			sentiment := classifySentiment(total, avg)
 
 			out := reviewsSentimentOutput{
 				App:                flagApp,
@@ -187,6 +179,21 @@ func extractRatingsFromReviewArray(data json.RawMessage) []int {
 		}
 	}
 	return ratings
+}
+
+// classifySentiment returns "unknown" when total == 0 (no data to analyze),
+// "positive" for avg >= 4.0, "negative" for avg < 3.0, and "neutral" otherwise.
+func classifySentiment(total int, avg float64) string {
+	if total == 0 {
+		return "unknown"
+	}
+	if avg >= 4.0 {
+		return "positive"
+	}
+	if avg < 3.0 {
+		return "negative"
+	}
+	return "neutral"
 }
 
 // roundTo2 rounds a float64 to 2 decimal places.
