@@ -2626,6 +2626,47 @@ func (s *Store) ReconcilePartition(resourceType, genericScopeJSONPath, scopeValu
 	return len(victims), nil
 }
 
+// DeleteResourceByID hard-deletes one cached record: the typed-table row
+// (firing its AFTER DELETE FTS triggers, if any), the generic resources_fts
+// entry (manual, no triggers), and the generic resources row. Tombstone
+// application uses it so records the API reports deleted actually leave the
+// cache instead of lingering for offline commands. Pass typedTable "" for
+// resource types without a typed projection. Returns whether a generic row
+// was removed (false for an already-absent id — not an error, since a
+// tombstone can predate the local cache).
+// PATCH(zotero-research-library-watermark-dropped-records)
+func (s *Store) DeleteResourceByID(resourceType, id, typedTable string) (bool, error) {
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+
+	tx, err := s.db.Begin()
+	if err != nil {
+		return false, err
+	}
+	defer tx.Rollback()
+
+	// typedTable is TRUSTED generator/registration metadata, never user input
+	// (same contract as ReconcilePartition), so Sprintf interpolation is safe.
+	if typedTable != "" {
+		if _, err := tx.Exec(fmt.Sprintf(`DELETE FROM "%s" WHERE id = ?`, typedTable), id); err != nil {
+			return false, fmt.Errorf("delete %s/%s: typed delete: %w", resourceType, id, err)
+		}
+	}
+	if _, err := tx.Exec(`DELETE FROM resources_fts WHERE rowid = ?`, ftsRowID(resourceType, id)); err != nil {
+		return false, fmt.Errorf("delete %s/%s: fts delete: %w", resourceType, id, err)
+	}
+	res, err := tx.Exec(`DELETE FROM resources WHERE resource_type = ? AND id = ?`, resourceType, id)
+	if err != nil {
+		return false, fmt.Errorf("delete %s/%s: generic delete: %w", resourceType, id, err)
+	}
+	affected, _ := res.RowsAffected()
+
+	if err := tx.Commit(); err != nil {
+		return false, err
+	}
+	return affected > 0, nil
+}
+
 // ResolveByName resolves a human-readable name to a UUID from synced data.
 // If the input is already a UUID, it is returned as-is.
 // matchFields are JSON field names to search against (e.g., "name", "key", "email").

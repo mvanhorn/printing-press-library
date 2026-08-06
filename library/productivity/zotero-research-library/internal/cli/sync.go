@@ -462,6 +462,49 @@ func flattenDeletedCategories(data json.RawMessage) ([]json.RawMessage, bool) {
 	return out, true
 }
 
+// deletedTombstoneTypedTables maps a /deleted category to the local typed
+// table its cached records project into ("" = generic-only, e.g. settings).
+var deletedTombstoneTypedTables = map[string]string{
+	"collections": "collections",
+	"items":       "items",
+	"searches":    "searches",
+	"tags":        "tags",
+}
+
+// applyDeletedTombstones mirrors flattened /deleted tombstones into the local
+// cache: for each {"key":"<category>/<key>","category":...} object it
+// hard-deletes the corresponding cached record (typed row, FTS entries,
+// generic row) so offline commands stop returning records the API reports
+// deleted. Without this, tombstones are merely stored while the stale record
+// lingers — and because the deletion watermark still advances, the tombstone
+// is never redelivered on later incremental runs. An absent record is not an
+// error (the tombstone can predate the local cache).
+// PATCH(zotero-research-library-watermark-dropped-records)
+func applyDeletedTombstones(db *store.Store, items []json.RawMessage) (int, error) {
+	removed := 0
+	for _, item := range items {
+		var t struct {
+			Key      string `json:"key"`
+			Category string `json:"category"`
+		}
+		if err := json.Unmarshal(item, &t); err != nil || t.Category == "" {
+			continue
+		}
+		key := strings.TrimPrefix(t.Key, t.Category+"/")
+		if key == "" {
+			continue
+		}
+		ok, err := db.DeleteResourceByID(t.Category, key, deletedTombstoneTypedTables[t.Category])
+		if err != nil {
+			return removed, err
+		}
+		if ok {
+			removed++
+		}
+	}
+	return removed, nil
+}
+
 // syncResource handles the full paginated sync of a single resource.
 // It resumes from the last cursor unless sinceTS or full mode overrides it.
 // channel_workflow.go.tmpl mirrors the trailing dates arg conditional;
@@ -756,6 +799,25 @@ func syncResource(ctx context.Context, c interface {
 				fmt.Fprintln(syncEvents, syncErrorJSON(resource, "", err))
 			}
 			return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("upserting batch for %s: %w", resource, err), Duration: time.Since(started)}
+		}
+
+		if resource == "deleted" {
+			// Apply the tombstones we just stored: remove the corresponding
+			// cached records so offline commands stop returning them. An
+			// application error must fail the sync — the watermark would
+			// otherwise advance past tombstones that were never mirrored,
+			// and they are not redelivered on later incremental runs.
+			// PATCH(zotero-research-library-watermark-dropped-records)
+			removed, derr := applyDeletedTombstones(db, items)
+			if derr != nil {
+				if !humanFriendly {
+					fmt.Fprintln(syncEvents, syncErrorJSON(resource, "", derr))
+				}
+				return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("applying tombstones for %s: %w", resource, derr), Duration: time.Since(started)}
+			}
+			if !humanFriendly {
+				fmt.Fprintf(syncEvents, `{"event":"tombstones_applied","resource":"%s","removed":%d}`+"\n", resource, removed)
+			}
 		}
 
 		consumedTotal += fetchedThisPage
