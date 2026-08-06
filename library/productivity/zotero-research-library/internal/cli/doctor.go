@@ -14,10 +14,10 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"zotero-research-library-pp-cli/internal/client"
-	"zotero-research-library-pp-cli/internal/cliutil"
-	"zotero-research-library-pp-cli/internal/config"
-	"zotero-research-library-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/productivity/zotero-research-library/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/productivity/zotero-research-library/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/productivity/zotero-research-library/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/productivity/zotero-research-library/internal/store"
 )
 
 // Hand-coded auth flows can report credentials that are intentionally not

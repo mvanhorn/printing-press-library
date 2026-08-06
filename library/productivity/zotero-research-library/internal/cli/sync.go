@@ -20,11 +20,11 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
-	"zotero-research-library-pp-cli/internal/client"
-	"zotero-research-library-pp-cli/internal/cliutil"
-	"zotero-research-library-pp-cli/internal/learn"
-	"zotero-research-library-pp-cli/internal/learn/lookups"
-	"zotero-research-library-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/productivity/zotero-research-library/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/productivity/zotero-research-library/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/productivity/zotero-research-library/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/productivity/zotero-research-library/internal/learn/lookups"
+	"github.com/mvanhorn/printing-press-library/library/productivity/zotero-research-library/internal/store"
 )
 
 // unresolvedPathKeyRE matches `{key}` placeholders left in a sync path

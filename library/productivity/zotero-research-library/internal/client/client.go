@@ -24,9 +24,9 @@ import (
 	"strings"
 	"sync"
 	"time"
-	"zotero-research-library-pp-cli/internal/cliutil"
-	"zotero-research-library-pp-cli/internal/config"
-	"zotero-research-library-pp-cli/internal/platform"
+	"github.com/mvanhorn/printing-press-library/library/productivity/zotero-research-library/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/productivity/zotero-research-library/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/productivity/zotero-research-library/internal/platform"
 )
 
 const BinaryResponseHeader = "X-Printing-Press-Binary-Response"

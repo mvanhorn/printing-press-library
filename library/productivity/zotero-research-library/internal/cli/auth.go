@@ -8,8 +8,8 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"zotero-research-library-pp-cli/internal/cliutil"
-	"zotero-research-library-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/productivity/zotero-research-library/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/productivity/zotero-research-library/internal/config"
 )
 
 func newAuthCmd(flags *rootFlags) *cobra.Command {

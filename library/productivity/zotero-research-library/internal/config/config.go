@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/pelletier/go-toml/v2"
-	"zotero-research-library-pp-cli/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/productivity/zotero-research-library/internal/cliutil"
 )
 
 type Config struct {
