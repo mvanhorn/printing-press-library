@@ -208,10 +208,12 @@ func newNovelDunningCmd(flags *rootFlags) *cobra.Command {
 			}
 			sort.Strings(currencies)
 			for _, c := range currencies {
-				if c == "" {
-					c = "MXN"
+				// Read the total under its ORIGINAL key (incl. the empty unspecified-currency bucket).
+				label := c
+				if label == "" {
+					label = "MXN"
 				}
-				fmt.Fprintf(cmd.OutOrStdout(), "  %s\n", formatMoneyMinor(totByCur[c], c))
+				fmt.Fprintf(cmd.OutOrStdout(), "  %s\n", formatMoneyMinor(totByCur[c], label))
 			}
 			return nil
 		},
