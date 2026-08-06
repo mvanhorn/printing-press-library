@@ -23,10 +23,15 @@ type cancelFixture struct {
 	receiptRedirect   string
 	afterConfirmPath  string
 	canceledAfterPost bool
-	firstClicks       atomic.Int32
-	secondClicks      atomic.Int32
-	canceled          atomic.Bool
-	receiptRedirected atomic.Bool
+	// failDispatchOnCall injects a mid-dispatch CDP failure on the Nth
+	// trusted-click press/release (1-based); earlier calls use the real
+	// dispatch. Zero disables the seam.
+	failDispatchOnCall int32
+	dispatchCalls      atomic.Int32
+	firstClicks        atomic.Int32
+	secondClicks       atomic.Int32
+	canceled           atomic.Bool
+	receiptRedirected  atomic.Bool
 }
 
 func requireTockCancelChrome(t *testing.T) {
@@ -203,6 +208,29 @@ func TestCancelUIFlow_ClientCancel_NavigationLossAfterSecondClickIsOutcomeUnknow
 	}
 }
 
+func TestCancelUIFlow_ClientCancel_AmbiguousFinalDispatchIsOutcomeUnknown(t *testing.T) {
+	requireTockCancelChrome(t)
+	fx := &cancelFixture{failDispatchOnCall: 2}
+	_, err := runCancelFixture(t, fx)
+	assertCancelCategory(t, err, ErrCancelOutcomeUnknown, cancelClickDispatchAmbiguous)
+	if errors.Is(err, ErrCancelUIFlow) && !errors.Is(err, ErrCancelOutcomeUnknown) {
+		t.Fatal("ambiguous final dispatch must not surface as a retryable UI failure")
+	}
+	if fx.secondClicks.Load() != 0 {
+		t.Fatalf("commit POSTs=%d, want zero (failure injected before activation) and no automatic retry", fx.secondClicks.Load())
+	}
+}
+
+func TestCancelUIFlow_ClientCancel_AmbiguousFirstDispatchStaysRetryable(t *testing.T) {
+	requireTockCancelChrome(t)
+	fx := &cancelFixture{failDispatchOnCall: 1}
+	_, err := runCancelFixture(t, fx)
+	assertCancelCategory(t, err, ErrCancelUIFlow, cancelClickDispatchAmbiguous)
+	if errors.Is(err, ErrCancelOutcomeUnknown) {
+		t.Fatal("receipt-phase click only opens the confirmation page; ambiguity there must stay retryable")
+	}
+}
+
 func TestCancelUIFlow_ClientCancel_PrivacyFixture(t *testing.T) {
 	requireTockCancelChrome(t)
 	secrets := []string{
@@ -279,6 +307,14 @@ func runCancelFixture(t *testing.T, fx *cancelFixture) (*CancelResponse, error) 
 	defer srv.Close()
 	c := newCancelHTTPTestClient(t, srv)
 	c.cancelUIPhaseTimeout = 750 * time.Millisecond
+	if fx.failDispatchOnCall > 0 {
+		c.cancelClickDispatch = func(ctx context.Context, x, y float64) error {
+			if fx.dispatchCalls.Add(1) == fx.failDispatchOnCall {
+				return errors.New("cdp: response lost mid-dispatch")
+			}
+			return c.defaultCancelClickDispatch(ctx, x, y)
+		}
+	}
 	return c.Cancel(context.Background(), CancelRequest{VenueSlug: "venue", PurchaseID: 123})
 }
 

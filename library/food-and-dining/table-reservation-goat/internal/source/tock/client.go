@@ -45,6 +45,10 @@ type Client struct {
 	// cancelViaUI is a narrow test seam for the HTTP-first cancel dispatcher.
 	// Production callers leave it nil and use chromeCancelReservation.
 	cancelViaUI func(context.Context, CancelRequest) (*CancelResponse, error)
+	// cancelClickDispatch is a narrow test seam for the trusted-click mouse
+	// dispatch, letting fixtures inject a mid-dispatch CDP failure.
+	// Production callers leave it nil.
+	cancelClickDispatch func(ctx context.Context, x, y float64) error
 	// cancelUIPhaseTimeout shortens host-gated fixtures without changing the
 	// production deadline.
 	cancelUIPhaseTimeout time.Duration

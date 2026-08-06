@@ -183,7 +183,16 @@ func (c *Client) chromeCancelReservation(ctx context.Context, req CancelRequest)
 	}
 	clickObs, dispatched, _, clickCategory = c.trustedCancelClick(timed, req, cancelPhaseQuestion)
 	if !dispatched {
-		return nil, newCancelUIError(clickCategory, false, clickObs.state)
+		// This is the irreversible "Cancel reservation" click: an ambiguous
+		// mid-dispatch failure may already have canceled, so it must surface
+		// as outcome-unknown rather than a retryable UI failure. (The earlier
+		// receipt-phase click only opens the confirmation page, so ambiguity
+		// there stays safely retryable.)
+		return nil, newCancelUIError(
+			clickCategory,
+			clickCategory == cancelClickDispatchAmbiguous,
+			clickObs.state,
+		)
 	}
 
 	obs, category = c.waitForCancelObservation(timed, req, cancelPhaseReceipt, phaseTimeout, canceledReceiptReady)
@@ -476,19 +485,41 @@ func (c *Client) trustedCancelClick(ctx context.Context, req CancelRequest, phas
 		return obs, false, false, category
 	}
 	if err := chromedp.Run(ctx, chromedp.ActionFunc(func(actCtx context.Context) error {
-		if err := input.DispatchMouseEvent(input.MouseMoved, dom.ClickX, dom.ClickY).Do(actCtx); err != nil {
-			return err
-		}
-		if err := input.DispatchMouseEvent(input.MousePressed, dom.ClickX, dom.ClickY).
-			WithButton(input.Left).WithButtons(1).WithClickCount(1).Do(actCtx); err != nil {
-			return err
-		}
-		return input.DispatchMouseEvent(input.MouseReleased, dom.ClickX, dom.ClickY).
-			WithButton(input.Left).WithClickCount(1).Do(actCtx)
+		return input.DispatchMouseEvent(input.MouseMoved, dom.ClickX, dom.ClickY).Do(actCtx)
 	})); err != nil {
 		return obs, false, false, "click_dispatch_failed"
 	}
+	if err := c.dispatchCancelClick(ctx, dom.ClickX, dom.ClickY); err != nil {
+		// MousePressed/MouseReleased may have reached Chrome even though the
+		// CDP call errored (e.g. the response was lost), so the click cannot
+		// be proved undone. Callers on an irreversible phase must map this
+		// category to the outcome-unknown classification, never to a
+		// retryable pre-click failure.
+		return obs, false, false, cancelClickDispatchAmbiguous
+	}
 	return obs, true, false, ""
+}
+
+// cancelClickDispatchAmbiguous marks a click whose press/release phase failed
+// mid-dispatch: the button may or may not have activated.
+const cancelClickDispatchAmbiguous = "click_dispatch_ambiguous"
+
+func (c *Client) dispatchCancelClick(ctx context.Context, x, y float64) error {
+	if c.cancelClickDispatch != nil {
+		return c.cancelClickDispatch(ctx, x, y)
+	}
+	return c.defaultCancelClickDispatch(ctx, x, y)
+}
+
+func (c *Client) defaultCancelClickDispatch(ctx context.Context, x, y float64) error {
+	return chromedp.Run(ctx, chromedp.ActionFunc(func(actCtx context.Context) error {
+		if err := input.DispatchMouseEvent(input.MousePressed, x, y).
+			WithButton(input.Left).WithButtons(1).WithClickCount(1).Do(actCtx); err != nil {
+			return err
+		}
+		return input.DispatchMouseEvent(input.MouseReleased, x, y).
+			WithButton(input.Left).WithClickCount(1).Do(actCtx)
+	}))
 }
 
 func canonicalCancelClickCategory(category string) string {
