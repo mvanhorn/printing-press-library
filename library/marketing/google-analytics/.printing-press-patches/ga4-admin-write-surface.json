@@ -1,0 +1,30 @@
+{
+  "schema_version": 2,
+  "id": "ga4-admin-write-surface",
+  "applied_at": "2026-08-06",
+  "base_run_id": "ga4-20260612",
+  "base_printing_press_version": "4.20.1",
+  "summary": "feat(google-analytics): add gated GA4 Admin write surface; accept ADC authorized_user credentials",
+  "reason": "The printed CLI was read-only by construction: MintToken hard-coded analytics.readonly and --credentials assumed a service-account key, so ADC authorized_user credentials were rejected and there was no path to create, patch, archive, or delete anything in GA4. Two throwaway Python scripts were filling the gap; this absorbs their surface into the CLI.",
+  "files": [
+    "internal/ga4/types.go",
+    "internal/ga4/auth.go",
+    "internal/ga4/client.go",
+    "internal/ga4/admin.go",
+    "internal/ga4/admin_test.go",
+    "internal/cli/root.go",
+    "internal/cli/health.go",
+    "internal/cli/confirm.go",
+    "internal/cli/admin_write_commands.go",
+    "internal/cli/admin_write_commands_test.go",
+    "internal/cli/agent_context.go",
+    "README.md",
+    "SKILL.md",
+    "AGENTS.md",
+    "CHANGELOG.md",
+    ".printing-press.json"
+  ],
+  "validated_outcome": "go build, go vet, go test (37 tests), govulncheck, go mod tidy, --help and --version all pass. The repo's own .github/scripts/verify-skill/verify_skill.py goes from 6 errors on upstream/main to all checks passing. Destructive-gate behavior smoke-tested against the built binary: delete/archive refuse under --agent alone and proceed only with a typed --yes.",
+  "findings_addressed": ["F1", "F2", "F3", "F4", "F5", "F6", "F7"],
+  "notes": "Three publish-validate failures (manifest schema_version 1 vs required 2, phase5 marker schema_version 0, SKILL.md canonical install-section drift) are pre-existing on upstream/main and reproduce identically on a pristine checkout. They are schema-era artifacts of the original 4.20.1 print and require a reprint, not a patch; the canonical install text is explicitly generator-owned and must not be hand-edited. They were masked on baseline because verify-skill stopped at the shell-var-quotes category this patch fixes."
+}

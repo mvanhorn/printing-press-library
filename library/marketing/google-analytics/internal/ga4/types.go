@@ -4,13 +4,42 @@ package ga4
 
 import "encoding/json"
 
-const AnalyticsReadonlyScope = "https://www.googleapis.com/auth/analytics.readonly"
+const (
+	AnalyticsReadonlyScope = "https://www.googleapis.com/auth/analytics.readonly"
+	AnalyticsEditScope     = "https://www.googleapis.com/auth/analytics.edit"
+)
 
-type ServiceAccountKey struct {
-	ClientEmail string `json:"client_email"`
-	PrivateKey  string `json:"private_key"`
-	TokenURI    string `json:"token_uri"`
-	ProjectID   string `json:"project_id"`
+// Credentials holds either a Google service-account JSON key
+// (client_email + private_key) or an ADC authorized_user payload
+// (client_id + client_secret + refresh_token).
+type Credentials struct {
+	Type         string `json:"type"` // "service_account" | "authorized_user"
+	ClientEmail  string `json:"client_email"`
+	PrivateKey   string `json:"private_key"`
+	TokenURI     string `json:"token_uri"`
+	ProjectID    string `json:"project_id"`
+	ClientID     string `json:"client_id"`
+	ClientSecret string `json:"client_secret"`
+	RefreshToken string `json:"refresh_token"`
+}
+
+// ServiceAccountKey is a compatibility alias for the pre-rename name.
+type ServiceAccountKey = Credentials
+
+// Kind reports the credential shape: "service_account" when a private key is
+// present, "authorized_user" when a refresh token + client id are present, ""
+// otherwise. Type wins when set and recognized.
+func (c Credentials) Kind() string {
+	if c.Type == "service_account" || c.Type == "authorized_user" {
+		return c.Type
+	}
+	if c.PrivateKey != "" {
+		return "service_account"
+	}
+	if c.RefreshToken != "" && c.ClientID != "" {
+		return "authorized_user"
+	}
+	return ""
 }
 
 type DateRange struct {

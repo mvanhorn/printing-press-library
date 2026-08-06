@@ -2,7 +2,7 @@
   "api_name": "google-analytics",
   "cli_name": "google-analytics-pp-cli",
   "category": "marketing",
-  "description": "Agent-first Google Analytics 4 CLI with typed Data/Admin/Funnel API coverage and one-call reports for channels, pages, funnels, anomalies, revenue, and health.",
+  "description": "Agent-first Google Analytics 4 CLI with typed Data/Admin/Funnel API coverage, one-call reports for channels, pages, funnels, anomalies, revenue, and health, plus a gated GA4 Admin write surface for key events, custom dimensions/metrics, and data streams.",
   "spec_format": "openapi3-curated",
   "spec_source": "curated-ga4-data-admin-apis",
   "spec_checksum": "sha256:2dfe6cb7ef79f217ae73793eda907af9aa0f5368f4fa9a41ed16a89e62089da0",
@@ -21,6 +21,7 @@
   ],
   "auth_env_vars": [
     "GOOGLE_APPLICATION_CREDENTIALS",
+    "GOOGLE_ANALYTICS_ADC",
     "GA4_PROPERTY_ID",
     "GA4_PROPERTY_IDS"
   ],
@@ -54,6 +55,36 @@
       "name": "Agent-Context",
       "command": "agent-context",
       "description": "agent-context emits structured tool metadata for agents"
+    },
+    {
+      "name": "Key-Events",
+      "command": "key-events",
+      "description": "key-events lists, creates, patches, and deletes GA4 key events (conversions) through the Admin API"
+    },
+    {
+      "name": "Custom-Dimensions",
+      "command": "custom-dimensions",
+      "description": "custom-dimensions lists, creates, and archives GA4 custom dimensions"
+    },
+    {
+      "name": "Custom-Metrics",
+      "command": "custom-metrics",
+      "description": "custom-metrics lists, creates, and archives GA4 custom metrics"
+    },
+    {
+      "name": "Data-Streams",
+      "command": "data-streams",
+      "description": "data-streams manages the full data stream lifecycle with an updateMask built only from the flags actually passed"
+    },
+    {
+      "name": "Admin",
+      "command": "admin",
+      "description": "admin is a generic Admin API escape hatch over any method/path with --body, --update-mask, and --api v1beta|v1alpha for resources such as accessBindings that exist only in v1alpha"
+    },
+    {
+      "name": "Destructive-Write-Gate",
+      "command": "key-events delete",
+      "description": "destructive writes require --yes to appear on the command line; --agent implies --yes for prompts but deliberately does not authorize destruction"
     }
   ],
   "mcp": false,
@@ -63,8 +94,8 @@
   "printer_name": "Cathryn Lavery",
   "owner": "cathrynlavery",
   "owner_name": "Cathryn Lavery",
-  "auth_type": "service_account_jwt",
+  "auth_type": "service_account_jwt_or_authorized_user",
   "spec_url": "https://developers.google.com/analytics/devguides/reporting/data/v1",
-  "version": "1.1.0",
-  "catalog_description": "Agent-first Google Analytics 4 CLI with typed Data/Admin/Funnel API coverage and one-call reports for channels, pages, funnels, anomalies, revenue, and health."
+  "version": "1.2.0",
+  "catalog_description": "Agent-first Google Analytics 4 CLI with typed Data/Admin/Funnel API coverage, one-call reports for channels, pages, funnels, anomalies, revenue, and health, plus a gated GA4 Admin write surface for key events, custom dimensions/metrics, and data streams."
 }

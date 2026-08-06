@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -25,8 +26,8 @@ type rootFlags struct {
 	propertyID  string
 	credentials string
 	timeout     time.Duration
-	client      *ga4.Client
-	key         ga4.ServiceAccountKey
+	clients     map[string]*ga4.Client
+	key         ga4.Credentials
 }
 
 func RootCmd() *cobra.Command { var f rootFlags; return newRootCmd(&f) }
@@ -37,8 +38,16 @@ func newRootCmd(flags *rootFlags) *cobra.Command {
 
 Raw wrappers: report, pivot, batch, realtime, metadata, compatibility, properties, property, streams.
 Novel commands: health/doctor, channels, sources, top-pages, events, conversions, funnel, compare, whats-changed, revenue, audience, cohort.
+Admin writes: key-events, custom-dimensions, custom-metrics, data-streams, plus the admin escape hatch.
 
-Auth: uses a Google service-account JSON key. Set GOOGLE_APPLICATION_CREDENTIALS, or pass --credentials. Scope: analytics.readonly.
+Auth: accepts either a Google service-account JSON key or an ADC authorized_user JSON
+(client_id + client_secret + refresh_token). Resolution: --credentials, then GOOGLE_ANALYTICS_ADC,
+then GOOGLE_APPLICATION_CREDENTIALS. Reads request analytics.readonly; writes request analytics.edit
+and additionally need Editor or Administrator on the property.
+
+Destructive writes (every delete, and custom-dimension/custom-metric archive) require a typed --yes.
+--agent implies --yes for prompts but deliberately does not authorize destruction on its own.
+
 Property resolution for data commands: --property, then GA4_PROPERTY_ID. The CLI never hard-codes a brand property for reads.`, SilenceUsage: true, Version: version}
 	cmd.SetVersionTemplate("google-analytics-pp-cli {{ .Version }}\n")
 	cmd.PersistentFlags().BoolVar(&flags.asJSON, "json", false, "Output JSON")
@@ -59,19 +68,27 @@ Property resolution for data commands: --property, then GA4_PROPERTY_ID. The CLI
 	cmd.AddCommand(newHealthCmd(flags), newDoctorCmd(flags))
 	cmd.AddCommand(newReportCmd(flags), newPivotCmd(flags), newBatchCmd(flags), newRealtimeCmd(flags), newMetadataCmd(flags), newCompatibilityCmd(flags))
 	cmd.AddCommand(newPropertiesCmd(flags), newPropertyCmd(flags), newStreamsCmd(flags))
+	cmd.AddCommand(newKeyEventsCmd(flags), newCustomDimensionsCmd(flags), newCustomMetricsCmd(flags), newDataStreamsCmd(flags), newAdminCmd(flags))
 	cmd.AddCommand(newChannelsCmd(flags), newSourcesCmd(flags), newTopPagesCmd(flags), newEventsCmd(flags), newConversionsCmd(flags))
 	cmd.AddCommand(newFunnelCmd(flags), newCompareCmd(flags), newWhatsChangedCmd(flags), newRevenueCmd(flags), newAudienceCmd(flags), newCohortCmd(flags))
 	return cmd
 }
 
-func (f *rootFlags) newClient() (*ga4.Client, ga4.ServiceAccountKey, error) {
-	if f.client != nil {
-		return f.client, f.key, nil
+// mint loads credentials and returns a per-scope cached client. Read and write
+// commands in one process therefore keep distinct clients so they never clobber
+// each other. For authorized_user both scope keys resolve to the same token,
+// which is correct: the grant, not the request, decides the scope.
+func (f *rootFlags) mint(scope string) (*ga4.Client, ga4.Credentials, error) {
+	if f.clients == nil {
+		f.clients = map[string]*ga4.Client{}
 	}
-	var key ga4.ServiceAccountKey
+	if c, ok := f.clients[scope]; ok {
+		return c, f.key, nil
+	}
+	var key ga4.Credentials
 	path := credentialPath(f)
 	if path == "" {
-		return nil, key, fmt.Errorf("missing credentials: set GOOGLE_APPLICATION_CREDENTIALS or pass --credentials")
+		return nil, key, fmt.Errorf("missing credentials: set GOOGLE_APPLICATION_CREDENTIALS (or GOOGLE_ANALYTICS_ADC) or pass --credentials")
 	}
 	b, err := os.ReadFile(path)
 	if err != nil {
@@ -80,13 +97,21 @@ func (f *rootFlags) newClient() (*ga4.Client, ga4.ServiceAccountKey, error) {
 	if err := jsonDecode(b, &key); err != nil {
 		return nil, key, err
 	}
-	tok, err := ga4.MintToken(key)
+	tok, err := ga4.MintToken(key, scope)
 	if err != nil {
 		return nil, key, err
 	}
-	f.client = ga4.NewClient(tok, f.timeout)
+	f.clients[scope] = ga4.NewClient(tok, f.timeout)
 	f.key = key
-	return f.client, key, nil
+	return f.clients[scope], key, nil
+}
+
+func (f *rootFlags) newClient() (*ga4.Client, ga4.ServiceAccountKey, error) {
+	c, k, err := f.mint(ga4.AnalyticsReadonlyScope)
+	return c, k, err
+}
+func (f *rootFlags) newWriteClient() (*ga4.Client, ga4.Credentials, error) {
+	return f.mint(ga4.AnalyticsEditScope)
 }
 
 func output(cmd *cobra.Command, f *rootFlags, v any, human string) error {
@@ -115,11 +140,16 @@ func requireProperty(f *rootFlags) (string, error) {
 }
 func cleanProperty(p string) string { return strings.TrimSpace(strings.TrimPrefix(p, "properties/")) }
 func credentialPath(f *rootFlags) string {
+	var p string
 	if f.credentials != "" {
-		return f.credentials
+		p = f.credentials
+	} else if p = os.Getenv("GOOGLE_ANALYTICS_ADC"); p == "" {
+		p = os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
 	}
-	if p := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS"); p != "" {
-		return p
+	if strings.HasPrefix(p, "~/") {
+		if home, err := os.UserHomeDir(); err == nil {
+			p = filepath.Join(home, strings.TrimPrefix(p, "~/"))
+		}
 	}
-	return ""
+	return p
 }

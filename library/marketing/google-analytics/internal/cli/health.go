@@ -23,10 +23,16 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 }
 func runHealth(cmd *cobra.Command, flags *rootFlags, props string) error {
 	cl, key, err := flags.newClient()
-	res := map[string]any{"credential_path": credentialPath(flags), "scope": ga4.AnalyticsReadonlyScope}
+	res := map[string]any{"credential_path": credentialPath(flags), "scope_requested": ga4.AnalyticsReadonlyScope}
+	if kind := key.Kind(); kind != "" {
+		res["credential_kind"] = kind
+	}
 	if key.ClientEmail != "" {
 		res["service_account"] = key.ClientEmail
 		res["project_id"] = key.ProjectID
+	}
+	if kind := key.Kind(); kind == "authorized_user" && key.ClientID != "" {
+		res["client_id"] = key.ClientID
 	}
 	if err != nil {
 		res["ok"] = false

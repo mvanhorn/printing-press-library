@@ -15,11 +15,12 @@ import (
 )
 
 type Client struct {
-	HTTPClient *http.Client
-	Token      string
-	DataBase   string
-	AdminBase  string
-	AlphaBase  string
+	HTTPClient     *http.Client
+	Token          string
+	DataBase       string
+	AdminBase      string
+	AdminAlphaBase string // Admin API v1alpha (accessBindings et al. live only here)
+	AlphaBase      string // Data API alpha (analyticsdata) used by funnel
 }
 
 type APIError struct {
@@ -30,7 +31,7 @@ type APIError struct {
 func (e APIError) Error() string { return fmt.Sprintf("google api status %d: %s", e.Status, e.Body) }
 
 func NewClient(token string, timeout time.Duration) *Client {
-	return &Client{HTTPClient: &http.Client{Timeout: timeout}, Token: token, DataBase: "https://analyticsdata.googleapis.com/v1beta", AdminBase: "https://analyticsadmin.googleapis.com/v1beta", AlphaBase: "https://analyticsdata.googleapis.com/v1alpha"}
+	return &Client{HTTPClient: &http.Client{Timeout: timeout}, Token: token, DataBase: "https://analyticsdata.googleapis.com/v1beta", AdminBase: "https://analyticsadmin.googleapis.com/v1beta", AdminAlphaBase: "https://analyticsadmin.googleapis.com/v1alpha", AlphaBase: "https://analyticsdata.googleapis.com/v1alpha"}
 }
 
 func (c *Client) RunReport(ctx context.Context, property string, req RunReportRequest) (ReportResponse, int, error) {
