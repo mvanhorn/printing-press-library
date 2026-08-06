@@ -195,7 +195,7 @@ Run `spotify-pp-cli doctor` to verify setup.
 Add `--agent` to any command. Expands to: `--json --compact --no-input --no-color --yes`.
 
 - **Pipeable** — JSON on stdout, errors on stderr
-- **Filterable** — `--select` keeps a subset of fields. Dotted paths descend into nested structures; arrays traverse element-wise. Critical for keeping context small on verbose APIs:
+- **Filterable** — `--select` keeps a subset of fields. Dotted paths descend into nested structures; arrays traverse element-wise. Projection also descends through nested object envelopes (an object wrapping a single bounded collection) until it reaches the collection, so fields inside wrapped payloads are reachable without naming the envelope key. Critical for keeping context small on verbose APIs:
 
   ```bash
   spotify-pp-cli audio-analysis mock-value --agent --select id,name,status
@@ -217,6 +217,17 @@ Commands that read from the local store or the API wrap output in a provenance e
 ```
 
 Parse `.results` for data and `.meta.source` to know whether it's live or local. A human-readable `N results (live)` summary is printed to stderr only when stdout is a terminal AND no machine-format flag (`--json`, `--csv`, `--compact`, `--quiet`, `--plain`, `--select`) is set — piped/agent consumers and explicit-format runs get pure JSON on stdout.
+
+Envelope guarantees:
+
+- The envelope is added exactly once, by the printer — never expect `results` to contain a second nested `{meta, results}` wrapper, and `meta.source` always reports the source the data actually came from.
+- Commands that send a real POST/PUT/DELETE report `source: "live"` on every output path.
+- Single-object endpoints (`artists get-an`, `albums get-an`, ...) return the whole resource in `results`, not a nested fragment of it.
+- A multi-type live search that hits a per-type error keeps the types that succeeded and reports the incomplete result set in `meta.reason` — check `meta.reason` before treating a partial search as exhaustive.
+
+### Live search
+
+`search <query>` hits Spotify's live `/search` endpoint, which requires a `type` parameter — the CLI resolves the requested types (all catalog types by default, or the one named with `--type`), sends them explicitly, and aggregates every populated per-type response. Types Spotify serves no live endpoint for (e.g. `me`, `chapters`) are local-only: asking for them with `--data-source live` fails fast with exit 2 and names the working alternatives (`local` or `auto`).
 
 ## Paths and state
 
