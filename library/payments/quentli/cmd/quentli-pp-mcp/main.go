@@ -20,8 +20,15 @@ import (
 // when hosted in a container or remote sandbox, matching the Anthropic
 // guidance that production agents need a remote option.
 
+// defaultHTTPAddr binds loopback only. The HTTP transport serves every tool in
+// this server, and those tools carry the operator's QUENTLI_SECRET_KEY — but the
+// streamable-HTTP transport has no inbound authentication of its own, so a
+// wildcard bind would expose credential-backed payment tooling to anything that
+// can reach the port. Hosted deployments that genuinely need a wider bind must
+// opt in explicitly with --addr (e.g. --addr 0.0.0.0:7777) behind their own
+// authenticating proxy.
 const (
-	defaultHTTPAddr = ":7777"
+	defaultHTTPAddr = "127.0.0.1:7777"
 )
 
 // version is the printed MCP server's version, overridable at build time via ldflags.

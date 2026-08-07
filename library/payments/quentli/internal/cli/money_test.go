@@ -25,6 +25,27 @@ func TestFormatMoneyMinor(t *testing.T) {
 	}
 }
 
+func TestNormalizeCurrency(t *testing.T) {
+	cases := []struct {
+		in   string
+		want string
+	}{
+		{"", "MXN"},
+		{"MXN", "MXN"},
+		{"USD", "USD"},
+	}
+	for _, tc := range cases {
+		if got := normalizeCurrency(tc.in); got != tc.want {
+			t.Fatalf("normalizeCurrency(%q) = %q, want %q", tc.in, got, tc.want)
+		}
+	}
+	// The unspecified and explicit forms must be the same map key, otherwise
+	// aggregations split into two buckets that render under the same label.
+	if normalizeCurrency("") != normalizeCurrency("MXN") {
+		t.Fatal("unspecified and explicit MXN must normalize to the same key")
+	}
+}
+
 func TestAbsVal(t *testing.T) {
 	if got := absVal(-123.5); got != 123.5 {
 		t.Fatalf("absVal(-123.5) = %v, want 123.5", got)

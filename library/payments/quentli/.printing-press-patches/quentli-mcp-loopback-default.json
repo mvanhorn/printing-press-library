@@ -1,0 +1,10 @@
+{
+  "schema_version": 2,
+  "id": "quentli-mcp-loopback-default",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260805-194716-31db2fb2",
+  "base_printing_press_version": "4.30.1",
+  "summary": "Default the MCP streamable-HTTP transport to 127.0.0.1:7777 instead of the generator's wildcard :7777.",
+  "reason": "The generated MCP server exposes every tool in this CLI, and those tools act with the operator's QUENTLI_SECRET_KEY, but the streamable-HTTP transport performs no inbound authentication. A wildcard default bind therefore publishes credential-backed payment, refund, and CFDI tooling to any host that can reach the port. Loopback is the safe default; --addr still allows an explicit wider bind behind an authenticating proxy. The generator emits the wildcard default for every CLI, so the durable fix belongs in the Printing Press template; this patch hardens the shipped binary in the meantime.",
+  "files": ["cmd/quentli-pp-mcp/main.go"]
+}

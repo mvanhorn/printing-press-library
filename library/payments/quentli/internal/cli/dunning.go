@@ -37,6 +37,9 @@ type dunningRow struct {
 
 // dunningGroupKey groups outstanding rows by customer AND currency so that
 // amounts in different currencies are never summed under a single label.
+// currency is always the normalizeCurrency form, so an invoice with no currency
+// and one explicitly in MXN land in the same bucket instead of producing two
+// rows (and two footer lines) that both render as "MXN".
 type dunningGroupKey struct {
 	customer string
 	currency string
@@ -132,10 +135,11 @@ func newNovelDunningCmd(flags *rootFlags) *cobra.Command {
 				if since > 0 && now.Sub(due) > since {
 					continue
 				}
-				key := dunningGroupKey{customer: inv.CustomerID, currency: inv.Currency}
+				cur := normalizeCurrency(inv.Currency)
+				key := dunningGroupKey{customer: inv.CustomerID, currency: cur}
 				tr := group[key]
 				if tr == nil {
-					tr = &dunningRow{Currency: inv.Currency}
+					tr = &dunningRow{Currency: cur}
 					tr.Customer.ID = inv.CustomerID
 					if c, ok := cusMap[inv.CustomerID]; ok {
 						tr.Customer.Name = c.Name
@@ -208,12 +212,9 @@ func newNovelDunningCmd(flags *rootFlags) *cobra.Command {
 			}
 			sort.Strings(currencies)
 			for _, c := range currencies {
-				// Read the total under its ORIGINAL key (incl. the empty unspecified-currency bucket).
-				label := c
-				if label == "" {
-					label = "MXN"
-				}
-				fmt.Fprintf(cmd.OutOrStdout(), "  %s\n", formatMoneyMinor(totByCur[c], label))
+				// Keys are already normalized at grouping time, so each currency
+				// appears exactly once here.
+				fmt.Fprintf(cmd.OutOrStdout(), "  %s\n", formatMoneyMinor(totByCur[c], c))
 			}
 			return nil
 		},
