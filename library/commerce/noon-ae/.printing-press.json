@@ -30,5 +30,5 @@
   "schema_version": 1,
   "spec_checksum": "sha256:39ba57d58282abbe53e1009b7335ec86ca58abdfae435336a99114ab0a640917",
   "spec_format": "openapi3",
-  "spec_path": "noon-ae-openapi.yaml"
+  "spec_path": "spec.yaml"
 }
