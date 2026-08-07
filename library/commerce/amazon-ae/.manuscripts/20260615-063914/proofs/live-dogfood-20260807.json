@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "validated_at": "2026-08-07T16:20:24Z",
+  "status": "pass",
+  "level": "live",
+  "matrix_size": 2,
+  "tests_passed": 2,
+  "tests_failed": 0,
+  "auth_context": {
+    "type": "none"
+  },
+  "tests": [
+    {
+      "command": "products search --k laptop --data-source live --no-cache --timeout 30s --json",
+      "status": "pass",
+      "output_bytes": 1812800,
+      "evidence": "Exit 0; JSON provenance reported source=live and contained Amazon.ae HTML. The client retried three HTTP 503 responses before succeeding."
+    },
+    {
+      "command": "products get B0D58RNGKY --data-source live --no-cache --timeout 30s --json",
+      "status": "pass",
+      "output_bytes": 856370,
+      "evidence": "Exit 0; JSON provenance reported source=live and contained Amazon.ae product HTML."
+    }
+  ]
+}
