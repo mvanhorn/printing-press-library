@@ -10,6 +10,8 @@
   },
   "owner": "hunter-veltri",
   "printer_name": "Hunter Veltri",
+  "handle": "veltri-23",
+  "printer": "veltri-23",
   "spec_path": "./spec.yaml",
   "spec_format": "openapi3",
   "spec_checksum": "sha256:46d9d2e099b7e8f2c5012cc4165d953e8f82e7252a5861b53a6b397d75e41149",
