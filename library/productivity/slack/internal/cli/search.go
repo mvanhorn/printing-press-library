@@ -81,7 +81,20 @@ func newSearchCmd(flags *rootFlags) *cobra.Command {
 	var resourceType string
 	var limit int
 	var dbPath string
-	searchResponsePaths := []string{}
+	// PATCH(amend-2026-08-07: unwrap the live search envelope) — the generator left
+	// this empty, so extractSearchResults fell through every generic wrapper key
+	// ("data", "results", "items", …) and returned the whole response as a single
+	// item. A query with N hits therefore yielded one result: the envelope itself,
+	// rendered as a row with no text, ts or permalink, while the N real matches
+	// stayed buried in it.
+	//
+	// search.messages answers
+	// {"ok":true,"messages":{"total":N,"matches":[…],"paging":{…}}}, and
+	// responsePayloadAtPath resolves the dotted path, so naming it here is the whole
+	// fix — no hand-rolled envelope struct needed. isNilOrEmpty needs no change on
+	// this tree: its hasAnyNonEmptySearchValue recurse already keeps a match on
+	// text/ts/permalink.
+	searchResponsePaths := []string{"messages.matches"}
 
 	cmd := &cobra.Command{
 		Use:   "search <query>",
@@ -118,6 +131,13 @@ In local mode: searches locally synced data only.`,
 					"query": query,
 				})
 				if getErr == nil {
+					// PATCH(amend-2026-08-07: surface ok:false in live search) — a
+					// rejected query (bad token, missing search scope) comes back as
+					// HTTP 200 with {"ok":false}, so getErr is nil and the envelope
+					// would be rendered as a result row. Fail instead.
+					if slackErr := checkSlackAPIError(data); slackErr != nil {
+						return slackErr
+					}
 					// Live search succeeded
 					results := extractSearchResults(data, searchResponsePaths...)
 					prov := DataProvenance{Source: "live"}

@@ -52,6 +52,13 @@ func newMessagesListScheduledCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
+			// PATCH(amend-2026-08-07: surface ok:false on write paths) — Slack reports
+			// application failure as HTTP 200 with {"ok":false}, which the transport
+			// error above never sees and detectPartialFailure below does not recognise.
+			// Without this the error envelope is printed as a successful result, exit 0.
+			if slackErr := checkSlackAPIError(data); slackErr != nil {
+				return slackErr
+			}
 			// Inspect the mutate response body for a partial-failure-shaped
 			// field (e.g. Google Ads `partialFailureError`). Several Google
 			// APIs return 200 OK with a partial-failure field when some

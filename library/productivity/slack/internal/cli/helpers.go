@@ -120,6 +120,43 @@ func rateLimitErr(err error) error { return &cliError{code: 7, err: err} }
 // accepted but some ops failed".
 func partialFailureErr(err error) error { return &cliError{code: 6, err: err} }
 
+// PATCH(amend-2026-08-07: surface ok:false on write paths) — checkSlackAPIError
+// inspects a 2xx response for Slack's {"ok":false,"error":"..."} pattern and
+// returns a user-facing error when found. Returns nil when the response is ok.
+//
+// Slack signals application failure with HTTP 200 plus an ok:false envelope, so
+// transport-level error handling never sees it. The generated commands run
+// detectPartialFailure, which looks for the Google-Ads-shaped
+// `partialFailureError` field and does not recognise this shape. Without this
+// check, a write to a nonexistent channel prints the error envelope as though it
+// were a successful result and exits 0.
+//
+// The sync loop has its own guard (see patch slack-ok-false-detection); this is
+// the command path, which that patch does not cover.
+//
+// Errors are wrapped with apiErr so the exit code matches the documented table
+// (5 = API error). Returned bare they fall through ExitCode's generic 1: read
+// paths happen to get 5 anyway because they funnel back through
+// classifyAPIError, whose default branch wraps with apiErr, but write paths
+// return directly. Wrapping here fixes every caller without touching call sites.
+func checkSlackAPIError(data json.RawMessage) error {
+	var resp struct {
+		OK     bool   `json:"ok"`
+		Error  string `json:"error"`
+		Needed string `json:"needed"`
+	}
+	if json.Unmarshal(data, &resp) != nil {
+		return nil
+	}
+	if resp.OK || resp.Error == "" {
+		return nil
+	}
+	if resp.Error == "missing_scope" && resp.Needed != "" {
+		return apiErr(fmt.Errorf("missing Slack scope: %s\nAdd it in your app's OAuth & Permissions settings at https://api.slack.com/apps and reinstall", resp.Needed))
+	}
+	return apiErr(fmt.Errorf("Slack API error: %s", resp.Error))
+}
+
 // partialFailureReport describes the structured detection result for a
 // mutate-style response body. Emitted in the envelope under
 // "partial_failure" so machine-readable callers can route per-operation

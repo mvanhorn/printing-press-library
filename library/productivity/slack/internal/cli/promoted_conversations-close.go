@@ -42,6 +42,13 @@ func newConversationsClosePromotedCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
+			// PATCH(amend-2026-08-07: surface ok:false on write paths) — Slack reports
+			// application failure as HTTP 200 with {"ok":false}, which the transport
+			// error above never sees and detectPartialFailure below does not recognise.
+			// Without this the error envelope is printed as a successful result, exit 0.
+			if slackErr := checkSlackAPIError(data); slackErr != nil {
+				return slackErr
+			}
 			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
 			var partialFailure *partialFailureReport
 			if !flags.dryRun && statusCode >= 200 && statusCode < 300 {

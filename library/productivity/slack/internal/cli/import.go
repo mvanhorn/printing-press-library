@@ -82,7 +82,7 @@ but do not stop the import.`,
 					continue
 				}
 
-				_, status, err := c.Post(cmd.Context(), path, body)
+				data, status, err := c.Post(cmd.Context(), path, body)
 				if err != nil {
 					failed++
 					if status == 401 || status == 403 {
@@ -90,6 +90,17 @@ but do not stop the import.`,
 						continue
 					}
 					fmt.Fprintf(os.Stderr, "warning: failed to import record: %v\n", err)
+					continue
+				}
+				// PATCH(amend-2026-08-07: count ok:false records as failures) — the
+				// response body was discarded, so a record Slack rejected with HTTP 200
+				// and {"ok":false} was counted as a success. The exit-code plumbing
+				// below already moves with `failed`, so detection was the only missing
+				// half: an import where Slack rejected every record reported
+				// "N succeeded, 0 failed" and exited 0.
+				if slackErr := checkSlackAPIError(data); slackErr != nil {
+					failed++
+					fmt.Fprintf(os.Stderr, "warning: failed to import record: %v\n", slackErr)
 					continue
 				}
 				success++
