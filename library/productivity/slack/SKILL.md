@@ -128,6 +128,21 @@ These capabilities aren't available in any other tool for this API.
 
 - `slack-pp-cli bots` — Get information about a bot user
 
+**canvases** — Create, edit, share, and delete Slack canvases
+
+- `slack-pp-cli canvases create` — Create a canvas, standalone or bound to a channel
+- `slack-pp-cli canvases read` — Read a canvas's content
+- `slack-pp-cli canvases edit` — Apply a change to an existing canvas
+- `slack-pp-cli canvases delete` — Delete a canvas
+- `slack-pp-cli canvases access-set` — Grant users or channels access to a canvas
+- `slack-pp-cli canvases sections` — Look up section IDs in a canvas, for targeted edits
+
+Needs `canvases:write` + `canvases:read`, and `files:read` for `read`. `read` returns
+**HTML, not Markdown** (Slack has no get-canvas-content endpoint, so it downloads the
+backing file) — so create/read is not a lossless round trip. To target an edit, read
+the canvas and take the section id from the HTML; `sections` returns ids without the
+content they cover.
+
 **chat-delete-scheduled-message** — Manage chat delete scheduled message
 
 - `slack-pp-cli chat-delete-scheduled-message` — Deletes a pending scheduled message from the queue.
@@ -200,7 +215,10 @@ These capabilities aren't available in any other tool for this API.
 - `slack-pp-cli files delete` — Delete a file
 - `slack-pp-cli files get` — Get information about a file
 - `slack-pp-cli files list` — List files in the workspace
-- `slack-pp-cli files upload` — Upload a file to Slack
+- `slack-pp-cli files upload` — Upload a file to Slack. `--file <path>`, or
+  `--content` with `--filename` for inline text; `--channel` shares it, `--thread-ts`
+  puts it in a thread. Runs the external upload flow (the old `files.upload` is
+  retired). `--channels` takes one channel only.
 
 **files-comments-delete** — Manage files comments delete
 

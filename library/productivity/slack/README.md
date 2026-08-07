@@ -322,6 +322,28 @@ Get information about bot users
 
 - **`slack-pp-cli bots`** - Get information about a bot user
 
+### canvases
+
+Create, edit, share, and delete Slack canvases
+
+- **`slack-pp-cli canvases create`** - Create a canvas, standalone or bound to a channel
+- **`slack-pp-cli canvases read`** - Read a canvas's content
+- **`slack-pp-cli canvases edit`** - Apply a change to an existing canvas
+- **`slack-pp-cli canvases delete`** - Delete a canvas
+- **`slack-pp-cli canvases access-set`** - Grant users or channels access to a canvas
+- **`slack-pp-cli canvases sections`** - Look up section IDs in a canvas, for targeted edits
+
+Requires the `canvases:write` and `canvases:read` scopes, plus `files:read` for
+`canvases read`.
+
+Slack publishes no get-canvas-content endpoint, so `read` resolves the canvas's
+backing file through `files.info` and downloads `url_private_download`. Content
+therefore comes back as **HTML, not the Markdown it was created from** — create and
+read are not a lossless round trip. `--format text` is a deliberately crude tag
+strip for grepping, not a converter. The HTML does carry section ids inline, which
+makes `read` more useful than `sections` for targeting an edit: `sections` returns
+ids with no content.
+
 ### chat-delete-scheduled-message
 
 Manage chat delete scheduled message
@@ -422,7 +444,15 @@ Upload, list, and manage files
 - **`slack-pp-cli files delete`** - Delete a file
 - **`slack-pp-cli files get`** - Get information about a file
 - **`slack-pp-cli files list`** - List files in the workspace
-- **`slack-pp-cli files upload`** - Upload a file to Slack
+- **`slack-pp-cli files upload`** - Upload a file to Slack (`--file` a path, or
+  `--content` + `--filename` for inline text; `--channel` to share it)
+
+Uploads run Slack's three-step external flow (`files.getUploadURLExternal` → raw
+bytes → `files.completeUploadExternal`); the old `files.upload` endpoint is retired
+and answers `method_deprecated`. The bytes stream, so a large file does not have to
+fit in memory. `--channels` is accepted as a deprecated alias for a single channel —
+the flow shares into one conversation per call, so a multi-channel list is rejected
+rather than silently truncated.
 
 ### files-comments-delete
 
