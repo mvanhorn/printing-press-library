@@ -8,65 +8,170 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
+	"strings"
 
+	"github.com/mvanhorn/printing-press-library/library/productivity/slack/internal/client"
 	"github.com/spf13/cobra"
 )
 
+// PATCH(amend-2026-08-07: migrate to external upload flow) — Slack retired
+// files.upload; it answers method_deprecated regardless of the request body. The
+// replacement is a three-step flow, implemented in client.UploadExternal so the
+// MCP server's files_upload tool runs the same code rather than its own:
+//
+//  1. files.getUploadURLExternal?filename=&length=  -> {upload_url, file_id}
+//  2. POST the raw bytes to upload_url (no Slack credential on this request —
+//     the URL carries its own one-time token, and sending the workspace token to
+//     a non-slack.com host would leak it)
+//  3. files.completeUploadExternal with files=[{id,title}] to register the file
+//     and optionally share it into a conversation.
+//
+// The generated command posted a JSON body to /files.upload and had no --file
+// flag at all, so it could only ever have sent inline --content — to an endpoint
+// that rejects everything. --stdin is dropped rather than carried over: it fed a
+// free-form JSON body to the retired endpoint, and the external flow has no
+// equivalent (the bytes are a stream, not a body field).
+//
+// Everything below the upload itself — partial-failure detection, the store
+// write, the envelope, the verify sentinel — is the generated scaffolding,
+// unchanged, so a future reprint diffs cleanly against it.
 func newFilesUploadCmd(flags *rootFlags) *cobra.Command {
 	var bodyChannels string
+	var bodyChannel string
 	var bodyContent string
+	var bodyFile string
 	var bodyFilename string
 	var bodyTitle string
 	var bodyInitialComment string
-	var stdinBody bool
+	var bodyThreadTS string
 
 	cmd := &cobra.Command{
-		Use:         "upload",
-		Short:       "Upload a file to Slack",
-		Example:     "  slack-pp-cli files upload",
-		Annotations: map[string]string{"pp:endpoint": "files.upload", "pp:method": "POST", "pp:path": "/files.upload"},
+		Use:   "upload",
+		Short: "Upload a file to Slack",
+		Long: "Upload a file to Slack using the external upload flow.\n\n" +
+			"Provide either --file (a local path) or --content (inline text). The file is\n" +
+			"registered with Slack and, if --channel is given, shared into that conversation.",
+		Example: "  slack-pp-cli files upload --file ./report.pdf --channel C0123456789 --title \"Q3 report\"\n" +
+			"  slack-pp-cli files upload --content \"hello\" --filename note.txt --channel C0123456789",
+		Annotations: map[string]string{"pp:endpoint": "files.completeUploadExternal", "pp:method": "POST", "pp:path": "/files.completeUploadExternal"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if !stdinBody {
+			path := "/files.completeUploadExternal"
+
+			// Resolve the source and its name before touching the network, so bad
+			// input fails without burning an upload URL.
+			//
+			// The size comes from the open descriptor rather than a read, and the
+			// bytes are streamed in step 2, so a large upload does not have to fit in
+			// memory. Sizing the path with os.Stat and opening it later would leave a
+			// window in which the file could be appended to, truncated, rotated or
+			// replaced, so the length reserved in step 1 would not match the bytes
+			// streamed in step 2. One handle, one snapshot.
+			var (
+				filename string
+				size     int64
+				src      io.ReadCloser
+			)
+			switch {
+			case bodyFile != "" && bodyContent != "":
+				return usageErr(fmt.Errorf("--file and --content are mutually exclusive"))
+			case bodyFile != "":
+				f, err := os.Open(bodyFile)
+				if err != nil {
+					return fmt.Errorf("reading --file: %w", err)
+				}
+				info, err := f.Stat()
+				if err != nil {
+					_ = f.Close()
+					return fmt.Errorf("reading --file: %w", err)
+				}
+				if info.IsDir() {
+					_ = f.Close()
+					return usageErr(fmt.Errorf("--file %q is a directory", bodyFile))
+				}
+				size = info.Size()
+				src = f
+				filename = bodyFilename
+				if filename == "" {
+					filename = filepath.Base(bodyFile)
+				}
+			case bodyContent != "":
+				size = int64(len(bodyContent))
+				src = io.NopCloser(strings.NewReader(bodyContent))
+				filename = bodyFilename
+				if filename == "" {
+					return usageErr(fmt.Errorf("--filename is required when using --content"))
+				}
+			default:
+				return usageErr(fmt.Errorf("one of --file or --content is required"))
 			}
-			path := "/files.upload"
+			defer func() { _ = src.Close() }()
+
+			if size == 0 {
+				return usageErr(fmt.Errorf("refusing to upload an empty file"))
+			}
+
+			// completeUploadExternal shares into a single conversation. The retired
+			// files.upload took a comma-separated --channels list, so accept it for
+			// compatibility but reject the multi-channel case rather than silently
+			// dropping the extras.
+			channel := bodyChannel
+			if bodyChannels != "" {
+				parts := strings.Split(bodyChannels, ",")
+				if len(parts) > 1 {
+					return usageErr(fmt.Errorf("--channels lists %d channels; the external upload flow shares into one conversation per call. Use --channel, then share the returned file id separately", len(parts)))
+				}
+				if channel == "" {
+					channel = strings.TrimSpace(parts[0])
+				}
+			}
+
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-			params := map[string]string{}
-			var body any
-			if stdinBody {
-				stdinData, err := io.ReadAll(os.Stdin)
+
+			// Three requests across two hosts, so this needs its own dry-run branch:
+			// the synthetic dry-run envelope from step 1 carries no upload_url, which
+			// would make --dry-run report a failure for a request that would have
+			// succeeded.
+			if c.DryRun {
+				// --quiet means no stdout, and that applies to the plan as much as to a
+				// real response. Checked here because this branch returns before
+				// reaching any later output guard.
+				if flags.quiet {
+					return nil
+				}
+				plan := map[string]any{
+					"dry_run": true,
+					"steps": []map[string]any{
+						{"step": 1, "method": "GET", "path": "/files.getUploadURLExternal", "filename": filename, "length": size},
+						{"step": 2, "method": "POST", "path": "<upload_url from step 1>", "bytes": size, "authenticated": false},
+						{"step": 3, "method": "POST", "path": path, "channel_id": channel, "title": bodyTitle, "thread_ts": bodyThreadTS},
+					},
+				}
+				planJSON, err := json.Marshal(plan)
 				if err != nil {
-					return fmt.Errorf("reading stdin: %w", err)
+					return err
 				}
-				var jsonBody map[string]any
-				if err := json.Unmarshal(stdinData, &jsonBody); err != nil {
-					return fmt.Errorf("parsing stdin JSON: %w", err)
-				}
-				body = jsonBody
-			} else {
-				bodyMap := map[string]any{}
-				body = bodyMap
-				if bodyChannels != "" {
-					bodyMap["channels"] = bodyChannels
-				}
-				if bodyContent != "" {
-					bodyMap["content"] = bodyContent
-				}
-				if bodyFilename != "" {
-					bodyMap["filename"] = bodyFilename
-				}
-				if bodyTitle != "" {
-					bodyMap["title"] = bodyTitle
-				}
-				if bodyInitialComment != "" {
-					bodyMap["initial_comment"] = bodyInitialComment
-				}
+				return printOutput(cmd.OutOrStdout(), json.RawMessage(planJSON), true)
 			}
-			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
+
+			res, err := c.UploadExternal(cmd.Context(), client.ExternalUpload{
+				Filename:       filename,
+				Size:           size,
+				Reader:         src,
+				ChannelID:      channel,
+				Title:          bodyTitle,
+				InitialComment: bodyInitialComment,
+				ThreadTS:       bodyThreadTS,
+			})
 			if err != nil {
 				return classifyAPIError(err, flags)
+			}
+			data, statusCode := res.Response, res.StatusCode
+			if slackErr := checkSlackAPIError(data); slackErr != nil {
+				return slackErr
 			}
 			// Inspect the mutate response body for a partial-failure-shaped
 			// field (e.g. Google Ads `partialFailureError`). Several Google
@@ -130,6 +235,10 @@ func newFilesUploadCmd(flags *rootFlags) *cobra.Command {
 					"path":     path,
 					"status":   statusCode,
 					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
+					// Step 1's file id. completeUploadExternal's response does not
+					// always echo it, and it is what a caller needs to share or
+					// delete the file later.
+					"file_id": res.FileID,
 				}
 				if flags.agent {
 					envelope["meta"] = map[string]any{"source": "live"}
@@ -207,12 +316,14 @@ func newFilesUploadCmd(flags *rootFlags) *cobra.Command {
 			return nil
 		},
 	}
-	cmd.Flags().StringVar(&bodyChannels, "channels", "", "Comma-separated channel IDs to share the file with")
-	cmd.Flags().StringVar(&bodyContent, "content", "", "File content (for text-based files)")
-	cmd.Flags().StringVar(&bodyFilename, "filename", "", "Filename")
+	cmd.Flags().StringVar(&bodyFile, "file", "", "Path to a local file to upload")
+	cmd.Flags().StringVar(&bodyChannel, "channel", "", "Channel or DM ID to share the file into")
+	cmd.Flags().StringVar(&bodyChannels, "channels", "", "Deprecated alias for --channel; one channel only")
+	cmd.Flags().StringVar(&bodyContent, "content", "", "File content (for text-based files); requires --filename")
+	cmd.Flags().StringVar(&bodyFilename, "filename", "", "Filename (defaults to the base name of --file)")
 	cmd.Flags().StringVar(&bodyTitle, "title", "", "Title of the file")
 	cmd.Flags().StringVar(&bodyInitialComment, "initial-comment", "", "Initial comment for the file")
-	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
+	cmd.Flags().StringVar(&bodyThreadTS, "thread-ts", "", "Thread timestamp to share the file into a thread")
 
 	return cmd
 }

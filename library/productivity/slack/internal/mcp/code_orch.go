@@ -18,12 +18,16 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	neturl "net/url"
+	"os"
+	"path/filepath"
 	"sort"
 	"strings"
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
+	"github.com/mvanhorn/printing-press-library/library/productivity/slack/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/productivity/slack/internal/mcp/bound"
 )
 
@@ -444,14 +448,20 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		keywords:       codeOrchKeywords("files", "list", "List files in the workspace", "/files.list"),
 	},
 	{
+		// PATCH(amend-2026-08-07: migrate to external upload flow) — the ID stays
+		// files.upload because that is what agents discover and execute, but the
+		// path and summary describe what actually runs: handleCodeOrchExecute
+		// intercepts this ID and calls client.UploadExternal. Advertising
+		// /files.upload here would name a retired endpoint that answers
+		// method_deprecated.
 		ID:             "files.upload",
 		Method:         "POST",
-		Path:           "/files.upload",
-		Summary:        "Upload a file to Slack",
+		Path:           "/files.completeUploadExternal",
+		Summary:        "Upload a file to Slack. Params: one of file (a path on the host running this server) or content (inline text, with filename); optional channel, title, initial_comment, thread_ts.",
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
 		QueryParams:    []codeOrchParamBinding{},
-		keywords:       codeOrchKeywords("files", "upload", "Upload a file to Slack", "/files.upload"),
+		keywords:       codeOrchKeywords("files", "upload", "Upload a file to Slack", "/files.upload /files.getUploadURLExternal /files.completeUploadExternal"),
 	},
 	{
 		ID:             "files-comments-delete.files_comments_delete",
@@ -1126,6 +1136,18 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 		return mcplib.NewToolResultError(err.Error()), nil
 	}
 
+	// PATCH(amend-2026-08-07: migrate to external upload flow) — files.upload is
+	// retired and answers method_deprecated for every request, so an agent that
+	// discovers this endpoint through slack_search and executes it always fails.
+	// The generic dispatcher below cannot express the replacement: it issues one
+	// request with a JSON body, while the external flow reserves a URL, posts raw
+	// bytes to a different host without the workspace credential, then registers
+	// the file. Intercept here and run the shared client.UploadExternal so the MCP
+	// surface uploads by the same code path as `slack-pp-cli files upload`.
+	if ep.ID == "files.upload" {
+		return codeOrchUploadExternal(ctx, c, params)
+	}
+
 	path := ep.Path
 	for _, p := range ep.Positional {
 		if v, ok := params[p]; ok {
@@ -1268,4 +1290,78 @@ func codeOrchWireQueryName(queryParams []codeOrchParamBinding, name string) stri
 		}
 	}
 	return name
+}
+
+// PATCH(amend-2026-08-07: migrate to external upload flow) — codeOrchUploadExternal
+// runs Slack's three-step external upload on behalf of the retired files.upload
+// endpoint id.
+//
+// Params mirror the CLI's flags: one of `file` (a path readable by the server) or
+// `content` (inline text, which then requires `filename`), plus the optional
+// `channel`, `title`, `initial_comment` and `thread_ts`. Validation happens here
+// rather than being left to Slack, because the generic dispatcher would otherwise
+// surface a bare invalid_arguments for a request the agent can still fix.
+func codeOrchUploadExternal(ctx context.Context, c *client.Client, params map[string]any) (*mcplib.CallToolResult, error) {
+	str := func(k string) string {
+		v, ok := params[k]
+		if !ok || v == nil {
+			return ""
+		}
+		return formatMCPParamValue(v)
+	}
+	filePath, content, filename := str("file"), str("content"), str("filename")
+
+	var (
+		size int64
+		src  io.ReadCloser
+	)
+	switch {
+	case filePath != "" && content != "":
+		return mcplib.NewToolResultError("file and content are mutually exclusive"), nil
+	case filePath != "":
+		f, err := os.Open(filePath)
+		if err != nil {
+			return mcplib.NewToolResultError(fmt.Sprintf("reading file: %v", err)), nil
+		}
+		info, err := f.Stat()
+		if err != nil {
+			_ = f.Close()
+			return mcplib.NewToolResultError(fmt.Sprintf("reading file: %v", err)), nil
+		}
+		if info.IsDir() {
+			_ = f.Close()
+			return mcplib.NewToolResultError(fmt.Sprintf("file %q is a directory", filePath)), nil
+		}
+		size, src = info.Size(), f
+		if filename == "" {
+			filename = filepath.Base(filePath)
+		}
+	case content != "":
+		if filename == "" {
+			return mcplib.NewToolResultError("filename is required when uploading inline content"), nil
+		}
+		size = int64(len(content))
+		src = io.NopCloser(strings.NewReader(content))
+	default:
+		return mcplib.NewToolResultError("one of file or content is required"), nil
+	}
+	defer func() { _ = src.Close() }()
+
+	if size == 0 {
+		return mcplib.NewToolResultError("refusing to upload an empty file"), nil
+	}
+
+	res, err := c.UploadExternal(ctx, client.ExternalUpload{
+		Filename:       filename,
+		Size:           size,
+		Reader:         src,
+		ChannelID:      str("channel"),
+		Title:          str("title"),
+		InitialComment: str("initial_comment"),
+		ThreadTS:       str("thread_ts"),
+	})
+	if err != nil {
+		return mcplib.NewToolResultError(err.Error()), nil
+	}
+	return mcplib.NewToolResultText(bound.EndpointResponse("POST", res.Response)), nil
 }
