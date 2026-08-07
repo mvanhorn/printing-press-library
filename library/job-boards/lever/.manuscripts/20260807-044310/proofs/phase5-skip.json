@@ -1,0 +1,19 @@
+{
+  "run_id": "20260807-044310",
+  "generated_at": "2026-08-07T06:06:00Z",
+  "level": "quick",
+  "tests_skipped": 10,
+  "skips": [
+    {"test": "doctor error_path", "reason": "no positional argument"},
+    {"test": "feedback list error_path", "reason": "no positional argument"},
+    {"test": "learnings candidates error_path", "reason": "no positional argument"},
+    {"test": "playbook amend error_path", "reason": "no positional argument"},
+    {"test": "postings get happy_path", "reason": "command path [postings get] has fewer segments than placeholders (2)"},
+    {"test": "postings get json_fidelity", "reason": "command path [postings get] has fewer segments than placeholders (2)"},
+    {"test": "profile delete happy_path", "reason": "non-id positional \"name\" at depth 0"},
+    {"test": "profile delete json_fidelity", "reason": "non-id positional \"name\" at depth 0"},
+    {"test": "profile delete error_path", "reason": "mutating command; error_path would call live API without --dry-run"},
+    {"test": "profile delete error_path_real", "reason": "non-id positional \"name\" at depth 0"}
+  ],
+  "notes": "All skips are matrix-classifier limits (no-positional commands, multi-placeholder paths, mutating commands), not defects. The multi-placeholder postings paths are covered by smoke-test.json live proofs."
+}
