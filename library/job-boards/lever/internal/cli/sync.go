@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 
@@ -26,6 +27,9 @@ func newSyncCmd(flags *rootFlags) *cobra.Command {
 		Args:         cobra.ExactArgs(1),
 		SilenceUsage: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if dryRunOK(flags) {
+				return nil
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -83,6 +87,21 @@ func newSyncCmd(flags *rootFlags) *cobra.Command {
 			// verification both succeeded, using the persisted count.
 			if err := db.SaveSyncState(scoped, "", stored); err != nil {
 				return fmt.Errorf("sync postings: record sync state: %w", err)
+			}
+			if flags != nil && flags.asJSON {
+				data, err := wrapAgentOutput(json.RawMessage("null"), map[string]any{
+					"source":        "live",
+					"resource_type": "postings",
+					"company":       company,
+					"stored":        stored,
+					"skipped":       skipped,
+					"synced_at":     time.Now().UTC().Format(time.RFC3339),
+				})
+				if err != nil {
+					return err
+				}
+				fmt.Fprintln(cmd.OutOrStdout(), string(data))
+				return nil
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "Synced %d records for company %q\n", stored, company)
 			return nil

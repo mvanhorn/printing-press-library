@@ -102,7 +102,7 @@ If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), i
 
 
 ```bash
-go install github.com/mvanhorn/printing-press-library/library/other/lever/cmd/lever-pp-mcp@latest
+go install github.com/mvanhorn/printing-press-library/library/job-boards/lever/cmd/lever-pp-mcp@latest
 ```
 
 Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):

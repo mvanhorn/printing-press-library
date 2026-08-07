@@ -1,6 +1,6 @@
 {
-  "dir": "D:/AI/workspaces/lever-pp-cli",
-  "spec_path": "D:\\AI\\workspaces\\lever-pp-cli\\spec.yaml",
+  "dir": "<cli-dir>\\lever-pp-cli",
+  "spec_path": "<cli-dir>\\spec.yaml",
   "spec_source": "bundled",
   "verdict": "PASS",
   "path_check": {

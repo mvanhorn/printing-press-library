@@ -13,7 +13,7 @@ metadata:
     install:
       - kind: go
         bins: [lever-pp-cli]
-        module: github.com/mvanhorn/printing-press-library/library/other/lever/cmd/lever-pp-cli
+        module: github.com/mvanhorn/printing-press-library/library/job-boards/lever/cmd/lever-pp-cli
 ---
 
 # Lever — Printing Press CLI
@@ -384,7 +384,7 @@ Parse `$ARGUMENTS`:
 
 1. Install the MCP server:
    ```bash
-   go install github.com/mvanhorn/printing-press-library/library/other/lever/cmd/lever-pp-mcp@latest
+   go install github.com/mvanhorn/printing-press-library/library/job-boards/lever/cmd/lever-pp-mcp@latest
    ```
 2. Register with Claude Code:
    ```bash
