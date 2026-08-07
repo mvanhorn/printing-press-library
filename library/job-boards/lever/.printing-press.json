@@ -6,6 +6,7 @@
   "display_name": "Lever Postings",
   "cli_name": "lever-pp-cli",
   "creator": {
+    "handle": "veltri-23",
     "name": "Hunter Veltri"
   },
   "owner": "hunter-veltri",
@@ -28,7 +29,7 @@
     {
       "name": "Generic company",
       "command": "postings list <company>",
-      "description": "Single CLI serves any company that publishes through Lever (leverdemo, palantir, etc.) — company is a positional argument, not a hardcoded prefix."
+      "description": "Single CLI serves any company that publishes through Lever (leverdemo, palantir, etc.) \u2014 company is a positional argument, not a hardcoded prefix."
     },
     {
       "name": "Company-scoped offline sync",
