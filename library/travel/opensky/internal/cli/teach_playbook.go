@@ -179,6 +179,7 @@ func newPlaybookAmendCmd(flags *rootFlags, learnCfg *entities.Config) *cobra.Com
 	var query string
 	var queryFile string
 	var addNote string
+	var addNoteFile string
 	var dbPath string
 
 	cmd := &cobra.Command{
@@ -219,6 +220,12 @@ Disabling: pass --no-learn or set ` + noLearnEnvVar + `=true.`,
 			if !ok || strings.TrimSpace(query) == "" {
 				writeTeachErrLog(fmt.Sprintf("playbook amend: missing --query (args=%v)", args))
 				return silentCodeErr(2)
+			}
+			if strings.TrimSpace(addNote) == "" && strings.TrimSpace(addNoteFile) != "" {
+				b, err := os.ReadFile(addNoteFile)
+				if err == nil {
+					addNote = strings.TrimSpace(string(b))
+				}
 			}
 			if strings.TrimSpace(addNote) == "" {
 				writeTeachErrLog(fmt.Sprintf("playbook amend: missing --add-note for query=%q", query))
@@ -283,6 +290,7 @@ Disabling: pass --no-learn or set ` + noLearnEnvVar + `=true.`,
 	cmd.Flags().StringVar(&query, "query", "", "The exact recall query whose family should be amended (required)")
 	cmd.Flags().StringVar(&queryFile, "query-file", "", "Path to a file containing the query (opaque-data channel for agents; read verbatim, never shell-interpreted)")
 	cmd.Flags().StringVar(&addNote, "add-note", "", "The note text to append to the family's playbook (required)")
+	cmd.Flags().StringVar(&addNoteFile, "add-note-file", "", "Path to a file containing the note text (opaque-data channel for agents; read verbatim, never shell-interpreted)")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: standard cache location)")
 	return cmd
 }

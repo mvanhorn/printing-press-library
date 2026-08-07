@@ -309,11 +309,11 @@ If your debug-protocol response identifies a concrete correction the notes or pl
 ```bash
 opensky-pp-cli playbook amend \
   --query-file "$tmpfile" \
-  --add-note "<your concrete correction>"
+  --add-note-file "$tmpnote"
 # (append shell `&` to background it)
 ```
 
-The query rides `--query-file` (temp file written by your file tool, opaque bytes, never the command line) — same rule as recall/teach.
+Both the query and the correction note ride file flags (temp files written by your file tool, opaque bytes, never the command line) — same rule as recall/teach.
 
 What counts as worth amending: a behavior you OBSERVED this session that future-you would benefit from knowing. Examples worth amending:
 
