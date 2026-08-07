@@ -17,9 +17,9 @@ import (
 	"testing"
 	"time"
 
-	"opensky-pp-cli/internal/cli"
-	"opensky-pp-cli/internal/cliutil"
-	"opensky-pp-cli/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/learn"
 )
 
 // withJournalHome isolates a test in a temp HOME with every journal

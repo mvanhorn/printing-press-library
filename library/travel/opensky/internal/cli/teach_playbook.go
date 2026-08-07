@@ -20,9 +20,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"opensky-pp-cli/internal/learn"
-	"opensky-pp-cli/internal/learn/entities"
-	"opensky-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/store"
 )
 
 // newTeachPlaybookCmd builds the standalone command for recording a

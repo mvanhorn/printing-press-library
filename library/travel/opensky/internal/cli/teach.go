@@ -27,12 +27,12 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"opensky-pp-cli/internal/cliutil"
-	"opensky-pp-cli/internal/learn"
-	"opensky-pp-cli/internal/learn/entities"
-	"opensky-pp-cli/internal/learn/lookups"
-	"opensky-pp-cli/internal/learn/patterns"
-	"opensky-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/learn/lookups"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/learn/patterns"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/store"
 )
 
 // noLearnEnvVar is the environment variable that disables the learning

@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/pelletier/go-toml/v2"
-	"opensky-pp-cli/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/cliutil"
 )
 
 type Config struct {

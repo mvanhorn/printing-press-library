@@ -14,10 +14,10 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"opensky-pp-cli/internal/client"
-	"opensky-pp-cli/internal/cliutil"
-	"opensky-pp-cli/internal/config"
-	"opensky-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/store"
 )
 
 // looksLikeDoctorInterstitial reports whether the response body matches a known

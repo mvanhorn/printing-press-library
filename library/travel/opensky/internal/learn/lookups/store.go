@@ -12,7 +12,7 @@ import (
 	"strings"
 	"unicode"
 
-	"opensky-pp-cli/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/cliutil"
 )
 
 // LookupRow is the canonical seed-row shape used by both the seeds

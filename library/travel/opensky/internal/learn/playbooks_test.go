@@ -12,7 +12,7 @@ import (
 
 	_ "modernc.org/sqlite"
 
-	"opensky-pp-cli/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/learn/entities"
 )
 
 // stubResolver is a test-only EntityResolver backed by an in-memory

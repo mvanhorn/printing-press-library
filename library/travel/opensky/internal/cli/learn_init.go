@@ -23,8 +23,8 @@ import (
 	"os"
 	"sync"
 
-	"opensky-pp-cli/internal/learn/entities"
-	"opensky-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/store"
 )
 
 // newLearnConfig returns the per-CLI entity extractor Config the

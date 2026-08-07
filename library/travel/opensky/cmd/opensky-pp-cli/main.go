@@ -6,7 +6,7 @@ package main
 import (
 	"os"
 
-	"opensky-pp-cli/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/cli"
 )
 
 func main() {

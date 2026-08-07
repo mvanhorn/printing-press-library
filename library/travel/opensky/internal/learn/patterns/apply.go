@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"opensky-pp-cli/internal/learn/lookups"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/learn/lookups"
 )
 
 // DefaultJaccardMin matches the recall-side floor. Applying the same

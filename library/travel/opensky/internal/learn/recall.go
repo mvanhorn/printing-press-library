@@ -15,9 +15,9 @@ import (
 	"strings"
 	"time"
 
-	"opensky-pp-cli/internal/learn/entities"
-	"opensky-pp-cli/internal/learn/lookups"
-	"opensky-pp-cli/internal/learn/patterns"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/learn/lookups"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/learn/patterns"
 )
 
 // Default thresholds. Keep in sync with the documented contract in

@@ -27,9 +27,9 @@ type whichEntry struct {
 // `--help`; `which` exists to resolve a natural-language capability
 // query to one of the commands the skill says matter most.
 var whichIndex = []whichEntry{
-	{Command: "flights get-departures --airport KJFK", Description: "begin/end default to the last hour on every /flights/* command (OpenSky requires the window and anonymous access caps it at 1h), so live queries work with zero epoch math. Override with --begin/--end.", Group: "", WhyItMatters: ""},
-	{Command: "flights get-aircraft-trajectory --icao24 <hex>", Description: "OpenSky answers HTTP 404 with an empty array when a window has no flights; the CLI treats that as an empty result (exit 0) instead of the generic resource-not-found error.", Group: "", WhyItMatters: ""},
-	{Command: "states --lamin 40.5 --lomin -74.5 --lamax 41.5 --lomax -73.5", Description: "Live ADS-B state vectors over any bounding box with no API key; --icao24 filters to one transponder for a single-aircraft view.", Group: "", WhyItMatters: ""},
+	{Command: "flights get-departures", Description: "begin/end default to the last hour on every /flights/* command (OpenSky requires the window and anonymous access caps it at 1h), so live queries work with zero epoch math. Override with --begin/--end.", Group: "", WhyItMatters: ""},
+	{Command: "flights get-aircraft-trajectory", Description: "OpenSky answers HTTP 404 with an empty array when a window has no flights; the CLI treats that as an empty result (exit 0) instead of the generic resource-not-found error.", Group: "", WhyItMatters: ""},
+	{Command: "states", Description: "Live ADS-B state vectors over any bounding box with no API key; --icao24 filters to one transponder for a single-aircraft view.", Group: "", WhyItMatters: ""},
 }
 
 // whichMatch pairs an index entry with its ranking score for a query.

@@ -17,14 +17,14 @@ import (
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
-	"opensky-pp-cli/internal/cli"
-	"opensky-pp-cli/internal/client"
-	"opensky-pp-cli/internal/cliutil"
-	"opensky-pp-cli/internal/config"
-	"opensky-pp-cli/internal/learn"
-	"opensky-pp-cli/internal/mcp/bound"
-	"opensky-pp-cli/internal/mcp/cobratree"
-	"opensky-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/mcp/bound"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/mcp/cobratree"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/store"
 )
 
 const (

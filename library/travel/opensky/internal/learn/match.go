@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"strings"
 
-	"opensky-pp-cli/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/learn/entities"
 )
 
 // EntityMatch classifies how well a stored learning's resource-side

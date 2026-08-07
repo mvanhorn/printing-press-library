@@ -1,4 +1,4 @@
-module opensky-pp-cli
+module github.com/mvanhorn/printing-press-library/library/travel/opensky
 
 go 1.26.5
 

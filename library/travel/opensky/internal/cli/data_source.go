@@ -17,8 +17,8 @@ import (
 	"strings"
 	"time"
 
-	"opensky-pp-cli/internal/client"
-	"opensky-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/store"
 )
 
 const networkFallbackReason = "api_unreachable"

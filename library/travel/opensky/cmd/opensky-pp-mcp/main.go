@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/mark3labs/mcp-go/server"
-	mcptools "opensky-pp-cli/internal/mcp"
+	mcptools "github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/mcp"
 )
 
 // Transport selection order: --transport flag, then PP_MCP_TRANSPORT env,

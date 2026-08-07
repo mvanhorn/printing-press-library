@@ -15,11 +15,11 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
-	"opensky-pp-cli/internal/client"
-	"opensky-pp-cli/internal/cliutil"
-	"opensky-pp-cli/internal/config"
-	"opensky-pp-cli/internal/learn"
-	"opensky-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/store"
 )
 
 type rootFlags struct {

@@ -20,7 +20,7 @@ import (
 	"strings"
 	"testing"
 
-	"opensky-pp-cli/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/learn/entities"
 
 	_ "modernc.org/sqlite"
 )

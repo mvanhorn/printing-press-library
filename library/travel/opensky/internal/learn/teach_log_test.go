@@ -11,7 +11,7 @@ import (
 	"sync"
 	"testing"
 
-	"opensky-pp-cli/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/cliutil"
 )
 
 func withTempHomeForLog(t *testing.T) string {

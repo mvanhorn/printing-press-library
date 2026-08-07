@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"opensky-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/store"
 )
 
 func openLearnings(t *testing.T) *store.Store {

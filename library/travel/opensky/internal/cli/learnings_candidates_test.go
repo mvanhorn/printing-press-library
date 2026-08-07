@@ -11,8 +11,8 @@ import (
 	"strings"
 	"testing"
 
-	"opensky-pp-cli/internal/learn"
-	"opensky-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/store"
 )
 
 // seedCandidate derives one candidate row directly through the store

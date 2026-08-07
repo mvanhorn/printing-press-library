@@ -7,7 +7,7 @@ import (
 	"sort"
 	"strings"
 
-	"opensky-pp-cli/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/learn/entities"
 )
 
 // NormalizedQuery is the entity-aware normalized representation of a

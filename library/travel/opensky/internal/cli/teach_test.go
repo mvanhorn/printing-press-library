@@ -13,10 +13,10 @@ import (
 	"sync"
 	"testing"
 
-	"opensky-pp-cli/internal/cliutil"
-	"opensky-pp-cli/internal/learn"
-	"opensky-pp-cli/internal/learn/entities"
-	"opensky-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/store"
 )
 
 func unmarshalAgentResults(t *testing.T, stdout string, out any) {

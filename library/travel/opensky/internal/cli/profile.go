@@ -13,7 +13,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
-	"opensky-pp-cli/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/cliutil"
 )
 
 // Profile is a named set of flag values saved for reuse across invocations.

@@ -17,8 +17,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"opensky-pp-cli/internal/learn"
-	"opensky-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/store"
 )
 
 // deriveDBPath allocates a fresh candidate-store path per test.

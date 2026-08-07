@@ -13,7 +13,7 @@ import (
 	"sort"
 	"strings"
 
-	"opensky-pp-cli/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/learn/entities"
 )
 
 // EntityResolver looks up a token in entity_lookups to find its

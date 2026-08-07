@@ -10,8 +10,8 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
-	"opensky-pp-cli/internal/cliutil"
-	"opensky-pp-cli/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/learn"
 )
 
 // agentContextSchemaVersion is bumped on any breaking change to the JSON

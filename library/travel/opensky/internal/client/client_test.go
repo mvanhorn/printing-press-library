@@ -14,7 +14,7 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"opensky-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/config"
 )
 
 func TestTruncateBody(t *testing.T) {

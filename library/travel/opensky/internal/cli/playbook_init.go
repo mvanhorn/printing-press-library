@@ -31,9 +31,9 @@ import (
 	"strings"
 	"sync"
 
-	"opensky-pp-cli/internal/cli/playbooks"
-	"opensky-pp-cli/internal/learn"
-	"opensky-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/cli/playbooks"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/travel/opensky/internal/store"
 )
 
 // playbookSeedSentinelFamily is the synthetic query_family used to
