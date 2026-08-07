@@ -12,6 +12,11 @@ import (
 )
 
 func newStatesPromotedCmd(flags *rootFlags) *cobra.Command {
+	// noBBoxCoord marks an unset bounding-box boundary. -999 is outside every
+	// valid lat (-90..90) / lon (-180..180) range, so an explicit 0.0 boundary
+	// (equator, prime meridian) survives, and profile-applied values work too
+	// (profile application sets flag values directly, not pflag's Changed bit).
+	const noBBoxCoord = -999.0
 	var flagLamin float64
 	var flagLomin float64
 	var flagLamax float64
@@ -32,16 +37,16 @@ func newStatesPromotedCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/states/all"
 			params := map[string]string{}
-			if cmd.Flags().Changed("lamin") {
+			if flagLamin != noBBoxCoord {
 				params["lamin"] = formatCLIParamValue(flagLamin)
 			}
-			if cmd.Flags().Changed("lomin") {
+			if flagLomin != noBBoxCoord {
 				params["lomin"] = formatCLIParamValue(flagLomin)
 			}
-			if cmd.Flags().Changed("lamax") {
+			if flagLamax != noBBoxCoord {
 				params["lamax"] = formatCLIParamValue(flagLamax)
 			}
-			if cmd.Flags().Changed("lomax") {
+			if flagLomax != noBBoxCoord {
 				params["lomax"] = formatCLIParamValue(flagLomax)
 			}
 			if flagIcao24 != "" {
@@ -97,10 +102,10 @@ func newStatesPromotedCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
-	cmd.Flags().Float64Var(&flagLamin, "lamin", 0.0, "Minimum latitude of the bounding box (degrees)")
-	cmd.Flags().Float64Var(&flagLomin, "lomin", 0.0, "Minimum longitude of the bounding box (degrees)")
-	cmd.Flags().Float64Var(&flagLamax, "lamax", 0.0, "Maximum latitude of the bounding box (degrees)")
-	cmd.Flags().Float64Var(&flagLomax, "lomax", 0.0, "Maximum longitude of the bounding box (degrees)")
+	cmd.Flags().Float64Var(&flagLamin, "lamin", noBBoxCoord, "Minimum latitude of the bounding box (degrees)")
+	cmd.Flags().Float64Var(&flagLomin, "lomin", noBBoxCoord, "Minimum longitude of the bounding box (degrees)")
+	cmd.Flags().Float64Var(&flagLamax, "lamax", noBBoxCoord, "Maximum latitude of the bounding box (degrees)")
+	cmd.Flags().Float64Var(&flagLomax, "lomax", noBBoxCoord, "Maximum longitude of the bounding box (degrees)")
 	cmd.Flags().StringVar(&flagIcao24, "icao24", "", "6-hex-digit transponder address to filter to a single aircraft")
 
 	// Wire sibling endpoints and sub-resources as subcommands

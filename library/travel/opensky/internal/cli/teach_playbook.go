@@ -177,6 +177,7 @@ func newPlaybookCmd(flags *rootFlags, learnCfg *entities.Config) *cobra.Command 
 // errors to teach.log, safe to background with &.
 func newPlaybookAmendCmd(flags *rootFlags, learnCfg *entities.Config) *cobra.Command {
 	var query string
+	var queryFile string
 	var addNote string
 	var dbPath string
 
@@ -214,7 +215,8 @@ Disabling: pass --no-learn or set ` + noLearnEnvVar + `=true.`,
 			if dryRunOK(flags) {
 				return nil
 			}
-			if strings.TrimSpace(query) == "" {
+			query, ok := queryFromArgsOrStdin(args, query, queryFile, os.Stdin)
+			if !ok || strings.TrimSpace(query) == "" {
 				writeTeachErrLog(fmt.Sprintf("playbook amend: missing --query (args=%v)", args))
 				return silentCodeErr(2)
 			}
@@ -279,6 +281,7 @@ Disabling: pass --no-learn or set ` + noLearnEnvVar + `=true.`,
 		},
 	}
 	cmd.Flags().StringVar(&query, "query", "", "The exact recall query whose family should be amended (required)")
+	cmd.Flags().StringVar(&queryFile, "query-file", "", "Path to a file containing the query (opaque-data channel for agents; read verbatim, never shell-interpreted)")
 	cmd.Flags().StringVar(&addNote, "add-note", "", "The note text to append to the family's playbook (required)")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: standard cache location)")
 	return cmd
