@@ -4,6 +4,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -61,9 +62,19 @@ func newContactListCmd(flags *rootFlags) *cobra.Command {
 					bodyMap["cursorId"] = bodyCursorId
 				}
 			}
-			data, statusCode, err := c.PostQueryWithParams(cmd.Context(), path, params, body)
-			if err != nil {
-				return classifyAPIError(err, flags)
+			var data []byte
+			var statusCode int
+			var partialFailure *partialFailureReport
+			if flagAll && !flags.dryRun {
+				data, statusCode, partialFailure, err = fetchAllContactPages(c, cmd, flags, cmd.ErrOrStderr(), path, params, body, contactListAllPageCap)
+				if err != nil {
+					return classifyAPIError(err, flags)
+				}
+			} else {
+				data, statusCode, err = c.PostQueryWithParams(cmd.Context(), path, params, body)
+				if err != nil {
+					return classifyAPIError(err, flags)
+				}
 			}
 			// Inspect the mutate response body for a partial-failure-shaped
 			// field (e.g. Google Ads `partialFailureError`). Several Google
@@ -72,9 +83,9 @@ func newContactListCmd(flags *rootFlags) *cobra.Command {
 			// real failures. Detection runs before output-mode selection so
 			// the exit code is consistent regardless of how stdout is
 			// rendered. --dry-run short-circuits because no real request
-			// was sent.
-			var partialFailure *partialFailureReport
-			if !flags.dryRun && statusCode >= 200 && statusCode < 300 {
+			// was sent. Under --all the loop already detected per-page
+			// partial failures, so only the single-shot body is scanned here.
+			if !flags.dryRun && statusCode >= 200 && statusCode < 300 && partialFailure == nil {
 				partialFailure = detectPartialFailure(data)
 				if partialFailure != nil {
 					fmt.Fprintf(os.Stderr, "warning: partial failure detected in %s response: %s\n", "contact", partialFailure.Message)
@@ -217,4 +228,97 @@ func newContactListCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd
+}
+
+// postQueryPager is the narrow client surface fetchAllContactPages needs so
+// the --all accumulation loop stays decoupled from the concrete client type.
+type postQueryPager interface {
+	PostQueryWithParams(context.Context, string, map[string]string, any) (json.RawMessage, int, error)
+}
+
+// contactListAllPageCap caps the --all accumulation loop at a fixed number of
+// requests so a misbehaving API can never drive unbounded POSTing. The sync
+// path has no non-unlimited ceiling by default, so fall back to a generous
+// hard cap and stop.
+const contactListAllPageCap = 1000
+
+// emitContactListTruncationWarning surfaces a `contact list --all` accumulation
+// that reached the page cap while the API still advertised a next cursor,
+// matching the codebase's truncation-warning conventions: a human-readable line
+// on a terminal, a machine-readable single-line JSON event otherwise.
+func emitContactListTruncationWarning(w io.Writer, humanFriendly bool, pages, items int) {
+	if humanFriendly {
+		fmt.Fprintf(w, "\nwarning: contact list --all reached the page cap (%d pages, %d items) while more pages remained; data may be truncated. Use --cursor-id to page manually.\n", pages, items)
+		return
+	}
+	fmt.Fprintf(w, `{"event":"contact_list_warning","resource":"contact","reason":"pagination_cap_hit","message":"contact list --all reached the page cap while more pages remained; data may be truncated. Use --cursor-id to page manually.","pages":%d,"items":%d}`+"\n", pages, items)
+}
+
+// fetchAllContactPages implements `contact list --all`: it POSTs /contact/list
+// repeatedly, threading the integer `pagination.next` cursor back into the
+// body's `cursorId` field until the API stops returning one (absent, null, or
+// zero), then returns the accumulated items as one {"items":[...]} response so
+// downstream rendering sees the same shape as a single-page result. It also
+// returns the per-page partial-failure report (if any page reported one) so the
+// caller can preserve the non-zero partial-failure exit, and emits a truncation
+// warning when the page cap is hit while more pages remain.
+func fetchAllContactPages(c postQueryPager, cmd *cobra.Command, flags *rootFlags, stderr io.Writer, path string, params map[string]string, body any, maxPages int) ([]byte, int, *partialFailureReport, error) {
+	var acc []json.RawMessage
+	var statusCode int
+	var partialFailure *partialFailureReport
+	page := 0
+	for ; page < maxPages; page++ {
+		data, sc, err := c.PostQueryWithParams(cmd.Context(), path, params, body)
+		if err != nil {
+			return nil, sc, partialFailure, err
+		}
+		statusCode = sc
+		// Preserve per-request partial-failure detection like the single-shot
+		// path, surfacing a warning without aborting the accumulation. The last
+		// detected report is threaded back to the caller so the exit code stays
+		// non-zero (unless --allow-partial-failure) even if a later page is
+		// clean -- the single-shot behavior we must not silently downgrade.
+		if !flags.dryRun && sc >= 200 && sc < 300 {
+			if pf := detectPartialFailure(data); pf != nil {
+				partialFailure = pf
+				fmt.Fprintf(stderr, "warning: partial failure detected in %s response: %s\n", "contact", pf.Message)
+				if len(pf.ResourceNames) > 0 {
+					fmt.Fprintf(stderr, "         succeeded: %d operation(s)\n", len(pf.ResourceNames))
+				}
+			}
+		}
+		var env struct {
+			Items      []json.RawMessage `json:"items"`
+			Pagination struct {
+				Next *int `json:"next"`
+			} `json:"pagination"`
+		}
+		if err := json.Unmarshal(data, &env); err != nil {
+			return nil, sc, partialFailure, fmt.Errorf("parsing contact list page: %w", err)
+		}
+		acc = append(acc, env.Items...)
+		next := 0
+		if env.Pagination.Next != nil {
+			next = *env.Pagination.Next
+		}
+		if next <= 0 {
+			break
+		}
+		bodyMap, ok := body.(map[string]any)
+		if !ok {
+			return nil, sc, partialFailure, fmt.Errorf("contact list --all: cannot advance cursor on a non-object body")
+		}
+		bodyMap["cursorId"] = next
+	}
+	// The loop only exhausts maxPages if the API kept returning a usable next
+	// cursor on the final page we consumed, so the accumulation is truncated.
+	// Surface it loudly rather than returning a silent partial result.
+	if page == maxPages {
+		emitContactListTruncationWarning(stderr, isTerminal(cmd.OutOrStdout()), maxPages, len(acc))
+	}
+	combined, err := json.Marshal(map[string]any{"items": acc})
+	if err != nil {
+		return nil, statusCode, partialFailure, fmt.Errorf("marshalling accumulated contact list: %w", err)
+	}
+	return combined, statusCode, partialFailure, nil
 }

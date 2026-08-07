@@ -1006,35 +1006,35 @@ func determinePaginationDefaults(resource string) paginationDefaults {
 	switch resource {
 	case "message":
 		return paginationDefaults{
-			cursorParam: "after",
+			cursorParam: "cursorId",
 			cursorType:  "cursor",
 			limitParam:  "limit",
 			limit:       100,
 		}
 	case "space":
 		return paginationDefaults{
-			cursorParam: "after",
+			cursorParam: "cursorId",
 			cursorType:  "cursor",
 			limitParam:  "limit",
 			limit:       100,
 		}
 	case "space-channel":
 		return paginationDefaults{
-			cursorParam: "after",
+			cursorParam: "cursorId",
 			cursorType:  "cursor",
 			limitParam:  "limit",
 			limit:       100,
 		}
 	case "space-custom-field":
 		return paginationDefaults{
-			cursorParam: "after",
+			cursorParam: "cursorId",
 			cursorType:  "cursor",
 			limitParam:  "limit",
 			limit:       100,
 		}
 	}
 	return paginationDefaults{
-		cursorParam: "after",
+		cursorParam: "cursorId",
 		cursorType:  "cursor",
 		limitParam:  "limit",
 		limit:       100,
@@ -1050,6 +1050,8 @@ func resourceSupportsPagination(resource string) bool {
 	case "space-channel":
 		return true
 	case "space-custom-field":
+		return true
+	case "contact":
 		return true
 	}
 	return false
@@ -1565,6 +1567,7 @@ func extractPaginationFromEnvelope(envelope map[string]json.RawMessage, cursorPa
 	cursorKeys := []string{
 		"next_cursor", "nextCursor", "next_token", "nextToken", "cursor",
 		"next_page_token", "nextPageToken", "page_token", "after", "end_cursor", "endCursor",
+		"next",
 	}
 	if nextCursor == "" {
 		nextCursor = findCursorInMap(envelope, cursorKeys)
@@ -1790,6 +1793,17 @@ func findCursorInMap(m map[string]json.RawMessage, cursorKeys []string) string {
 		var s string
 		if err := json.Unmarshal(raw, &s); err == nil && s != "" {
 			return s
+		}
+		// Some APIs (Respond.io among them) ship the next cursor as a JSON
+		// number rather than a string (e.g. `pagination.next`). Render the
+		// integer form (no decimal point, no exponent) so the value round-trips
+		// cleanly into the next request body. A zero or non-integer value is
+		// treated as "skip", mirroring the existing string behavior.
+		var num json.Number
+		if err := json.Unmarshal(raw, &num); err == nil {
+			if i, err := num.Int64(); err == nil && i != 0 {
+				return strconv.FormatInt(i, 10)
+			}
 		}
 	}
 	return ""

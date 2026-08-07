@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "respondio-cursor-pagination-sync-and-contact-list-all",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260805-222426-ffd268a6",
+  "base_printing_press_version": "4.30.1",
+  "summary": "Respond.io paginates every list endpoint with an integer cursorId (pagination.next as a JSON number), not the string 'after' the generator defaulted to. Recognize numeric next cursors, send cursorId on sync for contact/message/space, and wire `contact list --all` to loop pages by threading pagination.next back into the body's cursorId.",
+  "reason": "The Respond.io API silently ignores a cursor parameter named 'after' and returns the cursor as a JSON number inside pagination.next, which the generated extractor (string-only cursorKeys without 'next') could never read. Contact sync therefore stopped after one page without even emitting the pagination_cursor_missing warning, and `contact list --all` was a no-op that silently returned one page. The generic generator encodes a string cursor named 'after'; the durable fix is a generator/template improvement for numeric cursorId APIs, hardened here for the shipped binary.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/contact_list.go"
+  ]
+}
