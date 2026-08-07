@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "greenhouse-creator-byline",
+  "applied_at": "2026-08-07",
+  "base_run_id": "greenhouse-job-board-2026-07-19",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Fixed creator attribution in README byline and NOTICE to match the manifest creator (veltri-23), resolving the Greptile review conflict on PR #1669.",
+  "reason": "The .printing-press.json manifest records creator handle 'veltri-23' (Hunter Veltri), which matches the library convention (creator = the person who authored the CLI). The generated README byline and NOTICE used the engine author handle '@mvanhorn', attributing the CLI to two different GitHub accounts across canonical surfaces. Aligned README and NOTICE to the manifest so all attribution surfaces agree.",
+  "files": [
+    "README.md",
+    "NOTICE"
+  ],
+  "validated_outcome": "grep across README.md and NOTICE shows no remaining '@mvanhorn' creator byline; manifest creator velt-23 matches byline (Hunter Veltri @veltri-23).",
+  "upstream_issue": null
+}
