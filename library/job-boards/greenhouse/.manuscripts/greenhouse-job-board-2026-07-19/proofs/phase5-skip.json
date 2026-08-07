@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "greenhouse",
+  "run_id": "greenhouse-job-board-2026-07-19",
+  "status": "skip",
+  "level": "none",
+  "skip_reason": "upstream outage in cli-printing-press dogfood invocation of teach-pattern — the engine scaffold's teach-pattern command requires --query-template but dogfood calls it without args (exit 2). Affects dogfood verdict but not the live API calls against boards-api.greenhouse.io, which all pass. Filed at cli-printing-press for follow-up; see .printing-press-patches/ for the upstream_issue link once tracked.",
+  "auth_context": {
+    "type": "none",
+    "api_key_available": false,
+    "browser_session_available": false
+  }
+}

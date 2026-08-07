@@ -1,0 +1,92 @@
+openapi: 3.0.3
+info:
+  title: Greenhouse Job Board API
+  version: "1.0.0"
+  description: |
+    Public Greenhouse Job Board API (https://developers.greenhouse.io/job-board.html).
+    Used by employer career pages that publish jobs through Greenhouse. All endpoints
+    are public and require no authentication — board_token is a path segment that
+    identifies the company (e.g. `stripe`, `airbnb`, `anthropic`).
+
+    Generic CLI: the board_token is the first positional argument on every command.
+    `greenhouse jobs list stripe` lists Stripe's open jobs.
+
+servers:
+  - url: https://boards-api.greenhouse.io/v1/boards
+    description: Greenhouse Job Board API base (without board_token)
+
+paths:
+  /{board_token}/jobs:
+    get:
+      operationId: listJobs
+      summary: List all open jobs for a company
+      parameters:
+        - name: board_token
+          in: path
+          required: true
+          schema: { type: string }
+          description: Company identifier (the Greenhouse board token)
+        - name: content
+          in: query
+          required: false
+          schema: { type: boolean, default: false }
+      responses:
+        "200":
+          description: Jobs list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jobs: { type: array, items: { $ref: "#/components/schemas/Job" } }
+                  meta: { type: object, properties: { total: { type: integer } } }
+
+  /{board_token}/jobs/{job_id}:
+    get:
+      operationId: getJob
+      summary: Retrieve a single job posting
+      parameters:
+        - name: board_token
+          in: path
+          required: true
+          schema: { type: string }
+        - name: job_id
+          in: path
+          required: true
+          schema: { type: integer }
+        - name: questions
+          in: query
+          required: false
+          schema: { type: boolean, default: false }
+      responses:
+        "200": { description: Single job }
+
+  /{board_token}/departments:
+    get:
+      operationId: listDepartments
+      summary: List departments
+      parameters:
+        - name: board_token
+          in: path
+          required: true
+          schema: { type: string }
+        - name: render_as
+          in: query
+          schema: { type: string, enum: [list, tree], default: list }
+      responses:
+        "200": { description: Departments }
+
+  /{board_token}/offices:
+    get:
+      operationId: listOffices
+      summary: List offices
+      parameters:
+        - name: board_token
+          in: path
+          required: true
+          schema: { type: string }
+        - name: render_as
+          in: query
+          schema: { type: string, enum: [list, tree], default: list }
+      responses:
+        "200": { description: Offices }
