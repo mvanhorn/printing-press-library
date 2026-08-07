@@ -112,7 +112,7 @@ func newFlightsGetDeparturesCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagAirport, "airport", "", "ICAO airport code (e.g. KJFK, EGLL)")
-	cmd.Flags().IntVar(&flagBegin, "begin", 0, "Window start, Unix seconds (defaults to now-2h)")
+	cmd.Flags().IntVar(&flagBegin, "begin", 0, "Window start, Unix seconds (defaults to now-1h)")
 	cmd.Flags().IntVar(&flagEnd, "end", 0, "Window end, Unix seconds (defaults to now)")
 
 	return cmd

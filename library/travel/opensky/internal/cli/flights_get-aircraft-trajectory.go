@@ -114,7 +114,7 @@ func newFlightsGetAircraftTrajectoryCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagIcao24, "icao24", "", "6-hex-digit transponder address")
-	cmd.Flags().IntVar(&flagBegin, "begin", 0, "Window start, Unix seconds (defaults to now-2h)")
+	cmd.Flags().IntVar(&flagBegin, "begin", 0, "Window start, Unix seconds (defaults to now-1h)")
 	cmd.Flags().IntVar(&flagEnd, "end", 0, "Window end, Unix seconds (defaults to now)")
 
 	return cmd

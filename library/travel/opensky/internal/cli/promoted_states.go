@@ -32,16 +32,16 @@ func newStatesPromotedCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/states/all"
 			params := map[string]string{}
-			if flagLamin != 0.0 {
+			if cmd.Flags().Changed("lamin") {
 				params["lamin"] = formatCLIParamValue(flagLamin)
 			}
-			if flagLomin != 0.0 {
+			if cmd.Flags().Changed("lomin") {
 				params["lomin"] = formatCLIParamValue(flagLomin)
 			}
-			if flagLamax != 0.0 {
+			if cmd.Flags().Changed("lamax") {
 				params["lamax"] = formatCLIParamValue(flagLamax)
 			}
-			if flagLomax != 0.0 {
+			if cmd.Flags().Changed("lomax") {
 				params["lomax"] = formatCLIParamValue(flagLomax)
 			}
 			if flagIcao24 != "" {
