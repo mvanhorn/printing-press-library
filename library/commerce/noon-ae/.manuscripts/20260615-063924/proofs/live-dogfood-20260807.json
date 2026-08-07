@@ -1,4 +1,26 @@
 {
-    "status": "skipped",
-    "reason": "retailer anti-bot/rate-limit surface; see phase5-acceptance.json"
+  "schema_version": 1,
+  "validated_at": "2026-08-07T16:20:24Z",
+  "status": "partial",
+  "level": "live",
+  "matrix_size": 2,
+  "tests_passed": 1,
+  "tests_failed": 1,
+  "auth_context": {
+    "type": "none"
+  },
+  "tests": [
+    {
+      "command": "products search --q laptop --data-source live --no-cache --timeout 30s --json",
+      "status": "pass",
+      "output_bytes": 2372677,
+      "evidence": "Exit 0; JSON provenance reported source=live and contained Noon UAE HTML."
+    },
+    {
+      "command": "products get --o b7c1e31bd8be8b1e --data-source live --no-cache --timeout 30s --json",
+      "status": "fail",
+      "exit_code": 3,
+      "evidence": "Noon's current product links use /uae-en/{slug}/{sku}/p/?o={offer}; the printed /uae-en/p/?o={offer} route returned HTTP 404."
+    }
+  ]
 }
