@@ -185,8 +185,7 @@ emits the user-facing response: silent on success, errors only to
 the CLI state directory's teach.log, safe to fire-and-forget.
 
 Disabling: pass --no-learn or set ` + noLearnEnvVar + `=true.`,
-		Example: `  greenhouse-pp-cli teach --query "<question>" --resource-type <type> \
-    --resource <id> --resource <id> &`,
+		Example: `  greenhouse-pp-cli teach --query "who owns acme" --resource acme --resource-type company`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.SilenceUsage = true
 			cmd.SilenceErrors = true
@@ -334,7 +333,7 @@ Disabling: pass --no-learn or set ` + noLearnEnvVar + `=true.`,
 				writeTeachErrLog(fmt.Sprintf("teach: audit append: %v", auditErr))
 			}
 
-			if !quiet && flags.asJSON {
+			if flags.asJSON {
 				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
 					"recorded":   true,
 					"query":      query,
@@ -890,12 +889,7 @@ substitute live query entities into a resource template, so a pattern
 with query_template="items in {entity}" and
 resource_template="GROUP-{entity:category}" generalizes one teach into
 a whole family.`,
-		Example: `  greenhouse-pp-cli teach-pattern \
-    --query-template "items in {entity}" \
-    --resource-template "GROUP-{entity:category}" \
-    --resource-type "items" \
-    --entity-kind "category" \
-    --strategy substitute`,
+		Example: `  greenhouse-pp-cli teach-pattern --query-template "items in {entity}" --resource-template "GROUP-{entity:category}" --resource-type items --entity-kind category --strategy substitute`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
 				return nil
