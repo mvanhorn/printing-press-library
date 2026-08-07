@@ -150,6 +150,7 @@ func learnDBPath(explicit string) string {
 // IDs against the typed resources table.
 func newTeachCmd(flags *rootFlags, learnCfg *entities.Config) *cobra.Command {
 	var query string
+	var queryFile string
 	var resources []string
 	var venueArg string
 	var resourceType string
@@ -196,7 +197,7 @@ Disabling: pass --no-learn or set ` + noLearnEnvVar + `=true.`,
 			if dryRunOK(flags) {
 				return nil
 			}
-			query, ok := queryFromArgsOrStdin(args, query, os.Stdin)
+			query, ok := queryFromArgsOrStdin(args, query, queryFile, os.Stdin)
 			if !ok || strings.TrimSpace(query) == "" {
 				writeTeachErrLog(fmt.Sprintf("teach: missing --query (args=%v resources=%v)", args, resources))
 				return silentCodeErr(2)
@@ -347,6 +348,7 @@ Disabling: pass --no-learn or set ` + noLearnEnvVar + `=true.`,
 		},
 	}
 	cmd.Flags().StringVar(&query, "query", "", "User's original natural-language question (required)")
+	cmd.Flags().StringVar(&queryFile, "query-file", "", "Path to a file containing the query (opaque-data channel for agents; read verbatim, never shell-interpreted)")
 	cmd.Flags().StringSliceVar(&resources, "resource", nil, "Resource ID — repeat for multiple (required)")
 	cmd.Flags().StringVar(&venueArg, "venue", "", "Optional venue scope tag stored with the learning")
 	cmd.Flags().StringVar(&resourceType, "resource-type", "", "Resource type (required; e.g. matches a row in the local resources table)")
@@ -452,9 +454,10 @@ func newRecallCmd(flags *rootFlags, learnCfg *entities.Config) *cobra.Command {
 	var limit int
 	var dbPath string
 	var debugMismatches bool
+	var queryFile string
 
 	cmd := &cobra.Command{
-		Use:   "recall <query>",
+		Use:   "recall [query]",
 		Short: "Check prior learnings for a query before running discovery (LLM-fired, pre-discovery)",
 		Long: `Returns prior learnings matching the supplied query by token-set
 overlap (Jaccard >= 0.6) plus entity-aware validation. The LLM should
@@ -472,7 +475,7 @@ when learnings exist.`,
   opensky-pp-cli recall "<question>" --agent --min-confidence 2`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			query, ok := queryFromArgsOrStdin(args, "", os.Stdin)
+			query, ok := queryFromArgsOrStdin(args, "", queryFile, os.Stdin)
 			if !ok {
 				return cmd.Help()
 			}
@@ -536,6 +539,7 @@ when learnings exist.`,
 	}
 	cmd.Flags().IntVar(&minConf, "min-confidence", 1, "Minimum confidence to include in results")
 	cmd.Flags().IntVar(&limit, "limit", 10, "Maximum number of learnings to return")
+	cmd.Flags().StringVar(&queryFile, "query-file", "", "Path to a file containing the query (opaque-data channel for agents; read verbatim, never shell-interpreted)")
 	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite database file path (default: resolved data directory data.db)")
 	cmd.Flags().BoolVar(&debugMismatches, "debug-mismatches", false, "Include cross-entity mismatches in the envelope under mismatches[]")
 	return cmd
@@ -792,10 +796,11 @@ func newLearningsForgetCmd(flags *rootFlags, learnCfg *entities.Config) *cobra.C
 	var resourceArg string
 	var actionArg string
 	var all bool
+	var queryFile string
 	var dbPath string
 
 	cmd := &cobra.Command{
-		Use:   "forget <query>",
+		Use:   "forget [query]",
 		Short: "Delete learnings matching a query (use --all to wipe every rule for that query)",
 		Long: `Removes rows from the search_learnings table so a bad teach can be
 undone without dropping the whole DB.
@@ -804,7 +809,7 @@ Requires at least one of --resource, --action, or --all.`,
 		Example: `  opensky-pp-cli learnings forget "<question>" --resource <id>
   opensky-pp-cli learnings forget "<question>" --all`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			query, ok := queryFromArgsOrStdin(args, "", os.Stdin)
+			query, ok := queryFromArgsOrStdin(args, "", queryFile, os.Stdin)
 			if !ok {
 				return cmd.Help()
 			}
@@ -867,6 +872,7 @@ Requires at least one of --resource, --action, or --all.`,
 	cmd.Flags().StringVar(&resourceArg, "resource", "", "Delete only the rule for this resource_id")
 	cmd.Flags().StringVar(&actionArg, "action", "", "Delete only rules with this action (boost | hide | alias_of)")
 	cmd.Flags().BoolVar(&all, "all", false, "Delete every rule for the supplied query")
+	cmd.Flags().StringVar(&queryFile, "query-file", "", "Path to a file containing the query (opaque-data channel for agents; read verbatim, never shell-interpreted)")
 	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite database file path (default: resolved data directory data.db)")
 	return cmd
 }

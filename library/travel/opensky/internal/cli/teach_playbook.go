@@ -32,6 +32,7 @@ import (
 // so both surfaces land in one shot.
 func newTeachPlaybookCmd(flags *rootFlags, learnCfg *entities.Config) *cobra.Command {
 	var query string
+	var queryFile string
 	var playbookFile string
 	var playbookJSONInline string
 	var notesText string
@@ -72,7 +73,7 @@ agents can record playbooks without a file on disk.`,
 			if dryRunOK(flags) {
 				return nil
 			}
-			query, ok := queryFromArgsOrStdin(args, query, os.Stdin)
+			query, ok := queryFromArgsOrStdin(args, query, queryFile, os.Stdin)
 			if !ok || strings.TrimSpace(query) == "" {
 				return usageErr(fmt.Errorf("--query is required"))
 			}
@@ -143,6 +144,7 @@ agents can record playbooks without a file on disk.`,
 		},
 	}
 	cmd.Flags().StringVar(&query, "query", "", "Example query that anchors the family (required)")
+	cmd.Flags().StringVar(&queryFile, "query-file", "", "Path to a file containing the query (opaque-data channel for agents; read verbatim, never shell-interpreted)")
 	cmd.Flags().StringVar(&playbookFile, "playbook-file", "", "Path to a JSON file with the playbook (steps, entity_slots, expected_tool_calls)")
 	cmd.Flags().StringVar(&playbookJSONInline, "playbook-json", "", "Inline playbook JSON (steps, entity_slots, expected_tool_calls) -- mutually exclusive with --playbook-file")
 	cmd.Flags().StringVar(&notesText, "notes", "", "Free-text notes (gotchas, workarounds) -- mutually exclusive with --notes-file")

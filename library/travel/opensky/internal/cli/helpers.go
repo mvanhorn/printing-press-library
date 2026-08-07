@@ -80,15 +80,23 @@ func stdinIsTerminal(r io.Reader) bool {
 }
 
 // queryFromArgsOrStdin resolves the query for the teach/recall/forget
-// command family. The question is opaque data: when it is not given inline
-// (flag or positional) it is read from stdin, so agent recipes can feed it
-// through a quoted heredoc (<<'EOF') with zero shell expansion instead of
-// interpolating user content into a shell command line. Reading from a
-// terminal is refused: an interactive prompt without a query is a usage
-// error, not a hang.
-func queryFromArgsOrStdin(args []string, flagQuery string, stdin io.Reader) (string, bool) {
+// command family. The question is opaque data: agent recipes must not
+// interpolate user content into a shell command line at all. The supported
+// channels are, in precedence order: the --query flag, a --query-file the
+// agent wrote with its file tool (opaque bytes, no shell), positional args,
+// and finally stdin (which reads from a terminal is refused: an interactive
+// prompt without a query is a usage error, not a hang).
+func queryFromArgsOrStdin(args []string, flagQuery, queryFile string, stdin io.Reader) (string, bool) {
 	if strings.TrimSpace(flagQuery) != "" {
 		return flagQuery, true
+	}
+	if strings.TrimSpace(queryFile) != "" {
+		b, err := os.ReadFile(queryFile)
+		if err != nil {
+			return "", false
+		}
+		q := strings.TrimSpace(string(b))
+		return q, q != ""
 	}
 	if len(args) > 0 {
 		return strings.Join(args, " "), true

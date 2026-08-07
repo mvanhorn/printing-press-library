@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "opensky-opaque-query-channel",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260807-162902",
+  "base_printing_press_version": "4.28.0",
+  "summary": "recall, teach, learnings forget, and teach-playbook gain a --query-file flag: the CLI reads the query verbatim from a file the agent wrote with its file tool, so user content never enters a shell command line at all. Precedence: --query flag > --query-file > positional > stdin (stdin kept for pipelines; terminal reads refused). Use strings updated to recall [query] / forget [query]. Agent recipes in SKILL.md and AGENTS.md now write the question to a temp file and pass --query-file. Adds internal/cli/query_stdin_test.go (8 cases incl. file precedence and missing file).",
+  "reason": "Greptile policy gate, round 3: after the single-quote fix, Greptile flagged apostrophe breakout; after the quoted-heredoc fix, it flagged the fixed delimiter (a crafted multiline question containing the terminator line escapes the heredoc). Any shell construct is theoretically escapable by crafted input, so the channel moved out of the shell entirely: a temp file written by the agent's file tool is opaque bytes, and --query-file hands the CLI the path, never the content. No quoting scheme, no delimiter, nothing to escape.",
+  "files": [
+    "internal/cli/helpers.go",
+    "internal/cli/teach.go",
+    "internal/cli/teach_playbook.go",
+    "internal/cli/query_stdin_test.go",
+    "SKILL.md",
+    "AGENTS.md"
+  ],
+  "validated_outcome": "go build ./..., go vet ./..., and the full go test ./... suite (12 packages) pass; verify-skill passes all checks (flag-names, flag-commands, positional-args, shell-var-quotes, unknown-command). Live: a query file containing 'what flies over JFK?$(touch /tmp/pwned)' is recalled verbatim with nothing executed (no file created); teach and forget accept --query-file with exit 0.",
+  "upstream_issue": "Template defect: the generated SKILL.md/AGENTS.md agent recipes interpolate user questions into shell commands; candidate for a cli-printing-press template fix (add --query-file to the learn command family in the template + file-based recipes)."
+}
