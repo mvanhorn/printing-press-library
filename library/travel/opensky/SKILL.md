@@ -156,10 +156,12 @@ This CLI ships a self-capturing learning loop. The CLI does its own bookkeeping:
 Before list/search/drill commands on a new user question, run:
 
 ```bash
-opensky-pp-cli recall '<question>' --agent
+opensky-pp-cli recall --agent <<'EOF'
+<question>
+EOF
 ```
 
-The question is opaque data: always pass it as a single-quoted argument. Never embed user content in an unquoted or double-quoted position, because a question containing `$(...)` or backticks would be executed by the shell before the CLI sees it. If the question itself contains a single quote, write it as `'"'"'` (close quote, escaped quote, reopen) or trim the quote from the query before running the command.
+The question is opaque data: feed it through the quoted heredoc (`<<'EOF'`), never interpolate user content into the command line. A quoted heredoc does zero shell expansion, so apostrophes, `$(...)`, and backticks in the question travel to the CLI untouched.
 
 The response envelope:
 
@@ -266,11 +268,13 @@ Graceful degradation: if `learnings confirm` is an unknown command, you are driv
 Teaching is unconditional. After resolving a query the store could not answer, background-teach the final resource mapping - no call-count threshold, no judging whether it was "worth" learning. The teach is the anchor of the loop: it triggers playbook synthesis for a family without a playbook, and same-referent phrasings fold into one family so near-duplicate teaches do not fragment the store. Fire it after assembling your user-facing response but BEFORE emitting it, with a shell `&` so the call returns immediately:
 
 ```bash
-opensky-pp-cli teach --query '<question>' --resource-type <type> --resource <id1> --resource <id2>
+opensky-pp-cli teach --resource-type <type> --resource <id1> --resource <id2> <<'EOF'
+<question>
+EOF
 # (append shell `&` to background it)
 ```
 
-Single-quote the query argument: user content must never sit in an unquoted or double-quoted position in these recipes (a `$(...)` or backtick inside the question would otherwise execute in the shell). If the question contains a single quote, write it as `'"'"'` or trim it before teaching.
+Feed the question through the quoted heredoc (`<<'EOF'`), never interpolate user content into the command line: a quoted heredoc does zero shell expansion, so apostrophes, `$(...)`, and backticks travel to the CLI untouched.
 
 Silent on success. Errors only land in `teach.log` under the resolved state dir. Teach the **most specific** resource - if the user asked a broad question and you walked through parent records to find the specific answer, teach the leaf id, not the parent. The CLI uses seeded `entity_lookups` for cross-alias resolution at recall time, so a teach under one alias (e.g., "Niners") satisfies future queries under another alias (e.g., "49ers", "San Francisco") automatically.
 
@@ -283,18 +287,22 @@ You do not need to decide whether a session "deserves" a playbook: a teach on a 
 ```bash
 # Common case: record both the resource learning AND the playbook in one call.
 opensky-pp-cli teach \
-  --query '<question>' \
   --resource <id> \
   --playbook-file ~/playbooks/<shape>.json \
-  --playbook-notes-file ~/playbooks/<shape>-notes.md
+  --playbook-notes-file ~/playbooks/<shape>-notes.md <<'EOF'
+<question>
+EOF
 # (append shell `&` to background it)
 
 # Alternate: playbook-only (no resource to record alongside).
 opensky-pp-cli teach-playbook \
-  --query '<question>' \
   --playbook-file ~/playbooks/<shape>.json \
-  --notes-file ~/playbooks/<shape>-notes.md
+  --notes-file ~/playbooks/<shape>-notes.md <<'EOF'
+<question>
+EOF
 ```
+
+Same opaque-data rule: the question rides the quoted heredoc, never the command line.
 
 Playbook files are JSON with `steps`, `entity_slots`, `expected_tool_calls`. Notes files are markdown carrying the gotchas verbatim. File-free callers (MCP-only agents) pass the same content inline: `--playbook-json` and `--playbook-notes` on the integrated `teach` form, `--playbook-json` and `--notes` on `teach-playbook`. On the integrated `teach` form, the playbook flags are optional - omit them entirely for a resource-only teach. On the standalone `teach-playbook` form, at least one of the playbook and notes flags must be set; both empty is rejected. Playbooks are keyed on the structural query family (entities stripped) so a recipe taught from one entity-shaped query applies to every other query of the same shape, with `slots_resolved` binding the live query's canonical at recall time.
 

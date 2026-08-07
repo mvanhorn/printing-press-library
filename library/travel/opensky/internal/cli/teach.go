@@ -196,7 +196,8 @@ Disabling: pass --no-learn or set ` + noLearnEnvVar + `=true.`,
 			if dryRunOK(flags) {
 				return nil
 			}
-			if strings.TrimSpace(query) == "" {
+			query, ok := queryFromArgsOrStdin(args, query, os.Stdin)
+			if !ok || strings.TrimSpace(query) == "" {
 				writeTeachErrLog(fmt.Sprintf("teach: missing --query (args=%v resources=%v)", args, resources))
 				return silentCodeErr(2)
 			}
@@ -471,13 +472,13 @@ when learnings exist.`,
   opensky-pp-cli recall "<question>" --agent --min-confidence 2`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) == 0 {
+			query, ok := queryFromArgsOrStdin(args, "", os.Stdin)
+			if !ok {
 				return cmd.Help()
 			}
 			if dryRunOK(flags) {
 				return nil
 			}
-			query := strings.Join(args, " ")
 			envelope := recallEnvelope{
 				Query:         query,
 				QueryEntities: []string{},
@@ -803,13 +804,13 @@ Requires at least one of --resource, --action, or --all.`,
 		Example: `  opensky-pp-cli learnings forget "<question>" --resource <id>
   opensky-pp-cli learnings forget "<question>" --all`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) == 0 {
+			query, ok := queryFromArgsOrStdin(args, "", os.Stdin)
+			if !ok {
 				return cmd.Help()
 			}
 			if dryRunOK(flags) {
 				return nil
 			}
-			query := strings.Join(args, " ")
 			dbPath = learnDBPath(dbPath)
 			s, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {

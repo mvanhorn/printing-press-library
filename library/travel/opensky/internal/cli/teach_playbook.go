@@ -72,7 +72,8 @@ agents can record playbooks without a file on disk.`,
 			if dryRunOK(flags) {
 				return nil
 			}
-			if strings.TrimSpace(query) == "" {
+			query, ok := queryFromArgsOrStdin(args, query, os.Stdin)
+			if !ok || strings.TrimSpace(query) == "" {
 				return usageErr(fmt.Errorf("--query is required"))
 			}
 			if strings.TrimSpace(playbookFile) != "" && strings.TrimSpace(playbookJSONInline) != "" {

@@ -68,6 +68,42 @@ func isTerminal(w io.Writer) bool {
 	return false
 }
 
+// stdinIsTerminal reports whether r is a char device (an interactive
+// terminal), as opposed to a pipe or file.
+func stdinIsTerminal(r io.Reader) bool {
+	if f, ok := r.(*os.File); ok {
+		if fi, err := f.Stat(); err == nil {
+			return (fi.Mode() & os.ModeCharDevice) != 0
+		}
+	}
+	return false
+}
+
+// queryFromArgsOrStdin resolves the query for the teach/recall/forget
+// command family. The question is opaque data: when it is not given inline
+// (flag or positional) it is read from stdin, so agent recipes can feed it
+// through a quoted heredoc (<<'EOF') with zero shell expansion instead of
+// interpolating user content into a shell command line. Reading from a
+// terminal is refused: an interactive prompt without a query is a usage
+// error, not a hang.
+func queryFromArgsOrStdin(args []string, flagQuery string, stdin io.Reader) (string, bool) {
+	if strings.TrimSpace(flagQuery) != "" {
+		return flagQuery, true
+	}
+	if len(args) > 0 {
+		return strings.Join(args, " "), true
+	}
+	if stdin == nil || stdinIsTerminal(stdin) {
+		return "", false
+	}
+	b, err := io.ReadAll(stdin)
+	if err != nil {
+		return "", false
+	}
+	q := strings.TrimSpace(string(b))
+	return q, q != ""
+}
+
 func bold(s string) string {
 	if !colorEnabled() {
 		return s
