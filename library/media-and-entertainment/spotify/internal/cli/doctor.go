@@ -248,7 +248,11 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			// — Spotify quota blocks are endpoint-class-scoped: the /me
 			// probes above can report "reachable" and "valid" while /search
 			// is blocked for hours. Surface persisted blocks so the doctor
-			// verdict matches what real commands will experience.
+			// verdict matches what real commands will experience. Blocks are
+			// scoped to this config's client ID — quota is enforced per app.
+			if cfg != nil {
+				cliutil.SetQuotaIdentity(cfg.ClientID)
+			}
 			if blocks := cliutil.ActiveQuotaBlocks(); len(blocks) > 0 {
 				quota := make([]map[string]any, 0, len(blocks))
 				for _, b := range blocks {

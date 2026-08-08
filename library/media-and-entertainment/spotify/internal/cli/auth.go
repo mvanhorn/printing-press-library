@@ -387,7 +387,9 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 			// API is usable: Spotify quota blocks are endpoint-class-scoped
 			// (/me can 200 while /search 429s for hours). Surface active
 			// persisted blocks here so "auth status OK" stops implying
-			// "requests will work".
+			// "requests will work". Blocks are scoped to this config's
+			// client ID — quota is enforced per app.
+			cliutil.SetQuotaIdentity(cfg.ClientID)
 			quotaBlocks := cliutil.ActiveQuotaBlocks()
 			// JSON envelope: {authenticated, verified, source, config, quota_blocks}.
 			if flags.asJSON {

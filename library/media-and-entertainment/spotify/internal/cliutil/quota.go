@@ -19,6 +19,8 @@
 package cliutil
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -101,26 +103,57 @@ type quotaState struct {
 }
 
 var (
-	quotaMu     sync.Mutex
-	quotaLoaded *quotaState
+	quotaMu       sync.Mutex
+	quotaIdentity string
 )
 
-func quotaStatePath() (string, error) {
+// SetQuotaIdentity scopes persisted quota state to the credential the quota
+// is actually enforced against. Spotify quota blocks are per-APP (client ID),
+// not per user account — observed directly: a block followed the app while
+// /me on the same account kept returning 200. So two accounts sharing one
+// client ID correctly share a block, but switching to a different developer
+// app must not inherit the old app's block. The identity is a short hash of
+// the client ID; empty falls back to the unscoped legacy filename.
+func SetQuotaIdentity(clientID string) {
+	quotaMu.Lock()
+	defer quotaMu.Unlock()
+	if clientID == "" {
+		quotaIdentity = ""
+		return
+	}
+	h := sha256.Sum256([]byte(clientID))
+	quotaIdentity = hex.EncodeToString(h[:8])
+}
+
+// quotaStatePathLocked returns the identity-scoped state path. Caller must
+// hold quotaMu (quotaIdentity is guarded by it).
+func quotaStatePathLocked() (string, error) {
 	dir, err := CacheDir()
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(dir, "quota.json"), nil
+	name := "quota.json"
+	if quotaIdentity != "" {
+		name = "quota-" + quotaIdentity + ".json"
+	}
+	return filepath.Join(dir, name), nil
 }
 
-// loadQuotaStateLocked lazily loads quota.json once per process; fail-open
-// (missing or corrupt file = empty state). Caller must hold quotaMu.
+// loadQuotaStateLocked reads quota state fresh from disk on EVERY call —
+// deliberately no process-lifetime cache. Concurrent CLI processes share the
+// state file, and a cached snapshot would make each process's save erase
+// blocks recorded by the others (last-writer-wins on a stale base). With
+// fresh read-modify-write under an atomic rename, a block recorded by
+// another process is visible here immediately and survives this process's
+// next save. The residual race is the microseconds between read and rename
+// of two truly simultaneous writers; the worst case is one redundant live
+// request that gets a real 429 and re-records the block. flock is
+// deliberately omitted: x/sys is only an indirect dependency and go.mod
+// tidy policy drops direct usage. Fail-open: missing or corrupt file =
+// empty state. Caller must hold quotaMu.
 func loadQuotaStateLocked() *quotaState {
-	if quotaLoaded != nil {
-		return quotaLoaded
-	}
 	state := &quotaState{Blocks: map[string]QuotaBlock{}}
-	if path, err := quotaStatePath(); err == nil {
+	if path, err := quotaStatePathLocked(); err == nil {
 		if data, err := os.ReadFile(path); err == nil {
 			_ = json.Unmarshal(data, state)
 			if state.Blocks == nil {
@@ -128,12 +161,11 @@ func loadQuotaStateLocked() *quotaState {
 			}
 		}
 	}
-	quotaLoaded = state
 	return state
 }
 
 func saveQuotaStateLocked(state *quotaState) {
-	path, err := quotaStatePath()
+	path, err := quotaStatePathLocked()
 	if err != nil {
 		return
 	}

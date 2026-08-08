@@ -105,6 +105,12 @@ func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 	}
 	httpClient := newHTTPClient(timeout, nil)
 	limiter := cliutil.NewAdaptiveLimiter(rateLimit)
+	// PATCH(amend-2026-08-08: scope quota state to the client ID) — Spotify
+	// enforces quota per app, so persisted blocks and the learned limiter
+	// ceiling must not leak across developer apps sharing one cache dir.
+	if cfg != nil {
+		cliutil.SetQuotaIdentity(cfg.ClientID)
+	}
 	// PATCH(amend-2026-08-08: persist limiter ceiling) — seed the adaptive
 	// limiter with the rate ceiling learned in prior sessions so a fresh
 	// process starts below it instead of re-triggering 429s to find it.

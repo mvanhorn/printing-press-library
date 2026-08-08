@@ -4,25 +4,22 @@
 package cliutil
 
 import (
+	"encoding/json"
 	"net/http"
+	"os"
 	"strings"
 	"testing"
 	"time"
 )
 
-// resetQuotaStateForTest clears the in-process quota cache so each test sees
-// only its own temp-dir state.
+// resetQuotaStateForTest points quota state at a fresh temp dir and clears
+// the identity scope so each test sees only its own state. There is no
+// in-process cache to clear — state is read fresh from disk per operation.
 func resetQuotaStateForTest(t *testing.T) {
 	t.Helper()
 	t.Setenv("SPOTIFY_CACHE_DIR", t.TempDir())
-	quotaMu.Lock()
-	quotaLoaded = nil
-	quotaMu.Unlock()
-	t.Cleanup(func() {
-		quotaMu.Lock()
-		quotaLoaded = nil
-		quotaMu.Unlock()
-	})
+	SetQuotaIdentity("")
+	t.Cleanup(func() { SetQuotaIdentity("") })
 }
 
 func respWithRetryAfter(value string) *http.Response {
@@ -89,10 +86,8 @@ func TestQuotaBlockRoundTripAndExpiry(t *testing.T) {
 		t.Fatal("me must not be blocked by a search block")
 	}
 
-	// Survives a fresh in-process load (simulated process restart).
-	quotaMu.Lock()
-	quotaLoaded = nil
-	quotaMu.Unlock()
+	// Survives a process restart: state is read fresh from disk on every
+	// operation, so a second call is equivalent to a new process's first.
 	if _, blocked := QuotaBlockedUntil("search"); !blocked {
 		t.Fatal("block must survive reload from disk")
 	}
@@ -147,5 +142,75 @@ func TestQuotaBlockErrorMessageCarriesWallClock(t *testing.T) {
 		if !strings.Contains(msg, want) {
 			t.Errorf("QuotaBlockError message missing %q: %s", want, msg)
 		}
+	}
+}
+
+// Regression for review finding "quota state crosses accounts": blocks are
+// scoped per client ID (the credential Spotify enforces quota against), so a
+// block recorded under one app must not fail-fast a different app, while
+// returning to the first app must still see it.
+func TestQuotaStateScopedByClientIdentity(t *testing.T) {
+	resetQuotaStateForTest(t)
+	until := time.Now().Add(2 * time.Hour)
+
+	SetQuotaIdentity("client-app-A")
+	RecordQuotaBlock("search", until)
+	if _, blocked := QuotaBlockedUntil("search"); !blocked {
+		t.Fatal("app A should see its own block")
+	}
+
+	SetQuotaIdentity("client-app-B")
+	if _, blocked := QuotaBlockedUntil("search"); blocked {
+		t.Fatal("app B must not inherit app A's quota block")
+	}
+
+	SetQuotaIdentity("client-app-A")
+	if _, blocked := QuotaBlockedUntil("search"); !blocked {
+		t.Fatal("switching back to app A must still see the block")
+	}
+}
+
+// Regression for review finding "concurrent quota updates overwrite state":
+// state is read fresh from disk per operation, so a block recorded by
+// another process (simulated by writing the state file directly) must
+// (a) be visible immediately and (b) survive this process writing unrelated
+// limiter-ceiling state.
+func TestExternalBlockVisibleAndSurvivesCeilingWrite(t *testing.T) {
+	resetQuotaStateForTest(t)
+	until := time.Now().Add(2 * time.Hour).Truncate(time.Second)
+
+	// Prime this process's view of the (empty) state, as a long-running
+	// process would have before the other process records its block.
+	if _, blocked := QuotaBlockedUntil("search"); blocked {
+		t.Fatal("no block should exist yet")
+	}
+
+	// "Other process" records a block by writing the shared state file.
+	quotaMu.Lock()
+	path, err := quotaStatePathLocked()
+	quotaMu.Unlock()
+	if err != nil {
+		t.Fatal(err)
+	}
+	external := quotaState{Blocks: map[string]QuotaBlock{
+		"search": {Class: "search", BlockedUntil: until, RecordedAt: time.Now()},
+	}}
+	data, _ := json.Marshal(external)
+	if err := os.WriteFile(path, data, 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	// (a) visible without any restart.
+	if _, blocked := QuotaBlockedUntil("search"); !blocked {
+		t.Fatal("externally recorded block must be visible to a running process")
+	}
+
+	// (b) an unrelated write from this process must not erase it.
+	RecordLimiterCeiling(2.5)
+	if _, blocked := QuotaBlockedUntil("search"); !blocked {
+		t.Fatal("ceiling write erased another process's active block")
+	}
+	if got := PersistedLimiterCeiling(); got != 2.5 {
+		t.Fatalf("ceiling = %v, want 2.5", got)
 	}
 }
