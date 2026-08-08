@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "deferred_to_upstream": [
+    {
+      "summary": "Quota-block handling in the shared client/ratelimit templates — distinguish hours-scale Retry-After (quota block: persist, fail fast, surface wall-clock reset) from seconds-scale rate limits (keep the clamped retry loop).",
+      "reason": "Generator-template behavior; every printed CLI against a quota-metered API (Spotify daily quotas, observed Retry-After: 67209) burns its full retry budget per process against a guaranteed 429."
+    },
+    {
+      "summary": "Cache identity and TTL policy in the shared client template — key on stable credential identity (refresh token) instead of the rotating auth header; per-path-class TTLs and class-scoped invalidation instead of flat 5min + RemoveAll.",
+      "reason": "Any OAuth API with hourly token rotation orphans the generated cache each rotation; wholesale invalidation throws away catalog-class warmth on every mutation."
+    }
+  ],
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/4036"
+}

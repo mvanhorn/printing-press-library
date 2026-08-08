@@ -185,7 +185,12 @@ Run 'spotify-pp-cli doctor' to verify auth and connectivity.`,
 	rootCmd.PersistentFlags().DurationVar(&flags.maxAge, "max-age", 30*time.Minute, "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables")
 	rootCmd.PersistentFlags().StringVar(&flags.profileName, "profile", "", "Apply values from a saved profile (see 'spotify-pp-cli profile list')")
 	rootCmd.PersistentFlags().StringVar(&flags.deliverSpec, "deliver", "", "Route output to a sink: stdout (default), file:<path>, webhook:<url>")
-	rootCmd.PersistentFlags().Float64Var(&flags.rateLimit, "rate-limit", 0, "Max requests per second (0 to disable)")
+	// PATCH(amend-2026-08-08: adaptive limiter on by default) — the default
+	// of 0 disabled the AdaptiveLimiter entirely, leaving the ramp/halve
+	// pacing machinery dead code while unpaced bursts burned Spotify's
+	// rolling-30s window. 3 req/s is a safe floor; 0 remains the explicit
+	// opt-out.
+	rootCmd.PersistentFlags().Float64Var(&flags.rateLimit, "rate-limit", 3, "Max requests per second (default 3, adaptive; 0 disables client-side pacing)")
 
 	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
 		if _, err := cliutil.SetHomeOverride(flags.homePath); err != nil {

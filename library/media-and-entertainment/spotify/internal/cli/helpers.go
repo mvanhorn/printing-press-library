@@ -555,6 +555,15 @@ func classifyAPIError(err error, flags *rootFlags) error {
 		return err
 	}
 
+	// PATCH(amend-2026-08-08: quota circuit breaker) — a persisted quota
+	// block surfaces as QuotaBlockError (no "HTTP 429" substring); map it
+	// to the rate-limited exit code without appending retry hints — the
+	// message already carries the wall-clock reset time.
+	var quotaBlocked *cliutil.QuotaBlockError
+	if errors.As(err, &quotaBlocked) {
+		return rateLimitErr(err)
+	}
+
 	msg := err.Error()
 	switch {
 	case strings.Contains(msg, "HTTP 409"):
