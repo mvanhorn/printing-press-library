@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "id": "conductor-preflight",
+  "applied_at": "2026-08-08",
+  "base_run_id": "20260805-conductor",
+  "base_printing_press_version": "4.30.1",
+  "summary": "feat(conductor): add deterministic launch preflight",
+  "reason": "Recent launches created workspaces before unsupported model, GitHub, vault, and bootstrap-prerequisite failures were known.",
+  "files": [
+    ".printing-press.json",
+    "README.md",
+    "SKILL.md",
+    "internal/cli/preflight.go",
+    "internal/cli/preflight_test.go",
+    "internal/cli/root.go",
+    "internal/cli/which.go"
+  ],
+  "validated_outcome": "focused preflight fixtures and publish validation pass",
+  "findings_addressed": [
+    "ENG-549"
+  ]
+}

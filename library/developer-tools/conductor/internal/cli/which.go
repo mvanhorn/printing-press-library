@@ -27,6 +27,7 @@ type whichEntry struct {
 // `--help`; `which` exists to resolve a natural-language capability
 // query to one of the commands the skill says matter most.
 var whichIndex = []whichEntry{
+	{Command: "preflight", Description: "Verify a Conductor launch without creating a workspace.", Group: "Bounded agent orchestration", WhyItMatters: "Use this to block unsupported models, inaccessible repositories or vaults, missing bootstrap prerequisites, and duplicate work before launch."},
 	{Command: "launch", Description: "Create a workspace and first session, send a brief, and return the Conductor deep link.", Group: "Bounded agent orchestration", WhyItMatters: "Use this when an agent needs a new isolated Conductor workspace and task in one call."},
 	{Command: "monitor", Description: "Poll a session until real completion while streaming only new transcript events.", Group: "Safe lifecycle control", WhyItMatters: "Use this instead of treating one idle response as proof that a queued task finished."},
 	{Command: "steer", Description: "Send follow-up guidance to an existing Conductor session with a clear delivery receipt.", Group: "Safe lifecycle control", WhyItMatters: "Use this to correct or refine active work without creating another session."},

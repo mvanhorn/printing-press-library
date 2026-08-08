@@ -13,11 +13,20 @@
   "researched_at": "2026-08-05T19:55:00Z",
   "novel_features": [
     {
+      "name": "Preflight",
+      "command": "preflight",
+      "description": "Verify a Conductor launch without creating a workspace.",
+      "rationale": "Combines model-contract, Conductor, GitHub, duplicate-work, environment, tool, vault, and repository-file checks into one read-only receipt.",
+      "example": "conductor-pp-cli preflight --issue ENG-549 --project-id proj_123 --repository owner/repo --branch main --harness codex --model gpt-5.4 --require-vault 'Coding Agents' --require-tool git --dry-run --agent",
+      "why_it_matters": "Use this to block unsupported models, inaccessible repositories or vaults, missing bootstrap prerequisites, and duplicate work before launch.",
+      "group": "Bounded agent orchestration"
+    },
+    {
       "name": "Launch",
       "command": "launch",
       "description": "Create a workspace and first session, send a brief, and return the Conductor deep link.",
       "rationale": "Combines workspace launch, message delivery, and identifiers into one bounded operator action.",
-      "example": "conductor-pp-cli launch --repository-url https://github.com/example/acme --branch main --harness codex --model gpt-5.4 --effort high --brief-file issue.md --agent",
+      "example": "conductor-pp-cli launch --repository-url https://github.com/example/acme --branch main --harness codex --model gpt-5.4 --effort high --brief-file issue.md --dry-run --agent",
       "why_it_matters": "Use this when an agent needs a new isolated Conductor workspace and task in one call.",
       "group": "Bounded agent orchestration"
     },
@@ -44,7 +53,7 @@
       "command": "run",
       "description": "Launch, monitor, and collect the final transcript and deep link with explicit timeout rules.",
       "rationale": "Joins asynchronous lifecycle operations into a single bounded receipt without merging or deploying.",
-      "example": "conductor-pp-cli run --repository-url https://github.com/example/acme --branch main --harness codex --model gpt-5.4 --effort high --brief-file issue.md --timeout 30m --agent",
+      "example": "conductor-pp-cli run --repository-url https://github.com/example/acme --branch main --harness codex --model gpt-5.4 --effort high --brief-file issue.md --timeout 30m --dry-run --agent",
       "why_it_matters": "Use this when the caller needs a complete Conductor task receipt, not just a launched workspace.",
       "group": "Bounded agent orchestration"
     },
@@ -53,7 +62,7 @@
       "command": "plan-implement",
       "description": "Keep a planner or reviewer session separate from the implementation session in one workspace.",
       "rationale": "Uses Conductor's multi-session workspace model to preserve role separation and context boundaries.",
-      "example": "conductor-pp-cli plan-implement --repository-url https://github.com/example/acme --branch main --planner-agent claude --implementer-agent codex --brief-file issue.md --agent",
+      "example": "conductor-pp-cli plan-implement --repository-url https://github.com/example/acme --branch main --planner-agent claude --implementer-agent codex --brief-file issue.md --dry-run --agent",
       "why_it_matters": "Use this when implementation should start from an explicit plan without mixing planner and coder context.",
       "group": "Bounded agent orchestration"
     },
@@ -69,11 +78,20 @@
   ],
   "novel_features_built": [
     {
+      "name": "Preflight",
+      "command": "preflight",
+      "description": "Verify a Conductor launch without creating a workspace.",
+      "rationale": "Combines model-contract, Conductor, GitHub, duplicate-work, environment, tool, vault, and repository-file checks into one read-only receipt.",
+      "example": "conductor-pp-cli preflight --issue ENG-549 --project-id proj_123 --repository owner/repo --branch main --harness codex --model gpt-5.4 --require-vault 'Coding Agents' --require-tool git --dry-run --agent",
+      "why_it_matters": "Use this to block unsupported models, inaccessible repositories or vaults, missing bootstrap prerequisites, and duplicate work before launch.",
+      "group": "Bounded agent orchestration"
+    },
+    {
       "name": "Launch",
       "command": "launch",
       "description": "Create a workspace and first session, send a brief, and return the Conductor deep link.",
       "rationale": "Combines workspace launch, message delivery, and identifiers into one bounded operator action.",
-      "example": "conductor-pp-cli launch --repository-url https://github.com/example/acme --branch main --harness codex --model gpt-5.4 --effort high --brief-file issue.md --agent",
+      "example": "conductor-pp-cli launch --repository-url https://github.com/example/acme --branch main --harness codex --model gpt-5.4 --effort high --brief-file issue.md --dry-run --agent",
       "why_it_matters": "Use this when an agent needs a new isolated Conductor workspace and task in one call.",
       "group": "Bounded agent orchestration"
     },
@@ -100,7 +118,7 @@
       "command": "run",
       "description": "Launch, monitor, and collect the final transcript and deep link with explicit timeout rules.",
       "rationale": "Joins asynchronous lifecycle operations into a single bounded receipt without merging or deploying.",
-      "example": "conductor-pp-cli run --repository-url https://github.com/example/acme --branch main --harness codex --model gpt-5.4 --effort high --brief-file issue.md --timeout 30m --agent",
+      "example": "conductor-pp-cli run --repository-url https://github.com/example/acme --branch main --harness codex --model gpt-5.4 --effort high --brief-file issue.md --timeout 30m --dry-run --agent",
       "why_it_matters": "Use this when the caller needs a complete Conductor task receipt, not just a launched workspace.",
       "group": "Bounded agent orchestration"
     },
@@ -109,7 +127,7 @@
       "command": "plan-implement",
       "description": "Keep a planner or reviewer session separate from the implementation session in one workspace.",
       "rationale": "Uses Conductor's multi-session workspace model to preserve role separation and context boundaries.",
-      "example": "conductor-pp-cli plan-implement --repository-url https://github.com/example/acme --branch main --planner-agent claude --implementer-agent codex --brief-file issue.md --agent",
+      "example": "conductor-pp-cli plan-implement --repository-url https://github.com/example/acme --branch main --planner-agent claude --implementer-agent codex --brief-file issue.md --dry-run --agent",
       "why_it_matters": "Use this when implementation should start from an explicit plan without mixing planner and coder context.",
       "group": "Bounded agent orchestration"
     },
@@ -129,7 +147,7 @@
   "narrative": {
     "display_name": "Conductor Cloud",
     "headline": "Every Conductor Cloud API primitive, plus bounded session orchestration that handles asynchronous lifecycle races.",
-    "value_prop": "Use `launch`, `monitor`, `steer`, and `run` to control coding-agent work without relying on the desktop app. The CLI treats status changes, transcript cursors, cancellation, and timeouts as one lifecycle instead of unrelated API calls.",
+    "value_prop": "Use `preflight`, `launch`, `monitor`, `steer`, and `run` to control coding-agent work without relying on the desktop app. The CLI blocks known launch failures before workspace creation and treats status changes, transcript cursors, cancellation, and timeouts as one lifecycle instead of unrelated API calls.",
     "auth_narrative": "Set `CONDUCTOR_API_KEY` to a Conductor Cloud API key. The CLI sends it only as a bearer token to `api.conductor.build` and never prints it.",
     "quickstart": [
       {
@@ -170,6 +188,11 @@
       "Running local Conductor desktop-only workflows"
     ],
     "recipes": [
+      {
+        "title": "Block a bad launch before workspace creation",
+        "command": "conductor-pp-cli preflight --issue ENG-549 --project-id proj_123 --repository owner/repo --branch main --harness codex --model gpt-5.4 --require-vault 'Coding Agents' --require-tool git --agent",
+        "explanation": "Returns PASS, BLOCKED, or RESUME with deterministic gate evidence and never creates a workspace."
+      },
       {
         "title": "Monitor an existing session",
         "command": "conductor-pp-cli monitor sess_123 --timeout 30m --interval 5s --agent",

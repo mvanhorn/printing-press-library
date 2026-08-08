@@ -1003,6 +1003,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		// Command-mirror capabilities are exposed through MCP by shelling out
 		// to the companion CLI binary.
 		"command_mirror_capabilities": []map[string]string{
+			{"name": "Preflight", "command": "preflight", "description": "Verify a Conductor launch without creating a workspace.", "rationale": "Combines model-contract, Conductor, GitHub, duplicate-work, environment, tool, vault, and repository-file checks into one read-only receipt.", "via": "mcp-command-mirror"},
 			{"name": "Launch", "command": "launch", "description": "Create a workspace and first session, send a brief, and return the Conductor deep link.", "rationale": "Combines workspace launch, message delivery, and identifiers into one bounded operator action.", "via": "mcp-command-mirror"},
 			{"name": "Monitor", "command": "monitor", "description": "Poll a session until real completion while streaming only new transcript events.", "rationale": "Correct completion needs status history plus transcript changes to avoid Conductor's queued false-idle race.", "via": "mcp-command-mirror"},
 			{"name": "Steer", "command": "steer", "description": "Send follow-up guidance to an existing Conductor session with a clear delivery receipt.", "rationale": "Turns the message primitive into an agent-safe intervention command.", "via": "mcp-command-mirror"},

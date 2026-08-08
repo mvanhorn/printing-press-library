@@ -218,6 +218,7 @@ func newRootCmd(flags *rootFlags) *cobra.Command {
 		Long: `Conductor CLI — Every Conductor Cloud API primitive, plus bounded session orchestration that handles asynchronous lifecycle races.
 
 Highlights (not in the official API docs):
+  • preflight   Verify a Conductor launch without creating a workspace.
   • launch   Create a workspace and first session, send a brief, and return the Conductor deep link.
   • monitor   Poll a session until real completion while streaming only new transcript events.
   • steer   Send follow-up guidance to an existing Conductor session with a clear delivery receipt.
@@ -402,6 +403,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	addNovelCommandIfAbsent(rootCmd, newNovelLaunchCmd(flags))
 	addNovelCommandIfAbsent(rootCmd, newNovelMonitorCmd(flags))
 	addNovelCommandIfAbsent(rootCmd, newNovelPlanImplementCmd(flags))
+	addNovelCommandIfAbsent(rootCmd, newNovelPreflightCmd(flags))
 	addNovelCommandIfAbsent(rootCmd, newNovelRunCmd(flags))
 	addNovelCommandIfAbsent(rootCmd, newNovelSteerCmd(flags))
 	// Attach the conditional platform identity command last so ordinary,

@@ -1,7 +1,7 @@
 {
-  "dir": "\u003ccli-dir\u003e/cli-working",
-  "spec_path": "\u003crunstate\u003e/conductor-openapi-2026-08-05.json",
-  "spec_source": "caller",
+  "dir": "\u003ccli-dir\u003e/conductor",
+  "spec_path": "\u003ccli-dir\u003e/spec.json",
+  "spec_source": "bundled",
   "verdict": "PASS",
   "path_check": {
     "tested": 0,
@@ -49,8 +49,8 @@
   },
   "wiring_check": {
     "command_tree": {
-      "defined": 95,
-      "registered": 95
+      "defined": 96,
+      "registered": 96
     },
     "config_consistency": {
       "consistent": true
@@ -63,8 +63,8 @@
     }
   },
   "novel_features_check": {
-    "planned": 6,
-    "found": 6
+    "planned": 7,
+    "found": 7
   },
   "mcp_surface_parity": {
     "state": "runtime_walking",
@@ -72,7 +72,7 @@
     "detail": "MCP surface mirrors the Cobra tree at runtime"
   },
   "reimplementation_check": {
-    "checked": 6,
+    "checked": 7,
     "exempted_via_store": 0
   },
   "description_drift_check": {
@@ -82,13 +82,13 @@
     "checked": 7
   },
   "print_json_filtered_check": {
-    "checked": 65
+    "checked": 66
   },
   "test_presence": {
     "checked": 2
   },
   "naming_check": {
-    "checked": 65
+    "checked": 66
   },
   "sync_param_drop_check": {
     "checked": 0,

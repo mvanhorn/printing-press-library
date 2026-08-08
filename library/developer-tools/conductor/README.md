@@ -2,7 +2,7 @@
 
 **Every Conductor Cloud API primitive, plus bounded session orchestration that handles asynchronous lifecycle races.**
 
-Use `launch`, `monitor`, `steer`, and `run` to control coding-agent work without relying on the desktop app. The CLI treats status changes, transcript cursors, cancellation, and timeouts as one lifecycle instead of unrelated API calls.
+Use `preflight`, `launch`, `monitor`, `steer`, and `run` to control coding-agent work without relying on the desktop app. The CLI blocks known launch failures before workspace creation and treats status changes, transcript cursors, cancellation, and timeouts as one lifecycle instead of unrelated API calls.
 
 ## Install
 
@@ -146,26 +146,33 @@ conductor-pp-cli launch --repository-url https://github.com/example/acme --branc
 These capabilities aren't available in any other tool for this API.
 
 ### Bounded agent orchestration
+- **`preflight`** — Verify a Conductor launch without creating a workspace.
+
+  _Use this to block unsupported models, inaccessible repositories or vaults, missing bootstrap prerequisites, and duplicate work before launch._
+
+  ```bash
+  conductor-pp-cli preflight --issue ENG-549 --project-id proj_123 --repository owner/repo --branch main --harness codex --model gpt-5.4 --require-vault 'Coding Agents' --require-tool git --dry-run --agent
+  ```
 - **`launch`** — Create a workspace and first session, send a brief, and return the Conductor deep link.
 
   _Use this when an agent needs a new isolated Conductor workspace and task in one call._
 
   ```bash
-  conductor-pp-cli launch --repository-url https://github.com/example/acme --branch main --harness codex --model gpt-5.4 --effort high --brief-file issue.md --agent
+  conductor-pp-cli launch --repository-url https://github.com/example/acme --branch main --harness codex --model gpt-5.4 --effort high --brief-file issue.md --dry-run --agent
   ```
 - **`run`** — Launch, monitor, and collect the final transcript and deep link with explicit timeout rules.
 
   _Use this when the caller needs a complete Conductor task receipt, not just a launched workspace._
 
   ```bash
-  conductor-pp-cli run --repository-url https://github.com/example/acme --branch main --harness codex --model gpt-5.4 --effort high --brief-file issue.md --timeout 30m --agent
+  conductor-pp-cli run --repository-url https://github.com/example/acme --branch main --harness codex --model gpt-5.4 --effort high --brief-file issue.md --timeout 30m --dry-run --agent
   ```
 - **`plan-implement`** — Keep a planner or reviewer session separate from the implementation session in one workspace.
 
   _Use this when implementation should start from an explicit plan without mixing planner and coder context._
 
   ```bash
-  conductor-pp-cli plan-implement --repository-url https://github.com/example/acme --branch main --planner-agent claude --implementer-agent codex --brief-file issue.md --agent
+  conductor-pp-cli plan-implement --repository-url https://github.com/example/acme --branch main --planner-agent claude --implementer-agent codex --brief-file issue.md --dry-run --agent
   ```
 
 ### Safe lifecycle control
@@ -194,6 +201,14 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ## Recipes
+
+### Block a bad launch before workspace creation
+
+```bash
+conductor-pp-cli preflight --issue ENG-549 --project-id proj_123 --repository owner/repo --branch main --harness codex --model gpt-5.4 --require-vault 'Coding Agents' --require-tool git --agent
+```
+
+Returns PASS, BLOCKED, or RESUME with deterministic gate evidence and never creates a workspace.
 
 ### Monitor an existing session
 
