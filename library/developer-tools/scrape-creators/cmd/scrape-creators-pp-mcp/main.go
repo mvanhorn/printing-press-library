@@ -24,9 +24,6 @@ const (
 	defaultHTTPAddr = ":7777"
 )
 
-// version is the printed MCP server's version, overridable at build time via ldflags.
-var version = "2026.8.1"
-
 func main() {
 	// Pin the learn-event surface for this process and every walker
 	// shell-out child, so usage events record surface=mcp.
@@ -37,7 +34,7 @@ func main() {
 	}
 	s := server.NewMCPServer(
 		"Scrape Creators",
-		version,
+		"2026.6.2",
 		server.WithToolCapabilities(false),
 	)
 

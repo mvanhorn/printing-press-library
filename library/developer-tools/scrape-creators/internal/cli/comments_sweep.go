@@ -112,6 +112,11 @@ it for one post's complete threads; use 'comments thread' instead.`, "\n"),
 			// --max-posts 0) case.
 			const maxSweepPages = 25
 			cursor := ""
+			// --max-credits is a hard ceiling: stop BEFORE any fetch whose
+			// estimated cost (the last observed per-fetch charge, floor 1)
+			// would push the charged total past the budget, so the sweep can
+			// never spend beyond what the caller authorized.
+			var lastFetchCost int64 = 1
 			for page := 1; ; page++ {
 				pastCutoff := false
 				for _, p := range posts {
@@ -120,9 +125,9 @@ it for one post's complete threads; use 'comments thread' instead.`, "\n"),
 						env.Note = fmt.Sprintf("stopped at --max-posts %d", maxPosts)
 						break
 					}
-					if maxCredits > 0 && env.CreditsCharged >= maxCredits {
+					if maxCredits > 0 && env.CreditsCharged+lastFetchCost > maxCredits {
 						env.StoppedEarly = true
-						env.Note = fmt.Sprintf("stopped at --max-credits %d; rerun with a higher budget to continue", maxCredits)
+						env.Note = fmt.Sprintf("stopped at --max-credits %d: the next fetch (est. %d cr) would exceed the budget; rerun with a higher budget to continue", maxCredits, lastFetchCost)
 						break
 					}
 					if !cutoff.IsZero() && !p.takenAt.IsZero() && p.takenAt.Before(cutoff) {
@@ -144,6 +149,9 @@ it for one post's complete threads; use 'comments thread' instead.`, "\n"),
 					}
 					pl := parseCommentsPayload(raw)
 					env.CreditsCharged += pl.creditsCharged
+					if pl.creditsCharged > 0 {
+						lastFetchCost = pl.creditsCharged
+					}
 					rowsBatch := make([]store.CommentRow, 0, len(pl.comments))
 					for _, cm := range pl.comments {
 						rows, _ := commentToRows(cm, p.url, "")
@@ -177,6 +185,11 @@ it for one post's complete threads; use 'comments thread' instead.`, "\n"),
 					env.Note = fmt.Sprintf("stopped at the %d-page posts-feed safety cap; rerun with --since or --max-posts to bound the sweep", maxSweepPages)
 					break
 				}
+				if maxCredits > 0 && env.CreditsCharged+lastFetchCost > maxCredits {
+					env.StoppedEarly = true
+					env.Note = fmt.Sprintf("stopped at --max-credits %d: the next posts page (est. %d cr) would exceed the budget; rerun with a higher budget to continue", maxCredits, lastFetchCost)
+					break
+				}
 				cursor = next
 				postsRaw, err = c.Get(ctx, "/v2/instagram/user/posts", map[string]string{"handle": handle, "trim": "true", "next_max_id": cursor})
 				if err != nil {
@@ -199,7 +212,7 @@ it for one post's complete threads; use 'comments thread' instead.`, "\n"),
 		},
 	}
 	cmd.Flags().StringVar(&since, "since", "", "Only sweep posts newer than this window (e.g. 7d, 24h, 1w)")
-	cmd.Flags().Int64Var(&maxCredits, "max-credits", 100, "Stop cleanly once this many credits have been charged (0 = no budget)")
+	cmd.Flags().Int64Var(&maxCredits, "max-credits", 100, "Hard credit ceiling: stop before any fetch that would exceed it (0 = no budget)")
 	cmd.Flags().IntVar(&maxPosts, "max-posts", 0, "Maximum posts to sweep (0 = all returned)")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
 	return cmd

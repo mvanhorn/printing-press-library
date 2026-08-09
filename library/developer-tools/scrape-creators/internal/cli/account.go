@@ -19,7 +19,7 @@ func newAccountCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newAccountListGetapiusageCmd(flags))
 	cmd.AddCommand(newAccountListGetdailyusagecountCmd(flags))
 	cmd.AddCommand(newAccountListGetmostusedroutesCmd(flags))
-	addNovelCommandIfAbsent(cmd, newNovelAccountBudgetCmd(flags))
-	addNovelCommandIfAbsent(cmd, newNovelAccountEstimateCmd(flags))
+	cmd.AddCommand(newNovelAccountBudgetCmd(flags))
+	cmd.AddCommand(newNovelAccountEstimateCmd(flags))
 	return cmd
 }
