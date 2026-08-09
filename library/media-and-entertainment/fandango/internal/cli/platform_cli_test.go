@@ -317,7 +317,7 @@ func TestPlatformCLIConformanceOutputMetadataAndAnalytics(t *testing.T) {
 		&rootFlags{asJSON: true, agent: true, platformSession: session},
 	)
 	for _, formatFlags := range formatFlags {
-		declarePlatformAnalytics(formatFlags, declaration)
+		formatFlags.platformAnalytics = &declaration
 		output.Reset()
 		if err := printJSONFiltered(&output, map[string]any{"net_sales": 0}, formatFlags); err == nil || !strings.Contains(err.Error(), "all_business_metrics_zero_or_null") {
 			t.Fatalf("all-zero analytics output was not rejected for flags %+v: %v", formatFlags, err)

@@ -1119,22 +1119,6 @@ func validatePlatformAnalytics(flags *rootFlags) error {
 	return platform.ValidateAnalytics(declaration)
 }
 
-func declarePlatformAnalytics(flags *rootFlags, declaration platform.AnalyticsDeclaration) {
-	if flags == nil {
-		return
-	}
-	flags.platformAnalytics = &declaration
-}
-
-func resolvePlatformWindow(ctx context.Context, request platform.WindowRequest, policy platform.WindowPolicy) (platform.ResolvedWindow, error) {
-	window, err := platform.ResolveWindow(request, policy)
-	if err != nil {
-		return platform.ResolvedWindow{}, err
-	}
-	platform.SetContextResolvedWindow(ctx, window)
-	return window, nil
-}
-
 func wrapPlatformStructuredOutput(data json.RawMessage, flags *rootFlags, resultKey string, mergeOwnedEnvelope bool) (json.RawMessage, error) {
 	if flags == nil || flags.platformSession == nil {
 		return data, nil

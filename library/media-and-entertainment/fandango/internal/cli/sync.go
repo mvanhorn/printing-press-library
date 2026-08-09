@@ -1690,7 +1690,7 @@ func parseSinceDuration(s string) (time.Time, error) {
 }
 
 func defaultSyncResources() []string {
-	return []string{}
+	return []string{"comingsoon", "intheaters"}
 }
 
 // knownSyncResourceNames returns every resource name sync will accept —

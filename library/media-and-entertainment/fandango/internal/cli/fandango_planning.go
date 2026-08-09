@@ -128,8 +128,11 @@ func fandangoDateTime(date, clock string) (time.Time, error) {
 }
 
 func rowTime(row fandangoPlanRow) (time.Time, bool) {
-	for _, layout := range []string{time.RFC3339, "2006-01-02T15:04:05", "2006-01-02 15:04"} {
-		if parsed, err := time.Parse(layout, row.Start); err == nil {
+	if parsed, err := time.Parse(time.RFC3339, row.Start); err == nil {
+		return parsed, true
+	}
+	for _, layout := range []string{"2006-01-02T15:04:05", "2006-01-02 15:04"} {
+		if parsed, err := time.ParseInLocation(layout, row.Start, time.Local); err == nil {
 			return parsed, true
 		}
 	}
