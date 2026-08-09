@@ -1,0 +1,51 @@
+version: 2
+project_name: bookclicker-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: bookclicker-pp-cli
+    main: ./cmd/bookclicker-pp-cli
+    binary: bookclicker-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/marketing/bookclicker/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: bookclicker-pp-mcp
+    main: ./cmd/bookclicker-pp-mcp
+    binary: bookclicker-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: bookclicker-pp-cli
+    repository:
+      owner: wmiles81
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every Bookclicker workflow, plus a local mirror of the newsletter marketplace that makes launch planning a single query."
+    install: |
+      bin.install "bookclicker-pp-cli"
+      bin.install "bookclicker-pp-mcp"

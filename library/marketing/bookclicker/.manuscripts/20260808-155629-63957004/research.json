@@ -1,0 +1,286 @@
+{
+  "api_name": "bookclicker",
+  "novelty_score": 9,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-08T22:20:00Z",
+  "novel_features": [
+    {
+      "name": "Cross-list launch planner",
+      "command": "plan",
+      "description": "Find every newsletter that can run your book in a date window, ranked by fit.",
+      "rationale": "Requires all ~4,000 marketplace lists plus their weekday inventory patterns joined locally; the web UI opens one calendar at a time across 161 pages.",
+      "example": "bookclicker-pp-cli plan --book 12345 --from 2026-09-01 --to 2026-09-30 --max-price 25 --agent",
+      "why_it_matters": "Reach for this instead of paging the marketplace: it answers 'who can promote this book, when, for how much' in one call.",
+      "group": "Launch planning"
+    },
+    {
+      "name": "Offline marketplace search",
+      "command": "search",
+      "description": "Full-text search every synced newsletter by name, pen name, or genre in milliseconds.",
+      "rationale": "FTS5 over the local mirror; the API offers no full-text search spanning its 161 pages.",
+      "example": "bookclicker-pp-cli search \"romantic suspense\" --agent",
+      "why_it_matters": "Use for any 'which lists cover X' question rather than walking paginated API results.",
+      "group": "Launch planning"
+    },
+    {
+      "name": "Reach-per-dollar ranking",
+      "command": "plan",
+      "description": "Rank candidate lists by estimated opens per dollar instead of raw subscriber count.",
+      "rationale": "Requires active_member_count, open_rate and per-type price compared across every list at once.",
+      "example": "bookclicker-pp-cli plan --from 2026-09-01 --to 2026-09-30 --rank value --limit 20 --agent",
+      "why_it_matters": "Biggest list is rarely the best value; this is the ranking the UI cannot express.",
+      "group": "Launch planning"
+    },
+    {
+      "name": "Swap reciprocity ledger",
+      "command": "swap-balance",
+      "description": "See which swap partners agreed to a swap and then cancelled or declined.",
+      "rationale": "Requires reservation history joined by counterparty. Bookclicker pairs both halves of a swap at booking time, so reliability - not reciprocity - is the signal the data supports.",
+      "example": "bookclicker-pp-cli swap-balance --flaky --agent",
+      "why_it_matters": "Use before rebooking a partner: it surfaces repeat cancellers that the product never flags.",
+      "group": "Partner intelligence"
+    },
+    {
+      "name": "Partner performance",
+      "command": "partner-roi",
+      "description": "Rank past promo partners by delivered reach against what they cost.",
+      "rationale": "Requires historical reservations joined to the list metrics captured at booking time.",
+      "example": "bookclicker-pp-cli partner-roi --since 180d --agent",
+      "why_it_matters": "Use when deciding who to rebook; needs at least one prior sync of history.",
+      "group": "Partner intelligence"
+    },
+    {
+      "name": "List quality drift",
+      "command": "drift",
+      "description": "Show newsletters whose open or click rate has decayed since earlier syncs.",
+      "rationale": "Requires two or more local snapshots; rate history exists nowhere in the product.",
+      "example": "bookclicker-pp-cli drift --min-drop 0.05 --agent",
+      "why_it_matters": "Catches decaying lists before you spend a launch slot on them.",
+      "group": "Partner intelligence"
+    },
+    {
+      "name": "Confirmations due",
+      "command": "confirm-due",
+      "description": "List every promo awaiting your confirmation, oldest first.",
+      "rationale": "Requires local reservation state to know what is pending, as a list rather than a home-page widget.",
+      "example": "bookclicker-pp-cli confirm-due --agent",
+      "why_it_matters": "This is the product's recurring manual chore; run it before confirming promos.",
+      "group": "Operations"
+    },
+    {
+      "name": "Launch coverage health",
+      "command": "launch health",
+      "description": "Show which dates in a book's launch window still have no promo booked.",
+      "rationale": "Requires joining the book's launch window against booked reservations locally.",
+      "example": "bookclicker-pp-cli launch health --book 12345 --agent",
+      "why_it_matters": "Answers 'is this launch actually covered' without reading a calendar by eye.",
+      "group": "Operations"
+    },
+    {
+      "name": "Remaining promo capacity",
+      "command": "capacity",
+      "description": "Show remaining Solo, Feature and Mention slots per newsletter per date.",
+      "rationale": "Encodes the platform caps (Solo 1, Feature 1, Mention 9) against booked inventory locally.",
+      "example": "bookclicker-pp-cli capacity --list 12345 --from 2026-09-01 --to 2026-09-14 --agent",
+      "why_it_matters": "Use before sending an offer to confirm the slot type is actually available.",
+      "group": "Operations"
+    },
+    {
+      "name": "Stale outbound offers",
+      "command": "stale",
+      "description": "List pending offers that have gone unanswered the longest.",
+      "rationale": "Requires local pending-offer history with age; the UI shows status but never age.",
+      "example": "bookclicker-pp-cli stale --days 7 --agent",
+      "why_it_matters": "Surfaces offers worth cancelling and rebooking elsewhere.",
+      "group": "Operations"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cross-list launch planner",
+      "command": "plan",
+      "description": "Find every newsletter that can run your book in a date window, ranked by fit.",
+      "rationale": "Requires all ~4,000 marketplace lists plus their weekday inventory patterns joined locally; the web UI opens one calendar at a time across 161 pages.",
+      "example": "bookclicker-pp-cli plan --book 12345 --from 2026-09-01 --to 2026-09-30 --max-price 25 --agent",
+      "why_it_matters": "Reach for this instead of paging the marketplace: it answers 'who can promote this book, when, for how much' in one call.",
+      "group": "Launch planning"
+    },
+    {
+      "name": "Offline marketplace search",
+      "command": "search",
+      "description": "Full-text search every synced newsletter by name, pen name, or genre in milliseconds.",
+      "rationale": "FTS5 over the local mirror; the API offers no full-text search spanning its 161 pages.",
+      "example": "bookclicker-pp-cli search \"romantic suspense\" --agent",
+      "why_it_matters": "Use for any 'which lists cover X' question rather than walking paginated API results.",
+      "group": "Launch planning"
+    },
+    {
+      "name": "Reach-per-dollar ranking",
+      "command": "plan",
+      "description": "Rank candidate lists by estimated opens per dollar instead of raw subscriber count.",
+      "rationale": "Requires active_member_count, open_rate and per-type price compared across every list at once.",
+      "example": "bookclicker-pp-cli plan --from 2026-09-01 --to 2026-09-30 --rank value --limit 20 --agent",
+      "why_it_matters": "Biggest list is rarely the best value; this is the ranking the UI cannot express.",
+      "group": "Launch planning"
+    },
+    {
+      "name": "Swap reciprocity ledger",
+      "command": "swap-balance",
+      "description": "See which swap partners agreed to a swap and then cancelled or declined.",
+      "rationale": "Requires reservation history joined by counterparty. Bookclicker pairs both halves of a swap at booking time, so reliability - not reciprocity - is the signal the data supports.",
+      "example": "bookclicker-pp-cli swap-balance --flaky --agent",
+      "why_it_matters": "Use before rebooking a partner: it surfaces repeat cancellers that the product never flags.",
+      "group": "Partner intelligence"
+    },
+    {
+      "name": "Partner performance",
+      "command": "partner-roi",
+      "description": "Rank past promo partners by delivered reach against what they cost.",
+      "rationale": "Requires historical reservations joined to the list metrics captured at booking time.",
+      "example": "bookclicker-pp-cli partner-roi --since 180d --agent",
+      "why_it_matters": "Use when deciding who to rebook; needs at least one prior sync of history.",
+      "group": "Partner intelligence"
+    },
+    {
+      "name": "List quality drift",
+      "command": "drift",
+      "description": "Show newsletters whose open or click rate has decayed since earlier syncs.",
+      "rationale": "Requires two or more local snapshots; rate history exists nowhere in the product.",
+      "example": "bookclicker-pp-cli drift --min-drop 0.05 --agent",
+      "why_it_matters": "Catches decaying lists before you spend a launch slot on them.",
+      "group": "Partner intelligence"
+    },
+    {
+      "name": "Confirmations due",
+      "command": "confirm-due",
+      "description": "List every promo awaiting your confirmation, oldest first.",
+      "rationale": "Requires local reservation state to know what is pending, as a list rather than a home-page widget.",
+      "example": "bookclicker-pp-cli confirm-due --agent",
+      "why_it_matters": "This is the product's recurring manual chore; run it before confirming promos.",
+      "group": "Operations"
+    },
+    {
+      "name": "Launch coverage health",
+      "command": "launch health",
+      "description": "Show which dates in a book's launch window still have no promo booked.",
+      "rationale": "Requires joining the book's launch window against booked reservations locally.",
+      "example": "bookclicker-pp-cli launch health --book 12345 --agent",
+      "why_it_matters": "Answers 'is this launch actually covered' without reading a calendar by eye.",
+      "group": "Operations"
+    },
+    {
+      "name": "Remaining promo capacity",
+      "command": "capacity",
+      "description": "Show remaining Solo, Feature and Mention slots per newsletter per date.",
+      "rationale": "Encodes the platform caps (Solo 1, Feature 1, Mention 9) against booked inventory locally.",
+      "example": "bookclicker-pp-cli capacity --list 12345 --from 2026-09-01 --to 2026-09-14 --agent",
+      "why_it_matters": "Use before sending an offer to confirm the slot type is actually available.",
+      "group": "Operations"
+    },
+    {
+      "name": "Stale outbound offers",
+      "command": "stale",
+      "description": "List pending offers that have gone unanswered the longest.",
+      "rationale": "Requires local pending-offer history with age; the UI shows status but never age.",
+      "example": "bookclicker-pp-cli stale --days 7 --agent",
+      "why_it_matters": "Surfaces offers worth cancelling and rebooking elsewhere.",
+      "group": "Operations"
+    }
+  ],
+  "narrative": {
+    "display_name": "Bookclicker",
+    "headline": "Every Bookclicker workflow, plus a local mirror of the newsletter marketplace that makes launch planning a single query.",
+    "value_prop": "Bookclicker is a marketplace where authors swap, sell and buy newsletter promo slots. Its web UI shows 25 newsletters at a time across many pages and makes you open one calendar per list. This CLI syncs the marketplace into local SQLite, so 'plan' can rank every candidate newsletter for a launch window by reach, price, or opens-per-dollar in one call, and keeps history so 'partner-roi', 'drift' and 'swap-balance' can answer questions the product structurally cannot.",
+    "auth_narrative": "Bookclicker has no API keys or OAuth. Authentication is a Rails session cookie plus a CSRF token, exactly like a browser. Run 'auth login' to sign in and store the session in your local config, or import an existing browser session. Mutating commands automatically attach the X-CSRF-Token header. The stored session is a credential: it lives in your local config file and is never written to logs or output.",
+    "quickstart": [
+      {
+        "command": "bookclicker-pp-cli doctor --dry-run",
+        "comment": "Check config, session state and local store before anything else."
+      },
+      {
+        "command": "bookclicker-pp-cli sync",
+        "comment": "Mirror the marketplace, your lists, books and pen names into local SQLite."
+      },
+      {
+        "command": "bookclicker-pp-cli search \"romantic suspense\"",
+        "comment": "Full-text search the synced marketplace offline."
+      },
+      {
+        "command": "bookclicker-pp-cli plan --book 12345 --from 2026-09-01 --to 2026-09-30",
+        "comment": "Rank every newsletter that can run this book in the window."
+      },
+      {
+        "command": "bookclicker-pp-cli confirm-due",
+        "comment": "See which sent promos still need confirming."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Every command returns 401 or redirects to the login page",
+        "fix": "Run 'bookclicker-pp-cli auth login' — the Rails session cookie has expired."
+      },
+      {
+        "symptom": "A mutating command fails with 422 Unprocessable Entity",
+        "fix": "The CSRF token is stale; run 'bookclicker-pp-cli auth refresh' to re-scrape it."
+      },
+      {
+        "symptom": "search or plan returns nothing",
+        "fix": "Run 'bookclicker-pp-cli sync' first; both read the local mirror, not the live API."
+      },
+      {
+        "symptom": "partner-roi or drift shows little or no data",
+        "fix": "Run 'bookclicker-pp-cli reservations pull --all' to mirror reservation history, then re-run."
+      },
+      {
+        "symptom": "A GET against an endpoint returns 404",
+        "fix": "Several Bookclicker routes are POST-only and reject GET; use the matching subcommand rather than a raw path."
+      }
+    ],
+    "when_to_use": "Use this CLI for any Bookclicker task an author or their assistant does by hand: finding newsletters to promote a book, checking availability and pricing, sending or answering swap and paid offers, confirming sent promos, and reviewing which partners were worth booking. It is strongest when the question spans many newsletters at once, or spans time, because it answers those from a local mirror instead of paging the marketplace.",
+    "anti_triggers": [
+      "Do not use this CLI to change payment methods or delete a Bookclicker account; those surfaces are deliberately excluded.",
+      "Do not use it to send newsletters — the actual sending happens in MailerLite or whichever provider the list is integrated with.",
+      "Do not use it to read or manage third-party newsletter API keys; integration keys are redacted by design.",
+      "Do not use it for a one-off lookup of a single known list when the web UI is already open."
+    ],
+    "recipes": [
+      {
+        "title": "Fill a launch window on a budget",
+        "command": "bookclicker-pp-cli plan --book 12345 --from 2026-09-01 --to 2026-09-30 --max-price 25 --rank value --agent --select lists.name,lists.solo_price,lists.active_member_count,lists.open_rate",
+        "explanation": "Ranks candidate newsletters by opens-per-dollar and narrows the payload to the four fields that drive the decision."
+      },
+      {
+        "title": "Find partners who cancel swaps",
+        "command": "bookclicker-pp-cli swap-balance --flaky --agent",
+        "explanation": "Lists counterparties who agreed to a swap and then cancelled or declined it."
+      },
+      {
+        "title": "Clear the confirmation backlog",
+        "command": "bookclicker-pp-cli confirm-due --agent",
+        "explanation": "Shows every promo awaiting confirmation so none silently ages out."
+      },
+      {
+        "title": "Check a list before booking it",
+        "command": "bookclicker-pp-cli capacity --list 12345 --from 2026-09-01 --to 2026-09-14",
+        "explanation": "Shows remaining Solo, Feature and Mention slots per date against the platform caps."
+      },
+      {
+        "title": "Spot decaying newsletters",
+        "command": "bookclicker-pp-cli drift --min-drop 0.05",
+        "explanation": "Flags lists whose open or click rate fell since an earlier sync, before you rebook them."
+      }
+    ],
+    "trigger_phrases": [
+      "plan my book launch on bookclicker",
+      "find newsletter swaps for my romance release",
+      "which newsletters should I book this month",
+      "confirm my sent promos",
+      "which partners cancel my swaps",
+      "use bookclicker",
+      "run bookclicker"
+    ]
+  }
+}

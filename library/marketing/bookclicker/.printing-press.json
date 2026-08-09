@@ -1,0 +1,159 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-09T17:12:17.648149Z",
+  "printing_press_version": "4.30.1",
+  "api_name": "bookclicker",
+  "display_name": "Bookclicker",
+  "cli_name": "bookclicker-pp-cli",
+  "creator": {
+    "handle": "wmiles81",
+    "name": "wmiles81"
+  },
+  "owner": "wmiles81",
+  "printer": "wmiles81",
+  "printer_name": "wmiles81",
+  "spec_path": "bookclicker-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:a989ecbefb160d5ec14290b75cf0dd613bb77de284241d3b7107aefbd5bfd2a5",
+  "run_id": "20260808-155629-63957004",
+  "category": "marketing",
+  "description": "Every Bookclicker workflow, plus a local mirror of the newsletter marketplace that makes launch planning a single query.",
+  "mcp_binary": "bookclicker-pp-mcp",
+  "mcp_tool_count": 35,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "BOOKCLICKER_SESSION"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Cross-list launch planner",
+      "command": "plan",
+      "description": "Find every newsletter that can run your book in a date window, ranked by fit."
+    },
+    {
+      "name": "Offline marketplace search",
+      "command": "search",
+      "description": "Full-text search every synced newsletter by name, pen name, or genre in milliseconds."
+    },
+    {
+      "name": "Reach-per-dollar ranking",
+      "command": "plan",
+      "description": "Rank candidate lists by estimated opens per dollar instead of raw subscriber count."
+    },
+    {
+      "name": "Swap reciprocity ledger",
+      "command": "swap-balance",
+      "description": "See which swap partners you have promoted more often than they have promoted you."
+    },
+    {
+      "name": "Partner performance",
+      "command": "partner-roi",
+      "description": "Rank past promo partners by delivered reach against what they cost."
+    },
+    {
+      "name": "List quality drift",
+      "command": "drift",
+      "description": "Show newsletters whose open or click rate has decayed since earlier syncs."
+    },
+    {
+      "name": "Confirmations due",
+      "command": "confirm-due",
+      "description": "List every promo awaiting your confirmation, oldest first."
+    },
+    {
+      "name": "Launch coverage health",
+      "command": "launch health",
+      "description": "Show which dates in a book's launch window still have no promo booked."
+    },
+    {
+      "name": "Remaining promo capacity",
+      "command": "capacity",
+      "description": "Show remaining Solo, Feature and Mention slots per newsletter per date."
+    },
+    {
+      "name": "Stale outbound offers",
+      "command": "stale",
+      "description": "List pending offers that have gone unanswered the longest."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cross-list launch planner",
+      "command": "plan",
+      "description": "Find every newsletter that can run your book in a date window, ranked by fit."
+    },
+    {
+      "name": "Offline marketplace search",
+      "command": "search",
+      "description": "Full-text search every synced newsletter by name, pen name, or genre in milliseconds."
+    },
+    {
+      "name": "Reach-per-dollar ranking",
+      "command": "plan",
+      "description": "Rank candidate lists by estimated opens per dollar instead of raw subscriber count."
+    },
+    {
+      "name": "Swap reciprocity ledger",
+      "command": "swap-balance",
+      "description": "See which swap partners agreed to a swap and then cancelled or declined."
+    },
+    {
+      "name": "Partner performance",
+      "command": "partner-roi",
+      "description": "Rank past promo partners by delivered reach against what they cost."
+    },
+    {
+      "name": "List quality drift",
+      "command": "drift",
+      "description": "Show newsletters whose open or click rate has decayed since earlier syncs."
+    },
+    {
+      "name": "Confirmations due",
+      "command": "confirm-due",
+      "description": "List every promo awaiting your confirmation, oldest first."
+    },
+    {
+      "name": "Launch coverage health",
+      "command": "launch health",
+      "description": "Show which dates in a book's launch window still have no promo booked."
+    },
+    {
+      "name": "Remaining promo capacity",
+      "command": "capacity",
+      "description": "Show remaining Solo, Feature and Mention slots per newsletter per date."
+    },
+    {
+      "name": "Stale outbound offers",
+      "command": "stale",
+      "description": "List pending offers that have gone unanswered the longest."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 67,
+    "total": 67,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 85,
+      "grade": "A (1 of 26 dimensions unverified: live_api_verification)",
+      "total": 85
+    },
+    "unverified_dimensions": [
+      "live_api_verification"
+    ]
+  }
+}

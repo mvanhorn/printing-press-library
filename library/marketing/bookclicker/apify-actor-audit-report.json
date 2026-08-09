@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/bookclicker-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/bookclicker-run",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

@@ -1,0 +1,1034 @@
+name: bookclicker
+description: "Bookclicker newsletter-promotion marketplace CLI"
+version: "0.1.0"
+base_url: "https://www.bookclicker.com"
+http_transport: standard
+health_check_path: "/api/user"
+category: marketing
+
+required_headers:
+  - name: X-Requested-With
+    value: "XMLHttpRequest"
+  - name: Accept
+    value: "application/json"
+
+auth:
+  type: api_key
+  header: "_bookclicker_session"
+  format: "{token}"
+  in: cookie
+  verify_path: "/api/user"
+  env_vars:
+    - BOOKCLICKER_SESSION
+
+auth_warnings:
+  - "Bookclicker uses a Rails session cookie plus a CSRF token; there is no API key or OAuth. Mutating requests additionally require an X-CSRF-Token header scraped from a page's csrf-token meta tag."
+  - "GET /api/integrations/{id} returns the user's third-party newsletter provider API key at api_key.key. This value must be redacted in all output and never logged."
+
+config:
+  format: toml
+  path: "~/.config/bookclicker-pp-cli/config.toml"
+
+mcp:
+  transport: [stdio, http]
+
+learn:
+  ticker_patterns:
+    - "^[0-9]{4,7}$"
+  synonyms:
+    "most recent": "latest"
+    "newsletter": "list"
+    "swap only": "swap_only"
+  stopwords:
+    - newsletter
+    - promo
+  entity_lookup_seeds:
+    inv_type:
+      - canonical: solo
+        aliases: [solo promo, solo send, dedicated]
+      - canonical: feature
+        aliases: [featured, feature spot]
+      - canonical: mention
+        aliases: [mentions, link mention]
+    platform:
+      - canonical: mailerlite
+        aliases: [mailer lite, ml]
+      - canonical: mailchimp
+        aliases: [mail chimp, mc]
+      - canonical: convertkit
+        aliases: [convert kit, kit, ck]
+      - canonical: activecampaign
+        aliases: [active campaign, ac]
+
+resources:
+  account:
+    description: "Your Bookclicker account snapshot"
+    endpoints:
+      get:
+        method: GET
+        path: "/api/user"
+        description: "Get the account snapshot: user settings, owned lists, books and pen names"
+        example: "  bookclicker-pp-cli account get --json"
+        response:
+          type: object
+          item: AccountSnapshot
+
+  books:
+    description: "Books you promote, grouped under pen names"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/my_books"
+        description: "List every book on your account"
+        example: "  bookclicker-pp-cli books list --json"
+        response:
+          type: array
+          item: Book
+      get:
+        method: GET
+        path: "/api/my_books/{id}"
+        description: "Get one book by id"
+        example: "  bookclicker-pp-cli books get 12345"
+        # No happy_args. `/api/my_books/{id}` only ever returns books on the
+        # authenticated account, and the local mirror holds only those, so
+        # store sampling off the `books list` sibling always yields an id that
+        # works. A literal fixture here would pin one operator's book id into
+        # the published tree for no gain — and the bare `id=…` form it used to
+        # carry was inert anyway (see the positional-label note below).
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Book id"
+        response:
+          type: object
+          item: Book
+      create:
+        method: POST
+        path: "/api/my_books"
+        description: "Add a book under a pen name"
+        body:
+          - name: pen_name_id
+            type: int
+            required: true
+            description: "Pen name that owns this book"
+          - name: title
+            type: string
+            required: true
+            description: "Book title"
+          - name: launch_date
+            type: string
+            format: date
+            description: "Launch date (YYYY-MM-DD)"
+          - name: blurb
+            type: string
+            description: "Book description"
+          - name: amazon_link_url
+            type: string
+            description: "Amazon product URL"
+        response:
+          type: object
+          item: Book
+      update:
+        method: PUT
+        path: "/api/my_books/{id}"
+        description: "Update a book"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Book id"
+        body:
+          - name: title
+            type: string
+            description: "Book title"
+          - name: launch_date
+            type: string
+            format: date
+            description: "Launch date (YYYY-MM-DD)"
+          - name: blurb
+            type: string
+            description: "Book description"
+        response:
+          type: object
+          item: Book
+      delete:
+        method: DELETE
+        path: "/api/my_books/{id}"
+        description: "Delete a book"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Book id"
+        response:
+          type: object
+          item: DeleteResult
+
+  pen_names:
+    description: "Author identities that own books and newsletters"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/pen_names"
+        description: "List your pen names with their books, requests and groups"
+        example: "  bookclicker-pp-cli pen-names list --json"
+        response:
+          type: array
+          item: PenName
+        response_path: pen_names
+      for_buyer:
+        method: GET
+        path: "/api/pen_names/list_for_buyer"
+        description: "List pen names eligible to book promotions as a buyer"
+        example: "  bookclicker-pp-cli pen-names for-buyer --json"
+        response:
+          type: array
+          item: PenName
+        response_path: pen_names
+      create:
+        method: POST
+        path: "/api/pen_names"
+        description: "Create a pen name"
+        body:
+          - name: author_name
+            type: string
+            required: true
+            description: "Author name shown to other users"
+          - name: author_profile_url
+            type: string
+            description: "Amazon author URL used for verification"
+          - name: promo_service_only
+            type: int
+            description: "1 if this is a promo service rather than an author pen name"
+        response:
+          type: object
+          item: PenName
+      update:
+        method: PUT
+        path: "/api/pen_names/{id}"
+        description: "Update a pen name"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Pen name id"
+        body:
+          - name: author_name
+            type: string
+            description: "Author name"
+          - name: author_profile_url
+            type: string
+            description: "Amazon author URL"
+        response:
+          type: object
+          item: PenName
+      delete:
+        method: DELETE
+        path: "/api/pen_names/{id}"
+        description: "Delete a pen name"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Pen name id"
+        response:
+          type: object
+          item: DeleteResult
+
+  my_lists:
+    description: "Newsletters you own and sell or swap spots on"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/my_lists"
+        description: "List your own newsletters with pricing and swap settings"
+        example: "  bookclicker-pp-cli my-lists list --json"
+        response:
+          type: array
+          item: List
+        response_path: lists
+
+  lists:
+    # NOTE: the `happy_args` fixtures below use list id 59354, a newsletter
+    # this operator owns. `lists campaigns`, `calendars availability`,
+    # `booking_calendars availability`, and `inventories get/set` are
+    # owner-scoped: they return HTTP 200 for a newsletter on the
+    # authenticated account and {"error":"Item not found"} for anyone
+    # else's. A marketplace id therefore fails live dogfood, and unlike
+    # `books get` or `integrations get` there is no sibling to sample a
+    # safe id from — the marketplace listing is full of other people's
+    # newsletters. So a literal owned id is the only thing that works here.
+    #
+    # This is the one place an account-specific id survives in the tree.
+    # `example:` values use the placeholder id 12345 instead, so --help text
+    # carries no account data. Note that a placeholder there has to be a
+    # parseable int, not an <angle-bracket> token: validate-narrative
+    # actually runs each example, and `--list <list-id>` fails at flag
+    # parsing with exit 2. 12345 is already this spec's convention — see
+    # `reservations accept` and `confirm-promos options`.
+    #
+    # Anyone regenerating this spec on a different account must substitute
+    # an id from their own `my-lists list`.
+    description: "The newsletter marketplace"
+    endpoints:
+      search:
+        method: GET
+        path: "/api/lists"
+        description: "Search marketplace newsletters available to promote a book"
+        example: "  bookclicker-pp-cli lists search --preselected-book-id 12345 --page 1"
+        happy_args: "--page=1"
+        params:
+          - name: preselected_book_id
+            type: int
+            description: "Scope results to newsletters that accept this book's genre"
+          - name: page
+            type: int
+            default: 1
+            description: "Page number (25 newsletters per page)"
+          - name: per_page
+            type: int
+            default: 25
+            description: "Newsletters per page. Bookclicker fixes this at 25 and ignores the value; it is declared so sync knows the real page size."
+          - name: search
+            type: string
+            description: "Free-text search over newsletter and pen name"
+          - name: genres
+            type: string
+            description: "Comma-separated genre filter"
+          - name: inv_type
+            type: string
+            enum: ["solo", "feature", "mention"]
+            description: "Only newsletters offering this promotion type"
+          - name: sort
+            type: string
+            description: "Server-side sort key"
+          - name: filter
+            type: string
+            description: "Server-side filter key"
+        response:
+          type: array
+          item: List
+        # Page-number pagination. `cursor_param` is what makes the profiler
+        # mark this resource paginated at all (endpointSupportsPagination
+        # requires cursor_param or limit_param); `limit_param` teaches sync the
+        # real page size of 25, without which a 25-item page reads as the last
+        # page and the walk stops after page 1.
+        pagination:
+          type: page
+          cursor_param: page
+          limit_param: per_page
+        response_path: lists
+      campaigns:
+        method: GET
+        path: "/api/lists/{id}/campaigns"
+        description: "Campaign history for a newsletter"
+        example: "  bookclicker-pp-cli lists campaigns 12345"
+        happy_args: "<id>=59354"  # angle brackets required: parseHappyArgsAnnotation
+                                  # drops bare `label=value` positionals, which lets
+                                  # store sampling substitute a marketplace id that 404s
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "List id"
+          - name: offset
+            type: int
+            default: 0
+            description: "Pagination offset"
+        response:
+          type: object
+          item: CampaignList
+
+  calendars:
+    description: "Dated availability for a newsletter"
+    endpoints:
+      availability:
+        method: POST
+        path: "/api/calendars/availability"
+        description: "Get dated availability for a newsletter over N months"
+        example: "  bookclicker-pp-cli calendars availability --list-id 12345 --num-of-months 2"
+        happy_args: "--list-id=59354;--num-of-months=1"
+        body:
+          - name: list_id
+            type: int
+            required: true
+            description: "Newsletter id"
+          - name: num_of_months
+            type: int
+            required: true
+            default: 1
+            description: "How many months of availability to return"
+        response:
+          type: object
+          item: Availability
+
+  booking_calendars:
+    description: "Booking-side availability view"
+    endpoints:
+      availability:
+        method: POST
+        path: "/api/booking_calendars/availability"
+        description: "Get booking availability for a newsletter and book"
+        example: "  bookclicker-pp-cli booking-calendars availability --list-id 12345 --num-of-months 1"
+        happy_args: "--list-id=59354;--num-of-months=1"
+        body:
+          - name: list_id
+            type: int
+            required: true
+            description: "Newsletter id"
+          - name: num_of_months
+            type: int
+            default: 1
+            description: "How many months of availability to return"
+          - name: book_id
+            type: int
+            description: "Book being promoted"
+        response:
+          type: object
+          item: Availability
+
+  inventories:
+    description: "Per-date promotion slots on a newsletter"
+    endpoints:
+      get:
+        method: GET
+        path: "/api/one_day_inventories"
+        description: "Get the promotion slots offered on one date"
+        example: "  bookclicker-pp-cli inventories get --list-id 12345 --date 2026-09-01"
+        happy_args: "--list-id=59354;--date=2026-09-01"
+        params:
+          - name: list_id
+            type: int
+            required: true
+            description: "Newsletter id"
+          - name: date
+            type: string
+            required: true
+            format: date
+            description: "Date (YYYY-MM-DD)"
+        response:
+          type: object
+          item: OneDayInventory
+      set:
+        method: POST
+        path: "/api/one_day_inventories"
+        description: "Set the promotion slots offered on one date"
+        example: "  bookclicker-pp-cli inventories set --list-id 12345 --date 2026-09-01 --dry-run"
+        happy_args: "--list-id=59354;--date=2026-09-01"
+        body:
+          - name: list_id
+            type: int
+            required: true
+            description: "Newsletter id"
+          - name: date
+            type: string
+            required: true
+            format: date
+            description: "Date (YYYY-MM-DD)"
+          - name: one_day_inventory
+            type: object
+            description: "Slot configuration for the date"
+        response:
+          type: object
+          item: OneDayInventory
+
+  reservations:
+    description: "Swap and paid promotion bookings"
+    endpoints:
+      accept:
+        method: PUT
+        path: "/api/reservations/{id}/accept"
+        description: "Accept an incoming promotion offer"
+        example: "  bookclicker-pp-cli reservations accept 12345 --reply-message \"Happy to swap\""
+        happy_args: "id=12345"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Reservation id"
+        body:
+          - name: reply_message
+            type: string
+            description: "Message sent with the acceptance"
+        response:
+          type: object
+          item: Reservation
+      decline:
+        method: PUT
+        path: "/api/reservations/{id}/decline"
+        description: "Decline an incoming promotion offer"
+        example: "  bookclicker-pp-cli reservations decline 12345 --reply-message \"Not a fit\""
+        happy_args: "id=12345"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Reservation id"
+        body:
+          - name: reply_message
+            type: string
+            description: "Message sent with the decline"
+        response:
+          type: object
+          item: Reservation
+      request_confirmation:
+        method: PUT
+        path: "/api/reservations/{id}/confirmation_request"
+        description: "Ask the seller to confirm a promotion was sent"
+        happy_args: "id=12345"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Reservation id"
+        response:
+          type: object
+          item: Reservation
+      dismiss:
+        method: PUT
+        path: "/api/reservations/{id}/dismiss"
+        description: "Dismiss a reservation notice from the feed"
+        happy_args: "id=12345"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Reservation id"
+        body:
+          - name: sent_feed
+            type: bool
+            description: "Mark the feed item as sent"
+        response:
+          type: object
+          item: Reservation
+      buyer_cancel:
+        method: POST
+        path: "/api/reservations/{id}/buyer_cancel"
+        description: "Cancel a promotion you booked"
+        happy_args: "id=12345"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Reservation id"
+        response:
+          type: object
+          item: Reservation
+      seller_cancel:
+        method: POST
+        path: "/api/reservations/{id}/seller_cancel"
+        description: "Cancel a promotion booked on your newsletter"
+        happy_args: "id=12345"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Reservation id"
+        response:
+          type: object
+          item: Reservation
+      refund_request:
+        method: POST
+        path: "/api/reservations/{id}/refund_request"
+        description: "Request a refund for a paid promotion"
+        happy_args: "id=12345"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Reservation id"
+        response:
+          type: object
+          item: Reservation
+      buyer_refund:
+        method: POST
+        path: "/api/reservations/{id}/buyer_refund"
+        description: "Process a buyer-side refund"
+        happy_args: "id=12345"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Reservation id"
+        response:
+          type: object
+          item: Reservation
+      seller_refund:
+        method: POST
+        path: "/api/reservations/{id}/seller_refund"
+        description: "Issue a refund as the newsletter owner"
+        happy_args: "id=12345"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Reservation id"
+        response:
+          type: object
+          item: Reservation
+      buyer_cancel_all:
+        method: POST
+        path: "/api/reservations/buyer_cancel_all"
+        description: "Cancel every promotion you booked (bulk, destructive)"
+        example: "  bookclicker-pp-cli reservations buyer-cancel-all --dry-run"
+        response:
+          type: object
+          item: BulkResult
+      seller_cancel_all:
+        method: POST
+        path: "/api/reservations/seller_cancel_all"
+        description: "Cancel every promotion booked on your newsletters (bulk, destructive)"
+        example: "  bookclicker-pp-cli reservations seller-cancel-all --dry-run"
+        response:
+          type: object
+          item: BulkResult
+
+  confirm_promos:
+    description: "Confirming that booked promotions actually went out"
+    endpoints:
+      options:
+        method: GET
+        path: "/api/confirm_promos/{id}/options"
+        description: "List the newsletter campaigns that could satisfy a promotion"
+        example: "  bookclicker-pp-cli confirm-promos options 12345 --reservation-type reservation"
+        happy_args: "id=12345;--reservation-type=reservation"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Reservation id"
+          - name: reservation_type
+            type: string
+            required: true
+            description: "Reservation type discriminator"
+        response:
+          type: object
+          item: ConfirmOptions
+      create:
+        method: POST
+        path: "/api/confirm_promos"
+        description: "Confirm a promotion was sent, naming the campaign that carried it"
+        body:
+          - name: reservation_id
+            type: int
+            required: true
+            description: "Reservation being confirmed"
+          - name: reservation_type
+            type: string
+            required: true
+            description: "Reservation type discriminator"
+          - name: campaign_id
+            type: string
+            description: "Newsletter campaign that carried the promotion"
+          - name: campaign_preview_url
+            type: string
+            description: "Public preview URL for the campaign"
+          - name: book_owner_email
+            type: string
+            description: "Email of the book owner being promoted"
+          - name: as
+            type: string
+            default: "seller"
+            description: "Perspective performing the confirmation"
+        response:
+          type: object
+          item: ConfirmResult
+
+  conversations:
+    description: "Messages with counterparties"
+    endpoints:
+      start:
+        method: POST
+        path: "/api/conversations"
+        description: "Start a conversation with another user"
+        body:
+          - name: recipient_id
+            type: int
+            description: "User to message"
+          - name: body
+            type: string
+            description: "Message body"
+        response:
+          type: object
+          item: Conversation
+
+  integrations:
+    description: "Newsletter provider integrations"
+    endpoints:
+      get:
+        method: GET
+        path: "/api/integrations/{id}"
+        description: "Get one newsletter provider integration and its health status. The provider API key is redacted."
+        example: "  bookclicker-pp-cli integrations 12345"
+        # No happy_args, but for a different reason than `books get`. This
+        # resource has exactly one endpoint, so it is promoted to a top-level
+        # `integrations <id>` command rather than `integrations get <id>`.
+        # That trips the resolveCommandPositionals segment rule: a path needs
+        # at least one more segment than it has placeholders, and
+        # `[integrations]` is one segment with one placeholder. Live dogfood
+        # reports it as
+        #   [SKIP] integrations happy_path: command path [integrations] has
+        #          fewer segments than placeholders (1)
+        # so this command has no happy-path or json-fidelity probe. It is the
+        # third instance of the class filed upstream as cli-printing-press
+        # #4047 — see `search` in docs/DECISIONS.md.
+        #
+        # That is not a regression from removing the fixture: the one this
+        # replaced was the bare `id=…` form that parseHappyArgsAnnotation
+        # discards, so the probe never ran under it either.
+        #
+        # `dogfood_fixtures.go` could force it the way it does for `search`,
+        # but only by embedding a real integration id — see below.
+        #
+        # The only fixture that would work is a literal integration id off the
+        # authenticated account. That is deliberately not committed — this
+        # endpoint returns the operator's third-party provider API key, and an
+        # id pointing at it does not belong in a published tree for the sake of
+        # one probe. Verify this command by hand after a spec change:
+        #   bookclicker-pp-cli integrations <integration-id>
+        # Sourcing that id is itself manual. This resource is a leaf: there is
+        # no list endpoint (`/api/integrations/list` returns 404), and neither
+        # the account snapshot nor `my-lists list` carries an integration
+        # field. Read the id off the Bookclicker web UI.
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Integration id"
+        response:
+          type: object
+          item: Integration
+
+  external_reservations:
+    description: "Promotions booked outside Bookclicker"
+    endpoints:
+      create:
+        method: POST
+        path: "/api/external_reservations"
+        description: "Record a promotion booked off-platform"
+        body:
+          - name: book_id
+            type: int
+            description: "Book being promoted"
+          - name: date
+            type: string
+            format: date
+            description: "Send date (YYYY-MM-DD)"
+          - name: name
+            type: string
+            description: "Name of the external promotion"
+        response:
+          type: object
+          item: Reservation
+      update:
+        method: PUT
+        path: "/api/external_reservations/{id}"
+        description: "Update an off-platform promotion record"
+        happy_args: "id=12345"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "External reservation id"
+        body:
+          - name: date
+            type: string
+            format: date
+            description: "Send date (YYYY-MM-DD)"
+          - name: name
+            type: string
+            description: "Name of the external promotion"
+        response:
+          type: object
+          item: Reservation
+
+types:
+  AccountSnapshot:
+    fields:
+      - name: user
+        type: object
+      - name: lists
+        type: array
+      - name: books
+        type: array
+      - name: pen_names
+        type: array
+
+  Book:
+    fields:
+      - name: id
+        type: int
+      - name: user_id
+        type: int
+      - name: pen_name_id
+        type: int
+      - name: title
+        type: string
+      - name: author
+        type: string
+      - name: launch_date
+        type: string
+      - name: launch_date_in_english
+        type: string
+      - name: blurb
+        type: string
+      - name: cover_image_url
+        type: string
+      - name: amazon_author
+        type: string
+      - name: amazon_link_url
+        type: string
+      - name: review_count
+        type: int
+      - name: avg_review
+        type: string
+      - name: book_rank
+        type: string
+      - name: deleted
+        type: bool
+      - name: created_at
+        type: string
+      - name: updated_at
+        type: string
+
+  PenName:
+    fields:
+      - name: id
+        type: int
+      - name: user_id
+        type: int
+      - name: author_name
+        type: string
+      - name: author_profile_url
+        type: string
+      - name: author_image
+        type: string
+      - name: verified
+        type: int
+      - name: promo_service_only
+        type: int
+      - name: group_status
+        type: string
+      - name: deleted
+        type: bool
+      - name: created_at
+        type: string
+      - name: updated_at
+        type: string
+
+  PenNameIndex:
+    fields:
+      - name: pen_names
+        type: array
+      - name: pen_name_requests
+        type: array
+      - name: pen_name_groups
+        type: array
+
+  PenNameList:
+    fields:
+      - name: pen_names
+        type: array
+
+  List:
+    fields:
+      - name: id
+        type: int
+      - name: user_id
+        type: int
+      - name: pen_name_id
+        type: int
+      - name: name
+        type: string
+      - name: platform
+        type: string
+      - name: status
+        type: string
+      - name: adopted_pen_name
+        type: string
+      - name: active_member_count
+        type: int
+      - name: open_rate
+        type: string
+      - name: click_rate
+        type: string
+      - name: cutoff_date
+        type: string
+      - name: solo_price
+        type: int
+      - name: feature_price
+        type: int
+      - name: mention_price
+        type: int
+      - name: solo_is_swap_only
+        type: int
+      - name: feature_is_swap_only
+        type: int
+      - name: mention_is_swap_only
+        type: int
+      - name: sponsored_tier
+        type: string
+      - name: last_refreshed_at
+        type: string
+      - name: last_action_at
+        type: string
+      - name: created_at
+        type: string
+      - name: updated_at
+        type: string
+
+  MyListIndex:
+    fields:
+      - name: lists
+        type: array
+      - name: pen_names
+        type: array
+
+  ListSearchResult:
+    fields:
+      - name: lists
+        type: array
+      - name: my_pen_names
+        type: array
+      - name: list_ratings
+        type: object
+      - name: pagination
+        type: object
+
+  Inventory:
+    fields:
+      - name: id
+        type: int
+      - name: list_id
+        type: int
+      - name: inv_type
+        type: string
+      - name: sunday
+        type: int
+      - name: monday
+        type: int
+      - name: tuesday
+        type: int
+      - name: wednesday
+        type: int
+      - name: thursday
+        type: int
+      - name: friday
+        type: int
+      - name: saturday
+        type: int
+
+  OneDayInventory:
+    fields:
+      - name: id
+        type: int
+      - name: list_id
+        type: int
+      - name: date
+        type: string
+      - name: solo
+        type: int
+      - name: feature
+        type: int
+      - name: mention
+        type: int
+
+  Availability:
+    fields:
+      - name: dates
+        type: array
+      - name: list_id
+        type: int
+
+  Reservation:
+    fields:
+      - name: id
+        type: int
+      - name: list_id
+        type: int
+      - name: book_id
+        type: int
+      - name: buyer_id
+        type: int
+      - name: seller_id
+        type: int
+      - name: inv_type
+        type: string
+      - name: date
+        type: string
+      - name: status
+        type: string
+      - name: price
+        type: int
+      - name: is_swap
+        type: bool
+      - name: created_at
+        type: string
+      - name: updated_at
+        type: string
+
+  CampaignList:
+    fields:
+      - name: campaigns
+        type: array
+
+  ConfirmOptions:
+    fields:
+      - name: campaigns
+        type: array
+
+  ConfirmResult:
+    fields:
+      - name: success
+        type: bool
+      - name: confirm_promo
+        type: object
+
+  Conversation:
+    fields:
+      - name: id
+        type: int
+      - name: subject
+        type: string
+      - name: messages
+        type: array
+
+  Integration:
+    fields:
+      - name: success
+        type: bool
+      - name: status
+        type: string
+      - name: api_key
+        type: object
+
+  BulkResult:
+    fields:
+      - name: success
+        type: bool
+      - name: count
+        type: int
+
+  DeleteResult:
+    fields:
+      - name: success
+        type: bool

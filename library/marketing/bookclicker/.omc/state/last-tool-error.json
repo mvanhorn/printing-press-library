@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"D=\\\"$HOME/printing-press/.publish-repo-printingpress-da82c35d/library/marketing/bookclicker\\\"\\necho \\\"=== Step 6.5: patches index ===\\\"\\nif [ -d \\\"$D/.printing-press-patches\\\" ]; then\\n  e...",
+  "error": "Exit code 1\n=== Step 6.5: patches index ===\n  per-patch directory present:\n    .gitkeep\n    auth-env-vars.md\n(eval):6: no matches found: /Users/wmiles49/printing-press/.publish-repo-printingpress-da82c35d/library/marketing/bookclicker/.printing-press-patches/*.json",
+  "timestamp": "2026-08-09T19:09:36.650Z",
+  "retry_count": 1
+}

@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "bookclicker-pp-cli"
+display_name = "Bookclicker"
+description = "Every Bookclicker workflow, plus a local mirror of the newsletter marketplace that makes launch planning a single query."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/bookclicker-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+BOOKCLICKER_SESSION = true

@@ -1,0 +1,743 @@
+{
+  "api_name": "bookclicker",
+  "base_url": "https://www.bookclicker.com",
+  "description": "Every Bookclicker workflow, plus a local mirror of the newsletter marketplace that makes launch planning a single query.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "_bookclicker_session",
+    "format": "{BOOKCLICKER_SESSION}",
+    "in": "cookie",
+    "env_vars": [
+      "BOOKCLICKER_SESSION"
+    ],
+    "env_var_specs": [
+      {
+        "name": "BOOKCLICKER_SESSION",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [
+    {
+      "name": "X-Requested-With",
+      "value": "XMLHttpRequest"
+    },
+    {
+      "name": "Accept",
+      "value": "application/json"
+    }
+  ],
+  "tools": [
+    {
+      "name": "account_get",
+      "description": "Get the account snapshot: user settings, owned lists, books and pen names. Returns the AccountSnapshot.",
+      "method": "GET",
+      "path": "/api/user",
+      "params": []
+    },
+    {
+      "name": "booking_calendars_availability",
+      "description": "Get booking availability for a newsletter and book. Required: list_id. Optional: num_of_months (default: 1), book_id. Returns the new Availability.",
+      "method": "POST",
+      "path": "/api/booking_calendars/availability",
+      "params": [
+        {
+          "name": "list_id",
+          "type": "int",
+          "location": "body",
+          "description": "Newsletter id",
+          "required": true
+        },
+        {
+          "name": "num_of_months",
+          "type": "int",
+          "location": "body",
+          "description": "How many months of availability to return"
+        },
+        {
+          "name": "book_id",
+          "type": "int",
+          "location": "body",
+          "description": "Book being promoted"
+        }
+      ]
+    },
+    {
+      "name": "books_create",
+      "description": "Add a book under a pen name. Required: pen_name_id, title. Optional: launch_date, blurb, amazon_link_url. Returns the new Book.",
+      "method": "POST",
+      "path": "/api/my_books",
+      "params": [
+        {
+          "name": "pen_name_id",
+          "type": "int",
+          "location": "body",
+          "description": "Pen name that owns this book",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Book title",
+          "required": true
+        },
+        {
+          "name": "launch_date",
+          "type": "string",
+          "location": "body",
+          "description": "Launch date (YYYY-MM-DD)"
+        },
+        {
+          "name": "blurb",
+          "type": "string",
+          "location": "body",
+          "description": "Book description"
+        },
+        {
+          "name": "amazon_link_url",
+          "type": "string",
+          "location": "body",
+          "description": "Amazon product URL"
+        }
+      ]
+    },
+    {
+      "name": "books_delete",
+      "description": "Delete a book. Required: id. Returns the DeleteResult. Destructive.",
+      "method": "DELETE",
+      "path": "/api/my_books/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Book id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "books_get",
+      "description": "Get one book by id. Required: id. Returns the Book.",
+      "method": "GET",
+      "path": "/api/my_books/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Book id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "books_list",
+      "description": "List every book on your account. Returns array of Book.",
+      "method": "GET",
+      "path": "/api/my_books",
+      "params": []
+    },
+    {
+      "name": "books_update",
+      "description": "Update a book. Required: id. Optional: title, launch_date, blurb. Returns the updated Book.",
+      "method": "PUT",
+      "path": "/api/my_books/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Book id",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Book title"
+        },
+        {
+          "name": "launch_date",
+          "type": "string",
+          "location": "body",
+          "description": "Launch date (YYYY-MM-DD)"
+        },
+        {
+          "name": "blurb",
+          "type": "string",
+          "location": "body",
+          "description": "Book description"
+        }
+      ]
+    },
+    {
+      "name": "calendars_availability",
+      "description": "Get dated availability for a newsletter over N months. Required: list_id, num_of_months (default: 1). Returns the new Availability.",
+      "method": "POST",
+      "path": "/api/calendars/availability",
+      "params": [
+        {
+          "name": "list_id",
+          "type": "int",
+          "location": "body",
+          "description": "Newsletter id",
+          "required": true
+        },
+        {
+          "name": "num_of_months",
+          "type": "int",
+          "location": "body",
+          "description": "How many months of availability to return",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "confirm_promos_create",
+      "description": "Confirm a promotion was sent, naming the campaign that carried it. Required: reservation_id, reservation_type. Optional: campaign_id, campaign_preview_url, book_owner_email (plus 1 more). Returns the new ConfirmResult.",
+      "method": "POST",
+      "path": "/api/confirm_promos",
+      "params": [
+        {
+          "name": "reservation_id",
+          "type": "int",
+          "location": "body",
+          "description": "Reservation being confirmed",
+          "required": true
+        },
+        {
+          "name": "reservation_type",
+          "type": "string",
+          "location": "body",
+          "description": "Reservation type discriminator",
+          "required": true
+        },
+        {
+          "name": "campaign_id",
+          "type": "string",
+          "location": "body",
+          "description": "Newsletter campaign that carried the promotion"
+        },
+        {
+          "name": "campaign_preview_url",
+          "type": "string",
+          "location": "body",
+          "description": "Public preview URL for the campaign"
+        },
+        {
+          "name": "book_owner_email",
+          "type": "string",
+          "location": "body",
+          "description": "Email of the book owner being promoted"
+        },
+        {
+          "name": "as",
+          "type": "string",
+          "location": "body",
+          "description": "Perspective performing the confirmation"
+        }
+      ]
+    },
+    {
+      "name": "confirm_promos_options",
+      "description": "List the newsletter campaigns that could satisfy a promotion. Required: id, reservation_type. Returns the ConfirmOptions.",
+      "method": "GET",
+      "path": "/api/confirm_promos/{id}/options",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Reservation id",
+          "required": true
+        },
+        {
+          "name": "reservation_type",
+          "type": "string",
+          "location": "query",
+          "description": "Reservation type discriminator",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "conversations_start",
+      "description": "Start a conversation with another user. Optional: recipient_id, body. Returns the new Conversation.",
+      "method": "POST",
+      "path": "/api/conversations",
+      "params": [
+        {
+          "name": "recipient_id",
+          "type": "int",
+          "location": "body",
+          "description": "User to message"
+        },
+        {
+          "name": "body",
+          "type": "string",
+          "location": "body",
+          "description": "Message body"
+        }
+      ]
+    },
+    {
+      "name": "external_reservations_create",
+      "description": "Record a promotion booked off-platform. Optional: book_id, date, name. Returns the new Reservation.",
+      "method": "POST",
+      "path": "/api/external_reservations",
+      "params": [
+        {
+          "name": "book_id",
+          "type": "int",
+          "location": "body",
+          "description": "Book being promoted"
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "body",
+          "description": "Send date (YYYY-MM-DD)"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the external promotion"
+        }
+      ]
+    },
+    {
+      "name": "external_reservations_update",
+      "description": "Update an off-platform promotion record. Required: id. Optional: date, name. Returns the updated Reservation.",
+      "method": "PUT",
+      "path": "/api/external_reservations/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "External reservation id",
+          "required": true
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "body",
+          "description": "Send date (YYYY-MM-DD)"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the external promotion"
+        }
+      ]
+    },
+    {
+      "name": "integrations_get",
+      "description": "Get one newsletter provider integration and its health status. The provider API key is redacted. Required: id. Returns the Integration.",
+      "method": "GET",
+      "path": "/api/integrations/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Integration id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "inventories_get",
+      "description": "Get the promotion slots offered on one date. Required: list_id, date. Returns the OneDayInventory.",
+      "method": "GET",
+      "path": "/api/one_day_inventories",
+      "params": [
+        {
+          "name": "list_id",
+          "type": "int",
+          "location": "query",
+          "description": "Newsletter id",
+          "required": true
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "query",
+          "description": "Date (YYYY-MM-DD)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "inventories_set",
+      "description": "Set the promotion slots offered on one date. Required: list_id, date. Optional: one_day_inventory. Returns the new OneDayInventory.",
+      "method": "POST",
+      "path": "/api/one_day_inventories",
+      "params": [
+        {
+          "name": "list_id",
+          "type": "int",
+          "location": "body",
+          "description": "Newsletter id",
+          "required": true
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "body",
+          "description": "Date (YYYY-MM-DD)",
+          "required": true
+        },
+        {
+          "name": "one_day_inventory",
+          "type": "object",
+          "location": "body",
+          "description": "Slot configuration for the date"
+        }
+      ]
+    },
+    {
+      "name": "lists_campaigns",
+      "description": "Campaign history for a newsletter. Required: id. Optional: offset (default: 0). Returns the CampaignList.",
+      "method": "GET",
+      "path": "/api/lists/{id}/campaigns",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "List id",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset"
+        }
+      ]
+    },
+    {
+      "name": "lists_search",
+      "description": "Search marketplace newsletters available to promote a book. Optional: preselected_book_id, page (default: 1), per_page (default: 25) (plus 5 more). Returns array of List.",
+      "method": "GET",
+      "path": "/api/lists",
+      "params": [
+        {
+          "name": "preselected_book_id",
+          "type": "int",
+          "location": "query",
+          "description": "Scope results to newsletters that accept this book's genre"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (25 newsletters per page)"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Newsletters per page. Bookclicker fixes this at 25 and ignores the value; it is declared so sync knows the real page size."
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Free-text search over newsletter and pen name"
+        },
+        {
+          "name": "genres",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated genre filter"
+        },
+        {
+          "name": "inv_type",
+          "type": "string",
+          "location": "query",
+          "description": "Only newsletters offering this promotion type"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Server-side sort key"
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Server-side filter key"
+        }
+      ]
+    },
+    {
+      "name": "my_lists_list",
+      "description": "List your own newsletters with pricing and swap settings. Returns array of List.",
+      "method": "GET",
+      "path": "/api/my_lists",
+      "params": []
+    },
+    {
+      "name": "pen_names_create",
+      "description": "Create a pen name. Required: author_name. Optional: author_profile_url, promo_service_only. Returns the new PenName.",
+      "method": "POST",
+      "path": "/api/pen_names",
+      "params": [
+        {
+          "name": "author_name",
+          "type": "string",
+          "location": "body",
+          "description": "Author name shown to other users",
+          "required": true
+        },
+        {
+          "name": "author_profile_url",
+          "type": "string",
+          "location": "body",
+          "description": "Amazon author URL used for verification"
+        },
+        {
+          "name": "promo_service_only",
+          "type": "int",
+          "location": "body",
+          "description": "1 if this is a promo service rather than an author pen name"
+        }
+      ]
+    },
+    {
+      "name": "pen_names_delete",
+      "description": "Delete a pen name. Required: id. Returns the DeleteResult. Destructive.",
+      "method": "DELETE",
+      "path": "/api/pen_names/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Pen name id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pen_names_for_buyer",
+      "description": "List pen names eligible to book promotions as a buyer. Returns array of PenName.",
+      "method": "GET",
+      "path": "/api/pen_names/list_for_buyer",
+      "params": []
+    },
+    {
+      "name": "pen_names_list",
+      "description": "List your pen names with their books, requests and groups. Returns array of PenName.",
+      "method": "GET",
+      "path": "/api/pen_names",
+      "params": []
+    },
+    {
+      "name": "pen_names_update",
+      "description": "Update a pen name. Required: id. Optional: author_name, author_profile_url. Returns the updated PenName.",
+      "method": "PUT",
+      "path": "/api/pen_names/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Pen name id",
+          "required": true
+        },
+        {
+          "name": "author_name",
+          "type": "string",
+          "location": "body",
+          "description": "Author name"
+        },
+        {
+          "name": "author_profile_url",
+          "type": "string",
+          "location": "body",
+          "description": "Amazon author URL"
+        }
+      ]
+    },
+    {
+      "name": "reservations_accept",
+      "description": "Accept an incoming promotion offer. Required: id. Optional: reply_message. Returns the updated Reservation.",
+      "method": "PUT",
+      "path": "/api/reservations/{id}/accept",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Reservation id",
+          "required": true
+        },
+        {
+          "name": "reply_message",
+          "type": "string",
+          "location": "body",
+          "description": "Message sent with the acceptance"
+        }
+      ]
+    },
+    {
+      "name": "reservations_buyer_cancel",
+      "description": "Cancel a promotion you booked. Required: id. Returns the new Reservation.",
+      "method": "POST",
+      "path": "/api/reservations/{id}/buyer_cancel",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Reservation id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reservations_buyer_cancel_all",
+      "description": "Cancel every promotion you booked (bulk, destructive). Returns the new BulkResult.",
+      "method": "POST",
+      "path": "/api/reservations/buyer_cancel_all",
+      "params": []
+    },
+    {
+      "name": "reservations_buyer_refund",
+      "description": "Process a buyer-side refund. Required: id. Returns the new Reservation.",
+      "method": "POST",
+      "path": "/api/reservations/{id}/buyer_refund",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Reservation id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reservations_decline",
+      "description": "Decline an incoming promotion offer. Required: id. Optional: reply_message. Returns the updated Reservation.",
+      "method": "PUT",
+      "path": "/api/reservations/{id}/decline",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Reservation id",
+          "required": true
+        },
+        {
+          "name": "reply_message",
+          "type": "string",
+          "location": "body",
+          "description": "Message sent with the decline"
+        }
+      ]
+    },
+    {
+      "name": "reservations_dismiss",
+      "description": "Dismiss a reservation notice from the feed. Required: id. Optional: sent_feed. Returns the updated Reservation.",
+      "method": "PUT",
+      "path": "/api/reservations/{id}/dismiss",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Reservation id",
+          "required": true
+        },
+        {
+          "name": "sent_feed",
+          "type": "bool",
+          "location": "body",
+          "description": "Mark the feed item as sent"
+        }
+      ]
+    },
+    {
+      "name": "reservations_refund_request",
+      "description": "Request a refund for a paid promotion. Required: id. Returns the new Reservation.",
+      "method": "POST",
+      "path": "/api/reservations/{id}/refund_request",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Reservation id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reservations_request_confirmation",
+      "description": "Ask the seller to confirm a promotion was sent. Required: id. Returns the updated Reservation.",
+      "method": "PUT",
+      "path": "/api/reservations/{id}/confirmation_request",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Reservation id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reservations_seller_cancel",
+      "description": "Cancel a promotion booked on your newsletter. Required: id. Returns the new Reservation.",
+      "method": "POST",
+      "path": "/api/reservations/{id}/seller_cancel",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Reservation id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reservations_seller_cancel_all",
+      "description": "Cancel every promotion booked on your newsletters (bulk, destructive). Returns the new BulkResult.",
+      "method": "POST",
+      "path": "/api/reservations/seller_cancel_all",
+      "params": []
+    },
+    {
+      "name": "reservations_seller_refund",
+      "description": "Issue a refund as the newsletter owner. Required: id. Returns the new Reservation.",
+      "method": "POST",
+      "path": "/api/reservations/{id}/seller_refund",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Reservation id",
+          "required": true
+        }
+      ]
+    }
+  ]
+}
