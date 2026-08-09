@@ -45,7 +45,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/notifications", true, false, nil, mcpPageConfig{}, []mcpParamBinding{}, []string{}),
+		makeAPIHandler("GET", cli.HabiticaNotificationsPath, true, false, nil, mcpPageConfig{ResponsePath: cli.HabiticaNotificationsResponsePath}, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tags_create",
@@ -266,6 +266,7 @@ type mcpParamBinding struct {
 type mcpPageConfig struct {
 	CursorParam    string
 	NextCursorPath string
+	ResponsePath   string
 }
 
 func formatMCPParamValue(v any) string {
@@ -496,6 +497,13 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 			default:
 				return mcpToolError(msg), nil
 			}
+		}
+		if pageConfig.ResponsePath != "" {
+			payload, ok := cli.ResponsePayloadAtPath(data, pageConfig.ResponsePath)
+			if !ok {
+				return mcpToolError("API response did not contain expected field " + pageConfig.ResponsePath), nil
+			}
+			data = payload
 		}
 
 		if binaryResponse {

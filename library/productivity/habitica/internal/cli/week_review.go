@@ -4,6 +4,8 @@
 package cli
 
 import (
+	"context"
+	"database/sql"
 	"fmt"
 	"os"
 	"time"
@@ -17,6 +19,17 @@ type habiticaWeekSnapshot struct {
 	Open       int    `json:"open"`
 	Completed  int    `json:"completed"`
 	Overdue    int    `json:"overdue"`
+}
+
+func readHabiticaWeekSnapshot(ctx context.Context, db *sql.DB, now time.Time) (habiticaWeekSnapshot, error) {
+	snapshot := habiticaWeekSnapshot{CapturedAt: now.UTC().Format(time.RFC3339)}
+	cutoff := now.UTC().Format(time.RFC3339)
+	err := db.QueryRowContext(ctx, `SELECT
+		COALESCE(SUM(CASE WHEN COALESCE(completed, 0) = 0 THEN 1 ELSE 0 END), 0),
+		COALESCE(SUM(CASE WHEN COALESCE(completed, 0) = 1 THEN 1 ELSE 0 END), 0),
+		COALESCE(SUM(CASE WHEN COALESCE(completed, 0) = 0 AND date != '' AND date < ? THEN 1 ELSE 0 END), 0)
+		FROM tasks`, cutoff).Scan(&snapshot.Open, &snapshot.Completed, &snapshot.Overdue)
+	return snapshot, err
 }
 
 func newNovelWeekReviewCmd(flags *rootFlags) *cobra.Command {
@@ -52,14 +65,8 @@ func newNovelWeekReviewCmd(flags *rootFlags) *cobra.Command {
 			)`); err != nil {
 				return fmt.Errorf("creating snapshot table: %w", err)
 			}
-			var snapshot habiticaWeekSnapshot
-			snapshot.CapturedAt = time.Now().UTC().Format(time.RFC3339)
-			cutoff := time.Now().UTC().Format(time.RFC3339)
-			if err := db.DB().QueryRowContext(ctx, `SELECT
-				SUM(CASE WHEN COALESCE(completed, 0) = 0 THEN 1 ELSE 0 END),
-				SUM(CASE WHEN COALESCE(completed, 0) = 1 THEN 1 ELSE 0 END),
-				SUM(CASE WHEN COALESCE(completed, 0) = 0 AND date != '' AND date < ? THEN 1 ELSE 0 END)
-				FROM tasks`, cutoff).Scan(&snapshot.Open, &snapshot.Completed, &snapshot.Overdue); err != nil {
+			snapshot, err := readHabiticaWeekSnapshot(ctx, db.DB(), time.Now())
+			if err != nil {
 				return fmt.Errorf("reading local task mirror: %w", err)
 			}
 			if _, err := db.DB().ExecContext(ctx, `INSERT OR REPLACE INTO habitica_week_snapshots (captured_at, open_count, completed_count, overdue_count) VALUES (?, ?, ?, ?)`, snapshot.CapturedAt, snapshot.Open, snapshot.Completed, snapshot.Overdue); err != nil {

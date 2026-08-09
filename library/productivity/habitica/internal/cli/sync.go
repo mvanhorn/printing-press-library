@@ -1682,7 +1682,7 @@ func describeResourceFailure(count int, label string, resources []string) string
 // this preserves the actual endpoint path like "/ISteamApps/GetAppList/v2".
 func syncResourcePath(resource string) (string, error) {
 	paths := map[string]string{ // #nosec G101 -- endpoint paths, not credentials.
-		"notifications":       "/notifications",
+		"notifications":       HabiticaNotificationsPath,
 		"tags":                "/tags",
 		"tasks":               "/tasks/user",
 		"user":                "/user/inventory/buy",
@@ -1858,6 +1858,8 @@ var dataEnvelopeKeys = []string{"data", "Data", "result", "Result"}
 
 func responsePathForResource(resource, path string) []string {
 	switch resource + "\x00" + path {
+	case "notifications\x00" + HabiticaNotificationsPath:
+		return []string{HabiticaNotificationsResponsePath}
 	}
 	return nil
 }

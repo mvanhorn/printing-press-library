@@ -20,8 +20,13 @@ type resourceReadConfig struct {
 	pageSize       int
 }
 
+const (
+	HabiticaNotificationsPath         = "/user"
+	HabiticaNotificationsResponsePath = "data.notifications"
+)
+
 var resourceReadPaths = map[string]string{ // #nosec G101 -- endpoint paths, not credentials.
-	"notifications": "/notifications",
+	"notifications": HabiticaNotificationsPath,
 	"tags":          "/tags",
 	"tasks":         "/tasks/user",
 	"user":          "/user/inventory/buy",
@@ -37,7 +42,7 @@ var resourceWritePaths = map[string]string{ // #nosec G101 -- endpoint paths, no
 }
 
 var resourceReadConfigs = map[string]resourceReadConfig{
-	"notifications": {responsePath: "", pageSize: 100},
+	"notifications": {responsePath: HabiticaNotificationsResponsePath, pageSize: 100},
 	"tags":          {responsePath: "", pageSize: 100},
 	"tasks":         {responsePath: "", pageSize: 100},
 	"user":          {responsePath: "", pageSize: 100},

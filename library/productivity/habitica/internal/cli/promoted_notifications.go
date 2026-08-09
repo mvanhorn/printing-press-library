@@ -18,16 +18,16 @@ func newNotificationsPromotedCmd(flags *rootFlags) *cobra.Command {
 		Short:       "List notifications",
 		Long:        "List notifications",
 		Example:     "  habitica-pp-cli notifications",
-		Annotations: map[string]string{"pp:endpoint": "notifications.list", "pp:method": "GET", "pp:path": "/notifications", "mcp:read-only": "true"},
+		Annotations: map[string]string{"pp:endpoint": "notifications.list", "pp:method": "GET", "pp:path": "/user", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			path := "/notifications"
+			path := HabiticaNotificationsPath
 			params := map[string]string{}
-			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "notifications", true, path, params, nil, "", cmd.ErrOrStderr())
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "notifications", true, path, params, nil, HabiticaNotificationsResponsePath, cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

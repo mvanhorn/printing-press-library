@@ -32,7 +32,7 @@
       "name": "notifications_list",
       "description": "List notifications. Returns array of Notification.",
       "method": "GET",
-      "path": "/notifications",
+      "path": "/user",
       "params": []
     },
     {

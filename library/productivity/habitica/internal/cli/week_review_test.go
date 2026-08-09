@@ -6,8 +6,13 @@ package cli
 
 import (
 	"bytes"
+	"context"
+	"path/filepath"
 	"strings"
 	"testing"
+	"time"
+
+	"github.com/mvanhorn/printing-press-library/library/productivity/habitica/internal/store"
 )
 
 // TestNovelWeekReviewHelpWires smoke-tests that the week review command
@@ -28,5 +33,25 @@ func TestNovelWeekReviewHelpWires(t *testing.T) {
 		if !strings.Contains(help, want) {
 			t.Fatalf("week review --help missing %q in output:\n%s", want, help)
 		}
+	}
+}
+
+func TestReadHabiticaWeekSnapshotHandlesEmptyTaskMirror(t *testing.T) {
+	db, err := store.Open(filepath.Join(t.TempDir(), "habitica.db"))
+	if err != nil {
+		t.Fatalf("open store: %v", err)
+	}
+	defer db.Close()
+
+	now := time.Date(2026, 8, 9, 12, 0, 0, 0, time.UTC)
+	snapshot, err := readHabiticaWeekSnapshot(context.Background(), db.DB(), now)
+	if err != nil {
+		t.Fatalf("read empty snapshot: %v", err)
+	}
+	if snapshot.Open != 0 || snapshot.Completed != 0 || snapshot.Overdue != 0 {
+		t.Fatalf("empty snapshot counts = %+v, want all zero", snapshot)
+	}
+	if snapshot.CapturedAt != now.Format(time.RFC3339) {
+		t.Fatalf("captured_at = %q, want %q", snapshot.CapturedAt, now.Format(time.RFC3339))
 	}
 }
