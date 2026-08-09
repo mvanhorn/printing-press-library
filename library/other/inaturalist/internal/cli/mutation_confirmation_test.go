@@ -39,3 +39,12 @@ func TestGeneratedMutationStopsBeforeClientWithoutYes(t *testing.T) {
 		t.Fatalf("delete error = %v, want local confirmation error", err)
 	}
 }
+
+func TestBulkImportStopsBeforeReadingInputWithoutYes(t *testing.T) {
+	cmd := RootCmd()
+	cmd.SetArgs([]string{"import", "observations", "--input", "does-not-exist.jsonl"})
+	err := cmd.Execute()
+	if err == nil || !strings.Contains(err.Error(), "confirmation required for POST request") {
+		t.Fatalf("import error = %v, want local confirmation error", err)
+	}
+}

@@ -8,6 +8,7 @@
   "reason": "Generated mutation commands and the code-orchestration executor otherwise send remote writes immediately, contradicting the catalog's confirmable-mutation contract.",
   "files": [
     "internal/cli/root.go",
+    "internal/cli/import.go",
     "internal/cli/mutation_confirmation_test.go",
     "internal/mcp/code_orch.go",
     "internal/mcp/code_orch_writebody_test.go"
