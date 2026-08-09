@@ -16,6 +16,7 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/amc-theatres/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/amc-theatres/internal/config"
 	"github.com/spf13/cobra"
+	"golang.org/x/term"
 )
 
 const secureSetTokenExample = `  read -rsp 'AMC vendor key: ' token; printf '\n'
@@ -139,9 +140,8 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 		Short:   "Read an API token from stdin and save it to the credentials file",
 		Example: secureSetTokenExample,
 		Args:    cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			fmt.Fprint(cmd.ErrOrStderr(), "Token (read from stdin): ")
-			token, err := readToken(cmd.InOrStdin())
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			token, err := readToken(cmd.InOrStdin(), cmd.ErrOrStderr(), flags.noInput || flags.agent)
 			if err != nil {
 				return configErr(err)
 			}
@@ -184,12 +184,37 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 	}
 }
 
-func readToken(r io.Reader) (string, error) {
+func readToken(r io.Reader, stderr io.Writer, nonInteractive bool) (string, error) {
+	input, isFile := r.(*os.File)
+	isTerminal := isFile && term.IsTerminal(int(input.Fd()))
+	if err := validateTokenInputMode(isTerminal, nonInteractive); err != nil {
+		return "", err
+	}
+	if isTerminal {
+		fmt.Fprint(stderr, "Token: ")
+		secret, err := term.ReadPassword(int(input.Fd()))
+		fmt.Fprintln(stderr)
+		if err != nil {
+			return "", fmt.Errorf("reading hidden token: %w", err)
+		}
+		return validateToken(string(secret))
+	}
+
 	token, err := bufio.NewReader(r).ReadString('\n')
 	if err != nil && !errors.Is(err, io.EOF) {
 		return "", fmt.Errorf("reading token from stdin: %w", err)
 	}
-	token = strings.TrimRight(token, "\r\n")
+	return validateToken(strings.TrimRight(token, "\r\n"))
+}
+
+func validateTokenInputMode(isTerminal, nonInteractive bool) error {
+	if isTerminal && nonInteractive {
+		return fmt.Errorf("token input is required on piped stdin when --no-input or --agent is set")
+	}
+	return nil
+}
+
+func validateToken(token string) (string, error) {
 	if strings.TrimSpace(token) == "" {
 		return "", fmt.Errorf("token from stdin is empty")
 	}

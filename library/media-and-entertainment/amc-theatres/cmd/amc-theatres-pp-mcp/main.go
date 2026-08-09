@@ -7,6 +7,7 @@ import (
 	"crypto/subtle"
 	"flag"
 	"fmt"
+	"net"
 	"net/http"
 	"os"
 	"strings"
@@ -49,6 +50,8 @@ func main() {
 
 	transport := flag.String("transport", defaultTransport(), "MCP transport: stdio | http")
 	addr := flag.String("addr", defaultHTTPAddr, "bind address for http transport (host:port or :port)")
+	tlsCert := flag.String("tls-cert", "", "TLS certificate file for non-loopback http transport")
+	tlsKey := flag.String("tls-key", "", "TLS private key file for non-loopback http transport")
 	flag.Parse()
 
 	switch strings.ToLower(*transport) {
@@ -64,7 +67,7 @@ func main() {
 			os.Exit(2)
 		}
 		fmt.Fprintf(os.Stderr, "amc-theatres-pp-mcp serving MCP over streamable HTTP at %s\n", *addr)
-		if err := serveHTTP(s, *addr, token); err != nil {
+		if err := serveHTTP(s, *addr, token, *tlsCert, *tlsKey); err != nil {
 			fmt.Fprintf(os.Stderr, "MCP server error: %v\n", err)
 			os.Exit(1)
 		}
@@ -74,7 +77,10 @@ func main() {
 	}
 }
 
-func serveHTTP(s *server.MCPServer, addr, token string) error {
+func serveHTTP(s *server.MCPServer, addr, token, tlsCert, tlsKey string) error {
+	if err := validateHTTPTransport(addr, tlsCert, tlsKey); err != nil {
+		return err
+	}
 	mcpHandler := server.NewStreamableHTTPServer(s)
 	mux := http.NewServeMux()
 	mux.Handle("/mcp", requireBearerToken(token, mcpHandler))
@@ -84,7 +90,32 @@ func serveHTTP(s *server.MCPServer, addr, token string) error {
 		Handler:           mux,
 		ReadHeaderTimeout: 10 * time.Second,
 	}
+	if tlsCert != "" {
+		return httpServer.ListenAndServeTLS(tlsCert, tlsKey)
+	}
 	return httpServer.ListenAndServe()
+}
+
+func validateHTTPTransport(addr, tlsCert, tlsKey string) error {
+	if (tlsCert == "") != (tlsKey == "") {
+		return fmt.Errorf("--tls-cert and --tls-key must be provided together")
+	}
+	if !isLoopbackAddress(addr) && tlsCert == "" {
+		return fmt.Errorf("non-loopback --addr %q requires --tls-cert and --tls-key", addr)
+	}
+	return nil
+}
+
+func isLoopbackAddress(addr string) bool {
+	host, _, err := net.SplitHostPort(addr)
+	if err != nil {
+		return false
+	}
+	if strings.EqualFold(host, "localhost") {
+		return true
+	}
+	ip := net.ParseIP(host)
+	return ip != nil && ip.IsLoopback()
 }
 
 func requireBearerToken(token string, next http.Handler) http.Handler {

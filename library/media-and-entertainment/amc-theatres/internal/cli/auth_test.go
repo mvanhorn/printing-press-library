@@ -23,7 +23,7 @@ func TestReadToken(t *testing.T) {
 		{name: "whitespace only", input: "   \n", wantErr: true},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			token, err := readToken(strings.NewReader(tc.input))
+			token, err := readToken(strings.NewReader(tc.input), &strings.Builder{}, false)
 			if (err != nil) != tc.wantErr {
 				t.Fatalf("readToken() error = %v, wantErr %v", err, tc.wantErr)
 			}
@@ -40,5 +40,28 @@ func TestSetTokenRejectsCredentialArgument(t *testing.T) {
 	cmd := newAuthSetTokenCmd(&rootFlags{})
 	if err := cmd.Args(cmd, []string{"secret-token"}); err == nil {
 		t.Fatal("set-token accepted a credential in argv")
+	}
+}
+
+func TestValidateTokenInputMode(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		name           string
+		isTerminal     bool
+		nonInteractive bool
+		wantErr        bool
+	}{
+		{name: "interactive terminal", isTerminal: true},
+		{name: "piped interactive", isTerminal: false},
+		{name: "piped agent", nonInteractive: true},
+		{name: "agent terminal rejected", isTerminal: true, nonInteractive: true, wantErr: true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			err := validateTokenInputMode(tc.isTerminal, tc.nonInteractive)
+			if (err != nil) != tc.wantErr {
+				t.Fatalf("validateTokenInputMode() error = %v, wantErr %v", err, tc.wantErr)
+			}
+		})
 	}
 }
