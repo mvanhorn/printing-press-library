@@ -14,12 +14,11 @@ import (
 func newInstagramListPost2Cmd(flags *rootFlags) *cobra.Command {
 	var flagUrl string
 	var flagCursor string
+	var flagIncludeReplies bool
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:         "list-post-2 [url]",
-		Args:        cobra.MaximumNArgs(1),
-		Aliases:     []string{"comments"},
+		Use:         "list-post-2",
 		Short:       "Retrieves comments on a public Instagram post or reel.",
 		Example:     "  scrape-creators-pp-cli instagram list-post-2 --url https://www.instagram.com/reel/DOq6eV6iIgD",
 		Annotations: map[string]string{"pp:endpoint": "instagram.list-post-2", "pp:method": "GET", "pp:path": "/v2/instagram/post/comments", "mcp:read-only": "true"},
@@ -27,11 +26,21 @@ func newInstagramListPost2Cmd(flags *rootFlags) *cobra.Command {
 			// Bare invocation of a command with required input prints help
 			// instead of pflag's terse "required flag not set" error. Optional-
 			// only read commands fall through so a bare call still executes.
-			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
+			// Machine callers (--json/--agent, which sets asJSON) get a usage
+			// error + exit 2 instead of silent exit-0 help, so an incomplete
+			// invocation is never mistaken for success.
+			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "requires input",
+						"usage": cmd.CommandPath() + " --help",
+					}, flags); printErr != nil {
+						return printErr
+					}
+					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
+				}
 				return cmd.Help()
 			}
-			// `instagram list-post-2 <post-url>` works like --url <post-url>.
-			adoptLonePositionalArg(cmd, args, "url", &flagUrl)
 			if !cmd.Flags().Changed("url") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "url")
 			}
@@ -41,12 +50,14 @@ func newInstagramListPost2Cmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "instagram", path, map[string]string{
-				"url":    formatCLIParamValue(flagUrl),
-				"cursor": formatCLIParamValue(flagCursor),
-			}, nil, flagAll, "cursor", "cursor", "", "cursor", "", cmd.ErrOrStderr())
+				"url":             formatCLIParamValue(flagUrl),
+				"cursor":          formatCLIParamValue(flagCursor),
+				"include_replies": formatCLIParamValue(flagIncludeReplies),
+			}, nil, flagAll, "cursor", "cursor", "", 100, "", "", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
+			outputData := collectionItemsForOutput(data, path)
 			// Print provenance to stderr for human-facing output only.
 			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
 			// --select) and piped stdout suppress this line; the JSON envelope
@@ -54,7 +65,7 @@ func newInstagramListPost2Cmd(flags *rootFlags) *cobra.Command {
 			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
-				_ = json.Unmarshal(data, &countItems)
+				_ = json.Unmarshal(outputData, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
@@ -73,12 +84,16 @@ func newInstagramListPost2Cmd(flags *rootFlags) *cobra.Command {
 				if wrapErr != nil {
 					return wrapErr
 				}
+				wrapped, wrapErr = wrapPlatformStructuredOutput(wrapped, flags, "results", true)
+				if wrapErr != nil {
+					return wrapErr
+				}
 				return printOutput(cmd.OutOrStdout(), wrapped, true)
 			}
 			// For all other output modes (table, csv, plain, quiet), use the standard pipeline
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var items []map[string]any
-				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
+				if json.Unmarshal(outputData, &items) == nil && len(items) > 0 {
 					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
 						return err
 					}
@@ -88,11 +103,16 @@ func newInstagramListPost2Cmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
+			formatData := data
+			if flags.csv || flags.plain {
+				formatData = outputData
+			}
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagUrl, "url", "", "The URL of the post or reel to get comments from")
 	cmd.Flags().StringVar(&flagCursor, "cursor", "", "The cursor to get more comments. Get 'cursor' from previous response.")
+	cmd.Flags().BoolVar(&flagIncludeReplies, "include-replies", false, "Set to true to include replies for every returned comment.")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
 	return cmd

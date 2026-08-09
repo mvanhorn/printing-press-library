@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/mark3labs/mcp-go/server"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/cli"
 	mcptools "github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/mcp"
 )
 
@@ -23,10 +24,20 @@ const (
 	defaultHTTPAddr = ":7777"
 )
 
+// version is the printed MCP server's version, overridable at build time via ldflags.
+var version = "2026.8.1"
+
 func main() {
+	// Pin the learn-event surface for this process and every walker
+	// shell-out child, so usage events record surface=mcp.
+	_ = os.Setenv("SCRAPE_CREATORS_LEARN_SURFACE", "mcp")
+	if err := cli.BindMCPServerProfile(); err != nil {
+		fmt.Fprintf(os.Stderr, "MCP client-profile bind failed: %v\n", err)
+		os.Exit(1)
+	}
 	s := server.NewMCPServer(
 		"Scrape Creators",
-		"2026.6.2",
+		version,
 		server.WithToolCapabilities(false),
 	)
 

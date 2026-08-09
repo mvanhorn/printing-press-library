@@ -11,8 +11,7 @@ func newAccountCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "account",
 		Short:       "Manage account command groups",
-		Hidden:      true,
-		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:api-resource": "true", "pp:typed-exit-codes": "0,2"},
 		RunE:        parentNoSubcommandRunE(flags),
 	}
 
@@ -20,6 +19,7 @@ func newAccountCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newAccountListGetapiusageCmd(flags))
 	cmd.AddCommand(newAccountListGetdailyusagecountCmd(flags))
 	cmd.AddCommand(newAccountListGetmostusedroutesCmd(flags))
-	cmd.AddCommand(newNovelAccountBudgetCmd(flags))
+	addNovelCommandIfAbsent(cmd, newNovelAccountBudgetCmd(flags))
+	addNovelCommandIfAbsent(cmd, newNovelAccountEstimateCmd(flags))
 	return cmd
 }

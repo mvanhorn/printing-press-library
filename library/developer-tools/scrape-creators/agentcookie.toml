@@ -3,7 +3,7 @@
 schema_version = 2
 name = "scrape-creators-pp-cli"
 display_name = "Scrape Creators"
-description = "Every Scrape Creators endpoint across 28 platforms, plus a local store with offline transcript search, cross-platform joins, and ad-library diffing no other Scrape Creators tool ships."
+description = "Every Scrape Creators endpoint across 28 platforms, with credit-aware comment mining and a local corpus no other Scrape Creators tool has."
 project_kind = "cli"
 
 [secrets.file]

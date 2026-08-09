@@ -10,31 +10,18 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/cliutil/testenv"
 )
 
 func resetPathEnv(t *testing.T) string {
 	t.Helper()
-	home := t.TempDir()
-	t.Setenv("HOME", home)
-	for _, name := range []string{
-		envPrefix + "_CONFIG_DIR",
-		envPrefix + "_DATA_DIR",
-		envPrefix + "_STATE_DIR",
-		envPrefix + "_CACHE_DIR",
-		envPrefix + "_HOME",
-		"XDG_CONFIG_HOME",
-		"XDG_DATA_HOME",
-		"XDG_STATE_HOME",
-		"XDG_CACHE_HOME",
-	} {
-		t.Setenv(name, "")
-	}
 	restore, err := SetHomeOverride("")
 	if err != nil {
 		t.Fatalf("reset home override: %v", err)
 	}
 	t.Cleanup(restore)
-	return home
+	return testenv.Isolate(t, ConfigDir, DataDir, StateDir, CacheDir)
 }
 
 func TestKindDirDefaultsMatchLegacyLayout(t *testing.T) {
@@ -197,6 +184,25 @@ func TestSetHomeOverrideExpandsTildeAndCleans(t *testing.T) {
 	}
 	if want := filepath.Join(home, "root", "cache"); got != want {
 		t.Fatalf("CacheDir() = %q, want %q", got, want)
+	}
+}
+
+func TestHomeOverrideWinsForDefaultBaseAndTildeExpansion(t *testing.T) {
+	resetPathEnv(t)
+	override := t.TempDir()
+	restore, err := SetHomeOverride(override)
+	if err != nil {
+		t.Fatalf("SetHomeOverride() error = %v", err)
+	}
+	defer restore()
+
+	if got, want := expandTilde("~/nested"), filepath.Join(override, "nested"); got != want {
+		t.Fatalf("expandTilde() = %q, want %q", got, want)
+	}
+	if got, err := defaultBase(PathKindData); err != nil {
+		t.Fatalf("defaultBase() error = %v", err)
+	} else if want := filepath.Join(override, ".local", "share"); got != want {
+		t.Fatalf("defaultBase() = %q, want %q", got, want)
 	}
 }
 

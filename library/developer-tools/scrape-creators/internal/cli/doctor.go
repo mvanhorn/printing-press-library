@@ -20,6 +20,22 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// Hand-coded auth flows can report credentials that are intentionally not
+// represented by the generated Config fields. Assign this from a same-package
+// author file after generation. This is a presence signal only; custom flows
+// own their transport and credential-probe validation.
+var doctorAuthConfiguredHook func() (bool, string)
+
+func doctorAuthConfiguredState(cfg *config.Config) (bool, string) {
+	if cfg != nil && cfg.CredentialConfigured() {
+		return true, cfg.AuthSource
+	}
+	if doctorAuthConfiguredHook != nil {
+		return doctorAuthConfiguredHook()
+	}
+	return false, ""
+}
+
 // looksLikeDoctorInterstitial reports whether the response body matches a known
 // bot-detection challenge page (Cloudflare, Akamai, Vercel, AWS WAF, DataDome,
 // PerimeterX). Only fires on the doctor probe — used to distinguish "transport
@@ -74,6 +90,19 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
   scrape-creators-pp-cli doctor --fail-on warn
   scrape-creators-pp-cli doctor --fail-on stale`,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if registeredPlatformSource != nil {
+				if flags.platformSession == nil {
+					return errors.New("verified client profile session is required")
+				}
+				report, err := platformDoctorV2Report(cmd.Context(), flags.platformSession)
+				if err != nil {
+					return err
+				}
+				if err := flags.printJSON(cmd, report); err != nil {
+					return err
+				}
+				return flags.platformGateError
+			}
 			report := map[string]any{}
 			pathsReport := collectPathsReport()
 			report["paths"] = pathsReport
@@ -104,15 +133,15 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			// Check auth
 			authConfigured := false
 			if cfg != nil {
-				header := cfg.AuthHeader()
-				if header == "" {
+				configured, authSource := doctorAuthConfiguredState(cfg)
+				if !configured {
 					report["auth"] = "not configured"
 					report["auth_hint"] = "Set your API key with: export SCRAPECREATORS_API_KEY=\"your-token-here\""
 					report["auth_docs_url"] = "https://scrapecreators.com"
 				} else {
 					authConfigured = true
 					report["auth"] = "configured"
-					report["auth_source"] = cfg.AuthSource
+					report["auth_source"] = authSource
 				}
 			}
 
@@ -227,8 +256,13 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 							case authAPIErr.StatusCode == 403:
 								report["credentials"] = fmt.Sprintf("scope-limited (HTTP %d) — credentials are valid but lack permission for this endpoint. Check your dashboard's API key scope.", authAPIErr.StatusCode)
 							default:
-								// Non-auth HTTP error (404, 500, etc.) — don't blame credentials
-								report["credentials"] = fmt.Sprintf("ok (HTTP %d from %s, but auth was accepted)", authAPIErr.StatusCode, verifyPath)
+								// Non-auth HTTP status (404, 500, etc.): the probe never
+								// reached an authenticated resource, so auth was neither
+								// accepted nor rejected. "Don't blame the credentials" and
+								// "the credentials are ok" are different claims; only the
+								// first is supported here. Report not-verified at WARN so the
+								// verdict is honest and --fail-on warn can trip on it.
+								report["credentials"] = fmt.Sprintf("WARN not verified (HTTP %d from %s) — probe reached a non-auth endpoint; set auth.verify_path to a known-good authenticated GET", authAPIErr.StatusCode, verifyPath)
 							}
 						default:
 							report["credentials"] = fmt.Sprintf("error: %s", authErr)
@@ -632,7 +666,10 @@ func collectCacheReport(ctx context.Context, staleAfterSpec string) map[string]a
 	switch {
 	case !haveAny && len(resources) == 0:
 		report["status"] = "empty"
-		report["hint"] = "Cache is empty; run 'scrape-creators-pp-cli sync' to hydrate."
+		// Only sync-tracked resources are counted here. A store seeded by
+		// other paths (built-in reference data, local writes) can hold rows
+		// while sync_state stays empty, so say what was measured.
+		report["hint"] = "No sync recorded; run 'scrape-creators-pp-cli sync' to hydrate API-backed resources. Rows written by other paths are not tracked in sync_state."
 	case fresh:
 		report["status"] = "fresh"
 	default:

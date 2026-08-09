@@ -21,8 +21,10 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/learn"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/mcp/bound"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/mcp/cobratree"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/platform"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/store"
 )
 
@@ -35,9 +37,12 @@ const (
 
 // RegisterTools registers all API operations as MCP tools.
 func RegisterTools(s *server.MCPServer) {
-	// Code-orchestration mode — the full surface is covered by two tools
-	// (<api>_search + <api>_execute). Endpoint-mirror tools are suppressed.
+	installFreshTenantGate(s)
+	// Code-orchestration mode — the full surface is covered by registry tools
+	// (<api>_search, <api>_get, and <api>_execute). Endpoint-mirror tools are suppressed.
 	RegisterCodeOrchestrationTools(s)
+	// Intent tools — higher-level compositions declared in the spec or lifted from recipes.
+	RegisterIntents(s)
 	// Search tool — faster than iterating list endpoints for finding specific items
 	s.AddTool(
 		mcplib.NewTool("search",
@@ -123,18 +128,28 @@ func formatMCPParamValue(v any) string {
 	}
 }
 
+func mcpPathValue(v any) string {
+	return cliutil.EscapePathParam(formatMCPParamValue(v))
+}
+
 // makeAPIHandler creates a generic MCP tool handler for an API endpoint.
 func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse bool, headerOverrides map[string]string, pageConfig mcpPageConfig, bindings []mcpParamBinding, positionalParams []string) server.ToolHandlerFunc {
 	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-		c, err := newMCPClient()
+		c, platformSession, err := newMCPClient(ctx)
 		if err != nil {
-			return mcplib.NewToolResultError(err.Error()), nil
+			return mcpToolError(err.Error()), nil
+		}
+		if platformSession != nil {
+			defer platformSession.ZeroCredentials()
 		}
 
 		// mcp-go v0.47+ made CallToolParams.Arguments an `any` to support
 		// non-map payloads; GetArguments() returns the map[string]any shape
 		// we rely on here (or an empty map when the payload is something else).
 		args := req.GetArguments()
+		if err := cli.AdoptMCPOutputSemantics(platformSession, args); err != nil {
+			return mcpToolError(err.Error()), nil
+		}
 
 		// positionalParams mixes real URL path params with CLI positional
 		// args that map to query params (e.g. `search <query>` -> ?query=);
@@ -150,12 +165,12 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 			if v, ok := args["cursor"]; ok {
 				s, ok := v.(string)
 				if !ok {
-					return mcplib.NewToolResultError("cursor must be an opaque string returned by a previous MCP response"), nil
+					return mcpToolError("cursor must be an opaque string returned by a previous MCP response"), nil
 				}
 				mcpCursor = s
 				upstreamCursor, err := bound.UpstreamCursor(s)
 				if err != nil {
-					return mcplib.NewToolResultError(err.Error()), nil
+					return mcpToolError(err.Error()), nil
 				}
 				if upstreamCursor != "" {
 					params[pageConfig.CursorParam] = upstreamCursor
@@ -185,7 +200,12 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 			case "path":
 				placeholder := "{" + binding.WireName + "}"
 				pathParams[binding.PublicName] = true
-				path = strings.Replace(path, placeholder, formatMCPParamValue(v), 1)
+				path = strings.Replace(path, placeholder, mcpPathValue(v), 1)
+			case "header":
+				if headers == nil {
+					headers = map[string]string{}
+				}
+				headers[binding.WireName] = formatMCPParamValue(v)
 			case "body":
 				bodyArgs[binding.WireName] = v
 			default:
@@ -199,7 +219,7 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 			}
 			pathParams[p] = true
 			if v, ok := args[p]; ok {
-				path = strings.Replace(path, placeholder, formatMCPParamValue(v), 1)
+				path = strings.Replace(path, placeholder, mcpPathValue(v), 1)
 			}
 		}
 
@@ -219,10 +239,18 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 		switch method {
 		case "GET":
 			if len(headers) > 0 {
-				data, err = c.GetWithHeaders(ctx, path, params, headers)
+				if readOnly {
+					data, err = c.GetWithHeaders(ctx, path, params, headers)
+				} else {
+					data, err = c.GetMutatingWithHeaders(ctx, path, params, headers)
+				}
 				break
 			}
-			data, err = c.Get(ctx, path, params)
+			if readOnly {
+				data, err = c.Get(ctx, path, params)
+			} else {
+				data, err = c.GetMutating(ctx, path, params)
+			}
 		case "POST":
 			if len(headers) > 0 {
 				if readOnly {
@@ -239,16 +267,32 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 			}
 		case "PUT":
 			if len(headers) > 0 {
-				data, _, err = c.PutWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				if readOnly {
+					data, _, err = c.PutQueryWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				} else {
+					data, _, err = c.PutWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				}
 				break
 			}
-			data, _, err = c.PutWithParams(ctx, path, params, bodyArgs)
+			if readOnly {
+				data, _, err = c.PutQueryWithParams(ctx, path, params, bodyArgs)
+			} else {
+				data, _, err = c.PutWithParams(ctx, path, params, bodyArgs)
+			}
 		case "PATCH":
 			if len(headers) > 0 {
-				data, _, err = c.PatchWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				if readOnly {
+					data, _, err = c.PatchQueryWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				} else {
+					data, _, err = c.PatchWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				}
 				break
 			}
-			data, _, err = c.PatchWithParams(ctx, path, params, bodyArgs)
+			if readOnly {
+				data, _, err = c.PatchQueryWithParams(ctx, path, params, bodyArgs)
+			} else {
+				data, _, err = c.PatchWithParams(ctx, path, params, bodyArgs)
+			}
 		case "DELETE":
 			if len(headers) > 0 {
 				data, _, err = c.DeleteWithParamsAndHeaders(ctx, path, params, headers)
@@ -256,41 +300,41 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 			}
 			data, _, err = c.DeleteWithParams(ctx, path, params)
 		default:
-			return mcplib.NewToolResultError("unsupported method: " + method), nil
+			return mcpToolError("unsupported method: " + method), nil
 		}
 
 		if err != nil {
 			msg := err.Error()
 			switch {
 			case strings.Contains(msg, "HTTP 409"):
-				return mcplib.NewToolResultText("already exists (no-op)"), nil
+				return mcpToolTextWithPlatform("already exists (no-op)", platformSession), nil
 			case strings.Contains(msg, "HTTP 400") && cliutil.LooksLikeAuthError(msg):
-				return mcplib.NewToolResultError("authentication error: " + cliutil.SanitizeErrorBody(msg) +
+				return mcpToolError("authentication error: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: the API rejected the request — this usually means auth is missing or invalid." +
 					"\n      Set your API key with: export SCRAPECREATORS_API_KEY=\"your-token-here\"" +
 					"\n      See API docs: https://scrapecreators.com" +
 					"\n      Run 'scrape-creators-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 401"):
-				return mcplib.NewToolResultError("authentication failed: " + cliutil.SanitizeErrorBody(msg) +
+				return mcpToolError("authentication failed: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: check your API key." +
 					"\n      Set your API key with: export SCRAPECREATORS_API_KEY=\"your-token-here\"" +
 					"\n      See API docs: https://scrapecreators.com" +
 					"\n      Run 'scrape-creators-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 403"):
-				return mcplib.NewToolResultError("permission denied: " + cliutil.SanitizeErrorBody(msg) +
+				return mcpToolError("permission denied: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: your credentials are valid but lack access to this resource. Check that they have the required permissions and match the API's expected auth scheme." +
 					"\n      Set your API key with: export SCRAPECREATORS_API_KEY=\"your-token-here\"" +
 					"\n      See API docs: https://scrapecreators.com" +
 					"\n      Run 'scrape-creators-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 404"):
 				if method == "DELETE" {
-					return mcplib.NewToolResultText("already deleted (no-op)"), nil
+					return mcpToolTextWithPlatform("already deleted (no-op)", platformSession), nil
 				}
-				return mcplib.NewToolResultError("not found: " + msg), nil
+				return mcpToolError("not found: " + msg), nil
 			case strings.Contains(msg, "HTTP 429"):
-				return mcplib.NewToolResultError("rate limited: " + msg), nil
+				return mcpToolError("rate limited: " + msg), nil
 			default:
-				return mcplib.NewToolResultError(msg), nil
+				return mcpToolError(msg), nil
 			}
 		}
 
@@ -302,38 +346,73 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 				"byte_count":       len(data),
 			})
 			if err != nil {
-				return mcplib.NewToolResultError(fmt.Sprintf("encoding binary result: %v", err)), nil
+				return mcpToolError(fmt.Sprintf("encoding binary result: %v", err)), nil
 			}
 			if len(out) > bound.MaxBytes {
-				return mcplib.NewToolResultError(fmt.Sprintf("binary response is too large for MCP text output: %d response bytes encode to %d base64 bytes and %d MCP result bytes, exceeding the %d byte budget. Use the companion CLI command with --output <file> to save the payload locally.", len(data), len(encoded), len(out), bound.MaxBytes)), nil
+				return mcpToolError(fmt.Sprintf("binary response is too large for MCP text output: %d response bytes encode to %d base64 bytes and %d MCP result bytes, exceeding the %d byte budget. Use the companion CLI command with --output <file> to save the payload locally.", len(data), len(encoded), len(out), bound.MaxBytes)), nil
 			}
-			return mcplib.NewToolResultText(string(out)), nil
+			result := string(out)
+			if platformSession != nil {
+				result = bound.WithMetadata(result, platformSession.OutputMetadata())
+			}
+			return mcplib.NewToolResultText(result), nil
 		}
 		if pageConfig.CursorParam != "" {
-			return mcpToolPageResultText(method, data, pageConfig, mcpCursor), nil
+			return mcpToolPageResultTextWithPlatform(method, data, pageConfig, mcpCursor, platformSession), nil
 		}
-		return mcpToolResultText(method, data), nil
+		return mcpToolResultTextWithPlatform(method, data, platformSession), nil
 	}
 }
 
 func mcpToolResultText(method string, data json.RawMessage) *mcplib.CallToolResult {
-	return mcplib.NewToolResultText(bound.EndpointResponse(method, data))
+	return mcpToolResultTextWithPlatform(method, data, nil)
+}
+
+func mcpToolTextWithPlatform(result string, platformSession *platform.Session) *mcplib.CallToolResult {
+	if platformSession != nil {
+		result = bound.WithMetadata(result, platformSession.OutputMetadata())
+	}
+	return mcplib.NewToolResultText(result)
+}
+
+func mcpToolResultTextWithPlatform(method string, data json.RawMessage, platformSession *platform.Session) *mcplib.CallToolResult {
+	result := bound.EndpointResponse(method, data)
+	return mcpToolTextWithPlatform(result, platformSession)
+}
+
+// mcpToolError keeps provider-controlled typed endpoint errors within the MCP
+// text-result budget just like successful endpoint results.
+func mcpToolError(message string) *mcplib.CallToolResult {
+	return mcplib.NewToolResultError(bound.Text(message))
 }
 
 func mcpToolPageResultText(method string, data json.RawMessage, pageConfig mcpPageConfig, cursor string) *mcplib.CallToolResult {
-	return mcplib.NewToolResultText(bound.EndpointPageResponse(method, data, bound.PageOptions{
+	return mcpToolPageResultTextWithPlatform(method, data, pageConfig, cursor, nil)
+}
+
+func mcpToolPageResultTextWithPlatform(method string, data json.RawMessage, pageConfig mcpPageConfig, cursor string, platformSession *platform.Session) *mcplib.CallToolResult {
+	result := bound.EndpointPageResponse(method, data, bound.PageOptions{
 		Cursor:         cursor,
 		CursorParam:    pageConfig.CursorParam,
 		NextCursorPath: pageConfig.NextCursorPath,
-	}))
+	})
+	if platformSession != nil {
+		result = bound.WithMetadata(result, platformSession.OutputMetadata())
+	}
+	return mcplib.NewToolResultText(result)
 }
 
-func newMCPClient() (*client.Client, error) {
+func newMCPClient(ctx context.Context) (*client.Client, *platform.Session, error) {
 	cfg, err := newMCPConfig()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return newMCPClientFromConfig(cfg), nil
+	c := newMCPClientFromConfig(cfg)
+	session, err := cli.BindMCPClient(ctx, c)
+	if err != nil {
+		return nil, nil, err
+	}
+	return c, session, nil
 }
 
 func newMCPConfig() (*config.Config, error) {
@@ -722,12 +801,17 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 	}
 	ctx := map[string]any{
 		"api":         "scrape-creators",
-		"description": "Every Scrape Creators endpoint across 28 platforms, plus a local store with offline transcript search, cross-platform joins, and ad-library diffing no other Scrape Creators tool ships.",
+		"description": "Every Scrape Creators endpoint across 28 platforms, with credit-aware comment mining and a local corpus no other Scrape Creators tool has.",
 		"archetype":   "communication",
-		"tool_count":  164,
+		"tool_count":  178,
 		"paths":       paths,
 		// tool_surface tells agents which surface a capability lives on.
 		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion scrape-creators-pp-cli binary.",
+		// learn_protocol is generated from the single shared source of
+		// truth (the exported constant internal/learn.RecallFirstProtocol)
+		// also consumed by the CLI agent-context command, so the MCP and
+		// CLI agent surfaces cannot drift.
+		"learn_protocol": learn.RecallFirstProtocol,
 		"auth": map[string]any{
 			"type": "api_key",
 			"env_vars": []map[string]any{
@@ -757,6 +841,13 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 				"searchable":  true,
 			},
 			{
+				"name":        "apple-music",
+				"description": "Scrape Apple Music artists, songs, albums, and search results",
+				"endpoints":   []string{"list", "list-applemusic", "list-applemusic-2", "list-applemusic-3"},
+				"syncable":    true,
+				"searchable":  true,
+			},
+			{
 				"name":        "bluesky",
 				"description": "Get Bluesky posts and profile info",
 				"endpoints":   []string{"list", "list-profile", "list-user"},
@@ -773,9 +864,10 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			{
 				"name":        "facebook",
 				"description": "Get public Facebook profiles and posts",
-				"endpoints":   []string{"list", "list-adlibrary", "list-adlibrary-2", "list-adlibrary-3", "list-adlibrary-4", "list-adlibrary-5", "list-event", "list-events", "list-group", "list-marketplace", "list-marketplace-2", "list-marketplace-3", "list-post", "list-post-2", "list-post-3", "list-post-4", "list-profile", "list-profile-2", "list-profile-3", "list-profile-4", "list-profile-5"},
+				"endpoints":   []string{"create", "create-adlibrary", "list", "list-adlibrary", "list-adlibrary-2", "list-adlibrary-3", "list-adlibrary-4", "list-adlibrary-5", "list-event", "list-events", "list-group", "list-group-2", "list-marketplace", "list-marketplace-2", "list-marketplace-3", "list-post", "list-post-2", "list-post-3", "list-post-4", "list-profile", "list-profile-2", "list-profile-3", "list-profile-4", "list-profile-5"},
 				"syncable":    true,
 				"searchable":  true,
+				"writable":    true,
 			},
 			{
 				"name":        "github",
@@ -794,7 +886,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			{
 				"name":        "instagram",
 				"description": "Gets Instagram profiles, posts, and reels",
-				"endpoints":   []string{"list", "list-audio", "list-media", "list-post", "list-post-2", "list-profile", "list-reels", "list-reels-2", "list-search", "list-search-2", "list-user", "list-user-2", "list-user-3", "list-user-4", "list-user-5"},
+				"endpoints":   []string{"list", "list-audio", "list-media", "list-post", "list-post-2", "list-post-3", "list-profile", "list-reels", "list-reels-2", "list-search", "list-search-2", "list-search-3", "list-search-4", "list-user", "list-user-2", "list-user-3", "list-user-4", "list-user-5", "list-user-6"},
 				"syncable":    true,
 				"searchable":  true,
 			},
@@ -864,9 +956,10 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			{
 				"name":        "reddit",
 				"description": "Scrape Reddit posts and comments",
-				"endpoints":   []string{"list", "list-post", "list-post-2", "list-subreddit", "list-subreddit-2", "list-subreddit-3"},
+				"endpoints":   []string{"create", "list", "list-post", "list-post-2", "list-subreddit", "list-subreddit-2", "list-subreddit-3"},
 				"syncable":    true,
 				"searchable":  true,
+				"writable":    true,
 			},
 			{
 				"name":        "rumble",
@@ -877,8 +970,8 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			},
 			{
 				"name":        "snapchat",
-				"description": "Scrape Snapchat user profiles and thier stories",
-				"endpoints":   []string{"list"},
+				"description": "Scrape Snapchat user profiles and their stories",
+				"endpoints":   []string{"list", "list-spotlight", "list-spotlight-2"},
 				"syncable":    true,
 				"searchable":  true,
 			},
@@ -906,7 +999,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			{
 				"name":        "tiktok",
 				"description": "Scrape TikTok profiles, videos, and more",
-				"endpoints":   []string{"list", "list-adlibrary", "list-adlibrary-2", "list-creators", "list-hashtags", "list-live", "list-product", "list-profile", "list-profile-2", "list-profile-3", "list-search", "list-search-2", "list-search-3", "list-search-4", "list-search-5", "list-shop", "list-shop-2", "list-shop-3", "list-song", "list-song-2", "list-user", "list-user-2", "list-user-3", "list-user-4", "list-user-5", "list-video", "list-video-2", "list-video-3", "list-video-4"},
+				"endpoints":   []string{"list", "list-adlibrary", "list-adlibrary-2", "list-collection", "list-creators", "list-live", "list-product", "list-profile", "list-profile-2", "list-profile-3", "list-search", "list-search-2", "list-search-3", "list-search-4", "list-search-5", "list-shop", "list-shop-2", "list-shop-3", "list-song", "list-song-2", "list-user", "list-user-2", "list-user-3", "list-user-4", "list-user-5", "list-video", "list-video-2", "list-video-3", "list-video-4"},
 				"syncable":    true,
 				"searchable":  true,
 			},
@@ -950,24 +1043,36 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		// Command-mirror capabilities are exposed through MCP by shelling out
 		// to the companion CLI binary.
 		"command_mirror_capabilities": []map[string]string{
-			{"name": "Cross-platform presence matrix", "command": "creator find", "description": "Given one handle, see which of 12 creator platforms the creator is on with follower counts side-by-side.", "rationale": "Fans out to per-platform profile endpoints and joins them into one matrix", "via": "mcp-command-mirror"},
-			{"name": "Multi-creator comparison", "command": "creator compare", "description": "Compare two or more creators side-by-side on follower count, engagement rate, and content volume.", "rationale": "Computes comparative engagement stats from synced profile and content rows in the local store", "via": "mcp-command-mirror"},
-			{"name": "Engagement spike detector", "command": "content spikes", "description": "Surface the videos that performed far above a creator's own baseline — the ones that actually went viral.", "rationale": "Ratios each video against the creator's mean from full local content history; needs the whole corpus", "via": "mcp-command-mirror"},
-			{"name": "Transcript full-text search", "command": "transcripts search", "description": "FTS5 full-text search across every transcript you've synced — YouTube, TikTok, Instagram, Facebook, LinkedIn", "rationale": "Each transcript costs a credit and the API returns one per call with no search", "via": "mcp-command-mirror"},
-			{"name": "Trend triangulation", "command": "trends triangulate", "description": "Snapshot a hashtag or topic across platforms in one call to see which platform it is biggest on.", "rationale": "Fans out per-platform search/trending endpoints and joins a normalized count delta from the local snapshot table", "via": "mcp-command-mirror"},
-			{"name": "Follower growth tracker", "command": "creator track", "description": "Append a follower snapshot per run on a chosen platform, then read the growth trajectory over time.", "rationale": "Builds a time-series the API never returns by persisting dated snapshots to local SQLite.", "via": "mcp-command-mirror"},
-			{"name": "Brand ad campaign monitor", "command": "ads monitor", "description": "Snapshot a brand's live ads across Facebook, TikTok, Google, and LinkedIn ad libraries; on rerun, diff new ads vs.", "rationale": "Unifies four ad-library endpoints into one snapshot table and diffs creatives over time; no tool keeps ad-library memory", "via": "mcp-command-mirror"},
-			{"name": "Credit burn projection", "command": "account budget", "description": "See how fast you're spending API credits and how many days remain at the current pace", "rationale": "Joins the local usage_log table with the API's get-api-usage and get-most-used-routes endpoints to project runway", "via": "mcp-command-mirror"},
+			{"name": "Cost-aware thread completion", "command": "comments thread", "description": "Fetch one post's complete comment threads, automatically picking the cheaper route between the 15-credit flat include_replies call and 1-credit per-comment reply calls (don't trust child_comment_count to decide: it's unreliable).", "rationale": "Routes on thread economics the API doesn't expose, and reports the routing decision and credits charged in the envelope.", "via": "mcp-command-mirror"},
+			{"name": "Reply-gap audit", "command": "comments coverage", "description": "Rank synced posts by how many comments the API reported versus how many actually landed in your local store — ground truth where the API's child_comment_count is unreliable as a thread filter.", "rationale": "Ground truth from a local join where the API's child_comment_count is measurably unreliable (1 false negative per 5 real threads).", "via": "mcp-command-mirror"},
+			{"name": "Pre-flight credit estimator", "command": "account estimate", "description": "Project the credit cost of a planned run against your live balance and exit non-zero if it would exhaust the budget.", "rationale": "Combines the per-endpoint credit table with the live credits_remaining field into a go/no-go gate.", "via": "mcp-command-mirror"},
+			{"name": "Cross-platform presence matrix", "command": "creator find", "description": "Given one handle, see which of 12 creator platforms the creator is on with follower counts side-by-side.", "rationale": "No single API call answers where a creator lives; this fans out and collates.", "via": "mcp-command-mirror"},
+			{"name": "Transcript full-text search", "command": "transcripts search", "description": "FTS5 full-text search across every platform transcript you've synced — nine resource types spanning YouTube, TikTok, Instagram, Facebook, LinkedIn, Rumble, and more.", "rationale": "Paid transcripts become a re-queryable offline corpus instead of one-shot responses.", "via": "mcp-command-mirror"},
+			{"name": "Brand ad campaign monitor", "command": "ads monitor", "description": "Snapshot a brand's live ads across Facebook, TikTok, Google, and LinkedIn ad libraries; on rerun, diff new ads versus ones that disappeared.", "rationale": "Ad-library endpoints are memoryless; the local snapshot store turns dumps into diffs.", "via": "mcp-command-mirror"},
+			{"name": "Bulk comment sweep", "command": "comments sweep", "description": "Pull recent posts for a handle and their comments in one command, stopping cleanly at a credit budget you set.", "rationale": "Posts-to-comments fan-out with a credit circuit breaker no endpoint offers.", "via": "mcp-command-mirror"},
+			{"name": "Comment corpus FTS", "command": "comments search", "description": "Full-text search across every synced comment and reply, offline.", "rationale": "No API search over comments exists at all; FTS5 over the local corpus fills the gap.", "via": "mcp-command-mirror"},
+			{"name": "Credit burn projection", "command": "account budget", "description": "See how fast you're spending API credits and how many days remain at the current pace.", "rationale": "Computed from the API's credit balance and daily usage history.", "via": "mcp-command-mirror"},
+			{"name": "Multi-creator comparison", "command": "creator compare", "description": "Compare two or more creators side-by-side on follower count, engagement rate, and content volume.", "rationale": "Local-store computation across profiles the API only returns one at a time.", "via": "mcp-command-mirror"},
+			{"name": "Engagement spike detector", "command": "content spikes", "description": "Surface the videos that performed far above a creator's own baseline — the ones that actually went viral.", "rationale": "Needs the whole local history to compute a per-creator baseline.", "via": "mcp-command-mirror"},
+			{"name": "Trend triangulation", "command": "trends triangulate", "description": "Snapshot a hashtag or topic across platforms in one call to see which platform it is biggest on.", "rationale": "Cross-platform fan-out no single endpoint provides.", "via": "mcp-command-mirror"},
+			{"name": "Follower growth tracker", "command": "creator track", "description": "Append a follower snapshot per run on a chosen platform, then read the growth trajectory over time.", "rationale": "Time-series the API never returns; built from your own snapshots.", "via": "mcp-command-mirror"},
+			{"name": "UGC tag watcher", "command": "creator tagged", "description": "Snapshot the posts a creator or brand is tagged in and diff new mentions on rerun.", "rationale": "Adds snapshot-diff memory to the memoryless tagged-posts endpoint.", "via": "mcp-command-mirror"},
 		},
 		"playbook": []map[string]string{
-			{"topic": "Cross-platform presence matrix", "insight": "Fans out to per-platform profile endpoints and joins them into one matrix; no single API call answers which platforms a creator exists on."},
-			{"topic": "Multi-creator comparison", "insight": "Computes comparative engagement stats from synced profile and content rows in the local store; the API returns raw counts, never a comparison."},
-			{"topic": "Engagement spike detector", "insight": "Ratios each video against the creator's mean from full local content history; needs the whole corpus, not one response page."},
-			{"topic": "Transcript full-text search", "insight": "Each transcript costs a credit and the API returns one per call with no search; the local FTS5 index makes paid transcripts infinitely re-queryable offline."},
-			{"topic": "Trend triangulation", "insight": "Fans out per-platform search/trending endpoints and joins a normalized count delta from the local snapshot table; cross-platform velocity is not exposed by any endpoint."},
-			{"topic": "Follower growth tracker", "insight": "Builds a time-series the API never returns by persisting dated snapshots to local SQLite."},
-			{"topic": "Brand ad campaign monitor", "insight": "Unifies four ad-library endpoints into one snapshot table and diffs creatives over time; no tool keeps ad-library memory, so pulled creatives are otherwise invisible."},
-			{"topic": "Credit burn projection", "insight": "Joins the local usage_log table with the API's get-api-usage and get-most-used-routes endpoints to project runway; the API reports counts, not a projection."},
+			{"topic": "Cost-aware thread completion", "insight": "Routes on thread economics the API doesn't expose, and reports the routing decision and credits charged in the envelope."},
+			{"topic": "Reply-gap audit", "insight": "Ground truth from a local join where the API's child_comment_count is measurably unreliable (1 false negative per 5 real threads)."},
+			{"topic": "Pre-flight credit estimator", "insight": "Combines the per-endpoint credit table with the live credits_remaining field into a go/no-go gate."},
+			{"topic": "Cross-platform presence matrix", "insight": "No single API call answers where a creator lives; this fans out and collates."},
+			{"topic": "Transcript full-text search", "insight": "Paid transcripts become a re-queryable offline corpus instead of one-shot responses."},
+			{"topic": "Brand ad campaign monitor", "insight": "Ad-library endpoints are memoryless; the local snapshot store turns dumps into diffs."},
+			{"topic": "Bulk comment sweep", "insight": "Posts-to-comments fan-out with a credit circuit breaker no endpoint offers."},
+			{"topic": "Comment corpus FTS", "insight": "No API search over comments exists at all; FTS5 over the local corpus fills the gap."},
+			{"topic": "Credit burn projection", "insight": "Computed from the API's credit balance and daily usage history."},
+			{"topic": "Multi-creator comparison", "insight": "Local-store computation across profiles the API only returns one at a time."},
+			{"topic": "Engagement spike detector", "insight": "Needs the whole local history to compute a per-creator baseline."},
+			{"topic": "Trend triangulation", "insight": "Cross-platform fan-out no single endpoint provides."},
+			{"topic": "Follower growth tracker", "insight": "Time-series the API never returns; built from your own snapshots."},
+			{"topic": "UGC tag watcher", "insight": "Adds snapshot-diff memory to the memoryless tagged-posts endpoint."},
 			{"topic": "Message search", "insight": "Use the search tool on synced data rather than paginating through message history. Message APIs often have aggressive rate limits."},
 			{"topic": "Channel health", "insight": "When analyzing channel activity, use the channel-health command or sql aggregation on synced messages. Don't iterate individual messages via API."},
 		},

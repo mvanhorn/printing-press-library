@@ -6,8 +6,10 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/store"
 	"github.com/spf13/cobra"
 )
@@ -55,7 +57,14 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			}
 			defer s.Close()
 
-			resources := []string{"account", "account-credit-balance", "account-get-daily-usage-count", "account-get-most-used-routes", "bluesky-user-posts", "facebook-ad-library-ad", "facebook-ad-library-ad-transcript", "facebook-ad-library-company-ads", "facebook-event-details", "facebook-group-posts", "facebook-marketplace-item", "facebook-post-comments", "facebook-profile-posts", "github", "github-trending-developers", "github-trending-repositories", "github-user-activity", "github-user-contributions", "github-user-followers", "github-user-following", "github-user-repositories", "google-company-ads", "instagram-basic-profile", "instagram-reels-trending", "instagram-user-highlight-detail", "instagram-user-highlights", "instagram-user-reels", "kwai", "kwai-profile", "kwai-user-posts", "reddit-subreddit-details", "rumble-channel-videos", "soundcloud-artist", "soundcloud-artist-tracks", "spotify", "spotify-artist", "spotify-podcast", "spotify-podcast-episodes", "spotify-track", "tiktok-creators-popular", "tiktok-hashtags-popular", "tiktok-profile", "tiktok-shop-product-reviews", "tiktok-song-videos", "tiktok-user-followers", "truthsocial-user-posts", "youtube-channel", "youtube-channel-community-posts", "youtube-channel-lives", "youtube-channel-playlists", "youtube-channel-shorts", "youtube-channel-videos", "youtube-shorts-trending"}
+			resources := []string{"account", "account-credit-balance", "account-get-daily-usage-count", "account-get-most-used-routes", "apple-music", "apple-music-artist", "apple-music-track", "bluesky-user-posts", "facebook-ad-library-ad", "facebook-ad-library-ad-transcript", "facebook-ad-library-company-ads", "facebook-event-details", "facebook-group", "facebook-group-posts", "facebook-marketplace-item", "facebook-post-comments", "facebook-profile-posts", "github", "github-trending-developers", "github-trending-repositories", "github-user-activity", "github-user-contributions", "github-user-followers", "github-user-following", "github-user-repositories", "google-company-ads", "instagram-basic-profile", "instagram-reels-trending", "instagram-user-highlight-detail", "instagram-user-highlights", "instagram-user-reels", "kwai", "kwai-profile", "kwai-user-posts", "reddit-subreddit-details", "rumble-channel-videos", "soundcloud-artist", "soundcloud-artist-tracks", "spotify", "spotify-artist", "spotify-podcast", "spotify-podcast-episodes", "spotify-track", "tiktok-creators-popular", "tiktok-profile", "tiktok-shop-product-reviews", "tiktok-song-videos", "tiktok-user-followers", "truthsocial-user-posts", "youtube-channel", "youtube-channel-community-posts", "youtube-channel-lives", "youtube-channel-playlists", "youtube-channel-shorts", "youtube-channel-videos", "youtube-shorts-trending"}
+			archiveMaxPages := 100
+			if cliutil.IsDogfoodEnv() {
+				archiveMaxPages = 1
+				if len(resources) > 3 {
+					resources = resources[:3]
+				}
+			}
 			totalSynced := 0
 			syncEventWriter := cmd.OutOrStdout()
 			if flags.asJSON {
@@ -67,13 +76,18 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			// since filter, not cursor reset. Mirrors newSyncCmd's pattern.
 			if full {
 				for _, resource := range resources {
-					_ = s.SaveSyncState(resource, "", 0)
+					if err := s.SaveSyncState(resource, "", 0); err != nil {
+						return fmt.Errorf("clearing sync state for %s: %w", resource, err)
+					}
 				}
 			}
 
 			for _, resource := range resources {
-				res := syncResource(cmd.Context(), c, s, resource, "", full, 100, false, false, nil, syncEventWriter)
+				res := syncResource(cmd.Context(), c, s, resource, "", full, archiveMaxPages, false, false, nil, syncEventWriter)
 				if res.Err != nil {
+					if isSyncStatePersistenceError(res.Err) {
+						return fmt.Errorf("archiving %s: %w", resource, res.Err)
+					}
 					fmt.Fprintf(cmd.ErrOrStderr(), "  %s: error: %v\n", resource, res.Err)
 					continue
 				}
@@ -123,15 +137,34 @@ func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
 			if dbPath == "" {
 				dbPath = defaultDBPath("scrape-creators-pp-cli")
 			}
-			s, err := store.OpenWithContext(cmd.Context(), dbPath)
-			if err != nil {
-				return fmt.Errorf("opening store: %w", err)
-			}
-			defer s.Close()
 
-			status, err := s.Status()
-			if err != nil {
-				return err
+			status := map[string]int{}
+			if _, err := os.Stat(dbPath); err == nil {
+				s, err := store.OpenReadOnlyContext(cmd.Context(), dbPath)
+				if err != nil {
+					return fmt.Errorf("opening store read-only: %w", err)
+				}
+				defer s.Close()
+
+				schemaVersion, err := s.SchemaVersion()
+				if err != nil {
+					return fmt.Errorf("checking store schema read-only: %w", err)
+				}
+				if schemaVersion < store.StoreSchemaVersion {
+
+					return fmt.Errorf("local store schema version %d requires migration to %d; run 'workflow archive' to migrate it", schemaVersion, store.StoreSchemaVersion)
+
+				}
+				if schemaVersion > store.StoreSchemaVersion {
+					return fmt.Errorf("local store schema version %d is newer than supported version %d; upgrade the CLI binary", schemaVersion, store.StoreSchemaVersion)
+				}
+
+				status, err = s.Status()
+				if err != nil {
+					return err
+				}
+			} else if !os.IsNotExist(err) {
+				return fmt.Errorf("checking store path: %w", err)
 			}
 
 			if flags.asJSON {

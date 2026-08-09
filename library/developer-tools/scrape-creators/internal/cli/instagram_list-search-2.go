@@ -12,38 +12,80 @@ import (
 )
 
 func newInstagramListSearch2Cmd(flags *rootFlags) *cobra.Command {
-	var flagQuery string
+	var flagHashtag string
+	var flagDatePosted string
+	var flagMediaType string
 	var flagCursor string
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list-search-2",
-		Short: "Searches Google for public Instagram results matching a keyword or phrase, then returns matching public profiles.",
-		// TODO: replace placeholder example values before relying on this for live dogfood.
-		Example:     "  scrape-creators-pp-cli instagram list-search-2 --query example-value",
-		Annotations: map[string]string{"pp:endpoint": "instagram.list-search-2", "pp:method": "GET", "pp:path": "/v1/instagram/search/profiles", "mcp:read-only": "true"},
+		Use:         "list-search-2",
+		Short:       "Use this when you know the exact hashtag and want Google-indexed public Instagram posts or reels, optional date filters",
+		Example:     "  scrape-creators-pp-cli instagram list-search-2 --hashtag makeup",
+		Annotations: map[string]string{"pp:endpoint": "instagram.list-search-2", "pp:method": "GET", "pp:path": "/v1/instagram/search/hashtag", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Bare invocation of a command with required input prints help
 			// instead of pflag's terse "required flag not set" error. Optional-
 			// only read commands fall through so a bare call still executes.
-			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
+			// Machine callers (--json/--agent, which sets asJSON) get a usage
+			// error + exit 2 instead of silent exit-0 help, so an incomplete
+			// invocation is never mistaken for success.
+			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "requires input",
+						"usage": cmd.CommandPath() + " --help",
+					}, flags); printErr != nil {
+						return printErr
+					}
+					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
+				}
 				return cmd.Help()
 			}
-			if !cmd.Flags().Changed("query") && !flags.dryRun {
-				return fmt.Errorf("required flag \"%s\" not set", "query")
+			if !cmd.Flags().Changed("hashtag") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "hashtag")
 			}
-			path := "/v1/instagram/search/profiles"
+			if cmd.Flags().Changed("date-posted") {
+				allowedDatePosted := []string{"last-hour", "last-day", "last-week", "last-month", "last-year"}
+				validDatePosted := false
+				for _, v := range allowedDatePosted {
+					if flagDatePosted == v {
+						validDatePosted = true
+						break
+					}
+				}
+				if !validDatePosted {
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagDatePosted, "date-posted", allowedDatePosted)
+				}
+			}
+			if cmd.Flags().Changed("media-type") {
+				allowedMediaType := []string{"all", "reels"}
+				validMediaType := false
+				for _, v := range allowedMediaType {
+					if flagMediaType == v {
+						validMediaType = true
+						break
+					}
+				}
+				if !validMediaType {
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagMediaType, "media-type", allowedMediaType)
+				}
+			}
+			path := "/v1/instagram/search/hashtag"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "instagram", path, map[string]string{
-				"query":  formatCLIParamValue(flagQuery),
-				"cursor": formatCLIParamValue(flagCursor),
-			}, nil, flagAll, "cursor", "cursor", "", "cursor", "", cmd.ErrOrStderr())
+				"hashtag":     formatCLIParamValue(flagHashtag),
+				"date_posted": formatCLIParamValue(flagDatePosted),
+				"media_type":  formatCLIParamValue(flagMediaType),
+				"cursor":      formatCLIParamValue(flagCursor),
+			}, nil, flagAll, "cursor", "cursor", "", 100, "", "", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
+			outputData := collectionItemsForOutput(data, path)
 			// Print provenance to stderr for human-facing output only.
 			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
 			// --select) and piped stdout suppress this line; the JSON envelope
@@ -51,7 +93,7 @@ func newInstagramListSearch2Cmd(flags *rootFlags) *cobra.Command {
 			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
-				_ = json.Unmarshal(data, &countItems)
+				_ = json.Unmarshal(outputData, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
@@ -70,12 +112,16 @@ func newInstagramListSearch2Cmd(flags *rootFlags) *cobra.Command {
 				if wrapErr != nil {
 					return wrapErr
 				}
+				wrapped, wrapErr = wrapPlatformStructuredOutput(wrapped, flags, "results", true)
+				if wrapErr != nil {
+					return wrapErr
+				}
 				return printOutput(cmd.OutOrStdout(), wrapped, true)
 			}
 			// For all other output modes (table, csv, plain, quiet), use the standard pipeline
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var items []map[string]any
-				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
+				if json.Unmarshal(outputData, &items) == nil && len(items) > 0 {
 					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
 						return err
 					}
@@ -85,11 +131,17 @@ func newInstagramListSearch2Cmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
+			formatData := data
+			if flags.csv || flags.plain {
+				formatData = outputData
+			}
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"})
 		},
 	}
-	cmd.Flags().StringVar(&flagQuery, "query", "", "Bio or caption keyword/phrase to search for.")
-	cmd.Flags().StringVar(&flagCursor, "cursor", "", "The cursor returned by the previous response. In this version, it is the next Google results page number.")
+	cmd.Flags().StringVar(&flagHashtag, "hashtag", "", "The hashtag to search for. Include or omit the #.")
+	cmd.Flags().StringVar(&flagDatePosted, "date-posted", "", "Only return Google-indexed posts found in this relative window. (one of: last-hour, last-day, last-week, last-month, last-year)")
+	cmd.Flags().StringVar(&flagMediaType, "media-type", "", "Use all to search public posts and reels, or reels to only return reels. Defaults to all. (one of: all, reels)")
+	cmd.Flags().StringVar(&flagCursor, "cursor", "", "The cursor returned by the previous response.")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
 	return cmd

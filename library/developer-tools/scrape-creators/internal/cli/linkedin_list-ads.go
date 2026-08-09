@@ -19,13 +19,12 @@ func newLinkedinListAdsCmd(flags *rootFlags) *cobra.Command {
 	var flagStartDate string
 	var flagEndDate string
 	var flagPaginationToken string
-
 	var flagAll bool
 
 	cmd := &cobra.Command{
 		Use:         "list-ads",
 		Short:       "Searches the LinkedIn Ad Library by company name, keyword, or companyId with optional country and date filters.",
-		Example:     "  scrape-creators-pp-cli linkedin list-ads --company microsoft",
+		Example:     "  scrape-creators-pp-cli linkedin list-ads",
 		Annotations: map[string]string{"pp:endpoint": "linkedin.list-ads", "pp:method": "GET", "pp:path": "/v1/linkedin/ads/search", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			path := "/v1/linkedin/ads/search"
@@ -55,10 +54,11 @@ func newLinkedinListAdsCmd(flags *rootFlags) *cobra.Command {
 			if flagPaginationToken != "" {
 				params["paginationToken"] = formatCLIParamValue(flagPaginationToken)
 			}
-			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "linkedin", path, params, nil, flagAll, "paginationToken", "cursor", "", "paginationToken", "", cmd.ErrOrStderr())
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "linkedin", path, params, nil, flagAll, "paginationToken", "cursor", "", 0, "paginationToken", "", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
+			outputData := data
 			// Print provenance to stderr for human-facing output only.
 			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
 			// --select) and piped stdout suppress this line; the JSON envelope
@@ -66,7 +66,7 @@ func newLinkedinListAdsCmd(flags *rootFlags) *cobra.Command {
 			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
-				_ = json.Unmarshal(data, &countItems)
+				_ = json.Unmarshal(outputData, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
@@ -85,12 +85,16 @@ func newLinkedinListAdsCmd(flags *rootFlags) *cobra.Command {
 				if wrapErr != nil {
 					return wrapErr
 				}
+				wrapped, wrapErr = wrapPlatformStructuredOutput(wrapped, flags, "results", true)
+				if wrapErr != nil {
+					return wrapErr
+				}
 				return printOutput(cmd.OutOrStdout(), wrapped, true)
 			}
 			// For all other output modes (table, csv, plain, quiet), use the standard pipeline
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var items []map[string]any
-				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
+				if json.Unmarshal(outputData, &items) == nil && len(items) > 0 {
 					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
 						return err
 					}
@@ -100,7 +104,11 @@ func newLinkedinListAdsCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
+			formatData := data
+			if flags.csv || flags.plain {
+				formatData = outputData
+			}
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagCompany, "company", "", "The company name to search for. 'Microsoft' for example")
@@ -110,7 +118,7 @@ func newLinkedinListAdsCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagStartDate, "start-date", "", "Start date to search for. Format: YYYY-MM-DD")
 	cmd.Flags().StringVar(&flagEndDate, "end-date", "", "End date to search for. Format: YYYY-MM-DD")
 	cmd.Flags().StringVar(&flagPaginationToken, "pagination-token", "", "Pagination token to paginate through results")
-	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
+	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 	return cmd
 }

@@ -12,50 +12,50 @@ import (
 )
 
 func newInstagramListUser4Cmd(flags *rootFlags) *cobra.Command {
-	var flagHandle string
-	var flagNextMaxId string
-	var flagTrim bool
-
+	var flagUserId string
+	var flagCursor string
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:         "list-user-4 [handle]",
-		Args:        cobra.MaximumNArgs(1),
-		Aliases:     []string{"posts"},
-		Short:       "Returns a paginated feed of a user's public Instagram posts, including reels, photos, videos, and carousels.",
-		Example:     "  scrape-creators-pp-cli instagram list-user-4 --handle mrbeast",
-		Annotations: map[string]string{"pp:endpoint": "instagram.list-user-4", "pp:method": "GET", "pp:path": "/v2/instagram/user/posts", "mcp:read-only": "true"},
+		Use:         "list-user-4",
+		Short:       "Returns up to 10 public posts per page from an Instagram user's Tagged tab.",
+		Example:     "  scrape-creators-pp-cli instagram list-user-4 --user-id 325734299",
+		Annotations: map[string]string{"pp:endpoint": "instagram.list-user-4", "pp:method": "GET", "pp:path": "/v1/instagram/user/tagged-posts", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Bare invocation of a command with required input prints help
 			// instead of pflag's terse "required flag not set" error. Optional-
 			// only read commands fall through so a bare call still executes.
-			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
+			// Machine callers (--json/--agent, which sets asJSON) get a usage
+			// error + exit 2 instead of silent exit-0 help, so an incomplete
+			// invocation is never mistaken for success.
+			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "requires input",
+						"usage": cmd.CommandPath() + " --help",
+					}, flags); printErr != nil {
+						return printErr
+					}
+					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
+				}
 				return cmd.Help()
 			}
-			// `instagram list-user-4 mrbeast` works like --handle mrbeast.
-			adoptLonePositionalArg(cmd, args, "handle", &flagHandle)
-			if !cmd.Flags().Changed("handle") && !flags.dryRun {
-				return fmt.Errorf("required flag \"%s\" not set", "handle")
+			if !cmd.Flags().Changed("user-id") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "user-id")
 			}
-			path := "/v2/instagram/user/posts"
+			path := "/v1/instagram/user/tagged-posts"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-			params := map[string]string{}
-			if flagHandle != "" {
-				params["handle"] = formatCLIParamValue(flagHandle)
-			}
-			if flagNextMaxId != "" {
-				params["next_max_id"] = formatCLIParamValue(flagNextMaxId)
-			}
-			if flagTrim != false {
-				params["trim"] = formatCLIParamValue(flagTrim)
-			}
-			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "instagram", path, params, nil, flagAll, "next_max_id", "cursor", "", "next_max_id", "more_available", cmd.ErrOrStderr())
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "instagram", path, map[string]string{
+				"user_id": formatCLIParamValue(flagUserId),
+				"cursor":  formatCLIParamValue(flagCursor),
+			}, nil, flagAll, "cursor", "cursor", "", 100, "", "", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
+			outputData := collectionItemsForOutput(data, path)
 			// Print provenance to stderr for human-facing output only.
 			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
 			// --select) and piped stdout suppress this line; the JSON envelope
@@ -63,7 +63,7 @@ func newInstagramListUser4Cmd(flags *rootFlags) *cobra.Command {
 			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
-				_ = json.Unmarshal(data, &countItems)
+				_ = json.Unmarshal(outputData, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
@@ -82,12 +82,16 @@ func newInstagramListUser4Cmd(flags *rootFlags) *cobra.Command {
 				if wrapErr != nil {
 					return wrapErr
 				}
+				wrapped, wrapErr = wrapPlatformStructuredOutput(wrapped, flags, "results", true)
+				if wrapErr != nil {
+					return wrapErr
+				}
 				return printOutput(cmd.OutOrStdout(), wrapped, true)
 			}
 			// For all other output modes (table, csv, plain, quiet), use the standard pipeline
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var items []map[string]any
-				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
+				if json.Unmarshal(outputData, &items) == nil && len(items) > 0 {
 					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
 						return err
 					}
@@ -97,12 +101,15 @@ func newInstagramListUser4Cmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
+			formatData := data
+			if flags.csv || flags.plain {
+				formatData = outputData
+			}
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"})
 		},
 	}
-	cmd.Flags().StringVar(&flagHandle, "handle", "", "Instagram handle")
-	cmd.Flags().StringVar(&flagNextMaxId, "next-max-id", "", "Cursor to get next page of results.")
-	cmd.Flags().BoolVar(&flagTrim, "trim", false, "Set to true to get a trimmed response")
+	cmd.Flags().StringVar(&flagUserId, "user-id", "", "Numeric Instagram user ID.")
+	cmd.Flags().StringVar(&flagCursor, "cursor", "", "Cursor returned by the previous response.")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
 	return cmd

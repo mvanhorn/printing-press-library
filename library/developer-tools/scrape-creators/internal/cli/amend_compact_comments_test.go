@@ -98,6 +98,26 @@ func TestCompactKeepsCommentsDespiteEmptySidecarArray(t *testing.T) {
 	}
 }
 
+// A fetch_failures sidecar (comments thread's partial-failure bookkeeping) is
+// envelope metadata, not a competing payload: one failed reply fetch must not
+// strip the paid comments array under --agent/--compact.
+func TestCompactKeepsCommentsDespiteFetchFailures(t *testing.T) {
+	got := decodeCompact(t, `{
+		"post_url": "https://www.instagram.com/p/x",
+		"route": "per-comment",
+		"fetch_failures": [{"source": "18099528092261230", "error": "HTTP 500"}],
+		"comments": [{"id": "1", "text": "kept"}, {"id": "2", "text": "also kept"}]
+	}`)
+
+	items, ok := got["comments"].([]any)
+	if !ok {
+		t.Fatalf("comments dropped because fetch_failures was counted as payload; got keys %v", keysOf(got))
+	}
+	if len(items) != 2 {
+		t.Errorf("comments = %d items, want 2", len(items))
+	}
+}
+
 // The original intent still holds: comments riding along on a post object are
 // a sidecar next to that object's own payload array, and stay stripped.
 func TestCompactStripsCommentsSidecar(t *testing.T) {

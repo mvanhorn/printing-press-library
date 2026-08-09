@@ -1,8 +1,8 @@
 # Scrape Creators CLI
 
-**Every Scrape Creators endpoint across 28 platforms, plus a local store with offline transcript search, cross-platform joins, and ad-library diffing no other Scrape Creators tool ships.**
+**Every Scrape Creators endpoint across 28 platforms, with credit-aware comment mining and a local corpus no other Scrape Creators tool has.**
 
-Scrape Creators exposes 164 read-only endpoints across TikTok, Instagram, YouTube, Facebook, LinkedIn, GitHub, Spotify, and 21 more platforms behind one API key. This CLI mirrors all of them as typed commands and MCP tools, then adds the layer the official CLI lacks: a local SQLite store with FTS5 so paid transcripts, profiles, and ad creatives become a queryable, diffable corpus. Cross-platform commands like 'creator find', 'trends triangulate', and 'ads monitor' answer questions no single endpoint can.
+The official CLI mirrors endpoints and the official skills describe curl workflows; neither remembers anything between runs. This CLI syncs profiles, posts, comments with their replies, transcripts, and ads into SQLite with FTS5 search, routes comment-thread fetches on credit economics (comments thread), audits reply completeness against ground truth (comments coverage), and gates expensive sweeps behind a pre-flight credit estimate (account estimate).
 
 Learn more at [Scrape Creators](https://scrapecreators.com).
 
@@ -123,31 +123,23 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 </details>
 
-## Authentication
-
-Authentication is a single Scrape Creators API key sent in the x-api-key header. Set SCRAPECREATORS_API_KEY in your environment, or run 'auth login' to store it. Credits are pay-as-you-go and never expire; a depleted balance returns HTTP 402, so check 'account budget' before a large sync.
-
 ## Quick Start
 
 ```bash
-# health check — verifies the API key and reachability without spending a credit
-scrape-creators-pp-cli doctor
+# Verify the binary, config, and API reachability before spending a credit
+scrape-creators-pp-cli doctor --dry-run
 
+# One handle in, presence and follower counts across 12 platforms out
+scrape-creators-pp-cli creator find mkbhd --agent
 
-# check your credit balance before fetching
-scrape-creators-pp-cli account list --json
+# Complete comment threads for one post, routed on the cheaper of the two reply endpoints
+scrape-creators-pp-cli comments thread https://www.instagram.com/reel/C8rKmYvsrck --agent
 
+# Project what a sweep will cost before running it
+scrape-creators-pp-cli account estimate --posts 100 --with-replies flat
 
-# find which of the major platforms a creator is on in one call
-scrape-creators-pp-cli creator find mrbeast --agent
-
-
-# see which platform a topic is biggest on
-scrape-creators-pp-cli trends triangulate "stanley cup" --agent
-
-
-# full-text search transcripts you have cached locally (run the per-platform transcript commands first to populate)
-scrape-creators-pp-cli transcripts search "giveaway" --agent --select creator,platform,snippet
+# Mine the synced comment corpus offline, no credits spent
+scrape-creators-pp-cli comments search "refund" --limit 20
 
 ```
 
@@ -155,137 +147,153 @@ scrape-creators-pp-cli transcripts search "giveaway" --agent --select creator,pl
 
 These capabilities aren't available in any other tool for this API.
 
-### Cross-platform compounding
+### Comment-thread completeness
+- **`comments thread`** — Fetch one post's complete comment threads, automatically picking the cheaper route between the 15-credit flat include_replies call and 1-credit per-comment reply calls (don't trust child_comment_count to decide: it's unreliable).
 
-- **`creator find`** — Given one handle, see which of 12 creator platforms the creator is on with follower counts side-by-side.
-
-  _Reach for this before writing creator outreach — one call replaces 11+ manual per-platform lookups._
-
-  ```bash
-  scrape-creators-pp-cli creator find mrbeast --agent
-  ```
-- **`creator compare`** — Compare two or more creators side-by-side on follower count, engagement rate, and content volume.
-
-  _Use it to separate real reach from vanity follower counts when vetting a shortlist._
+  _Reach for this when you need every reply on a post without doing credit arithmetic by hand._
 
   ```bash
-  scrape-creators-pp-cli creator compare mkbhd mrwhosetheboss --agent --select handle,engagement_rate,follower_count
+  scrape-creators-pp-cli comments thread https://www.instagram.com/reel/C8rKmYvsrck --agent
   ```
-- **`trends triangulate`** — Snapshot a hashtag or topic across platforms in one call to see which platform it is biggest on.
+- **`comments coverage`** — Rank synced posts by how many comments the API reported versus how many actually landed in your local store — ground truth where the API's child_comment_count is unreliable as a thread filter.
 
-  _Use it to catch a trend's leading platform before it crests, for content-timing calls._
+  _Reach for this after a sweep to find which posts are silently missing their replies._
 
   ```bash
-  scrape-creators-pp-cli trends triangulate "stanley cup" --agent
+  scrape-creators-pp-cli comments coverage bracken.design --agent
   ```
+- **`comments sweep`** — Pull recent posts for a handle and their comments in one command, stopping cleanly at a credit budget you set.
 
-### Local engagement analytics
-
-- **`content spikes`** — Surface the videos that performed far above a creator's own baseline — the ones that actually went viral.
-
-  _Pick this over a raw post list when you want a creator's outlier hits, not their average output._
+  _The one-command version of a multi-hundred-post comment-mining ritual, budget-gated._
 
   ```bash
-  scrape-creators-pp-cli content spikes mrbeast --agent
+  scrape-creators-pp-cli comments sweep bracken.design --since 7d --max-credits 200 --agent
   ```
 
-### Local store that compounds
+### Credit governance
+- **`account estimate`** — Project the credit cost of a planned run against your live balance and exit non-zero if it would exhaust the budget.
 
-- **`transcripts search`** — FTS5 full-text search across every transcript you've synced — YouTube, TikTok, Instagram, Facebook, LinkedIn, and Rumble.
-
-  _Reach for this for brand-safety and topic sweeps over a corpus you already paid to fetch — no credits re-spent._
+  _Run this before any bulk sweep so an agent never burns the balance mid-pipeline._
 
   ```bash
-  scrape-creators-pp-cli transcripts search "affiliate link" --agent --select creator,platform,snippet
+  scrape-creators-pp-cli account estimate --posts 950 --with-replies flat --agent
   ```
-- **`creator track`** — Append a follower snapshot per run on a chosen platform, then read the growth trajectory over time.
+- **`account budget`** — See how fast you're spending API credits and how many days remain at the current pace.
 
-  _Run it on a schedule to chart partner-creator growth; meaningful once multiple snapshots accumulate._
-
-  ```bash
-  scrape-creators-pp-cli creator track mrbeast --agent
-  ```
-- **`ads monitor`** — Snapshot a brand's live ads across Facebook, TikTok, Google, and LinkedIn ad libraries; on rerun, diff new ads vs. ones that disappeared.
-
-  _Use it for recurring competitive ad tracking — the first run is a unified search, every rerun is a what-changed diff._
-
-  ```bash
-  scrape-creators-pp-cli ads monitor nike --agent
-  ```
-
-### Agent-native plumbing
-
-- **`account budget`** — See how fast you're spending API credits and how many days remain at the current pace, computed from the API's credit balance and daily usage history.
-
-  _Credits are pay-as-you-go and depletion returns HTTP 402 mid-workflow — check runway before a big sync._
+  _Check runway before committing to a new recurring pipeline._
 
   ```bash
   scrape-creators-pp-cli account budget --agent
   ```
 
-### Full-history pagination
+### Cross-platform intelligence
+- **`creator find`** — Given one handle, see which of 12 creator platforms the creator is on with follower counts side-by-side.
 
-- **`--all` on paginated feed commands** — Follows the API's response cursor (`next_max_id`, `cursor`, `continuationToken`, `after`, ...) automatically and merges every page into a single result, with a 100-page safety cap. Covers the paginated list commands across Instagram, TikTok, Facebook, YouTube, Reddit, GitHub, LinkedIn, and more. Without `--all` you get page 1 plus a truncation warning that names the flag.
-
-  _Replaces the manual loop of re-running a command with the cursor from the previous response._
+  _Start any collab qualification here before pulling per-platform detail._
 
   ```bash
-  scrape-creators-pp-cli instagram list-user-4 --handle mrbeast --all --agent
+  scrape-creators-pp-cli creator find mkbhd --agent
+  ```
+- **`creator compare`** — Compare two or more creators side-by-side on follower count, engagement rate, and content volume.
+
+  _Strip vanity follower counts out of a collab decision._
+
+  ```bash
+  scrape-creators-pp-cli creator compare mkbhd mrwhosetheboss --agent
+  ```
+- **`content spikes`** — Surface the videos that performed far above a creator's own baseline — the ones that actually went viral.
+
+  _Find outlier content without eyeballing hundreds of posts._
+
+  ```bash
+  scrape-creators-pp-cli content spikes mkbhd --platform youtube
+  ```
+- **`trends triangulate`** — Snapshot a hashtag or topic across platforms in one call to see which platform it is biggest on.
+
+  _Decide where to publish before creating the content._
+
+  ```bash
+  scrape-creators-pp-cli trends triangulate "matcha" --agent
   ```
 
-  The two highest-traffic Instagram commands also take the handle or URL as a positional argument (`instagram list-user-4 mrbeast`) and answer to speaking aliases: `posts` for `list-user-4`, `comments` for `list-post-2`, `post` for `list-post`, `transcript` for `list-media`, and `profile` for `list-profile`.
+### Local state that compounds
+- **`transcripts search`** — FTS5 full-text search across every platform transcript you've synced — nine resource types spanning YouTube, TikTok, Instagram, Facebook, LinkedIn, Rumble, and more.
+
+  _Search transcripts you already paid for instead of re-fetching them._
+
+  ```bash
+  scrape-creators-pp-cli transcripts search "pricing objection" --limit 10
+  ```
+- **`ads monitor`** — Snapshot a brand's live ads across Facebook, TikTok, Google, and LinkedIn ad libraries; on rerun, diff new ads versus ones that disappeared.
+
+  _Rerun weekly and read only the delta of a competitor's ad activity._
+
+  ```bash
+  scrape-creators-pp-cli ads monitor nike --agent
+  ```
+- **`comments search`** — Full-text search across every synced comment and reply, offline.
+
+  _Mine questions and complaints from comments you already pulled without spending credits._
+
+  ```bash
+  scrape-creators-pp-cli comments search "refund" --limit 20
+  ```
+- **`creator track`** — Append a follower snapshot per run on a chosen platform, then read the growth trajectory over time.
+
+  _Track a partner's growth on a schedule you control._
+
+  ```bash
+  scrape-creators-pp-cli creator track mkbhd --platform instagram
+  ```
+- **`creator tagged`** — Snapshot the posts a creator or brand is tagged in and diff new mentions on rerun.
+
+  _Weekly UGC check for a client brand without re-reading the full list._
+
+  ```bash
+  scrape-creators-pp-cli creator tagged bracken.design --agent
+  ```
 
 ## Recipes
 
-
-### Pull a creator's full Instagram post history
-
-```bash
-scrape-creators-pp-cli instagram list-user-4 mrbeast --all --agent
-```
-
-One command replaces the hand-rolled cursor loop: the CLI follows `next_max_id` until Instagram reports no more pages. The lone positional stands in for `--handle`.
-
-
-### Vet an influencer shortlist
+### Complete comment mining for one post
 
 ```bash
-scrape-creators-pp-cli creator compare mkbhd mrwhosetheboss unboxtherapy --agent --select handle,platform,follower_count,engagement_rate
+scrape-creators-pp-cli comments thread <post-url> --agent --select comments.text,comments.replies.text
 ```
 
-Compare candidates on engagement rate, not just follower count, to separate real reach from vanity metrics.
+Fetches every top-level comment and reply with cost-aware routing, then narrows the envelope to just the text fields an agent needs.
 
-### Monitor a competitors ads weekly
+### Budget-gated weekly sweep
 
 ```bash
-scrape-creators-pp-cli ads monitor nike --agent
+scrape-creators-pp-cli comments sweep <handle> --since 7d --max-credits 200 --agent
 ```
 
-First run snapshots Nikes current creatives across Facebook, TikTok, Google, and LinkedIn; rerun weekly to diff new vs. pulled ads.
+Pulls the week's posts and their comments, stopping cleanly when the credit budget is hit.
 
-### Search a cached transcript corpus
+### Find the gaps before spending
 
 ```bash
-scrape-creators-pp-cli transcripts search "sponsored by" --agent --select creator,platform,snippet
+scrape-creators-pp-cli comments coverage <handle> --agent
 ```
 
-Transcripts are cached to the local store whenever you run the per-platform transcript commands; this searches them offline with no credits re-spent.
+Ranks synced posts by missing-thread gap so reply credits go only where threads are incomplete.
 
-### Catch a rising trends leading platform
+### Offline comment mining
 
 ```bash
-scrape-creators-pp-cli trends triangulate "labubu" --agent
+scrape-creators-pp-cli comments search "delivery" --limit 20
 ```
 
-See per-platform result velocity for a topic and which platform it is cresting on first.
+FTS5 search over the synced corpus — zero credits.
 
-### Check credit runway before a big pull
+### Collab qualification in two calls
 
 ```bash
-scrape-creators-pp-cli account budget --agent
+scrape-creators-pp-cli creator find <handle> --agent && scrape-creators-pp-cli creator compare <handle> <rival> --agent
 ```
 
-Project days-remaining at your current burn rate so a batch of calls does not hit HTTP 402 halfway through.
+Presence matrix first, then engagement comparison to strip vanity followers.
 
 ## Usage
 
@@ -357,6 +365,15 @@ Manage amazon
 
 - **`scrape-creators-pp-cli amazon`** - Scrapes a creator's Amazon Shop page by URL, returning their storefront profile and product collections. Returns avatar, name, description, socials, and lists with title and itemCount. Also includes trendingPicks with price and discount, curations with title and postCount, and a pageToken for pagination.
 
+### apple-music
+
+Scrape Apple Music artists, songs, albums, and search results
+
+- **`scrape-creators-pp-cli apple-music list`** - Retrieves public Apple Music album details, including title, artist, artwork, release info, tracks, and more by the artist.
+- **`scrape-creators-pp-cli apple-music list-applemusic`** - Retrieves public Apple Music artist details, including artwork, editorial notes, top songs, albums, music videos, playlists, and related sections.
+- **`scrape-creators-pp-cli apple-music list-applemusic-2`** - Searches Apple Music and returns public result sections for artists, albums, songs, playlists, stations, and music videos. Use type=song, album, artist, playlist, or all.
+- **`scrape-creators-pp-cli apple-music list-applemusic-3`** - Retrieves public Apple Music song details by id or URL. Album track URLs with an i= song id are supported.
+
 ### bluesky
 
 Get Bluesky posts and profile info
@@ -375,15 +392,18 @@ Manage detect age gender
 
 Get public Facebook profiles and posts
 
+- **`scrape-creators-pp-cli facebook create`** - Fetches all ads currently running for a specific company from the Meta Ad Library. Each ad includes ad_archive_id, page_name, is_active, publisher_platform, and a snapshot with body, images, videos, and display_format. Supports filtering by country, media_type, date range, and language with cursor-based pagination. Both GET and POST are supported. If the cursor becomes too large after extensive pagination, use POST and send the same parameters in the JSON body.
+- **`scrape-creators-pp-cli facebook create-adlibrary`** - Searches the Meta Ad Library by keyword and returns matching ads. Each result includes ad_archive_id, page_name, is_active, publisher_platform, and a snapshot with body text, images, videos, and cta_text. Both GET and POST are supported. Use GET for normal requests. If the cursor becomes too large after extensive pagination, use POST and send the same parameters in the JSON body.
 - **`scrape-creators-pp-cli facebook list`** - Get the events of a city. Check out this [link](https://www.facebook.com/events/explore/saint-petersburg-florida/111326725552547) for an example of where we are getting the data from.
-- **`scrape-creators-pp-cli facebook list-adlibrary`** - Retrieves detailed information about a specific Facebook ad by its ID or URL. Returns adArchiveID, pageName, isActive, startDate, endDate, and a snapshot containing body, images, videos, display_format, link_url, and cta_text. For ads with multiple versions, the ad creative is found in the snapshot.cards array rather than snapshot.body.
+- **`scrape-creators-pp-cli facebook list-adlibrary`** - Retrieves detailed information about a specific Facebook ad by its ID or URL. Returns adArchiveID, pageName, isActive, startDate, endDate, and a snapshot containing body, images, videos, display_format, link_url, and cta_text. Regulated ads may also include source-dependent aaa_info using the structure shown below. Political and social issue delivery data is normalized to location_audience and age_country_gender_reach_breakdown. Political location_audience rows include reach, and political delivery values are fractional shares, so 0.08 means 8%. Regional transparency data may use absolute reach counts. For ads with multiple versions, the ad creative is found in the snapshot.cards array rather than snapshot.body.
 - **`scrape-creators-pp-cli facebook list-adlibrary-2`** - Retrieves a transcript for a single Facebook Ad Library video ad by ID or URL. If Facebook exposes captions, those are used. Otherwise we try to transcribe the public video URL. Credits are only deducted when transcript is returned. If the ad has no video or no transcript is available, transcript will be null and no credit is charged.
-- **`scrape-creators-pp-cli facebook list-adlibrary-3`** - Fetches all ads currently running for a specific company from the Meta Ad Library. Each ad includes ad_archive_id, page_name, is_active, publisher_platform, and a snapshot with body, images, videos, and display_format. Supports filtering by country, media_type, date range, and language with cursor-based pagination.
-- **`scrape-creators-pp-cli facebook list-adlibrary-4`** - Searches the Meta Ad Library by keyword and returns matching ads. Each result includes ad_archive_id, page_name, is_active, publisher_platform, and a snapshot with body text, images, videos, and cta_text. Results cap around 1,500 via GET due to cursor size limits; switch to POST method with body params for larger result sets.
+- **`scrape-creators-pp-cli facebook list-adlibrary-3`** - Fetches all ads currently running for a specific company from the Meta Ad Library. Each ad includes ad_archive_id, page_name, is_active, publisher_platform, and a snapshot with body, images, videos, and display_format. Supports filtering by country, media_type, date range, and language with cursor-based pagination. Both GET and POST are supported. If the cursor becomes too large after extensive pagination, use POST and send the same parameters in the JSON body.
+- **`scrape-creators-pp-cli facebook list-adlibrary-4`** - Searches the Meta Ad Library by keyword and returns matching ads. Each result includes ad_archive_id, page_name, is_active, publisher_platform, and a snapshot with body text, images, videos, and cta_text. Both GET and POST are supported. Use GET for normal requests. If the cursor becomes too large after extensive pagination, use POST and send the same parameters in the JSON body.
 - **`scrape-creators-pp-cli facebook list-adlibrary-5`** - Searches for companies by name in the Meta Ad Library and returns their page IDs for use with other ad library endpoints. Each result includes page_id, name, category, likes, verification status, and Instagram details like ig_username and ig_followers.
 - **`scrape-creators-pp-cli facebook list-event`** - Get a specific event by its URL or id
 - **`scrape-creators-pp-cli facebook list-events`** - Search for events by name. You can take a look at the page from Facebook we are getting the data from [here](https://www.facebook.com/events/search/?q=dogs)
-- **`scrape-creators-pp-cli facebook list-group`** - Fetches posts from a public Facebook group, limited to 3 posts per page due to API limitations. Each post includes id, text, url, reactionCount, commentCount, publishTime, videoDetails, and topComments. Supports sorting by TOP_POSTS, RECENT_ACTIVITY, CHRONOLOGICAL, or CHRONOLOGICAL_LISTINGS, with cursor-based pagination.
+- **`scrape-creators-pp-cli facebook list-group`** - Fetches the public information shown on a Facebook group's About page, including its description, privacy and visibility, member and activity counts, categories, administrators and moderators when Facebook exposes them, group history, and rules. Provide either url or group_id.
+- **`scrape-creators-pp-cli facebook list-group-2`** - Fetches posts from a public Facebook group, limited to 3 posts per page due to API limitations. Each post includes id, text, url, reactionCount, commentCount, publishTime, videoDetails, and topComments. Results are chronological by default. Supports TOP_POSTS, RECENT_ACTIVITY, CHRONOLOGICAL, and CHRONOLOGICAL_LISTINGS with cursor-based pagination.
 - **`scrape-creators-pp-cli facebook list-marketplace`** - Fetches details for a Facebook Marketplace item by item id or Marketplace item URL, including title, description, price, location, condition, photos, seller, and availability flags. Rental listings can include listing_date_text and availability_text from Facebook's Marketplace GraphQL response, for example 'Listed over a week ago' and 'Available now'. creation_time can still be null when Facebook does not expose an exact timestamp.
 - **`scrape-creators-pp-cli facebook list-marketplace-2`** - Searches Facebook Marketplace listings by keyword and lat/lng. Supports pagination with the returned cursor. Pass the cursor value back as-is. When sort_by is creation_time_descend, Facebook can still return slightly different ordering between identical requests. For alerting/new-item workflows, scrape multiple pages and dedupe by listing id instead of relying on page 1 item order being identical every run.
 - **`scrape-creators-pp-cli facebook list-marketplace-3`** - Searches Facebook Marketplace locations/cities and returns coordinates you can use with the Marketplace Search endpoint.
@@ -391,7 +411,7 @@ Get public Facebook profiles and posts
 - **`scrape-creators-pp-cli facebook list-post-2`** - Fetches comments from a Facebook post or reel with cursor-based pagination. Each comment includes id, text, created_at, reply_count, reaction_count, and author details with name and profile_picture. Passing a feedback_id instead of a url significantly speeds up the request.
 - **`scrape-creators-pp-cli facebook list-post-3`** - Extracts the transcript text from a Facebook video post or reel. Returns the transcript as a single text string with line breaks. Only works on videos under 2 minutes in length.
 - **`scrape-creators-pp-cli facebook list-post-4`** - Get the replies to a comment.
-- **`scrape-creators-pp-cli facebook list-profile`** - Retrieves public Facebook page details including category, address, email, phone, website, services, priceRange, rating, likeCount, and followerCount. Also returns adLibrary status with the page's ad activity and pageId. Optionally includes businessHours when get_business_hours is set to true. If Facebook shows an 18+ or private content gate, the response is still 200 and includes isPrivate: true. If the page is not found, the response is 404 with accountDoesNotExist: true and isPrivate: false.
+- **`scrape-creators-pp-cli facebook list-profile`** - Retrieves public Facebook page details including category, address, email, phone, website, services, priceRange, rating, likeCount, and followerCount. Also returns adLibrary status with the page's ad activity and pageId. Optionally includes businessHours when get_business_hours is set to true. If Facebook shows an 18+ content gate, the response is still 200 with account_status: "age-restricted" and isPrivate: true. If Facebook shows a private content gate, the response is still 200 with account_status: "private" and isPrivate: true. If the page is not found, the response is 404 with accountDoesNotExist: true and isPrivate: false. Set include_gated_profile=true to also return limited public fields (such as id, name, category, likeCount, profilePicSmall, and links) when a profile is gated or age-restricted. This option only affects gated/age-restricted profiles — public profiles still return the normal full response.
 - **`scrape-creators-pp-cli facebook list-profile-2`** - Get the events of a public Facebook page
 - **`scrape-creators-pp-cli facebook list-profile-3`** - Fetches photos from a public Facebook page with pagination support. Each photo includes photo_id, accessibility_caption, viewer_image with uri, height, and width, plus a thumbnail and direct url. Pagination requires passing both next_page_id and cursor from the previous response.
 - **`scrape-creators-pp-cli facebook list-profile-4`** - Returns publicly visible Facebook profile posts, limited to 3 posts per page due to API limitations. Each post includes id, text, url, reactionCount, commentCount, publishTime, videoDetails with sdUrl, hdUrl, and thumbnailUrl, plus topComments. Accepts either a url or pageId parameter, where pageId is faster.
@@ -419,7 +439,7 @@ Scrape Google search results
 - **`scrape-creators-pp-cli google list`** - Retrieves detailed information about a specific Google ad including advertiserId, creativeId, format, firstShown, lastShown, and overallImpressions. Returns creativeRegions, regionStats with per-region impression data, and variations with destinationUrl, headline, description, and imageUrl. Text extraction uses OCR, so accuracy may vary.
 - **`scrape-creators-pp-cli google list-adlibrary`** - Searches the Google Ad Transparency Library for advertisers by name. Returns a list of matching advertisers with their name, advertiser_id, and region, plus a list of associated website domains. Use the returned advertiser_id to look up a company's ads. Defaults to US when region is not passed, so pass a 2-letter country code like AU or CA when searching for advertisers in another region.
 - **`scrape-creators-pp-cli google list-company`** - Fetches public ads for a company from the Google Ad Transparency Library by domain or advertiser_id. Each ad includes advertiserId, creativeId, format, adUrl, advertiserName, domain, firstShown, and lastShown. Costs 25 credits per request when get_ad_details=true; without it, only advertiserId and creativeId are returned at 1 credit.
-- **`scrape-creators-pp-cli google list-search`** - Performs a Google search and returns organic results with url, title, and description for each result. Supports an optional region parameter (2-letter country code) to get localized results from a specific country.
+- **`scrape-creators-pp-cli google list-search`** - Performs a Google search and returns organic results with url, title, and description for each result. Supports an optional region parameter (2-letter country code) to get localized results from a specific country. Pages 1 through 11 are supported; requests for page 12 or greater return a 400 response.
 
 ### instagram
 
@@ -429,17 +449,21 @@ Gets Instagram profiles, posts, and reels
 - **`scrape-creators-pp-cli instagram list-audio`** - Fetches the reels Instagram exposes for an audio page like instagram.com/reels/audio/{audio_id}/. Pass the audio_id from that URL. Use cursor from the previous response to request the next page when Instagram returns one.
 - **`scrape-creators-pp-cli instagram list-media`** - Generates an AI-powered speech-to-text transcription for an Instagram video post or reel. The video must be under 2 minutes long. Returns a transcripts array with each item's shortcode and transcribed text; carousel posts produce one transcript per video slide. Expect 10-30 second response times, and null when no speech is detected.
 - **`scrape-creators-pp-cli instagram list-post`** - Fetches detailed metadata for a single Instagram post or reel by shortcode or URL. Returns caption text, like count, comment count, video URL, video play count, video duration, display images, owner info, tagged users, and carousel sidecar children when applicable. Play counts are Instagram-only views and exclude cross-posted Facebook views.
-- **`scrape-creators-pp-cli instagram list-post-2`** - Retrieves comments on a public Instagram post or reel. Each comment includes the comment text, creation timestamp, and commenter details such as username, user ID, verification status, and profile picture URL. Supports cursor-based pagination to load additional comment pages.
-- **`scrape-creators-pp-cli instagram list-profile`** - Retrieves comprehensive public Instagram profile information including biography, bio links, follower and following counts, verification status, and profile picture URLs. Also returns recent timeline posts with engagement metrics such as likes, comments, and video view counts, plus a list of related profiles. Useful for account overview, audience analysis, or discovering similar creators.
+- **`scrape-creators-pp-cli instagram list-post-2`** - Retrieves comments on a public Instagram post or reel. Each comment includes the comment text, creation timestamp, reply count when Instagram provides it, and commenter details such as username, user ID, verification status, and profile picture URL. `child_comment_count` can be null when Instagram does not expose the count publicly. Set `include_replies=true` to fetch the first page of replies for every returned comment. This adds `replies`, `replies_cursor`, and `has_more_replies` to each comment. This option always costs 15 credits because Scrape Creators makes a separate Instagram replies request for every comment in the response. It is possible that no replies are returned, but you will still be charged 15 credits because those reply lookups were performed. This option is much slower than a normal comments request and may time out at 29 seconds. Supports cursor-based pagination to load additional comment pages.
+- **`scrape-creators-pp-cli instagram list-post-3`** - Retrieves the public replies to a specific Instagram comment. Pass the post or reel URL and the parent comment's `id` from the Comments endpoint. Returns reply text, timestamps, engagement counts, parent comment ID, and user details. Paginate with `cursor` when `has_more` is true.
+- **`scrape-creators-pp-cli instagram list-profile`** - Retrieves public Instagram profile information including biography, bio links, follower and following counts, verification status, and profile picture URLs. Also returns recent timeline posts with engagement metrics such as likes, comments, and video view counts, plus a list of related profiles. Useful for account overview, audience analysis, or discovering similar creators.
 - **`scrape-creators-pp-cli instagram list-reels`** - Fetches trending reels from Instagram's public instagram.com/reels page. Instagram only gives a small batch at a time and the results can overlap, so call this endpoint over and over when you want more. Each call should return new-ish results, but expect some duplicates because that is how Instagram's reels page behaves too. Returns `reels`, an array of reel objects with shortcode, URL, caption, media URLs, engagement counts when Instagram exposes them, and user info.
-- **`scrape-creators-pp-cli instagram list-reels-2`** - Searches for Instagram reels matching a keyword or phrase via Google Search, bypassing Instagram's login-gated search. Returns a list of reels with shortcode, caption, thumbnail, video URL, play count, like count, comment count, video duration, owner details, location, and audio attribution info. Play counts are Instagram-only views and exclude cross-posted Facebook views. Supports page-based pagination for browsing additional results.
-- **`scrape-creators-pp-cli instagram list-search`** - Finds public Instagram posts for a hashtag using Google Search, then returns post details such as caption, play count when available, like count, comment count, owner, and post time. Results depend on what Google has indexed, so this is best-effort and not a complete Instagram-native hashtag search. Pass media_type=reels if you only want reels. Use date_posted for recent posts and pass the returned cursor to fetch the next page.
-- **`scrape-creators-pp-cli instagram list-search-2`** - Searches Google for public Instagram results matching a keyword or phrase, then returns matching public profiles. Profile-page matches are marked matched_from=profile. Reel/post caption matches are enriched into the creator profile and marked matched_from=caption. This is best-effort and depends on what Google has indexed; it is not a complete native Instagram profile search.
+- **`scrape-creators-pp-cli instagram list-reels-2`** - Use this when you only want Google-indexed Instagram reels matching a keyword or phrase, with optional date filters and pagination. It returns reel media, engagement, owner, location, and audio details. Results are best-effort rather than a complete Instagram-native search. For Instagram-curated topic posts, use /v1/instagram/search/popular. For an exact hashtag across posts and reels, use /v1/instagram/search/hashtag. Play counts are Instagram-only and exclude cross-posted Facebook views. Pages 1 through 11 are supported; page 12 or greater returns a 400 response.
+- **`scrape-creators-pp-cli instagram list-search`** - Use this for Instagram-native account, hashtag, or place lookup. It returns ranked users, hashtags, places, and keyword suggestions from Instagram itself. It is not Google-indexed, does not require an Instagram login, returns one page only, and does not return posts. For an Instagram-curated topic page with posts, use /v1/instagram/search/popular. For broader profile discovery from Google-indexed bios and captions, use /v1/instagram/search/profiles.
+- **`scrape-creators-pp-cli instagram list-search-2`** - Use this when you know the exact hashtag and want Google-indexed public Instagram posts or reels, optional date filters, and pagination. It returns post details such as caption, play count when available, engagement, owner, and post time. Results are best-effort and not a complete Instagram-native hashtag feed. For an Instagram-curated topic page with generated context and suggested terms, use /v1/instagram/search/popular. Pass media_type=reels to only return reels. Cursors are limited to pages 1 through 11; cursor 12 or greater returns a 400 response.
+- **`scrape-creators-pp-cli instagram list-search-3`** - Use this to explore an Instagram topic and the posts Instagram curates for it. It scrapes the public /popular/{query} page without requiring an Instagram login. The first page returns the topic title, numeric total media count, Instagram's generated description and sources, suggested terms, posts, and an opaque cursor. Pass that cursor with the same query to fetch more posts. Later pages return query, posts, cursor, and has_more only. For an exact hashtag through Google-indexed results, use /v1/instagram/search/hashtag. For reels only, use /v2/instagram/reels/search. Each successful request costs 1 credit.
+- **`scrape-creators-pp-cli instagram list-search-4`** - Use this for broad creator discovery from keywords found in Google-indexed Instagram profile pages, bios, and post captions. Profile-page matches are marked matched_from=profile; caption matches are enriched into the creator profile and marked matched_from=caption. This is best-effort and can paginate, but it is not Instagram-native or complete. For Instagram's own ranked account results, use /v1/instagram/search. Cursors are limited to pages 1 through 11; cursor 12 or greater returns a 400 response.
 - **`scrape-creators-pp-cli instagram list-user`** - Returns the raw HTML embed snippet for an Instagram user's profile widget. The response contains a single html string that can be inserted into a webpage to render an embeddable Instagram profile card. Requires the user's handle as input.
 - **`scrape-creators-pp-cli instagram list-user-2`** - Lists all story highlight albums for an Instagram user. Each highlight includes its ID, title, cover thumbnail URL, and owner info with username and profile picture. Accepts either a user_id or handle; providing user_id yields faster responses.
 - **`scrape-creators-pp-cli instagram list-user-3`** - Returns a paginated list of a user's public Instagram reels (short-form videos). Each reel includes its shortcode, play count, like count, comment count, video versions with download URLs, thumbnail image, and owner info. Note that reel captions are not returned by this endpoint. Play counts are Instagram-only views and exclude cross-posted Facebook views. Supports cursor-based pagination via max_id; providing a user_id instead of a handle yields faster responses.
-- **`scrape-creators-pp-cli instagram list-user-4`** - Returns a paginated feed of a user's public Instagram posts, including reels, photos, videos, and carousels. Each item includes media type, shortcode, caption text, like count, comment count, play count, video URLs, image URLs, and tagged users. Play counts reflect Instagram-only views and exclude cross-posted Facebook views. Supports cursor-based pagination via next_max_id for scrolling through the full timeline.
-- **`scrape-creators-pp-cli instagram list-user-5`** - Fetches the full contents of a specific Instagram story highlight album by its ID. Returns the highlight's cover image, title, user info, and an items array containing each story with its media type, image or video URLs, dimensions, timestamp, and sticker/interactive element data. Useful for archiving or analyzing individual highlight reels.
+- **`scrape-creators-pp-cli instagram list-user-4`** - Returns up to 10 public posts per page from an Instagram user's Tagged tab. Each item is a flat post object with its shortcode, caption, media type, engagement counts, media URLs, and owner details. Keep passing the returned cursor to fetch additional pages until has_more is false.
+- **`scrape-creators-pp-cli instagram list-user-5`** - Returns a paginated feed of a user's public Instagram posts, including reels, photos, videos, and carousels. Each item includes media type, shortcode, caption text, like count, comment count, play count, video URLs, image URLs, and tagged users. Play counts reflect Instagram-only views and exclude cross-posted Facebook views. Supports cursor-based pagination via next_max_id for scrolling through the full timeline.
+- **`scrape-creators-pp-cli instagram list-user-6`** - Fetches the full contents of a specific Instagram story highlight album by its ID. Returns the highlight's cover image, title, user info, and an items array containing each story with its media type, image or video URLs, dimensions, timestamp, and sticker/interactive element data. Useful for archiving or analyzing individual highlight reels.
 
 ### kick
 
@@ -478,7 +502,7 @@ Scrape LinkedIn
 - **`scrape-creators-pp-cli linkedin list-post`** - Fetches a single LinkedIn post or article, returning the title, headline, full description text, author info with follower count, publication date, like count (reactions), comment count, and individual comments. Also includes related articles from the same author in moreArticles.
 - **`scrape-creators-pp-cli linkedin list-post-2`** - Fetches the transcript from a LinkedIn post video when LinkedIn exposes one publicly. Returns null with transcriptNotAvailable when the post has no transcript, and only deducts credits when a transcript is returned.
 - **`scrape-creators-pp-cli linkedin list-profile`** - Retrieves a person's public LinkedIn profile data, including their name, photo, location, follower count (followers), about/bio summary, recent posts, work experience, education, articles, activity feed, publications, projects, recommendations, and similar profiles. Only returns publicly available information visible in an incognito browser.
-- **`scrape-creators-pp-cli linkedin list-search`** - Finds public LinkedIn posts, feed updates, and Pulse articles by keyword using Google Search, then returns post details such as description, author, media, images, like count, comment count, and published date when LinkedIn exposes them publicly. Results depend on what Google has indexed, so this is best-effort and not a complete LinkedIn-native search. Use date_posted for recent posts and pass the returned cursor to fetch the next page.
+- **`scrape-creators-pp-cli linkedin list-search`** - Finds public LinkedIn posts, feed updates, and Pulse articles by keyword using Google Search, then returns post details such as description, author, media, images, like count, comment count, and published date when LinkedIn exposes them publicly. Results depend on what Google has indexed, so this is best-effort and not a complete LinkedIn-native search. Use date_posted for recent posts and pass the returned cursor to fetch the next page. Cursors are limited to pages 1 through 11; cursor 12 or greater returns a 400 response.
 
 ### linkme
 
@@ -511,8 +535,9 @@ Scrape Pinterest pins
 
 Scrape Reddit posts and comments
 
+- **`scrape-creators-pp-cli reddit create`** - Retrieves comments and post details from a Reddit post by URL. Returns the post with title, author, score, ups, upvote_ratio, num_comments, and created_utc, plus a comments array where each comment includes author, body, body_html, score, created_utc, parent_id, permalink, and nested replies. Both GET and POST are supported. Use GET for normal requests. If the cursor becomes too large after extensive pagination, use POST and send the same parameters in the JSON body. Supports cursor-based pagination for loading more comments and a trim parameter for lighter responses.
 - **`scrape-creators-pp-cli reddit list`** - Searches across all of Reddit for posts matching a query. Each post includes title, author, selftext, subreddit, score, ups, upvote_ratio, num_comments, created_utc, url, permalink, and is_video. Supports sort (relevance, new, top, comment_count), timeframe filtering, pagination via the after token, and a trim parameter for lighter responses.
-- **`scrape-creators-pp-cli reddit list-post`** - Retrieves comments and post details from a Reddit post by URL. Returns the post with title, author, score, ups, upvote_ratio, num_comments, and created_utc, plus a comments array where each comment includes author, body, body_html, score, created_utc, parent_id, permalink, and nested replies. Supports cursor-based pagination for loading more comments and a trim parameter for lighter responses.
+- **`scrape-creators-pp-cli reddit list-post`** - Retrieves comments and post details from a Reddit post by URL. Returns the post with title, author, score, ups, upvote_ratio, num_comments, and created_utc, plus a comments array where each comment includes author, body, body_html, score, created_utc, parent_id, permalink, and nested replies. Both GET and POST are supported. Use GET for normal requests. If the cursor becomes too large after extensive pagination, use POST and send the same parameters in the JSON body. Supports cursor-based pagination for loading more comments and a trim parameter for lighter responses.
 - **`scrape-creators-pp-cli reddit list-post-2`** - Gets the transcript from a Reddit video post or direct v.redd.it URL when Reddit exposes a VTT caption file. Returns the raw WebVTT in raw_vtt plus a parsed plain-text transcript. If Reddit does not expose captions for the video, transcript is null and transcriptNotAvailable is true.
 - **`scrape-creators-pp-cli reddit list-subreddit`** - Fetches posts from a subreddit with sorting and filtering options. Each post includes title, author, selftext, score, ups, upvote_ratio, num_comments, created_utc, url, permalink, subreddit_subscribers, and is_video. Supports sort (best, hot, new, top, rising), timeframe filtering, pagination via the after token, and a trim parameter for lighter responses.
 - **`scrape-creators-pp-cli reddit list-subreddit-2`** - Retrieves metadata about a subreddit by name or URL. The subreddit name must be case-sensitive. Returns display_name, description, subscribers, weekly_active_users, weekly_contributions, rules, icon_img, header_img, advertiser_category, submit_text, and created_at.
@@ -530,9 +555,11 @@ Scrape Rumble search, videos, transcripts, and channel videos
 
 ### snapchat
 
-Scrape Snapchat user profiles and thier stories
+Scrape Snapchat user profiles and their stories
 
-- **`scrape-creators-pp-cli snapchat`** - Retrieves a Snapchat user's public profile by handle, including identity, stories, and spotlight content. Returns userProfile with username, title, snapcodeImageUrl, subscriberCount, bio, and profilePictureUrl. Also includes highlightStoryMetadata with individual story snaps (mediaUrl, mediaType, thumbnailUrl) and spotlightStoryMetadata with video details and engagement stats (viewCount, shareCount, commentCount).
+- **`scrape-creators-pp-cli snapchat list`** - Retrieves a Snapchat user's public profile by handle, including identity, stories, and spotlight content. Returns userProfile with username, title, snapcodeImageUrl, subscriberCount, bio, and profilePictureUrl. Also includes highlightStoryMetadata with individual story snaps (mediaUrl, mediaType, thumbnailUrl) and spotlightStoryMetadata with video details and engagement stats (viewCount, shareCount, commentCount).
+- **`scrape-creators-pp-cli snapchat list-spotlight`** - Fetches public data for a Snapchat Spotlight video by URL. Returns the snap id, description, creator, engagement counts, thumbnail, and content URL when Snapchat exposes them publicly.
+- **`scrape-creators-pp-cli snapchat list-spotlight-2`** - Fetches public comments from Snapchat's Spotlight comments API by URL. Returns the snap id, comments, a cursor for the next page, and hasMore. Pass the returned cursor back as the cursor param to load more comments.
 
 ### soundcloud
 
@@ -568,15 +595,15 @@ Get Threads posts
 Scrape TikTok profiles, videos, and more
 
 - **`scrape-creators-pp-cli tiktok list`** - Fetches TikTok's trending/For You feed for a given region — useful for discovering viral content and what's currently popular. Returns `aweme_list`, an array of video objects each with `aweme_id`, `desc` (caption), `statistics` (play_count, digg_count/likes, comment_count, share_count, collect_count), `video` (playback and download URLs, cover), `author` info, and `image_post_info` for photo carousels.
-- **`scrape-creators-pp-cli tiktok list-adlibrary`** - Fetches one TikTok Creative Center Top Ad by material/ad ID or URL. Uses the same Creative Center data behind pages like ads.tiktok.com/business/creativecenter/topads/{id}/pc/en, including title, metrics, video info, landing page, country codes, objective, industry, source, the Creative Center URL, summary/analysis, interactive time analysis graph data, and recommended-for-you ads when TikTok provides them.
-- **`scrape-creators-pp-cli tiktok list-adlibrary-2`** - Searches TikTok Creative Center Top Ads, the ad library page at ads.tiktok.com/business/creativecenter/inspiration/topads. Supports US and other 2-letter regions, period filters, sorting, keyword search, and cursor pagination. Returns TikTok's public top ad material objects, including ad title, metrics, video info, landing page, and pagination.
+- **`scrape-creators-pp-cli tiktok list-adlibrary`** - Fetches one TikTok ad by ID or URL. It first checks Creative Center Top Ads (ads.tiktok.com), then TikTok's public transparency Ads Library (library.tiktok.com) when the ID is not a Top Ads material. Both sources return the same response shape. Fields TikTok does not expose for a public Ads Library ad are null, empty, or false as appropriate.
+- **`scrape-creators-pp-cli tiktok list-adlibrary-2`** - Searches TikTok's public Ads Library by advertiser name or keyword. Results are global, sorted by the latest shown date, and support cursor pagination.
+- **`scrape-creators-pp-cli tiktok list-collection`** - Fetches the videos saved in a public TikTok collection, which TikTok also calls a playlist. Pass the collection URL. Returns `videos` using TikTok's native web video object format, including `id`, `desc`, `author`, `stats`, and `video`. To fetch the next page, pass the previous response's `max_cursor` as `cursor` when `has_more` is true.
 - **`scrape-creators-pp-cli tiktok list-creators`** - Discovers trending and popular TikTok creators, filterable by follower count range, creator country, and audience country. Returns `creator_list`, an array of creator objects each with `nickname`, `unique_id`, `follower_count`, `likes_count`, `video_views`, `engagement_rate`, and avatar URLs. Sortable by engagement, follower count, or average views.
-- **`scrape-creators-pp-cli tiktok list-hashtags`** - Discovers trending and popular TikTok hashtags, filterable by time period (7/30/120 days) and country. Returns a list of hashtag objects each with `hashtag_name`, `rank`, `trend` data, and related video examples. Useful for identifying viral topics and content trends on TikTok.
 - **`scrape-creators-pp-cli tiktok list-live`** - Gets curated room-level info for a TikTok live using TokAPI's live info endpoint. Use `/v1/tiktok/user/live` first to find the `room_id`. If you only have a TikTok handle and need the user's numeric id, use `/v1/tiktok/profile` first to get `user.id`. This endpoint is separate from `/v1/tiktok/user/live` because it uses a different upstream call and returns a smaller response with the most relevant fields: `room_id`, `like_count`, `viewer_count`, `status`, `title`, `cover_url`, and `owner`.
 - **`scrape-creators-pp-cli tiktok list-product`** - Fetches full details for a specific US TikTok Shop product by its URL, including stock levels and affiliate videos. Returns `product_info` with `product_base` (title, images, sold_count, price), `skus` (variants with exact `stock` counts), and `product_detail_review` (product_rating, review_count, sample reviews); also returns `shop_info` (shop_name, shop_rating, followers_count) and `related_videos` (affiliate TikToks promoting the product). This endpoint currently supports the US region only.
 - **`scrape-creators-pp-cli tiktok list-profile`** - Fetches public profile data for a TikTok user by their handle or user_id — useful for looking up a creator's identity, bio, and account stats. Returns a `user` object (display name, avatar URLs, bio/signature, verification status, bio link) and a `stats` object (followerCount, followingCount, heartCount/total likes, videoCount). This only returns profile metadata, not the user's actual videos or followers list.
 - **`scrape-creators-pp-cli tiktok list-profile-2`** - Returns the TikTok region code for a public profile, like `US` for United States or `MX` for Mexico.
-- **`scrape-creators-pp-cli tiktok list-profile-3`** - Fetches videos posted by a TikTok user, sortable by latest or most popular — use this to get a creator's video feed or TikToks. Returns `aweme_list`, an array of video objects each containing `aweme_id`, `desc` (caption), `statistics` (play_count, digg_count/likes, comment_count, share_count, collect_count/saves), and `video` (download URLs, duration, cover image). Paginate with `max_cursor` from the previous response.
+- **`scrape-creators-pp-cli tiktok list-profile-3`** - Fetches videos posted by a TikTok user, sortable by latest or most popular — use this to get a creator's video feed or TikToks. Returns `aweme_list`, an array of video objects each containing `aweme_id`, `desc` (caption), `statistics` (play_count, digg_count/likes, comment_count, share_count, collect_count/saves), and `video` (download URLs, duration, cover image). Paginate with `max_cursor` from the previous response. If a profile should have videos but returns none, try `region=US` or another relevant two-letter country code.
 - **`scrape-creators-pp-cli tiktok list-search`** - Searches for TikTok videos under a specific hashtag — useful for finding content by topic or trend. Returns `aweme_list`, an array of video objects each with `aweme_id`, `desc` (caption), `statistics` (play_count, digg_count/likes, comment_count, share_count), `video` info, and `author` details. Paginate with `cursor` from the previous response. TikTok may return duplicate results.
 - **`scrape-creators-pp-cli tiktok list-search-2`** - Searches for TikTok videos by keyword or phrase — the general video search across all of TikTok. Returns `search_item_list`, an array of objects each containing `aweme_info` with `aweme_id`, `desc` (caption), `statistics` (play_count, digg_count/likes, comment_count, share_count), `video` info, and `author` details. Paginate with `cursor`. TikTok may return duplicate results.
 - **`scrape-creators-pp-cli tiktok list-search-3`** - Gets the autocomplete suggestions TikTok shows while someone is typing in search. Returns `suggestions`, a clean array of suggested search terms and the most useful metadata for each suggestion.
@@ -629,7 +656,7 @@ Get Twitter profiles, tweets, followers and more
 
 Scrape YouTube channels, videos, and more
 
-- **`scrape-creators-pp-cli youtube list`** - Retrieves comprehensive YouTube channel profile data including name, avatar images, subscriber count (subscribers), total video and view counts, join date, tags, and linked social accounts like Twitter and Instagram. Accepts a channelId, handle, or full channel URL as input. Returns channel metadata such as country, email, and external store links when available.
+- **`scrape-creators-pp-cli youtube list`** - Retrieves YouTube channel profile data including name, avatar images, subscriber count (subscribers), total video and view counts, join date, tags, and linked social accounts like Twitter and Instagram. Accepts a channelId, handle, or full channel URL as input. Returns channel metadata such as country, email, and external store links when available.
 - **`scrape-creators-pp-cli youtube list-channel`** - Fetches community posts from a YouTube channel's Posts tab, including post ID, URL, content, images, attached video, like count, publish time, channel info, and a continuationToken when YouTube has more results. Pass a handle or channelId for the first page, then pass continuationToken to page through more posts.
 - **`scrape-creators-pp-cli youtube list-channel-2`** - Fetches live streams and past streams from a YouTube channel's Live tab, including title, URL, thumbnail, view count, publish time, duration, and a continuationToken when YouTube has more results. Pass a handle or channelId for the first page, then pass continuationToken to page through more lives.
 - **`scrape-creators-pp-cli youtube list-channel-3`** - Fetches playlists from a YouTube channel's Playlists tab, including playlist ID, title, thumbnail, video count, channel info, playlist URL, and a continuationToken when YouTube has more results. Pass a handle or channelId for the first page, then pass continuationToken to page through more playlists.
@@ -640,12 +667,29 @@ Scrape YouTube channels, videos, and more
 - **`scrape-creators-pp-cli youtube list-search`** - Searches YouTube by keyword query and returns matching videos, channels, playlists, shorts, shelves, and live streams. Each video result includes title, URL, thumbnail, view count (views), publish date, duration, channel info, and badges. Supports filtering by upload date, sorting by relevance or popularity, and paginating with continuationToken. Set is_paid_promotions=true to search YouTube videos with the paid product placement / sponsorship disclosure.
 - **`scrape-creators-pp-cli youtube list-search-2`** - Searches YouTube for content matching a specific hashtag and returns matching videos with title, URL, thumbnail, view count (views), publish date, duration, and channel info. Supports pagination via continuationToken and filtering to return all content types or only shorts.
 - **`scrape-creators-pp-cli youtube list-shorts`** - Fetches approximately 48 currently trending YouTube Shorts (viral/popular short-form videos) per call, returning each short's title, URL, thumbnail, view count (views), like count (likes), comment count, publish date, channel info, keywords, and duration. Each subsequent call returns a fresh batch of different trending shorts.
-- **`scrape-creators-pp-cli youtube list-video`** - Fetches full details for a YouTube video or short, including title, description, thumbnail, view count (views), like count (likes), comment count, publish date, duration, genre, keywords, chapters, collaborators, and available caption tracks (subtitles/captions). Also returns related recommended videos in watchNextVideos and channel info for the uploader.
+- **`scrape-creators-pp-cli youtube list-video`** - Fetches full details for a YouTube video or short, including title, description, thumbnail, view count (views), like count (likes), comment count, publish date, duration, genre, keywords, chapters, collaborators, and available caption tracks (subtitles/captions). Also returns related recommended videos in watchNextVideos and channel info for the uploader. When YouTube exposes its public Most replayed graph, most_replayed contains normalized graph buckets in markers and YouTube's highlighted ranges in ranges. The field is null when the graph is not available. YouTube says the graph may be unavailable when the channel has active strikes, the content is potentially inappropriate, the video is too new or has too few views, or its systems deem the video ineligible for another reason. YouTube does not publish fixed age or view-count thresholds. Age-restricted videos return 403 with message: "This video is age restricted" because Scrape Creators only uses the public logged-out YouTube source.
 - **`scrape-creators-pp-cli youtube list-video-2`** - Fetches comments and replies from a YouTube video, including each comment's text content, author details, like count, reply count, and publish date. Supports ordering by top or newest, and paginating with continuationToken. Limited to approximately 1,000 top comments or 7,000 newest comments.
 - **`scrape-creators-pp-cli youtube list-video-3`** - Experimental endpoint. Checks a YouTube video for the paid-promotion disclosure and infers likely sponsors/promoted brands from the public description, description links, promo-code text, and transcript. YouTube tells us that a video contains paid promotion, but it does not always tell us the sponsor directly, so this endpoint returns suspected sponsors with confidence and evidence. This is inferred, not an official YouTube sponsor field. Feedback welcome: support@scrapecreators.com
-- **`scrape-creators-pp-cli youtube list-video-4`** - Retrieves the captions, subtitles, or transcript of a YouTube video or short. Returns both a timestamped transcript array with start/end times and a plain-text version in transcript_only_text. Supports specifying a language code. Note: the video must be under 2 minutes for transcript extraction to work.
+- **`scrape-creators-pp-cli youtube list-video-4`** - Retrieves the captions, subtitles, or transcript of a YouTube video or Short. Returns both a timestamped transcript array with start/end times and a plain-text version in transcript_only_text. Supports specifying a language code. There is no two-minute limit for YouTube. Long videos, including podcasts, work when YouTube exposes public captions. If no matching caption track is available, the transcript fields return null.
 - **`scrape-creators-pp-cli youtube list-video-5`** - Fetches replies to a specific comment on a YouTube video, including each reply's text content, author details (name, channel ID, avatar, verified/creator status), like count, and publish date. Requires a continuationToken obtained from the 'repliesContinuationToken' field on comments returned by the Comments endpoint. Supports paginating through additional replies with the continuationToken returned in each response.
 
+
+### Self-learning loop
+
+This CLI caches per-question discovery so repeat queries skip the walk and structurally similar queries get answered via entity substitution. The loop also self-captures: every invocation is journaled locally, and failed-flag corrections plus fresh teaches surface as candidates on the next `recall` for confirm/reject judgment. Agents call `recall` before discovery and fire `teach &` after answering. See the `## Automatic learning` section in `SKILL.md` for the full protocol.
+
+- **`scrape-creators-pp-cli recall <query>`** - Look up cached resources for a query before running discovery
+- **`scrape-creators-pp-cli teach`** - Record a query -> resource mapping (silent on success, safe to background with `&`)
+- **`scrape-creators-pp-cli learnings list`** - Inspect taught rows
+- **`scrape-creators-pp-cli learnings forget <query>`** - Undo a teach
+- **`scrape-creators-pp-cli learnings candidates`** - List auto-captured candidates awaiting confirm/reject
+- **`scrape-creators-pp-cli learnings stats`** - Local loop metrics: recall hit rate, teach-to-reuse, playbook resolution, candidate counts
+- **`scrape-creators-pp-cli teach-pattern`** - Install a query/resource template up front
+- **`scrape-creators-pp-cli teach-lookup`** - Add an entity mapping (e.g. country code, team alias) for pattern substitution
+
+Pass `--no-learn` or set `SCRAPE_CREATORS_NO_LEARN=true` to disable the loop for deterministic flows.
+
+The local store's schema version stamp is one-way: once this version of `scrape-creators-pp-cli` opens the database, older binaries refuse it with a version error — upgrade the binary rather than downgrading.
 
 ## Output Formats
 
@@ -674,7 +718,9 @@ This CLI is designed for AI agent consumption:
 - **Pipeable** - `--json` output to stdout, errors to stderr
 - **Filterable** - `--select id,name` returns only fields you need
 - **Previewable** - `--dry-run` shows the request without sending
-- **Read-only by default** - this CLI does not create, update, delete, publish, send, or mutate remote resources
+- **Explicit retries** - add `--idempotent` to create retries when a no-op success is acceptable
+- **Confirmable** - `--yes` for explicit confirmation of destructive actions
+- **Piped input** - write commands can accept structured input when their help lists `--stdin`
 - **Offline-friendly** - sync/search commands can use the local SQLite store when available
 - **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
 
@@ -713,25 +759,16 @@ If you use agentcookie to sync secrets across machines, this CLI auto-adopts age
 - Run the `list` command to see available items
 
 ### API-specific
-
-- **HTTP 402 / payment required mid-command** — Your credit balance is depleted. Top up at scrapecreators.com, then check runway with 'account budget'.
-- **Commands time out on transcript or large-feed endpoints** — The API runs on AWS Lambda with a hard 29s ceiling; narrow the request (single handle, --limit) or retry — transcripts are capped at source videos under 2 minutes.
-- **A single platform's endpoints return errors while others work** — Scrape Creators occasionally has per-platform incidents from upstream changes; check scrapecreators.com/status and retry that platform later.
-- **transcripts search returns nothing** — The local store has no transcripts yet. Run the per-platform transcript commands (e.g. youtube list-transcript, tiktok list-transcript) — they cache results locally — then search.
-
----
-
-## Known Gaps
-
-- **A few endpoints have no runnable `--help` example.** Endpoints whose only required input is a response-derived pagination token (`continuationToken`, `feedback_id`, `expansion_token` — e.g. `youtube list-video-5`, `facebook list-post-4`) cannot ship a stable example, since the token comes from a prior call and expires. Fetch the token from the parent command's output, then pass it. Every other endpoint's `--help` example is runnable as shown.
-- **The API is credit-metered.** Every request costs one Scrape Creators credit and a depleted balance returns HTTP 402. Run `account budget` to project runway. The local store is populated by your reads (and cached), not by a pre-read auto-refresh, so credits are only spent on commands you actually run.
-- **A few platform endpoints depend on upstream availability.** TikTok Creative Center surfaces (`tiktok list-creators`, `tiktok list-hashtags`, the TikTok ad library) periodically return errors when TikTok's own Creative Center is down — the CLI surfaces the upstream message verbatim.
+- **HTTP 403 on every call** — Your API key is missing or invalid: run scrape-creators-pp-cli auth set-token <key>, or export SCRAPECREATORS_API_KEY
+- **A comments command returns success with no comments key** — Update the binary — pre-2026.8 builds stripped the payload under --agent; current builds never strip the sole payload array
+- **Sweep stopped before finishing** — It hit --max-credits; raise the budget or rerun after checking scrape-creators-pp-cli account budget
+- **comments coverage flags posts you believe are complete** — The API's reported counts include replies; run comments thread on the flagged post to close the gap, then re-audit
 
 ## Sources & Inspiration
 
 This CLI was built by studying these projects and resources:
 
-- [**n8n-nodes-scrape-creators**](https://github.com/adrianhorning08/n8n-nodes-scrape-creators) — TypeScript (19 stars)
-- [**scrapecreators-cli**](https://github.com/ScrapeCreators/scrapecreators-cli) — JavaScript (4 stars)
+- [**scrapecreators-cli**](https://github.com/ScrapeCreators/scrapecreators-cli) — TypeScript
+- [**scrape-creators-skills**](https://github.com/ScrapeCreators/scrape-creators-skills) — Markdown
 
 Generated by [CLI Printing Press](https://github.com/mvanhorn/cli-printing-press)

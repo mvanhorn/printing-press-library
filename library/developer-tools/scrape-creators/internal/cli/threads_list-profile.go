@@ -13,6 +13,7 @@ import (
 
 func newThreadsListProfileCmd(flags *rootFlags) *cobra.Command {
 	var flagHandle string
+	var flagCacheMaxAge string
 
 	cmd := &cobra.Command{
 		Use:         "list-profile",
@@ -23,11 +24,36 @@ func newThreadsListProfileCmd(flags *rootFlags) *cobra.Command {
 			// Bare invocation of a command with required input prints help
 			// instead of pflag's terse "required flag not set" error. Optional-
 			// only read commands fall through so a bare call still executes.
-			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
+			// Machine callers (--json/--agent, which sets asJSON) get a usage
+			// error + exit 2 instead of silent exit-0 help, so an incomplete
+			// invocation is never mistaken for success.
+			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "requires input",
+						"usage": cmd.CommandPath() + " --help",
+					}, flags); printErr != nil {
+						return printErr
+					}
+					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
+				}
 				return cmd.Help()
 			}
 			if !cmd.Flags().Changed("handle") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "handle")
+			}
+			if cmd.Flags().Changed("cache-max-age") {
+				allowedCacheMaxAge := []string{"1d", "3d", "7d", "14d", "30d"}
+				validCacheMaxAge := false
+				for _, v := range allowedCacheMaxAge {
+					if flagCacheMaxAge == v {
+						validCacheMaxAge = true
+						break
+					}
+				}
+				if !validCacheMaxAge {
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagCacheMaxAge, "cache-max-age", allowedCacheMaxAge)
+				}
 			}
 			path := "/v1/threads/profile"
 			c, err := flags.newClient()
@@ -38,10 +64,14 @@ func newThreadsListProfileCmd(flags *rootFlags) *cobra.Command {
 			if flagHandle != "" {
 				params["handle"] = formatCLIParamValue(flagHandle)
 			}
+			if flagCacheMaxAge != "" {
+				params["cache_max_age"] = formatCLIParamValue(flagCacheMaxAge)
+			}
 			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "threads", false, path, params, nil, "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
+			outputData := data
 			// Print provenance to stderr for human-facing output only.
 			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
 			// --select) and piped stdout suppress this line; the JSON envelope
@@ -49,7 +79,7 @@ func newThreadsListProfileCmd(flags *rootFlags) *cobra.Command {
 			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
-				_ = json.Unmarshal(data, &countItems)
+				_ = json.Unmarshal(outputData, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
@@ -68,12 +98,16 @@ func newThreadsListProfileCmd(flags *rootFlags) *cobra.Command {
 				if wrapErr != nil {
 					return wrapErr
 				}
+				wrapped, wrapErr = wrapPlatformStructuredOutput(wrapped, flags, "results", true)
+				if wrapErr != nil {
+					return wrapErr
+				}
 				return printOutput(cmd.OutOrStdout(), wrapped, true)
 			}
 			// For all other output modes (table, csv, plain, quiet), use the standard pipeline
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var items []map[string]any
-				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
+				if json.Unmarshal(outputData, &items) == nil && len(items) > 0 {
 					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
 						return err
 					}
@@ -83,10 +117,15 @@ func newThreadsListProfileCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
+			formatData := data
+			if flags.csv || flags.plain {
+				formatData = outputData
+			}
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagHandle, "handle", "", "Threads username")
+	cmd.Flags().StringVar(&flagCacheMaxAge, "cache-max-age", "", "If we have a response in the cache that is this many days old or newer, return the cached response (0 credits (one of: 1d, 3d, 7d, 14d, 30d)")
 
 	return cmd
 }
