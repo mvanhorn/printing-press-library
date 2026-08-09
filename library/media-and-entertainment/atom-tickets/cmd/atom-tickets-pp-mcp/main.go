@@ -4,10 +4,13 @@
 package main
 
 import (
+	"crypto/subtle"
 	"flag"
 	"fmt"
+	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/atom-tickets/internal/cli"
@@ -21,7 +24,8 @@ import (
 // guidance that production agents need a remote option.
 
 const (
-	defaultHTTPAddr = ":7777"
+	defaultHTTPAddr = "127.0.0.1:7777"
+	httpTokenEnv    = "PP_MCP_HTTP_TOKEN"
 )
 
 // version is the printed MCP server's version, overridable at build time via ldflags.
@@ -54,9 +58,13 @@ func main() {
 			os.Exit(1)
 		}
 	case "http":
-		httpSrv := server.NewStreamableHTTPServer(s)
+		token := os.Getenv(httpTokenEnv)
+		if token == "" {
+			fmt.Fprintf(os.Stderr, "MCP server error: %s is required for http transport\n", httpTokenEnv)
+			os.Exit(2)
+		}
 		fmt.Fprintf(os.Stderr, "atom-tickets-pp-mcp serving MCP over streamable HTTP at %s\n", *addr)
-		if err := httpSrv.Start(*addr); err != nil {
+		if err := serveHTTP(s, *addr, token); err != nil {
 			fmt.Fprintf(os.Stderr, "MCP server error: %v\n", err)
 			os.Exit(1)
 		}
@@ -64,6 +72,32 @@ func main() {
 		fmt.Fprintf(os.Stderr, "unknown --transport %q (supported: stdio, http)\n", *transport)
 		os.Exit(2)
 	}
+}
+
+func serveHTTP(s *server.MCPServer, addr, token string) error {
+	mcpHandler := server.NewStreamableHTTPServer(s)
+	mux := http.NewServeMux()
+	mux.Handle("/mcp", requireBearerToken(token, mcpHandler))
+
+	httpServer := &http.Server{
+		Addr:              addr,
+		Handler:           mux,
+		ReadHeaderTimeout: 10 * time.Second,
+	}
+	return httpServer.ListenAndServe()
+}
+
+func requireBearerToken(token string, next http.Handler) http.Handler {
+	expected := []byte("Bearer " + token)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		provided := []byte(r.Header.Get("Authorization"))
+		if subtle.ConstantTimeCompare(provided, expected) != 1 {
+			w.Header().Set("WWW-Authenticate", "Bearer")
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
 }
 
 // defaultTransport reads PP_MCP_TRANSPORT env when set, otherwise falls back
