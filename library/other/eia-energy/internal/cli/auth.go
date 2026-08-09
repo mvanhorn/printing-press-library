@@ -177,11 +177,9 @@ func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			// Identify which (if any) auth env var is still exported so the
-			// JSON envelope and the human prose can both surface it.
-			envStillSet := ""
-			if envStillSet == "" && os.Getenv("EIA_API_KEY") != "" {
-				envStillSet = "EIA_API_KEY"
-			}
+			// JSON envelope and the human prose can both surface it. Keep the
+			// same canonical-first precedence used by config loading.
+			envStillSet := eiaAuthEnvironmentVariable()
 
 			// JSON envelope: {cleared: true, note?: "<env_var> env var is still set"}.
 			if flags.asJSON {
@@ -200,4 +198,13 @@ func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 			return nil
 		},
 	}
+}
+
+func eiaAuthEnvironmentVariable() string {
+	for _, name := range []string{"EIA_ENERGY_API_KEY", "EIA_API_KEY"} {
+		if os.Getenv(name) != "" {
+			return name
+		}
+	}
+	return ""
 }
