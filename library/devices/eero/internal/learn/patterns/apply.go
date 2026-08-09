@@ -261,8 +261,8 @@ func verifyCandidate(ctx context.Context, db *sql.DB, candidate, resourceType, s
 		}
 		var got string
 		err := db.QueryRowContext(ctx,
-			`SELECT id FROM resources WHERE resource_type = ? AND id LIKE ? LIMIT 1`,
-			resourceType, prefix+"%",
+			`SELECT id FROM resources WHERE resource_type = ? AND id LIKE ? ESCAPE '\' LIMIT 1`,
+			resourceType, escapeLikePrefix(prefix)+"%",
 		).Scan(&got)
 		if err != nil {
 			return Hit{}, false
@@ -272,6 +272,20 @@ func verifyCandidate(ctx context.Context, db *sql.DB, candidate, resourceType, s
 	default:
 		return Hit{}, false
 	}
+}
+
+// escapeLikePrefix keeps substituted resource identifiers literal while the
+// trailing % continues to mean "any suffix" for prefix strategy matching.
+func escapeLikePrefix(value string) string {
+	var escaped strings.Builder
+	escaped.Grow(len(value))
+	for _, r := range value {
+		if r == '\\' || r == '%' || r == '_' {
+			escaped.WriteByte('\\')
+		}
+		escaped.WriteRune(r)
+	}
+	return escaped.String()
 }
 
 func nonPlaceholderTokens(in []string) []string {

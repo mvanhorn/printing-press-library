@@ -456,6 +456,12 @@ Parse `$ARGUMENTS`:
    ```
 3. Verify: `claude mcp list`
 
+For optional streamable HTTP, run `eero-pp-mcp --transport http`. It binds to
+`127.0.0.1:7777` by default and refuses unauthenticated non-loopback binds.
+Only use `--allow-public-http` when an external deployment layer provides
+caller authentication and network isolation; the MCP server itself does not
+authenticate HTTP callers.
+
 ## Direct Use
 
 1. Check if installed: `which eero-pp-cli`

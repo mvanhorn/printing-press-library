@@ -118,6 +118,14 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 }
 ```
 
+### Optional HTTP MCP
+
+Run `eero-pp-mcp --transport http` only when a remote MCP transport is needed.
+It binds to `127.0.0.1:7777` by default and refuses unauthenticated non-loopback
+binds. `--allow-public-http` is an explicit escape hatch for deployments that
+provide their own network authentication and isolation; the MCP server itself
+does not authenticate HTTP callers.
+
 </details>
 
 ## Authentication

@@ -6,6 +6,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"net"
 	"os"
 	"strings"
 
@@ -21,7 +22,7 @@ import (
 // guidance that production agents need a remote option.
 
 const (
-	defaultHTTPAddr = ":7777"
+	defaultHTTPAddr = "127.0.0.1:7777"
 )
 
 // version is the printed MCP server's version, overridable at build time via ldflags.
@@ -45,6 +46,7 @@ func main() {
 
 	transport := flag.String("transport", defaultTransport(), "MCP transport: stdio | http")
 	addr := flag.String("addr", defaultHTTPAddr, "bind address for http transport (host:port or :port)")
+	allowPublicHTTP := flag.Bool("allow-public-http", false, "Explicitly allow unauthenticated HTTP MCP on a non-loopback address")
 	flag.Parse()
 
 	switch strings.ToLower(*transport) {
@@ -54,6 +56,13 @@ func main() {
 			os.Exit(1)
 		}
 	case "http":
+		if !isLoopbackAddress(*addr) && !*allowPublicHTTP {
+			fmt.Fprintln(os.Stderr, "refusing unauthenticated non-loopback MCP bind; use loopback or explicitly pass --allow-public-http")
+			os.Exit(2)
+		}
+		if !isLoopbackAddress(*addr) {
+			fmt.Fprintln(os.Stderr, "warning: MCP HTTP is unauthenticated and exposed beyond loopback")
+		}
 		httpSrv := server.NewStreamableHTTPServer(s)
 		fmt.Fprintf(os.Stderr, "eero-pp-mcp serving MCP over streamable HTTP at %s\n", *addr)
 		if err := httpSrv.Start(*addr); err != nil {
@@ -64,6 +73,18 @@ func main() {
 		fmt.Fprintf(os.Stderr, "unknown --transport %q (supported: stdio, http)\n", *transport)
 		os.Exit(2)
 	}
+}
+
+func isLoopbackAddress(address string) bool {
+	host, _, err := net.SplitHostPort(address)
+	if err != nil {
+		return false
+	}
+	if strings.EqualFold(host, "localhost") {
+		return true
+	}
+	ip := net.ParseIP(host)
+	return ip != nil && ip.IsLoopback()
 }
 
 // defaultTransport reads PP_MCP_TRANSPORT env when set, otherwise falls back

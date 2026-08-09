@@ -200,6 +200,33 @@ func TestApply_PrefixSearchPattern(t *testing.T) {
 	}
 }
 
+func TestApply_PrefixSearchEscapesLikeWildcards(t *testing.T) {
+	t.Parallel()
+	db := openApplyTestDB(t)
+	seedLookup(t, db, "team_code", "Charlie", "foo_%")
+	// This decoy must not satisfy the literal prefix foo_%: '_' and '%' are
+	// data in the synchronized lookup value, not SQL LIKE wildcards.
+	seedResource(t, db, "items", "prefix-fooXbar", `{"id":"prefix-fooXbar"}`)
+	if _, _, err := Upsert(db, Pattern{
+		QueryTemplate:    "{entity} widget",
+		ResourceTemplate: "prefix-{entity:team_code}-*",
+		ResourceType:     "items",
+		Strategy:         StrategySubstituteThenSearchPrefix,
+		EntityKind:       "team_code",
+		Confidence:       2,
+		Source:           SourceInferred,
+	}); err != nil {
+		t.Fatalf("upsert prefix: %v", err)
+	}
+	hits, err := Apply(context.Background(), db, "Charlie widget", "widget", []string{"Charlie"}, Opts{})
+	if err != nil {
+		t.Fatalf("apply: %v", err)
+	}
+	if len(hits) != 0 {
+		t.Fatalf("wildcard lookup value must not match a different resource, got %+v", hits)
+	}
+}
+
 // TestApply_NoEntitiesNoHits: query with no entity tokens can't trigger
 // any pattern substitution.
 func TestApply_NoEntitiesNoHits(t *testing.T) {
