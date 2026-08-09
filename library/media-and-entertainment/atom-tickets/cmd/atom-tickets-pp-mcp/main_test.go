@@ -53,3 +53,32 @@ func TestRequireBearerToken(t *testing.T) {
 		})
 	}
 }
+
+func TestValidateHTTPTransport(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		name    string
+		addr    string
+		cert    string
+		key     string
+		wantErr bool
+	}{
+		{name: "IPv4 loopback", addr: "127.0.0.1:7777"},
+		{name: "IPv6 loopback", addr: "[::1]:7777"},
+		{name: "localhost", addr: "localhost:7777"},
+		{name: "wildcard plaintext", addr: ":7777", wantErr: true},
+		{name: "all interfaces plaintext", addr: "0.0.0.0:7777", wantErr: true},
+		{name: "remote plaintext", addr: "192.0.2.10:7777", wantErr: true},
+		{name: "remote TLS", addr: "0.0.0.0:7777", cert: "server.crt", key: "server.key"},
+		{name: "certificate without key", addr: "127.0.0.1:7777", cert: "server.crt", wantErr: true},
+		{name: "key without certificate", addr: "127.0.0.1:7777", key: "server.key", wantErr: true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			err := validateHTTPTransport(tc.addr, tc.cert, tc.key)
+			if (err != nil) != tc.wantErr {
+				t.Fatalf("validateHTTPTransport() error = %v, wantErr %v", err, tc.wantErr)
+			}
+		})
+	}
+}
