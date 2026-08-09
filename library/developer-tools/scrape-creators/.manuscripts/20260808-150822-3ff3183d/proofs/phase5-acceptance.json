@@ -12,7 +12,7 @@
     "type": "api_key",
     "api_key_available": true
   },
-  "source_fingerprint": "e79b30fa818cdd5d05a980f77cc866ed233f11054835d0333570da68b112a0c0",
+  "source_fingerprint": "bf9ca71c2e7eadfabc178b28ce6a58c2be20826a481871661554f7c97949f510",
   "source_files": {
     "cmd/scrape-creators-pp-cli/main.go": "7c9136d104ac9f4643f6c51c8e7d1797b00933bf53a8bccb0b45e9afbd9e5445",
     "cmd/scrape-creators-pp-mcp/main.go": "b4c65089f57d68ae87e4f03067d6403f82cc17541dfd0b909b5a4848d5b72380",
@@ -35,6 +35,7 @@
     "internal/cli/amend_compact_comments_test.go": "f31179501d0bbd22883b86195d635b4070a9e365cfde8386044a374bce1d7992",
     "internal/cli/amend_completeness_test.go": "657097d3c09db6d2e7a1ed0a51f2c2744922a039b38ca08bd874c700d58259ab",
     "internal/cli/amend_pagination_test.go": "e5c7567c2662a9701b77ab18dd12bb95ee20f3946336c031dfeb953ae07c7435",
+    "internal/cli/amend_sweep_budget_test.go": "ac65c106d034a7bf84d3faa758f54124ae606be3e4610ad54a9b8f31fc118a89",
     "internal/cli/analytics.go": "2cfa9a22159fea3042a9f6496a0afa392c66ab0509460a90829fb8dcbfacd1fe",
     "internal/cli/api_discovery.go": "8203d994f3dffa1090ea3d64604a63c7058a5cfbf74f64a29d87d4c008105b9f",
     "internal/cli/apple-music.go": "925e94f2a5b9079b3a5e4dd9d8305995bbd675ee8c00a7b91f6bbbb7b857b8e2",
@@ -53,7 +54,7 @@
     "internal/cli/comments_coverage_test.go": "430d7bf42a9b1683b654e40f1b8caf0cc2d641ebd6fd5923f90dcef1a96f772b",
     "internal/cli/comments_search.go": "4b47bb9a8a3df814ff561946f06dab46d528e8aac395e2591e7ac0bc5da598a8",
     "internal/cli/comments_search_test.go": "e90e2ab6cca7f00a36972787dd79eec8cadbe7f605017488f4c61ee32a59edab",
-    "internal/cli/comments_sweep.go": "3ab8436f991b30f78e1c8865c57eccf224458dda0e615871ba2391e5dfaf737a",
+    "internal/cli/comments_sweep.go": "7ca68e9df6e2fc3786cd787e8be2e2dd35ad6c7dff1a4900a60f88f81894110b",
     "internal/cli/comments_sweep_test.go": "775e950bcbfc3b16765fe6d0333014fdfdfdf985e5335196a436e9087ee11c67",
     "internal/cli/comments_thread.go": "12631cc818c547d8a4c55856a092f1f33c035b629fbe64cb39020bb391bc291a",
     "internal/cli/comments_thread_test.go": "9916ed058bb1e28b6d982c8d1ed978192ee3c1f661f515747eb8397dc7e5ff99",

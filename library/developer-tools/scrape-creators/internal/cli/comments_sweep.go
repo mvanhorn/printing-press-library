@@ -78,6 +78,26 @@ it for one post's complete threads; use 'comments thread' instead.`, "\n"),
 				return err
 			}
 
+			env := sweepEnvelope{Handle: handle, MaxCredits: maxCredits}
+
+			budget := newSweepBudget(maxCredits)
+			budgetAllows := func() bool { return budget.allows() }
+			noteBudgetStop := func(what string) {
+				env.StoppedEarly = true
+				env.Note = budget.stopNote(what)
+			}
+			chargeFetch := func(cost int64) {
+				if note, breached := budget.charge(cost); breached {
+					env.StoppedEarly = true
+					env.Note = note
+				}
+				env.CreditsCharged = budget.charged
+			}
+
+			if !budgetAllows() {
+				noteBudgetStop("posts fetch")
+				return printJSONFiltered(cmd.OutOrStdout(), env, flags)
+			}
 			postsRaw, err := c.Get(ctx, "/v2/instagram/user/posts", map[string]string{"handle": handle, "trim": "true"})
 			if err != nil {
 				return fmt.Errorf("fetching recent posts: %w", err)
@@ -85,8 +105,7 @@ it for one post's complete threads; use 'comments thread' instead.`, "\n"),
 			if isErrorEnvelope(postsRaw) {
 				return fmt.Errorf("posts endpoint returned an error envelope for %s", handle)
 			}
-			env := sweepEnvelope{Handle: handle, MaxCredits: maxCredits}
-			env.CreditsCharged += payloadCredits(postsRaw)
+			chargeFetch(payloadCredits(postsRaw))
 			posts := extractPosts(postsRaw)
 
 			cutoff := time.Time{}
@@ -112,28 +131,19 @@ it for one post's complete threads; use 'comments thread' instead.`, "\n"),
 			// --max-posts 0) case.
 			const maxSweepPages = 25
 			cursor := ""
-			// --max-credits stops BEFORE any fetch whose estimated cost would
-			// push the charged total past the budget. The estimate is the
-			// maximum per-fetch charge observed in this run (floor 1): request
-			// cost is decided server-side and only known after the response,
-			// so a run can exceed the budget by at most one fetch's
-			// actual-minus-estimated cost. credits_charged always reports the
-			// true total.
-			var maxFetchCost int64 = 1
-			if c0 := payloadCredits(postsRaw); c0 > maxFetchCost {
-				maxFetchCost = c0
-			}
 			for page := 1; ; page++ {
 				pastCutoff := false
 				for _, p := range posts {
+					if env.StoppedEarly {
+						break
+					}
 					if maxPosts > 0 && env.PostsScanned >= maxPosts {
 						env.StoppedEarly = true
 						env.Note = fmt.Sprintf("stopped at --max-posts %d", maxPosts)
 						break
 					}
-					if maxCredits > 0 && env.CreditsCharged+maxFetchCost > maxCredits {
-						env.StoppedEarly = true
-						env.Note = fmt.Sprintf("stopped at --max-credits %d: the next fetch (est. %d cr) would exceed the budget; rerun with a higher budget to continue", maxCredits, maxFetchCost)
+					if !budgetAllows() {
+						noteBudgetStop("comments fetch")
 						break
 					}
 					if !cutoff.IsZero() && !p.takenAt.IsZero() && p.takenAt.Before(cutoff) {
@@ -154,10 +164,7 @@ it for one post's complete threads; use 'comments thread' instead.`, "\n"),
 						continue
 					}
 					pl := parseCommentsPayload(raw)
-					env.CreditsCharged += pl.creditsCharged
-					if pl.creditsCharged > maxFetchCost {
-						maxFetchCost = pl.creditsCharged
-					}
+					chargeFetch(pl.creditsCharged)
 					rowsBatch := make([]store.CommentRow, 0, len(pl.comments))
 					for _, cm := range pl.comments {
 						rows, _ := commentToRows(cm, p.url, "")
@@ -191,9 +198,8 @@ it for one post's complete threads; use 'comments thread' instead.`, "\n"),
 					env.Note = fmt.Sprintf("stopped at the %d-page posts-feed safety cap; rerun with --since or --max-posts to bound the sweep", maxSweepPages)
 					break
 				}
-				if maxCredits > 0 && env.CreditsCharged+maxFetchCost > maxCredits {
-					env.StoppedEarly = true
-					env.Note = fmt.Sprintf("stopped at --max-credits %d: the next posts page (est. %d cr) would exceed the budget; rerun with a higher budget to continue", maxCredits, maxFetchCost)
+				if !budgetAllows() {
+					noteBudgetStop("posts page")
 					break
 				}
 				cursor = next
@@ -204,11 +210,7 @@ it for one post's complete threads; use 'comments thread' instead.`, "\n"),
 				if isErrorEnvelope(postsRaw) {
 					return fmt.Errorf("posts endpoint returned an error envelope for %s (page %d)", handle, page+1)
 				}
-				pageCost := payloadCredits(postsRaw)
-				env.CreditsCharged += pageCost
-				if pageCost > maxFetchCost {
-					maxFetchCost = pageCost
-				}
+				chargeFetch(payloadCredits(postsRaw))
 				posts = extractPosts(postsRaw)
 				if len(posts) == 0 {
 					break
@@ -222,10 +224,59 @@ it for one post's complete threads; use 'comments thread' instead.`, "\n"),
 		},
 	}
 	cmd.Flags().StringVar(&since, "since", "", "Only sweep posts newer than this window (e.g. 7d, 24h, 1w)")
-	cmd.Flags().Int64Var(&maxCredits, "max-credits", 100, "Credit budget: stop before any fetch estimated to exceed it; overshoot is bounded by one fetch (0 = no budget)")
+	cmd.Flags().Int64Var(&maxCredits, "max-credits", 100, "Credit budget checked before every fetch; the sweep halts immediately if a fetch exceeds it (0 = no budget)")
 	cmd.Flags().IntVar(&maxPosts, "max-posts", 0, "Maximum posts to sweep (0 = all returned)")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
 	return cmd
+}
+
+// sweepBudget enforces --max-credits across every fetch a sweep makes.
+//
+// A fetch is admitted only when the already-charged total plus a worst-case
+// estimate stays within the budget. The estimate is the largest per-fetch
+// charge seen so far in this run (floor 1), so a request that prices above
+// the previous one cannot slip through a stale estimate.
+//
+// Request cost is decided server-side and is known only after the response,
+// so no client can guarantee a never-exceeded ceiling on the first surprise
+// price alone. charge() closes that residue: the moment a fetch takes the
+// charged total past the budget, the sweep is halted and the breach is
+// reported, so the overshoot can never compound across further fetches.
+type sweepBudget struct {
+	max     int64
+	charged int64
+	maxCost int64
+}
+
+func newSweepBudget(max int64) *sweepBudget {
+	return &sweepBudget{max: max, maxCost: 1}
+}
+
+// allows reports whether the next fetch fits the budget in the worst case.
+// A non-positive max means no budget.
+func (b *sweepBudget) allows() bool {
+	if b.max <= 0 {
+		return true
+	}
+	return b.charged+b.maxCost <= b.max
+}
+
+// charge records an actual fetch cost, widens the worst-case estimate, and
+// reports whether this fetch took the run past the budget.
+func (b *sweepBudget) charge(cost int64) (note string, breached bool) {
+	b.charged += cost
+	if cost > b.maxCost {
+		b.maxCost = cost
+	}
+	if b.max > 0 && b.charged > b.max {
+		return fmt.Sprintf("budget exceeded: a fetch cost more than its estimate (charged %d of --max-credits %d); stopped immediately", b.charged, b.max), true
+	}
+	return "", false
+}
+
+// stopNote explains a pre-fetch budget stop for the named fetch kind.
+func (b *sweepBudget) stopNote(what string) string {
+	return fmt.Sprintf("stopped at --max-credits %d: the next %s (est. %d cr) would exceed the budget; rerun with a higher budget to continue", b.max, what, b.maxCost)
 }
 
 type sweptPost struct {
