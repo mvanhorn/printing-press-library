@@ -214,7 +214,7 @@ func resolveReadWithStrategyResponsePathAndJSONGuard(ctx context.Context, c *cli
 				}
 			}
 			data = applyResponsePath(data, responsePath)
-			writeThroughCache(ctx, resourceType, data)
+			writeThroughCache(ctx, resourceType, data, params)
 			return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 		}
 		fallbackReason, canFallback := localFallbackReason(err)
@@ -309,7 +309,7 @@ func resolvePaginatedReadWithStrategyAndJSONGuard(ctx context.Context, c *client
 					return nil, DataProvenance{}, err
 				}
 			}
-			writeThroughCache(ctx, resourceType, data)
+			writeThroughCache(ctx, resourceType, data, params)
 			return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 		}
 		fallbackReason, canFallback := localFallbackReason(err)
@@ -369,7 +369,7 @@ var writeThroughNestedEnvelopeKeys = []string{"data", "Data", "result", "Result"
 // writeThroughCache upserts live API results into the local SQLite store so
 // FTS search covers everything the user has looked up — not just explicit syncs.
 // Best-effort: failures are silently ignored (the live result already succeeded).
-func writeThroughCache(ctx context.Context, resourceType string, data json.RawMessage) {
+func writeThroughCache(ctx context.Context, resourceType string, data json.RawMessage, params map[string]string) {
 	db, err := store.OpenWithContext(ctx, defaultDBPath("movieglu-pp-cli"))
 	if err != nil {
 		return
@@ -440,8 +440,33 @@ func writeThroughCache(ctx context.Context, resourceType string, data json.RawMe
 	}
 
 	if len(items) > 0 {
+		items = addWriteThroughQueryScope(resourceType, params, items)
 		_, _, _ = db.UpsertBatch(resourceType, items)
 	}
+}
+
+// addWriteThroughQueryScope preserves request parameters that define the
+// identity of response rows but are omitted from MovieGlu's cinema-shaped
+// payload. Without this scope, cached showtimes from different films or dates
+// are indistinguishable during an offline read.
+func addWriteThroughQueryScope(resourceType string, params map[string]string, items []json.RawMessage) []json.RawMessage {
+	if resourceType != "film-show-times" || strings.TrimSpace(params["film_id"]) == "" || strings.TrimSpace(params["date"]) == "" {
+		return items
+	}
+	scoped := make([]json.RawMessage, 0, len(items))
+	for _, item := range items {
+		var object map[string]any
+		if json.Unmarshal(item, &object) != nil {
+			continue
+		}
+		object["_pp_film_id"] = params["film_id"]
+		object["_pp_show_date"] = params["date"]
+		encoded, err := json.Marshal(object)
+		if err == nil {
+			scoped = append(scoped, encoded)
+		}
+	}
+	return scoped
 }
 
 type writeThroughArrayDecoder func(json.RawMessage) ([]json.RawMessage, bool)

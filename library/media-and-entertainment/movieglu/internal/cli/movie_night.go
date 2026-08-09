@@ -30,6 +30,8 @@ type movieGluCinema struct {
 	CinemaID   int     `json:"cinema_id"`
 	CinemaName string  `json:"cinema_name"`
 	Distance   float64 `json:"distance"`
+	FilmID     string  `json:"_pp_film_id,omitempty"`
+	ShowDate   string  `json:"_pp_show_date,omitempty"`
 	Showings   map[string]struct {
 		Times []movieGluTime `json:"times"`
 	} `json:"showings"`
@@ -113,6 +115,9 @@ func newMovieNightCmd(flags *rootFlags) *cobra.Command {
 			if err := json.Unmarshal(rawShowtimes, &cinemas); err != nil {
 				return fmt.Errorf("decode filmShowTimes response: %w", err)
 			}
+			if showtimesProv.Source == "local" {
+				cinemas = filterLocalMovieNightCinemas(cinemas, film.FilmID, date)
+			}
 			options := flattenMovieNightOptions(cinemas, afterMinutes)
 			if limit > 0 && len(options) > limit {
 				options = options[:limit]
@@ -180,6 +185,17 @@ func newMovieNightCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().BoolVar(&bookingLink, "booking-link", false, "Fetch the cinema booking URL for the first ranked option")
 	cmd.Flags().BoolVar(&launch, "launch", false, "Open the selected HTTPS booking URL (requires --booking-link)")
 	return cmd
+}
+
+func filterLocalMovieNightCinemas(cinemas []movieGluCinema, filmID int, date string) []movieGluCinema {
+	wantFilmID := strconv.Itoa(filmID)
+	filtered := make([]movieGluCinema, 0, len(cinemas))
+	for _, cinema := range cinemas {
+		if cinema.FilmID == wantFilmID && cinema.ShowDate == date {
+			filtered = append(filtered, cinema)
+		}
+	}
+	return filtered
 }
 
 func openMovieGluURL(target string) error {

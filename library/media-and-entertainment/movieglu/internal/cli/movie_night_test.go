@@ -152,10 +152,19 @@ func TestMovieNightAutoLocalFallbackPreservesResultWhenBookingLinkRequested(t *t
 		db.Close()
 		t.Fatalf("Upsert(film) error = %v", err)
 	}
-	showtimes := json.RawMessage(`{"cinema_id":9,"cinema_name":"Local Cinema","distance":1.2,"showings":{"IMAX":{"times":[{"start_time":"20:15","end_time":"22:30"}]}}}`)
+	showtimes := json.RawMessage(`{"cinema_id":9,"cinema_name":"Local Cinema","distance":1.2,"_pp_film_id":"77","_pp_show_date":"2026-07-24","showings":{"IMAX":{"times":[{"start_time":"20:15","end_time":"22:30"}]}}}`)
 	if err := db.Upsert("film-show-times", "9", showtimes); err != nil {
 		db.Close()
 		t.Fatalf("Upsert(showtimes) error = %v", err)
+	}
+	for id, unrelated := range map[string]json.RawMessage{
+		"10": json.RawMessage(`{"cinema_id":10,"cinema_name":"Wrong Film Cinema","distance":0.1,"_pp_film_id":"88","_pp_show_date":"2026-07-24","showings":{"IMAX":{"times":[{"start_time":"19:00"}]}}}`),
+		"11": json.RawMessage(`{"cinema_id":11,"cinema_name":"Wrong Date Cinema","distance":0.2,"_pp_film_id":"77","_pp_show_date":"2026-07-25","showings":{"IMAX":{"times":[{"start_time":"19:15"}]}}}`),
+	} {
+		if err := db.Upsert("film-show-times", id, unrelated); err != nil {
+			db.Close()
+			t.Fatalf("Upsert(unrelated showtimes %s) error = %v", id, err)
+		}
 	}
 	if err := db.Close(); err != nil {
 		t.Fatalf("Close() error = %v", err)
@@ -179,5 +188,21 @@ func TestMovieNightAutoLocalFallbackPreservesResultWhenBookingLinkRequested(t *t
 	}
 	if strings.Contains(stdout.String(), `"booking_url"`) {
 		t.Fatalf("local fallback unexpectedly returned booking URL: %s", stdout.String())
+	}
+	if strings.Contains(stdout.String(), "Wrong Film Cinema") || strings.Contains(stdout.String(), "Wrong Date Cinema") {
+		t.Fatalf("local fallback mixed unrelated showtimes: %s", stdout.String())
+	}
+}
+
+func TestFilterLocalMovieNightCinemasUsesExactFilmAndDateScope(t *testing.T) {
+	rows := []movieGluCinema{
+		{CinemaID: 1, CinemaName: "Correct", FilmID: "77", ShowDate: "2026-07-24"},
+		{CinemaID: 2, CinemaName: "Wrong Film", FilmID: "88", ShowDate: "2026-07-24"},
+		{CinemaID: 3, CinemaName: "Wrong Date", FilmID: "77", ShowDate: "2026-07-25"},
+		{CinemaID: 4, CinemaName: "Legacy Unscoped"},
+	}
+	got := filterLocalMovieNightCinemas(rows, 77, "2026-07-24")
+	if len(got) != 1 || got[0].CinemaID != 1 {
+		t.Fatalf("filterLocalMovieNightCinemas() = %#v, want only exact film/date row", got)
 	}
 }

@@ -56,6 +56,14 @@ func TestLocalFallbackReasonDoesNotMaskProviderHTTPError(t *testing.T) {
 	}
 }
 
+func TestAddWriteThroughQueryScopeStampsFilmAndDate(t *testing.T) {
+	items := []json.RawMessage{json.RawMessage(`{"cinema_id":9,"cinema_name":"Scoped"}`)}
+	got := addWriteThroughQueryScope("film-show-times", map[string]string{"film_id": "77", "date": "2026-07-24"}, items)
+	if len(got) != 1 || !containsJSONText(got[0], "77") || !containsJSONText(got[0], "2026-07-24") {
+		t.Fatalf("addWriteThroughQueryScope() = %s, want film/date scope", got)
+	}
+}
+
 func containsJSONText(data []byte, want string) bool {
 	var decoded any
 	if err := json.Unmarshal(data, &decoded); err != nil {
