@@ -56,11 +56,51 @@ func TestLocalFallbackReasonDoesNotMaskProviderHTTPError(t *testing.T) {
 	}
 }
 
-func TestAddWriteThroughQueryScopeStampsFilmAndDate(t *testing.T) {
+func TestAddMovieGluQueryScopeStampsFilmAndDateForReadsAndSync(t *testing.T) {
 	items := []json.RawMessage{json.RawMessage(`{"cinema_id":9,"cinema_name":"Scoped"}`)}
-	got := addWriteThroughQueryScope("film-show-times", map[string]string{"film_id": "77", "date": "2026-07-24"}, items)
+	// The params shape is shared by resolve reads and sync after sync's user
+	// --param/--resource-param overrides have been applied.
+	got := addMovieGluQueryScope("film-show-times", map[string]string{"film_id": "77", "date": "2026-07-24"}, items)
 	if len(got) != 1 || !containsJSONText(got[0], "77") || !containsJSONText(got[0], "2026-07-24") {
-		t.Fatalf("addWriteThroughQueryScope() = %s, want film/date scope", got)
+		t.Fatalf("addMovieGluQueryScope() = %s, want film/date scope", got)
+	}
+}
+
+func TestSyncedFilmShowTimesRetainScopeForMovieNight(t *testing.T) {
+	db, err := store.Open(t.TempDir() + "/sync.db")
+	if err != nil {
+		t.Fatalf("store.Open() error = %v", err)
+	}
+	defer db.Close()
+
+	apiItems := []json.RawMessage{json.RawMessage(`{"cinema_id":9,"cinema_name":"Synced Cinema","showings":{}}`)}
+	syncParams := map[string]string{"film_id": "77", "date": "2026-07-24"}
+	scopedItems := addMovieGluQueryScope("film-show-times", syncParams, apiItems)
+	if stored, _, err := db.UpsertBatch("film-show-times", scopedItems); err != nil || stored != 1 {
+		t.Fatalf("UpsertBatch() = stored %d, error %v; want one synced row", stored, err)
+	}
+	otherScope := addMovieGluQueryScope("film-show-times", map[string]string{"film_id": "88", "date": "2026-07-25"}, apiItems)
+	if stored, _, err := db.UpsertBatch("film-show-times", otherScope); err != nil || stored != 1 {
+		t.Fatalf("UpsertBatch(other scope) = stored %d, error %v; want one synced row", stored, err)
+	}
+	rows, err := db.List("film-show-times", 0)
+	if err != nil {
+		t.Fatalf("List() error = %v", err)
+	}
+	encoded, err := json.Marshal(rows)
+	if err != nil {
+		t.Fatalf("Marshal(rows) error = %v", err)
+	}
+	var cinemas []movieGluCinema
+	if err := json.Unmarshal(encoded, &cinemas); err != nil {
+		t.Fatalf("Unmarshal(synced rows) error = %v", err)
+	}
+	if len(cinemas) != 2 {
+		t.Fatalf("synced rows = %#v, want same cinema retained under two film/date scopes", cinemas)
+	}
+	filtered := filterLocalMovieNightCinemas(cinemas, 77, "2026-07-24")
+	if len(filtered) != 1 || filtered[0].CinemaID != 9 {
+		t.Fatalf("synced rows after exact filter = %#v, want cinema 9", filtered)
 	}
 }
 

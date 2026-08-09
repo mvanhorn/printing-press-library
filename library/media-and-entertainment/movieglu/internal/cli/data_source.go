@@ -440,16 +440,16 @@ func writeThroughCache(ctx context.Context, resourceType string, data json.RawMe
 	}
 
 	if len(items) > 0 {
-		items = addWriteThroughQueryScope(resourceType, params, items)
+		items = addMovieGluQueryScope(resourceType, params, items)
 		_, _, _ = db.UpsertBatch(resourceType, items)
 	}
 }
 
-// addWriteThroughQueryScope preserves request parameters that define the
+// addMovieGluQueryScope preserves request parameters that define the
 // identity of response rows but are omitted from MovieGlu's cinema-shaped
-// payload. Without this scope, cached showtimes from different films or dates
-// are indistinguishable during an offline read.
-func addWriteThroughQueryScope(resourceType string, params map[string]string, items []json.RawMessage) []json.RawMessage {
+// payload. Both write-through reads and explicit syncs use it so cached
+// showtimes from different films or dates remain distinguishable offline.
+func addMovieGluQueryScope(resourceType string, params map[string]string, items []json.RawMessage) []json.RawMessage {
 	if resourceType != "film-show-times" || strings.TrimSpace(params["film_id"]) == "" || strings.TrimSpace(params["date"]) == "" {
 		return items
 	}
@@ -461,6 +461,7 @@ func addWriteThroughQueryScope(resourceType string, params map[string]string, it
 		}
 		object["_pp_film_id"] = params["film_id"]
 		object["_pp_show_date"] = params["date"]
+		object["_pp_scope"] = params["film_id"] + "|" + params["date"]
 		encoded, err := json.Marshal(object)
 		if err == nil {
 			scoped = append(scoped, encoded)

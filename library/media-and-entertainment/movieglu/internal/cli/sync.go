@@ -613,6 +613,7 @@ func syncResource(ctx context.Context, c interface {
 		fetchedThisPage := len(items)
 		_, hydrationEnabled := itemHydrationPaths[resource]
 		items, hydrateFailures := hydrateScalarItems(ctx, c, resource, items)
+		items = addMovieGluQueryScope(resource, params, items)
 
 		// Batch upsert all items from this page. UpsertBatch returns
 		// (stored, extractFailures, err): stored counts rows actually

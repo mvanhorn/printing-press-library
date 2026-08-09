@@ -1783,7 +1783,9 @@ func (s *Store) UpsertPurchaseConfirmation(data json.RawMessage) error {
 // Includes both flat resources and dependent (parent-child) resources so a
 // child path-item annotated with x-resource-id resolves the same as a flat
 // path-item.
-var resourceIDFieldOverrides = map[string]string{}
+var resourceIDFieldOverrides = map[string]string{
+	"film-show-times": "cinema_id",
+}
 
 // Generic ID fields are split around the resource-specific suffix probe.
 // Stable vendor identifiers win first; then fields derived from the resource
@@ -1800,7 +1802,9 @@ var resourceIDBaseOverrides = map[string]string{}
 // local mirror rows need the parent context in the storage key. Without this,
 // many-to-many sub-collections collapse every parent association onto the
 // child's bare id and silently keep only the last synced parent.
-var resourceParentKeyColumns = map[string][]string{}
+var resourceParentKeyColumns = map[string][]string{
+	"film-show-times": {"_pp_scope"},
+}
 
 // ExtractResourceID resolves the bare resource id field that UpsertBatch
 // extracts from a resource item. For dependent resource types, UpsertBatch
