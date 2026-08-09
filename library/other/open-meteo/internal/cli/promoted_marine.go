@@ -33,7 +33,7 @@ func newMarinePromotedCmd(flags *rootFlags) *cobra.Command {
 		Use:         "marine",
 		Short:       "Marine forecast/historical: waves, swells, sea-surface temperature.",
 		Long:        "Shortcut for 'marine get'. Marine forecast/historical: waves, swells, sea-surface temperature.",
-		Example:     "  open-meteo-pp-cli marine",
+		Example:     "  open-meteo-pp-cli marine --latitude 47.6 --longitude -122.3",
 		Annotations: map[string]string{"pp:endpoint": "marine.get", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("latitude") && !flags.dryRun {

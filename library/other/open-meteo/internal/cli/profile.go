@@ -165,7 +165,9 @@ Explicit flags override profile values.`,
 func newProfileSaveCmd(flags *rootFlags) *cobra.Command {
 	var description string
 	cmd := &cobra.Command{
-		Use:   "save <name> [--<flag> <value> ...]",
+		Use: "save <name> [--<flag> <value> ...]",
+		Example: `  open-meteo-pp-cli profile save my-defaults --json
+  open-meteo-pp-cli profile save tonight-defaults --compact`,
 		Short: "Save the current invocation's non-default flags as a named profile",
 		Long: `Captures every flag explicitly set on the invocation and stores
 them under <name>. To update an existing profile, run save again; the
@@ -213,7 +215,9 @@ present (other than --profile and --config).`,
 
 func newProfileUseCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
-		Use:   "use <name>",
+		Use: "use <name>",
+		Example: `  open-meteo-pp-cli profile use my-defaults
+  open-meteo-pp-cli profile use my-defaults --json`,
 		Short: "Print the flag values a profile will apply (does not execute anything)",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -246,7 +250,9 @@ func newProfileUseCmd(flags *rootFlags) *cobra.Command {
 
 func newProfileListCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
-		Use:   "list",
+		Use: "list",
+		Example: `  open-meteo-pp-cli profile list
+  open-meteo-pp-cli profile list --json`,
 		Short: "List saved profiles",
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			s, err := loadProfileStore()
@@ -283,9 +289,10 @@ func newProfileListCmd(flags *rootFlags) *cobra.Command {
 
 func newProfileShowCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
-		Use:   "show <name>",
-		Short: "Show a profile's values as JSON",
-		Args:  cobra.ExactArgs(1),
+		Use:     "show <name>",
+		Example: `  open-meteo-pp-cli profile show my-defaults`,
+		Short:   "Show a profile's values as JSON",
+		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			p, err := GetProfile(args[0])
 			if err != nil {
@@ -301,9 +308,10 @@ func newProfileShowCmd(flags *rootFlags) *cobra.Command {
 
 func newProfileDeleteCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
-		Use:   "delete <name>",
-		Short: "Remove a profile",
-		Args:  cobra.ExactArgs(1),
+		Use:     "delete <name>",
+		Example: `  open-meteo-pp-cli profile delete my-defaults --yes`,
+		Short:   "Remove a profile",
+		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			name := args[0]
 			s, err := loadProfileStore()

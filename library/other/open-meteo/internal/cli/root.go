@@ -81,17 +81,17 @@ func Execute() error {
 func newRootCmd(flags *rootFlags) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   "open-meteo-pp-cli",
-		Short: `Forecasts, historicals, marine, air quality, flood, climate, ensemble, and seasonal data from Open-Meteo's free tier.`,
-		Long: `Forecasts, historicals, marine, air quality, flood, climate, ensemble, and seasonal data from Open-Meteo's free tier.
+		Short: `Every Open-Meteo endpoint family in one CLI — forecast, archive, marine, air quality, flood, climate, ensemble, seasonal, geocoding, elevation.`,
+		Long: `Every Open-Meteo endpoint family in one CLI — forecast, archive, marine, air quality, flood, climate, ensemble, seasonal, geocoding, elevation.
 
 Highlights (not in the official API docs):
-  • forecast diff   See exactly what changed since the last forecast pull for this location — tempe…
-  • compare   Compare today's weather (or any forecast hour) against the 30-year climate norm…
-  • is-good-for   Verdict (GO / CAUTION / STOP) for surfing, skiing, hiking, running, biking base…
-  • normals   Compute the 30-year (or user-specified) climate normal for any (location, day-o…
-  • panel   One-command snapshot panel for N locations side-by-side — batched in a single O…
-  • accuracy   For any past date, compare what the model predicted (cached snapshot) against w…
-  • weather-mix   Distribution of WMO weather conditions (% clear, % rain, % storms, etc.) over a…
+  • forecast diff   See exactly what changed since the last forecast pull for this location — temperature deltas, new precipitation hours, weather-code shifts.
+  • compare   Compare today's weather (or any forecast hour) against the 30-year climate normal for that date and place.
+  • is-good-for   Verdict (GO / CAUTION / STOP) for surfing, skiing, hiking, running, biking based on combined forecast + marine + air-quality thresholds.
+  • normals   Compute the 30-year (or user-specified) climate normal for any (location, day-of-year, variable) tuple.
+  • panel   One-command snapshot panel for N locations side-by-side — batched in a single Open-Meteo call when possible.
+  • accuracy   For any past date, compare what the model predicted (cached snapshot) against what actually happened (archive ground truth).
+  • weather-mix   Distribution of WMO weather conditions (% clear, % rain, % storms, etc.) over an arbitrary historical window for a place.
 
 Agent mode: add --agent to any command for JSON output + non-interactive mode.
 Health check: run 'open-meteo-pp-cli doctor' to verify auth and connectivity.
@@ -189,7 +189,6 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newFeedbackCmd(flags))
 	rootCmd.AddCommand(newWhichCmd(flags))
 	rootCmd.AddCommand(newExportCmd(flags))
-	rootCmd.AddCommand(newImportCmd(flags))
 	rootCmd.AddCommand(newSyncCmd(flags))
 	rootCmd.AddCommand(newWorkflowCmd(flags))
 	rootCmd.AddCommand(newAPICmd(flags))
@@ -278,7 +277,7 @@ func (f *rootFlags) printTable(w *cobra.Command, headers []string, rows [][]stri
 func newVersionCliCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "version",
-		Short: "Print version",
+		Short: "Print the open-meteo-pp-cli version and build info",
 		Run: func(cmd *cobra.Command, args []string) {
 			fmt.Printf("open-meteo-pp-cli %s\n", version)
 		},

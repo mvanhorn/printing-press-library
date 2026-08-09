@@ -30,7 +30,7 @@ func newAirQualityPromotedCmd(flags *rootFlags) *cobra.Command {
 		Use:         "air-quality",
 		Short:       "Air quality forecast and historical: pollutants, AQI, pollen, UV.",
 		Long:        "Shortcut for 'air-quality get'. Air quality forecast and historical: pollutants, AQI, pollen, UV.",
-		Example:     "  open-meteo-pp-cli air-quality",
+		Example:     "  open-meteo-pp-cli air-quality --latitude 47.6 --longitude -122.3",
 		Annotations: map[string]string{"pp:endpoint": "air-quality.get", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("latitude") && !flags.dryRun {

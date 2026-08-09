@@ -201,14 +201,15 @@ Exit codes & warnings:
 			elapsed := time.Since(started)
 			totalResources := successCount + warnCount + errCount
 			if !humanFriendly {
-				fmt.Fprintf(os.Stderr, `{"event":"sync_summary","total_records":%d,"resources":%d,"success":%d,"warned":%d,"errored":%d,"duration_ms":%d}`+"\n",
+				// Machine mode (default and --json): the sync_summary envelope is
+				// the machine-readable result and must be the only stdout payload.
+				fmt.Fprintf(cmd.OutOrStdout(), `{"event":"sync_summary","total_records":%d,"resources":%d,"success":%d,"warned":%d,"errored":%d,"duration_ms":%d}`+"\n",
 					totalSynced, totalResources, successCount, warnCount, errCount, elapsed.Milliseconds())
-			}
-			if warnCount > 0 {
-				fmt.Fprintf(os.Stderr, "Sync complete: %d records across %d resources (%d warned, %.1fs)\n",
+			} else if warnCount > 0 {
+				fmt.Fprintf(cmd.OutOrStdout(), "Sync complete: %d records across %d resources (%d warned, %.1fs)\n",
 					totalSynced, totalResources, warnCount, elapsed.Seconds())
 			} else {
-				fmt.Fprintf(os.Stderr, "Sync complete: %d records across %d resources (%.1fs)\n",
+				fmt.Fprintf(cmd.OutOrStdout(), "Sync complete: %d records across %d resources (%.1fs)\n",
 					totalSynced, totalResources, elapsed.Seconds())
 			}
 

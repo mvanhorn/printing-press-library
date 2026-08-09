@@ -1,5 +1,7 @@
 package cli
 
+// pp:data-source computed -- derives results from live Open-Meteo API responses
+
 import (
 	"encoding/json"
 	"fmt"
@@ -38,8 +40,11 @@ can override the verdict with custom thresholds.
   open-meteo-pp-cli is-good-for hiking --place "Mt Rainier, WA" --json
   open-meteo-pp-cli is-good-for running --place Seattle --json
 `, "\n"),
-		Args:        cobra.MaximumNArgs(1),
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Args: cobra.MaximumNArgs(1),
+		Annotations: map[string]string{
+			"mcp:read-only": "true",
+			"pp:happy-args": "<activity>=surfing;--place=Seattle",
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()

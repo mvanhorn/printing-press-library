@@ -4,8 +4,6 @@
 
 Comprehensive coverage of Open-Meteo's free, no-API-key tier across all 11 endpoint families. City-name input via integrated geocoding, WMO code humanization, and a local SQLite cache that powers commands no upstream tool can: forecast diff, climate-vs-now compare, activity verdicts, climate normals.
 
-Created by [@tmchow](https://github.com/tmchow) (Trevin Chow).
-
 ## Install
 
 The recommended path installs both the `open-meteo-pp-cli` binary and the `pp-open-meteo` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
@@ -123,21 +121,19 @@ No API key required. The free tier supports up to ~10,000 requests per day for n
 ## Quick Start
 
 ```bash
-# Resolve a place name to coordinates (used by spec-derived commands).
-# Novel commands (panel, compare, normals, weather-mix, forecast diff,
-# accuracy, is-good-for) accept --place natively.
+# Resolve a place name to coordinates first. The novel commands (panel, compare, normals, weather-mix, forecast diff, accuracy, is-good-for) all accept --place natively; spec-derived commands take --latitude/--longitude.
 open-meteo-pp-cli geocode search --name Seattle --count 1 --json
 
-# Current conditions for a city by name (panel takes --place natively).
+# Current conditions for a city by name. Panel batches one or more places by name.
 open-meteo-pp-cli panel --place Seattle --current temperature_2m,weather_code --humanize
 
-# 7-day daily forecast as JSON.
+# 7-day daily forecast as JSON, given lat/lon.
 open-meteo-pp-cli forecast --latitude 47.6062 --longitude -122.3321 --daily temperature_2m_max,temperature_2m_min,precipitation_sum --forecast-days 7 --json
 
 # Historical ERA5 data — works for any date back to 1940.
 open-meteo-pp-cli archive --latitude 47.6062 --longitude -122.3321 --start-date 2024-01-01 --end-date 2024-01-31 --daily temperature_2m_max --json
 
-# Climate-vs-now anomaly: how today compares to the 30-year normal (--place native).
+# Climate-vs-now anomaly: how today compares to the 30-year normal.
 open-meteo-pp-cli compare --place Seattle --metric temperature_2m_mean --years 30 --json
 
 # Side-by-side multi-location panel in one batched call.
@@ -203,6 +199,48 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   open-meteo-pp-cli panel --place Seattle,Berlin,Tokyo --current temperature_2m,wind_speed_10m,weather_code --json
   ```
+
+## Recipes
+
+### Pick a slim forecast slice for an agent
+
+```bash
+open-meteo-pp-cli forecast --latitude 47.6062 --longitude -122.3321 --hourly temperature_2m,precipitation,weather_code --forecast-days 3 --json --select hourly.time,hourly.temperature_2m,hourly.weather_code
+```
+
+Use --select with dotted paths to narrow deeply nested time-series arrays. Open-Meteo responses can be tens of KB; this trims them to the columns you actually need. Resolve city names via 'geocode search' first or use the novel commands (panel, compare, weather-mix, ...) which accept --place directly.
+
+### Diff what changed in tomorrow's forecast
+
+```bash
+open-meteo-pp-cli forecast diff --place Seattle --json
+```
+
+Compares the current forecast against the cached prior pull for this place and emits only the changed hours.
+
+### Anomaly check: is this temperature unusual?
+
+```bash
+open-meteo-pp-cli compare --place Seattle --metric temperature_2m_mean --years 30 --json
+```
+
+Joins the 30-year ERA5 archive normal for the date and place against the current forecast.
+
+### Side-by-side panel for travel planning
+
+```bash
+open-meteo-pp-cli panel --place "Seattle,Berlin,Tokyo" --current temperature_2m,weather_code --json
+```
+
+Open-Meteo accepts comma-separated coords natively; the CLI batches the call and labels each result by place.
+
+### How often does it rain in October in Seattle?
+
+```bash
+open-meteo-pp-cli weather-mix --place Seattle --start-date 2024-10-01 --end-date 2024-10-31 --json
+```
+
+Aggregates archive hourly WMO codes into a category histogram (% clear / % rain / % storms / etc.).
 
 ## Usage
 
@@ -330,13 +368,10 @@ Config file: `~/.config/open-meteo-pp-cli/config.toml`
 - Run the `list` command to see available items
 
 ### API-specific
-
 - **429 "Daily API request limit exceeded"** — Free tier caps ~10k/day, 5k/hr, 600/min. Wait, or set OPEN_METEO_API_KEY for the customer tier.
 - **"reason":"Cannot initialize a Float from invalid Float value 'nan'"** — Some variables are missing for some hours (e.g., night-time UV). Drop the variable or filter: --select hourly.time,hourly.temperature_2m
 - **Place name returns wrong location** — Disambiguate with comma-separated context: --place "Springfield, IL, US". Or look up by ID: open-meteo-pp-cli geocode search Springfield --count 10
 - **Hourly arrays look misaligned** — All hourly/daily arrays index-align with .time. Use --select hourly.time,hourly.temperature_2m to keep them paired in agent output.
-
----
 
 ## Sources & Inspiration
 

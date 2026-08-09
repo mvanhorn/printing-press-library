@@ -175,6 +175,8 @@ maintainer sees it.`,
 	cmd.Flags().BoolVar(&useStdin, "stdin", false, "Read feedback body from stdin rather than arguments")
 	cmd.Flags().BoolVar(&send, "send", false, "POST to the configured feedback endpoint in addition to local write")
 
+	cmd.Example = `  open-meteo-pp-cli feedback list
+  open-meteo-pp-cli feedback list --limit 5`
 	cmd.AddCommand(newFeedbackListCmd(flags))
 	return cmd
 }
@@ -184,6 +186,9 @@ func newFeedbackListCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "list",
 		Short: "List recent feedback entries",
+		Example: `  open-meteo-pp-cli feedback list --limit 5
+  open-meteo-pp-cli feedback list --json`,
+
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			p, err := feedbackFilePath()
 			if err != nil {

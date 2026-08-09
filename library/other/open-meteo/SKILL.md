@@ -29,13 +29,11 @@ This skill drives the `open-meteo-pp-cli` binary. **You must verify the CLI is i
 2. Verify: `open-meteo-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.5 or newer):
-
-```bash
-go install github.com/mvanhorn/printing-press-library/library/other/open-meteo/cmd/open-meteo-pp-cli@latest
-```
+If the `npx` install fails before this CLI has a public-library category, install Node or use the category-specific Go fallback after publish.
 
 If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
+
+Comprehensive coverage of Open-Meteo's free, no-API-key tier across all 11 endpoint families. City-name input via integrated geocoding, WMO code humanization, and a local SQLite cache that powers commands no upstream tool can: forecast diff, climate-vs-now compare, activity verdicts, climate normals.
 
 ## When to Use This CLI
 
@@ -166,14 +164,13 @@ open-meteo-pp-cli which "<capability in your own words>"
 
 ## Recipes
 
-
 ### Pick a slim forecast slice for an agent
 
 ```bash
 open-meteo-pp-cli forecast --latitude 47.6062 --longitude -122.3321 --hourly temperature_2m,precipitation,weather_code --forecast-days 3 --json --select hourly.time,hourly.temperature_2m,hourly.weather_code
 ```
 
-Use --select with dotted paths to narrow deeply nested time-series arrays. Open-Meteo responses can be tens of KB; this trims them to the columns you actually need.
+Use --select with dotted paths to narrow deeply nested time-series arrays. Open-Meteo responses can be tens of KB; this trims them to the columns you actually need. Resolve city names via 'geocode search' first or use the novel commands (panel, compare, weather-mix, ...) which accept --place directly.
 
 ### Diff what changed in tomorrow's forecast
 
@@ -209,7 +206,7 @@ Aggregates archive hourly WMO codes into a category histogram (% clear / % rain 
 
 ## Auth Setup
 
-No authentication required.
+No API key required. The free tier supports up to ~10,000 requests per day for non-commercial use. If you have an Open-Meteo customer-tier subscription, set OPEN_METEO_API_KEY in the environment and the CLI auto-routes to customer-*.open-meteo.com with the apikey appended — same commands, same flags, higher limits, commercial use allowed.
 
 Run `open-meteo-pp-cli doctor` to verify setup.
 

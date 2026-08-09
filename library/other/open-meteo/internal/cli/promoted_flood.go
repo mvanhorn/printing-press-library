@@ -28,7 +28,7 @@ func newFloodPromotedCmd(flags *rootFlags) *cobra.Command {
 		Use:         "flood",
 		Short:       "Daily river discharge forecasts and historicals from GloFAS.",
 		Long:        "Shortcut for 'flood get'. Daily river discharge forecasts and historicals from GloFAS.",
-		Example:     "  open-meteo-pp-cli flood",
+		Example:     "  open-meteo-pp-cli flood --latitude 47.6 --longitude -122.3",
 		Annotations: map[string]string{"pp:endpoint": "flood.get", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("latitude") && !flags.dryRun {

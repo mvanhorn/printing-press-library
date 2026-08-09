@@ -30,7 +30,7 @@ func newSeasonalPromotedCmd(flags *rootFlags) *cobra.Command {
 		Use:         "seasonal",
 		Short:       "9-month seasonal forecast at six-hourly resolution. Default model is NCEP CFSv2.",
 		Long:        "Shortcut for 'seasonal get'. 9-month seasonal forecast at six-hourly resolution. Default model is NCEP CFSv2.",
-		Example:     "  open-meteo-pp-cli seasonal",
+		Example:     "  open-meteo-pp-cli seasonal --latitude 47.6 --longitude -122.3",
 		Annotations: map[string]string{"pp:endpoint": "seasonal.get", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("latitude") && !flags.dryRun {

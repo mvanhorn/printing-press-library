@@ -1,5 +1,7 @@
 package cli
 
+// pp:data-source live -- fetches live data from multiple Open-Meteo APIs
+
 import (
 	"encoding/json"
 	"fmt"

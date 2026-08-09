@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "generated_at": "2026-05-02T23:43:19.364863Z",
   "printing_press_version": "3.6.1",
   "api_name": "open-meteo",
@@ -9,13 +9,20 @@
     "handle": "tmchow",
     "name": "Trevin Chow"
   },
+  "contributors": [
+    {
+      "handle": "carmelo-ienco",
+      "name": "Carmelo Ienco"
+    }
+  ],
   "printer": "tmchow",
   "printer_name": "Trevin Chow",
   "spec_path": "/Users/tmchow/printing-press/.runstate/nifty-nibbling-toucan-ab654d77/runs/20260502-155141/research/open-meteo-spec.yaml",
   "spec_format": "internal",
   "spec_checksum": "sha256:7596374aa55bc8956aa988381c666dcbd3390f7b1def57c4aa9c7c89315819b4",
   "run_id": "20260502-155141",
-  "description": "Forecasts, historicals, marine, air quality, flood, climate, ensemble, and seasonal data from Open-Meteo's free tier.",
+  "category": "other",
+  "description": "Every Open-Meteo endpoint family in one CLI — forecast, archive, marine, air quality, flood, climate, ensemble, seasonal, geocoding, elevation.",
   "mcp_binary": "open-meteo-pp-mcp",
   "mcp_tool_count": 11,
   "mcp_public_tool_count": 11,

@@ -1,0 +1,1312 @@
+{
+  "dir": "/Users/carmelo/printing-press/library/open-meteo",
+  "binary": "/Users/carmelo/printing-press/library/open-meteo/open-meteo-pp-cli",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 83,
+  "passed": 83,
+  "failed": 0,
+  "skipped": 38,
+  "unverified": 38,
+  "pass_rate": 100,
+  "commands": [
+    "accuracy",
+    "air-quality",
+    "api",
+    "archive",
+    "climate",
+    "compare",
+    "doctor",
+    "elevation",
+    "ensemble",
+    "export",
+    "feedback list",
+    "flood",
+    "forecast diff",
+    "geocode get",
+    "geocode search",
+    "is-good-for",
+    "marine",
+    "normals",
+    "panel",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "seasonal",
+    "sync",
+    "weather-mix",
+    "which",
+    "workflow archive",
+    "workflow status"
+  ],
+  "tests": [
+    {
+      "command": "accuracy",
+      "kind": "help",
+      "args": [
+        "accuracy",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "For a past date, compare the forecast that was cached at that time (via\n'forecast diff' or any other forecast call) against the archive ground truth\nfor the same date.\n\nWithout a cached forecast snapshot for the place, the command falls back to\n\"reforecast\" mode: it calls the archive endpoint twice — once for the target\ndate, once for the day before — and reports the day-over-day delta as a\nsanity-check baseline.\n\nUsage:\n  open-meteo-pp-cli accuracy [flags]\n\nExamples:\n  open-meteo-pp-cli accuracy --place Seattle --date 2025-12-25 --variable temperature_2m_max --json\n\nFlags:\n      --date string        Past date to evaluate (YYYY-MM-DD). Required.\n  -h, --help               help for accuracy\n      --latitude string    WGS84 latitude (alternative to --place).\n      --longitude string   WGS84 longitude (alternative to --place).\n      --place string       Place name (e.g., \"Seattle\").\n      --variable string    Daily variable to score (temperature_2m_max, precipitation_sum, ...). (default \"temperature_2m_max\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'open-meteo-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "accuracy",
+      "kind": "happy_path",
+      "args": [
+        "accuracy",
+        "--place",
+        "Seattle",
+        "--date",
+        "2025-12-25",
+        "--variable",
+        "temperature_2m_max",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"date\": \"2025-12-25\",\n  \"mode\": \"reforecast\",\n  \"note\": \"no prior snapshot — ran reforecast baseline (day-over-day delta)\",\n  \"place\": \"Seattle\",\n  \"truth\": 6.7,\n  \"variable\": \"temperature_2m_max\"\n}\n"
+    },
+    {
+      "command": "accuracy",
+      "kind": "json_fidelity",
+      "args": [
+        "accuracy",
+        "--place",
+        "Seattle",
+        "--date",
+        "2025-12-25",
+        "--variable",
+        "temperature_2m_max",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"date\": \"2025-12-25\",\n  \"mode\": \"reforecast\",\n  \"note\": \"no prior snapshot — ran reforecast baseline (day-over-day delta)\",\n  \"place\": \"Seattle\",\n  \"truth\": 6.7,\n  \"variable\": \"temperature_2m_max\"\n}\n"
+    },
+    {
+      "command": "accuracy",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "air-quality",
+      "kind": "help",
+      "args": [
+        "air-quality",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Shortcut for 'air-quality get'. Air quality forecast and historical: pollutants, AQI, pollen, UV.\n\nUsage:\n  open-meteo-pp-cli air-quality [flags]\n\nExamples:\n  open-meteo-pp-cli air-quality --latitude 47.6 --longitude -122.3\n\nFlags:\n      --current string       Current air-quality variables.\n      --domains string       Air-quality model domain. (one of: auto, cams_global, cams_europe, gfs_aerosol)\n      --end-date string      End date.\n      --forecast-days int    Forecast days (1-7).\n      --forecast-hours int   Forecast hours.\n  -h, --help                 help for air-quality\n      --hourly string        Hourly variables (pm10,pm2_5,carbon_monoxide,nitrogen_dioxide,ozone,sulphur_dioxide,uv_index,uv_index_clear_sky,europ...\n      --latitude string      WGS84 latitude. Comma-separated for batch.\n      --longitude string     WGS84 longitude. Comma-separated for batch.\n      --past-days int        Include past days.\n      --past-hours int       Past hours.\n      --start-date string    Start date.\n      --timeformat string    Time output format. (one of: iso8601, unixtime) (default \"iso8601\")\n      --timezone string      Named timezone, auto, or UTC.\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'open-meteo-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "air-quality",
+      "kind": "happy_path",
+      "args": [
+        "air-quality",
+        "--latitude",
+        "47.6",
+        "--longitude=-122.3"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"latitude\": 47.600006,\n    \"longitude\": -122.3,\n    \"generationtime_ms\": 0.004887580871582031,\n    \"utc_offset_seconds\": 0,\n    \"timezone\": \"GMT\",\n    \"timezone_abbreviation\": \"GMT\",\n    \"elevation\": 93.0\n  }\n}\n"
+    },
+    {
+      "command": "air-quality",
+      "kind": "json_fidelity",
+      "args": [
+        "air-quality",
+        "--latitude",
+        "47.6",
+        "--longitude=-122.3",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"latitude\": 47.600006,\n    \"longitude\": -122.3,\n    \"generationtime_ms\": 0.009417533874511719,\n    \"utc_offset_seconds\": 0,\n    \"timezone\": \"GMT\",\n    \"timezone_abbreviation\": \"GMT\",\n    \"elevation\": 93.0\n  }\n}\n"
+    },
+    {
+      "command": "air-quality",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  open-meteo-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  open-meteo-pp-cli api\n\n  # Show methods for a specific interface\n  open-meteo-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'open-meteo-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'open-meteo-pp-cli api' to list all interfaces\ninterface \"__printing_press_invalid__\" not found. Run 'open-meteo-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "archive",
+      "kind": "help",
+      "args": [
+        "archive",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Shortcut for 'archive get'. Historical hourly/daily weather observations from ERA5 (1940 to ~5 days ago).\n\nUsage:\n  open-meteo-pp-cli archive [flags]\n\nExamples:\n  open-meteo-pp-cli archive --latitude 47.6 --longitude -122.3 --start-date 2024-01-01 --end-date 2024-01-31\n\nFlags:\n      --cell-selection string       Grid cell selection preference. (one of: land, sea, nearest)\n      --daily string                Comma-separated daily aggregates.\n      --end-date string             Archive end date (YYYY-MM-DD). Latest ~5 days ago.\n  -h, --help                        help for archive\n      --hourly string               Comma-separated hourly variables.\n      --latitude string             WGS84 latitude in degrees. Comma-separated for batch.\n      --longitude string            WGS84 longitude in degrees. Comma-separated for batch.\n      --models string               Comma-separated archive models (era5_seamless, era5, era5_land, ecmwf_ifs, cerra).\n      --precipitation-unit string   Precipitation unit. (one of: mm, inch) (default \"mm\")\n      --start-date string           Archive start date (YYYY-MM-DD). Earliest 1940-01-01.\n      --temperature-unit string     Temperature unit. (one of: celsius, fahrenheit) (default \"celsius\")\n      --timeformat string           Time output format. (one of: iso8601, unixtime) (default \"iso8601\")\n      --timezone string             Named timezone, auto, or UTC.\n      --wind-speed-unit string      Wind speed unit. (one of: kmh, ms, mph, kn) (default \"kmh\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'open-meteo-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "archive",
+      "kind": "happy_path",
+      "args": [
+        "archive",
+        "--latitude",
+        "47.6",
+        "--longitude=-122.3",
+        "--start-date",
+        "2024-01-01",
+        "--end-date",
+        "2024-01-31"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"latitude\": 47.627415,\n    \"longitude\": -122.32291,\n    \"generationtime_ms\": 0.0016689300537109375,\n    \"utc_offset_seconds\": 0,\n    \"timezone\": \"GMT\",\n    \"timezone_abbreviation\": \"GMT\",\n    \"elevation\": 93.0\n  }\n}\n"
+    },
+    {
+      "command": "archive",
+      "kind": "json_fidelity",
+      "args": [
+        "archive",
+        "--latitude",
+        "47.6",
+        "--longitude=-122.3",
+        "--start-date",
+        "2024-01-01",
+        "--end-date",
+        "2024-01-31",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"latitude\": 47.627415,\n    \"longitude\": -122.32291,\n    \"generationtime_ms\": 0.0021457672119140625,\n    \"utc_offset_seconds\": 0,\n    \"timezone\": \"GMT\",\n    \"timezone_abbreviation\": \"GMT\",\n    \"elevation\": 93.0\n  }\n}\n"
+    },
+    {
+      "command": "archive",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "climate",
+      "kind": "help",
+      "args": [
+        "climate",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Shortcut for 'climate get'. Daily CMIP6 climate projections for any (lat, lon) under SSP scenarios. Models include EC_Earth3P_HR, CMCC_CM2_VHR4,...\n\nUsage:\n  open-meteo-pp-cli climate [flags]\n\nExamples:\n  open-meteo-pp-cli climate --latitude 47.6 --longitude -122.3 --start-date 2050-01-01 --end-date 2050-12-31\n\nFlags:\n      --daily string                Daily climate variables (temperature_2m_mean,temperature_2m_max,temperature_2m_min,precipitation_sum,relative_humidit...\n      --disable-bias-correction     Disable bias correction (default false).\n      --end-date string             Climate end date (YYYY-MM-DD). 1950 to 2050.\n  -h, --help                        help for climate\n      --latitude string             WGS84 latitude.\n      --longitude string            WGS84 longitude.\n      --models string               Comma-separated CMIP6 models (EC_Earth3P_HR,CMCC_CM2_VHR4,MRI_AGCM3_2_S,MPI_ESM1_2_XR,FGOALS_f3_H,NICAM16_8S,HiRAM_SI...\n      --precipitation-unit string   Precipitation unit. (one of: mm, inch) (default \"mm\")\n      --start-date string           Climate start date (YYYY-MM-DD). 1950 to 2050.\n      --temperature-unit string     Temperature unit. (one of: celsius, fahrenheit) (default \"celsius\")\n      --timeformat string           Time output format. (one of: iso8601, unixtime) (default \"iso8601\")\n      --wind-speed-unit string      Wind speed unit. (one of: kmh, ms, mph, kn) (default \"kmh\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'open-meteo-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "climate",
+      "kind": "happy_path",
+      "args": [
+        "climate",
+        "--latitude",
+        "47.6",
+        "--longitude=-122.3",
+        "--start-date",
+        "2050-01-01",
+        "--end-date",
+        "2050-12-31"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"latitude\": 47.600006,\n    \"longitude\": -122.3,\n    \"generationtime_ms\": 0.004172325134277344,\n    \"utc_offset_seconds\": 0,\n    \"timezone\": \"GMT\",\n    \"timezone_abbreviation\": \"GMT\",\n    \"elevation\": 93.0\n  }\n}\n"
+    },
+    {
+      "command": "climate",
+      "kind": "json_fidelity",
+      "args": [
+        "climate",
+        "--latitude",
+        "47.6",
+        "--longitude=-122.3",
+        "--start-date",
+        "2050-01-01",
+        "--end-date",
+        "2050-12-31",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"latitude\": 47.600006,\n    \"longitude\": -122.3,\n    \"generationtime_ms\": 0.00286102294921875,\n    \"utc_offset_seconds\": 0,\n    \"timezone\": \"GMT\",\n    \"timezone_abbreviation\": \"GMT\",\n    \"elevation\": 93.0\n  }\n}\n"
+    },
+    {
+      "command": "climate",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "compare",
+      "kind": "help",
+      "args": [
+        "compare",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Pulls the same calendar date from the ERA5 archive across the last N years for a\ngiven place, computes the mean and the historical range, then compares the\ncurrent forecast (or a target date's archive value) against that baseline.\n\nOutput includes the absolute value, the historical mean, the anomaly (delta),\nand a percentile-style classification.\n\nUsage:\n  open-meteo-pp-cli compare [flags]\n\nExamples:\n  open-meteo-pp-cli compare --place Seattle --metric temperature_2m_mean --years 30 --json\n  open-meteo-pp-cli compare --place Berlin --metric precipitation_sum --years 20 --date 2025-12-25 --json\n\nFlags:\n      --date string        Compare against a specific date (YYYY-MM-DD). Defaults to today's forecast.\n  -h, --help               help for compare\n      --latitude string    WGS84 latitude (alternative to --place).\n      --longitude string   WGS84 longitude (alternative to --place).\n      --metric string      Daily metric to compare (temperature_2m_mean, temperature_2m_max, temperature_2m_min, precipitation_sum, ...). (default \"temperature_2m_mean\")\n      --place string       Place name (e.g., \"Seattle\").\n      --years int          Number of past years to use for the normal (default 30). (default 30)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'open-meteo-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "compare",
+      "kind": "happy_path",
+      "args": [
+        "compare",
+        "--place",
+        "Seattle",
+        "--metric",
+        "temperature_2m_mean",
+        "--years",
+        "30",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"anomaly\": -0.9200000000000053,\n  \"classification\": \"near_normal\",\n  \"current\": 18.5,\n  \"current_source\": \"forecast\",\n  \"date\": \"2026-08-09\",\n  \"latitude\": 47.60621,\n  \"longitude\": -122.33207,\n  \"metric\": \"temperature_2m_mean\",\n  \"normal_max\": 22.4,\n  \"normal_mean\": 19.420000000000005,\n  \"normal_min\": 16.1,\n  \"normal_years\": 30,\n  \"per_year_samples\": {\n    \"1996\": 21.6,\n    \"1997\": 20,\n    \"1998\": 19.7,\n    \"1999\": 19,\n    \"2000\": 20.3,\n    \"2001\": 21.2,\n    \"2002\": 19.5,\n    \"2003\": 19,\n    \"2004\": 21.8,\n    \"2005\": 20.7,\n    \"2006\": 18.1,\n    \"2007\": 16.5,\n    \"2008\": 16.5,\n    \"2009\": 19,\n    \"2010\": 16.1,\n    \"2011\": 16.7,\n    \"2012\": 18.1,\n    \"2013\": 22.1,\n    \"2014\": 19.5,\n    \"2015\": 20.7,\n    \"2016\": 16.9,\n    \"2017\": 21.2,\n    \"2018\": 22.4,\n    \"2019\": 18.7,\n    \"2020\": 17.6,\n    \"2021\": 19,\n    \"2022\": 20,\n    \"2023\": 19.6,\n    \"2024\": 22,\n    \"2025\": 19.1\n  },\n  \"place\": \"Seattle\"\n}\n"
+    },
+    {
+      "command": "compare",
+      "kind": "json_fidelity",
+      "args": [
+        "compare",
+        "--place",
+        "Seattle",
+        "--metric",
+        "temperature_2m_mean",
+        "--years",
+        "30",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"anomaly\": -0.9200000000000053,\n  \"classification\": \"near_normal\",\n  \"current\": 18.5,\n  \"current_source\": \"forecast\",\n  \"date\": \"2026-08-09\",\n  \"latitude\": 47.60621,\n  \"longitude\": -122.33207,\n  \"metric\": \"temperature_2m_mean\",\n  \"normal_max\": 22.4,\n  \"normal_mean\": 19.420000000000005,\n  \"normal_min\": 16.1,\n  \"normal_years\": 30,\n  \"per_year_samples\": {\n    \"1996\": 21.6,\n    \"1997\": 20,\n    \"1998\": 19.7,\n    \"1999\": 19,\n    \"2000\": 20.3,\n    \"2001\": 21.2,\n    \"2002\": 19.5,\n    \"2003\": 19,\n    \"2004\": 21.8,\n    \"2005\": 20.7,\n    \"2006\": 18.1,\n    \"2007\": 16.5,\n    \"2008\": 16.5,\n    \"2009\": 19,\n    \"2010\": 16.1,\n    \"2011\": 16.7,\n    \"2012\": 18.1,\n    \"2013\": 22.1,\n    \"2014\": 19.5,\n    \"2015\": 20.7,\n    \"2016\": 16.9,\n    \"2017\": 21.2,\n    \"2018\": 22.4,\n    \"2019\": 18.7,\n    \"2020\": 17.6,\n    \"2021\": 19,\n    \"2022\": 20,\n    \"2023\": 19.6,\n    \"2024\": 22,\n    \"2025\": 19.1\n  },\n  \"place\": \"Seattle\"\n}\n"
+    },
+    {
+      "command": "compare",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  open-meteo-pp-cli doctor [flags]\n\nExamples:\n  open-meteo-pp-cli doctor\n  open-meteo-pp-cli doctor --json\n  open-meteo-pp-cli doctor --fail-on stale\n\nFlags:\n      --fail-on string   Exit non-zero when a health level is reached: stale, error. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'open-meteo-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  OK Auth: not required\n  OK API: reachable (HTTP 400 at /)\n  config_path: /var/folders/j0/6bljx7ys3dx_1rzpvc_l_43w0000gn/T/printing-press-subprocess-2899572285/.config/open-meteo-pp-cli/config.toml\n  base_url: https://api.open-meteo.com\n  version: 2026.7.1\n  INFO Cache: unknown\n    db_path: /var/folders/j0/6bljx7ys3dx_1rzpvc_l_43w0000gn/T/printing-press-subprocess-2899572285/.local/share/open-meteo-pp-cli/data.db\n    schema_version: 1\n    db_bytes: 131072\n    stale_after: 6h0m0s\n    hint: sync_state is empty; run 'open-meteo-pp-cli sync' to hydrate.\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"api\": \"reachable (HTTP 400 at /)\",\n  \"auth\": \"not required\",\n  \"base_url\": \"https://api.open-meteo.com\",\n  \"cache\": {\n    \"db_bytes\": 131072,\n    \"db_path\": \"/var/folders/j0/6bljx7ys3dx_1rzpvc_l_43w0000gn/T/printing-press-subprocess-2899572285/.local/share/open-meteo-pp-cli/data.db\",\n    \"hint\": \"sync_state is empty; run 'open-meteo-pp-cli sync' to hydrate.\",\n    \"resources\": null,\n    \"schema_version\": 1,\n    \"stale_after\": \"6h0m0s\",\n    \"status\": \"unknown\"\n  },\n  \"config\": \"ok\",\n  \"config_path\": \"/var/folders/j0/6bljx7ys3dx_1rzpvc_l_43w0000gn/T/printing-press-subprocess-2899572285/.config/open-meteo-pp-cli/config.toml\",\n  \"version\": \"2026.7.1\"\n}\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "elevation",
+      "kind": "help",
+      "args": [
+        "elevation",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Shortcut for 'elevation get'. Lookup elevation in meters for one or more coordinate pairs (up to 100).\n\nUsage:\n  open-meteo-pp-cli elevation [flags]\n\nExamples:\n  open-meteo-pp-cli elevation --latitude 47.6 --longitude -122.3\n\nFlags:\n  -h, --help               help for elevation\n      --latitude string    WGS84 latitude. Comma-separated for batch (up to 100 values).\n      --longitude string   WGS84 longitude. Comma-separated for batch (up to 100 values).\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'open-meteo-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "elevation",
+      "kind": "happy_path",
+      "args": [
+        "elevation",
+        "--latitude",
+        "47.6",
+        "--longitude=-122.3"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"elevation\": [\n      93.0\n    ]\n  }\n}\n"
+    },
+    {
+      "command": "elevation",
+      "kind": "json_fidelity",
+      "args": [
+        "elevation",
+        "--latitude",
+        "47.6",
+        "--longitude=-122.3",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"elevation\": [\n      93.0\n    ]\n  }\n}\n"
+    },
+    {
+      "command": "elevation",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "ensemble",
+      "kind": "help",
+      "args": [
+        "ensemble",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Shortcut for 'ensemble get'. Hourly ensemble forecasts; returns all ensemble members so you can quantify uncertainty.\n\nUsage:\n  open-meteo-pp-cli ensemble [flags]\n\nExamples:\n  open-meteo-pp-cli ensemble --latitude 47.6 --longitude -122.3\n\nFlags:\n      --cell-selection string       Grid cell selection. (one of: land, sea, nearest)\n      --end-date string             End date.\n      --forecast-days int           Forecast days.\n      --forecast-hours int          Forecast hours.\n  -h, --help                        help for ensemble\n      --hourly string               Hourly variables (one per ensemble member returned).\n      --latitude string             WGS84 latitude.\n      --longitude string            WGS84 longitude.\n      --models string               Comma-separated ensemble models (icon_seamless, icon_global, gfs_seamless, gfs025, gfs05, ecmwf_ifs025, ecmwf_ifs04,...\n      --past-days int               Past days.\n      --past-hours int              Past hours.\n      --precipitation-unit string   Precipitation unit. (one of: mm, inch) (default \"mm\")\n      --start-date string           Start date.\n      --temperature-unit string     Temperature unit. (one of: celsius, fahrenheit) (default \"celsius\")\n      --timeformat string           Time output format. (one of: iso8601, unixtime) (default \"iso8601\")\n      --timezone string             Named timezone, auto, or UTC.\n      --wind-speed-unit string      Wind speed unit. (one of: kmh, ms, mph, kn) (default \"kmh\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'open-meteo-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "ensemble",
+      "kind": "happy_path",
+      "args": [
+        "ensemble",
+        "--latitude",
+        "47.6",
+        "--longitude=-122.3"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"latitude\": 47.5,\n    \"longitude\": -122.25,\n    \"generationtime_ms\": 0.010728836059570312,\n    \"utc_offset_seconds\": 0,\n    \"timezone\": \"GMT\",\n    \"timezone_abbreviation\": \"GMT\",\n    \"elevation\": 93.0\n  }\n}\n"
+    },
+    {
+      "command": "ensemble",
+      "kind": "json_fidelity",
+      "args": [
+        "ensemble",
+        "--latitude",
+        "47.6",
+        "--longitude=-122.3",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"latitude\": 47.5,\n    \"longitude\": -122.25,\n    \"generationtime_ms\": 0.0020265579223632812,\n    \"utc_offset_seconds\": 0,\n    \"timezone\": \"GMT\",\n    \"timezone_abbreviation\": \"GMT\",\n    \"elevation\": 93.0\n  }\n}\n"
+    },
+    {
+      "command": "ensemble",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "export",
+      "kind": "help",
+      "args": [
+        "export",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Export paginated API data to a local file. Supports JSONL (one JSON object\nper line, streaming-friendly) and JSON (array). JSONL is recommended for\nlarge datasets as it has no memory pressure.\n\nUsage:\n  open-meteo-pp-cli export \u003cresource\u003e [id] [flags]\n\nExamples:\n  # Export all items as JSONL (streaming, recommended for large datasets)\n  open-meteo-pp-cli export \u003cresource\u003e --format jsonl --output data.jsonl\n\n  # Export with limit\n  open-meteo-pp-cli export \u003cresource\u003e --format jsonl --limit 1000\n\n  # Pipe to another tool\n  open-meteo-pp-cli export \u003cresource\u003e --format jsonl | jq '.id'\n\nFlags:\n      --format string   Output format: jsonl or json (default \"jsonl\")\n  -h, --help            help for export\n      --limit int       Maximum records to export (0 = unlimited)\n      --no-cache        Bypass response cache for fresh data\n  -o, --output string   Output file path (default: stdout)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'open-meteo-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "export",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [export] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "export",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [export] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "export",
+      "kind": "error_path",
+      "args": [
+        "export",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /__printing_press_invalid__ returned HTTP 404: {\"error\":true,\"reason\":\"Not Found\"}\nhint: resource not found. Run the 'list' command to see available items\nGET /__printing_press_invalid__ returned HTTP 404: {\"error\":true,\"reason\":\"Not Found\"}\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  open-meteo-pp-cli feedback list [flags]\n\nExamples:\n  open-meteo-pp-cli feedback list --limit 5\n  open-meteo-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'open-meteo-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list",
+        "--limit",
+        "5"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--limit",
+        "5",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "flood",
+      "kind": "help",
+      "args": [
+        "flood",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Shortcut for 'flood get'. Daily river discharge forecasts and historicals from GloFAS.\n\nUsage:\n  open-meteo-pp-cli flood [flags]\n\nExamples:\n  open-meteo-pp-cli flood --latitude 47.6 --longitude -122.3\n\nFlags:\n      --cell-selection string   Grid cell selection. (one of: land, sea, nearest)\n      --daily string            Daily flood variables (river_discharge,river_discharge_mean,river_discharge_median,river_discharge_max,river_discharg...\n      --end-date string         End date.\n      --ensemble                Return all ensemble members.\n      --forecast-days int       Forecast days (1-210).\n  -h, --help                    help for flood\n      --latitude string         WGS84 latitude.\n      --longitude string        WGS84 longitude.\n      --models string           GloFAS model versions (forecast_v3, forecast_v4, seamless_v3, seamless_v4).\n      --past-days int           Include past days.\n      --start-date string       Start date.\n      --timeformat string       Time output format. (one of: iso8601, unixtime) (default \"iso8601\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'open-meteo-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "flood",
+      "kind": "happy_path",
+      "args": [
+        "flood",
+        "--latitude",
+        "47.6",
+        "--longitude=-122.3"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"latitude\": 47.625,\n    \"longitude\": -122.325,\n    \"generationtime_ms\": 0.0050067901611328125,\n    \"utc_offset_seconds\": 0,\n    \"timezone\": \"GMT\",\n    \"timezone_abbreviation\": \"GMT\",\n    \"elevation\": 93.0\n  }\n}\n"
+    },
+    {
+      "command": "flood",
+      "kind": "json_fidelity",
+      "args": [
+        "flood",
+        "--latitude",
+        "47.6",
+        "--longitude=-122.3",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"latitude\": 47.625,\n    \"longitude\": -122.325,\n    \"generationtime_ms\": 0.004887580871582031,\n    \"utc_offset_seconds\": 0,\n    \"timezone\": \"GMT\",\n    \"timezone_abbreviation\": \"GMT\",\n    \"elevation\": 93.0\n  }\n}\n"
+    },
+    {
+      "command": "flood",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "forecast diff",
+      "kind": "help",
+      "args": [
+        "forecast",
+        "diff",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Pull the current forecast for a place and compare it against the snapshot saved\non the last invocation. Returns the changed hours/days for each variable that\nmoved by more than --threshold.\n\nThe first invocation for a place stores a baseline and reports \"no prior\nsnapshot.\" Subsequent runs report deltas and update the baseline.\n\nUsage:\n  open-meteo-pp-cli forecast diff [flags]\n\nExamples:\n  open-meteo-pp-cli forecast diff --place Seattle --hourly temperature_2m,precipitation --json\n  open-meteo-pp-cli forecast diff --place Berlin --daily temperature_2m_max,precipitation_sum --threshold 0.5 --json\n\nFlags:\n      --current string     Comma-separated current variables.\n      --daily string       Comma-separated daily variables.\n  -h, --help               help for diff\n      --hourly string      Comma-separated hourly variables (defaults to temperature_2m,precipitation,weather_code).\n      --latitude string    WGS84 latitude (alternative to --place).\n      --longitude string   WGS84 longitude (alternative to --place).\n      --place string       Place name (e.g., \"Seattle\").\n      --threshold float    Minimum absolute change to report. 0 reports any change.\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'open-meteo-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "forecast diff",
+      "kind": "happy_path",
+      "args": [
+        "forecast",
+        "diff",
+        "--place",
+        "Seattle",
+        "--hourly",
+        "temperature_2m,precipitation",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"fetched_at\": \"2026-08-09T09:25:18Z\",\n  \"latitude\": 47.60621,\n  \"longitude\": -122.33207,\n  \"note\": \"Baseline saved. Re-run later to see what changed.\",\n  \"place\": \"Seattle\",\n  \"status\": \"no_prior_snapshot\",\n  \"threshold\": 0\n}\n"
+    },
+    {
+      "command": "forecast diff",
+      "kind": "json_fidelity",
+      "args": [
+        "forecast",
+        "diff",
+        "--place",
+        "Seattle",
+        "--hourly",
+        "temperature_2m,precipitation",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"changes\": [\n    {\n      \"block\": \"hourly\",\n      \"curr\": 17.9,\n      \"delta\": 0,\n      \"prev\": 17.9,\n      \"time\": \"2026-08-09T00:00\",\n      \"variable\": \"temperature_2m\"\n    },\n    {\n      \"block\": \"hourly\",\n      \"curr\": 16.6,\n      \"delta\": 0,\n      \"prev\": 16.6,\n      \"time\": \"2026-08-09T01:00\",\n      \"variable\": \"temperature_2m\"\n    },\n    {\n      \"block\": \"hourly\",\n      \"curr\": 15.5,\n      \"delta\": 0,\n      \"prev\": 15.5,\n      \"time\": \"2026-08-09T02:00\",\n      \"variable\": \"temperature_2m\"\n    },\n    {\n      \"block\": \"hourly\",\n      \"curr\": 14.9,\n      \"delta\": 0,\n      \"prev\": 14.9,\n      \"time\": \"2026-08-09T03:00\",\n      \"variable\": \"temperature_2m\"\n    },\n    {\n      \"block\": \"hourly\",\n      \"curr\": 14.3,\n      \"delta\": 0,\n      \"prev\": 14.3,\n      \"time\": \"2026-08-09T04:00\",\n      \"variable\": \"temperature_2m\"\n    },\n    {\n      \"block\": \"hourly\",\n      \"curr\": 13.8,\n      \"delta\": 0,\n      \"prev\": 13.8,\n      \"time\": \"2026-08-09T05:00\",\n      \"variable\": \"temperature_2m\"\n    },\n    {\n      \"block\": \"hourly\",\n      \"curr\": 13.4,\n      \"delta\": 0,\n      \"prev\": 13.4,\n      \"time\": \"2026-08-09T06:00\",\n      \"variable\": \"temperature_2m\"\n    },\n    {\n      \"block\": \"hourly\",\n      \"curr\": 14.2,\n      \"delta\": 0,\n      \"prev\": 14.2,\n      \"time\": \"2026-08-09T07:00\",\n      \"variable\": \"temperature_2m\"\n    },\n    {\n      \"block\": \"hourly\",\n      \"curr\": 15.5,\n      \"delta\": 0,\n      \"prev\": 15.5,\n      \"time\": \"2026-08-09T08:00\",\n      \"variable\": \"temperature_2m\"\n    },\n    {\n      \"block\": \"hourly\",\n      \"curr\": 17,\n      \"delta\": 0,\n      \"prev\": 17,\n      \"time\": \"2026-08-09T09:00\",\n      \"variable\": \"temperature_2m\"\n    },\n    {\n      \"block\": \"hourly\",\n      \"curr\": 18.2,\n      \"delta\": 0,\n      \"prev\": 18.2,\n      \"time\": \"2026-08-09T10:00\",\n      \"variable\": \"temperature_2m\"\n    },\n    {\n      \"block\": \"hourly\",\n      \"curr\": 18.8,\n      \"delta\": 0,\n      \"prev\": 18.8,\n      \"time\": \"2026-08-09T11:00\",\n      \"variable\": \"temperature_2m\"\n    },\n    {\n      \"block\": \"hourly\",\n      \"curr\": 19.8,\n      \"delta\": 0,\n      \"prev\": 19.8,\n      \"time\": \"2026-08-09T12:00\",\n      \"variable\": \"temperature_2m\"\n    },\n    {\n      \"block\": \"hourly\",\n      \"curr\": 20.9,\n      \"delta\": 0,\n      \"prev\": 20.9,\n      \"time\": \"2026-08-09T13:00\",\n      \"variable\": \"temperature_2m\"\n    },\n    {\n      \"block\": \"hourly\",\n      \"curr\": 22.3,\n      \"delta\": 0,\n      \"prev\": 22.3,\n      \"time\": \"2026-08-09T14:00\",\n      \"variable\": \"temperature_2m\"\n    },\n    {\n      \"block\": \"hourly\",\n      \"curr\": 23.7,\n      \"delta\": 0,\n      \"prev\": 23.7,\n      \"time\": \"2026-08-09T15:00\",\n      \"variable\": \"temperature_2m\"\n    },\n    {\n      \"block\": \"hourly\",\n      \"curr\": 24.6,\n      \"delta\": 0,\n      \"prev\": 24.6,\n      \"time\": \"2026-08-09T16:00\",\n      \"variable\": \"temperature_2m\"\n    },\n    {\n      \"block\": \"hourly\",\n      \"curr\": 24.7,\n      \"delta\": 0,\n      \"prev\": 24.7,\n      \"time\": \"2026-08-09T17:00\",\n      \"variable\": \"temperature_2m\"\n    },\n    {\n      \"block\": \"hourly\",\n      \"curr\": 23.9,\n      \"delta\": 0,\n      \"prev\": 23.9,\n      \"time\": \"2026-08-09T18:00\",\n      \"variable\": \"temperature_2m\"\n    },\n    {\n      \"block\": \"hourly\",\n      \"curr\": 22.6,\n      \"delta\": 0,\n      \"prev\": 22.6,\n      \"time\": \"2026-08-09T19:00\",\n      \"variable\": \"temperature_2m\"\n    },\n    {\n      \"block\": \"hourly\",\n      \"curr\": 20.1,\n      \"delta\": 0,\n      \"prev\": 20.1,\n      \"time\": \"2026-08-09T20:00\",\n      \"variable\": \"temperature_2m\"\n    },\n    {\n      \"block\": \"hourly\",\n      \"curr\": 18.1,\n      \"delta\": 0,\n      \"prev\": 18.1,\n      \"time\": \"2026-08-09T21:00\",\n      \"variable\": \"temperature_2m\"\n    },\n    {\n      \"block\": \"hourly\",\n      \"curr\": 16.9,\n      \"delta\": 0,\n      \"prev\": 16.9,\n      \"time\": \"2026-08-09T22:00\",\n      \"variable\": \"temperature_2m\"\n    },\n    {\n      \"block\": \"hourly\",\n      \"curr\": 16.1,\n      \"delta\": 0,\n      \"prev\": 16.1,\n      \"time\": \"2026-08-09T23:00\",\n      \"variable\": \"temperature_2m\"\n    },\n    {\n      \"block\": \"hourly\",\n      \"curr\": 15.6,\n      \"delta\": 0,\n      \"prev\": 15.6,\n      \"time\": \"2026-08-10T00:00\",\n…[truncated]"
+    },
+    {
+      "command": "forecast diff",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "geocode get",
+      "kind": "help",
+      "args": [
+        "geocode",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Look up a single location by its Open-Meteo geocoding ID.\n\nUsage:\n  open-meteo-pp-cli geocode get [flags]\n\nExamples:\n  open-meteo-pp-cli geocode get --id 2950159\n\nFlags:\n      --format string     Response format. (one of: json, protobuf) (default \"json\")\n  -h, --help              help for get\n      --id string         Open-Meteo geocoding location ID.\n      --language string   ISO-639 language code for localized names.\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'open-meteo-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "geocode get",
+      "kind": "happy_path",
+      "args": [
+        "geocode",
+        "get",
+        "--id",
+        "2950159"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"admin1\":\"State of Berlin\",\"admin1_id\":2950157,\"admin3\":\"Berlin, Stadt\",\"admin3_id\":6547383,\"admin4\":\"Berlin\",\"admin4_id\":6547539,\"country\":\"Germany\",\"country_code\":\"DE\",\"country_id\":2921044,\"elevation\":74,\"feature_code\":\"PPLC\",\"id\":2950159,\"latitude\":52.52437,\"longitude\":13.41053,\"name\":\"\u003credacted\u003e\",\"population\":3426354,\"postcodes\":[\"10967\",\"13347\"],\"timezone\":\"Europe/Berlin\"}}"
+    },
+    {
+      "command": "geocode get",
+      "kind": "json_fidelity",
+      "args": [
+        "geocode",
+        "get",
+        "--id",
+        "2950159",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"admin1\":\"State of Berlin\",\"admin1_id\":2950157,\"admin3\":\"Berlin, Stadt\",\"admin3_id\":6547383,\"admin4\":\"Berlin\",\"admin4_id\":6547539,\"country\":\"Germany\",\"country_code\":\"DE\",\"country_id\":2921044,\"elevation\":74,\"feature_code\":\"PPLC\",\"id\":2950159,\"latitude\":52.52437,\"longitude\":13.41053,\"name\":\"\u003credacted\u003e\",\"population\":3426354,\"postcodes\":[\"10967\",\"13347\"],\"timezone\":\"Europe/Berlin\"}}"
+    },
+    {
+      "command": "geocode get",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "geocode search",
+      "kind": "help",
+      "args": [
+        "geocode",
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search locations worldwide by name ('Berlin', 'Springfield, IL') or postcode.\n\nUsage:\n  open-meteo-pp-cli geocode search [flags]\n\nExamples:\n  open-meteo-pp-cli geocode search --name Berlin\n\nFlags:\n      --count int         Max results to return (1-100). (default 10)\n      --format string     Response format. (one of: json, protobuf) (default \"json\")\n  -h, --help              help for search\n      --language string   ISO-639 language code for localized names (en, de, fr, es, it, pt, ru, zh, ja, ...).\n      --name string       Location name or postcode (\u003e=2 chars). Case-insensitive.\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'open-meteo-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "geocode search",
+      "kind": "happy_path",
+      "args": [
+        "geocode",
+        "search",
+        "--name",
+        "Berlin"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"generationtime_ms\":0.618577,\"results\":[{\"admin1\":\"State of Berlin\",\"admin1_id\":2950157,\"admin3\":\"Berlin, Stadt\",\"admin3_id\":6547383,\"admin4\":\"Berlin\",\"admin4_id\":6547539,\"country\":\"Germany\",\"country_code\":\"DE\",\"country_id\":2921044,\"elevation\":74,\"feature_code\":\"PPLC\",\"id\":2950159,\"latitude\":52.52437,\"longitude\":13.41053,\"name\":\"\u003credacted\u003e\",\"population\":3426354,\"postcodes\":[\"10967\",\"13347\"],\"timezone\":\"Europe/Berlin\"},{\"admin1\":\"New Hampshire\",\"admin1_id\":5090174,\"admin2\":\"Coos\",\"admin2_id\":5084973,\"admin3\":\"City of Berlin\",\"admin3_id\":5083340,\"country\":\"United States\",\"country_code\":\"US\",\"country_id\":6252001,\"elevation\":311,\"feature_code\":\"PPL\",\"id\":5083330,\"latitude\":44.46867,\"longitude\":-71.18508,\"name\":\"\u003credacted\u003e\",\"population\":9367,\"postcodes\":[\"03570\"],\"timezone\":\"America/New_York\"},{\"admin1\":\"New Jersey\",\"admin1_id\":5101760,\"admin2\":\"Camden\",\"admin2_id\":4501019,\"admin3\":\"Borough of Berlin\",\"admin3_id\":4500776,\"country\":\"United States\",\"country_code\":\"US\",\"country_id\":6252001,\"elevation\":50,\"feature_code\":\"PPL\",\"id\":4500771,\"latitude\":39.79123,\"longitude\":-74.92905,\"name\":\"\u003credacted\u003e\",\"population\":7590,\"postcodes\":[\"08009\"],\"timezone\":\"America/New_York\"},{\"admin1\":\"Maryland\",\"admin1_id\":4361885,\"admin2\":\"Frederick County\",\"admin2_id\":4355594,\"country\":\"United States\",\"country_code\":\"US\",\"country_id\":6252001,\"elevation\":90,\"feature_code\":\"PPL\",\"id\":4349706,\"latitude\":39.31427,\"longitude\":-77.62777,\"name\":\"\u003credacted\u003e\",\"population\":6116,\"postcodes\":[\"21716\"],\"timezone\":\"America/New_York\"},{\"admin1\":\"Wisconsin\",\"admin1_id\":5279468,\"admin2\":\"Green Lake\",\"admin2_id\":5255015,\"admin3\":\"City of Berlin\",\"admin3_id\":5245510,\"country\":\"United States\",\"country_code\":\"US\",\"country_id\":6252001,\"elevation\":246,\"feature_code\":\"PPL\",\"id\":5245497,\"latitude\":43.96804,\"longitude\":-88.94345,\"name\":\"\u003credacted\u003e\",\"population\":5420,\"postcodes\":[\"54923\"],\"timezone\":\"America/Chicago\"},{\"admin1\":\"Maryland\",\"admin1_id\":4361885,\"admin2\":\"Worcester\",\"admin2_id\":4374180,\"country\":\"United States\",\"country_code\":\"US\",\"country_id\":6252001,\"elevation\":11,\"feature_code\":\"PPL\",\"id\":4348460,\"latitude\":38.32262,\"longitude\":-75.21769,\"name\":\"\u003credacted\u003e\",\"population\":5065,\"postcodes\":[\"21811\"],\"timezone\":\"America/New_York\"},{\"admin1\":\"Massachusetts\",\"admin1_id\":6254926,\"admin2\":\"Worcester\",\"admin2_id\":4956199,\"admin3\":\"Town of Berlin\",\"admin3_id\":4930436,\"country\":\"United States\",\"country_code\":\"US\",\"country_id\":6252001,\"elevation\":100,\"feature_code\":\"PPL\",\"id\":4930431,\"latitude\":42.3812,\"longitude\":-71.63701,\"name\":\"\u003credacted\u003e\",\"population\":2422,\"postcodes\":[\"01503\"],\"timezone\":\"America/New_York\"},{\"admin1\":\"Pennsylvania\",\"admin1_id\":6254927,\"admin2\":\"Somerset\",\"admin2_id\":5212857,\"admin3\":\"Borough of Berlin\",\"admin3_id\":4556520,\"country\":\"United States\",\"country_code\":\"US\",\"country_id\":6252001,\"elevation\":710,\"feature_code\":\"PPL\",\"id\":4556518,\"latitude\":39.92064,\"longitude\":-78.9578,\"name\":\"\u003credacted\u003e\",\"population\":2019,\"postcodes\":[\"15530\"],\"timezone\":\"America/New_York\"},{\"admin1\":\"Pennsylvania\",\"admin1_id\":6254927,\"admin2\":\"Adams County\",\"admin2_id\":4556228,\"admin3\":\"Borough of East Berlin\",\"admin3_id\":4557667,\"country\":\"United States\",\"country_code\":\"US\",\"country_id\":6252001,\"elevation\":131,\"feature_code\":\"PPL\",\"id\":4557666,\"latitude\":39.9376,\"longitude\":-76.97859,\"name\":\"\u003credacted\u003e\",\"population\":1534,\"postcodes\":[\"17316\"],\"timezone\":\"America/New_York\"},{\"admin1\":\"Ohio\",\"admin1_id\":5165418,\"admin2\":\"Holmes\",\"admin2_id\":5157783,\"admin3\":\"Berlin Township\",\"admin3_id\":5147154,\"country\":\"United States\",\"country_code\":\"US\",\"country_id\":6252001,\"elevation\":391,\"feature_code\":\"PPL\",\"id\":5147132,\"latitude\":40.56117,\"longitude\":-81.7943,\"name\":\"\u003credacted\u003e\",\"population\":898,\"postcodes\":[\"44610\"],\"timezone\":\"America/New_York\"}]}}"
+    },
+    {
+      "command": "geocode search",
+      "kind": "json_fidelity",
+      "args": [
+        "geocode",
+        "search",
+        "--name",
+        "Berlin",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"generationtime_ms\":0.618577,\"results\":[{\"admin1\":\"State of Berlin\",\"admin1_id\":2950157,\"admin3\":\"Berlin, Stadt\",\"admin3_id\":6547383,\"admin4\":\"Berlin\",\"admin4_id\":6547539,\"country\":\"Germany\",\"country_code\":\"DE\",\"country_id\":2921044,\"elevation\":74,\"feature_code\":\"PPLC\",\"id\":2950159,\"latitude\":52.52437,\"longitude\":13.41053,\"name\":\"\u003credacted\u003e\",\"population\":3426354,\"postcodes\":[\"10967\",\"13347\"],\"timezone\":\"Europe/Berlin\"},{\"admin1\":\"New Hampshire\",\"admin1_id\":5090174,\"admin2\":\"Coos\",\"admin2_id\":5084973,\"admin3\":\"City of Berlin\",\"admin3_id\":5083340,\"country\":\"United States\",\"country_code\":\"US\",\"country_id\":6252001,\"elevation\":311,\"feature_code\":\"PPL\",\"id\":5083330,\"latitude\":44.46867,\"longitude\":-71.18508,\"name\":\"\u003credacted\u003e\",\"population\":9367,\"postcodes\":[\"03570\"],\"timezone\":\"America/New_York\"},{\"admin1\":\"New Jersey\",\"admin1_id\":5101760,\"admin2\":\"Camden\",\"admin2_id\":4501019,\"admin3\":\"Borough of Berlin\",\"admin3_id\":4500776,\"country\":\"United States\",\"country_code\":\"US\",\"country_id\":6252001,\"elevation\":50,\"feature_code\":\"PPL\",\"id\":4500771,\"latitude\":39.79123,\"longitude\":-74.92905,\"name\":\"\u003credacted\u003e\",\"population\":7590,\"postcodes\":[\"08009\"],\"timezone\":\"America/New_York\"},{\"admin1\":\"Maryland\",\"admin1_id\":4361885,\"admin2\":\"Frederick County\",\"admin2_id\":4355594,\"country\":\"United States\",\"country_code\":\"US\",\"country_id\":6252001,\"elevation\":90,\"feature_code\":\"PPL\",\"id\":4349706,\"latitude\":39.31427,\"longitude\":-77.62777,\"name\":\"\u003credacted\u003e\",\"population\":6116,\"postcodes\":[\"21716\"],\"timezone\":\"America/New_York\"},{\"admin1\":\"Wisconsin\",\"admin1_id\":5279468,\"admin2\":\"Green Lake\",\"admin2_id\":5255015,\"admin3\":\"City of Berlin\",\"admin3_id\":5245510,\"country\":\"United States\",\"country_code\":\"US\",\"country_id\":6252001,\"elevation\":246,\"feature_code\":\"PPL\",\"id\":5245497,\"latitude\":43.96804,\"longitude\":-88.94345,\"name\":\"\u003credacted\u003e\",\"population\":5420,\"postcodes\":[\"54923\"],\"timezone\":\"America/Chicago\"},{\"admin1\":\"Maryland\",\"admin1_id\":4361885,\"admin2\":\"Worcester\",\"admin2_id\":4374180,\"country\":\"United States\",\"country_code\":\"US\",\"country_id\":6252001,\"elevation\":11,\"feature_code\":\"PPL\",\"id\":4348460,\"latitude\":38.32262,\"longitude\":-75.21769,\"name\":\"\u003credacted\u003e\",\"population\":5065,\"postcodes\":[\"21811\"],\"timezone\":\"America/New_York\"},{\"admin1\":\"Massachusetts\",\"admin1_id\":6254926,\"admin2\":\"Worcester\",\"admin2_id\":4956199,\"admin3\":\"Town of Berlin\",\"admin3_id\":4930436,\"country\":\"United States\",\"country_code\":\"US\",\"country_id\":6252001,\"elevation\":100,\"feature_code\":\"PPL\",\"id\":4930431,\"latitude\":42.3812,\"longitude\":-71.63701,\"name\":\"\u003credacted\u003e\",\"population\":2422,\"postcodes\":[\"01503\"],\"timezone\":\"America/New_York\"},{\"admin1\":\"Pennsylvania\",\"admin1_id\":6254927,\"admin2\":\"Somerset\",\"admin2_id\":5212857,\"admin3\":\"Borough of Berlin\",\"admin3_id\":4556520,\"country\":\"United States\",\"country_code\":\"US\",\"country_id\":6252001,\"elevation\":710,\"feature_code\":\"PPL\",\"id\":4556518,\"latitude\":39.92064,\"longitude\":-78.9578,\"name\":\"\u003credacted\u003e\",\"population\":2019,\"postcodes\":[\"15530\"],\"timezone\":\"America/New_York\"},{\"admin1\":\"Pennsylvania\",\"admin1_id\":6254927,\"admin2\":\"Adams County\",\"admin2_id\":4556228,\"admin3\":\"Borough of East Berlin\",\"admin3_id\":4557667,\"country\":\"United States\",\"country_code\":\"US\",\"country_id\":6252001,\"elevation\":131,\"feature_code\":\"PPL\",\"id\":4557666,\"latitude\":39.9376,\"longitude\":-76.97859,\"name\":\"\u003credacted\u003e\",\"population\":1534,\"postcodes\":[\"17316\"],\"timezone\":\"America/New_York\"},{\"admin1\":\"Ohio\",\"admin1_id\":5165418,\"admin2\":\"Holmes\",\"admin2_id\":5157783,\"admin3\":\"Berlin Township\",\"admin3_id\":5147154,\"country\":\"United States\",\"country_code\":\"US\",\"country_id\":6252001,\"elevation\":391,\"feature_code\":\"PPL\",\"id\":5147132,\"latitude\":40.56117,\"longitude\":-81.7943,\"name\":\"\u003credacted\u003e\",\"population\":898,\"postcodes\":[\"44610\"],\"timezone\":\"America/New_York\"}]}}"
+    },
+    {
+      "command": "geocode search",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "is-good-for",
+      "kind": "help",
+      "args": [
+        "is-good-for",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Combine forecast, marine, and air-quality endpoints to render a verdict for a\nnamed outdoor activity. Activity options:\n\n  surfing   wave height 1-5 m, wind \u003c30 km/h offshore preferred, AQI \u003c100\n  hiking    no rain, wind \u003c40 km/h, AQI \u003c100, temperature -5 to 30 C\n  running   no rain, wind \u003c30 km/h, AQI \u003c50, temperature -5 to 28 C\n  biking    no rain, wind \u003c30 km/h, AQI \u003c100, temperature -5 to 30 C\n  skiing    snowfall present, wind \u003c40 km/h, temperature \u003c2 C\n\nVerdict is one of GO, CAUTION, STOP, plus the underlying signals so an agent\ncan override the verdict with custom thresholds.\n\nUsage:\n  open-meteo-pp-cli is-good-for [activity] [flags]\n\nExamples:\n  open-meteo-pp-cli is-good-for surfing --place \"Mavericks, CA\" --json\n  open-meteo-pp-cli is-good-for hiking --place \"Mt Rainier, WA\" --json\n  open-meteo-pp-cli is-good-for running --place Seattle --json\n\nFlags:\n  -h, --help               help for is-good-for\n      --latitude string    WGS84 latitude (alternative to --place).\n      --longitude string   WGS84 longitude (alternative to --place).\n      --place string       Place name (e.g., \"Mavericks, CA\").\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'open-meteo-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "is-good-for",
+      "kind": "happy_path",
+      "args": [
+        "is-good-for",
+        "surfing",
+        "--place",
+        "Seattle",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"activity\": \"surfing\",\n  \"latitude\": 47.60621,\n  \"longitude\": -122.33207,\n  \"place\": \"Seattle\",\n  \"reasons\": [\n    \"wave height 0.0m is too small\"\n  ],\n  \"signals\": {\n    \"air_quality_current\": {\n      \"european_aqi\": 38,\n      \"interval\": 3600,\n      \"pm10\": 15.2,\n      \"pm2_5\": 12.3,\n      \"time\": \"2026-08-09T02:00\",\n      \"us_aqi\": 69,\n      \"uv_index\": 0\n    },\n    \"forecast_current\": {\n      \"interval\": 900,\n      \"precipitation\": 0,\n      \"snowfall\": 0,\n      \"temperature_2m\": 15.3,\n      \"time\": \"2026-08-09T02:15\",\n      \"weather_code\": 0,\n      \"wind_speed_10m\": 7.4\n    },\n    \"marine_current\": {\n      \"interval\": 900,\n      \"time\": \"2026-08-09T02:15\",\n      \"wave_direction\": 331,\n      \"wave_height\": 0.04,\n      \"wave_period\": 2.3\n    }\n  },\n  \"verdict\": \"CAUTION\"\n}\n"
+    },
+    {
+      "command": "is-good-for",
+      "kind": "json_fidelity",
+      "args": [
+        "is-good-for",
+        "surfing",
+        "--place",
+        "Seattle",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"activity\": \"surfing\",\n  \"latitude\": 47.60621,\n  \"longitude\": -122.33207,\n  \"place\": \"Seattle\",\n  \"reasons\": [\n    \"wave height 0.0m is too small\"\n  ],\n  \"signals\": {\n    \"air_quality_current\": {\n      \"european_aqi\": 38,\n      \"interval\": 3600,\n      \"pm10\": 15.2,\n      \"pm2_5\": 12.3,\n      \"time\": \"2026-08-09T02:00\",\n      \"us_aqi\": 69,\n      \"uv_index\": 0\n    },\n    \"forecast_current\": {\n      \"interval\": 900,\n      \"precipitation\": 0,\n      \"snowfall\": 0,\n      \"temperature_2m\": 15.3,\n      \"time\": \"2026-08-09T02:15\",\n      \"weather_code\": 0,\n      \"wind_speed_10m\": 7.4\n    },\n    \"marine_current\": {\n      \"interval\": 900,\n      \"time\": \"2026-08-09T02:15\",\n      \"wave_direction\": 331,\n      \"wave_height\": 0.04,\n      \"wave_period\": 2.3\n    }\n  },\n  \"verdict\": \"CAUTION\"\n}\n"
+    },
+    {
+      "command": "is-good-for",
+      "kind": "error_path",
+      "args": [
+        "is-good-for",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: either --place or both --latitude and --longitude are required\neither --place or both --latitude and --longitude are required\n"
+    },
+    {
+      "command": "marine",
+      "kind": "help",
+      "args": [
+        "marine",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Shortcut for 'marine get'. Marine forecast/historical: waves, swells, sea-surface temperature.\n\nUsage:\n  open-meteo-pp-cli marine [flags]\n\nExamples:\n  open-meteo-pp-cli marine --latitude 47.6 --longitude -122.3\n\nFlags:\n      --cell-selection string    Grid cell selection. (one of: land, sea, nearest)\n      --current string           Comma-separated current-conditions marine variables.\n      --daily string             Comma-separated daily marine aggregates.\n      --end-date string          End date.\n      --forecast-days int        Forecast days (1-8).\n      --forecast-hours int       Forecast hours.\n  -h, --help                     help for marine\n      --hourly string            Comma-separated hourly marine variables (wave_height,wave_direction,wave_period,wind_wave_height,swell_wave_height,se...\n      --latitude string          WGS84 latitude. Comma-separated for batch.\n      --length-unit string       Wave height/length unit. (one of: metric, imperial) (default \"metric\")\n      --longitude string         WGS84 longitude. Comma-separated for batch.\n      --past-days int            Include past days.\n      --past-hours int           Past hours.\n      --start-date string        Start date.\n      --timeformat string        Time output format. (one of: iso8601, unixtime) (default \"iso8601\")\n      --timezone string          Named timezone, auto, or UTC.\n      --wind-speed-unit string   Wind speed unit. (one of: kmh, ms, mph, kn) (default \"kmh\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'open-meteo-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "marine",
+      "kind": "happy_path",
+      "args": [
+        "marine",
+        "--latitude",
+        "47.6",
+        "--longitude=-122.3"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"latitude\": 47.708336,\n    \"longitude\": -122.37499,\n    \"generationtime_ms\": 0.008225440979003906,\n    \"utc_offset_seconds\": 0,\n    \"timezone\": \"GMT\",\n    \"timezone_abbreviation\": \"GMT\",\n    \"elevation\": 93.0\n  }\n}\n"
+    },
+    {
+      "command": "marine",
+      "kind": "json_fidelity",
+      "args": [
+        "marine",
+        "--latitude",
+        "47.6",
+        "--longitude=-122.3",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"latitude\": 47.708336,\n    \"longitude\": -122.37499,\n    \"generationtime_ms\": 0.0050067901611328125,\n    \"utc_offset_seconds\": 0,\n    \"timezone\": \"GMT\",\n    \"timezone_abbreviation\": \"GMT\",\n    \"elevation\": 93.0\n  }\n}\n"
+    },
+    {
+      "command": "marine",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "normals",
+      "kind": "help",
+      "args": [
+        "normals",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Compute the N-year climate normal for any (place, date or month, daily variable)\ncombination. The normal is built locally by aggregating ERA5 archive data — no\nsingle API call returns this.\n\nWhen --month is given without --day, the normal covers the entire month\nacross all selected years. When both --month and --day are given, only that\ncalendar day is used.\n\nUsage:\n  open-meteo-pp-cli normals [flags]\n\nExamples:\n  open-meteo-pp-cli normals --place Seattle --month 7 --variable temperature_2m_max --years 30 --json\n  open-meteo-pp-cli normals --place \"Mavericks, CA\" --month 12 --day 15 --variable wind_speed_10m_max --json\n\nFlags:\n      --day int            Day of month (1-31). When omitted, covers the whole month.\n  -h, --help               help for normals\n      --latitude string    WGS84 latitude (alternative to --place).\n      --longitude string   WGS84 longitude (alternative to --place).\n      --month int          Calendar month (1-12). Required.\n      --place string       Place name (e.g., \"Seattle\").\n      --variable string    Daily archive variable (temperature_2m_max, temperature_2m_min, temperature_2m_mean, precipitation_sum, ...). (default \"temperature_2m_mean\")\n      --years int          Number of years to average (default 30). (default 30)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'open-meteo-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "normals",
+      "kind": "happy_path",
+      "args": [
+        "normals",
+        "--place",
+        "Seattle",
+        "--month",
+        "7",
+        "--variable",
+        "temperature_2m_max",
+        "--years",
+        "30",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"day\": 0,\n  \"latitude\": 47.60621,\n  \"longitude\": -122.33207,\n  \"max\": 37.5,\n  \"mean\": 24.014408602150557,\n  \"median\": 24,\n  \"min\": 14.7,\n  \"month\": 7,\n  \"per_year\": {\n    \"1996\": 24.893548387096775,\n    \"1997\": 21.396774193548385,\n    \"1998\": 24.80645161290324,\n    \"1999\": 21.632258064516126,\n    \"2000\": 22.000000000000004,\n    \"2001\": 21.883870967741938,\n    \"2002\": 23.29354838709677,\n    \"2003\": 25.29677419354839,\n    \"2004\": 24.93548387096774,\n    \"2005\": 22.96451612903226,\n    \"2006\": 24.903225806451612,\n    \"2007\": 24.37096774193548,\n    \"2008\": 23.290322580645164,\n    \"2009\": 26.493548387096773,\n    \"2010\": 23.267741935483873,\n    \"2011\": 20.63225806451613,\n    \"2012\": 22.022580645161288,\n    \"2013\": 25.054838709677416,\n    \"2014\": 25.225806451612904,\n    \"2015\": 26.245161290322585,\n    \"2016\": 22.3,\n    \"2017\": 23.812903225806444,\n    \"2018\": 25.954838709677418,\n    \"2019\": 23.477419354838716,\n    \"2020\": 23.509677419354844,\n    \"2021\": 25.077419354838717,\n    \"2022\": 24.170967741935474,\n    \"2023\": 25.47096774193549,\n    \"2024\": 26.16451612903225,\n    \"2025\": 25.883870967741935\n  },\n  \"place\": \"Seattle\",\n  \"samples\": 930,\n  \"variable\": \"temperature_2m_max\",\n  \"years\": 30\n}\n"
+    },
+    {
+      "command": "normals",
+      "kind": "json_fidelity",
+      "args": [
+        "normals",
+        "--place",
+        "Seattle",
+        "--month",
+        "7",
+        "--variable",
+        "temperature_2m_max",
+        "--years",
+        "30",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"day\": 0,\n  \"latitude\": 47.60621,\n  \"longitude\": -122.33207,\n  \"max\": 37.5,\n  \"mean\": 24.014408602150557,\n  \"median\": 24,\n  \"min\": 14.7,\n  \"month\": 7,\n  \"per_year\": {\n    \"1996\": 24.893548387096775,\n    \"1997\": 21.396774193548385,\n    \"1998\": 24.80645161290324,\n    \"1999\": 21.632258064516126,\n    \"2000\": 22.000000000000004,\n    \"2001\": 21.883870967741938,\n    \"2002\": 23.29354838709677,\n    \"2003\": 25.29677419354839,\n    \"2004\": 24.93548387096774,\n    \"2005\": 22.96451612903226,\n    \"2006\": 24.903225806451612,\n    \"2007\": 24.37096774193548,\n    \"2008\": 23.290322580645164,\n    \"2009\": 26.493548387096773,\n    \"2010\": 23.267741935483873,\n    \"2011\": 20.63225806451613,\n    \"2012\": 22.022580645161288,\n    \"2013\": 25.054838709677416,\n    \"2014\": 25.225806451612904,\n    \"2015\": 26.245161290322585,\n    \"2016\": 22.3,\n    \"2017\": 23.812903225806444,\n    \"2018\": 25.954838709677418,\n    \"2019\": 23.477419354838716,\n    \"2020\": 23.509677419354844,\n    \"2021\": 25.077419354838717,\n    \"2022\": 24.170967741935474,\n    \"2023\": 25.47096774193549,\n    \"2024\": 26.16451612903225,\n    \"2025\": 25.883870967741935\n  },\n  \"place\": \"Seattle\",\n  \"samples\": 930,\n  \"variable\": \"temperature_2m_max\",\n  \"years\": 30\n}\n"
+    },
+    {
+      "command": "normals",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "panel",
+      "kind": "help",
+      "args": [
+        "panel",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Fetch current/hourly/daily weather for multiple locations in a single batched\nOpen-Meteo call when possible (the API natively accepts comma-separated lat/lon).\nNames provided via --place are geocoded one-by-one, then the actual forecast\nfetch happens in a single batched HTTP request.\n\nUsage:\n  open-meteo-pp-cli panel [flags]\n\nExamples:\n  open-meteo-pp-cli panel --place Seattle,Berlin,Tokyo --current temperature_2m,weather_code --json\n  open-meteo-pp-cli panel --place \"Mavericks, CA,Pipeline, HI\" --current temperature_2m,wind_speed_10m --json\n  open-meteo-pp-cli panel --latitude 47.6,52.5,35.7 --longitude -122.3,13.4,139.7 --current temperature_2m --json\n\nFlags:\n      --current string      Comma-separated current variables (default temperature_2m,weather_code,wind_speed_10m when no other selection given).\n      --daily string        Comma-separated daily variables.\n      --forecast-days int   Forecast days (1-16). Defaults to 7 if unset.\n  -h, --help                help for panel\n      --hourly string       Comma-separated hourly variables.\n      --humanize            Add human-readable WMO weather descriptions to current output.\n      --latitude string     Comma-separated latitudes (alternative to --place).\n      --longitude string    Comma-separated longitudes (alternative to --place).\n      --place string        Comma-separated place names (e.g., \"Seattle,Berlin,Tokyo\"). Disambiguate with admin context (\"Springfield, IL\").\n      --timezone string     Named timezone, 'auto' (per-location), or UTC. (default \"auto\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'open-meteo-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "panel",
+      "kind": "happy_path",
+      "args": [
+        "panel",
+        "--place",
+        "Seattle,Berlin,Tokyo",
+        "--current",
+        "temperature_2m,weather_code",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"current\": {\n      \"interval\": 900,\n      \"temperature_2m\": 15.3,\n      \"time\": \"2026-08-09T02:15\",\n      \"weather_code\": 0\n    },\n    \"daily\": null,\n    \"hourly\": null,\n    \"latitude\": 47.60621,\n    \"longitude\": -122.33207,\n    \"place\": \"Seattle\",\n    \"timezone\": \"America/Los_Angeles\"\n  },\n  {\n    \"current\": {\n      \"interval\": 900,\n      \"temperature_2m\": 23.1,\n      \"time\": \"2026-08-09T11:15\",\n      \"weather_code\": 0\n    },\n    \"daily\": null,\n    \"hourly\": null,\n    \"latitude\": 52.52437,\n    \"longitude\": 13.41053,\n    \"place\": \"Berlin\",\n    \"timezone\": \"Europe/Berlin\"\n  },\n  {\n    \"current\": {\n      \"interval\": 900,\n      \"temperature_2m\": 29.4,\n      \"time\": \"2026-08-09T18:15\",\n      \"weather_code\": 1\n    },\n    \"daily\": null,\n    \"hourly\": null,\n    \"latitude\": 35.6895,\n    \"longitude\": 139.69171,\n    \"place\": \"Tokyo\",\n    \"timezone\": \"Asia/Tokyo\"\n  }\n]\n"
+    },
+    {
+      "command": "panel",
+      "kind": "json_fidelity",
+      "args": [
+        "panel",
+        "--place",
+        "Seattle,Berlin,Tokyo",
+        "--current",
+        "temperature_2m,weather_code",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"current\": {\n      \"interval\": 900,\n      \"temperature_2m\": 15.3,\n      \"time\": \"2026-08-09T02:15\",\n      \"weather_code\": 0\n    },\n    \"daily\": null,\n    \"hourly\": null,\n    \"latitude\": 47.60621,\n    \"longitude\": -122.33207,\n    \"place\": \"Seattle\",\n    \"timezone\": \"America/Los_Angeles\"\n  },\n  {\n    \"current\": {\n      \"interval\": 900,\n      \"temperature_2m\": 23.1,\n      \"time\": \"2026-08-09T11:15\",\n      \"weather_code\": 0\n    },\n    \"daily\": null,\n    \"hourly\": null,\n    \"latitude\": 52.52437,\n    \"longitude\": 13.41053,\n    \"place\": \"Berlin\",\n    \"timezone\": \"Europe/Berlin\"\n  },\n  {\n    \"current\": {\n      \"interval\": 900,\n      \"temperature_2m\": 29.4,\n      \"time\": \"2026-08-09T18:15\",\n      \"weather_code\": 1\n    },\n    \"daily\": null,\n    \"hourly\": null,\n    \"latitude\": 35.6895,\n    \"longitude\": 139.69171,\n    \"place\": \"Tokyo\",\n    \"timezone\": \"Asia/Tokyo\"\n  }\n]\n"
+    },
+    {
+      "command": "panel",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  open-meteo-pp-cli profile delete \u003cname\u003e [flags]\n\nExamples:\n  open-meteo-pp-cli profile delete my-defaults --yes\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'open-meteo-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  open-meteo-pp-cli profile list [flags]\n\nExamples:\n  open-meteo-pp-cli profile list\n  open-meteo-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'open-meteo-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under \u003cname\u003e. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile and --config).\n\nUsage:\n  open-meteo-pp-cli profile save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...] [flags]\n\nExamples:\n  open-meteo-pp-cli profile save my-defaults --json\n  open-meteo-pp-cli profile save tonight-defaults --compact\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'open-meteo-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\nno non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  open-meteo-pp-cli profile show \u003cname\u003e [flags]\n\nExamples:\n  open-meteo-pp-cli profile show my-defaults\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'open-meteo-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\nprofile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  open-meteo-pp-cli profile use \u003cname\u003e [flags]\n\nExamples:\n  open-meteo-pp-cli profile use my-defaults\n  open-meteo-pp-cli profile use my-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'open-meteo-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\nprofile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "seasonal",
+      "kind": "help",
+      "args": [
+        "seasonal",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Shortcut for 'seasonal get'. 9-month seasonal forecast at six-hourly resolution. Default model is NCEP CFSv2.\n\nUsage:\n  open-meteo-pp-cli seasonal [flags]\n\nExamples:\n  open-meteo-pp-cli seasonal --latitude 47.6 --longitude -122.3\n\nFlags:\n      --cell-selection string       Grid cell selection. (one of: land, sea, nearest)\n      --daily string                Daily aggregates.\n      --forecast-days int           Forecast days (default 92).\n  -h, --help                        help for seasonal\n      --latitude string             WGS84 latitude.\n      --longitude string            WGS84 longitude.\n      --models string               Comma-separated seasonal models (cfsv2).\n      --past-days int               Past days.\n      --precipitation-unit string   Precipitation unit. (one of: mm, inch) (default \"mm\")\n      --six-hourly string           Six-hourly variables (temperature_2m,precipitation,...).\n      --temperature-unit string     Temperature unit. (one of: celsius, fahrenheit) (default \"celsius\")\n      --timeformat string           Time output format. (one of: iso8601, unixtime) (default \"iso8601\")\n      --timezone string             Named timezone, auto, or UTC.\n      --wind-speed-unit string      Wind speed unit. (one of: kmh, ms, mph, kn) (default \"kmh\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'open-meteo-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "seasonal",
+      "kind": "happy_path",
+      "args": [
+        "seasonal",
+        "--latitude",
+        "47.6",
+        "--longitude=-122.3"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"latitude\": 47.63466,\n    \"longitude\": -122.51613,\n    \"generationtime_ms\": 0.0021457672119140625,\n    \"utc_offset_seconds\": 0,\n    \"timezone\": \"GMT\",\n    \"timezone_abbreviation\": \"GMT\",\n    \"elevation\": 93.0\n  }\n}\n"
+    },
+    {
+      "command": "seasonal",
+      "kind": "json_fidelity",
+      "args": [
+        "seasonal",
+        "--latitude",
+        "47.6",
+        "--longitude=-122.3",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"latitude\": 47.63466,\n    \"longitude\": -122.51613,\n    \"generationtime_ms\": 0.0032186508178710938,\n    \"utc_offset_seconds\": 0,\n    \"timezone\": \"GMT\",\n    \"timezone_abbreviation\": \"GMT\",\n    \"elevation\": 93.0\n  }\n}\n"
+    },
+    {
+      "command": "seasonal",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "sync",
+      "kind": "help",
+      "args": [
+        "sync",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Sync data from the API into a local SQLite database. Supports resumable\nincremental sync (only fetches new data since last sync) and full resync.\nOnce synced, use the 'search' command for instant full-text search.\n\nExit codes \u0026 warnings:\n  Resources the API denies access to (HTTP 403, or HTTP 400 with an\n  access-policy body) are reported as warnings rather than failing the\n  run. In --json mode each is emitted as a {\"event\":\"sync_warning\",...}\n  line carrying status, reason, and message fields, and a final\n  {\"event\":\"sync_summary\",...} aggregates the run.\n\n  Exit 0 when at least one resource synced and no resource flagged in\n  the spec as critical (x-critical: true) failed; non-critical failures\n  emit {\"event\":\"sync_warning\",\"reason\":\"exit_policy_default_changed\",\n  ...} so callers can detect that a partial failure was tolerated. Pass\n  --strict to exit non-zero on any per-resource failure. Exit is always\n  non-zero when every selected resource failed, regardless of --strict.\n\nUsage:\n  open-meteo-pp-cli sync [flags]\n\nExamples:\n  # Sync all resources\n  open-meteo-pp-cli sync\n\n  # Sync specific resources only\n  open-meteo-pp-cli sync --resources channels,messages\n\n  # Full resync (ignore previous checkpoint)\n  open-meteo-pp-cli sync --full\n\n  # Incremental sync: only records from the last 7 days\n  open-meteo-pp-cli sync --since 7d\n\n  # Parallel sync with 8 workers\n  open-meteo-pp-cli sync --concurrency 8\n\n  # Latest-only: refresh head of each resource, no historical backfill\n  open-meteo-pp-cli sync --latest-only\n\nFlags:\n      --concurrency int     Number of parallel sync workers (default 4)\n      --db string           Database path (default: ~/.local/share/open-meteo-pp-cli/data.db)\n      --full                Full resync (ignore previous checkpoint)\n  -h, --help                help for sync\n      --latest-only         Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).\n      --max-pages int       Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event) (default 100)\n      --resources strings   Comma-separated resource types to sync\n      --since string        Incremental sync duration (e.g. 7d, 24h, 1w, 30m)\n      --strict              Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'open-meteo-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "sync",
+      "kind": "happy_path",
+      "args": [
+        "sync"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_summary\",\"total_records\":0,\"resources\":0,\"success\":0,\"warned\":0,\"errored\":0,\"duration_ms\":0}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "json_fidelity",
+      "args": [
+        "sync",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_summary\",\"total_records\":0,\"resources\":0,\"success\":0,\"warned\":0,\"errored\":0,\"duration_ms\":0}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "weather-mix",
+      "kind": "help",
+      "args": [
+        "weather-mix",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Aggregate WMO weather codes from the ERA5 archive into category buckets\n(% clear, partly_cloudy, overcast, fog, drizzle, rain, snow, showers,\nthunderstorm) for a given (place, time window) pair. Useful for travel\nplanning (\"how often does it rain in Seattle in October?\") and\nclimatology summaries.\n\nUsage:\n  open-meteo-pp-cli weather-mix [flags]\n\nExamples:\n  open-meteo-pp-cli weather-mix --place Seattle --start-date 2024-10-01 --end-date 2024-10-31 --json\n  open-meteo-pp-cli weather-mix --place Berlin --past-days 90 --json\n\nFlags:\n      --end-date string     Window end date (YYYY-MM-DD).\n  -h, --help                help for weather-mix\n      --latitude string     WGS84 latitude (alternative to --place).\n      --longitude string    WGS84 longitude (alternative to --place).\n      --past-days int       Window covering the last N days (alternative to --start-date/--end-date).\n      --place string        Place name (e.g., \"Seattle\"). Use --latitude/--longitude as the alternative.\n      --start-date string   Window start date (YYYY-MM-DD). Use with --end-date.\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'open-meteo-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "weather-mix",
+      "kind": "happy_path",
+      "args": [
+        "weather-mix",
+        "--place",
+        "Seattle",
+        "--start-date",
+        "2024-10-01",
+        "--end-date",
+        "2024-10-31",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"buckets\": [\n    {\n      \"bucket\": \"overcast\",\n      \"hours\": 286,\n      \"percent\": 38.44086021505376\n    },\n    {\n      \"bucket\": \"clear\",\n      \"hours\": 212,\n      \"percent\": 28.49462365591398\n    },\n    {\n      \"bucket\": \"drizzle\",\n      \"hours\": 146,\n      \"percent\": 19.623655913978492\n    },\n    {\n      \"bucket\": \"partly_cloudy\",\n      \"hours\": 76,\n      \"percent\": 10.21505376344086\n    },\n    {\n      \"bucket\": \"rain\",\n      \"hours\": 24,\n      \"percent\": 3.225806451612903\n    }\n  ],\n  \"end_date\": \"2024-10-31\",\n  \"hours\": 744,\n  \"latitude\": 47.60621,\n  \"longitude\": -122.33207,\n  \"place\": \"Seattle\",\n  \"start_date\": \"2024-10-01\"\n}\n"
+    },
+    {
+      "command": "weather-mix",
+      "kind": "json_fidelity",
+      "args": [
+        "weather-mix",
+        "--place",
+        "Seattle",
+        "--start-date",
+        "2024-10-01",
+        "--end-date",
+        "2024-10-31",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"buckets\": [\n    {\n      \"bucket\": \"overcast\",\n      \"hours\": 286,\n      \"percent\": 38.44086021505376\n    },\n    {\n      \"bucket\": \"clear\",\n      \"hours\": 212,\n      \"percent\": 28.49462365591398\n    },\n    {\n      \"bucket\": \"drizzle\",\n      \"hours\": 146,\n      \"percent\": 19.623655913978492\n    },\n    {\n      \"bucket\": \"partly_cloudy\",\n      \"hours\": 76,\n      \"percent\": 10.21505376344086\n    },\n    {\n      \"bucket\": \"rain\",\n      \"hours\": 24,\n      \"percent\": 3.225806451612903\n    }\n  ],\n  \"end_date\": \"2024-10-31\",\n  \"hours\": 744,\n  \"latitude\": 47.60621,\n  \"longitude\": -122.33207,\n  \"place\": \"Seattle\",\n  \"start_date\": \"2024-10-01\"\n}\n"
+    },
+    {
+      "command": "weather-mix",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  open-meteo-pp-cli which [query] [flags]\n\nExamples:\n  open-meteo-pp-cli which \"stale tickets\"\n  open-meteo-pp-cli which \"bottleneck\"\n  open-meteo-pp-cli which --limit 1 \"send message\"\n  open-meteo-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'open-meteo-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: no match for \"__printing_press_invalid__\"; try 'open-meteo-pp-cli --help' for the full command list\nno match for \"__printing_press_invalid__\"; try 'open-meteo-pp-cli --help' for the full command list\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "archive",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Archive fetches all syncable resources from the API and stores them in a\nlocal SQLite database. Supports incremental sync (only new data since last run)\nand full resync. After archiving, use 'search' for instant full-text search.\n\nUsage:\n  open-meteo-pp-cli workflow archive [flags]\n\nExamples:\n  # Archive all resources\n  open-meteo-pp-cli workflow archive\n\n  # Full re-archive (ignore previous sync state)\n  open-meteo-pp-cli workflow archive --full\n\nFlags:\n      --db string   Database path (default: ~/.local/share/open-meteo-pp-cli/data.db)\n      --full        Full re-archive (ignore previous sync state)\n  -h, --help        help for archive\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'open-meteo-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "archive"
+      ],
+      "status": "pass",
+      "output_sample": "Archived 0 items across 0 resources to /var/folders/j0/6bljx7ys3dx_1rzpvc_l_43w0000gn/T/printing-press-subprocess-2899572285/.local/share/open-meteo-pp-cli/data.db\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "archive",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"resources_synced\": 0,\n  \"store_path\": \"/var/folders/j0/6bljx7ys3dx_1rzpvc_l_43w0000gn/T/printing-press-subprocess-2899572285/.local/share/open-meteo-pp-cli/data.db\",\n  \"timestamp\": \"2026-08-09T09:25:36Z\",\n  \"total_items\": 0\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show local archive status and sync state for all resources\n\nUsage:\n  open-meteo-pp-cli workflow status [flags]\n\nExamples:\n  # Show archive status\n  open-meteo-pp-cli workflow status\n\n  # Show status as JSON\n  open-meteo-pp-cli workflow status --json\n\nFlags:\n      --db string   Database path\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'open-meteo-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "Archive Status:\n  geocode                        10 items\n\n  Total: 10 items\n  Store: /var/folders/j0/6bljx7ys3dx_1rzpvc_l_43w0000gn/T/printing-press-subprocess-2899572285/.local/share/open-meteo-pp-cli/data.db\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"geocode\": 10\n}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-08-09T09:24:58.206032Z"
+}

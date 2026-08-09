@@ -19,7 +19,7 @@ func SnapshotDir() (string, error) {
 		return "", err
 	}
 	dir := filepath.Join(home, ".cache", "open-meteo-pp-cli", "snapshots")
-	if err := os.MkdirAll(dir, 0o755); err != nil {
+	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return "", err
 	}
 	return dir, nil
@@ -71,7 +71,7 @@ func SaveSnapshot(kind string, p Place, paramsKey string, payload json.RawMessag
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(filepath.Join(dir, snapshotKey(kind, p)), data, 0o644)
+	return os.WriteFile(filepath.Join(dir, snapshotKey(kind, p)), data, 0o600)
 }
 
 // LoadSnapshot reads the most-recently-saved snapshot for a kind+place pair.
@@ -81,6 +81,7 @@ func LoadSnapshot(kind string, p Place) (*Snapshot, error) {
 	if err != nil {
 		return nil, err
 	}
+	// #nosec G304 -- snapshot filenames are hashed/sanitized keys under the CLI's fixed cache dir, not arbitrary user input.
 	data, err := os.ReadFile(filepath.Join(dir, snapshotKey(kind, p)))
 	if err != nil {
 		return nil, err

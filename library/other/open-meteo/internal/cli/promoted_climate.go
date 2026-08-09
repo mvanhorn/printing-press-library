@@ -28,7 +28,7 @@ func newClimatePromotedCmd(flags *rootFlags) *cobra.Command {
 		Use:         "climate",
 		Short:       "Daily CMIP6 climate projections for any (lat, lon) under SSP scenarios. Models include EC_Earth3P_HR, CMCC_CM2_VHR4,...",
 		Long:        "Shortcut for 'climate get'. Daily CMIP6 climate projections for any (lat, lon) under SSP scenarios. Models include EC_Earth3P_HR, CMCC_CM2_VHR4,...",
-		Example:     "  open-meteo-pp-cli climate",
+		Example:     "  open-meteo-pp-cli climate --latitude 47.6 --longitude -122.3 --start-date 2050-01-01 --end-date 2050-12-31",
 		Annotations: map[string]string{"pp:endpoint": "climate.get", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("latitude") && !flags.dryRun {

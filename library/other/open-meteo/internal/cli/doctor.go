@@ -68,6 +68,9 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "doctor",
 		Short: "Check CLI health",
+		Example: `  open-meteo-pp-cli doctor
+  open-meteo-pp-cli doctor --json
+  open-meteo-pp-cli doctor --fail-on stale`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			report := map[string]any{}
 

@@ -19,7 +19,7 @@ func newGeocodeGetCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "get",
 		Short:       "Look up a single location by its Open-Meteo geocoding ID.",
-		Example:     "  open-meteo-pp-cli geocode get",
+		Example:     "  open-meteo-pp-cli geocode get --id 2950159",
 		Annotations: map[string]string{"pp:endpoint": "geocode.get", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("id") && !flags.dryRun {

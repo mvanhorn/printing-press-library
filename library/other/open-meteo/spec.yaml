@@ -1,7 +1,8 @@
 name: open-meteo
 display_name: Open-Meteo
+category: other
 description: "Free, open-source weather, climate, and air-quality data — covers Open-Meteo's full no-API-key surface (forecast, archive, marine, air-quality, flood, climate, ensemble, seasonal, geocoding, elevation)."
-cli_description: "Forecasts, historicals, marine, air quality, flood, climate, ensemble, and seasonal data from Open-Meteo's free tier."
+cli_description: "Every Open-Meteo endpoint family in one CLI — forecast, archive, marine, air quality, flood, climate, ensemble, seasonal, geocoding, elevation."
 version: "0.1.0"
 homepage: https://open-meteo.com
 website: https://open-meteo.com
@@ -17,6 +18,8 @@ config:
   format: toml
   path: "~/.config/open-meteo-pp-cli/config.toml"
 
+# learn no-entities escape: weather data has no aliasable entity vocabulary beyond
+# locations, which are resolved at query time via geocoding rather than stored.
 cache:
   enabled: true
 

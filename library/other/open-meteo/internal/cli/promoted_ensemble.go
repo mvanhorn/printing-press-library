@@ -33,7 +33,7 @@ func newEnsemblePromotedCmd(flags *rootFlags) *cobra.Command {
 		Use:         "ensemble",
 		Short:       "Hourly ensemble forecasts; returns all ensemble members so you can quantify uncertainty.",
 		Long:        "Shortcut for 'ensemble get'. Hourly ensemble forecasts; returns all ensemble members so you can quantify uncertainty.",
-		Example:     "  open-meteo-pp-cli ensemble",
+		Example:     "  open-meteo-pp-cli ensemble --latitude 47.6 --longitude -122.3",
 		Annotations: map[string]string{"pp:endpoint": "ensemble.get", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("latitude") && !flags.dryRun {

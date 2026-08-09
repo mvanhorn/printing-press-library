@@ -41,7 +41,7 @@ func newForecastPromotedCmd(flags *rootFlags) *cobra.Command {
 		Use:         "forecast",
 		Short:       "7-16 day weather forecast for one or more coordinates. Pass comma-separated latitude/longitude for batch fetch.",
 		Long:        "Shortcut for 'forecast get'. 7-16 day weather forecast for one or more coordinates. Pass comma-separated latitude/longitude for batch fetch.",
-		Example:     "  open-meteo-pp-cli forecast",
+		Example:     "  open-meteo-pp-cli forecast --latitude 47.6 --longitude -122.3",
 		Annotations: map[string]string{"pp:endpoint": "forecast.get", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("latitude") && !flags.dryRun {

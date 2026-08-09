@@ -30,7 +30,7 @@ func newArchivePromotedCmd(flags *rootFlags) *cobra.Command {
 		Use:         "archive",
 		Short:       "Historical hourly/daily weather observations from ERA5 (1940 to ~5 days ago).",
 		Long:        "Shortcut for 'archive get'. Historical hourly/daily weather observations from ERA5 (1940 to ~5 days ago).",
-		Example:     "  open-meteo-pp-cli archive",
+		Example:     "  open-meteo-pp-cli archive --latitude 47.6 --longitude -122.3 --start-date 2024-01-01 --end-date 2024-01-31",
 		Annotations: map[string]string{"pp:endpoint": "archive.get", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("latitude") && !flags.dryRun {

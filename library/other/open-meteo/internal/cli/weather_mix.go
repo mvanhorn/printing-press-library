@@ -1,5 +1,7 @@
 package cli
 
+// pp:data-source computed -- derives results from live Open-Meteo API responses
+
 import (
 	"encoding/json"
 	"fmt"

@@ -19,7 +19,7 @@ func newElevationPromotedCmd(flags *rootFlags) *cobra.Command {
 		Use:         "elevation",
 		Short:       "Lookup elevation in meters for one or more coordinate pairs (up to 100).",
 		Long:        "Shortcut for 'elevation get'. Lookup elevation in meters for one or more coordinate pairs (up to 100).",
-		Example:     "  open-meteo-pp-cli elevation",
+		Example:     "  open-meteo-pp-cli elevation --latitude 47.6 --longitude -122.3",
 		Annotations: map[string]string{"pp:endpoint": "elevation.get", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("latitude") && !flags.dryRun {

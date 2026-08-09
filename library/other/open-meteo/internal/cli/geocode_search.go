@@ -20,7 +20,7 @@ func newGeocodeSearchCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "search",
 		Short:       "Search locations worldwide by name ('Berlin', 'Springfield, IL') or postcode.",
-		Example:     "  open-meteo-pp-cli geocode search",
+		Example:     "  open-meteo-pp-cli geocode search --name Berlin",
 		Annotations: map[string]string{"pp:endpoint": "geocode.search", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("name") && !flags.dryRun {
