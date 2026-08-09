@@ -122,6 +122,8 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 Public catalog commands work without credentials. Set ANILIST_TOKEN only for your viewer data and account mutations; AniList OAuth tokens are long-lived but expire after one year and cannot be refreshed.
 
+The MCP server uses stdio by default. HTTP mode binds to `127.0.0.1:7777`; any non-loopback `--addr` requires `ANILIST_MCP_AUTH_TOKEN`, and clients must send that value as a Bearer token.
+
 ## Quick Start
 
 ```bash

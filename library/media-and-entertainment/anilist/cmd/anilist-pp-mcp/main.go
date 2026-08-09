@@ -4,10 +4,14 @@
 package main
 
 import (
+	"crypto/subtle"
 	"flag"
 	"fmt"
+	"net"
+	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/mark3labs/mcp-go/server"
 	mcptools "github.com/mvanhorn/printing-press-library/library/media-and-entertainment/anilist/internal/mcp"
@@ -20,7 +24,8 @@ import (
 // guidance that production agents need a remote option.
 
 const (
-	defaultHTTPAddr = ":7777"
+	defaultHTTPAddr = "127.0.0.1:7777"
+	mcpAuthTokenEnv = "ANILIST_MCP_AUTH_TOKEN"
 )
 
 // version is the printed MCP server's version, overridable at build time via ldflags.
@@ -49,7 +54,11 @@ func main() {
 			os.Exit(1)
 		}
 	case "http":
-		httpSrv := server.NewStreamableHTTPServer(s)
+		httpSrv, err := newStreamableHTTPServer(s, *addr, os.Getenv(mcpAuthTokenEnv))
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "MCP server error: %v\n", err)
+			os.Exit(2)
+		}
 		fmt.Fprintf(os.Stderr, "anilist-pp-mcp serving MCP over streamable HTTP at %s\n", *addr)
 		if err := httpSrv.Start(*addr); err != nil {
 			fmt.Fprintf(os.Stderr, "MCP server error: %v\n", err)
@@ -59,6 +68,61 @@ func main() {
 		fmt.Fprintf(os.Stderr, "unknown --transport %q (supported: stdio, http)\n", *transport)
 		os.Exit(2)
 	}
+}
+
+func newStreamableHTTPServer(mcpServer *server.MCPServer, addr, authToken string) (*server.StreamableHTTPServer, error) {
+	loopback, err := isLoopbackAddress(addr)
+	if err != nil {
+		return nil, err
+	}
+	authToken = strings.TrimSpace(authToken)
+	if !loopback && authToken == "" {
+		return nil, fmt.Errorf("refusing unauthenticated non-loopback bind %q; set %s or bind to 127.0.0.1", addr, mcpAuthTokenEnv)
+	}
+
+	var streamable *server.StreamableHTTPServer
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		streamable.ServeHTTP(w, r)
+	}))
+	if authToken != "" {
+		handler = requireBearerToken(authToken, handler)
+	}
+	mux := http.NewServeMux()
+	mux.Handle("/mcp", handler)
+	httpServer := &http.Server{
+		Addr:              addr,
+		Handler:           mux,
+		ReadHeaderTimeout: 5 * time.Second,
+	}
+	streamable = server.NewStreamableHTTPServer(mcpServer, server.WithStreamableHTTPServer(httpServer))
+	return streamable, nil
+}
+
+func isLoopbackAddress(addr string) (bool, error) {
+	host, _, err := net.SplitHostPort(addr)
+	if err != nil {
+		return false, fmt.Errorf("invalid HTTP bind address %q: %w", addr, err)
+	}
+	if strings.EqualFold(host, "localhost") {
+		return true, nil
+	}
+	ip := net.ParseIP(host)
+	return ip != nil && ip.IsLoopback(), nil
+}
+
+func requireBearerToken(token string, next http.Handler) http.Handler {
+	want := []byte(token)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		scheme, credential, ok := strings.Cut(r.Header.Get("Authorization"), " ")
+		authorized := ok && strings.EqualFold(scheme, "Bearer") &&
+			subtle.ConstantTimeCompare([]byte(credential), want) == 1
+		if !authorized {
+			w.Header().Set("WWW-Authenticate", `Bearer realm="anilist-pp-mcp"`)
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
 }
 
 // defaultTransport reads PP_MCP_TRANSPORT env when set, otherwise falls back

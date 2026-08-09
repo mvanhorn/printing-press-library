@@ -20,6 +20,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -467,8 +468,8 @@ is an information query, not a not-found error.
 
 Disabling: ` + noLearnEnvVar + `=true returns the empty shape even
 when learnings exist.`,
-		Example: `  anilist-pp-cli recall "<question>" --agent
-  anilist-pp-cli recall "<question>" --agent --min-confidence 2`,
+		Example: `  anilist-pp-cli recall - --agent
+  anilist-pp-cli recall "shows airing tonight" --agent --min-confidence 2`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -477,7 +478,10 @@ when learnings exist.`,
 			if dryRunOK(flags) {
 				return nil
 			}
-			query := strings.Join(args, " ")
+			query, err := recallQuery(cmd.InOrStdin(), args)
+			if err != nil {
+				return err
+			}
 			envelope := recallEnvelope{
 				Query:         query,
 				QueryEntities: []string{},
@@ -538,6 +542,33 @@ when learnings exist.`,
 	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite database file path (default: resolved data directory data.db)")
 	cmd.Flags().BoolVar(&debugMismatches, "debug-mismatches", false, "Include cross-entity mismatches in the envelope under mismatches[]")
 	return cmd
+}
+
+func recallQuery(stdin io.Reader, args []string) (string, error) {
+	if len(args) == 1 && args[0] == "-" {
+		data, err := io.ReadAll(io.LimitReader(stdin, 64*1024+1))
+		if err != nil {
+			return "", fmt.Errorf("reading recall query from stdin: %w", err)
+		}
+		if len(data) > 64*1024 {
+			return "", fmt.Errorf("recall query from stdin exceeds 64 KiB")
+		}
+		query := strings.TrimSpace(string(data))
+		if query == "" {
+			return "", fmt.Errorf("recall query from stdin is empty")
+		}
+		return query, nil
+	}
+	for _, arg := range args {
+		if arg == "-" {
+			return "", fmt.Errorf("stdin marker '-' must be the only recall query argument")
+		}
+	}
+	query := strings.TrimSpace(strings.Join(args, " "))
+	if query == "" {
+		return "", fmt.Errorf("recall query is empty")
+	}
+	return query, nil
 }
 
 func toEnvelopeResults(in []learn.Hit) []recallEnvelopeResult {

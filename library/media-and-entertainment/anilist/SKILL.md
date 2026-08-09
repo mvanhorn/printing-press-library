@@ -211,10 +211,10 @@ This CLI ships a self-capturing learning loop. The CLI does its own bookkeeping:
 
 ### Step 1: `recall` before any discovery
 
-Before list/search/drill commands on a new user question, run:
+Before list/search/drill commands on a new user question, pass the exact question as `ANILIST_QUERY` in the process environment (not as an inline shell assignment), then run the command below. Expanding a quoted variable passes metacharacters as data; do not splice user text into a shell command string.
 
 ```bash
-anilist-pp-cli recall "<user's question>" --agent
+anilist-pp-cli recall "$ANILIST_QUERY" --agent
 ```
 
 The response envelope:
