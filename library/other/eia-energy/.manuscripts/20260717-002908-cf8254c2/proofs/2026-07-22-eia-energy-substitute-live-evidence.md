@@ -1,10 +1,28 @@
-# EIA Energy substitute live evidence — 2026-07-22
+# EIA Energy substitute live evidence — refreshed 2026-08-09
 
 ## Credential boundary
 
 `EIA_API_KEY` was not present in the validation environment. EIA's official API documentation requires a free individual key for normal use, so this report does not claim credentialed Phase 5 acceptance. The documented registration and API contract are at <https://www.eia.gov/opendata/documentation.php>.
 
 The non-secret `DEMO_KEY` endpoint behavior was used only as substitute read-only evidence. A direct metadata request to `https://api.eia.gov/v2/electricity/retail-sales/?api_key=DEMO_KEY` returned HTTP 200 with response ID `retail-sales`; no response payload or credential was archived.
+
+## Current-head live read
+
+Validated code commit `c070a81e1c967d13a6b9664f147d9a5a5555c1c5`
+was rebuilt and exercised through the shipped CLI with the non-secret demo key:
+
+```text
+EIA_ENERGY_API_KEY=DEMO_KEY eia-energy-pp-cli doctor --json --no-cache
+PASS: API reachable; canonical env credential recognized
+
+EIA_ENERGY_API_KEY=DEMO_KEY eia-energy-pp-cli electricity --length 1 --json --no-cache --no-learn
+PASS: live source returned one hourly EIA-930 balancing-authority row
+      with period, respondent, type, value, and value-units
+```
+
+The returned row was displayed only in the validation terminal and is not
+committed. This verifies current-head auth wiring, request construction,
+upstream reachability, response decoding, and JSON output end to end.
 
 ## Canonical shipcheck
 
@@ -37,9 +55,10 @@ Because the shared demo key was throttled, the failed acceptance marker is inten
 ## Local validation after fixes
 
 ```text
-go test ./internal/cli ./internal/client ./internal/config: PASS
+go test ./...: PASS (576 named tests; 8 service-shaped HTTP test servers)
 go vet ./...: PASS
 go build ./...: PASS
+verify-skill --strict: PASS
 all six novel-command help surfaces contain Examples: PASS
 ```
 
