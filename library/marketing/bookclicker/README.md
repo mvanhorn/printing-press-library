@@ -508,5 +508,5 @@ If you use agentcookie to sync secrets across machines, this CLI auto-adopts age
 - **Every command returns 401 or redirects to the login page** — Run 'bookclicker-pp-cli auth login' — the Rails session cookie has expired.
 - **A mutating command fails with 422 Unprocessable Entity** — The CSRF token is stale; run 'bookclicker-pp-cli auth refresh' to re-scrape it.
 - **search or plan returns nothing** — Run 'bookclicker-pp-cli sync' first; both read the local mirror, not the live API.
-- **partner-roi or drift shows little or no data** — Run 'bookclicker-pp-cli reservations pull --all' to mirror reservation history, then re-run.
+- **partner-roi or drift shows little or no data** — Run `bookclicker-pp-cli reservations pull --all` to mirror reservation history, then re-run.
 - **A GET against an endpoint returns 404** — Several Bookclicker routes are POST-only and reject GET; use the matching subcommand rather than a raw path.

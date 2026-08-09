@@ -4,11 +4,12 @@
   "applied_at": "2026-08-09",
   "base_run_id": "20260808-155629-63957004",
   "base_printing_press_version": "4.30.1",
-  "summary": "Set .printing-press.json auth_env_vars to [\"BOOKCLICKER_SESSION\"], the credential the spec declares.",
-  "reason": "generate emits auth_env_vars: [\"PRINTING_PRESS_CLIENT_PROFILE\"] on some runs even though the spec's auth block declares env_vars: [BOOKCLICKER_SESSION]. That name is the framework's tenant-gated client-profile selector, not this CLI's credential; this CLI authenticates with a Rails session cookie and configures no client-profile source. The value flapped across reprints (PRINTING_PRESS_CLIENT_PROFILE, then BOOKCLICKER_SESSION for four prints, then back), and a reprint with BOOKCLICKER_SESSION exported still produced the wrong value, so it is driven by neither the spec nor the environment. auth_env_vars is what the public registry reads for the credential name, so left uncorrected the listing tells installers to set the wrong variable. README.md and SKILL.md document BOOKCLICKER_SESSION correctly, making the manifest the only misleading surface.",
+  "summary": "Point the credential metadata at BOOKCLICKER_SESSION, the env var the spec declares: auth_env_vars in .printing-press.json, and the MCP server env plus user_config in manifest.json.",
+  "reason": "generate emits PRINTING_PRESS_CLIENT_PROFILE as this CLI's credential on some runs even though the spec's auth block declares env_vars: [BOOKCLICKER_SESSION]. That name is the framework's tenant-gated client-profile selector, not this CLI's credential; this CLI authenticates with a Rails session cookie and configures no client-profile source. In manifest.json the effect is functional, not cosmetic: server.mcp_config.env mapped PRINTING_PRESS_CLIENT_PROFILE, so an MCP host would prompt for a \"Client profile\" and the server would never receive the session cookie, failing auth on every tool call. The user_config entry also lacked sensitive: true, unlike every other credential-bearing CLI in this category. The value flapped across reprints and a reprint with BOOKCLICKER_SESSION exported still produced the wrong one, so it follows neither the spec nor the environment. The library's Validate MCPB manifest contract check caught the manifest half.",
   "files": [
-    ".printing-press.json"
+    ".printing-press.json",
+    "manifest.json"
   ],
-  "validated_outcome": "publish validate passes 11/11 with the corrected value, and the packaged manifest advertises BOOKCLICKER_SESSION. Re-check this field after any regen or lock promote, both of which regenerate the manifest and revert it.",
+  "validated_outcome": "publish validate passes 11/11; the MCPB manifest contract check requires server.mcp_config.env to contain the declared auth env vars, and now does. The env/user_config shape matches sibling CLIs (erank, everbee, dub, beehiiv). Re-check both files after any regen or lock promote, which regenerate them and revert this.",
   "upstream_issue": null
 }
