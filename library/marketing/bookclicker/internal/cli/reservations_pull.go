@@ -39,14 +39,14 @@ func init() {
 }
 
 type pullResult struct {
-	Books    int      `json:"books_scanned"`
-	Found    int      `json:"reservations_found"`
-	Inserted int      `json:"inserted"`
-	Updated  int      `json:"updated"`
-	BookIDs  []int64  `json:"book_ids"`
-	Skipped  []string `json:"skipped,omitempty"`
-	DryRun   bool     `json:"dry_run,omitempty"`
-	Note     string   `json:"note,omitempty"`
+	Books     int      `json:"books_scanned"`
+	Found     int      `json:"reservations_found"`
+	Inserted  int      `json:"inserted"`
+	Updated   int      `json:"updated"`
+	BookIDs   []int64  `json:"book_ids"`
+	Skipped   []string `json:"skipped,omitempty"`
+	DryRun    bool     `json:"dry_run,omitempty"`
+	Note      string   `json:"note,omitempty"`
 }
 
 // reDataPromos captures the launch page's embedded reservation payload. The
@@ -343,11 +343,36 @@ func upsertReservation(ctx context.Context, db *store.Store, r novelReservation)
 			 status, is_swap, price, swap_reservation_id, counterparty, created_at,
 			 seller_accepted_at, seller_declined_at, buyer_cancelled_at, source, synced_at)
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'launch-page', CURRENT_TIMESTAMP)
+		-- Refresh every column, not just status and the numeric metrics. This is a
+		-- mirror of the launch page, so a re-pull must converge on what the page
+		-- now says. Partial refresh silently corrupted two commands:
+		--
+		--   partner-roi aggregates by list_name (falling back to counterparty) and
+		--   swap-balance by counterparty (falling back to list_name) — both string
+		--   keys. A renamed newsletter kept its old name on existing rows while new
+		--   rows carried the new one, splitting one partner into two identities.
+		--
+		--   swap-balance counts a swap as paired when swap_reservation_id > 0. That
+		--   id is assigned when the swap is matched, which is usually after the
+		--   reservation was first mirrored, so a never-refreshed column left paired
+		--   swaps counted as unpaired forever.
+		--
+		-- date and inv_type feed capacity and launch health, so they go stale the
+		-- same way when a promo is rescheduled or its slot type changes.
 		ON CONFLICT(id) DO UPDATE SET
-			status = excluded.status,
+			book_id = excluded.book_id,
+			book_title = excluded.book_title,
+			list_id = excluded.list_id,
+			list_name = excluded.list_name,
 			list_size = excluded.list_size,
+			date = excluded.date,
+			inv_type = excluded.inv_type,
+			status = excluded.status,
 			is_swap = excluded.is_swap,
 			price = excluded.price,
+			swap_reservation_id = excluded.swap_reservation_id,
+			counterparty = excluded.counterparty,
+			created_at = excluded.created_at,
 			seller_accepted_at = excluded.seller_accepted_at,
 			seller_declined_at = excluded.seller_declined_at,
 			buyer_cancelled_at = excluded.buyer_cancelled_at,
