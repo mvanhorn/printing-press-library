@@ -124,11 +124,27 @@ func validateCheckoutURL(raw string) error {
 		return fmt.Errorf("Ticketmaster returned an unsafe or missing checkout URL")
 	}
 	host := strings.ToLower(parsed.Hostname())
-	official := strings.Contains(host, "ticketmaster.") ||
-		host == "universe.com" || strings.HasSuffix(host, ".universe.com") ||
-		host == "frontgatetickets.com" || strings.HasSuffix(host, ".frontgatetickets.com")
+	official := hostWithinAnyDomain(host, []string{
+		"ticketmaster.com", "ticketmaster.ca", "ticketmaster.co.uk",
+		"ticketmaster.ie", "ticketmaster.de", "ticketmaster.fr",
+		"ticketmaster.es", "ticketmaster.nl", "ticketmaster.be",
+		"ticketmaster.at", "ticketmaster.ch", "ticketmaster.cz",
+		"ticketmaster.dk", "ticketmaster.fi", "ticketmaster.no",
+		"ticketmaster.pl", "ticketmaster.se", "ticketmaster.it",
+		"ticketmaster.com.au", "ticketmaster.co.nz", "ticketmaster.com.mx",
+		"universe.com", "frontgatetickets.com",
+	})
 	if !official {
 		return fmt.Errorf("Ticketmaster returned a checkout URL on an unrecognized host %q", host)
 	}
 	return nil
+}
+
+func hostWithinAnyDomain(host string, domains []string) bool {
+	for _, domain := range domains {
+		if host == domain || strings.HasSuffix(host, "."+domain) {
+			return true
+		}
+	}
+	return false
 }

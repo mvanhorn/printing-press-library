@@ -54,13 +54,25 @@ func TestSelectCheckoutPresalePrefersOpenThenUpcoming(t *testing.T) {
 }
 
 func TestValidateCheckoutURL(t *testing.T) {
-	for _, raw := range []string{"", "http://example.com", "javascript:alert(1)", "https://user:pass@example.com", "https://example.com/event/123"} {
+	for _, raw := range []string{
+		"", "http://example.com", "javascript:alert(1)",
+		"https://user:pass@example.com", "https://example.com/event/123",
+		"https://ticketmaster.evil.example/event/123",
+		"https://not-ticketmaster.com/event/123",
+	} {
 		if err := validateCheckoutURL(raw); err == nil {
 			t.Fatalf("validateCheckoutURL(%q) unexpectedly passed", raw)
 		}
 	}
-	if err := validateCheckoutURL("https://www.ticketmaster.com/event/123"); err != nil {
-		t.Fatalf("valid URL failed: %v", err)
+	for _, raw := range []string{
+		"https://www.ticketmaster.com/event/123",
+		"https://ticketmaster.co.uk/event/123",
+		"https://tickets.universe.com/event/123",
+		"https://www.frontgatetickets.com/event/123",
+	} {
+		if err := validateCheckoutURL(raw); err != nil {
+			t.Fatalf("valid URL %q failed: %v", raw, err)
+		}
 	}
 }
 
