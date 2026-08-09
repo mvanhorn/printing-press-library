@@ -21,7 +21,10 @@ import (
 // guidance that production agents need a remote option.
 
 const (
-	defaultHTTPAddr = ":7777"
+	// Keep the unauthenticated HTTP transport local by default. Operators who
+	// deliberately put the server behind an authenticated reverse proxy can
+	// still opt into another interface with --addr.
+	defaultHTTPAddr = "127.0.0.1:7777"
 )
 
 // version is the printed MCP server's version, overridable at build time via ldflags.

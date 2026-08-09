@@ -48,3 +48,16 @@ func TestConfigureMovieGluClientRejectsMissingProviderCredentials(t *testing.T) 
 		t.Fatalf("configureMovieGluClient() error = %v, want missing credential error", err)
 	}
 }
+
+func TestConfigureMovieGluClientRejectsMissingGeolocation(t *testing.T) {
+	t.Setenv("MOVIEGLU_CLIENT", "evaluation-user")
+	t.Setenv("MOVIEGLU_AUTHORIZATION", "Basic abc123")
+	t.Setenv("MOVIEGLU_TERRITORY", "US")
+	t.Setenv("MOVIEGLU_GEOLOCATION", "")
+
+	c := client.New(&config.Config{}, 0, 0)
+	err := configureMovieGluClient(c)
+	if err == nil || !strings.Contains(err.Error(), "MOVIEGLU_GEOLOCATION is required") {
+		t.Fatalf("configureMovieGluClient() error = %v, want missing geolocation error", err)
+	}
+}
