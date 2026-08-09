@@ -23,7 +23,6 @@ func configureMovieGluClient(c *client.Client) error {
 		"MOVIEGLU_CLIENT":        strings.TrimSpace(os.Getenv("MOVIEGLU_CLIENT")),
 		"MOVIEGLU_AUTHORIZATION": strings.TrimSpace(os.Getenv("MOVIEGLU_AUTHORIZATION")),
 		"MOVIEGLU_TERRITORY":     strings.ToUpper(strings.TrimSpace(os.Getenv("MOVIEGLU_TERRITORY"))),
-		"MOVIEGLU_GEOLOCATION":   strings.TrimSpace(os.Getenv("MOVIEGLU_GEOLOCATION")),
 	}
 	for name, value := range required {
 		if value == "" {
@@ -41,6 +40,15 @@ func configureMovieGluClient(c *client.Client) error {
 	c.Config.Headers["territory"] = required["MOVIEGLU_TERRITORY"]
 	c.Config.Headers["api-version"] = "v200"
 	c.Config.Headers["device-datetime"] = time.Now().Format("2006-01-02T15:04:05.000")
-	c.Config.Headers["geolocation"] = required["MOVIEGLU_GEOLOCATION"]
+	if geolocation := strings.TrimSpace(os.Getenv("MOVIEGLU_GEOLOCATION")); geolocation != "" {
+		c.Config.Headers["geolocation"] = geolocation
+	}
+	return nil
+}
+
+func requireMovieGluGeolocation() error {
+	if strings.TrimSpace(os.Getenv("MOVIEGLU_GEOLOCATION")) == "" {
+		return fmt.Errorf("MOVIEGLU_GEOLOCATION is required for location-dependent commands; use latitude;longitude (for example, 40.7128;-74.0060)")
+	}
 	return nil
 }

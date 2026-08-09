@@ -55,9 +55,13 @@ func TestConfigureMovieGluClientRejectsMissingGeolocation(t *testing.T) {
 	t.Setenv("MOVIEGLU_TERRITORY", "US")
 	t.Setenv("MOVIEGLU_GEOLOCATION", "")
 
-	c := client.New(&config.Config{}, 0, 0)
-	err := configureMovieGluClient(c)
+	err := requireMovieGluGeolocation()
 	if err == nil || !strings.Contains(err.Error(), "MOVIEGLU_GEOLOCATION is required") {
-		t.Fatalf("configureMovieGluClient() error = %v, want missing geolocation error", err)
+		t.Fatalf("requireMovieGluGeolocation() error = %v, want missing geolocation error", err)
+	}
+
+	c := client.New(&config.Config{}, 0, 0)
+	if err := configureMovieGluClient(c); err != nil {
+		t.Fatalf("location-independent client configuration rejected: %v", err)
 	}
 }

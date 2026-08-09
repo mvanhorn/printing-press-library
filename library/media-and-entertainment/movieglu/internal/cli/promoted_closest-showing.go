@@ -43,6 +43,11 @@ func newClosestShowingPromotedCmd(flags *rootFlags) *cobra.Command {
 			if !cmd.Flags().Changed("film-id") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "film-id")
 			}
+			if !flags.dryRun && os.Getenv("PRINTING_PRESS_VERIFY") != "1" {
+				if err := requireMovieGluGeolocation(); err != nil {
+					return err
+				}
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err

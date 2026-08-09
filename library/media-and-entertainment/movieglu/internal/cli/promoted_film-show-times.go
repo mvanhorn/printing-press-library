@@ -47,6 +47,11 @@ func newFilmShowTimesPromotedCmd(flags *rootFlags) *cobra.Command {
 			if !cmd.Flags().Changed("date") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "date")
 			}
+			if !flags.dryRun && os.Getenv("PRINTING_PRESS_VERIFY") != "1" {
+				if err := requireMovieGluGeolocation(); err != nil {
+					return err
+				}
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err

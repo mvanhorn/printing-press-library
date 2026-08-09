@@ -21,6 +21,11 @@ func newCinemasNearbyPromotedCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  movieglu-pp-cli cinemas-nearby",
 		Annotations: map[string]string{"pp:endpoint": "cinemas-nearby.cinemas_nearby", "pp:method": "GET", "pp:path": "/cinemasNearby/", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !flags.dryRun && os.Getenv("PRINTING_PRESS_VERIFY") != "1" {
+				if err := requireMovieGluGeolocation(); err != nil {
+					return err
+				}
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
