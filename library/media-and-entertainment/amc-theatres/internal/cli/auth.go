@@ -208,8 +208,8 @@ func readToken(r io.Reader, stderr io.Writer, nonInteractive bool) (string, erro
 }
 
 func validateTokenInputMode(isTerminal, nonInteractive bool) error {
-	if isTerminal && nonInteractive {
-		return fmt.Errorf("token input is required on piped stdin when --no-input or --agent is set")
+	if nonInteractive {
+		return fmt.Errorf("auth set-token does not accept --no-input or --agent; pipe the token without those flags")
 	}
 	return nil
 }

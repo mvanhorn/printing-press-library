@@ -3,8 +3,10 @@
 package cli
 
 import (
+	"io"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestReadToken(t *testing.T) {
@@ -43,6 +45,32 @@ func TestSetTokenRejectsCredentialArgument(t *testing.T) {
 	}
 }
 
+func TestSetTokenNonInteractiveDoesNotReadOpenPipe(t *testing.T) {
+	t.Parallel()
+
+	reader, writer := io.Pipe()
+	t.Cleanup(func() {
+		_ = reader.Close()
+		_ = writer.Close()
+	})
+
+	cmd := newAuthSetTokenCmd(&rootFlags{agent: true})
+	cmd.SetIn(reader)
+	done := make(chan error, 1)
+	go func() {
+		done <- cmd.RunE(cmd, nil)
+	}()
+
+	select {
+	case err := <-done:
+		if err == nil || !strings.Contains(err.Error(), "does not accept --no-input or --agent") {
+			t.Fatalf("set-token error = %v, want non-interactive rejection", err)
+		}
+	case <-time.After(250 * time.Millisecond):
+		t.Fatal("set-token blocked while reading an open empty stdin pipe")
+	}
+}
+
 func TestValidateTokenInputMode(t *testing.T) {
 	t.Parallel()
 
@@ -54,7 +82,7 @@ func TestValidateTokenInputMode(t *testing.T) {
 	}{
 		{name: "interactive terminal", isTerminal: true},
 		{name: "piped interactive", isTerminal: false},
-		{name: "piped agent", nonInteractive: true},
+		{name: "piped agent rejected", nonInteractive: true, wantErr: true},
 		{name: "agent terminal rejected", isTerminal: true, nonInteractive: true, wantErr: true},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
