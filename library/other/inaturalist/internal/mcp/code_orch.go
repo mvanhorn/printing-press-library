@@ -45,6 +45,7 @@ func RegisterCodeOrchestrationTools(s *server.MCPServer) {
 			mcplib.WithDescription("Execute one inaturalist API endpoint by its endpoint_id (from inaturalist_search). Params are passed as a JSON object; path placeholders and query strings are resolved automatically."),
 			mcplib.WithString("endpoint_id", mcplib.Required(), mcplib.Description("Endpoint identifier returned by inaturalist_search (e.g., \"users.list\").")),
 			mcplib.WithObject("params", mcplib.Description("Parameters for the endpoint. Path placeholders match by name; remaining entries become query string on GET/DELETE or JSON body on POST/PUT/PATCH.")),
+			mcplib.WithBoolean("confirm", mcplib.Description("Required and true for POST, PUT, PATCH, or DELETE after reviewing the endpoint and parameters.")),
 		),
 		handleCodeOrchExecute,
 	)
@@ -1258,6 +1259,12 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 	if ep == nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("unknown endpoint_id %q — call inaturalist_search to discover valid ids", id)), nil
 	}
+	if isMutationMethod(ep.Method) {
+		confirmed, _ := args["confirm"].(bool)
+		if !confirmed {
+			return mcplib.NewToolResultError(fmt.Sprintf("confirmation required for %s endpoint %q: review endpoint_id and params, then call again with confirm=true", ep.Method, ep.ID)), nil
+		}
+	}
 
 	params, _ := args["params"].(map[string]any)
 	if params == nil {
@@ -1344,6 +1351,15 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 		return mcplib.NewToolResultError(err.Error()), nil
 	}
 	return mcplib.NewToolResultText(bound.EndpointResponse(ep.Method, data)), nil
+}
+
+func isMutationMethod(method string) bool {
+	switch strings.ToUpper(strings.TrimSpace(method)) {
+	case "POST", "PUT", "PATCH", "DELETE":
+		return true
+	default:
+		return false
+	}
 }
 
 // codeOrchWriteBody returns the value handed to the client layer as the

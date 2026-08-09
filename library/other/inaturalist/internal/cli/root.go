@@ -284,6 +284,9 @@ See README.md or the bundled SKILL.md for recipes.`,
 				noColor = true
 			}
 		}
+		if err := requireMutationConfirmation(cmd, flags); err != nil {
+			return err
+		}
 		switch flags.dataSource {
 		case "auto", "live", "local":
 			// valid
@@ -364,6 +367,22 @@ See README.md or the bundled SKILL.md for recipes.`,
 	}
 
 	return rootCmd
+}
+
+func requireMutationConfirmation(cmd *cobra.Command, flags *rootFlags) error {
+	if cmd == nil || flags == nil || flags.dryRun || flags.yes {
+		return nil
+	}
+	method := ""
+	if cmd.Annotations != nil {
+		method = strings.ToUpper(strings.TrimSpace(cmd.Annotations["pp:method"]))
+	}
+	switch method {
+	case "POST", "PUT", "PATCH", "DELETE":
+		return fmt.Errorf("confirmation required for %s request: review the operation, then pass --yes (or use --dry-run to preview)", method)
+	default:
+		return nil
+	}
 }
 
 // learnHookSkipList enumerates framework command path segments that any

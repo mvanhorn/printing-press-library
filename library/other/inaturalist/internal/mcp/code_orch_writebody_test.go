@@ -4,9 +4,31 @@
 package mcp
 
 import (
+	"context"
 	"encoding/json"
+	"strings"
 	"testing"
+
+	mcplib "github.com/mark3labs/mcp-go/mcp"
 )
+
+func TestCodeOrchMutationRequiresExplicitConfirmation(t *testing.T) {
+	result, err := handleCodeOrchExecute(context.Background(), mcplib.CallToolRequest{Params: mcplib.CallToolParams{
+		Arguments: map[string]any{
+			"endpoint_id": "observations.delete",
+			"params":      map[string]any{"id": "123"},
+		},
+	}})
+	if err != nil {
+		t.Fatalf("handleCodeOrchExecute transport error: %v", err)
+	}
+	if result == nil || !result.IsError {
+		t.Fatalf("unconfirmed mutation IsError = %v, want true", result != nil && result.IsError)
+	}
+	if text := mcpTextContent(t, result); !strings.Contains(text, "confirm=true") {
+		t.Fatalf("confirmation error missing retry guidance: %q", text)
+	}
+}
 
 // TestCodeOrchWriteBody_MarshalsToJSONObject pins the write-body contract.
 //
