@@ -1192,7 +1192,7 @@ func looksLikeCredentialPlaceholder(value string) bool {
 }
 
 func authPlaceholderCredentialError(cfg *config.Config) error {
-	return authPlaceholderCredentialErrorWithSetup(cfg, "export AMC_THEATRES_VENDOR_KEY=<your-token> or amc-theatres-pp-cli auth set-token <token>")
+	return authPlaceholderCredentialErrorWithSetup(cfg, "export AMC_THEATRES_VENDOR_KEY=<your-token> or pipe the token to amc-theatres-pp-cli auth set-token on stdin")
 }
 
 func authPlaceholderCredentialErrorWithSetup(cfg *config.Config, setup string) error {

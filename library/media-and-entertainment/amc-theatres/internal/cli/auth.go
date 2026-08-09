@@ -4,15 +4,22 @@
 package cli
 
 import (
+	"bufio"
+	"errors"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"runtime"
+	"strings"
 
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/amc-theatres/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/amc-theatres/internal/config"
 	"github.com/spf13/cobra"
 )
+
+const secureSetTokenExample = `  read -rsp 'AMC vendor key: ' token; printf '\n'
+  printf '%s\n' "$token" | amc-theatres-pp-cli auth set-token; unset token`
 
 func newAuthCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
@@ -50,7 +57,7 @@ func newAuthSetupCmd(_ *rootFlags) *cobra.Command {
 			fmt.Fprintln(w, "  export AMC_THEATRES_AUTH_TOKEN=\"your-auth-token\"")
 			fmt.Fprintln(w, "  # Optional sandbox host:")
 			fmt.Fprintln(w, "  export AMC_THEATRES_ENV=sandbox")
-			fmt.Fprintln(w, "  amc-theatres-pp-cli auth set-token <token>")
+			_, _ = io.WriteString(w, secureSetTokenExample+"\n")
 			if !launch {
 				return nil
 			}
@@ -114,7 +121,7 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 				fmt.Fprintln(w, "")
 				fmt.Fprintln(w, "Set your token:")
 				fmt.Fprintln(w, "  export AMC_THEATRES_VENDOR_KEY=\"your-token-here\"")
-				fmt.Fprintf(w, "  amc-theatres-pp-cli auth set-token <token>\n")
+				_, _ = io.WriteString(w, secureSetTokenExample+"\n")
 				return authErr(fmt.Errorf("no credentials configured"))
 			}
 
@@ -128,11 +135,17 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 
 func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
-		Use:     "set-token <token>",
-		Short:   "Save an API token to the credentials file",
-		Example: "  amc-theatres-pp-cli auth set-token YOUR_TOKEN_HERE",
-		Args:    cobra.ExactArgs(1),
+		Use:     "set-token",
+		Short:   "Read an API token from stdin and save it to the credentials file",
+		Example: secureSetTokenExample,
+		Args:    cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			fmt.Fprint(cmd.ErrOrStderr(), "Token (read from stdin): ")
+			token, err := readToken(cmd.InOrStdin())
+			if err != nil {
+				return configErr(err)
+			}
+
 			cfg, err := config.Load(flags.configPath)
 			if err != nil {
 				return configErr(err)
@@ -149,7 +162,7 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 			// AccessToken. Writing the token to AccessToken via SaveTokens
 			// would persist the bytes but leave doctor reporting "not
 			// configured" — the slot the header builder consults stays empty.
-			if err := cfg.SaveCredential(args[0]); err != nil {
+			if err := cfg.SaveCredential(token); err != nil {
 				return configErr(fmt.Errorf("saving token: %w", err))
 			}
 
@@ -169,6 +182,18 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 			return nil
 		},
 	}
+}
+
+func readToken(r io.Reader) (string, error) {
+	token, err := bufio.NewReader(r).ReadString('\n')
+	if err != nil && !errors.Is(err, io.EOF) {
+		return "", fmt.Errorf("reading token from stdin: %w", err)
+	}
+	token = strings.TrimRight(token, "\r\n")
+	if strings.TrimSpace(token) == "" {
+		return "", fmt.Errorf("token from stdin is empty")
+	}
+	return token, nil
 }
 
 func credentialSavePath(cfg *config.Config) string {
