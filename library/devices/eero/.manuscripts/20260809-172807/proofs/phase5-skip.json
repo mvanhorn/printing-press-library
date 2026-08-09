@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "eero",
+  "cli_name": "eero-pp-cli",
+  "run_id": "20260809-172807",
+  "status": "skip",
+  "skip_reason": "cookie-auth-no-harness-session",
+  "auth_context": {
+    "type": "cookie",
+    "browser_session_available": false
+  },
+  "source_fingerprint": "d2043484b9c60ff2c6a375dd8afdddd4cbcd3e575c3e29742e617adbbd6f1178"
+}
