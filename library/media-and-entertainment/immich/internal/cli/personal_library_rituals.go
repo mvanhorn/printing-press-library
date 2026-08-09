@@ -292,23 +292,71 @@ func mapSourceCollections(ctx context.Context, flags *rootFlags, base, key strin
 	if e != nil {
 		return e
 	}
+	existingAlbums, err := destinationCollectionIDs(ctx, c, "/albums", "albumName")
+	if err != nil {
+		return fmt.Errorf("list destination albums: %w", err)
+	}
+	existingTags, err := destinationCollectionIDs(ctx, c, "/tags", "name")
+	if err != nil {
+		return fmt.Errorf("list destination tags: %w", err)
+	}
 	for _, mutation := range albumMutations {
-		if _, _, e := c.Post(ctx, "/albums", map[string]any{"albumName": mutation.Name, "assetIds": mutation.AssetIDs}); e != nil {
+		id := existingAlbums[mutation.Name]
+		if id == "" {
+			d, _, createErr := c.Post(ctx, "/albums", map[string]any{"albumName": mutation.Name})
+			if createErr != nil {
+				return createErr
+			}
+			id = jsonID(d)
+			if id == "" {
+				return fmt.Errorf("create destination album %q returned no id", mutation.Name)
+			}
+			existingAlbums[mutation.Name] = id
+		}
+		if _, _, e = c.Put(ctx, "/albums/"+url.PathEscape(id)+"/assets", map[string]any{"ids": mutation.AssetIDs}); e != nil {
 			return e
 		}
 	}
 	for _, mutation := range tagMutations {
-		d, _, e := c.Post(ctx, "/tags", map[string]any{"name": mutation.Name})
-		if e != nil {
-			return e
-		}
-		if id := jsonID(d); id != "" {
-			if _, _, e = c.Put(ctx, "/tags/"+url.PathEscape(id)+"/assets", map[string]any{"ids": mutation.AssetIDs}); e != nil {
-				return e
+		id := existingTags[mutation.Name]
+		if id == "" {
+			d, _, createErr := c.Post(ctx, "/tags", map[string]any{"name": mutation.Name})
+			if createErr != nil {
+				return createErr
 			}
+			id = jsonID(d)
+			if id == "" {
+				return fmt.Errorf("create destination tag %q returned no id", mutation.Name)
+			}
+			existingTags[mutation.Name] = id
+		}
+		if _, _, e = c.Put(ctx, "/tags/"+url.PathEscape(id)+"/assets", map[string]any{"ids": mutation.AssetIDs}); e != nil {
+			return e
 		}
 	}
 	return nil
+}
+
+func destinationCollectionIDs(ctx context.Context, c *client.Client, path, nameField string) (map[string]string, error) {
+	data, err := c.Get(ctx, path, nil)
+	if err != nil {
+		return nil, err
+	}
+	var rows []map[string]any
+	if err := json.Unmarshal(data, &rows); err != nil {
+		return nil, fmt.Errorf("decode %s response: %w", path, err)
+	}
+	ids := make(map[string]string, len(rows))
+	for _, row := range rows {
+		name, _ := row[nameField].(string)
+		id, _ := row["id"].(string)
+		if name != "" && id != "" {
+			if _, exists := ids[name]; !exists {
+				ids[name] = id
+			}
+		}
+	}
+	return ids, nil
 }
 
 type sourceCollectionAsset struct {
@@ -865,7 +913,7 @@ func markWatchAssetsUploaded(assets []importAsset, seen map[string]fileStamp) {
 }
 
 func shouldMarkWatchAssetsUploaded(sum importSummary) bool {
-	return !sum.AlbumAssignmentFailed
+	return sum.Failed == 0
 }
 
 func fetchSourceImmich(ctx context.Context, base, key string, max int) ([]importAsset, []string, error) {

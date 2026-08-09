@@ -84,7 +84,7 @@ func TestWatchKeepsAssetsPendingAfterAlbumAssignmentFailure(t *testing.T) {
 	if len(ready) != 1 {
 		t.Fatalf("initial watch batch = %#v", ready)
 	}
-	if shouldMarkWatchAssetsUploaded(importSummary{AlbumAssignmentFailed: true}) {
+	if shouldMarkWatchAssetsUploaded(importSummary{Failed: 1, AlbumAssignmentFailed: true}) {
 		markWatchAssetsUploaded(ready, seen)
 	}
 	retry := readyWatchAssets([]importAsset{asset}, seen, now.Add(2*time.Second), 0)
@@ -96,6 +96,9 @@ func TestWatchKeepsAssetsPendingAfterAlbumAssignmentFailure(t *testing.T) {
 	}
 	if ready := readyWatchAssets([]importAsset{asset}, seen, now.Add(3*time.Second), 0); len(ready) != 0 {
 		t.Fatalf("repaired watch asset remained pending: %#v", ready)
+	}
+	if shouldMarkWatchAssetsUploaded(importSummary{Failed: 1}) {
+		t.Fatal("failed upload batch would be marked complete")
 	}
 }
 
@@ -738,9 +741,12 @@ func TestMapSourceCollectionsCreatesTagsWithName(t *testing.T) {
 	destination := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		path := strings.TrimPrefix(r.URL.Path, "/api")
 		switch path {
+		case "/albums":
+			_, _ = w.Write([]byte(`[]`))
 		case "/tags":
-			if r.Method != http.MethodPost {
-				t.Fatalf("tag method = %s", r.Method)
+			if r.Method == http.MethodGet {
+				_, _ = w.Write([]byte(`[]`))
+				return
 			}
 			_ = json.NewDecoder(r.Body).Decode(&createdTag)
 			_, _ = w.Write([]byte(`{"id":"tag-1"}`))
@@ -775,6 +781,79 @@ func TestMapSourceCollectionsCreatesTagsWithName(t *testing.T) {
 	}
 	if len(createdTag) != 1 || createdTag["name"] != "vacation" {
 		t.Fatalf("tag create body = %#v", createdTag)
+	}
+}
+
+func TestMapSourceCollectionsResumesAfterPartialDestinationFailure(t *testing.T) {
+	withTempLearnHome(t)
+	albumCreated, tagCreated, failTagMembership := false, false, true
+	albumPosts, tagPosts, albumPuts, tagPuts := 0, 0, 0, 0
+	destination := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		path := strings.TrimPrefix(r.URL.Path, "/api")
+		switch path {
+		case "/albums":
+			if r.Method == http.MethodGet {
+				if albumCreated {
+					_, _ = w.Write([]byte(`[{"id":"album-1","albumName":"trip"}]`))
+				} else {
+					_, _ = w.Write([]byte(`[]`))
+				}
+				return
+			}
+			albumPosts++
+			albumCreated = true
+			_, _ = w.Write([]byte(`{"id":"album-1"}`))
+		case "/albums/album-1/assets":
+			albumPuts++
+			_, _ = w.Write([]byte(`[]`))
+		case "/tags":
+			if r.Method == http.MethodGet {
+				if tagCreated {
+					_, _ = w.Write([]byte(`[{"id":"tag-1","name":"vacation"}]`))
+				} else {
+					_, _ = w.Write([]byte(`[]`))
+				}
+				return
+			}
+			tagPosts++
+			tagCreated = true
+			_, _ = w.Write([]byte(`{"id":"tag-1"}`))
+		case "/tags/tag-1/assets":
+			tagPuts++
+			if failTagMembership {
+				failTagMembership = false
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+			_, _ = w.Write([]byte(`[]`))
+		default:
+			w.WriteHeader(http.StatusNotFound)
+		}
+	}))
+	defer destination.Close()
+	source := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/albums":
+			_, _ = w.Write([]byte(`[{"albumName":"trip","assets":[{"id":"source"}]}]`))
+		case "/tags":
+			_, _ = w.Write([]byte(`[{"name":"vacation","assets":[{"id":"source"}]}]`))
+		default:
+			w.WriteHeader(http.StatusNotFound)
+		}
+	}))
+	defer source.Close()
+	t.Setenv("IMMICH_BASE_URL", destination.URL)
+	t.Setenv("IMMICH_BASE_PATH", "")
+	t.Setenv("IMMICH_API_KEY", "key")
+	mapping := map[string]string{"source": "destination"}
+	if err := mapSourceCollections(context.Background(), &rootFlags{}, source.URL, "source-key", mapping); err == nil {
+		t.Fatal("first partial destination failure was hidden")
+	}
+	if err := mapSourceCollections(context.Background(), &rootFlags{}, source.URL, "source-key", mapping); err != nil {
+		t.Fatalf("resume failed: %v", err)
+	}
+	if albumPosts != 1 || tagPosts != 1 || albumPuts != 2 || tagPuts != 2 {
+		t.Fatalf("resume duplicated collections: album posts=%d puts=%d tag posts=%d puts=%d", albumPosts, albumPuts, tagPosts, tagPuts)
 	}
 }
 
@@ -982,6 +1061,8 @@ func TestImportImmichCleansTemporaryDownloadDirectory(t *testing.T) {
 	destination := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		path := strings.TrimPrefix(r.URL.Path, "/api")
 		switch path {
+		case "/albums", "/tags":
+			_, _ = w.Write([]byte(`[]`))
 		case "/assets/bulk-upload-check":
 			_, _ = w.Write([]byte(`{"results":[{"id":"source-asset","action":"accept"}]}`))
 		case "/assets":
