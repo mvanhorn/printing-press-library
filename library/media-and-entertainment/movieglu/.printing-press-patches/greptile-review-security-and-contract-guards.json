@@ -13,6 +13,8 @@
     "internal/client/geolocation_test.go",
     "internal/cli/movieglu_provider.go",
     "internal/cli/movieglu_provider_test.go",
+    "internal/cli/movie_night.go",
+    "internal/cli/movie_night_test.go",
     "internal/cli/promoted_purchase-confirmation.go",
     "internal/cli/purchase_confirmation_test.go"
   ],

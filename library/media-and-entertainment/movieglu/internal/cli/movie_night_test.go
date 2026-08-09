@@ -97,3 +97,30 @@ func TestMovieNightBookingWorkflowHTTPContract(t *testing.T) {
 		t.Fatalf("request paths = %#v, want %#v", paths, wantPaths)
 	}
 }
+
+func TestMovieNightLocalSourceNeverCallsMovieGlu(t *testing.T) {
+	calls := 0
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		calls++
+		http.Error(w, "unexpected live request", http.StatusInternalServerError)
+	}))
+	defer server.Close()
+
+	t.Setenv("MOVIEGLU_BASE_URL", server.URL)
+	t.Setenv("MOVIEGLU_CREDENTIALS", "api-key")
+	t.Setenv("MOVIEGLU_CLIENT", "evaluation-user")
+	t.Setenv("MOVIEGLU_AUTHORIZATION", "Basic abc123")
+	t.Setenv("MOVIEGLU_TERRITORY", "US")
+	t.Setenv("MOVIEGLU_GEOLOCATION", "")
+	t.Setenv("MOVIEGLU_HOME", t.TempDir())
+
+	root := RootCmd()
+	root.SetArgs([]string{"movie-night", "Test Movie", "--date", "2026-07-24", "--data-source", "local", "--json"})
+	err := root.Execute()
+	if err == nil || !strings.Contains(err.Error(), "no local data") {
+		t.Fatalf("local movie-night error = %v, want missing local-data guidance", err)
+	}
+	if calls != 0 {
+		t.Fatalf("local movie-night made %d live request(s), want 0", calls)
+	}
+}

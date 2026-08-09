@@ -89,35 +89,31 @@ func newMovieNightCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			rawFilms, err := c.Get(cmd.Context(), "/filmsNowShowing/", map[string]string{"n": "25"})
+			rawFilms, filmsProv, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "films-now-showing", true, "/filmsNowShowing/", map[string]string{"n": "25"}, nil, "films", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			var filmsResponse struct {
-				Films []movieGluFilm `json:"films"`
-			}
-			if err := json.Unmarshal(rawFilms, &filmsResponse); err != nil {
+			var films []movieGluFilm
+			if err := json.Unmarshal(rawFilms, &films); err != nil {
 				return fmt.Errorf("decode filmsNowShowing response: %w", err)
 			}
-			film, err := chooseFilm(filmsResponse.Films, args[0])
+			film, err := chooseFilm(films, args[0])
 			if err != nil {
 				return err
 			}
-			rawShowtimes, err := c.GetWithHeadersNoCache(cmd.Context(), "/filmShowTimes/", map[string]string{
+			rawShowtimes, showtimesProv, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "film-show-times", true, "/filmShowTimes/", map[string]string{
 				"film_id": strconv.Itoa(film.FilmID),
 				"date":    date,
 				"n":       "25",
-			}, nil)
+			}, nil, "cinemas", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			var showtimesResponse struct {
-				Cinemas []movieGluCinema `json:"cinemas"`
-			}
-			if err := json.Unmarshal(rawShowtimes, &showtimesResponse); err != nil {
+			var cinemas []movieGluCinema
+			if err := json.Unmarshal(rawShowtimes, &cinemas); err != nil {
 				return fmt.Errorf("decode filmShowTimes response: %w", err)
 			}
-			options := flattenMovieNightOptions(showtimesResponse.Cinemas, afterMinutes)
+			options := flattenMovieNightOptions(cinemas, afterMinutes)
 			if limit > 0 && len(options) > limit {
 				options = options[:limit]
 			}
@@ -127,11 +123,18 @@ func newMovieNightCmd(flags *rootFlags) *cobra.Command {
 				"after":    after,
 				"options":  options,
 				"count":    len(options),
+				"source":   showtimesProv.Source,
 				"purchase": "MovieGlu supplies cinema booking links only; seat selection and payment happen on the cinema website.",
+			}
+			if filmsProv.Source != showtimesProv.Source {
+				result["sources"] = map[string]string{"films": filmsProv.Source, "showtimes": showtimesProv.Source}
 			}
 			if bookingLink {
 				if len(options) == 0 {
 					return fmt.Errorf("no matching showtimes available for booking")
+				}
+				if flags.dataSource == "local" {
+					return fmt.Errorf("--booking-link requires --data-source live or auto because purchase handoff URLs are requested on demand")
 				}
 				selected := options[0]
 				rawBooking, err := c.GetWithHeadersNoCache(cmd.Context(), "/purchaseConfirmation/", map[string]string{
