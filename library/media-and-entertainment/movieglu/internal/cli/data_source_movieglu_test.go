@@ -13,7 +13,7 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/movieglu/internal/store"
 )
 
-func TestAutoReadFallsBackToLocalWhenLiveConfigurationIsMissing(t *testing.T) {
+func TestAutoReadFallsBackToLocalForPlaceholderCredential(t *testing.T) {
 	restore, err := cliutil.SetHomeOverride(t.TempDir())
 	if err != nil {
 		t.Fatalf("SetHomeOverride() error = %v", err)
@@ -32,7 +32,7 @@ func TestAutoReadFallsBackToLocalWhenLiveConfigurationIsMissing(t *testing.T) {
 		t.Fatalf("Close() error = %v", err)
 	}
 
-	c := client.New(&config.Config{}, 0, 0)
+	c := client.New(&config.Config{MoviegluCredentials: "<your-token>"}, 0, 0)
 	c.EnableMovieGluHeaderValidation()
 	data, provenance, err := resolveReadWithStrategyAndResponsePath(
 		context.Background(), c, &rootFlags{dataSource: "auto"}, "auto", "films", true,

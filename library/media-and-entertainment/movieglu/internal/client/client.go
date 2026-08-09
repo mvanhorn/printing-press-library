@@ -38,12 +38,21 @@ var ErrPlaceholderCredential = errors.New("auth placeholder credential")
 // provider HTTP error as an offline condition.
 type LocalConfigurationError struct {
 	message string
+	cause   error
 }
 
 func (e *LocalConfigurationError) Error() string { return e.message }
+func (e *LocalConfigurationError) Unwrap() error { return e.cause }
 
 func localConfigurationErrorf(format string, args ...any) error {
 	return &LocalConfigurationError{message: fmt.Sprintf(format, args...)}
+}
+
+func localConfigurationErrorFrom(err error) error {
+	if err == nil {
+		return nil
+	}
+	return &LocalConfigurationError{message: err.Error(), cause: err}
 }
 
 // IsLocalConfigurationError reports whether err was raised before a live
@@ -418,7 +427,7 @@ func (c *Client) validateCachedRequestAuth(ctx context.Context) error {
 		return nil
 	}
 	if authHeaderLooksLikePlaceholderCredential(c.Config.AuthHeader()) {
-		return authPlaceholderCredentialError(c.Config)
+		return localConfigurationErrorFrom(authPlaceholderCredentialError(c.Config))
 	}
 	return nil
 }

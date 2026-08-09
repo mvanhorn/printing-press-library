@@ -3,6 +3,7 @@
 package client
 
 import (
+	"errors"
 	"strings"
 	"testing"
 
@@ -38,5 +39,16 @@ func TestValidateMovieGluRequestHeadersClassifiesMissingLiveConfiguration(t *tes
 	err := validateMovieGluRequestHeaders("/filmsNowShowing/", &config.Config{}, true)
 	if !IsLocalConfigurationError(err) {
 		t.Fatalf("missing credentials error = %v, want LocalConfigurationError", err)
+	}
+}
+
+func TestValidateCachedRequestAuthPreservesPlaceholderIdentityAndLocalClassification(t *testing.T) {
+	c := New(&config.Config{MoviegluCredentials: "<your-token>"}, 0, 0)
+	err := c.validateCachedRequestAuth(t.Context())
+	if !IsLocalConfigurationError(err) {
+		t.Fatalf("placeholder error = %v, want LocalConfigurationError", err)
+	}
+	if !errors.Is(err, ErrPlaceholderCredential) {
+		t.Fatalf("placeholder error = %v, want errors.Is(ErrPlaceholderCredential)", err)
 	}
 }
