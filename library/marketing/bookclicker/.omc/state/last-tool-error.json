@@ -1,7 +1,0 @@
-{
-  "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"R=\\\"$HOME/printing-press/.publish-repo-printingpress-da82c35d/library/marketing\\\"\\nls \\\"$R\\\" | head -20\\necho \\\"=== sample: multi-level subcommand + flag in sibling READMEs ===\\\"\\nfor d in...",
-  "error": "Exit code 1\nahrefs\namplitude\nbeehiiv\nbento\nbookclicker\nbotsee\nbraze\nclarity\ncustomer-io\ndataforseo\ndub\nemailoctopus\nerank\neverbee\ngoogle-ad-manager\ngoogle-ads\ngoogle-analytics\ngoogle-business-profile\ngoogle-play\ngoogle-search-console\n=== sample: multi-level subcommand + flag in sibling READMEs ===",
-  "timestamp": "2026-08-09T19:20:59.378Z",
-  "retry_count": 1
-}
