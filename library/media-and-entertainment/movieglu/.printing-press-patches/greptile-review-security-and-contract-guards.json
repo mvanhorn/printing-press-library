@@ -20,5 +20,5 @@
     "internal/cli/promoted_purchase-confirmation.go",
     "internal/cli/purchase_confirmation_test.go"
   ],
-  "validated_outcome": "Regression tests pin the loopback listener, typed live-configuration validation, and local fallback behavior; the purchase-confirmation example uses the API's HH:MM time contract."
+  "validated_outcome": "Regression tests pin the loopback listener, typed live-configuration validation, local discovery fallback with an explicit booking limitation, and the purchase-confirmation API's HH:MM time contract."
 }

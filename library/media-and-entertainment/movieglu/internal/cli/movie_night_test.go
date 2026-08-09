@@ -9,6 +9,8 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/movieglu/internal/store"
 )
 
 func TestChooseFilmPrefersExactThenContains(t *testing.T) {
@@ -122,5 +124,60 @@ func TestMovieNightLocalSourceNeverCallsMovieGlu(t *testing.T) {
 	}
 	if calls != 0 {
 		t.Fatalf("local movie-night made %d live request(s), want 0", calls)
+	}
+}
+
+func TestMovieNightAutoLocalFallbackPreservesResultWhenBookingLinkRequested(t *testing.T) {
+	calls := 0
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		calls++
+		http.Error(w, "unexpected live request", http.StatusInternalServerError)
+	}))
+	defer server.Close()
+
+	home := t.TempDir()
+	t.Setenv("MOVIEGLU_HOME", home)
+	t.Setenv("MOVIEGLU_BASE_URL", server.URL)
+	t.Setenv("MOVIEGLU_CREDENTIALS", "")
+	t.Setenv("MOVIEGLU_CLIENT", "")
+	t.Setenv("MOVIEGLU_AUTHORIZATION", "")
+	t.Setenv("MOVIEGLU_TERRITORY", "")
+	t.Setenv("MOVIEGLU_GEOLOCATION", "")
+
+	db, err := store.Open(defaultDBPath("movieglu-pp-cli"))
+	if err != nil {
+		t.Fatalf("store.Open() error = %v", err)
+	}
+	if err := db.Upsert("films-now-showing", "77", json.RawMessage(`{"film_id":77,"film_name":"The Local Movie"}`)); err != nil {
+		db.Close()
+		t.Fatalf("Upsert(film) error = %v", err)
+	}
+	showtimes := json.RawMessage(`{"cinema_id":9,"cinema_name":"Local Cinema","distance":1.2,"showings":{"IMAX":{"times":[{"start_time":"20:15","end_time":"22:30"}]}}}`)
+	if err := db.Upsert("film-show-times", "9", showtimes); err != nil {
+		db.Close()
+		t.Fatalf("Upsert(showtimes) error = %v", err)
+	}
+	if err := db.Close(); err != nil {
+		t.Fatalf("Close() error = %v", err)
+	}
+
+	root := RootCmd()
+	var stdout, stderr bytes.Buffer
+	root.SetOut(&stdout)
+	root.SetErr(&stderr)
+	root.SetArgs([]string{"movie-night", "Local Movie", "--date", "2026-07-24", "--booking-link", "--json", "--no-cache"})
+	if err := root.Execute(); err != nil {
+		t.Fatalf("movie-night local fallback error = %v, stderr = %s", err, stderr.String())
+	}
+	if calls != 0 {
+		t.Fatalf("local fallback made %d live request(s), want 0", calls)
+	}
+	for _, want := range []string{`"source": "local"`, `"film_name": "The Local Movie"`, `"booking_link_unavailable"`} {
+		if !strings.Contains(stdout.String(), want) {
+			t.Fatalf("output missing %s: %s", want, stdout.String())
+		}
+	}
+	if strings.Contains(stdout.String(), `"booking_url"`) {
+		t.Fatalf("local fallback unexpectedly returned booking URL: %s", stdout.String())
 	}
 }

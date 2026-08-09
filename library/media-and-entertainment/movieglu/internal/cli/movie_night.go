@@ -137,31 +137,38 @@ func newMovieNightCmd(flags *rootFlags) *cobra.Command {
 					return fmt.Errorf("--booking-link requires --data-source live or auto because purchase handoff URLs are requested on demand")
 				}
 				selected := options[0]
-				rawBooking, err := c.GetWithHeadersNoCache(cmd.Context(), "/purchaseConfirmation/", map[string]string{
-					"cinema_id": strconv.Itoa(selected.CinemaID),
-					"film_id":   strconv.Itoa(film.FilmID),
-					"date":      date,
-					"time":      selected.StartTime,
-				}, nil)
-				if err != nil {
-					return classifyAPIError(err, flags)
-				}
-				var booking struct {
-					URL string `json:"url"`
-				}
-				if err := json.Unmarshal(rawBooking, &booking); err != nil {
-					return fmt.Errorf("decode purchaseConfirmation response: %w", err)
-				}
-				if !strings.HasPrefix(booking.URL, "https://") {
-					return fmt.Errorf("MovieGlu returned an unsafe booking URL")
-				}
-				result["booking_url"] = booking.URL
 				result["selected"] = selected
-				if launch {
-					if err := openMovieGluURL(booking.URL); err != nil {
-						return fmt.Errorf("launch booking URL: %w", err)
+				if showtimesProv.Source == "local" {
+					result["booking_link_unavailable"] = "Booking URLs are not stored locally; rerun with live MovieGlu credentials and connectivity."
+					if launch {
+						result["launch_unavailable"] = true
 					}
-					result["launched"] = true
+				} else {
+					rawBooking, err := c.GetWithHeadersNoCache(cmd.Context(), "/purchaseConfirmation/", map[string]string{
+						"cinema_id": strconv.Itoa(selected.CinemaID),
+						"film_id":   strconv.Itoa(film.FilmID),
+						"date":      date,
+						"time":      selected.StartTime,
+					}, nil)
+					if err != nil {
+						return classifyAPIError(err, flags)
+					}
+					var booking struct {
+						URL string `json:"url"`
+					}
+					if err := json.Unmarshal(rawBooking, &booking); err != nil {
+						return fmt.Errorf("decode purchaseConfirmation response: %w", err)
+					}
+					if !strings.HasPrefix(booking.URL, "https://") {
+						return fmt.Errorf("MovieGlu returned an unsafe booking URL")
+					}
+					result["booking_url"] = booking.URL
+					if launch {
+						if err := openMovieGluURL(booking.URL); err != nil {
+							return fmt.Errorf("launch booking URL: %w", err)
+						}
+						result["launched"] = true
+					}
 				}
 			}
 			return printJSONFiltered(cmd.OutOrStdout(), result, flags)
