@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"sort"
@@ -52,7 +53,7 @@ func fetchCampaignsWithStats(flags *rootFlags, days int) ([]statsCampaign, error
 	page := 1
 	for {
 		params := map[string]string{"page": fmt.Sprintf("%d", page)}
-		data, _, err := resolveRead(nil, c, flags, "campaigns", false, "/campaigns", params, nil)
+		data, _, err := resolveRead(context.Background(), c, flags, "campaigns", false, "/campaigns", params, nil)
 		if err != nil {
 			return nil, fmt.Errorf("fetching campaigns page %d: %w", page, err)
 		}
@@ -110,7 +111,7 @@ func fetchCampaignsWithStats(flags *rootFlags, days int) ([]statsCampaign, error
 		}
 
 		// Fetch stats for this campaign
-		statsData, _, statsErr := resolveRead(nil, c, flags, "campaigns", false,
+		statsData, _, statsErr := resolveRead(context.Background(), c, flags, "campaigns", false,
 			fmt.Sprintf("/campaigns/%d/stats", id), nil, nil)
 		if statsErr == nil {
 			var s map[string]any
