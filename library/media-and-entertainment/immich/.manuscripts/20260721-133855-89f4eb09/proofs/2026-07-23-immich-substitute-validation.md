@@ -1,4 +1,4 @@
-# Immich substitute validation — 2026-07-23
+# Immich substitute validation — refreshed 2026-08-09
 
 ## Live boundary
 
@@ -8,9 +8,10 @@ Phase 5 acceptance and does not send private photos to an unrelated instance.
 
 ## Current-head canonical shipcheck
 
-Printing Press shipcheck was rerun against PR head
-`626167b15231a922fff90f407eb89ca66c256317`, the archived Immich OpenAPI
-document, and run `20260721-133855-89f4eb09`.
+The full substitute suite was rerun against validated code commit
+`af7c95d7ca2b3b8f137deb5fb610de4beee69df1`, the archived Immich OpenAPI
+document, and run `20260721-133855-89f4eb09`. The follow-up evidence-only
+commit does not change the validated binary.
 
 ```text
 shipcheck: PASS (7/7 legs, exit 0)
@@ -30,7 +31,7 @@ run.
 ## Behavioral substitute
 
 The full Go suite passes together with `go vet ./...` and `go build ./...`.
-The tree contains 762 named test functions and 33 local HTTP test servers.
+The tree contains 763 named test functions and 35 local HTTP test servers.
 Service-shaped tests cover:
 
 - people lookup followed by a separate query for every requested July;
@@ -42,7 +43,9 @@ Service-shaped tests cover:
 - checksum and multipart upload fields;
 - partial upload, metadata, and album-assignment failure recovery;
 - archive traversal rejection and takeout sidecar path handling;
-- source-collection prevalidation before any album or tag mutation;
+- source-collection prevalidation before any album or tag mutation, plus
+  idempotent resume after a destination membership failure without duplicate
+  album or tag creation;
 - paginated Immich-to-Immich transfer, collision-safe temporary files, cleanup,
   and partial mapping rejection;
 - MCP command-tree and bound-tool validation.
