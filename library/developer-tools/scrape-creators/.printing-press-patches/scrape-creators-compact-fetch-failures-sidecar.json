@@ -10,5 +10,6 @@
     "internal/cli/helpers.go",
     "internal/cli/amend_compact_comments_test.go"
   ],
-  "validated_outcome": "TestCompactKeepsCommentsDespiteFetchFailures pins the case: a thread envelope with a non-empty fetch_failures sidecar keeps both comments under compactFields. Found by ce-code-review run 20260808-165614-46b8c9c8 (agent-native lens), validated by independent inspection."
+  "validated_outcome": "TestCompactKeepsCommentsDespiteFetchFailures pins the case: a thread envelope with a non-empty fetch_failures sidecar keeps both comments under compactFields. Found by ce-code-review run 20260808-165614-46b8c9c8 (agent-native lens), validated by independent inspection.",
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/4043"
 }

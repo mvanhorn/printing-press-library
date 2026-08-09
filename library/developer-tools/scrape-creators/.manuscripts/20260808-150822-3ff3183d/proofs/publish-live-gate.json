@@ -1,6 +1,6 @@
 {
-  "dir": "/Users/giuseppebisemi/printing-press/library/scrape-creators",
-  "binary": "/Users/giuseppebisemi/printing-press/library/scrape-creators/build/stage/bin/scrape-creators-pp-cli",
+  "dir": "<HOME>/printing-press/library/scrape-creators",
+  "binary": "<HOME>/printing-press/library/scrape-creators/build/stage/bin/scrape-creators-pp-cli",
   "level": "quick",
   "verdict": "PASS",
   "matrix_size": 15,
