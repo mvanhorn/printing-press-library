@@ -112,11 +112,17 @@ it for one post's complete threads; use 'comments thread' instead.`, "\n"),
 			// --max-posts 0) case.
 			const maxSweepPages = 25
 			cursor := ""
-			// --max-credits is a hard ceiling: stop BEFORE any fetch whose
-			// estimated cost (the last observed per-fetch charge, floor 1)
-			// would push the charged total past the budget, so the sweep can
-			// never spend beyond what the caller authorized.
-			var lastFetchCost int64 = 1
+			// --max-credits stops BEFORE any fetch whose estimated cost would
+			// push the charged total past the budget. The estimate is the
+			// maximum per-fetch charge observed in this run (floor 1): request
+			// cost is decided server-side and only known after the response,
+			// so a run can exceed the budget by at most one fetch's
+			// actual-minus-estimated cost. credits_charged always reports the
+			// true total.
+			var maxFetchCost int64 = 1
+			if c0 := payloadCredits(postsRaw); c0 > maxFetchCost {
+				maxFetchCost = c0
+			}
 			for page := 1; ; page++ {
 				pastCutoff := false
 				for _, p := range posts {
@@ -125,9 +131,9 @@ it for one post's complete threads; use 'comments thread' instead.`, "\n"),
 						env.Note = fmt.Sprintf("stopped at --max-posts %d", maxPosts)
 						break
 					}
-					if maxCredits > 0 && env.CreditsCharged+lastFetchCost > maxCredits {
+					if maxCredits > 0 && env.CreditsCharged+maxFetchCost > maxCredits {
 						env.StoppedEarly = true
-						env.Note = fmt.Sprintf("stopped at --max-credits %d: the next fetch (est. %d cr) would exceed the budget; rerun with a higher budget to continue", maxCredits, lastFetchCost)
+						env.Note = fmt.Sprintf("stopped at --max-credits %d: the next fetch (est. %d cr) would exceed the budget; rerun with a higher budget to continue", maxCredits, maxFetchCost)
 						break
 					}
 					if !cutoff.IsZero() && !p.takenAt.IsZero() && p.takenAt.Before(cutoff) {
@@ -149,8 +155,8 @@ it for one post's complete threads; use 'comments thread' instead.`, "\n"),
 					}
 					pl := parseCommentsPayload(raw)
 					env.CreditsCharged += pl.creditsCharged
-					if pl.creditsCharged > 0 {
-						lastFetchCost = pl.creditsCharged
+					if pl.creditsCharged > maxFetchCost {
+						maxFetchCost = pl.creditsCharged
 					}
 					rowsBatch := make([]store.CommentRow, 0, len(pl.comments))
 					for _, cm := range pl.comments {
@@ -185,9 +191,9 @@ it for one post's complete threads; use 'comments thread' instead.`, "\n"),
 					env.Note = fmt.Sprintf("stopped at the %d-page posts-feed safety cap; rerun with --since or --max-posts to bound the sweep", maxSweepPages)
 					break
 				}
-				if maxCredits > 0 && env.CreditsCharged+lastFetchCost > maxCredits {
+				if maxCredits > 0 && env.CreditsCharged+maxFetchCost > maxCredits {
 					env.StoppedEarly = true
-					env.Note = fmt.Sprintf("stopped at --max-credits %d: the next posts page (est. %d cr) would exceed the budget; rerun with a higher budget to continue", maxCredits, lastFetchCost)
+					env.Note = fmt.Sprintf("stopped at --max-credits %d: the next posts page (est. %d cr) would exceed the budget; rerun with a higher budget to continue", maxCredits, maxFetchCost)
 					break
 				}
 				cursor = next
@@ -198,7 +204,11 @@ it for one post's complete threads; use 'comments thread' instead.`, "\n"),
 				if isErrorEnvelope(postsRaw) {
 					return fmt.Errorf("posts endpoint returned an error envelope for %s (page %d)", handle, page+1)
 				}
-				env.CreditsCharged += payloadCredits(postsRaw)
+				pageCost := payloadCredits(postsRaw)
+				env.CreditsCharged += pageCost
+				if pageCost > maxFetchCost {
+					maxFetchCost = pageCost
+				}
 				posts = extractPosts(postsRaw)
 				if len(posts) == 0 {
 					break
@@ -212,7 +222,7 @@ it for one post's complete threads; use 'comments thread' instead.`, "\n"),
 		},
 	}
 	cmd.Flags().StringVar(&since, "since", "", "Only sweep posts newer than this window (e.g. 7d, 24h, 1w)")
-	cmd.Flags().Int64Var(&maxCredits, "max-credits", 100, "Hard credit ceiling: stop before any fetch that would exceed it (0 = no budget)")
+	cmd.Flags().Int64Var(&maxCredits, "max-credits", 100, "Credit budget: stop before any fetch estimated to exceed it; overshoot is bounded by one fetch (0 = no budget)")
 	cmd.Flags().IntVar(&maxPosts, "max-posts", 0, "Maximum posts to sweep (0 = all returned)")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
 	return cmd

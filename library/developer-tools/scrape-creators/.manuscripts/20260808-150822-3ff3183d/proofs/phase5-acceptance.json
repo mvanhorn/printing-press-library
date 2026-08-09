@@ -12,7 +12,7 @@
     "type": "api_key",
     "api_key_available": true
   },
-  "source_fingerprint": "ef8065b72efd127449e9e08be17cfdf675917ca7560d68ec554a8c54423d5271",
+  "source_fingerprint": "e79b30fa818cdd5d05a980f77cc866ed233f11054835d0333570da68b112a0c0",
   "source_files": {
     "cmd/scrape-creators-pp-cli/main.go": "7c9136d104ac9f4643f6c51c8e7d1797b00933bf53a8bccb0b45e9afbd9e5445",
     "cmd/scrape-creators-pp-mcp/main.go": "b4c65089f57d68ae87e4f03067d6403f82cc17541dfd0b909b5a4848d5b72380",
@@ -53,7 +53,7 @@
     "internal/cli/comments_coverage_test.go": "430d7bf42a9b1683b654e40f1b8caf0cc2d641ebd6fd5923f90dcef1a96f772b",
     "internal/cli/comments_search.go": "4b47bb9a8a3df814ff561946f06dab46d528e8aac395e2591e7ac0bc5da598a8",
     "internal/cli/comments_search_test.go": "e90e2ab6cca7f00a36972787dd79eec8cadbe7f605017488f4c61ee32a59edab",
-    "internal/cli/comments_sweep.go": "abfa5d64ff9b4c9b56a698c77ee91a8b5278497a8557f4b389c0f48a7797cc18",
+    "internal/cli/comments_sweep.go": "3ab8436f991b30f78e1c8865c57eccf224458dda0e615871ba2391e5dfaf737a",
     "internal/cli/comments_sweep_test.go": "775e950bcbfc3b16765fe6d0333014fdfdfdf985e5335196a436e9087ee11c67",
     "internal/cli/comments_thread.go": "12631cc818c547d8a4c55856a092f1f33c035b629fbe64cb39020bb391bc291a",
     "internal/cli/comments_thread_test.go": "9916ed058bb1e28b6d982c8d1ed978192ee3c1f661f515747eb8397dc7e5ff99",
