@@ -10,18 +10,33 @@ import (
 )
 
 func TestValidateMovieGluRequestHeadersScopesGeolocationToLiveEndpointPaths(t *testing.T) {
+	configured := func(geolocation string) *config.Config {
+		return &config.Config{
+			MoviegluCredentials: "api-key",
+			Headers: map[string]string{
+				"client": "evaluation-user", "authorization": "Basic abc123", "territory": "US", "geolocation": geolocation,
+			},
+		}
+	}
 	for _, path := range []string{"/cinemasNearby/", "/filmShowTimes/", "/closestShowing/"} {
-		err := validateMovieGluRequestHeaders(path, &config.Config{})
+		err := validateMovieGluRequestHeaders(path, configured(""), true)
 		if err == nil || !strings.Contains(err.Error(), "MOVIEGLU_GEOLOCATION is required") {
 			t.Fatalf("%s missing-geolocation error = %v", path, err)
 		}
-		if err := validateMovieGluRequestHeaders(path, &config.Config{Headers: map[string]string{"geolocation": "40.7128;-74.0060"}}); err != nil {
+		if err := validateMovieGluRequestHeaders(path, configured("40.7128;-74.0060"), true); err != nil {
 			t.Fatalf("%s with geolocation rejected: %v", path, err)
 		}
 	}
 	for _, path := range []string{"/filmsNowShowing/", "/cinemaShowTimes/", "/purchaseConfirmation/"} {
-		if err := validateMovieGluRequestHeaders(path, &config.Config{}); err != nil {
+		if err := validateMovieGluRequestHeaders(path, configured(""), true); err != nil {
 			t.Fatalf("location-independent %s rejected: %v", path, err)
 		}
+	}
+}
+
+func TestValidateMovieGluRequestHeadersClassifiesMissingLiveConfiguration(t *testing.T) {
+	err := validateMovieGluRequestHeaders("/filmsNowShowing/", &config.Config{}, true)
+	if !IsLocalConfigurationError(err) {
+		t.Fatalf("missing credentials error = %v, want LocalConfigurationError", err)
 	}
 }

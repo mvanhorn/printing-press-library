@@ -22,6 +22,17 @@ import (
 )
 
 const networkFallbackReason = "api_unreachable"
+const configurationFallbackReason = "live_configuration_unavailable"
+
+func localFallbackReason(err error) (string, bool) {
+	if client.IsLocalConfigurationError(err) {
+		return configurationFallbackReason, true
+	}
+	if isNetworkError(err) {
+		return networkFallbackReason, true
+	}
+	return "", false
+}
 
 func unsupportedDataSourceError(strategy, requested string) error {
 	switch strategy {
@@ -206,14 +217,15 @@ func resolveReadWithStrategyResponsePathAndJSONGuard(ctx context.Context, c *cli
 			writeThroughCache(ctx, resourceType, data)
 			return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 		}
-		if !isNetworkError(err) {
+		fallbackReason, canFallback := localFallbackReason(err)
+		if !canFallback {
 			// HTTP 4xx/5xx errors propagate — not a fallback case
 			return nil, DataProvenance{}, err
 		}
-		// Network error — try local fallback
-		fallbackData, fallbackProv, fallbackErr := resolveLocal(ctx, flags, hintWriter, resourceType, isList, path, params, networkFallbackReason)
+		// Transport and local live-configuration errors may use synced data.
+		fallbackData, fallbackProv, fallbackErr := resolveLocal(ctx, flags, hintWriter, resourceType, isList, path, params, fallbackReason)
 		if fallbackErr != nil {
-			return nil, DataProvenance{}, fmt.Errorf("API unreachable and no local data. Run 'movieglu-pp-cli sync' to enable offline access.\n\nOriginal error: %w", err)
+			return nil, DataProvenance{}, fmt.Errorf("live API unavailable and no local data. Run 'movieglu-pp-cli sync' to enable offline access.\n\nOriginal error: %w", err)
 		}
 		return fallbackData, attachFreshness(fallbackProv, flags), nil
 	}
@@ -300,12 +312,13 @@ func resolvePaginatedReadWithStrategyAndJSONGuard(ctx context.Context, c *client
 			writeThroughCache(ctx, resourceType, data)
 			return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 		}
-		if !isNetworkError(err) {
+		fallbackReason, canFallback := localFallbackReason(err)
+		if !canFallback {
 			return nil, DataProvenance{}, err
 		}
-		fallbackData, fallbackProv, fallbackErr := resolveLocal(ctx, flags, hintWriter, resourceType, true, path, params, networkFallbackReason)
+		fallbackData, fallbackProv, fallbackErr := resolveLocal(ctx, flags, hintWriter, resourceType, true, path, params, fallbackReason)
 		if fallbackErr != nil {
-			return nil, DataProvenance{}, fmt.Errorf("API unreachable and no local data. Run 'movieglu-pp-cli sync' to enable offline access.\n\nOriginal error: %w", err)
+			return nil, DataProvenance{}, fmt.Errorf("live API unavailable and no local data. Run 'movieglu-pp-cli sync' to enable offline access.\n\nOriginal error: %w", err)
 		}
 		return fallbackData, attachFreshness(fallbackProv, flags), nil
 	}

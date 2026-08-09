@@ -32,6 +32,27 @@ const BinaryResponseHeader = "X-Printing-Press-Binary-Response"
 
 var ErrPlaceholderCredential = errors.New("auth placeholder credential")
 
+// LocalConfigurationError identifies request failures caused by missing or
+// invalid credentials and headers on this machine. Callers may safely use this
+// distinction to fall back to already-synced local data without treating a
+// provider HTTP error as an offline condition.
+type LocalConfigurationError struct {
+	message string
+}
+
+func (e *LocalConfigurationError) Error() string { return e.message }
+
+func localConfigurationErrorf(format string, args ...any) error {
+	return &LocalConfigurationError{message: fmt.Sprintf(format, args...)}
+}
+
+// IsLocalConfigurationError reports whether err was raised before a live
+// request because this installation lacks valid provider configuration.
+func IsLocalConfigurationError(err error) bool {
+	var target *LocalConfigurationError
+	return errors.As(err, &target)
+}
+
 type Client struct {
 	BaseURL           string
 	Config            *config.Config
@@ -44,10 +65,21 @@ type Client struct {
 	platformLimiterMu sync.Mutex
 	platformLimiters  map[string]*platform.EndpointLimiter
 	platformBudgets   map[string]platform.EndpointBudget
+	movieGluHeaders   bool
 }
 
 func (c *Client) IsDryRun() bool {
 	return c != nil && c.DryRun
+}
+
+// EnableMovieGluHeaderValidation makes live requests enforce MovieGlu's
+// provider-specific credential and location headers. Generated client unit
+// tests and non-provider transports remain unaffected until the CLI hook opts
+// the client into this API-specific contract.
+func (c *Client) EnableMovieGluHeaderValidation() {
+	if c != nil {
+		c.movieGluHeaders = true
+	}
 }
 
 // BindPlatformSession installs the result of the live fail-closed tenant gate.
@@ -845,7 +877,7 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 		bodyBytes = b
 	}
 	if !c.DryRun {
-		if err := validateMovieGluRequestHeaders(path, c.Config); err != nil {
+		if err := validateMovieGluRequestHeaders(path, c.Config, c.movieGluHeaders); err != nil {
 			return nil, 0, err
 		}
 	}
@@ -1079,7 +1111,35 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 	return nil, 0, lastErr
 }
 
-func validateMovieGluRequestHeaders(path string, cfg *config.Config) error {
+func validateMovieGluRequestHeaders(path string, cfg *config.Config, enforce bool) error {
+	if !enforce {
+		return nil
+	}
+	if cfg == nil {
+		return localConfigurationErrorf("MovieGlu live requests require provider credentials; run 'movieglu-pp-cli auth login' and configure MOVIEGLU_CLIENT, MOVIEGLU_AUTHORIZATION, and MOVIEGLU_TERRITORY")
+	}
+	authHeader := strings.TrimSpace(cfg.AuthHeader())
+	if authHeader == "" {
+		return localConfigurationErrorf("MOVIEGLU_CREDENTIALS is required for live requests; run 'movieglu-pp-cli auth login'")
+	}
+	if authHeaderLooksLikePlaceholderCredential(authHeader) {
+		return localConfigurationErrorf("MOVIEGLU_CREDENTIALS contains a placeholder for live requests; run 'movieglu-pp-cli auth login'")
+	}
+	for _, required := range []struct {
+		header string
+		env    string
+	}{
+		{header: "client", env: "MOVIEGLU_CLIENT"},
+		{header: "authorization", env: "MOVIEGLU_AUTHORIZATION"},
+		{header: "territory", env: "MOVIEGLU_TERRITORY"},
+	} {
+		if strings.TrimSpace(cfg.Headers[required.header]) == "" {
+			return localConfigurationErrorf("%s is required for live requests; request evaluation credentials at https://developer.movieglu.com/", required.env)
+		}
+	}
+	if len(strings.TrimSpace(cfg.Headers["territory"])) != 2 {
+		return localConfigurationErrorf("MOVIEGLU_TERRITORY must be a two-letter country code for live requests")
+	}
 	locationDependent := map[string]bool{
 		"/cinemasNearby/":  true,
 		"/filmShowTimes/":  true,
@@ -1093,7 +1153,7 @@ func validateMovieGluRequestHeaders(path string, cfg *config.Config) error {
 		geolocation = strings.TrimSpace(cfg.Headers["geolocation"])
 	}
 	if geolocation == "" {
-		return fmt.Errorf("MOVIEGLU_GEOLOCATION is required for live %s requests; use latitude;longitude (for example, 40.7128;-74.0060)", path)
+		return localConfigurationErrorf("MOVIEGLU_GEOLOCATION is required for live %s requests; use latitude;longitude (for example, 40.7128;-74.0060)", path)
 	}
 	return nil
 }

@@ -37,15 +37,19 @@ func TestConfigureMovieGluClient(t *testing.T) {
 	}
 }
 
-func TestConfigureMovieGluClientRejectsMissingProviderCredentials(t *testing.T) {
+func TestConfigureMovieGluClientAllowsMissingLiveCredentialsForLocalReads(t *testing.T) {
 	t.Setenv("MOVIEGLU_CLIENT", "")
 	t.Setenv("MOVIEGLU_AUTHORIZATION", "")
 	t.Setenv("MOVIEGLU_TERRITORY", "")
 
 	c := client.New(&config.Config{}, 0, 0)
-	err := configureMovieGluClient(c)
-	if err == nil || !strings.Contains(err.Error(), "is required") {
-		t.Fatalf("configureMovieGluClient() error = %v, want missing credential error", err)
+	if err := configureMovieGluClient(c); err != nil {
+		t.Fatalf("configureMovieGluClient() blocked local-only use: %v", err)
+	}
+	for _, header := range []string{"client", "authorization", "territory"} {
+		if got := c.Config.Headers[header]; got != "" {
+			t.Fatalf("header %q = %q, want omitted", header, got)
+		}
 	}
 }
 
