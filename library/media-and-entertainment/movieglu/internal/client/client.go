@@ -844,6 +844,11 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 		}
 		bodyBytes = b
 	}
+	if !c.DryRun {
+		if err := validateMovieGluRequestHeaders(path, c.Config); err != nil {
+			return nil, 0, err
+		}
+	}
 
 	// Resolve auth material before the dry-run branch so --dry-run can preview
 	// exactly what would be sent. Uses only cached credentials; a token that
@@ -1072,6 +1077,25 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 	}
 
 	return nil, 0, lastErr
+}
+
+func validateMovieGluRequestHeaders(path string, cfg *config.Config) error {
+	locationDependent := map[string]bool{
+		"/cinemasNearby/":  true,
+		"/filmShowTimes/":  true,
+		"/closestShowing/": true,
+	}
+	if !locationDependent[path] {
+		return nil
+	}
+	geolocation := ""
+	if cfg != nil && cfg.Headers != nil {
+		geolocation = strings.TrimSpace(cfg.Headers["geolocation"])
+	}
+	if geolocation == "" {
+		return fmt.Errorf("MOVIEGLU_GEOLOCATION is required for live %s requests; use latitude;longitude (for example, 40.7128;-74.0060)", path)
+	}
+	return nil
 }
 
 func safeEndpointClass(method, path string) string {

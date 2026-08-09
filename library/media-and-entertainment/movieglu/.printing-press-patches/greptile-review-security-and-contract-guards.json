@@ -9,12 +9,10 @@
   "files": [
     "cmd/movieglu-pp-mcp/main.go",
     "cmd/movieglu-pp-mcp/main_test.go",
+    "internal/client/client.go",
+    "internal/client/geolocation_test.go",
     "internal/cli/movieglu_provider.go",
     "internal/cli/movieglu_provider_test.go",
-    "internal/cli/promoted_cinemas-nearby.go",
-    "internal/cli/promoted_closest-showing.go",
-    "internal/cli/promoted_film-show-times.go",
-    "internal/cli/movie_night.go",
     "internal/cli/promoted_purchase-confirmation.go"
   ],
   "validated_outcome": "Regression tests pin the loopback listener and local missing-geolocation error; the purchase-confirmation example uses the API's HH:MM time contract."

@@ -49,19 +49,17 @@ func TestConfigureMovieGluClientRejectsMissingProviderCredentials(t *testing.T) 
 	}
 }
 
-func TestConfigureMovieGluClientRejectsMissingGeolocation(t *testing.T) {
+func TestConfigureMovieGluClientAllowsMissingGeolocationForIndependentRequests(t *testing.T) {
 	t.Setenv("MOVIEGLU_CLIENT", "evaluation-user")
 	t.Setenv("MOVIEGLU_AUTHORIZATION", "Basic abc123")
 	t.Setenv("MOVIEGLU_TERRITORY", "US")
 	t.Setenv("MOVIEGLU_GEOLOCATION", "")
 
-	err := requireMovieGluGeolocation()
-	if err == nil || !strings.Contains(err.Error(), "MOVIEGLU_GEOLOCATION is required") {
-		t.Fatalf("requireMovieGluGeolocation() error = %v, want missing geolocation error", err)
-	}
-
 	c := client.New(&config.Config{}, 0, 0)
 	if err := configureMovieGluClient(c); err != nil {
 		t.Fatalf("location-independent client configuration rejected: %v", err)
+	}
+	if got := c.Config.Headers["geolocation"]; got != "" {
+		t.Fatalf("geolocation header = %q, want omitted", got)
 	}
 }

@@ -45,10 +45,3 @@ func configureMovieGluClient(c *client.Client) error {
 	}
 	return nil
 }
-
-func requireMovieGluGeolocation() error {
-	if strings.TrimSpace(os.Getenv("MOVIEGLU_GEOLOCATION")) == "" {
-		return fmt.Errorf("MOVIEGLU_GEOLOCATION is required for location-dependent commands; use latitude;longitude (for example, 40.7128;-74.0060)")
-	}
-	return nil
-}

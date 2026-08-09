@@ -85,9 +85,6 @@ func newMovieNightCmd(flags *rootFlags) *cobra.Command {
 					"booking_link_requested": bookingLink,
 				}, flags)
 			}
-			if err := requireMovieGluGeolocation(); err != nil {
-				return err
-			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
