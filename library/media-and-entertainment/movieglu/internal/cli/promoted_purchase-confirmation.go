@@ -21,7 +21,7 @@ func newPurchaseConfirmationPromotedCmd(flags *rootFlags) *cobra.Command {
 		Use:         "purchase-confirmation",
 		Short:       "Returns a cinema website URL, often with film, date, and time preselected.",
 		Long:        "Returns a cinema website URL, often with film, date, and time preselected.",
-		Example:     "  movieglu-pp-cli purchase-confirmation --cinema-id 550e8400-e29b-41d4-a716-446655440000 --film-id 550e8400-e29b-41d4-a716-446655440000 --date 2026-01-15 --time 09:00",
+		Example:     "  movieglu-pp-cli purchase-confirmation --cinema-id 123 --film-id 456 --date 2026-01-15 --time 09:00",
 		Annotations: map[string]string{"pp:endpoint": "purchase-confirmation.purchase_confirmation", "pp:method": "GET", "pp:path": "/purchaseConfirmation/", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Bare invocation of a command with a required flag/body prints help

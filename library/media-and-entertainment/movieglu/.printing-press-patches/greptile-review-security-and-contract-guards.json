@@ -13,7 +13,8 @@
     "internal/client/geolocation_test.go",
     "internal/cli/movieglu_provider.go",
     "internal/cli/movieglu_provider_test.go",
-    "internal/cli/promoted_purchase-confirmation.go"
+    "internal/cli/promoted_purchase-confirmation.go",
+    "internal/cli/purchase_confirmation_test.go"
   ],
   "validated_outcome": "Regression tests pin the loopback listener and local missing-geolocation error; the purchase-confirmation example uses the API's HH:MM time contract."
 }
