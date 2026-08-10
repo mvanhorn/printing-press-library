@@ -1,0 +1,137 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-10T20:51:33.367092Z",
+  "printing_press_version": "4.30.1",
+  "api_name": "qsys",
+  "display_name": "Q-SYS",
+  "cli_name": "qsys-pp-cli",
+  "creator": {
+    "handle": "Drummerms",
+    "name": "drummerms"
+  },
+  "owner": "drummerms",
+  "printer": "Drummerms",
+  "printer_name": "drummerms",
+  "spec_path": "qsys.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:6de45c54ce02307f2062cc41f03e8b039c8846f13c9bf2599bb593ea623676d6",
+  "run_id": "20260810-144721-14e1d1f6",
+  "category": "devices",
+  "description": "Q-SYS product specs, configuration procedures, and connection guides in one local index - with equipment-list compatibility checks neither QSC website can do.",
+  "mcp_binary": "qsys-pp-mcp",
+  "mcp_tool_count": 10,
+  "mcp_public_tool_count": 10,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Unified product card",
+      "command": "product get",
+      "description": "See a Q-SYS product's overview, spec-sheet text, configuration pages, and connection guidance in one record."
+    },
+    {
+      "name": "BOM compatibility check",
+      "command": "compat check",
+      "description": "Check a whole equipment list against a Q-SYS Designer version and get back what is supported and what is not."
+    },
+    {
+      "name": "Deprecation sweep",
+      "command": "compat deprecated",
+      "description": "Flag which models in a list are deprecated or discontinued before they reach a quote."
+    },
+    {
+      "name": "Connection guidance by model",
+      "command": "connect",
+      "description": "Get the networking, wiring, and I/O guidance that actually applies to a given model."
+    },
+    {
+      "name": "BOM sweep — one report per model",
+      "command": "bom verify",
+      "description": "One report per model in an equipment list: version support, EOL status, and spec-sheet availability in a single pass."
+    },
+    {
+      "name": "Version-aware page reads",
+      "command": "page get",
+      "description": "Read a help page as of a specific Q-SYS Designer version from the versioned doc tree."
+    },
+    {
+      "name": "Extraction coverage report",
+      "command": "coverage",
+      "description": "Report how many products resolved a spec sheet and how many pages parsed, so extraction gaps are visible."
+    },
+    {
+      "name": "UC platform integration lookup",
+      "command": "integrations",
+      "description": "Find which UC platforms (Teams, Zoom, Meet) a device is certified or integrated with."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Unified product card",
+      "command": "product get",
+      "description": "See a Q-SYS product's overview, spec-sheet text, configuration pages, and connection guidance in one record."
+    },
+    {
+      "name": "BOM compatibility check",
+      "command": "compat check",
+      "description": "Check a whole equipment list against a Q-SYS Designer version and get back what is supported and what is not."
+    },
+    {
+      "name": "Deprecation sweep",
+      "command": "compat deprecated",
+      "description": "Flag which models in a list are deprecated or discontinued before they reach a quote."
+    },
+    {
+      "name": "Connection guidance by model",
+      "command": "connect",
+      "description": "Get the networking, wiring, and I/O guidance that actually applies to a given model."
+    },
+    {
+      "name": "BOM sweep — one report per model",
+      "command": "bom verify",
+      "description": "One report per model in an equipment list: version support, EOL status, and spec-sheet availability in a single pass."
+    },
+    {
+      "name": "Version-aware page reads",
+      "command": "page get",
+      "description": "Read a help page as of a specific Q-SYS Designer version from the versioned doc tree."
+    },
+    {
+      "name": "Extraction coverage report",
+      "command": "coverage",
+      "description": "Report how many products resolved a spec sheet and how many pages parsed, so extraction gaps are visible."
+    },
+    {
+      "name": "UC platform integration lookup",
+      "command": "integrations",
+      "description": "Find which UC platforms (Teams, Zoom, Meet) a device is certified or integrated with."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 38,
+    "total": 38,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 90,
+      "grade": "A",
+      "total": 90
+    }
+  }
+}

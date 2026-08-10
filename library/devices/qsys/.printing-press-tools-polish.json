@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-08-10T20:39:41.912122Z",
+  "cli_dir": "\u003ccli-dir\u003e/qsys-pp-cli",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 3,
+    "captured": "2026-08-10T20:38:43.424235Z"
+  }
+}
