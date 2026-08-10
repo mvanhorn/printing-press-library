@@ -204,7 +204,6 @@ These capabilities aren't available in any other tool for this API.
 
 ## Recipes
 
-
 ### Batch a spreadsheet of prompts and download finals
 
 ```bash
@@ -228,6 +227,22 @@ artistly-pp-cli export --query "logo concept" --to ./client --name-template '{pr
 ```
 
 Downloads every finished image whose prompt matches, into a folder with readable filenames — zero quota cost.
+
+### Enhance a prompt before generating
+
+```bash
+artistly-pp-cli prompt enhance "a fox in a forest"
+```
+
+Expand a short prompt into a rich, detailed one (no quota cost), then feed it to generate. Use prompt extract <design-id|image-url> for the reverse (image-to-prompt).
+
+### Upscale or remove the background of a design
+
+```bash
+artistly-pp-cli edit upscale 57628105 --wait --download ./out
+```
+
+Run editor image-to-image tools on an existing design (by id/uuid), an image URL, or a local file. Use 'edit bg-remove' for background removal. Both auto-authenticate via your app session.
 
 ## Usage
 
