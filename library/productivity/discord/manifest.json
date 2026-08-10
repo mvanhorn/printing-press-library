@@ -1,0 +1,38 @@
+{
+  "manifest_version": "0.3",
+  "name": "discord-pp-mcp",
+  "display_name": "Discord",
+  "version": "4.30.1",
+  "description": "Preview of the Discord v10 HTTP API specification. See https://discord.com/developers/docs for more details.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/discord-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/discord-pp-mcp",
+      "args": [],
+      "env": {
+        "PRINTING_PRESS_CLIENT_PROFILE": "${user_config.printing_press_client_profile}"
+      }
+    }
+  },
+  "user_config": {
+    "printing_press_client_profile": {
+      "type": "string",
+      "title": "Client profile",
+      "description": "Binds the MCP server to an existing tenant-gated Printing Press client profile.",
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
