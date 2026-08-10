@@ -1,0 +1,162 @@
+{
+  "dir": "library/marketing/sendfox",
+  "verdict": "PASS",
+  "path_check": {
+    "tested": 0,
+    "valid": 0,
+    "valid_pct": 0
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "",
+    "match": true,
+    "detail": "spec not provided; auth protocol check skipped"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "spec not provided; browser-session auth check skipped"
+  },
+  "oauth_scope_coverage_check": {
+    "checked": 0,
+    "covered": 0,
+    "skipped": true,
+    "detail": "spec not provided; OAuth scope coverage check skipped"
+  },
+  "dead_flags": {
+    "total": 19,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 54,
+    "dead": 0
+  },
+  "pipeline_check": {
+    "sync_calls_domain": true,
+    "search_calls_domain": false,
+    "domain_tables": 1,
+    "sync_file_emitted": true,
+    "sync_resources_present": true,
+    "detail": "sync uses domain-specific Upsert methods; search uses generic Search only; 1 domain tables found"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 10,
+    "valid_examples": 10,
+    "detail": "10/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 51,
+      "registered": 51
+    },
+    "config_consistency": {
+      "write_fields": [
+        ", token, "
+      ],
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 0,
+    "found": 0,
+    "skipped": true
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 0,
+    "exempted_via_store": 0,
+    "skipped": true
+  },
+  "source_client_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "print_json_filtered_check": {
+    "checked": 39
+  },
+  "test_presence": {
+    "checked": 0
+  },
+  "naming_check": {
+    "checked": 39
+  },
+  "sync_param_drop_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "live_run": {
+    "run_date": "2026-08-09",
+    "api_base_url": "https://sendfox.com/api",
+    "build": {
+      "go_build": "exit 0",
+      "go_vet": "exit 0"
+    },
+    "auth_status": {
+      "authenticated": true,
+      "source": "config"
+    },
+    "doctor": {
+      "api": "reachable (HTTP 404 at /)",
+      "auth": "configured",
+      "cache_status": "fresh"
+    },
+    "sync": {
+      "resources": ["campaigns", "contacts", "lists"],
+      "total_records": 210,
+      "success": 3,
+      "errored": 0,
+      "summary": "100 campaigns, 100 contacts, 10 lists synced"
+    },
+    "stats_trends": {
+      "days": 90,
+      "campaigns_returned": 11,
+      "sample": {
+        "date": "2026-06-12",
+        "subject": "The curry I made by accident and never forgot",
+        "sent_count": 616,
+        "open_rate": 26.79,
+        "click_rate": 3.25,
+        "unsub_rate": 0.16
+      }
+    },
+    "stats_funnel": {
+      "campaigns": 75,
+      "total_sent": 35963,
+      "total_opened": 7160,
+      "total_clicked": 622,
+      "total_unsubscribed": 42,
+      "total_bounces": 951,
+      "open_rate_pct": 19.91,
+      "click_rate_pct": 1.73,
+      "unsub_rate_pct": 0.12
+    },
+    "stats_best_time": {
+      "pass": true,
+      "top_day": "Sunday",
+      "by_day_count": 7
+    },
+    "search": {
+      "query": "rasam",
+      "data_source": "local",
+      "results_returned": 1,
+      "sample_id": 2855886
+    },
+    "export_lists": {
+      "format": "jsonl",
+      "rows_returned": 10
+    },
+    "issues": null
+  },
+  "issues": null
+}
