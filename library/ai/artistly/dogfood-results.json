@@ -1,8 +1,8 @@
 {
-  "dir": "\u003ccli-dir\u003e/artistly",
-  "spec_path": "\u003ccli-dir\u003e/spec.yaml",
+  "dir": "<cli-dir>/artistly",
+  "spec_path": "<cli-dir>/spec.yaml",
   "spec_source": "bundled",
-  "verdict": "WARN",
+  "verdict": "PASS",
   "path_check": {
     "tested": 0,
     "valid": 0,
@@ -32,7 +32,7 @@
     "dead": 0
   },
   "dead_functions": {
-    "total": 67,
+    "total": 57,
     "dead": 0
   },
   "pipeline_check": {
@@ -79,13 +79,10 @@
   "reimplementation_check": {
     "checked": 7,
     "exempted_via_store": 1,
-    "suspicious": [
-      {
-        "command": "preset",
-        "file": "preset.go",
-        "reason": "hand-rolled response: no API client call, no store access"
-      }
-    ]
+    "exempted_via_local_data_source": 1
+  },
+  "description_drift_check": {
+    "expected": "The first CLI for Artistly \u2014 scriptable AI image generation, batch runs, and a searchable local archive the web app has no way to offer."
   },
   "source_client_check": {
     "checked": 0,
@@ -104,7 +101,5 @@
     "checked": 0,
     "skipped": true
   },
-  "issues": [
-    "1/7 novel features look reimplemented: preset (preset.go) — hand-rolled response: no API client call, no store access"
-  ]
+  "issues": null
 }
