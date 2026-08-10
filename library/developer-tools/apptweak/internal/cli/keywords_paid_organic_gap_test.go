@@ -3,8 +3,71 @@
 
 package cli
 
-import "testing"
+import (
+	"io"
+	"strings"
+	"testing"
+)
 
-func TestNovelKeywordsPaidOrganicGapCommandTODO(t *testing.T) {
-	t.Skip("TODO: implement table-driven tests for keywords paid-organic-gap")
+// TestPaidOrganicGapMaxKeywordsGuard verifies the early-exit guard for invalid
+// --max-paid-keywords values. Negative and zero must error before any API call;
+// positive values must not error from the guard itself.
+func TestPaidOrganicGapMaxKeywordsGuard(t *testing.T) {
+	cases := []struct {
+		name    string
+		max     string
+		dryRun  bool
+		wantErr string
+	}{
+		{"negative", "-1", false, "must be at least 1, got -1"},
+		{"zero", "0", false, "must be at least 1, got 0"},
+		{"one", "1", true, ""},
+		{"larger than typical result set", "999", true, ""},
+	}
+	for _, tc := range cases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			rf := &rootFlags{dryRun: tc.dryRun}
+			cmd := newNovelKeywordsPaidOrganicGapCmd(rf)
+			// For error cases we need competitor+app to pass the required-flag checks.
+			// For dry-run cases those checks are skipped.
+			args := []string{"--max-paid-keywords", tc.max}
+			if !tc.dryRun {
+				args = append([]string{"--competitor", "123", "--app", "456"}, args...)
+			}
+			cmd.SetArgs(args)
+			// Silence cobra's own error output; we inspect the returned error.
+			cmd.SetErr(io.Discard)
+			err := cmd.Execute()
+			if tc.wantErr == "" {
+				if err != nil {
+					t.Errorf("unexpected error: %v", err)
+				}
+			} else {
+				if err == nil || !strings.Contains(err.Error(), tc.wantErr) {
+					t.Errorf("got %v, want error containing %q", err, tc.wantErr)
+				}
+			}
+		})
+	}
+}
+
+// TestCapKeywords verifies capKeywords truncates only when needed and never panics.
+func TestCapKeywords(t *testing.T) {
+	all := []string{"alpha", "beta", "gamma"}
+	cases := []struct {
+		max  int
+		want int
+	}{
+		{1, 1},
+		{2, 2},
+		{3, 3},  // exact length — no truncation
+		{10, 3}, // larger than result set — no truncation, no panic
+	}
+	for _, tc := range cases {
+		got := capKeywords(all, tc.max)
+		if len(got) != tc.want {
+			t.Errorf("capKeywords(len=%d, max=%d) = len %d, want %d", len(all), tc.max, len(got), tc.want)
+		}
+	}
 }

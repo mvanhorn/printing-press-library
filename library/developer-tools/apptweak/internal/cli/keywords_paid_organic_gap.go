@@ -52,6 +52,9 @@ func newNovelKeywordsPaidOrganicGapCmd(flags *rootFlags) *cobra.Command {
 			if !cmd.Flags().Changed("app") && !flags.dryRun {
 				return fmt.Errorf("required flag \"app\" not set")
 			}
+			if flagMaxPaidKeywords < 1 {
+				return fmt.Errorf("--max-paid-keywords must be at least 1, got %d", flagMaxPaidKeywords)
+			}
 			if dryRunOK(flags) {
 				fmt.Fprintf(cmd.OutOrStdout(), "would fetch competitor paid keywords and check organic rankings\n")
 				return nil
@@ -91,9 +94,7 @@ func newNovelKeywordsPaidOrganicGapCmd(flags *rootFlags) *cobra.Command {
 			totalPaid := len(allPaidKeywords)
 
 			// Limit to max-paid-keywords
-			if len(allPaidKeywords) > flagMaxPaidKeywords {
-				allPaidKeywords = allPaidKeywords[:flagMaxPaidKeywords]
-			}
+			allPaidKeywords = capKeywords(allPaidKeywords, flagMaxPaidKeywords)
 
 			// Step 2: Check your app's organic rankings for those keywords
 			organicParams := map[string]string{
@@ -150,6 +151,15 @@ func newNovelKeywordsPaidOrganicGapCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagDevice, "device", "iphone", "Target device (iphone, ipad, android)")
 	cmd.Flags().IntVar(&flagMaxPaidKeywords, "max-paid-keywords", 50, "Maximum number of paid keywords to check")
 	return cmd
+}
+
+// capKeywords returns all[:max] when len(all) > max, otherwise all unchanged.
+// The caller must ensure max >= 1 before calling.
+func capKeywords(all []string, max int) []string {
+	if len(all) > max {
+		return all[:max]
+	}
+	return all
 }
 
 // extractPaidKeywords extracts keyword strings from the paid-keywords API response.
