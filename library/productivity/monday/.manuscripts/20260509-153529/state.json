@@ -1,0 +1,12 @@
+{
+  "version": 0,
+  "api_name": "monday",
+  "run_id": "20260509-153529",
+  "scope": "peppy-sniffing-taco-02a21c8a",
+  "output_dir": "/Users/bobe/printing-press/.runstate/peppy-sniffing-taco-02a21c8a/runs/20260509-153529/working/monday-pp-cli",
+  "working_dir": "/Users/bobe/printing-press/library/monday",
+  "published_dir": "/Users/bobe/printing-press/library/monday",
+  "started_at": "0001-01-01T00:00:00Z",
+  "phases": null,
+  "spec_path": "/Users/bobe/printing-press/.runstate/peppy-sniffing-taco-02a21c8a/runs/20260509-153529/research/monday-spec.yaml"
+}

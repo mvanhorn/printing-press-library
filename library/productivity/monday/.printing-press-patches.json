@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-12",
+  "base_run_id": "20260509-153529",
+  "base_printing_press_version": "4.2.1",
+  "patches": [
+    {
+      "id": "doctor-config-auth-env-status",
+      "summary": "Treat saved config credentials as satisfying doctor env-var availability.",
+      "reason": "monday-pp-cli auth set-token stores MONDAY_API_TOKEN in config, so doctor should not keep reporting the env var as missing after auth is configured.",
+      "files": ["internal/cli/doctor.go"],
+      "validated_outcome": "doctor reports env_vars OK after auth set-token, and whoami/boards list succeed against monday.com.",
+      "upstream_issue": ""
+    },
+    {
+      "id": "monday-graphql-local-sync",
+      "summary": "Enable monday GraphQL resources to hydrate the local SQLite store and make sql query the populated store.",
+      "reason": "The generated sync surface had an empty default resource list and REST-only fetch path, while this printed CLI's monday surface is hand-written GraphQL. The sql command was also a placeholder that always reported the store as empty.",
+      "files": [
+        "internal/cli/sync.go",
+        "internal/cli/sync_monday_graphql.go",
+        "internal/cli/extras.go"
+      ],
+      "validated_outcome": "sync populated workspaces, boards, users, teams, docs, items, columns, groups, updates, and activity_logs into ~/.local/share/monday-pp-cli/data.db; sql now returns local counts from resources.",
+      "upstream_issue": ""
+    },
+    {
+      "id": "oauth-refresh-must-serialize-under-shared-client-sync",
+      "summary": "authHeader must hold a per-client lock across the OAuth token expiry-check, refresh, and read.",
+      "reason": "sync shares one *Client across concurrent workers; the generated authHeader read Config.{AccessToken,TokenExpiry,RefreshToken} and refreshAccessToken wrote them via SaveTokens with no lock, so concurrent OAuth refresh raced and could double-refresh, consuming a refresh token a sibling already used. api_key auth never takes the refresh branch and is unaffected.",
+      "files": ["internal/client/client.go"],
+      "validated_outcome": "go test -race ./internal/client/ ./internal/cli/ passes; the refresh expiry check is re-evaluated under the lock so a waiting goroutine reuses the fresh token instead of refreshing again.",
+      "upstream_issue": ""
+    },
+    {
+      "id": "since-must-paginate-activity-logs-per-board",
+      "summary": "The since command must page through activity_logs per board until each board returns a short page, not fetch page 1 only.",
+      "reason": "The generated since fired a single page-1 GraphQL call, silently dropping every event past --limit on a busy board and contradicting the 'tail every change since a window' promise. Pagination accumulates per board and stops when no board returns a full page; a runaway page cap is surfaced on stderr rather than truncating silently.",
+      "files": ["internal/cli/transcendence_live.go"],
+      "validated_outcome": "since accumulates activity across pages for multi-board windows; output shape (board_id, board_name, activity[]) is unchanged and existing cli tests pass.",
+      "upstream_issue": ""
+    }
+  ]
+}

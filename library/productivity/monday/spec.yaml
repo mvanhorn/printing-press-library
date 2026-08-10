@@ -1,0 +1,142 @@
+name: monday
+display_name: monday.com
+description: Workspaces, folders, boards, groups, items, columns, updates, docs, users, teams, notifications, notetaker meetings, and dev sprints via the monday.com GraphQL API.
+cli_description: Operate monday.com from the terminal with a local SQLite mirror, FTS5 search, typed bulk edits, and cross-board analytics that no online tool ships.
+version: "2026-04"
+spec_source: official
+category: productivity
+website_url: "https://developer.monday.com/api-reference/"
+base_url: "https://api.monday.com"
+graphql_endpoint_path: "/v2"
+
+auth:
+  type: api_key
+  header: Authorization
+  in: header
+  env_vars:
+    - MONDAY_API_TOKEN
+  key_url: "https://developer.monday.com/api-reference/docs/authentication"
+
+config:
+  format: toml
+  path: "~/.config/monday-pp-cli/config.toml"
+
+cache:
+  enabled: true
+  stale_after: "30m"
+  refresh_timeout: "45s"
+  env_opt_out: MONDAY_NO_AUTO_REFRESH
+
+resources:
+  account:
+    description: "Account-level metadata and the current API user."
+    endpoints:
+      me:
+        method: GET
+        path: "/graphql"
+        description: "Return the current API user."
+        response:
+          type: object
+          item: User
+        response_path: "data.me"
+      info:
+        method: GET
+        path: "/graphql"
+        description: "Return account-level information."
+        response:
+          type: object
+          item: Account
+        response_path: "data.account"
+
+types:
+  User:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: email
+        type: string
+      - name: title
+        type: string
+      - name: enabled
+        type: boolean
+      - name: is_admin
+        type: boolean
+      - name: is_guest
+        type: boolean
+
+  Account:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: tier
+        type: string
+      - name: country_code
+        type: string
+      - name: slug
+        type: string
+
+extra_commands:
+  - name: workspaces
+    description: "List, get, create, and update monday.com workspaces."
+  - name: boards
+    description: "List, get, create, and inspect boards (groups, columns, full data, activity, insights, health)."
+  - name: groups
+    description: "List, create, and move groups on a board."
+  - name: items
+    description: "List, get, create, update, delete, and move items, plus typed column-value edits."
+  - name: columns
+    description: "List, create, update, delete columns, and inspect column-type schemas."
+  - name: updates
+    description: "List and create item updates (the comment threads under each item)."
+  - name: docs
+    description: "List, get, create, and update monday.com docs."
+  - name: users
+    description: "List and get users in the account."
+  - name: teams
+    description: "List teams in the account."
+  - name: notifications
+    description: "Send notifications to users (--dry-run, batch via --stdin)."
+  - name: meetings
+    description: "List notetaker meetings with summaries, action items, and transcripts."
+  - name: sprints
+    description: "List sprint boards, sprint metadata, and sprint summaries (monday-dev)."
+  - name: assets
+    description: "List, download, and upload file assets attached to items."
+  - name: sync
+    description: "Pull workspaces, boards, groups, items, columns, column_values, users, teams, updates, and activity logs into the local SQLite store."
+  - name: search
+    description: "FTS5 search across items, updates, docs, and text-typed column values in the local store."
+  - name: sql
+    description: "Run a read-only SELECT against the local SQLite store."
+  - name: since
+    description: "Replay activity log changes across boards within a time window (e.g. since 2h, since 1d)."
+  - name: whoami-load
+    description: "Per-person workload across every synced board, weighted by status and overdue."
+  - name: bottleneck
+    description: "Per-status median and p90 dwell time on a board, computed from local activity logs."
+  - name: velocity
+    description: "Sprint velocity report: committed, completed, slipped, added-mid-sprint per cycle."
+  - name: column-drift
+    description: "Detect added, removed, renamed, or retyped columns since the last sync."
+  - name: mentions
+    description: "FTS5 search across items, updates, docs, and text columns with hydrated context."
+  - name: complexity-budget
+    description: "Pre-flight cost probe: predict GraphQL complexity points and remaining account budget."
+  - name: bulk-edit
+    description: "Apply CSV-driven column-value edits with typed validation, dry-run, and resume-on-failure."
+  - name: resolve
+    description: "Walk mirror and formula chains to show source board, source item, and resolved value."
+  - name: reconcile
+    description: "Compare a board against an external CSV; emit only-in-monday, only-in-csv, and diff sets."
+  - name: cross-ref
+    description: "Export a board joined to its cross-system ID column (Linear id, Notion page-id) as JSON ready to pipe."
+  - name: context
+    description: "Dump everything about one item: column values, updates, replies, docs, assets, activity log, mirror sources."
+  - name: gql
+    description: "Run a saved or ad-hoc GraphQL query against monday.com, with stored params."
+  - name: schema
+    description: "Print the cached GraphQL schema, or introspect a single type."
