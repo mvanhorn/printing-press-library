@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "api_name": "apptweak",
+  "run_id": "20260810-120000",
+  "status": "accept",
+  "level": "full",
+  "verdict": "PASS_WITH_KNOWN_GAPS",
+  "passed": 74,
+  "failed": 54,
+  "skipped": 73,
+  "matrix_size": 128,
+  "auth_context": {
+    "type": "api_key",
+    "api_key_available": true,
+    "browser_session_available": false
+  },
+  "known_failures": {
+    "reason": "mixed-api-availability",
+    "detail": "34 failures are HTTP 404s on endpoints unavailable at this API plan tier or absent from the public API (apps/featured, apps/keyword-rankings/current, apps/metadata/history, apps/paid-keywords, apps/credits). 20 failures are HTTP 422 ValidationErrors from the dogfood harness supplying 'example-value' placeholder params to otherwise-live endpoints. The API is accessible — apps/metadata responded with real JSON data. The original all-404 condition recorded in run_id 20260528-190526 no longer applies.",
+    "failure_kinds": [
+      "happy_path",
+      "json_fidelity"
+    ],
+    "confirmed_live": [
+      "apps metadata-diff"
+    ]
+  }
+}
