@@ -7,7 +7,9 @@
   "matrix_size": 8,
   "tests_passed": 8,
   "tests_skipped": 0,
-  "auth_context": { "type": "none" },
+  "auth_context": {
+    "type": "none"
+  },
   "engine": {
     "name": "greenhouse-job-board-api",
     "version": "v1",
@@ -31,8 +33,8 @@
     "greenhouse-pp-cli jobs get stripe <job_id> --questions --json"
   ],
   "results_summary": {
-    "stripe_open_jobs": 524,
-    "anthropic_open_jobs": 411,
+    "stripe_open_jobs": 550,
+    "anthropic_open_jobs": 391,
     "departments_with_nested_jobs": true,
     "offices_with_nested_departments": true,
     "doctor_reachable": true,
@@ -44,5 +46,6 @@
     "all_calls_exit_zero": true,
     "upstream_errors_surfaced_in_stderr": true,
     "wrapper_propagates_exit_codes": true
-  }
+  },
+  "generated_at": "2026-08-10T04:40:00Z"
 }
