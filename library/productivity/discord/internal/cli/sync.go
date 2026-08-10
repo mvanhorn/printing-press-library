@@ -930,7 +930,7 @@ func syncResource(ctx context.Context, c interface {
 		return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("counting stored %s rows: %w", resource, countErr), Duration: time.Since(started)}
 	}
 	watermark := time.Time{}
-	if outcome.complete {
+	if outcome.complete && extractFailureTotal == 0 && hydrateFailureTotal == 0 {
 		watermark = requestedAt.Add(-syncWatermarkOverlap)
 	} else if capTruncated && sortEffective && timestampOrderSafe && timestampEvidence && !newestStoredAt.IsZero() {
 		watermark = newestStoredAt.Add(-syncWatermarkOverlap)

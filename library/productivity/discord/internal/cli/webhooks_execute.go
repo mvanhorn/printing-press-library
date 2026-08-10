@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -77,6 +78,10 @@ func newWebhooksExecuteCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			// The webhook token is a credential embedded in the request path
+			// (not the Authorization header). Register it so displayURL,
+			// maskError, and dry-run output redact it everywhere.
+			c.AddPathCredential(args[1])
 			params := map[string]string{}
 			if cmd.Flags().Changed("wait") || flagWait != false {
 				params["wait"] = formatCLIParamValue(flagWait)
@@ -173,10 +178,17 @@ func newWebhooksExecuteCmd(flags *rootFlags) *cobra.Command {
 					}
 					return nil
 				}
+				// Redact the token-bearing path before it reaches any structured
+				// output: the webhook token is a credential and must not appear in
+				// envelopes, logs, or agent-consumed JSON.
+				redactedPath := path
+				if len(args) > 1 && args[1] != "" {
+					redactedPath = strings.ReplaceAll(redactedPath, args[1], "****")
+				}
 				envelope := map[string]any{
 					"action":   "post",
 					"resource": "webhooks",
-					"path":     path,
+					"path":     redactedPath,
 					"status":   statusCode,
 					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
 				}

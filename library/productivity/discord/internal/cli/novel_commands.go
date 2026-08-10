@@ -42,7 +42,7 @@ func init() {
 type guildSnapshotReport struct {
 	GuildID     string            `json:"guild_id"`
 	GuildName   string            `json:"guild_name"`
-	MemberCount int               `json:"member_count,omitempty"`
+	MemberCount *int              `json:"member_count,omitempty"`
 	Channels    []snapshotChannel `json:"channels"`
 	Roles       []snapshotRole    `json:"roles"`
 }
@@ -95,7 +95,7 @@ docs, and agent-driven guild reports.`,
 
 			report := guildSnapshotReport{GuildID: guildID}
 
-			guildRaw, err := c.GetNoCache(ctx, replacePathParam("/guilds/{guild_id}", "guild_id", guildID), nil)
+			guildRaw, err := c.GetNoCache(ctx, replacePathParam("/guilds/{guild_id}", "guild_id", guildID), map[string]string{"with_counts": "true"})
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -103,9 +103,16 @@ docs, and agent-driven guild reports.`,
 				Name        string `json:"name"`
 				MemberCount int    `json:"member_count"`
 			}
-			_ = json.Unmarshal(guildRaw, &guild)
+			if err := json.Unmarshal(guildRaw, &guild); err != nil {
+				return fmt.Errorf("parsing guild: %w", err)
+			}
 			report.GuildName = guild.Name
-			report.MemberCount = guild.MemberCount
+			// member_count is only present when with_counts=true (requested
+			// above); when Discord still omits it, leave the field absent
+			// instead of implying a real count of zero.
+			if guild.MemberCount > 0 {
+				report.MemberCount = &guild.MemberCount
+			}
 
 			channelsRaw, err := c.GetNoCache(ctx, replacePathParam("/guilds/{guild_id}/channels", "guild_id", guildID), nil)
 			if err != nil {
@@ -162,7 +169,11 @@ docs, and agent-driven guild reports.`,
 			if !wantsHumanTable(out, flags) {
 				return printJSONFiltered(out, []guildSnapshotReport{report}, flags)
 			}
-			fmt.Fprintf(out, "Guild: %s (%s)  members: %d\n\n", report.GuildName, report.GuildID, report.MemberCount)
+			if report.MemberCount != nil {
+				fmt.Fprintf(out, "Guild: %s (%s)  members: %d\n\n", report.GuildName, report.GuildID, *report.MemberCount)
+			} else {
+				fmt.Fprintf(out, "Guild: %s (%s)  members: n/a\n\n", report.GuildName, report.GuildID)
+			}
 			fmt.Fprintln(out, "CHANNELS")
 			tw := newTabWriter(out)
 			fmt.Fprintln(tw, "NAME\tTYPE\tPOS\tCATEGORY")
@@ -270,13 +281,19 @@ their guild nick, roles, and join date.`,
 				report.JoinedAt = member.JoinedAt
 
 				guildRaw, gerr := c.GetNoCache(ctx, replacePathParam("/guilds/{guild_id}", "guild_id", flagGuild), nil)
-				if gerr == nil {
+				if gerr != nil {
+					// The member lookup succeeded but the guild name did not;
+					// a partial card without the guild name is still useful,
+					// but the failure must be visible, not silent.
+					fmt.Fprintf(cmd.ErrOrStderr(), "warning: could not resolve guild name for %s: %v\n", flagGuild, gerr)
+				} else {
 					var guild struct {
 						Name string `json:"name"`
 					}
-					if json.Unmarshal(guildRaw, &guild) == nil {
-						report.GuildName = guild.Name
+					if err := json.Unmarshal(guildRaw, &guild); err != nil {
+						return fmt.Errorf("parsing guild: %w", err)
 					}
+					report.GuildName = guild.Name
 				}
 			}
 
@@ -312,6 +329,7 @@ type catchUpChannel struct {
 	ChannelName  string `json:"channel_name"`
 	NewMessages  int    `json:"new_messages"`
 	LastActivity string `json:"last_activity"`
+	Truncated    bool   `json:"truncated,omitempty"`
 }
 
 type catchUpReport struct {
@@ -319,6 +337,7 @@ type catchUpReport struct {
 	GuildName string           `json:"guild_name"`
 	Window    string           `json:"window"`
 	TotalNew  int              `json:"total_new_messages"`
+	Truncated bool             `json:"truncated,omitempty"`
 	Channels  []catchUpChannel `json:"channels"`
 }
 
@@ -382,16 +401,21 @@ Read-only: never marks anything read, never sends anything.`,
 				}
 			}
 
-			perGuildCap := 10
-			perChannelCap := 5
+			perGuildCap := 0
+			perChannelCap := 0
 			if cliutil.IsDogfoodEnv() {
+				// Dogfood runs under a 30s subprocess timeout; a full sweep of
+				// every channel in every guild would trip it. Curtail there,
+				// and say so in the report.
 				perGuildCap = 1
 				perChannelCap = 1
 			}
 
 			var reports []catchUpReport
+			truncatedGuilds := false
 			for gi, g := range guilds {
-				if gi >= perGuildCap {
+				if perGuildCap > 0 && gi >= perGuildCap {
+					truncatedGuilds = true
 					break
 				}
 				report := catchUpReport{GuildID: g.id, GuildName: g.name, Window: flagSince}
@@ -413,14 +437,13 @@ Read-only: never marks anything read, never sends anything.`,
 					return fmt.Errorf("parsing channels: %w", err)
 				}
 				count := 0
+				truncatedChannels := false
 				for ci, ch := range channels {
-					if ch.Type != 0 && ch.Type != 5 { // text channels and forum? text + announcement only
+					if ch.Type != 0 { // text channels only (type 0 = GUILD_TEXT)
 						continue
 					}
-					if ch.Type != 0 {
-						continue
-					}
-					if count >= perChannelCap {
+					if perChannelCap > 0 && count >= perChannelCap {
+						truncatedChannels = true
 						break
 					}
 					count++
@@ -448,13 +471,20 @@ Read-only: never marks anything read, never sends anything.`,
 							last = t
 						}
 					}
+					// A full 25-message page whose newest message is still
+					// inside the window means the window may extend past the
+					// fetched page; the count is a lower bound, not the total.
+					truncatedMessages := len(msgs) >= 25 && !last.IsZero() && last.After(cutoff)
+					report.Truncated = report.Truncated || truncatedMessages
 					report.TotalNew += newInWindow
 					report.Channels = append(report.Channels, catchUpChannel{
 						Channel: ch.ID, ChannelName: ch.Name, NewMessages: newInWindow,
 						LastActivity: formatRFC3339OrEmpty(last),
+						Truncated:    truncatedMessages,
 					})
 					_ = ci
 				}
+				report.Truncated = report.Truncated || truncatedChannels
 				sort.SliceStable(report.Channels, func(i, j int) bool { return report.Channels[i].NewMessages > report.Channels[j].NewMessages })
 				reports = append(reports, report)
 			}
@@ -464,15 +494,26 @@ Read-only: never marks anything read, never sends anything.`,
 				return printJSONFiltered(out, reports, flags)
 			}
 			for _, report := range reports {
-				fmt.Fprintf(out, "Guild %s (%s): %d new messages in %s\n", report.GuildName, report.GuildID, report.TotalNew, flagSince)
+				marker := ""
+				if report.Truncated {
+					marker = " (sampled; some channels or messages were not fully scanned)"
+				}
+				fmt.Fprintf(out, "Guild %s (%s): %d new messages in %s%s\n", report.GuildName, report.GuildID, report.TotalNew, flagSince, marker)
 				tw := newTabWriter(out)
-				fmt.Fprintln(tw, "CHANNEL\tNEW\tLAST ACTIVITY")
+				fmt.Fprintln(tw, "CHANNEL	NEW	LAST ACTIVITY	STATUS")
 				for _, ch := range report.Channels {
-					fmt.Fprintf(tw, "%s\t%d\t%s\n", ch.ChannelName, ch.NewMessages, ch.LastActivity)
+					status := ""
+					if ch.Truncated {
+						status = "sampled"
+					}
+					fmt.Fprintf(tw, "%s	%d	%s	%s\n", ch.ChannelName, ch.NewMessages, ch.LastActivity, status)
 				}
 				if err := tw.Flush(); err != nil {
 					return err
 				}
+			}
+			if truncatedGuilds && len(reports) > 0 {
+				fmt.Fprintf(out, "\nnote: scanned the first %d guild(s) only; use --guild to target a specific server\n", len(reports))
 			}
 			return nil
 		},

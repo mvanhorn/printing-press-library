@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "discord-sync-watermark-on-drop",
+  "base_run_id": "20260810-204427",
+  "reason": "Greptile finding (PR #1687): a naturally completed sync advanced last_synced_at even when item extraction dropped rows, marking an incomplete dataset fresh. The incremental watermark now only advances when outcome.complete AND no extract/hydration failures occurred; dropped rows leave the dataset unfresh until the next clean sync.",
+  "files": [
+    "internal/cli/sync.go"
+  ],
+  "validated_outcome": "live dogfood PASS 457/457 after fix; publish validate all checks PASS",
+  "upstream_issue": "Candidate generator change: sync template should gate the watermark on zero extraction failures (generalizes to any API whose items can fail ID extraction)."
+}

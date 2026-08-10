@@ -47,6 +47,27 @@ type Client struct {
 	platformLimiterMu sync.Mutex
 	platformLimiters  map[string]*platform.EndpointLimiter
 	platformBudgets   map[string]platform.EndpointBudget
+	pathCredentials   []string
+}
+
+// AddPathCredential registers a secret embedded in a request path (e.g. a
+// webhook token substituted into the URL). displayURL, maskError, and dry-run
+// output redact it just like the Authorization header, so path-embedded
+// credentials never leak into envelopes, logs, or error text.
+func (c *Client) AddPathCredential(value string) {
+	if value == "" {
+		return
+	}
+	for _, existing := range c.pathCredentials {
+		if existing == value {
+			return
+		}
+	}
+	c.pathCredentials = append(c.pathCredentials, value)
+}
+
+func (c *Client) pathCredentialMasks() []string {
+	return c.pathCredentials
 }
 
 func (c *Client) IsDryRun() bool {
@@ -1125,7 +1146,7 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 			if ctxErr := ctx.Err(); ctxErr != nil {
 				return nil, 0, ctxErr
 			}
-			lastErr = fmt.Errorf("%s %s: %w", method, c.displayURL(path, authHeader), c.maskError(err, authHeader))
+			lastErr = fmt.Errorf("%s %s: %w", method, c.displayURL(path, append([]string{authHeader}, c.pathCredentialMasks()...)...), c.maskError(err, append([]string{authHeader}, c.pathCredentialMasks()...)...))
 			// Transient network failure (connection reset, DNS blip, request
 			// timeout). Back off before retrying — same exponential schedule as
 			// the 5xx path below — so a brief outage does not burn every attempt
@@ -1135,7 +1156,7 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 				if !retryWithinBudget(wait) {
 					return nil, 0, lastErr
 				}
-				fmt.Fprintf(os.Stderr, "network error (%v), retrying in %s (attempt %d/%d)\n", c.maskError(err, authHeader), wait, attempt+1, maxRetries)
+				fmt.Fprintf(os.Stderr, "network error (%v), retrying in %s (attempt %d/%d)\n", c.maskError(err, append([]string{authHeader}, c.pathCredentialMasks()...)...), wait, attempt+1, maxRetries)
 				if serr := sleepContext(ctx, wait); serr != nil {
 					return nil, 0, serr
 				}
@@ -1198,9 +1219,9 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 
 		apiErr := &APIError{
 			Method:     method,
-			Path:       c.displayURL(path, authHeader),
+			Path:       c.displayURL(path, append([]string{authHeader}, c.pathCredentialMasks()...)...),
 			StatusCode: resp.StatusCode,
-			Body:       c.maskCredentialText(truncateBody(respBody), authHeader),
+			Body:       c.maskCredentialText(truncateBody(respBody), append([]string{authHeader}, c.pathCredentialMasks()...)...),
 		}
 
 		// Rate limited: classify before provider decoding. Unsafe-to-replay
@@ -1281,7 +1302,7 @@ func safeEndpointClass(method, path string) string {
 // using the auth material already resolved in `do()`. Never triggers a network
 // call — the caller is responsible for passing cached auth material only.
 func (c *Client) dryRun(method, targetURL, path string, params map[string]string, body []byte, headerOverrides map[string]string, authHeader string) (json.RawMessage, int, error) {
-	fmt.Fprintf(os.Stderr, "%s %s\n", method, c.displayURL(targetURL, authHeader))
+	fmt.Fprintf(os.Stderr, "%s %s\n", method, c.displayURL(targetURL, append([]string{authHeader}, c.pathCredentialMasks()...)...))
 	queryPrinted := false
 	if params != nil {
 		keys := make([]string, 0, len(params))

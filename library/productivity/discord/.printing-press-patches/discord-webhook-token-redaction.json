@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "discord-webhook-token-redaction",
+  "base_run_id": "20260810-204427",
+  "reason": "Greptile finding (PR #1687): the webhook token is substituted into the request path and was emitted in plaintext in the JSON envelope, dry-run stderr, and client error text. Added Client.AddPathCredential so path-embedded secrets are redacted by displayURL/maskError/dry-run output, and the execute command now emits a redacted path in its envelope.",
+  "files": [
+    "internal/client/client.go",
+    "internal/cli/webhooks_execute.go"
+  ],
+  "validated_outcome": "live dogfood PASS 457/457 after fix; dry-run and 404 error paths both show /webhooks/<id>/**** with the token redacted",
+  "upstream_issue": "Candidate generator change: emit AddPathCredential automatically for spec paths whose security or path params embed credentials (e.g. webhook token path params)."
+}
