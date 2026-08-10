@@ -42,7 +42,14 @@ but do not stop the import.`,
 			c.DryRun = dryRun
 
 			resource := args[0]
-			path := "/" + resource
+			// Resolve through the emitted resource path map rather than
+			// concatenating "/" + resource: this API's endpoints are not
+			// named after their resources (designs -> /designs-by-folder),
+			// so a derived path would POST to a route that does not exist.
+			path, err := syncResourcePath(resource)
+			if err != nil {
+				return usageErr(fmt.Errorf("%w (known resources: %s)", err, strings.Join(knownSyncResourceNames(), ", ")))
+			}
 
 			var reader io.Reader
 			if inputFile == "-" || inputFile == "" {
