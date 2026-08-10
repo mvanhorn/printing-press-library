@@ -133,6 +133,26 @@ func dryRunOK(flags *rootFlags) bool {
 	return flags != nil && flags.dryRun
 }
 
+type dryRunResult struct {
+	DryRun bool   `json:"dry_run"`
+	Action string `json:"action"`
+	Would  string `json:"would"`
+}
+
+// writeDryRun ends a --dry-run short-circuit by reporting the action that was
+// skipped. It emits JSON when --json/--agent is active so machine consumers
+// get a parseable envelope instead of empty output; otherwise it prints a
+// single human line. Aligns the printed CLI with the current generator
+// template contract (see cli-printing-press teach.go.tmpl).
+func writeDryRun(w io.Writer, flags *rootFlags, action string) error {
+	would := "run " + action + "; no changes made"
+	if flags != nil && flags.asJSON {
+		return json.NewEncoder(w).Encode(dryRunResult{DryRun: true, Action: action, Would: would})
+	}
+	_, err := fmt.Fprintf(w, "dry-run: would %s\n", would)
+	return err
+}
+
 // boundCtx applies the root --timeout flag to hand-written command work that
 // does not go through the generated internal/client.Client. Generated endpoint
 // commands already pass flags.timeout into client.New; sibling typed clients

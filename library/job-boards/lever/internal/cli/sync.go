@@ -28,7 +28,7 @@ func newSyncCmd(flags *rootFlags) *cobra.Command {
 		SilenceUsage: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
-				return nil
+				return writeDryRun(cmd.OutOrStdout(), flags, "sync")
 			}
 			c, err := flags.newClient()
 			if err != nil {
