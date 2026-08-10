@@ -34,7 +34,7 @@ func main() {
 	}
 	s := server.NewMCPServer(
 		"Scrape Creators",
-		"2026.6.2",
+		cli.Version(),
 		server.WithToolCapabilities(false),
 	)
 
