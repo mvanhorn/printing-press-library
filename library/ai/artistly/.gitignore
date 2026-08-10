@@ -8,12 +8,6 @@
 # Local agent/editor settings
 .claude/
 
-# Printing-press run artifacts (transient diagnostics, not source)
-dogfood-results.json
-workflow-verify-report.json
-.printing-press-pii-polish.json
-.printing-press-tools-polish.json
-
 # Downloaded design assets from local CLI runs (account data)
 *.png
 *.jpg
