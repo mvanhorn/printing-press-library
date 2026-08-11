@@ -56,6 +56,7 @@ func newNovelLiteratureUpdatesCmd(flags *rootFlags) *cobra.Command {
 				return printJSONFiltered(cmd.OutOrStdout(), make([]updateRow, 0), flags)
 			}
 			defer db.Close()
+			hintIfCatalogIncomplete(cmd, db)
 
 			docs, err := loadCatalogDocs(ctx, db)
 			if err != nil {

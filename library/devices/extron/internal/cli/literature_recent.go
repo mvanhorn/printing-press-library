@@ -44,6 +44,7 @@ func newNovelLiteratureRecentCmd(flags *rootFlags) *cobra.Command {
 			}
 			defer db.Close()
 			hintIfUnsynced(cmd, db, catalogResource)
+			hintIfCatalogIncomplete(cmd, db)
 
 			docs, err := loadCatalogDocs(ctx, db)
 			if err != nil {

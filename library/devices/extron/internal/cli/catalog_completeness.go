@@ -52,6 +52,7 @@ func newNovelCatalogCompletenessCmd(flags *rootFlags) *cobra.Command {
 				return printJSONFiltered(cmd.OutOrStdout(), make([]completenessRow, 0), flags)
 			}
 			defer db.Close()
+			hintIfCatalogIncomplete(cmd, db)
 
 			var models []string
 			if flagBom != "" {

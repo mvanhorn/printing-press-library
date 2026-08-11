@@ -86,6 +86,7 @@ func catalogOrLive(ctx context.Context, cmd *cobra.Command, flags *rootFlags, db
 			return nil, err
 		}
 		if len(docs) > 0 {
+			hintIfCatalogIncomplete(cmd, db)
 			return docs, nil
 		}
 	}

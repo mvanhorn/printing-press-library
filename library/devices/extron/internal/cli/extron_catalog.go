@@ -146,6 +146,22 @@ func variantAfterPrefix(title, q string) int {
 	return 0
 }
 
+// hintIfCatalogIncomplete warns when the local catalog exists but was synced
+// only partially (bounded sync or --max-pages cap), so a partial catalog is
+// never silently treated as authoritative.
+func hintIfCatalogIncomplete(cmd *cobra.Command, db *store.Store) {
+	if cmd == nil || db == nil {
+		return
+	}
+	cursor, _, _, err := db.GetSyncState(catalogResource)
+	if err != nil || cursor == "" {
+		return
+	}
+	if cursor != "full" {
+		fmt.Fprintf(cmd.ErrOrStderr(), "hint: the local catalog is partial (cursor %q); run 'extron-pp-cli catalog sync --full' for the complete catalog.\n", cursor)
+	}
+}
+
 // docsToTable maps docs into rows for the human table renderer.
 func docsToTable(docs []extron.Doc) []map[string]any {
 	rows := make([]map[string]any, 0, len(docs))

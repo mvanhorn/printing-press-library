@@ -57,6 +57,7 @@ func newNovelLiteratureRackCmd(flags *rootFlags) *cobra.Command {
 				return printJSONFiltered(cmd.OutOrStdout(), make([]rackRow, 0), flags)
 			}
 			defer db.Close()
+			hintIfCatalogIncomplete(cmd, db)
 
 			models, err := readBOM(bomPath)
 			if err != nil {
@@ -165,7 +166,6 @@ func downloadRackDocs(ctx context.Context, rows []rackRow, dir string) error {
 		return fmt.Errorf("--dir is required with --download")
 	}
 	client := extron.New()
-	recs := make([]downloadRecord, 0, 16)
 	for _, r := range rows {
 		if len(r.Docs) == 0 {
 			continue
@@ -180,11 +180,13 @@ func downloadRackDocs(ctx context.Context, rows []rackRow, dir string) error {
 			if err != nil {
 				return fmt.Errorf("downloading %s: %w", d.Title, err)
 			}
-			recs = append(recs, newDownloadRecord(d, rel, n))
+			// Record each success immediately so a later batch failure does
+			// not leave earlier downloads outside revision/integrity tracking.
+			if err := upsertLedgerRecords(dir, []downloadRecord{newDownloadRecord(d, rel, n)}); err != nil {
+				return err
+			}
 			fmt.Fprintf(os.Stderr, "downloaded: %s -> %s\n", d.Title, rel)
 		}
 	}
-	// Keep rack downloads inside the same revision/integrity tracking as
-	// `literature download` so updates/verify cover the whole docs folder.
-	return upsertLedgerRecords(dir, recs)
+	return nil
 }
