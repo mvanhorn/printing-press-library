@@ -1,0 +1,40 @@
+type: object
+properties:
+  id:
+    type: integer
+    format: int
+  name:
+    type: string
+  first_name:
+    type: string
+  last_name:
+    type: string
+  url:
+    type: string
+  public_url:
+    type: string
+  thumbnail:
+    type: string
+  count_of_followers:
+    type: integer
+    format: int
+  count_of_following:
+    type: integer
+    format: int
+  count_of_downloads:
+    type: integer
+    format: int
+  count_of_designs:
+    type: integer
+    format: int
+  accepts_tips:
+    type: boolean
+  is_following:
+    type: boolean
+  location:
+    type: string
+  cover:
+    type: string
+  is_admin:
+    type: boolean
+  

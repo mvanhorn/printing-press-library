@@ -1,0 +1,397 @@
+openapi: 3.0.0
+info:
+  title: API documentation
+  version: 0.0.1
+servers:
+  - url: https://api.thingiverse.com
+    description: Production
+  - url: https://api-staging.thingiverse.com
+    description: Staging
+paths:
+# Things
+  /things/:
+    $ref: './resources/thing.yaml#/Root'
+  /things/{thing_id}:
+    $ref: './resources/thing.yaml#/ById'
+  /things/0/random:
+    $ref: './resources/thing.yaml#/Random'
+  /things/{thing_id}/images:
+    $ref: './resources/thing.yaml#/ImagesByThing'
+  /things/{thing_id}/images/{image_id}:
+    $ref: './resources/thing.yaml#/ImageByThing'
+  /things/{thing_id}/files:
+    $ref: './resources/thing.yaml#/FilesByThingIdSingle'
+  /things/{thing_id}/files/{file_id}:
+    $ref: './resources/thing.yaml#/FilesByIdByThing'
+  /things/{thing_id}/likes:
+    $ref: './resources/thing.yaml#/Likes'
+  /things/{thing_id}/ancestors:
+    $ref: './resources/thing.yaml#/Ancestors'
+  /things/{thing_id}/derivatives:
+    $ref: './resources/thing.yaml#/Derivatives'
+  /things/{thing_id}/tags:
+    $ref: './resources/thing.yaml#/Tags'
+  /things/{thing_id}/categories:
+    $ref: './resources/thing.yaml#/Categories'
+  /things/{thing_id}/collections:
+    $ref: './resources/thing.yaml#/Collections'
+  /things/{thing_id}/publish:
+    $ref: './resources/thing.yaml#/Publish'
+  /things/{thing_id}/copies:
+    $ref: './resources/thing.yaml#/Copies'
+  /things/{thing_id}/prints:
+    $ref: './resources/thing.yaml#/Prints'
+  /things/{thing_id}/threaded-comments:
+    $ref: './resources/thing.yaml#/ThreadedComments'
+  /things/{thing_id}/comments:
+    $ref: './resources/thing.yaml#/Comments'
+  /things/{thing_id}/root-comments:
+    $ref: './resources/thing.yaml#/RootComments'
+  /things/{thing_id}/toggle-watch:
+    $ref: './resources/thing.yaml#/ToggleWatch'
+
+# Users
+  /users/{username}:
+    $ref: './resources/user.yaml#/ByName'
+  /users/{username}/search/{term}:
+    $ref: './resources/user.yaml#/Search'
+  /users/{username}/things:
+    $ref: './resources/user.yaml#/Things'
+  /users/{username}/favorites:
+    $ref: './resources/user.yaml#/Favorites'
+  /users/{username}/mute:
+    $ref: './resources/user.yaml#/Mute'
+  /users/{username}/unmute:
+    $ref: './resources/user.yaml#/Unmute'
+  /users/{username}/likes:
+    $ref: './resources/user.yaml#/Likes'
+  /users/{username}/likesids:
+    $ref: './resources/user.yaml#/Likesids'
+  /users/{username}/copies:
+    $ref: './resources/user.yaml#/Copies'
+  /users/{username}/collections:
+    $ref: './resources/user.yaml#/LatestCollections'
+  /users/{username}/downloads:
+    $ref: './resources/user.yaml#/Downloads'
+  /users/{username}/event-count:
+    $ref: './resources/user.yaml#/EventCount'
+  /users/{username}/all-collected-things:
+    $ref: './resources/user.yaml#/AllCollectedThings'
+  /users/{username}/unread-message-count:
+    $ref: './resources/user.yaml#/UnreadMessageCount'
+  /users/{username}/followers:
+    $ref: './resources/user.yaml#/Follow'
+  /users/{username}/following:
+    $ref: './resources/user.yaml#/Following'
+  /users/{username}/avatar-image:
+    $ref: './resources/user.yaml#/AvatarImage'
+  /users/{username}/cover-image:
+    $ref: './resources/user.yaml#/CoverImage'
+  /users/{username}/stats-by-day/{startDate}/{endDate}:
+    $ref: './resources/user.yaml#/UserAnalyticByDay'
+  /users/{username}/stats-by-thing/{startDate}/{endDate}:
+    $ref: './resources/user.yaml#/UserAnalyticByThing'
+  /users/{username}/recommended-things:
+    $ref: './resources/user.yaml#/RecommendedThings'
+  /users/{username}/recommended-tags:
+    $ref: './resources/user.yaml#/RecommendedTags'
+
+# Files
+  /files/{file_id}/:
+    $ref: './resources/file.yaml#/ById'
+  /files/{file_id}/finalize:
+    $ref: './resources/file.yaml#/Finalize'
+  /files/{file_id}/download:
+    $ref: './resources/file.yaml#/Download'
+  /files/0/uploadFile:
+    $ref: './resources/file.yaml#/UploadFile'
+  /files/0/FinalizeFiles:
+    $ref: './resources/file.yaml#/FinalizeFiles'
+
+# Tags
+  /tags/:
+    $ref: './resources/tag.yaml#/Root'
+  /tags/{tag}/things:
+    $ref: './resources/tag.yaml#/Thing'
+  /tags/{tag}/:
+    $ref: './resources/tag.yaml#/ById'
+  /tags/0/popular:
+    $ref: './resources/tag.yaml#/Popular'
+  /tags/{tag}/search-tags:
+    $ref: './resources/tag.yaml#/SearchByName'
+
+# Copies (aka; makes)
+  /copies/:
+    $ref: './resources/copy.yaml#/RootPartial'
+  /copies?return=complete:
+    $ref: './resources/copy.yaml#/RootComplete'
+  /copies/{copy_id}/:
+    $ref: './resources/copy.yaml#/ById'
+  /copies/{copy_id}/images:
+    $ref: './resources/copy.yaml#/Images'
+  /copies/{copy_id}/images/{image_id}:
+    $ref: './resources/copy.yaml#/ImagesById'
+  /copies/{copy_id}/likes:
+    $ref: './resources/copy.yaml#/Like'
+  /copies/{copy_id}/threaded-comments:
+    $ref: './resources/copy.yaml#/ThreadedComments'
+  /copies/{copy_id}/root-comments:
+    $ref: './resources/copy.yaml#/RootComments'
+  /copies/{copy_id}/comments:
+    $ref: './resources/copy.yaml#/Comments'
+  /copies/{copy_id}/toggle-watch:
+    $ref: './resources/copy.yaml#/ToggleWatch'
+  /copies/{copy_id}/restore:
+    $ref: './resources/copy.yaml#/Restore'
+  
+
+# Collections
+  /collections/{collection_id}/:
+    $ref: './resources/collection.yaml#/ById'
+  /collections/{collection_id}/things:
+    $ref: './resources/collection.yaml#/Things'
+  /collections/{collection_id}/like:
+    $ref: './resources/collection.yaml#/Like'
+  /collections/{collection_id}/watch:
+    $ref: './resources/collection.yaml#/Watch'
+  /collections/:
+    $ref: './resources/collection.yaml#/Root'
+  /collections/{thing_id}/by-thing-id:
+    $ref: './resources/collection.yaml#/ByThingId'
+  /collections/{collection_id}/thing/{thing_id}:
+    $ref: './resources/collection.yaml#/AddRemoveThing'
+  /collections/{collection_id}/move/{thing_id}:
+    $ref: './resources/collection.yaml#/MoveThing'
+
+# Comments
+  /comments/:
+    $ref: './resources/comment.yaml#/Root'
+  /comments/{comment_id}/:
+    $ref: './resources/comment.yaml#/ById'
+  /comments/{comment_id}/replies:
+    $ref: './resources/comment.yaml#/Replies'
+  /comments/{comment_id}/restore:
+    $ref: './resources/comment.yaml#/Restore'
+  /comments/{comment_id}/reply:
+    $ref: './resources/comment.yaml#/Reply'
+  /comments/{comment_id}/spam:
+    $ref: './resources/comment.yaml#/Spam'
+  /comments/0/markdown:
+    $ref: './resources/comment.yaml#/Markdown'
+
+
+# Groups
+  /groups/:
+    $ref: './resources/group.yaml#/Root'
+  /groups/{group_id}:
+    $ref: './resources/group.yaml#/ById'
+  /groups/{group_id}/image:
+    $ref: './resources/group.yaml#/UploadImage'
+  /groups/{group_id}/members:
+    $ref: './resources/group.yaml#/Members'
+  /groups/{group_id}/group-forums:
+    $ref: './resources/group.yaml#/Forums'
+  /groups/{group_id}/forum/{forum_id}:
+    $ref: './resources/group.yaml#/Forum'
+  /groups/{group_id}/forum-topics/{forum_id}:
+    $ref: './resources/group.yaml#/ForumTopics'
+  /groups/{group_id}/forum-by-slug/{forum_slug}:
+    $ref: './resources/group.yaml#/ForumSlug'
+  /groups/{group_id}/group-topics:
+    $ref: './resources/group.yaml#/Topics'
+  /groups/{group_id}/group-topics/{forum_slug}:
+    $ref: './resources/group.yaml#/TopicsPost'
+  /groups/{group_id}/things:
+    $ref: './resources/group.yaml#/Things'
+  /groups/{group_id}/things/{thing_id}:
+    $ref: './resources/group.yaml#/ThingsActions'
+  /groups/{group_id}/update-group-forum/{forum_id}:
+    $ref: './resources/group.yaml#/ForumUpdate'
+
+# Grouptopics
+  /grouptopics/{grouptopic_id}/:
+    $ref: './resources/grouptopic.yaml#/ById'
+  /grouptopics/{grouptopic_id}/pin:
+    $ref: './resources/grouptopic.yaml#/Pin'
+  /grouptopics/{grouptopic_id}/watch:
+    $ref: './resources/grouptopic.yaml#/Watch'
+  /grouptopics/{grouptopic_id}/comments:
+    $ref: './resources/grouptopic.yaml#/Comments'
+  /grouptopics/{grouptopic_id}/forumtopics-comments:
+    $ref: './resources/grouptopic.yaml#/ForumTopicsComments'
+  /grouptopics/{grouptopic_id}/root-comments:
+    $ref: './resources/grouptopic.yaml#/RootComments'
+  /grouptopics/{grouptopic_id}/update:
+    $ref: './resources/grouptopic.yaml#/Update'
+
+# Categories 
+  /categories:
+    $ref: './resources/category.yaml#/RootPartial'
+  /categories?return=complete:
+    $ref: './resources/category.yaml#/RootComplete'
+  /categories/{slug}:
+    $ref: './resources/category.yaml#/BySlug'
+  /categories/{slug}/things:
+    $ref: './resources/category.yaml#/ThingsByCategorySlug'
+
+# Messages
+  /messages:
+    $ref: './resources/message.yaml#/ShareThing'
+
+# Homebanner
+  /homebanner:
+    $ref: './resources/homebanner.yaml#/Root'
+
+# Thing operations
+  /thingops/{ids}/move:
+    $ref: './resources/thingops.yaml#/Move'
+  /thingops/{ids}/copy:
+    $ref: './resources/thingops.yaml#/Copy'
+  /thingops/{ids}/remove:
+    $ref: './resources/thingops.yaml#/Remove'
+
+# Deprecated
+  /featured:
+    $ref: './resources/deprecated.yaml#/Featured'
+  /newest:
+    $ref: './resources/deprecated.yaml#/Newest'
+  /popular:
+    $ref: './resources/deprecated.yaml#/Popular'
+
+# Verified
+  /verified:
+    $ref: './resources/verified.yaml#/Root'
+
+# Apps
+  /apps/{id}:
+    $ref: './resources/app.yaml#/ById'
+  /apps/0/approvedandpublished:
+    $ref: './resources/app.yaml#/approvedAndPublished'
+
+# Events
+  /events:
+    $ref: './resources/event.yaml#/Root'
+  /events/{id}:
+    $ref: './resources/event.yaml#/ById'
+  /events/0/read-all:
+    $ref: './resources/event.yaml#/ReadAll'
+  
+# Sidewide notificatiosn
+  /sitewidenotification:
+    $ref: './resources/sitewidenotification.yaml#/Root'
+  /sitewidenotification/{id}:
+    $ref: './resources/sitewidenotification.yaml#/ById'
+
+# Search
+  /search/{term}/?type=things:
+    $ref: './resources/search.yaml#/ByTermThings'
+  /search/{term}/?type=makes:
+    $ref: './resources/search.yaml#/ByTermMakes'
+  /search/{term}/?type=users:
+    $ref: './resources/search.yaml#/ByTermUsers'
+  /search/{term}/?type=collections:
+    $ref: './resources/search.yaml#/ByTermCollections'
+  /search/{term}/autocomplete:
+    $ref: './resources/search.yaml#/ByTermAutocomplete'
+  /search/{tag}/tag:
+    $ref: './resources/search.yaml#/ByTag'
+
+# Subscriptions
+  /subscriptions/{tag}/is-user-subscribed-to-tag:
+    $ref: './resources/subscription.yaml#/IsUserSubscribedToTag'
+  /subscriptions/{tag}/set-subscribe-state:
+    $ref: './resources/subscription.yaml#/SetSubscribeState'
+  /subscriptions/0/dashboard:
+    $ref: './resources/subscription.yaml#/Dashboard'
+  /subscriptions/0/dashboard-sources:
+    $ref: './resources/subscription.yaml#/DashboardSources'
+  /subscriptions/0/analytics:
+    $ref: './resources/subscription.yaml#/Analytics'
+
+# Email
+  /email:
+    $ref: './resources/email.yaml#/Root'
+  /email/thingiverse/enqueue-support:
+    $ref: './resources/email.yaml#/EmailEnqueueSupport'
+  /email/{type}/enqueue-dmca:
+    $ref: './resources/email.yaml#/EmailEnqueueDMCA'
+
+# Banner
+  /banner:
+    $ref: './resources/banner.yaml#/Root'
+  /banner/0/page-ad:
+    $ref: './resources/banner.yaml#/AdByPage'
+
+# Changelog
+  /changelogs:
+    $ref: './resources/changelog.yaml#/Root'
+
+# Printers
+  /printers/0/brands:
+    $ref: './resources/printer.yaml#/Brands'
+  /printers/0/models:
+    $ref: './resources/printer.yaml#/Models'
+
+# Programs
+  /programs/0/all:
+    $ref: './resources/program.yaml#/getAll'
+# Footer
+  /newsletter:
+    $ref: './resources/footer.yaml#/newsletter'
+
+components:
+  schemas:
+    Thing:
+      $ref: './schemas/thing_schema.yaml'
+    UserSummary:
+      $ref: './schemas/user_summary_schema.yaml'
+    Group:
+      $ref: './schemas/group_schema.yaml'
+    User:
+      $ref: './schemas/user_schema.yaml'
+    File:
+      $ref: './schemas/file_schema.yaml'
+    Tag:
+      $ref: './schemas/tag_schema.yaml'
+    Copy:
+      $ref: './schemas/copy_schema.yaml'
+    Collection:
+      $ref: './schemas/collection_schema.yaml'
+    Comment:
+      $ref: './schemas/comment_schema.yaml'
+    GroupTopic:
+      $ref: './schemas/grouptopic_schema.yaml'
+    Category:
+      $ref: './schemas/category_schema.yaml'
+    Message:
+      $ref: './schemas/message_schema.yaml'
+    HomeBanner:
+      $ref: './schemas/homebanner_schema.yaml'
+    Featured:
+      $ref: './schemas/featured_schema.yaml'
+    Verified:
+      $ref: './schemas/verified_schema.yaml'
+    Newest:
+      $ref: './schemas/short_thing_schema.yaml'
+    Popular:
+      $ref: './schemas/short_thing_schema.yaml'
+    App:
+      $ref: './schemas/app_schema.yaml'
+    Event:
+      $ref: './schemas/event_schema.yaml'
+    Sitewidenotification:
+      $ref: './schemas/sitewidenotification_schema.yaml'
+    Email:
+      $ref: './schemas/email_schema.yaml'
+    Banner:
+      $ref: './schemas/banner_schema.yaml'
+    GroupForum:
+      $ref: './schemas/groupforum_schema.yaml'
+    ImageSummary:
+      $ref: './schemas/image_summary_schema.yaml'
+  securitySchemes:
+    BearerAuth: # This defines the default auth so that it can easily resued for all components
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  

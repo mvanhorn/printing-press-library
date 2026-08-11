@@ -1,0 +1,19 @@
+type: object
+properties:
+  id:
+    type: integer
+    format: int
+  name:
+    type: string
+  url:
+    type: string
+  public_url:
+    type: string
+  thumbnail:
+    type: string
+  creator:
+    $ref: './user_summary_schema.yaml'
+  is_published:
+    type: boolean
+  is_approved:
+    type: boolean

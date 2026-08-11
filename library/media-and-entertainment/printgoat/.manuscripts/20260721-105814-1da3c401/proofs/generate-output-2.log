@@ -1,0 +1,14 @@
+info: learn: defaulting self-learning loop on (opt out with learn.disabled: true)
+PASS go mod tidy
+PASS ensure safe golang.org/x/net
+PASS govulncheck ./...
+PASS go vet ./...
+PASS go build ./...
+PASS build runnable binary
+PASS printgoat-pp-cli --help
+PASS printgoat-pp-cli version
+PASS printgoat-pp-cli doctor
+Force regen merged 1 preserved files / 0 AddCommand calls (cross-spec: novel-only preservation)
+agentcookie: skipping printgoat (cookie-only or no env-var auth)
+Generated printgoat at /Users/nolson/printing-press/.runstate/claude_scratch-a8b0db3a/runs/20260721-105814-1da3c401/working/printgoat-pp-cli
+Bundled /Users/nolson/printing-press/.runstate/claude_scratch-a8b0db3a/runs/20260721-105814-1da3c401/working/printgoat-pp-cli/build/printgoat-pp-mcp-darwin-arm64.mcpb

@@ -1,0 +1,351 @@
+name: thingiverse
+description: Thingiverse things, search, files, users, and collections (official REST API)
+version: "0.1.0"
+base_url: https://api.thingiverse.com
+auth:
+  type: none
+config:
+  format: toml
+  path: "~/.config/thingiverse-pp-cli/config.toml"
+resources:
+  things:
+    description: Thingiverse things (3D models)
+    endpoints:
+      get:
+        method: GET
+        tier: thingiverse
+        path: /things/{thing_id}
+        description: Get a thing by ID
+        params:
+          - name: thing_id
+            type: string
+            required: true
+            positional: true
+            path_param: true
+            description: Thing ID
+        response:
+          type: object
+          item: ThingiverseThing
+      files:
+        method: GET
+        tier: thingiverse
+        path: /things/{thing_id}/files
+        description: List files for a thing
+        params:
+          - name: thing_id
+            type: string
+            required: true
+            positional: true
+            path_param: true
+            description: Thing ID
+        response:
+          type: array
+          item: ThingiverseFile
+      images:
+        method: GET
+        tier: thingiverse
+        path: /things/{thing_id}/images
+        description: List images for a thing
+        params:
+          - name: thing_id
+            type: string
+            required: true
+            positional: true
+            path_param: true
+            description: Thing ID
+        response:
+          type: array
+          item: ThingiverseImage
+      tags:
+        method: GET
+        tier: thingiverse
+        path: /things/{thing_id}/tags
+        description: List tags for a thing
+        params:
+          - name: thing_id
+            type: string
+            required: true
+            positional: true
+            path_param: true
+            description: Thing ID
+        response:
+          type: array
+          item: ThingiverseTag
+      categories:
+        method: GET
+        tier: thingiverse
+        path: /things/{thing_id}/categories
+        description: List categories for a thing
+        params:
+          - name: thing_id
+            type: string
+            required: true
+            positional: true
+            path_param: true
+            description: Thing ID
+        response:
+          type: array
+          item: ThingiverseCategory
+  search_things:
+    description: Search Thingiverse things
+    endpoints:
+      things:
+        method: GET
+        tier: thingiverse
+        path: /search/{term}
+        description: Search for things by keyword
+        params:
+          - name: term
+            type: string
+            required: true
+            positional: true
+            path_param: true
+            description: Search keywords
+          - name: type
+            type: string
+            default: things
+            description: Result type filter (things, makes, users, collections)
+          - name: per_page
+            type: integer
+            default: 20
+            maximum: 30
+            description: Results per page (Thingiverse caps at 30)
+          - name: page
+            type: integer
+            default: 1
+            description: Page number
+        response:
+          type: array
+          item: ThingiverseThing
+  users:
+    description: Thingiverse users
+    endpoints:
+      get:
+        method: GET
+        tier: thingiverse
+        path: /users/{username}
+        description: Get a user's public profile
+        params:
+          - name: username
+            type: string
+            required: true
+            positional: true
+            path_param: true
+            description: Thingiverse username
+        response:
+          type: object
+          item: ThingiverseUser
+      things:
+        method: GET
+        tier: thingiverse
+        path: /users/{username}/things
+        description: List a user's published things
+        params:
+          - name: username
+            type: string
+            required: true
+            positional: true
+            path_param: true
+            description: Thingiverse username
+        response:
+          type: array
+          item: ThingiverseThing
+      collections:
+        method: GET
+        tier: thingiverse
+        path: /users/{username}/collections
+        description: List a user's collections
+        params:
+          - name: username
+            type: string
+            required: true
+            positional: true
+            path_param: true
+            description: Thingiverse username
+        response:
+          type: array
+          item: ThingiverseCollection
+  collections:
+    description: Thingiverse collections
+    endpoints:
+      get:
+        method: GET
+        tier: thingiverse
+        path: /collections/{collection_id}/
+        description: Get a collection by ID
+        params:
+          - name: collection_id
+            type: string
+            required: true
+            positional: true
+            path_param: true
+            description: Collection ID
+        response:
+          type: object
+          item: ThingiverseCollection
+      things:
+        method: GET
+        tier: thingiverse
+        path: /collections/{collection_id}/things
+        description: List things in a collection
+        params:
+          - name: collection_id
+            type: string
+            required: true
+            positional: true
+            path_param: true
+            description: Collection ID
+        response:
+          type: array
+          item: ThingiverseThing
+  categories:
+    description: Thingiverse categories
+    endpoints:
+      list:
+        method: GET
+        tier: thingiverse
+        path: /categories
+        description: List top-level categories
+        no_auth: false
+        response:
+          type: array
+          item: ThingiverseCategory
+      things:
+        method: GET
+        tier: thingiverse
+        path: /categories/{slug}/things
+        description: List things in a category
+        params:
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            path_param: true
+            description: Category slug
+        response:
+          type: array
+          item: ThingiverseThing
+  tags:
+    description: Thingiverse tags
+    endpoints:
+      things:
+        method: GET
+        tier: thingiverse
+        path: /tags/{tag}/things
+        description: List things with a tag
+        params:
+          - name: tag
+            type: string
+            required: true
+            positional: true
+            path_param: true
+            description: Tag name
+        response:
+          type: array
+          item: ThingiverseThing
+types:
+  ThingiverseThing:
+    fields:
+      - name: id
+        type: integer
+      - name: name
+        type: string
+      - name: thumbnail
+        type: string
+      - name: public_url
+        type: string
+      - name: like_count
+        type: integer
+      - name: collect_count
+        type: integer
+      - name: download_count
+        type: integer
+      - name: view_count
+        type: integer
+      - name: file_count
+        type: integer
+      - name: is_published
+        type: boolean
+      - name: is_nsfw
+        type: boolean
+      - name: license
+        type: string
+      - name: added
+        type: string
+        format: date-time
+      - name: modified
+        type: string
+        format: date-time
+  ThingiverseFile:
+    fields:
+      - name: id
+        type: integer
+      - name: name
+        type: string
+      - name: size
+        type: integer
+      - name: download_url
+        type: string
+      - name: direct_url
+        type: string
+      - name: thumbnail
+        type: string
+      - name: download_count
+        type: integer
+      - name: date
+        type: string
+        format: date-time
+  ThingiverseImage:
+    fields:
+      - name: id
+        type: integer
+      - name: name
+        type: string
+      - name: url
+        type: string
+  ThingiverseTag:
+    fields:
+      - name: name
+        type: string
+      - name: url
+        type: string
+      - name: count
+        type: integer
+  ThingiverseCategory:
+    fields:
+      - name: name
+        type: string
+      - name: slug
+        type: string
+      - name: count
+        type: integer
+  ThingiverseUser:
+    fields:
+      - name: id
+        type: integer
+      - name: name
+        type: string
+      - name: first_name
+        type: string
+      - name: last_name
+        type: string
+      - name: public_url
+        type: string
+      - name: count_of_designs
+        type: integer
+      - name: count_of_followers
+        type: integer
+      - name: count_of_following
+        type: integer
+  ThingiverseCollection:
+    fields:
+      - name: id
+        type: integer
+      - name: name
+        type: string
+      - name: description
+        type: string
+      - name: count
+        type: integer
+      - name: absolute_url
+        type: string

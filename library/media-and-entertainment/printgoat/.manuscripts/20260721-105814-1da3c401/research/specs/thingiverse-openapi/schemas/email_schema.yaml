@@ -1,0 +1,10 @@
+type: object
+properties:
+  body:
+    type: object
+    properties:
+      user_id:
+        type: integer
+        format: int
+      email_sent:
+        type: string

@@ -1,0 +1,97 @@
+Root:
+  get:
+    tags: 
+      - Event
+    summary: List of events
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/pageParam"
+      - $ref: "../parameters.yaml#/perPageParam"
+    responses:
+      '200':
+        description: The list of events
+        content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../schemas/event_schema.yaml'   
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+ById:
+  get:
+    tags:
+      - Event
+    summary: Get event by id
+    security:
+      - BearerAuth: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        description: The id of the event to get
+        schema:
+          type: integer
+          minimum: 0
+          example: 99
+    responses:
+      '200':
+        description: An object representing the event requested
+        content:
+            application/json:
+              schema:
+                $ref: '../schemas/event_schema.yaml'
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+  delete:
+      tags:
+        - Subscription
+      summary: Delete event by id
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: id of event
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          $ref : "../responses/ok.yaml"
+        '401':
+          $ref : "../responses/unauthorized.yaml"
+        '403':
+          $ref : "../responses/forbidden.yaml"
+        '404':
+          $ref : "../responses/not_found.yaml"
+ReadAll:
+  post:
+    tags:
+      - Subscription
+    summary: Read all subscription-events of user
+    security:
+      - BearerAuth: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        description: A id of an existing user.
+        schema:
+          type: integer
+          example: 2858045
+    responses:
+      '200':
+        $ref : "../responses/ok.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"

@@ -1,0 +1,231 @@
+IsUserSubscribedToTag:
+  get:
+    tags:
+      - Subscription
+    summary: Check if user is subscribed to the tag
+    security:
+      - BearerAuth: []
+    parameters:
+      - in: path
+        name: tag
+        required: true
+        description: A tag that is valid (already exists)
+        schema:
+          type: string
+          example: laser
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              type: boolean
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+SetSubscribeState:
+  post:
+    tags:
+      - Subscription
+    summary: Subscribe a user to a tag
+    security:
+      - BearerAuth: []
+    parameters:
+      - in: path
+        name: tag
+        required: true
+        description: A tag that is valid (already exists)
+        schema:
+          type: string
+          example: laser
+    requestBody:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - action
+              - target_type
+            properties:
+              action:
+                description: Set the type of action
+                type: string
+                example: subscribe
+              target_type:
+                description: Set the type of target to which the user will be subscribed
+                type: string
+                example: thing
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              type: boolean
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+Dashboard:
+  get:
+    tags:
+      - Subscription
+    summary: Get activities of User in Dashboard page
+    security:
+      - BearerAuth: []
+    parameters:
+      - in: query
+        name: type
+        required: true
+        description: Type of user activity 
+        schema:
+          type: string
+          enum: ['all-activity', 'my-activity', 'friends-activity', 'watchlist']
+      - $ref: "../parameters.yaml#/pageParam"
+      - $ref: "../parameters.yaml#/perPageParam"
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                items:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                      image:
+                        type: object
+                        properties:
+                          link:
+                            type: string
+                          title:
+                            type: string
+                          img_src:
+                            type: string
+                      type:
+                        type: string
+                      is_subscribed:
+                        type: boolean
+                      user:
+                        $ref: '../schemas/user_schema.yaml'
+                      is_personal:
+                        type: boolean
+                      time:
+                        type: string
+                      id:
+                        type: integer
+                      content:
+                        oneOf:
+                          - $ref: '../schemas/thing_schema.yaml'
+                          - $ref: '../schemas/copy_schema.yaml'
+                          - $ref: '../schemas/comment_schema.yaml'
+                          - $ref: '../schemas/category_schema.yaml'
+                count:
+                  type: integer  
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+DashboardSources:
+  get:
+    tags:
+      - Subscription
+    summary: Get activity sources for editing the dashboard feed
+    security:
+      - BearerAuth: []
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    image_url:
+                      type: string
+                    target_url:
+                      type: string
+                    target_type:
+                      type: string
+                    target_id:
+                      type: integer
+                      example: 1
+              example:
+                user: [
+                    {
+                        "name": "MakeALot",
+                        "image_url": "https://cdn.thingiverse.com/renders/83/06/7f/85/a8/Snapshot_of_me_1_display_large_thumb_medium.jpg",
+                        "target_url": "/MakeALot",
+                        "target_type": "user",
+                        "target_id": 8186
+                    }
+                ]
+                thing: [
+                  {
+                      "name": "Cellular Lamp",
+                      "image_url": "https://cdn.thingiverse.com/renders/84/61/c3/fa/65/cellularLamp_thumb_medium.jpg",
+                      "target_url": "/thing:19104",
+                      "target_type": "thing",
+                      "target_id": 19104
+                  },
+                  {
+                      "name": " 1.75mm Filament Clip",
+                      "image_url": "https://cdn.thingiverse.com/renders/75/ac/b2/25/2e/IMGP0434_thumb_medium.jpg",
+                      "target_url": "/thing:42528",
+                      "target_type": "thing",
+                      "target_id": 42528
+                  }
+                ]
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+Analytics:
+  get:
+    tags:
+      - Subscription
+    summary: Get activity analytics from the last 30 Days of a certain user
+    security:
+      - BearerAuth: []
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                stats:
+                  type: object
+                  properties:
+                    views:
+                      type: string
+                    downloads:
+                      type: string
+                    likes:
+                      type: string
+                    collects:
+                      type: string
+                    makes:
+                      type: string
+                thing_count:
+                  type: integer
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
