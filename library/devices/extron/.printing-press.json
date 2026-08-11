@@ -42,7 +42,7 @@
     {
       "name": "Doc-set completeness",
       "command": "catalog completeness",
-      "description": "Per-model gap report across Brochure, Declaration of Conformity, Design Guide, Product Guide, Manual, and Revit BIM — see which doc types each model is missing."
+      "description": "Per-model gap report across Brochure, Declaration of Conformity, Design Guide, Product Guide, Manual, and Revit BIM \u2014 see which doc types each model is missing."
     },
     {
       "name": "Library what's-new",
@@ -52,7 +52,7 @@
     {
       "name": "BOM doc bundle",
       "command": "literature rack",
-      "description": "Assemble the full official doc set for every model in a rack bill of materials — report or batch-download in one pass."
+      "description": "Assemble the full official doc set for every model in a rack bill of materials \u2014 report or batch-download in one pass."
     },
     {
       "name": "Series grouping",
@@ -74,7 +74,7 @@
     {
       "name": "Doc-set completeness",
       "command": "catalog completeness",
-      "description": "Per-model gap report across Brochure, Declaration of Conformity, Design Guide, Product Guide, Manual, and Revit BIM — see which doc types each model is missing."
+      "description": "Per-model gap report across Brochure, Declaration of Conformity, Design Guide, Product Guide, Manual, and Revit BIM \u2014 see which doc types each model is missing."
     },
     {
       "name": "Library what's-new",
@@ -84,7 +84,7 @@
     {
       "name": "BOM doc bundle",
       "command": "literature rack",
-      "description": "Assemble the full official doc set for every model in a rack bill of materials — report or batch-download in one pass."
+      "description": "Assemble the full official doc set for every model in a rack bill of materials \u2014 report or batch-download in one pass."
     },
     {
       "name": "Series grouping",
@@ -112,5 +112,6 @@
       "grade": "A",
       "total": 90
     }
-  }
+  },
+  "auth_type": "none"
 }
