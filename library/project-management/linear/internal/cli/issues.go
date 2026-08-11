@@ -178,8 +178,10 @@ func newIssuesListCmd(flags *rootFlags, dbPath *string) *cobra.Command {
 		Long: `List issues from the local sqlite store. Requires a prior 'linear-pp-cli sync'.
 
 Filters compose with AND. --state is matched against state.type (not state.name)
-so values like 'started', 'backlog', 'completed', 'canceled', 'triage' work across
-teams that customize state names. Use --state all to include completed and canceled.
+so values like 'started', 'backlog', 'completed', 'canceled', 'duplicate' and
+'triage' work across teams that customize state names. 'active' means every
+state type except completed, canceled and duplicate. Use --state all to include
+the closed types as well.
 
 --assignee accepts 'me' (resolves the authenticated viewer via a live GraphQL query),
 a user id, a user's display name, or a user's email.
@@ -193,7 +195,7 @@ a user id, a user's display name, or a user's email.
 		},
 	}
 	cmd.Flags().StringVar(&assignee, "assignee", "", "Filter by assignee (me, user id, display name, or email)")
-	cmd.Flags().StringVar(&stateFlag, "state", "active", "Filter by state type: active (default), started, backlog, unstarted, completed, canceled, triage, all")
+	cmd.Flags().StringVar(&stateFlag, "state", "active", "Filter by state type: active (default), triage, backlog, unstarted, started, completed, canceled, duplicate, all")
 	cmd.Flags().StringVar(&team, "team", "", "Filter by team key or ID")
 	cmd.Flags().StringVar(&project, "project", "", "Filter by project key or ID")
 	cmd.Flags().IntVar(&limit, "limit", 200, "Maximum results to return")
@@ -587,7 +589,7 @@ func matchesStateFilter(stateType, stateFlag string) bool {
 	case "all", "":
 		return true
 	case "active":
-		return stateType != "completed" && stateType != "canceled"
+		return stateType != "completed" && stateType != "canceled" && stateType != "duplicate"
 	default:
 		return strings.EqualFold(stateType, stateFlag)
 	}
@@ -726,10 +728,11 @@ func fetchIssuesLive(ctx context.Context, flags *rootFlags, db *store.Store, fil
 	case "", "all":
 		// no filter — return everything
 	case "active":
-		// "active" is the v3 semantic: not completed AND not canceled. Linear's
-		// state.type enum is {backlog, unstarted, started, completed, canceled,
-		// triage}; the live filter uses nin.
-		gqlFilter["state"] = map[string]any{"type": map[string]any{"nin": []string{"completed", "canceled"}}}
+		// "active" is the v3 semantic: not completed AND not canceled AND not
+		// duplicate. Linear's WorkflowState.type enum has seven values
+		// {triage, backlog, unstarted, started, completed, canceled,
+		// duplicate}. The live filter uses nin.
+		gqlFilter["state"] = map[string]any{"type": map[string]any{"nin": []string{"completed", "canceled", "duplicate"}}}
 	default:
 		gqlFilter["state"] = map[string]any{"type": map[string]any{"eq": stateFlag}}
 	}

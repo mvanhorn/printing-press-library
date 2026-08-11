@@ -53,7 +53,8 @@ func newTodayCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			// Filter to active (not done/cancelled)
+			// Filter to active: every state type except completed, canceled
+			// and duplicate.
 			type issueRow struct {
 				Identifier string `json:"identifier"`
 				Title      string `json:"title"`
@@ -72,7 +73,7 @@ func newTodayCmd(flags *rootFlags) *cobra.Command {
 			for _, raw := range issues {
 				var row issueRow
 				json.Unmarshal(raw, &row)
-				if row.State.Type != "completed" && row.State.Type != "canceled" {
+				if row.State.Type != "completed" && row.State.Type != "canceled" && row.State.Type != "duplicate" {
 					active = append(active, row)
 				}
 			}

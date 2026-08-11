@@ -62,7 +62,7 @@ func newBottleneckCmd(flags *rootFlags) *cobra.Command {
 					} `json:"assignee"`
 				}
 				json.Unmarshal(raw, &row)
-				if row.State.Type == "completed" || row.State.Type == "canceled" {
+				if row.State.Type == "completed" || row.State.Type == "canceled" || row.State.Type == "duplicate" {
 					continue
 				}
 				if row.Assignee == nil {

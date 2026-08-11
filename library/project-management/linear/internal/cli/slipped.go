@@ -125,7 +125,7 @@ into the active cycle for the team). Groups by reason heuristic:
 				if !parsePrev[s.ID] {
 					continue
 				}
-				if s.State.Type == "completed" || s.State.Type == "canceled" {
+				if s.State.Type == "completed" || s.State.Type == "canceled" || s.State.Type == "duplicate" {
 					continue
 				}
 				reason := "carried"
