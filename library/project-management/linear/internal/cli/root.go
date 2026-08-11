@@ -322,6 +322,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newRelationsCmd(flags))
 	rootCmd.AddCommand(newUnblockedCmd(flags))
 	rootCmd.AddCommand(newSimilarCmd(flags))
+	rootCmd.AddCommand(newReconcileCmd(flags))
 	rootCmd.AddCommand(newVelocityCmd(flags))
 	rootCmd.AddCommand(newSlippedCmd(flags))
 	rootCmd.AddCommand(newPPTestCmd(flags))

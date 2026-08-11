@@ -18,6 +18,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// pp:data-source local
+// similar runs the FTS5 duplicate search entirely against the local store: it
+// passes AutoRefresh false, so runIssueSearch skips the only leg that would
+// reach the API. It works offline.
 func newSimilarCmd(flags *rootFlags) *cobra.Command {
 	var dbPath string
 	var jsonOut bool
@@ -58,6 +62,7 @@ func newIssuesSearchCmd(flags *rootFlags, dbPath *string) *cobra.Command {
 	var jsonOut bool
 	var limit int
 	var team string
+	var live bool
 	cmd := &cobra.Command{
 		Use:         "search <query>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
@@ -83,12 +88,14 @@ use 'similar' for the legacy local-only raw-array shape.`,
 				Team:        team,
 				Query:       strings.Join(args, " "),
 				AutoRefresh: true,
+				Live:        live,
 			})
 		},
 	}
 	cmd.Flags().IntVar(&limit, "limit", 50, "Maximum results to return")
 	cmd.Flags().BoolVar(&jsonOut, "json", false, "Output as JSON")
 	cmd.Flags().StringVar(&team, "team", "", "Filter by team key, name, or UUID")
+	cmd.Flags().BoolVar(&live, "live", false, "Also run Linear's server-side searchIssues and merge the results. Costs an API call and is rate limited to 30 requests per minute")
 	return cmd
 }
 
@@ -99,6 +106,11 @@ type issueSearchOptions struct {
 	Team        string
 	Query       string
 	AutoRefresh bool
+	// Live adds Linear's server-side searchIssues leg. The local FTS index
+	// has no synonyms, no fuzzy matching and no transposition tolerance, so
+	// a recall failure is silent. The live leg is the only surface in reach
+	// that can catch one.
+	Live bool
 }
 
 type issueSearchFreshness struct {
@@ -165,6 +177,20 @@ func runIssueSearch(cmd *cobra.Command, flags *rootFlags, opts issueSearchOption
 		return fmt.Errorf("searching: %w", err)
 	}
 
+	// GAP-007: the local FTS index cannot answer a synonym or a misspelling,
+	// and its recall failures are silent. --live adds Linear's server-side
+	// searchIssues leg and merges by issue id, so a caller that needs a
+	// stronger negative can ask for one.
+	searchSource := "local"
+	if opts.Live {
+		merged, err := mergeLiveIssueSearch(flags, db, results, query, teamID, opts.Limit)
+		if err != nil {
+			return err
+		}
+		results = merged
+		searchSource = "mixed"
+	}
+
 	if opts.Limit > 0 && len(results) > opts.Limit {
 		results = results[:opts.Limit]
 	}
@@ -189,7 +215,7 @@ func runIssueSearch(cmd *cobra.Command, flags *rootFlags, opts issueSearchOption
 		}
 		if opts.AutoRefresh {
 			wrapped, err := wrapWithProvenance(data, DataProvenance{
-				Source:       "local",
+				Source:       searchSource,
 				ResourceType: "issues",
 				Reason:       "fts_search",
 				Freshness:    freshness,
