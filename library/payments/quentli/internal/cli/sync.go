@@ -956,70 +956,70 @@ func determinePaginationDefaults(resource string) paginationDefaults {
 		return paginationDefaults{
 			cursorParam: "skip",
 			cursorType:  "offset",
-			limitParam:  "limit",
+			limitParam:  "take",
 			limit:       100,
 		}
 	case "discounts":
 		return paginationDefaults{
 			cursorParam: "skip",
 			cursorType:  "offset",
-			limitParam:  "limit",
+			limitParam:  "take",
 			limit:       100,
 		}
 	case "invoices":
 		return paginationDefaults{
 			cursorParam: "skip",
 			cursorType:  "offset",
-			limitParam:  "limit",
+			limitParam:  "take",
 			limit:       100,
 		}
 	case "payment-concepts":
 		return paginationDefaults{
 			cursorParam: "skip",
 			cursorType:  "offset",
-			limitParam:  "limit",
+			limitParam:  "take",
 			limit:       100,
 		}
 	case "payments":
 		return paginationDefaults{
 			cursorParam: "skip",
 			cursorType:  "offset",
-			limitParam:  "limit",
+			limitParam:  "take",
 			limit:       100,
 		}
 	case "subscriptions":
 		return paginationDefaults{
 			cursorParam: "skip",
 			cursorType:  "offset",
-			limitParam:  "limit",
+			limitParam:  "take",
 			limit:       100,
 		}
 	case "tax-invoices":
 		return paginationDefaults{
 			cursorParam: "skip",
 			cursorType:  "offset",
-			limitParam:  "limit",
+			limitParam:  "take",
 			limit:       100,
 		}
 	case "webhook-events":
 		return paginationDefaults{
 			cursorParam: "skip",
 			cursorType:  "offset",
-			limitParam:  "limit",
+			limitParam:  "take",
 			limit:       100,
 		}
 	case "webhooks":
 		return paginationDefaults{
 			cursorParam: "skip",
 			cursorType:  "offset",
-			limitParam:  "limit",
+			limitParam:  "take",
 			limit:       100,
 		}
 	}
 	return paginationDefaults{
 		cursorParam: "skip",
 		cursorType:  "offset",
-		limitParam:  "limit",
+		limitParam:  "take",
 		limit:       100,
 	}
 }

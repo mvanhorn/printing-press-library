@@ -34,7 +34,7 @@ func newWebhooksListCmd(flags *rootFlags) *cobra.Command {
 				"skip":    formatCLIParamValue(flagSkip),
 				"take":    formatCLIParamValue(flagTake),
 				"orderBy": formatCLIParamValue(flagOrderBy),
-			}, nil, flagAll, "skip", "offset", "", 100, "", "", "", cmd.ErrOrStderr())
+			}, nil, flagAll, "skip", "offset", "take", 100, "", "", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
