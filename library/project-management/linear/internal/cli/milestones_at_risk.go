@@ -24,8 +24,13 @@ func newMilestonesCmd(flags *rootFlags) *cobra.Command {
 	return cmd
 }
 
+// pp:data-source computed
+// milestones at-risk never calls the API: it reuses computeBurndownStats over
+// the locally synced project and issue rows to project a landing date, then
+// ranks milestones by the slip that projection implies.
 func newMilestonesAtRiskCmd(flags *rootFlags) *cobra.Command {
 	var dbPath string
+	var completedGroup string
 	var limit int
 	cmd := &cobra.Command{
 		Use:     "at-risk",
@@ -59,6 +64,13 @@ slipDays descending. Only milestones with slipDays > 0 are returned.`,
 				return configErr(fmt.Errorf("opening database: %w", err))
 			}
 			defer db.Close()
+
+			// Inherits the burndown arithmetic, so it must inherit the
+			// same declared notion of "delivered".
+			completedSet, err := resolveStateSet(flags, "", completedGroup)
+			if err != nil {
+				return err
+			}
 
 			projects, err := db.ListProjects(map[string]string{})
 			if err != nil {
@@ -106,7 +118,7 @@ slipDays descending. Only milestones with slipDays > 0 are returned.`,
 				projectedSource := ""
 				if prj.ID != "" {
 					if issues, ierr := db.ListIssues(map[string]string{"project_id": prj.ID}, 1000); ierr == nil && len(issues) > 0 {
-						stats := computeBurndownStats(issues, 4)
+						stats := computeBurndownStats(issues, 4, completedSet)
 						if stats.WeeklyVelocity > 0 {
 							weeksToLand := stats.RemainingEstimate / stats.WeeklyVelocity
 							landing := time.Now().UTC().AddDate(0, 0, int(math.Ceil(weeksToLand*7)))
@@ -186,6 +198,7 @@ slipDays descending. Only milestones with slipDays > 0 are returned.`,
 	}
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/linear-pp-cli/data.db)")
 	cmd.Flags().IntVar(&limit, "limit", 50, "Maximum at-risk milestones to return")
+	cmd.Flags().StringVar(&completedGroup, "completed-group", "completed", completedGroupFlagUsage)
 	return cmd
 }
 
