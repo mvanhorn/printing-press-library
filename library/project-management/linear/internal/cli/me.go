@@ -17,7 +17,8 @@ func newMeCmd(flags *rootFlags) *cobra.Command {
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short:       "Show current authenticated user",
 		Example: `  linear-pp-cli me
-  linear-pp-cli me --json`,
+  linear-pp-cli me --json
+  linear-pp-cli me --agent`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -41,7 +42,9 @@ func newMeCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			if jsonOut {
+			// --json is a local convenience flag. --agent and the root
+			// persistent --json both set flags.asJSON, so honor either.
+			if jsonOut || flags.asJSON {
 				enc := json.NewEncoder(os.Stdout)
 				enc.SetIndent("", "  ")
 				return enc.Encode(result.Viewer)
@@ -57,6 +60,6 @@ func newMeCmd(flags *rootFlags) *cobra.Command {
 			return nil
 		},
 	}
-	cmd.Flags().BoolVar(&jsonOut, "json", false, "Output as JSON")
+	cmd.Flags().BoolVar(&jsonOut, "json", false, "Output as JSON (same as the root --json)")
 	return cmd
 }

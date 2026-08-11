@@ -1,15 +1,185 @@
 {
-  "timestamp": "2026-05-19T07:27:20.042742Z",
-  "cli_dir": "\u003ccli-dir\u003e/linear-pp-cli",
+  "timestamp": "2026-08-11T21:00:01.53147Z",
+  "cli_dir": "\u003ccli-dir\u003e",
   "findings": [
     {
       "kind": "thin-short",
-      "command": "integrations",
-      "file": "integrations.go",
-      "line": 11,
-      "evidence": "Manage integrations",
-      "status": "accepted",
-      "note": "Hidden:true parent grouper in DO-NOT-EDIT generated file; not surfaced to users via --help and only its visible subcommands (integrations_create, integrations_delete) appear in the MCP tool catalog. Generator-template fix candidate for retro: emit verb-led Short on parent groupers."
+      "command": "delete",
+      "file": "attachments_write.go",
+      "line": 368,
+      "evidence": "Delete an attachment"
+    },
+    {
+      "kind": "thin-short",
+      "command": "remove",
+      "file": "attachments_write.go",
+      "line": 631,
+      "evidence": "Remove a reaction"
+    },
+    {
+      "kind": "missing-read-only",
+      "command": "list",
+      "file": "comments.go",
+      "line": 162,
+      "evidence": "name matches read heuristic; no mcp:read-only annotation"
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "custom_views_cmd.go",
+      "line": 44,
+      "evidence": "List custom views"
+    },
+    {
+      "kind": "missing-read-only",
+      "command": "get",
+      "file": "documents.go",
+      "line": 47,
+      "evidence": "name matches read heuristic; no mcp:read-only annotation"
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "documents.go",
+      "line": 83,
+      "evidence": "List Linear documents"
+    },
+    {
+      "kind": "missing-read-only",
+      "command": "list",
+      "file": "documents.go",
+      "line": 83,
+      "evidence": "name matches read heuristic; no mcp:read-only annotation"
+    },
+    {
+      "kind": "thin-short",
+      "command": "delete",
+      "file": "favorites_write.go",
+      "line": 297,
+      "evidence": "Unfavorite an entity"
+    },
+    {
+      "kind": "missing-read-only",
+      "command": "get",
+      "file": "issues.go",
+      "line": 111,
+      "evidence": "name matches read heuristic; no mcp:read-only annotation"
+    },
+    {
+      "kind": "thin-short",
+      "command": "archive",
+      "file": "notifications_cmd.go",
+      "line": 453,
+      "evidence": "Archive one notification"
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "portfolio_resolve.go",
+      "line": 97,
+      "evidence": "List Linear projects"
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "portfolio_resolve.go",
+      "line": 178,
+      "evidence": "List Linear initiatives"
+    },
+    {
+      "kind": "missing-read-only",
+      "command": "list",
+      "file": "project_updates.go",
+      "line": 29,
+      "evidence": "name matches read heuristic; no mcp:read-only annotation"
+    },
+    {
+      "kind": "missing-read-only",
+      "command": "reconcile",
+      "file": "reconcile.go",
+      "line": 150,
+      "evidence": "name matches read heuristic; no mcp:read-only annotation"
+    },
+    {
+      "kind": "thin-short",
+      "command": "version",
+      "file": "root.go",
+      "line": 388,
+      "evidence": "Print version"
+    },
+    {
+      "kind": "thin-short",
+      "command": "create",
+      "file": "templates_cmd.go",
+      "line": 166,
+      "evidence": "Create a template"
+    },
+    {
+      "kind": "thin-short",
+      "command": "update",
+      "file": "templates_cmd.go",
+      "line": 266,
+      "evidence": "Update a template"
+    },
+    {
+      "kind": "thin-short",
+      "command": "delete",
+      "file": "templates_cmd.go",
+      "line": 363,
+      "evidence": "Delete a template"
+    },
+    {
+      "kind": "thin-mcp-description",
+      "command": "audit-entry-types_get",
+      "file": "tools-manifest.json",
+      "line": 0,
+      "evidence": "Get a single auditentrytype. Returns the AuditEntryType."
+    },
+    {
+      "kind": "thin-mcp-description",
+      "command": "organizations_get",
+      "file": "tools-manifest.json",
+      "line": 0,
+      "evidence": "Get a single organization. Returns the Organization."
+    },
+    {
+      "kind": "thin-mcp-description",
+      "command": "release-pipelines_get",
+      "file": "tools-manifest.json",
+      "line": 0,
+      "evidence": "Get a single releasepipeline. Returns the ReleasePipeline."
+    },
+    {
+      "kind": "thin-mcp-description",
+      "command": "teams_get",
+      "file": "tools-manifest.json",
+      "line": 0,
+      "evidence": "Get a single team. Returns the Team."
+    },
+    {
+      "kind": "thin-mcp-description",
+      "command": "templates_get",
+      "file": "tools-manifest.json",
+      "line": 0,
+      "evidence": "Get a single template. Returns the Template."
+    },
+    {
+      "kind": "thin-mcp-description",
+      "command": "user-settingses_get",
+      "file": "tools-manifest.json",
+      "line": 0,
+      "evidence": "Get a single usersettings. Returns the UserSettings."
+    },
+    {
+      "kind": "thin-mcp-description",
+      "command": "users_get",
+      "file": "tools-manifest.json",
+      "line": 0,
+      "evidence": "Get a single user. Returns the User."
     }
-  ]
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 5,
+    "captured": "2026-08-11T20:24:45.016642Z"
+  }
 }

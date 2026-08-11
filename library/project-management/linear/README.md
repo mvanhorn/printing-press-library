@@ -4,10 +4,6 @@
 
 Pulls your workspace into a local SQLite store with FTS5 search and runs compound queries that no live API call can answer in one round-trip — today view, bottleneck detection, project burndown, cycle comparison. Ships a thin linear_search + linear_execute MCP orchestration pair (with named multi-step intents for triage, standup, sprint plan, weekly update, and grooming) so agents reach the full surface in ~1K tokens instead of enumerating 60+ endpoint mirrors.
 
-Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
-
-Contributors: [@ericlitman](https://github.com/ericlitman) (Eric Litman), [@tmchow](https://github.com/tmchow) (Trevin Chow), [@rob-coco](https://github.com/rob-coco) (Rob Coco).
-
 ## Install
 
 The recommended path installs both the `linear-pp-cli` binary and the `pp-linear` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
@@ -123,13 +119,13 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 ## Authentication
 
-Linear personal API keys go in the `Authorization` header verbatim — no `Bearer` prefix. Run `linear-pp-cli auth set-token lin_api_yourkeyhere` to save your key (no Bearer prefix needed for Linear personal API keys), or export `LINEAR_API_KEY=lin_api_...`. Personal API keys are workspace-scoped; the doctor command validates auth, API connectivity, and store health in one shot.
+Linear personal API keys go in the `Authorization` header verbatim — no `Bearer` prefix. Run `linear-pp-cli auth set-token <your-personal-API-key>` to save your key (no Bearer prefix needed for Linear personal API keys), or export `LINEAR_API_KEY=lin_api_...`. Personal API keys are workspace-scoped; the doctor command validates auth, API connectivity, and store health in one shot.
 
 ## Quick Start
 
 ```bash
 # Save your Linear personal API key (or export LINEAR_API_KEY)
-linear-pp-cli auth set-token <your-key>
+linear-pp-cli auth set-token lin_api_yourkeyhere
 
 # Burn your workspace into the local SQLite store for offline + transcendent queries
 linear-pp-cli sync --full
@@ -174,18 +170,20 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   linear-pp-cli stale --days 30 --team ENG --json
   ```
-- **`issues search` / `similar`** — Find issues that look like duplicates of a query string using local FTS5 search.
+- **`similar`** — Find issues that look like duplicates of a query string using offline FTS5 fuzzy matching.
 
   _Reach for this during triage when you suspect an incoming bug duplicates an existing issue._
 
   ```bash
-  linear-pp-cli issues search "login redirect bug" --limit 5 --agent
-  linear-pp-cli issues search "pipeline follow-up" --team SYMPH --limit 10 --agent
   linear-pp-cli similar "login redirect bug" --limit 5 --json
-  linear-pp-cli similar "pipeline follow-up" --team SYMPH --limit 10 --agent
   ```
+- **`issues search`** — Search synced Linear issues by text before creating a new ticket; refreshes stale search data or fails visibly instead of serving an empty index.
 
-  Prefer `issues search` when checking for existing tickets before creating or updating follow-up work. It coordinates freshness for duplicate checks: fresh local data is searched immediately, stale or empty issue data refreshes behind a cross-process lock before search, and refresh failures return a typed error instead of silently serving stale results. Add `--team <key-name-or-uuid>` when a common project name or label appears across teams and the duplicate check must stay inside the target team's queue. Under `--agent` / `--json`, `issues search` returns a provenance envelope with freshness metadata; `similar` keeps the legacy raw result array. Use `--data-source local` only when stale/offline local results are intentional.
+  _Reach for this before filing anything, when a false "no duplicates" answer would cost more than the refresh._
+
+  ```bash
+  linear-pp-cli issues search "login redirect" --json
+  ```
 
 ### Cross-entity rollups
 - **`projects burndown`** — Project a project's landing date by linear-regressing remaining estimate against the team's measured velocity.
@@ -255,61 +253,129 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   linear-pp-cli issues create --title "Test ticket" --team ENG --trust-mode strict
   ```
-- **Parent and sub-issue linking** — Create child issues and set, change, or clear parent links without leaving the CLI for raw GraphQL.
+- **`issues edit --parent`** — Create, set, change, or clear Linear parent and sub-issue links without raw GraphQL.
 
-  _Reach for this when an agent is creating issue trees, epics, or follow-up hierarchies and needs parentage wired safely._
-
-  ```bash
-  linear-pp-cli issues create --title "Child task" --team ENG --parent ENG-123 --description-file /tmp/body.md --agent
-  linear-pp-cli issues edit ENG-124 --parent ENG-123 --agent
-  linear-pp-cli issues edit ENG-124 --no-parent --agent
-  ```
-- **Team-safe issue labels** — Discover labels that are valid for the target Linear team, including global labels, before creating or editing issues.
-
-  _Reach for this before passing label UUIDs to `issues create` or `issues edit`; Linear rejects labels owned by another team, and the CLI now preflights label ownership before mutating._
+  _Reach for this when restructuring a tree of work and you want identifiers, not UUIDs, in the command._
 
   ```bash
-  linear-pp-cli labels list --team ENG --agent --select id,name,global,team.key
-  linear-pp-cli issues create --title "Title" --team ENG --label <global-or-eng-label-id> --agent
+  linear-pp-cli issues edit ESP-1156 --parent ESP-1155 --agent
   ```
-- **Project and initiative name resolution** — Resolve portfolio objects by human name before writing issue relationships.
+- **`rate-limit`** — Read the workspace API budget (limit, remaining, reset) before spending it on a batch or a full sync.
 
-  _Reach for this when a user gives an issue identifier plus a project or initiative name. `--project` is UUID-only; use `--project-name` when the input is a human project name._
+  _Reach for this before a batch write or a full sync, when running out of budget mid-run is the expensive failure._
 
   ```bash
-  linear-pp-cli projects list --agent --select id,name,team.key,state,url
-  linear-pp-cli projects search "Autonomous Backlog Manager & Dispatch Governance" --team SYMPH --agent --select id,name,team.key,initiative.name,url
-  linear-pp-cli initiatives list --agent --select id,name,status,url
-  linear-pp-cli initiatives search "Dispatch Governance" --agent --select id,name,status,url
-  linear-pp-cli issues edit SYMPH-795 --project-name "Autonomous Backlog Manager & Dispatch Governance" --dry-run --agent
-  linear-pp-cli issues edit SYMPH-795 --project-name "Autonomous Backlog Manager & Dispatch Governance" --agent
+  linear-pp-cli rate-limit --json
   ```
 
-  `--project-name` always performs a live Linear read to resolve the UUID, even when the surrounding issue write is a dry-run. Use `projects search` first when the name is partial; writes require a normalized exact project-name match.
-- **Shell-safe Linear writes with media** — Create and update issue descriptions, comments, and Linear docs without putting Markdown bodies on the shell command line.
+### Portfolio inventory
+- **`projects list`** — List Linear projects live, optionally scoped by team, before attaching or auditing portfolio work.
 
-  _Reach for this whenever a body contains newlines, quotes, backticks, `$()` expansions, shell commands, images, logs, or agent-generated Markdown._
+  _Reach for this when you need the current project inventory before attaching an issue or auditing portfolio work._
 
   ```bash
-  linear-pp-cli issues create --title "Title" --team ENG --description-file /tmp/body.md --media /tmp/screenshot.png --agent
-  linear-pp-cli issues edit ENG-123 --description-file /tmp/body.md --agent
-  linear-pp-cli comments add --issue ENG-123 --body-file /tmp/comment.md --media /tmp/screenshot.png --agent
-  linear-pp-cli documents create --title "Runbook" --issue ENG-123 --content-file /tmp/runbook.md --agent
-  linear-pp-cli documents create --title "Team runbook" --team ENG --content-file /tmp/runbook.md --agent
+  linear-pp-cli projects list --json
   ```
+- **`projects search`** — Search Linear projects live by name with an optional team filter.
 
-  `documents create` requires exactly one parent (`--issue`, `--project`, `--team`, `--initiative`, `--cycle`, `--release`, or `--folder`); `--team` accepts a key such as `ENG` or a UUID.
-- **Current issue reads and comments** — Read full issue bodies and discussion from live Linear when freshness matters.
+  _Reach for this when you know a project by name and need its row without scrolling the whole inventory._
 
   ```bash
-  linear-pp-cli issues ENG-123 --agent --data-source live --select identifier,title,description,state.name,url
-  linear-pp-cli issues ENG-123,ENG-124 --agent --data-source live --select identifier,title,description,state.name,url
-  linear-pp-cli comments list --issue ENG-123 --agent
+  linear-pp-cli projects search "billing" --json
+  ```
+- **`projects resolve`** — Resolve one Linear project name to a UUID, preferring exact matches and supporting team scoping.
+
+  _Reach for this before any command that demands a project UUID, so you never paste one by hand._
+
+  ```bash
+  linear-pp-cli projects resolve "Billing" --json
+  ```
+- **`initiatives list`** — List Linear initiatives live with their current status and URL.
+
+  _Reach for this when you need the initiative inventory before a portfolio review._
+
+  ```bash
+  linear-pp-cli initiatives list --json
+  ```
+- **`initiatives search`** — Search Linear initiatives live by name.
+
+  _Reach for this when you know an initiative by name and want only its row._
+
+  ```bash
+  linear-pp-cli initiatives search "platform" --json
+  ```
+- **`initiatives resolve`** — Resolve one Linear initiative name to a UUID, preferring exact matches.
+
+  _Reach for this before linking a project to an initiative, so the UUID comes from the workspace and not from a copy-paste._
+
+  ```bash
+  linear-pp-cli initiatives resolve "Platform" --json
   ```
 
-  Comma-separated issue reads preserve caller order, de-duplicate identifiers, and fail the whole request when any member cannot be read. A single identifier keeps the existing object-shaped `results`; multiple identifiers return an array.
+### Conventional reads
+- **`issues`** — Get one or several Linear issues by identifier, in caller order, resolving through the local store before the API.
 
-  Canonical forms remain `issues <ID>`, `documents <ref>`, and `comments add`. For compatibility with common agent phrasing, the CLI also accepts `issues get|view|show <ID>`, `documents get|view <ref>`, and `comments create` with the same flags and behavior. `documents show` is intentionally unsupported.
+  _Reach for this whenever you have an identifier from a human or a commit message and want the issue without a UUID lookup._
+
+  ```bash
+  linear-pp-cli issues ESP-1155 --agent
+  ```
+- **`documents`** — View a Linear document by UUID, bare slugId, URL slug, or full document URL.
+
+  _Reach for this when the only handle you have is a URL someone pasted into chat._
+
+  ```bash
+  linear-pp-cli documents my-runbook-f7f48ab36080 --agent
+  ```
+- **`comments add`** — Add a comment to a Linear issue, taking the body inline, from a file, or from stdin so markdown and shell metacharacters survive intact.
+
+  _Reach for this when the comment carries a code block or a command line that must arrive literally._
+
+  ```bash
+  linear-pp-cli comments add --issue ESP-1155 --body-file /tmp/comment.md --agent
+  ```
+
+## Recipes
+
+### Friday stakeholder update
+
+```bash
+linear-pp-cli cycles compare current previous --json --select completionPct,scopeAdded,scopeCut,carryover,meanCycleTimeHours
+```
+
+Two-row diff of the current and previous cycle, narrowed to the five fields that go into a stakeholder doc — pipe to your LLM of choice to write the prose.
+
+### Daily what-now for an agent
+
+```bash
+linear-pp-cli today --json --agent --select id,identifier,title,state.name,cycle.endsAt,priority
+```
+
+Ranked work queue with only the fields an agent needs to decide what to pick up; --agent enables agent-mode envelope, --select narrows the payload from kilobytes to ~200 bytes per row.
+
+### Sprint planning rebalance
+
+```bash
+linear-pp-cli bottleneck --team ENG --json | jq '.[] | select(.loadIndex > 1.2)'
+```
+
+Pulls per-assignee load and pipes to jq for the overloaded slice — the bottleneck command exposes the join; jq does the filter so the command stays composable.
+
+### Backlog grooming sweep
+
+```bash
+linear-pp-cli stale --days 60 --team ENG --json --select identifier,title,assignee.name,updatedAt
+```
+
+Stale-issue scan with a curated --select projection that's small enough to keep in context across many invocations.
+
+### Agent fixture cleanup
+
+```bash
+linear-pp-cli pp-test list --session current --json && linear-pp-cli pp-cleanup --session current
+```
+
+List then archive only the issues this CLI created in the current session — never touches pre-existing workspace data.
 
 ## Usage
 
@@ -317,180 +383,296 @@ Run `linear-pp-cli --help` for the full command reference and flag list.
 
 ## Commands
 
+The full tree, straight out of `linear-pp-cli agent-context --pretty`. Run `linear-pp-cli <command> --help` for flags.
+
 ### attachments
 
-Manage attachments
+Attachment cards on issues: get, create, link a URL, update, delete, and dedupe by URL
 
 - **`linear-pp-cli attachments <id>`** - Get a single attachment
+- **`linear-pp-cli attachments create`** - Create an attachment card on an issue
+- **`linear-pp-cli attachments delete <attachment-id>`** - Delete an attachment
+- **`linear-pp-cli attachments for-url`** - List the attachments recorded against a URL
+- **`linear-pp-cli attachments link-url`** - Link a URL to an issue and let Linear unfurl it
+- **`linear-pp-cli attachments update <attachment-id>`** - Update an attachment's title, subtitle, metadata, or icon
 
-### audit-entry-types
+### auth
 
-Manage audit-entry-types
+Manage authentication for Linear
 
-- **`linear-pp-cli audit-entry-types`** - Get a single auditentrytype
+- **`linear-pp-cli auth logout`** - Clear stored credentials
+- **`linear-pp-cli auth set-token <token>`** - Save an API token to the config file
+- **`linear-pp-cli auth setup`** - Print steps for obtaining a credential (use --launch to open the URL)
+- **`linear-pp-cli auth status`** - Show authentication status
 
-### auth-resolver-responses
+### comments
 
-Manage auth-resolver-responses
+List, add, edit, delete, and resolve Linear comments
 
-- **`linear-pp-cli auth-resolver-responses`** - Get a single authresolverresponse
+- **`linear-pp-cli comments add [issue]`** - Add a Linear comment
+- **`linear-pp-cli comments delete <comment-id>`** - Delete a Linear comment
+- **`linear-pp-cli comments edit <comment-id>`** - Edit a Linear comment
+- **`linear-pp-cli comments list [issue]`** - List comments on an issue
+- **`linear-pp-cli comments resolve <comment-id>`** - Resolve a comment thread
+- **`linear-pp-cli comments unresolve <comment-id>`** - Reopen a previously resolved comment thread
 
-### authentication-session-responses
+### custom-views
 
-Manage authentication-session-responses
+Linear custom views (saved filters): list, get, create, update, delete
 
-- **`linear-pp-cli authentication-session-responses`** - Get a single authenticationsessionresponse
+- **`linear-pp-cli custom-views create`** - Create a custom view
+- **`linear-pp-cli custom-views delete <custom-view-id>`** - Delete a custom view
+- **`linear-pp-cli custom-views get <custom-view-id>`** - Get one custom view including its filter payload
+- **`linear-pp-cli custom-views list`** - List custom views
+- **`linear-pp-cli custom-views update <custom-view-id>`** - Update a custom view
 
-### email-intake-addresses
+### cycles
 
-Manage email-intake-addresses
+Linear cycles: cycle-over-cycle comparison
 
-- **`linear-pp-cli email-intake-addresses <id>`** - Get a single emailintakeaddress
+- **`linear-pp-cli cycles archive <cycle-id>`** - Archive a cycle, unlinking every issue still assigned to it
+- **`linear-pp-cli cycles compare <cycle-a> <cycle-b>`** - Compare two cycles side-by-side: completion %, scope added/cut, carryover
+- **`linear-pp-cli cycles create`** - Create a cycle on a team with an explicit start and end
+- **`linear-pp-cli cycles list`** - List cycles with their dates and progress, optionally filtered by team
+- **`linear-pp-cli cycles shift-all`** - Shift a cycle and every cycle after it by a number of days
+- **`linear-pp-cli cycles start-upcoming <cycle-id>`** - Start the next upcoming cycle as of midnight today
+- **`linear-pp-cli cycles update <cycle-id>`** - Update a cycle's name, description, window, or completion time
+
+### documents
+
+View, list, create, edit, delete, and restore Linear documents
+
+- **`linear-pp-cli documents [document-ref]`** - View, list, create, edit, delete, and restore Linear documents
+- **`linear-pp-cli documents create`** - Create a Linear document
+- **`linear-pp-cli documents delete <document-ref>`** - Delete a Linear document
+- **`linear-pp-cli documents edit <document-id-or-slug>`** - Edit a Linear document
+- **`linear-pp-cli documents get <document-ref>`** - View a Linear document
+- **`linear-pp-cli documents list`** - List Linear documents
+- **`linear-pp-cli documents unarchive <document-id>`** - Restore a deleted Linear document
 
 ### favorites
 
-Manage favorites
+Sidebar favorites: get, create, reorder or refolder, delete
 
 - **`linear-pp-cli favorites <id>`** - Get a single favorite
+- **`linear-pp-cli favorites create`** - Favorite one Linear entity
+- **`linear-pp-cli favorites delete <favorite-id>`** - Unfavorite an entity
+- **`linear-pp-cli favorites update <favorite-id>`** - Reorder or refolder a favorite
 
-### initiative-relations
+### feedback
 
-Manage initiative-relations
+Record feedback about this CLI (local by default; upstream opt-in)
 
-- **`linear-pp-cli initiative-relations <id>`** - Get a single initiativerelation
+- **`linear-pp-cli feedback [text]`** - Record feedback about this CLI (local by default; upstream opt-in)
+- **`linear-pp-cli feedback list`** - List recent feedback entries
 
-### initiative-to-projects
+### groups
 
-Manage initiative-to-projects
+Inspect the workflow-state groups that --state resolves against
 
-- **`linear-pp-cli initiative-to-projects <id>`** - Get a single initiativetoproject
+- **`linear-pp-cli groups check <group-or-type>`** - Resolve one state token and show exactly what it matches
+- **`linear-pp-cli groups list`** - List every effective state group and where it is declared
 
 ### initiatives
 
-Manage initiatives
+Linear initiatives: get, list, search, resolve, and portfolio health rollup
 
-- **`linear-pp-cli initiatives <id>`** - Get a single initiative
+- **`linear-pp-cli initiatives archive <initiative>`** - Archive a Linear initiative
+- **`linear-pp-cli initiatives create`** - Create a Linear initiative
+- **`linear-pp-cli initiatives delete <initiative>`** - Delete a Linear initiative
+- **`linear-pp-cli initiatives get <id>`** - Get a single initiative
+- **`linear-pp-cli initiatives health`** - Rolled-up portfolio view per initiative: project progress, milestone risk, slippage
+- **`linear-pp-cli initiatives link-project <initiative>`** - Link a project to a Linear initiative
 - **`linear-pp-cli initiatives list`** - List Linear initiatives
-- **`linear-pp-cli initiatives search <query>`** - Search Linear initiatives by name
 - **`linear-pp-cli initiatives resolve <name>`** - Resolve one Linear initiative name to its UUID
+- **`linear-pp-cli initiatives search <query>`** - Search Linear initiatives by name
+- **`linear-pp-cli initiatives unarchive <initiative>`** - Restore an archived Linear initiative
+- **`linear-pp-cli initiatives unlink-project <initiative>`** - Unlink a project from a Linear initiative
+- **`linear-pp-cli initiatives update <initiative>`** - Update a Linear initiative
 
-### integrations
+### issues
 
-Manage integrations
+Get, list, or create Linear issues
 
-- **`linear-pp-cli integrations create`** - Create a integration
-- **`linear-pp-cli integrations delete`** - Delete a integration
-
-### issue-priority-values
-
-Manage issue-priority-values
-
-- **`linear-pp-cli issue-priority-values`** - Get a single issuepriorityvalue
+- **`linear-pp-cli issues [ID]`** - Get, list, or create Linear issues
+- **`linear-pp-cli issues archive <issue>`** - Archive a Linear issue
+- **`linear-pp-cli issues batch-create --file <path>`** - Create up to 50 issues in one transaction and record them in the pp_created ledger
+- **`linear-pp-cli issues batch-update --ids <a,b,c>`** - Apply one change to up to 50 issues in a single transaction
+- **`linear-pp-cli issues close-duplicate <issue> --of <canonical-issue>`** - Close an issue as a duplicate: create the duplicate relation, then set the duplicate state
+- **`linear-pp-cli issues create`** - Create a new Linear issue and record it in the pp_created ledger
+- **`linear-pp-cli issues delete <issue>`** - Trash a Linear issue
+- **`linear-pp-cli issues edit <issue-id>`** - Edit a Linear issue
+- **`linear-pp-cli issues get ID`** - Get Linear issues by identifier
+- **`linear-pp-cli issues list`** - List issues from the local sqlite store with filters
+- **`linear-pp-cli issues search <query>`** - Search synced issues by text (alias for similar)
+- **`linear-pp-cli issues subscribe <issue>`** - Subscribe a user to a Linear issue
+- **`linear-pp-cli issues unarchive <issue>`** - Restore an archived Linear issue
+- **`linear-pp-cli issues unsubscribe <issue>`** - Unsubscribe a user from a Linear issue
 
 ### labels
 
-List Linear issue labels with team ownership
+Manage Linear issue labels: list, create, update, delete, retire, restore
 
-- **`linear-pp-cli labels list --team ENG`** - List global labels plus labels owned by the target team
+- **`linear-pp-cli labels create`** - Create an issue label, workspace-wide or scoped to one team
+- **`linear-pp-cli labels delete <label-id>`** - Permanently delete an issue label
+- **`linear-pp-cli labels list`** - List issue labels, optionally filtered to labels safe for a team
+- **`linear-pp-cli labels restore <label-id>`** - Restore a retired issue label so it can be applied again
+- **`linear-pp-cli labels retire <label-id>`** - Retire an issue label so it can no longer be applied to new issues
+- **`linear-pp-cli labels update <label-id>`** - Update an issue label's name, color, description, or parent
 
-### organizations
+### milestones
 
-Manage organizations
+List project milestones at risk of missing their target date
 
-- **`linear-pp-cli organizations`** - Get a single organization
+- **`linear-pp-cli milestones at-risk`** - Rank portfolio milestones by projected slippage past target date
+- **`linear-pp-cli milestones create`** - Create a project milestone
+- **`linear-pp-cli milestones delete <milestone-id>`** - Delete a project milestone
+- **`linear-pp-cli milestones list`** - List a project's milestones
+- **`linear-pp-cli milestones move <milestone-id>`** - Move a project milestone and its issues to another project
+- **`linear-pp-cli milestones update <milestone-id>`** - Update a project milestone
 
-### project-labels
+### notifications
 
-Manage project-labels
+Read and triage the authenticated user's Linear inbox
 
-- **`linear-pp-cli project-labels <id>`** - Get a single projectlabel
+- **`linear-pp-cli notifications archive <notification-id>`** - Archive one notification
+- **`linear-pp-cli notifications archive-all`** - Archive every notification about one entity
+- **`linear-pp-cli notifications get <notification-id>`** - Get one notification by id
+- **`linear-pp-cli notifications list`** - List the authenticated user's notifications
+- **`linear-pp-cli notifications read <notification-id>`** - Mark one notification as read
+- **`linear-pp-cli notifications read-all`** - Mark every notification about one entity as read
+- **`linear-pp-cli notifications snooze <notification-id> --until <when>`** - Snooze one notification until a given time
+- **`linear-pp-cli notifications snooze-all`** - Snooze every notification about one entity
+- **`linear-pp-cli notifications unarchive <notification-id>`** - Restore one archived notification
+- **`linear-pp-cli notifications unread <notification-id>`** - Mark one notification as unread
+- **`linear-pp-cli notifications unread-all`** - Mark every notification about one entity as unread
+- **`linear-pp-cli notifications unread-count`** - Report the authenticated user's unread notification count
+- **`linear-pp-cli notifications unsnooze <notification-id>`** - Wake one snoozed notification
+- **`linear-pp-cli notifications unsnooze-all`** - Wake every snoozed notification about one entity
 
-### project-milestones
+### pp-test
 
-Manage project-milestones
+List Linear issues this CLI has created (test-fixture ledger)
 
-- **`linear-pp-cli project-milestones <id>`** - Get a single projectmilestone
+- **`linear-pp-cli pp-test list`** - List active fixtures (issues this CLI created and has not yet archived)
+- **`linear-pp-cli pp-test sessions`** - List all distinct session tags with active fixtures
 
-### project-relations
+### profile
 
-Manage project-relations
+Named sets of flags saved for reuse
 
-- **`linear-pp-cli project-relations <id>`** - Get a single projectrelation
+- **`linear-pp-cli profile delete <name>`** - Remove a profile
+- **`linear-pp-cli profile list`** - List saved profiles
+- **`linear-pp-cli profile save <name> [--<flag> <value> ...]`** - Save the current invocation's non-default flags as a named profile
+- **`linear-pp-cli profile show <name>`** - Show a profile's values as JSON
+- **`linear-pp-cli profile use <name>`** - Print the flag values a profile will apply (does not execute anything)
 
-### project-statuses
+### project-updates
 
-Manage project-statuses
+List, create, edit, and archive Linear project updates
 
-- **`linear-pp-cli project-statuses <id>`** - Get a single projectstatus
+- **`linear-pp-cli project-updates archive <project-update-id>`** - Archive a Linear project update
+- **`linear-pp-cli project-updates create`** - Create a new Linear project update
+- **`linear-pp-cli project-updates list`** - List project updates for a Linear project
+- **`linear-pp-cli project-updates unarchive <project-update-id>`** - Restore an archived Linear project update
+- **`linear-pp-cli project-updates update <project-update-id>`** - Edit a posted Linear project update
 
 ### projects
 
-Manage projects
+Linear projects: get, list, search, resolve, and burndown projection
 
-- **`linear-pp-cli projects <id>`** - Get a single project
+- **`linear-pp-cli projects add-label <project-id>`** - Attach a project label to a Linear project
+- **`linear-pp-cli projects burndown <project>`** - Project a project's landing date from estimate vs measured velocity
+- **`linear-pp-cli projects create`** - Create a Linear project
+- **`linear-pp-cli projects delete <project-id>`** - Delete (trash) a Linear project
+- **`linear-pp-cli projects get <id>`** - Get a single project
 - **`linear-pp-cli projects list`** - List Linear projects
-- **`linear-pp-cli projects search <query>`** - Search Linear projects by name
+- **`linear-pp-cli projects remove-label <project-id>`** - Detach a project label from a Linear project
 - **`linear-pp-cli projects resolve <name>`** - Resolve one Linear project name to its UUID
+- **`linear-pp-cli projects search <query>`** - Search Linear projects by name
+- **`linear-pp-cli projects update <project-id>`** - Update a Linear project
 
-### release-notes
+### reactions
 
-Manage release-notes
+List, add, and remove emoji reactions
 
-- **`linear-pp-cli release-notes <id>`** - Get a single releasenote
+- **`linear-pp-cli reactions add`** - Add an emoji reaction to a comment, issue, project update, or initiative update
+- **`linear-pp-cli reactions list`** - List the reactions on a comment, issue, project update, or initiative update
+- **`linear-pp-cli reactions remove <reaction-id>`** - Remove a reaction
 
-### release-pipelines
+### relations
 
-Manage release-pipelines
+Read and manage issue relations (blocks, duplicate, related, similar)
 
-- **`linear-pp-cli release-pipelines`** - Get a single releasepipeline
-
-### release-stages
-
-Manage release-stages
-
-- **`linear-pp-cli release-stages <id>`** - Get a single releasestage
-
-### releases
-
-Manage releases
-
-- **`linear-pp-cli releases <id>`** - Get a single release
-
-### roadmap-to-projects
-
-Manage roadmap-to-projects
-
-- **`linear-pp-cli roadmap-to-projects <id>`** - Get a single roadmaptoproject
-
-### roadmaps
-
-Manage roadmaps
-
-- **`linear-pp-cli roadmaps <id>`** - Get a single roadmap
-
-### teams
-
-Manage teams
-
-- **`linear-pp-cli teams`** - Get a single team
+- **`linear-pp-cli relations create <issue> --type <type> --to <issue>`** - Create an issue relation (blocks, duplicate, related, similar)
+- **`linear-pp-cli relations delete <relation-id>`** - Delete an issue relation by its relation UUID
+- **`linear-pp-cli relations list <issue>`** - List every relation touching one issue, in both directions
 
 ### templates
 
-Manage templates
+Workspace templates: get, list, create, update, delete
 
-- **`linear-pp-cli templates`** - Get a single template
+- **`linear-pp-cli templates create`** - Create a template
+- **`linear-pp-cli templates delete <template-id>`** - Delete a template
+- **`linear-pp-cli templates get <template-id>`** - Get one template including its templateData payload
+- **`linear-pp-cli templates list`** - List workspace templates, optionally scoped by team or type
+- **`linear-pp-cli templates update <template-id>`** - Update a template
 
-### user-settingses
+### workflow-states
 
-Manage user-settingses
+Manage Linear workflow states: list, create, update, archive
 
+- **`linear-pp-cli workflow-states archive <state-id>`** - Archive a workflow state
+- **`linear-pp-cli workflow-states create`** - Create a workflow state on a team's board
+- **`linear-pp-cli workflow-states list`** - List workflow states, optionally filtered by team
+- **`linear-pp-cli workflow-states update <state-id>`** - Update a workflow state's name, color, description, or board position
+
+### Standalone commands
+
+- **`linear-pp-cli analytics`** - Run analytics queries on locally synced data
+- **`linear-pp-cli api [interface]`** - Browse all API endpoints by interface name
+- **`linear-pp-cli audit-entry-types`** - Get a single auditentrytype
+- **`linear-pp-cli authentication-session-responses`** - Get a single authenticationsessionresponse
+- **`linear-pp-cli blocking`** - Show issues you are blocking — sorted by downstream impact
+- **`linear-pp-cli bottleneck`** - Find overloaded team members and blocked issues
+- **`linear-pp-cli doctor`** - Check CLI health
+- **`linear-pp-cli email-intake-addresses <id>`** - Get a single emailintakeaddress
+- **`linear-pp-cli initiative-relations <id>`** - Get a single initiativerelation
+- **`linear-pp-cli initiative-to-projects <id>`** - Get a single initiativetoproject
+- **`linear-pp-cli issue-priority-values`** - Get a single issuepriorityvalue
+- **`linear-pp-cli load`** - Show workload distribution per assignee
+- **`linear-pp-cli me`** - Show current authenticated user
+- **`linear-pp-cli organizations`** - Get a single organization
+- **`linear-pp-cli orphans`** - Find items missing key fields like assignee or project
+- **`linear-pp-cli pp-cleanup`** - Archive Linear issues this CLI created (scoped to the pp_created ledger)
+- **`linear-pp-cli project-labels <id>`** - Get a single projectlabel
+- **`linear-pp-cli project-milestones <id>`** - Get a single projectmilestone
+- **`linear-pp-cli project-relations <id>`** - Get a single projectrelation
+- **`linear-pp-cli project-statuses <id>`** - Get a single projectstatus
+- **`linear-pp-cli rate-limit`** - Show the current Linear API rate limit budget
+- **`linear-pp-cli reconcile`** - Decide whether proposed work is a duplicate, a relative, or genuinely new, and optionally act on it
+- **`linear-pp-cli release-notes <id>`** - Get a single releasenote
+- **`linear-pp-cli release-pipelines`** - Get a single releasepipeline
+- **`linear-pp-cli release-stages <id>`** - Get a single releasestage
+- **`linear-pp-cli releases <id>`** - Get a single release
+- **`linear-pp-cli roadmap-to-projects <id>`** - Get a single roadmaptoproject
+- **`linear-pp-cli roadmaps <id>`** - Get a single roadmap
+- **`linear-pp-cli similar [query]`** - Find potentially duplicate issues using fuzzy text search
+- **`linear-pp-cli slipped`** - Show issues that slipped from the previous cycle into the current cycle
+- **`linear-pp-cli sql <query>`** - Run read-only SQL against the local store
+- **`linear-pp-cli stale`** - Find items with no updates in N days
+- **`linear-pp-cli sync`** - Sync Linear data to local SQLite store
+- **`linear-pp-cli teams`** - Get a single team
+- **`linear-pp-cli today`** - Show your issues for today across all teams
+- **`linear-pp-cli unblocked`** - Show blocked issues whose blockers are now all closed
 - **`linear-pp-cli user-settingses`** - Get a single usersettings
-
-### users
-
-Manage users
-
 - **`linear-pp-cli users`** - Get a single user
+- **`linear-pp-cli velocity`** - Show sprint velocity trends over recent cycles
+- **`linear-pp-cli which [query]`** - Find the command that implements a capability
+
+`completion bash`, `completion zsh`, `completion fish`, `completion powershell`, `help [command]` and `version` are the usual cobra built-ins.
+
+`roadmaps` and `roadmap-to-projects` are marked deprecated. Linear replaced Roadmap and RoadmapToProject with Initiative and InitiativeToProject, so reach for the `initiatives` family instead. The old commands still work.
 
 ## Output Formats
 
@@ -510,6 +692,21 @@ linear-pp-cli attachments mock-value --dry-run
 # Agent mode — JSON + compact + no prompts in one flag
 linear-pp-cli attachments mock-value --agent
 ```
+
+## Output contract
+
+Every JSON response belongs to exactly one of three shapes. Which one a command uses is a property of the command, not of the run, so a caller can hard-code the access path.
+
+**Reads answer `{results, meta}`.** `results` is the payload, an array for list and search commands and an object for single-subject rollups. It is never `null`: an empty read answers `{"results": [], "meta": {...}}`. `meta` always carries `source` (`live`, `local`, or `mixed` on `issues search --live`) and `resource_type`, and adds `synced_at` on local reads, `reason` for why local was chosen, `count`, and the scope that produced the result (`query`, `team_scope`). `--select` descends into `results` and leaves `meta` intact, so field filtering never costs you provenance.
+
+```bash
+linear-pp-cli projects list --team SYMPH --agent --select id,name,team.key
+# {"results":[{"id":"...","name":"...","team":{"key":"SYMPH"}}],"meta":{"source":"live","resource_type":"projects","count":1,"team_scope":"SYMPH","reason":"user_requested"}}
+```
+
+**Mutations answer an event object.** A write reports what it did: `success`, the affected entity, and, under `--dry-run`, a `{"event":"would_*"}` preview naming the GraphQL mutation and the exact input it would have sent. Writes never wrap themselves in `results`, because a write has one subject and no provenance question to answer.
+
+**Resolvers answer a bare object.** `projects resolve` and `initiatives resolve` print the single matched entity at the top level, so `.id` is one hop away. An ambiguous or missing name is a typed usage error carrying the candidate list, not an empty success. This is the one read family that is deliberately not enveloped, because its whole contract is exactly one object or a failure.
 
 ## Agent Usage
 
@@ -571,9 +768,32 @@ Read commands fall into three categories with different data-source semantics. T
 | **Snapshot-computational** | `today`, `bottleneck`, `blocking`, `similar`, `velocity`, `slipped`, `cycles compare`, `projects burndown`, `initiatives health`, `milestones at-risk` | Local store only — no live equivalent exists. **Must `sync` first.** | None (flag ignored) |
 | **Label discovery** | `labels list --team ENG` | `--data-source auto`: reads live by default; `--data-source local` reads the synced `issue_labels` table | `--data-source live`, `--data-source local` |
 | **Live collaboration reads** | `comments list`, `documents`, `documents list` | Always live; comments and working-session docs are collaboration surfaces where stale local state is misleading | n/a |
-| **Mutations** | `issues create`, `issues edit`, `comments add`, `comments edit`, `documents create`, `documents edit`, `pp-cleanup` | Always live; on success, the HTTP cache is invalidated AND issue mutations are written back to the local store | n/a |
+| **Live-only, no local snapshot** | `unblocked`, every `notifications` verb, `rate-limit` | Always live. `unblocked` refuses `--data-source local` with a usage error rather than pretending | n/a |
+| **Mutations** | The issue lifecycle (`create`, `edit`, `archive`, `unarchive`, `delete`, `subscribe`, `unsubscribe`, `close-duplicate`, `batch-create`, `batch-update`), plus the write leaves on `relations`, `comments`, `documents`, `labels`, `workflow-states`, `cycles`, `projects`, `milestones`, `initiatives`, `project-updates`, `attachments`, `templates`, `custom-views`, `favorites`, `reactions`, `notifications`, `reconcile --execute` and `pp-cleanup` | Always live; on success, the HTTP cache is invalidated AND the changed entity is written back to the local store | n/a |
 
 Promoted Linear GraphQL read commands such as `teams` and `projects get` use POST `/graphql` internally. They should not be reimplemented with shell-level GET calls; Linear rejects GET `/graphql` with CSRF/preflight errors.
+
+**What `sync` populates:** issues, projects, teams, cycles, users, labels, and workflow states, then the workflow shell resources: documents, templates, custom views, favorites, project milestones, project statuses, initiatives, and issue relations. Those eight tables existed from the first migration and stayed empty until now. Each one is crawled from a workspace-wide connection and reconciled like the rest: rows whose id was not seen upstream are deleted, and a crawl cut short by `--max-pages` prunes nothing. The five with a generic read path (`templates`, `favorites`, `initiatives`, `project-milestones`, `project-statuses`) are mirrored into the read cache in the same pass, so `--data-source local` serves them offline instead of reporting an empty store. `documents` and `custom-views` keep their live-only commands, so their tables are a snapshot for analytics rather than a read path.
+
+**Sync modes:**
+
+| Mode | Fetches | Prunes |
+| --- | --- | --- |
+| `sync` | paged crawl from the stored cursor, capped by `--max-pages` (default 10) | yes, once a resource reaches its last page |
+| `sync --incremental` | only rows with `updatedAt` after that resource's last recorded sync, minus a five minute overlap. Resources whose query takes no filter are fetched in full | never |
+| `sync --full` | everything, cursors cleared first | yes |
+| `sync --no-prune` | as the mode it is combined with | no |
+
+The prune is what makes `--data-source local` trustworthy: after a resource is fetched to its last page, local rows whose id was not seen upstream are deleted. A crawl truncated by `--max-pages` warns and skips the prune, an empty live set is refused rather than read as "everything was deleted", and `issues_fts` is verified against `issues` after an issues prune. An incremental fetch is never an enumeration of the workspace, so it cannot tell a deletion from a row that did not change, which is why it never prunes and says so in the run summary. `--full` and `--incremental` are mutually exclusive, because `--full` clears the cursors `--incremental` reads.
+
+Archived rows are excluded from sync on purpose, so the prune keeps removing them locally. To see them, read live:
+
+```bash
+linear-pp-cli issues list --include-archived --state all --agent
+linear-pp-cli relations list ENG-123 --include-archived --agent
+```
+
+Pair `--include-archived` with `--state all` on issues, since an archived issue keeps whatever state it was archived in. Rows gain `archived_at`, and both commands re-apply the predicate to store-served rows so an archived row cached by an earlier `--include-archived` read cannot leak into a later default read.
 
 **`--max-age` (default 30 minutes):**
 
@@ -598,8 +818,8 @@ linear-pp-cli issues create --title "..." --team ENG --pp-session "$SESSION"
 # Verify from local
 linear-pp-cli issues list --data-source local --pp-session "$SESSION"
 
-# Refresh every ~30 minutes for long sessions
-linear-pp-cli sync
+# Refresh every ~30 minutes for long sessions. --incremental is the cheap one
+linear-pp-cli sync --incremental
 ```
 
 ## Troubleshooting
@@ -611,14 +831,11 @@ linear-pp-cli sync
 - Run the `list` command to see available items
 
 ### API-specific
-
 - **Authentication failed / 401 from Linear** — Run `linear-pp-cli doctor` — it checks key validity, header shape (no Bearer prefix), and rate-limit headroom in one shot.
 - **Rate limit error / complexity budget exceeded** — Lower concurrency on sync and prefer offline reads — Linear meters by complexity points (~1500/hr for personal API keys), mutations cost more than queries.
-- **`sync --full` is slow or paginates indefinitely** — Run `linear-pp-cli sync` after the first full sync — it cursors on updatedAt and only fetches changed rows.
-- **FTS5 search returns no rows for a term you know exists** — Run `linear-pp-cli sync` to refresh the FTS index, or `linear-pp-cli doctor` to confirm the FTS triggers fired on the latest sync.
+- **`sync --full` is slow or paginates indefinitely** — Run `linear-pp-cli sync --incremental` after the first full sync — it cursors on updatedAt and only fetches changed rows.
+- **FTS5 search returns no rows for a term you know exists** — Run `linear-pp-cli sync --incremental` to refresh the FTS index, or `linear-pp-cli doctor` to confirm the FTS triggers fired on the latest sync.
 - **Agent accidentally mutated an issue it did not create** — Set `LINEAR_PP_CLI_TRUST_MODE=strict` in the environment — strict mode refuses any mutation on an issue ID not in the local pp_created ledger.
-
----
 
 ## Sources & Inspiration
 

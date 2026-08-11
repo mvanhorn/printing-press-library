@@ -12,6 +12,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// pp:data-source local
+// velocity reads the synced cycle rows and emits their own scope and
+// completed counters; it never calls the API. The completion percentage is a
+// render-time bar, not a new metric in the payload.
 func newVelocityCmd(flags *rootFlags) *cobra.Command {
 	var dbPath string
 	var jsonOut bool
@@ -68,7 +72,9 @@ func newVelocityCmd(flags *rootFlags) *cobra.Command {
 				infos = infos[:weeks]
 			}
 
-			if jsonOut {
+			// --json is a local convenience flag. --agent and the root
+			// persistent --json both set flags.asJSON, so honor either.
+			if jsonOut || flags.asJSON {
 				enc := json.NewEncoder(os.Stdout)
 				enc.SetIndent("", "  ")
 				return enc.Encode(infos)
@@ -101,7 +107,7 @@ func newVelocityCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().IntVar(&weeks, "weeks", 8, "Number of recent cycles to show")
-	cmd.Flags().BoolVar(&jsonOut, "json", false, "Output as JSON")
+	cmd.Flags().BoolVar(&jsonOut, "json", false, "Output as JSON (same as the root --json)")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
 	return cmd
 }

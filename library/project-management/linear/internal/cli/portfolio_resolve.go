@@ -12,6 +12,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// Store resource types for the portfolio reads. They match the local table
+// names so meta.resource_type on a live read names the same resource a
+// --data-source local read would.
+const (
+	resourceTypeProjects    = "projects"
+	resourceTypeInitiatives = "initiatives"
+)
+
 type portfolioProjectRef struct {
 	ID         string   `json:"id"`
 	Name       string   `json:"name"`
@@ -56,6 +64,34 @@ func newPortfolioLookupClient(flags *rootFlags) (*client.Client, error) {
 	return c, nil
 }
 
+// portfolioListEnvelope wraps a live portfolio read in the {results, meta}
+// provenance envelope every other read command emits (GAP-017). These four
+// commands used to print a bare JSON array, so an agent could not tell a
+// live read from a cached one, and --select had nowhere to report count or
+// scope. results is always an array, never null: an empty portfolio answers
+// `{"results": [], "meta": {...}}` rather than `null`.
+//
+// The resolver commands next door deliberately keep their bare object. See the
+// Output contract section of the README.
+func portfolioListEnvelope[T any](results []T, resourceType, query, team string) map[string]any {
+	if results == nil {
+		results = []T{}
+	}
+	meta := map[string]any{
+		"source":        "live",
+		"resource_type": resourceType,
+		"reason":        "user_requested",
+		"count":         len(results),
+	}
+	if q := strings.TrimSpace(query); q != "" {
+		meta["query"] = q
+	}
+	if t := strings.TrimSpace(team); t != "" {
+		meta["team_scope"] = t
+	}
+	return map[string]any{"results": results, "meta": meta}
+}
+
 func newProjectsListCmd(flags *rootFlags) *cobra.Command {
 	var team string
 	cmd := &cobra.Command{
@@ -64,6 +100,9 @@ func newProjectsListCmd(flags *rootFlags) *cobra.Command {
 		Example: `  linear-pp-cli projects list --agent --select id,name,team.key,state,url
   linear-pp-cli projects list --team SYMPH --agent --select id,name,team.key,initiative.name,url`,
 		Args: cobra.NoArgs,
+		Annotations: map[string]string{
+			"mcp:read-only": "true",
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -73,7 +112,7 @@ func newProjectsListCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return classifyLiveReadError(err, flags)
 			}
-			return printJSONFiltered(cmd.OutOrStdout(), results, flags)
+			return printJSONFiltered(cmd.OutOrStdout(), portfolioListEnvelope(results, resourceTypeProjects, "", team), flags)
 		},
 	}
 	cmd.Flags().StringVar(&team, "team", "", "Filter by team key, name, or UUID")
@@ -88,6 +127,9 @@ func newProjectsSearchCmd(flags *rootFlags) *cobra.Command {
 		Example: `  linear-pp-cli projects search "Autonomous Backlog Manager & Dispatch Governance" --team SYMPH --agent --select id,name,team.key,url
   linear-pp-cli projects resolve "Autonomous Backlog Manager & Dispatch Governance" --team SYMPH --agent`,
 		Args: cobra.MinimumNArgs(1),
+		Annotations: map[string]string{
+			"mcp:read-only": "true",
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -97,13 +139,17 @@ func newProjectsSearchCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return classifyLiveReadError(err, flags)
 			}
-			return printJSONFiltered(cmd.OutOrStdout(), results, flags)
+			return printJSONFiltered(cmd.OutOrStdout(), portfolioListEnvelope(results, resourceTypeProjects, strings.Join(args, " "), team), flags)
 		},
 	}
 	cmd.Flags().StringVar(&team, "team", "", "Filter by team key, name, or UUID")
 	return cmd
 }
 
+// newProjectsResolveCmd prints the resolved project as a bare JSON object, not
+// a {results, meta} envelope. That is the resolver family's contract: exactly
+// one object or a typed error, so a caller can read .id without indexing
+// through .results. See the Output contract section of the README.
 func newProjectsResolveCmd(flags *rootFlags) *cobra.Command {
 	var team string
 	cmd := &cobra.Command{
@@ -134,6 +180,9 @@ func newInitiativesListCmd(flags *rootFlags) *cobra.Command {
 		Short:   "List Linear initiatives",
 		Example: `  linear-pp-cli initiatives list --agent --select id,name,status,url`,
 		Args:    cobra.NoArgs,
+		Annotations: map[string]string{
+			"mcp:read-only": "true",
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -143,7 +192,7 @@ func newInitiativesListCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return classifyLiveReadError(err, flags)
 			}
-			return printJSONFiltered(cmd.OutOrStdout(), results, flags)
+			return printJSONFiltered(cmd.OutOrStdout(), portfolioListEnvelope(results, resourceTypeInitiatives, "", ""), flags)
 		},
 	}
 	return cmd
@@ -156,6 +205,9 @@ func newInitiativesSearchCmd(flags *rootFlags) *cobra.Command {
 		Example: `  linear-pp-cli initiatives search "Backlog Governance" --agent --select id,name,status,url
   linear-pp-cli initiatives resolve "Backlog Governance" --agent`,
 		Args: cobra.MinimumNArgs(1),
+		Annotations: map[string]string{
+			"mcp:read-only": "true",
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -165,12 +217,15 @@ func newInitiativesSearchCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return classifyLiveReadError(err, flags)
 			}
-			return printJSONFiltered(cmd.OutOrStdout(), results, flags)
+			return printJSONFiltered(cmd.OutOrStdout(), portfolioListEnvelope(results, resourceTypeInitiatives, strings.Join(args, " "), ""), flags)
 		},
 	}
 	return cmd
 }
 
+// newInitiativesResolveCmd prints a bare JSON object for the same reason
+// newProjectsResolveCmd does: the resolver family answers with one object or a
+// typed error, never a list.
 func newInitiativesResolveCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "resolve <name>",

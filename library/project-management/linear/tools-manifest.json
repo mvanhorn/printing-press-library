@@ -44,13 +44,6 @@
       "params": []
     },
     {
-      "name": "auth-resolver-responses_get",
-      "description": "Get a single authresolverresponse. Returns the AuthResolverResponse.",
-      "method": "GET",
-      "path": "/graphql",
-      "params": []
-    },
-    {
       "name": "authentication-session-responses_get",
       "description": "Get a single authenticationsessionresponse. Returns the AuthenticationSessionResponse.",
       "method": "GET",
@@ -126,20 +119,6 @@
           "required": true
         }
       ]
-    },
-    {
-      "name": "integrations_create",
-      "description": "Create a integration. Returns the new Integration.",
-      "method": "POST",
-      "path": "/graphql",
-      "params": []
-    },
-    {
-      "name": "integrations_delete",
-      "description": "Delete a integration. Returns the Integration. Destructive.",
-      "method": "DELETE",
-      "path": "/graphql",
-      "params": []
     },
     {
       "name": "issue-priority-values_get",

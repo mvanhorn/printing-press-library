@@ -45,15 +45,6 @@ func RegisterTools(s *server.MCPServer) {
 		makeAPIHandler("GET", "/graphql", false, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
-		mcplib.NewTool("auth-resolver-responses_get",
-			mcplib.WithDescription("Get a single authresolverresponse. Returns the AuthResolverResponse."),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/graphql", false, []mcpParamBinding{}, []string{}),
-	)
-	s.AddTool(
 		mcplib.NewTool("authentication-session-responses_get",
 			mcplib.WithDescription("Get a single authenticationsessionresponse. Returns the AuthenticationSessionResponse."),
 			mcplib.WithReadOnlyHintAnnotation(true),
@@ -111,22 +102,6 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/graphql", false, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("integrations_create",
-			mcplib.WithDescription("Create a integration. Returns the new Integration."),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/graphql", false, []mcpParamBinding{}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("integrations_delete",
-			mcplib.WithDescription("Delete a integration. Returns the Integration. Destructive."),
-			mcplib.WithDestructiveHintAnnotation(true),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("DELETE", "/graphql", false, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("issue-priority-values_get",
@@ -611,7 +586,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		"api":         "linear",
 		"description": "Generated from GraphQL schema",
 		"archetype":   "project-management",
-		"tool_count":  28,
+		"tool_count":  25,
 		// tool_surface tells agents which surface a capability lives on.
 		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion linear-pp-cli binary.",
 		"auth": map[string]any{
@@ -637,12 +612,6 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 				"name":        "audit-entry-types",
 				"description": "Manage audit-entry-types",
 				"endpoints":   []string{"get"},
-			},
-			{
-				"name":        "auth-resolver-responses",
-				"description": "Manage auth-resolver-responses",
-				"endpoints":   []string{"get"},
-				"syncable":    true,
 			},
 			{
 				"name":        "authentication-session-responses",
@@ -679,11 +648,6 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 				"description": "Manage initiatives",
 				"endpoints":   []string{"get"},
 				"searchable":  true,
-			},
-			{
-				"name":        "integrations",
-				"description": "Manage integrations",
-				"endpoints":   []string{"create", "delete"},
 			},
 			{
 				"name":        "issue-priority-values",
@@ -791,25 +755,31 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		// Command-mirror capabilities are exposed through MCP by shelling out
 		// to the companion CLI binary.
 		"command_mirror_capabilities": []map[string]string{
-			{"name": "Today View", "command": "today", "description": "See all of your assigned issues across every team for today, ranked by priority and cycle deadline.", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Bottleneck Detection", "command": "bottleneck", "description": "See which team members are overloaded and which issues are blocked before sprint planning.", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Project Burndown", "command": "projects burndown", "description": "Project a project's landing date by linear-regressing remaining estimate against the team's measured velocity.", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Project Inventory", "command": "projects list", "description": "List Linear projects live, optionally scoped by team, before attaching or auditing portfolio work.", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Project Search", "command": "projects search", "description": "Search Linear projects live by name with an optional team filter.", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Project Name Resolution", "command": "projects resolve", "description": "Resolve one Linear project name to a UUID, preferring exact matches and supporting team scoping.", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Cycle Comparison", "command": "cycles compare", "description": "Side-by-side metrics between any two cycles: completion %, scope added, scope cut, carryover, average cycle time.", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Stale Issue Radar", "command": "stale", "description": "Find issues that haven't been touched in N days, grouped by team and project.", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Slipped Issues", "command": "slipped", "description": "Show what carried over from last cycle into this cycle, grouped by team and reason heuristic.", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Blocking Queue", "command": "blocking", "description": "Show issues you are blocking — sorted by downstream impact (downstream count × downstream priority).", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Duplicate Detection", "command": "similar", "description": "Find issues that look like duplicates of a query string using offline FTS5 fuzzy matching.", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Velocity Trends", "command": "velocity", "description": "Track sprint completion rates over the last N cycles to spot productivity trends.", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Initiatives Health", "command": "initiatives health", "description": "Rolled-up portfolio view per initiative: child project progress, milestone target-vs-projected dates, slippage flags.", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Initiative Inventory", "command": "initiatives list", "description": "List Linear initiatives live with their current status and URL.", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Initiative Search", "command": "initiatives search", "description": "Search Linear initiatives live by name.", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Initiative Name Resolution", "command": "initiatives resolve", "description": "Resolve one Linear initiative name to a UUID, preferring exact matches.", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "At-Risk Milestones", "command": "milestones at-risk", "description": "List portfolio milestones whose projected landing date has slipped past their target, ranked by slip magnitude.", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Test Fixture Lifecycle", "command": "pp-test list", "description": "List Linear issues this CLI created in the current or named session, then archive them with pp-cleanup.", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Trust Mode Mutation Guard", "command": "issues create --trust-mode strict", "description": "Refuse mutations on Linear issues not in the local pp_created ledger when --trust-mode strict is set; works on...", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Today View", "command": "today", "description": "See all of your assigned issues across every team for today, ranked by priority and cycle deadline.", "rationale": "Requires joining issues, cycles, workflow states, and assignees in local SQLite to compose the ranking with one query — Linear's API answers the parts but not the join.", "via": "mcp-command-mirror"},
+			{"name": "Bottleneck Detection", "command": "bottleneck", "description": "See which team members are overloaded and which issues are blocked before sprint planning.", "rationale": "Requires a per-assignee load index plus issue-relation graph walk that no single API endpoint exposes.", "via": "mcp-command-mirror"},
+			{"name": "Project Burndown", "command": "projects burndown", "description": "Project a project's landing date by linear-regressing remaining estimate against the team's measured velocity.", "rationale": "Linear has a cycle burndown in the UI but not a projects-with-arbitrary-issue-bags burndown — requires regressing local cycle_snapshot velocity against the project's open estimate sum.", "via": "mcp-command-mirror"},
+			{"name": "Cycle Comparison", "command": "cycles compare", "description": "Side-by-side metrics between any two cycles: completion %, scope added, scope cut, carryover, average cycle time.", "rationale": "Linear shows one cycle at a time; comparing requires diffing two cycle_snapshot rows from the local store with composite scope-delta logic.", "via": "mcp-command-mirror"},
+			{"name": "Stale Issue Radar", "command": "stale", "description": "Find issues that haven't been touched in N days, grouped by team and project.", "rationale": "Trivial against the local store; querying live would burn Linear's per-key complexity budget on a workspace-scoped scan.", "via": "mcp-command-mirror"},
+			{"name": "Slipped Issues", "command": "slipped", "description": "Show what carried over from last cycle into this cycle, grouped by team and reason heuristic.", "rationale": "Requires diffing issue.cycle_id against historical issue_history rows — Linear's UI doesn't expose this as a structured query.", "via": "mcp-command-mirror"},
+			{"name": "Blocking Queue", "command": "blocking", "description": "Show issues you are blocking — sorted by downstream impact (downstream count × downstream priority).", "rationale": "Linear shows blocking relations per-issue but never as a personal inverse queue. Requires a graph walk over the local issue_relation table.", "via": "mcp-command-mirror"},
+			{"name": "Duplicate Detection", "command": "similar", "description": "Find issues that look like duplicates of a query string using offline FTS5 fuzzy matching.", "rationale": "FTS5 over issue titles + descriptions + comments runs locally with no API call; competitor CLIs are online-only.", "via": "mcp-command-mirror"},
+			{"name": "Velocity Trends", "command": "velocity", "description": "Track sprint completion rates over the last N cycles to spot productivity trends.", "rationale": "Aggregates completed-estimate per cycle from local cycle_snapshot history — feeds the burndown regression.", "via": "mcp-command-mirror"},
+			{"name": "Initiatives Health", "command": "initiatives health", "description": "Rolled-up portfolio view per initiative: child project progress, milestone target-vs-projected dates, slippage flags.", "rationale": "Joins initiatives → projects → milestones with each project's burndown projection; Linear's initiative page stops at static project target dates.", "via": "mcp-command-mirror"},
+			{"name": "At-Risk Milestones", "command": "milestones at-risk", "description": "List portfolio milestones whose projected landing date has slipped past their target, ranked by slip magnitude.", "rationale": "Cross-project rollup answering Priya's verbatim portfolio question — combines burndown projection with milestone target_date across many projects in one ranked list.", "via": "mcp-command-mirror"},
+			{"name": "Test Fixture Lifecycle", "command": "pp-test list", "description": "List Linear issues this CLI created in the current or named session, then archive them with pp-cleanup.", "rationale": "A `pp_created` ledger writes on every successful issues create; cleanup archives only those rows via the real archive endpoint — agent-safe contract no other tool ships.", "via": "mcp-command-mirror"},
+			{"name": "Trust Mode Mutation Guard", "command": "issues create --trust-mode strict", "description": "Refuse mutations on Linear issues not in the local pp_created ledger when --trust-mode strict is set; works on create and any future mutation surface.", "rationale": "Pre-mutation client-side guard that prevents the agent from updating or archiving any ticket the agent did not create.", "via": "mcp-command-mirror"},
+			{"name": "Project Inventory", "command": "projects list", "description": "List Linear projects live, optionally scoped by team, before attaching or auditing portfolio work.", "rationale": "Linear's API returns projects only through a paginated GraphQL connection with no name filter, so a plain inventory read costs a hand-written query plus paging.", "via": "mcp-command-mirror"},
+			{"name": "Project Search", "command": "projects search", "description": "Search Linear projects live by name with an optional team filter.", "rationale": "Linear has no project name search endpoint; this filters the projects connection client-side after paging it.", "via": "mcp-command-mirror"},
+			{"name": "Project Resolve", "command": "projects resolve", "description": "Resolve one Linear project name to a UUID, preferring exact matches and supporting team scoping.", "rationale": "Every project-scoped mutation takes a UUID, and nothing in the API turns a human project name into one.", "via": "mcp-command-mirror"},
+			{"name": "Initiative Inventory", "command": "initiatives list", "description": "List Linear initiatives live with their current status and URL.", "rationale": "Same shape as projects: a paginated connection with no filter, so a plain inventory read is hand-rolled.", "via": "mcp-command-mirror"},
+			{"name": "Initiative Search", "command": "initiatives search", "description": "Search Linear initiatives live by name.", "rationale": "No initiative name search exists in the API; this pages the connection and filters locally.", "via": "mcp-command-mirror"},
+			{"name": "Initiative Resolve", "command": "initiatives resolve", "description": "Resolve one Linear initiative name to a UUID, preferring exact matches.", "rationale": "Initiative-scoped writes take UUIDs and the API offers no name lookup.", "via": "mcp-command-mirror"},
+			{"name": "Fresh Duplicate Search", "command": "issues search", "description": "Search synced Linear issues by text before creating a new ticket; refreshes stale search data or fails visibly instead of serving an empty index.", "rationale": "The local FTS5 index can go stale, and a stale index answers \"nothing similar exists\" for work that does exist. This command refreshes first or exits non-zero rather than lying.", "via": "mcp-command-mirror"},
+			{"name": "Parent And Sub-Issue Links", "command": "issues edit --parent", "description": "Create, set, change, or clear Linear parent and sub-issue links without raw GraphQL.", "rationale": "Linear exposes parenting only as a parentId on issueUpdate, so setting or clearing a parent otherwise means hand-writing the mutation.", "via": "mcp-command-mirror"},
+			{"name": "Rate Limit Budget", "command": "rate-limit", "description": "Read the workspace API budget (limit, remaining, reset) before spending it on a batch or a full sync.", "rationale": "Linear reports the budget only in response headers, which no GraphQL client surfaces to a caller.", "via": "mcp-command-mirror"},
+			{"name": "Conventional Issue Read", "command": "issues", "description": "Get one or several Linear issues by identifier, in caller order, resolving through the local store before the API.", "rationale": "The API answers by UUID or by filter; reading ESP-1155 by identifier, let alone a comma list of them in order, is a client-side contract.", "via": "mcp-command-mirror"},
+			{"name": "Conventional Document Read", "command": "documents", "description": "View a Linear document by UUID, bare slugId, URL slug, or full document URL.", "rationale": "Linear's document query takes a UUID; every other form a human can copy out of the app has to be normalised client-side.", "via": "mcp-command-mirror"},
+			{"name": "Markdown-Safe Comments", "command": "comments add", "description": "Add a comment to a Linear issue, taking the body inline, from a file, or from stdin so markdown and shell metacharacters survive intact.", "rationale": "Inline shell quoting mangles code fences, backticks and $(...) in comment bodies; the file and stdin paths pass the bytes through unchanged.", "via": "mcp-command-mirror"},
 		},
 		"playbook": []map[string]string{
 			{"topic": "Today View", "insight": ""},

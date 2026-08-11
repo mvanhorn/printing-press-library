@@ -259,16 +259,13 @@ See README.md or the bundled SKILL.md for recipes.`,
 		}
 		return nil
 	}
-	rootCmd.AddCommand(newIntegrationsCmd(flags))
 	rootCmd.AddCommand(newDoctorCmd(flags))
 	rootCmd.AddCommand(newAuthCmd(flags))
 	rootCmd.AddCommand(newAgentContextCmd(rootCmd))
 	rootCmd.AddCommand(newProfileCmd(flags))
 	rootCmd.AddCommand(newFeedbackCmd(flags))
 	rootCmd.AddCommand(newWhichCmd(flags))
-	rootCmd.AddCommand(newImportCmd(flags))
 	rootCmd.AddCommand(newSyncCmd(flags))
-	rootCmd.AddCommand(newTailCmd(flags))
 	rootCmd.AddCommand(newAnalyticsCmd(flags))
 	rootCmd.AddCommand(newStaleCmd(flags))
 	rootCmd.AddCommand(newOrphansCmd(flags))
@@ -276,7 +273,6 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newAPICmd(flags))
 	rootCmd.AddCommand(newAttachmentsPromotedCmd(flags))
 	rootCmd.AddCommand(newAuditEntryTypesPromotedCmd(flags))
-	rootCmd.AddCommand(newAuthResolverResponsesPromotedCmd(flags))
 	rootCmd.AddCommand(newAuthenticationSessionResponsesPromotedCmd(flags))
 	rootCmd.AddCommand(newEmailIntakeAddressesPromotedCmd(flags))
 	rootCmd.AddCommand(newFavoritesPromotedCmd(flags))
@@ -328,7 +324,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newPPTestCmd(flags))
 	rootCmd.AddCommand(newPPCleanupCmd(flags))
 	rootCmd.AddCommand(newSQLCmd(flags))
-	rootCmd.AddCommand(newExportCmd(flags))
+	rootCmd.AddCommand(newRateLimitCmd(flags))
 	rootCmd.AddCommand(newReactionsCmd(flags))
 	rootCmd.AddCommand(newNotificationsCmd(flags))
 

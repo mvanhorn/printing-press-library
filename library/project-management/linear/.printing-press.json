@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "generated_at": "2026-05-19T07:28:32.03494Z",
   "printing_press_version": "4.9.0",
   "api_name": "linear",
@@ -28,6 +28,7 @@
   "printer_name": "Matt Van Horn",
   "spec_path": "/Users/tmchow/printing-press/.runstate/idempotent-tickling-volcano-46b0c9c2/runs/20260518-232543/research/linear-schema.graphql",
   "run_id": "20260518-232543",
+  "description": "Offline-capable, agent-native Linear CLI with SQLite-backed sync, FTS5 search, cross-cycle comparison, project burndown projection, and a pp_created fixture-lifecycle contract that lets agents mutate real workspaces safely.",
   "mcp_binary": "linear-pp-mcp",
   "mcp_tool_count": 28,
   "mcp_ready": "full",
@@ -50,21 +51,6 @@
       "name": "Project Burndown",
       "command": "projects burndown",
       "description": "Project a project's landing date by linear-regressing remaining estimate against the team's measured velocity."
-    },
-    {
-      "name": "Project Inventory",
-      "command": "projects list",
-      "description": "List Linear projects live, optionally scoped by team, before attaching or auditing portfolio work."
-    },
-    {
-      "name": "Project Search",
-      "command": "projects search",
-      "description": "Search Linear projects live by name with an optional team filter."
-    },
-    {
-      "name": "Project Name Resolution",
-      "command": "projects resolve",
-      "description": "Resolve one Linear project name to a UUID, preferring exact matches and supporting team scoping."
     },
     {
       "name": "Cycle Comparison",
@@ -102,21 +88,6 @@
       "description": "Rolled-up portfolio view per initiative: child project progress, milestone target-vs-projected dates, slippage flags."
     },
     {
-      "name": "Initiative Inventory",
-      "command": "initiatives list",
-      "description": "List Linear initiatives live with their current status and URL."
-    },
-    {
-      "name": "Initiative Search",
-      "command": "initiatives search",
-      "description": "Search Linear initiatives live by name."
-    },
-    {
-      "name": "Initiative Name Resolution",
-      "command": "initiatives resolve",
-      "description": "Resolve one Linear initiative name to a UUID, preferring exact matches."
-    },
-    {
       "name": "At-Risk Milestones",
       "command": "milestones at-risk",
       "description": "List portfolio milestones whose projected landing date has slipped past their target, ranked by slip magnitude."
@@ -130,7 +101,66 @@
       "name": "Trust Mode Mutation Guard",
       "command": "issues create --trust-mode strict",
       "description": "Refuse mutations on Linear issues not in the local pp_created ledger when --trust-mode strict is set; works on create and any future mutation surface."
+    },
+    {
+      "name": "Project Inventory",
+      "command": "projects list",
+      "description": "List Linear projects live, optionally scoped by team, before attaching or auditing portfolio work."
+    },
+    {
+      "name": "Project Search",
+      "command": "projects search",
+      "description": "Search Linear projects live by name with an optional team filter."
+    },
+    {
+      "name": "Project Resolve",
+      "command": "projects resolve",
+      "description": "Resolve one Linear project name to a UUID, preferring exact matches and supporting team scoping."
+    },
+    {
+      "name": "Initiative Inventory",
+      "command": "initiatives list",
+      "description": "List Linear initiatives live with their current status and URL."
+    },
+    {
+      "name": "Initiative Search",
+      "command": "initiatives search",
+      "description": "Search Linear initiatives live by name."
+    },
+    {
+      "name": "Initiative Resolve",
+      "command": "initiatives resolve",
+      "description": "Resolve one Linear initiative name to a UUID, preferring exact matches."
+    },
+    {
+      "name": "Fresh Duplicate Search",
+      "command": "issues search",
+      "description": "Search synced Linear issues by text before creating a new ticket; refreshes stale search data or fails visibly instead of serving an empty index."
+    },
+    {
+      "name": "Parent And Sub-Issue Links",
+      "command": "issues edit --parent",
+      "description": "Create, set, change, or clear Linear parent and sub-issue links without raw GraphQL."
+    },
+    {
+      "name": "Rate Limit Budget",
+      "command": "rate-limit",
+      "description": "Read the workspace API budget (limit, remaining, reset) before spending it on a batch or a full sync."
+    },
+    {
+      "name": "Conventional Issue Read",
+      "command": "issues",
+      "description": "Get one or several Linear issues by identifier, in caller order, resolving through the local store before the API."
+    },
+    {
+      "name": "Conventional Document Read",
+      "command": "documents",
+      "description": "View a Linear document by UUID, bare slugId, URL slug, or full document URL."
+    },
+    {
+      "name": "Markdown-Safe Comments",
+      "command": "comments add",
+      "description": "Add a comment to a Linear issue, taking the body inline, from a file, or from stdin so markdown and shell metacharacters survive intact."
     }
-  ],
-  "description": "Offline-capable, agent-native CLI for the Linear API with SQLite-backed sync, FTS5 search, cross-cycle comparison, project burndown, and pp_created fixture lifecycle for safe live testing."
+  ]
 }

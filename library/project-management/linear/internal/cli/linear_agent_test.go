@@ -193,19 +193,34 @@ func TestProjectsSearchFindsNamedProjectByTeam(t *testing.T) {
 	if err != nil {
 		t.Fatalf("projects search failed: %v\n%s", err, out)
 	}
-	var got []struct {
-		ID   string `json:"id"`
-		Name string `json:"name"`
-		Team struct {
-			Key string `json:"key"`
-		} `json:"team"`
-		URL string `json:"url"`
+	var got struct {
+		Results []struct {
+			ID   string `json:"id"`
+			Name string `json:"name"`
+			Team struct {
+				Key string `json:"key"`
+			} `json:"team"`
+			URL string `json:"url"`
+		} `json:"results"`
+		Meta struct {
+			Source       string `json:"source"`
+			ResourceType string `json:"resource_type"`
+			Count        int    `json:"count"`
+			Query        string `json:"query"`
+			TeamScope    string `json:"team_scope"`
+		} `json:"meta"`
 	}
 	if err := json.Unmarshal([]byte(out), &got); err != nil {
 		t.Fatalf("projects search output is not JSON: %v\n%s", err, out)
 	}
-	if len(got) != 1 || got[0].ID != "11111111-1111-1111-1111-111111111111" || got[0].Team.Key != "SYMPH" {
+	if len(got.Results) != 1 || got.Results[0].ID != "11111111-1111-1111-1111-111111111111" || got.Results[0].Team.Key != "SYMPH" {
 		t.Fatalf("unexpected project search results: %s", out)
+	}
+	if got.Meta.Source != "live" || got.Meta.ResourceType != "projects" || got.Meta.Count != 1 || got.Meta.TeamScope != "SYMPH" {
+		t.Fatalf("projects search envelope meta is wrong: %s", out)
+	}
+	if got.Meta.Query != "Autonomous Backlog Manager & Dispatch Governance" {
+		t.Fatalf("projects search envelope lost the query: %s", out)
 	}
 }
 
@@ -230,11 +245,13 @@ func TestProjectsSearchServerFilterUsesNameTerms(t *testing.T) {
 	if err != nil {
 		t.Fatalf("projects search failed: %v\n%s", err, out)
 	}
-	var got []portfolioProjectRef
+	var got struct {
+		Results []portfolioProjectRef `json:"results"`
+	}
 	if err := json.Unmarshal([]byte(out), &got); err != nil {
 		t.Fatalf("projects search output is not JSON: %v\n%s", err, out)
 	}
-	if len(got) != 1 || got[0].Name != "Dispatch   Governance" {
+	if len(got.Results) != 1 || got.Results[0].Name != "Dispatch   Governance" {
 		t.Fatalf("unexpected normalized project search results: %s", out)
 	}
 }
@@ -276,18 +293,27 @@ func TestProjectsListReturnsAllPages(t *testing.T) {
 	if err != nil {
 		t.Fatalf("projects list failed: %v\n%s", err, out)
 	}
-	var got []struct {
-		ID   string `json:"id"`
-		Name string `json:"name"`
-		Team struct {
-			Key string `json:"key"`
-		} `json:"team"`
+	var got struct {
+		Results []struct {
+			ID   string `json:"id"`
+			Name string `json:"name"`
+			Team struct {
+				Key string `json:"key"`
+			} `json:"team"`
+		} `json:"results"`
+		Meta struct {
+			Source string `json:"source"`
+			Count  int    `json:"count"`
+		} `json:"meta"`
 	}
 	if err := json.Unmarshal([]byte(out), &got); err != nil {
 		t.Fatalf("projects list output is not JSON: %v\n%s", err, out)
 	}
-	if calls != 2 || len(got) != 2 || got[0].Name != "Alpha" || got[1].Team.Key != "MOB" {
+	if calls != 2 || len(got.Results) != 2 || got.Results[0].Name != "Alpha" || got.Results[1].Team.Key != "MOB" {
 		t.Fatalf("unexpected projects list calls=%d results=%s", calls, out)
+	}
+	if got.Meta.Source != "live" || got.Meta.Count != 2 {
+		t.Fatalf("projects list envelope meta is wrong: %s", out)
 	}
 }
 
@@ -305,11 +331,19 @@ func TestProjectsListTeamFilterReturnsEmptyArray(t *testing.T) {
 	if err != nil {
 		t.Fatalf("projects list empty team failed: %v\n%s", err, out)
 	}
-	var got []portfolioProjectRef
+	var got struct {
+		Results []portfolioProjectRef `json:"results"`
+		Meta    struct {
+			Count int `json:"count"`
+		} `json:"meta"`
+	}
 	if err := json.Unmarshal([]byte(out), &got); err != nil {
 		t.Fatalf("projects list empty team output is not JSON: %v\n%s", err, out)
 	}
-	if len(got) != 0 {
+	if got.Results == nil {
+		t.Fatalf("projects list empty team must emit an empty array, not null: %s", out)
+	}
+	if len(got.Results) != 0 || got.Meta.Count != 0 {
 		t.Fatalf("projects list empty team returned results: %s", out)
 	}
 }
@@ -428,17 +462,28 @@ func TestInitiativesSearchFindsNamedInitiative(t *testing.T) {
 	if err != nil {
 		t.Fatalf("initiatives search failed: %v\n%s", err, out)
 	}
-	var got []struct {
-		ID     string `json:"id"`
-		Name   string `json:"name"`
-		Status string `json:"status"`
-		URL    string `json:"url"`
+	var got struct {
+		Results []struct {
+			ID     string `json:"id"`
+			Name   string `json:"name"`
+			Status string `json:"status"`
+			URL    string `json:"url"`
+		} `json:"results"`
+		Meta struct {
+			Source       string `json:"source"`
+			ResourceType string `json:"resource_type"`
+			Count        int    `json:"count"`
+			Query        string `json:"query"`
+		} `json:"meta"`
 	}
 	if err := json.Unmarshal([]byte(out), &got); err != nil {
 		t.Fatalf("initiatives search output is not JSON: %v\n%s", err, out)
 	}
-	if len(got) != 1 || got[0].ID != "33333333-3333-3333-3333-333333333333" || got[0].URL == "" {
+	if len(got.Results) != 1 || got.Results[0].ID != "33333333-3333-3333-3333-333333333333" || got.Results[0].URL == "" {
 		t.Fatalf("unexpected initiative search results: %s", out)
+	}
+	if got.Meta.Source != "live" || got.Meta.ResourceType != "initiatives" || got.Meta.Count != 1 || got.Meta.Query != "Dispatch Governance" {
+		t.Fatalf("initiatives search envelope meta is wrong: %s", out)
 	}
 }
 
@@ -456,11 +501,19 @@ func TestInitiativesSearchEmptyResultsReturnsEmptyArray(t *testing.T) {
 	if err != nil {
 		t.Fatalf("initiatives search empty failed: %v\n%s", err, out)
 	}
-	var got []portfolioInitiativeRef
+	var got struct {
+		Results []portfolioInitiativeRef `json:"results"`
+		Meta    struct {
+			Count int `json:"count"`
+		} `json:"meta"`
+	}
 	if err := json.Unmarshal([]byte(out), &got); err != nil {
 		t.Fatalf("initiatives search empty output is not JSON: %v\n%s", err, out)
 	}
-	if len(got) != 0 {
+	if got.Results == nil {
+		t.Fatalf("initiatives search empty must emit an empty array, not null: %s", out)
+	}
+	if len(got.Results) != 0 || got.Meta.Count != 0 {
 		t.Fatalf("initiatives search empty returned results: %s", out)
 	}
 }
@@ -492,16 +545,25 @@ func TestInitiativesListReturnsNamedInitiatives(t *testing.T) {
 	if err != nil {
 		t.Fatalf("initiatives list failed: %v\n%s", err, out)
 	}
-	var got []struct {
-		ID     string `json:"id"`
-		Name   string `json:"name"`
-		Status string `json:"status"`
+	var got struct {
+		Results []struct {
+			ID     string `json:"id"`
+			Name   string `json:"name"`
+			Status string `json:"status"`
+		} `json:"results"`
+		Meta struct {
+			Source string `json:"source"`
+			Count  int    `json:"count"`
+		} `json:"meta"`
 	}
 	if err := json.Unmarshal([]byte(out), &got); err != nil {
 		t.Fatalf("initiatives list output is not JSON: %v\n%s", err, out)
 	}
-	if len(got) != 2 || got[0].Name != "Backlog Cleanup" || got[1].Name != "Dispatch Governance" {
+	if len(got.Results) != 2 || got.Results[0].Name != "Backlog Cleanup" || got.Results[1].Name != "Dispatch Governance" {
 		t.Fatalf("unexpected initiative list results: %s", out)
+	}
+	if got.Meta.Source != "live" || got.Meta.Count != 2 {
+		t.Fatalf("initiatives list envelope meta is wrong: %s", out)
 	}
 }
 

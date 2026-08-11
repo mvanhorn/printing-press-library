@@ -87,6 +87,9 @@ func (c *Client) PaginatedQuery(query string, variables map[string]any, fieldPat
 }
 
 // PaginatedQueryMax is like PaginatedQuery but stops after maxPages pages (0 = unlimited).
+// In dry-run mode the first page prints the request and yields an empty payload,
+// so the loop stops there and returns the nodes collected so far with a nil
+// error rather than failing to decode the dry-run envelope.
 func (c *Client) PaginatedQueryMax(query string, variables map[string]any, fieldPath string, pageSize int, maxPages int) ([]json.RawMessage, error) {
 	if variables == nil {
 		variables = map[string]any{}
@@ -103,6 +106,9 @@ func (c *Client) PaginatedQueryMax(query string, variables map[string]any, field
 		data, err := c.Query(query, variables)
 		if err != nil {
 			return all, err
+		}
+		if c.DryRun || len(data) == 0 {
+			return all, nil
 		}
 
 		// Navigate to the connection field

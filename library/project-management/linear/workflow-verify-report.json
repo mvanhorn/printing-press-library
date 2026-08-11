@@ -1,5 +1,5 @@
 {
-  "dir": "\u003ccli-dir\u003e/linear",
+  "dir": "\u003ccli-dir\u003e",
   "workflows": null,
   "verdict": "workflow-pass",
   "issues": [

@@ -1,6 +1,6 @@
 {
-  "dir": "\u003ccli-dir\u003e/linear",
-  "verdict": "PASS",
+  "dir": "\u003ccli-dir\u003e",
+  "verdict": "WARN",
   "path_check": {
     "tested": 0,
     "valid": 0,
@@ -17,13 +17,22 @@
     "pass": true,
     "detail": "spec not provided; browser-session auth check skipped"
   },
+  "oauth_scope_coverage_check": {
+    "checked": 0,
+    "covered": 0,
+    "skipped": true,
+    "detail": "spec not provided; OAuth scope coverage check skipped"
+  },
   "dead_flags": {
     "total": 23,
     "dead": 0
   },
   "dead_functions": {
-    "total": 57,
-    "dead": 0
+    "total": 59,
+    "dead": 1,
+    "items": [
+      "rawAtPath"
+    ]
   },
   "pipeline_check": {
     "sync_calls_domain": true,
@@ -41,8 +50,8 @@
   },
   "wiring_check": {
     "command_tree": {
-      "defined": 78,
-      "registered": 78
+      "defined": 191,
+      "registered": 191
     },
     "config_consistency": {
       "consistent": true
@@ -55,8 +64,8 @@
     }
   },
   "novel_features_check": {
-    "planned": 13,
-    "found": 13
+    "planned": 25,
+    "found": 25
   },
   "mcp_surface_parity": {
     "state": "runtime_walking",
@@ -64,21 +73,30 @@
     "detail": "MCP surface mirrors the Cobra tree at runtime"
   },
   "reimplementation_check": {
-    "checked": 13,
-    "exempted_via_store": 11
+    "checked": 25,
+    "exempted_via_store": 17,
+    "exempted_via_computed_data_source": 5
+  },
+  "description_drift_check": {
+    "expected": "Offline-capable, agent-native Linear CLI with SQLite-backed sync, FTS5 search, cross-cycle comparison, project burndown projection, and a pp_created fixture-lifecycle contract that lets agents mutate real workspaces safely."
   },
   "source_client_check": {
+    "checked": 1
+  },
+  "print_json_filtered_check": {
+    "checked": 94
+  },
+  "test_presence": {
+    "checked": 1
+  },
+  "naming_check": {
+    "checked": 94
+  },
+  "sync_param_drop_check": {
     "checked": 0,
     "skipped": true
   },
-  "print_json_filtered_check": {
-    "checked": 66
-  },
-  "test_presence": {
-    "checked": 0
-  },
-  "naming_check": {
-    "checked": 66
-  },
-  "issues": null
+  "issues": [
+    "1 dead helper functions found"
+  ]
 }
