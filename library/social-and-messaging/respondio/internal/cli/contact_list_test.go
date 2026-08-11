@@ -9,6 +9,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -30,14 +31,17 @@ func writeContactListConfig(t *testing.T, baseURL string) string {
 
 // TestContactList_AllPaginates asserts that `contact list --all` walks the
 // Respond.io integer cursor: page 1 returns pagination.next=2, the loop must
-// re-POST with cursorId=2 and accumulate page 2, producing both items in the
-// output.
+// re-request with cursorId=2 in the query string (the API ignores a body
+// cursorId) and accumulate page 2, producing both items in the output. It also
+// pins the required wildcard body the API rejects the request without.
 func TestContactList_AllPaginates(t *testing.T) {
 	var requests []map[string]any
+	var queries []string
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var body map[string]any
 		_ = json.NewDecoder(r.Body).Decode(&body)
 		requests = append(requests, body)
+		queries = append(queries, r.URL.RawQuery)
 		if len(requests) == 1 {
 			w.Write([]byte(`{"items":[{"id":1}],"pagination":{"next":2}}`))
 			return
@@ -83,14 +87,103 @@ func TestContactList_AllPaginates(t *testing.T) {
 	if len(requests) != 2 {
 		t.Fatalf("requests = %d, want 2\noutput=%s", len(requests), out.String())
 	}
-	if v, ok := requests[1]["cursorId"]; !ok {
-		t.Fatalf("second request body has no cursorId: %v", requests[1])
-	} else if n, ok := v.(float64); !ok || n != 2 {
-		t.Fatalf("second request cursorId = %v (%T), want float64(2)", v, v)
+	// The cursor advances through the query string; Respond.io silently
+	// ignores a body cursorId, so a body-threaded cursor loops on page one.
+	q, err := url.ParseQuery(queries[1])
+	if err != nil {
+		t.Fatalf("parse second request query %q: %v", queries[1], err)
 	}
-	// First request must NOT carry a cursorId.
+	if got := q.Get("cursorId"); got != "2" {
+		t.Fatalf("second request cursorId query param = %q, want %q (query=%q)", got, "2", queries[1])
+	}
+	if _, ok := requests[1]["cursorId"]; ok {
+		t.Fatalf("second request must not carry a body cursorId: %v", requests[1])
+	}
+	// First request must NOT carry a cursorId at all.
+	if q0, err := url.ParseQuery(queries[0]); err != nil {
+		t.Fatalf("parse first request query %q: %v", queries[0], err)
+	} else if q0.Has("cursorId") {
+		t.Fatalf("first request carried an unexpected cursorId query param: %q", queries[0])
+	}
 	if _, ok := requests[0]["cursorId"]; ok {
 		t.Fatalf("first request carried an unexpected cursorId: %v", requests[0])
+	}
+	// Every request must carry the wildcard search/filter/timezone trio the
+	// API rejects the call without.
+	for i, body := range requests {
+		for _, key := range []string{"search", "filter", "timezone"} {
+			if _, ok := body[key]; !ok {
+				t.Fatalf("request %d body missing required %q: %v", i, key, body)
+			}
+		}
+	}
+}
+
+// TestContactList_AllPaginates_URLValuedNextCursor covers the live Respond.io
+// shape where pagination.next is a full URL rather than a bare integer: the
+// loop must pull cursorId out of that URL's query string and keep paging.
+func TestContactList_AllPaginates_URLValuedNextCursor(t *testing.T) {
+	var queries []string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		queries = append(queries, r.URL.RawQuery)
+		if len(queries) == 1 {
+			w.Write([]byte(`{"items":[{"id":1}],"pagination":{"next":"https://api.respond.io/v2/contact/list?limit=100&cursorId=77"}}`))
+			return
+		}
+		w.Write([]byte(`{"items":[{"id":2}],"pagination":{"next":null}}`))
+	}))
+	defer srv.Close()
+
+	cfgPath := writeContactListConfig(t, srv.URL)
+
+	cmd := RootCmd()
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&out)
+	cmd.SetArgs([]string{"contact", "list", "--all", "--config", cfgPath, "--agent"})
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("execute: %v\noutput=%s", err, out.String())
+	}
+
+	if len(queries) != 2 {
+		t.Fatalf("requests = %d, want 2 (URL-valued cursor must advance the loop)\noutput=%s", len(queries), out.String())
+	}
+	q, err := url.ParseQuery(queries[1])
+	if err != nil {
+		t.Fatalf("parse second request query %q: %v", queries[1], err)
+	}
+	if got := q.Get("cursorId"); got != "77" {
+		t.Fatalf("second request cursorId = %q, want %q (query=%q)", got, "77", queries[1])
+	}
+}
+
+// TestContactListNextCursor covers the cursor shapes Respond.io returns in
+// pagination.next, including the terminal values that must stop the loop.
+func TestContactListNextCursor(t *testing.T) {
+	cases := []struct {
+		name string
+		raw  string
+		want string
+	}{
+		{"integer", `5`, "5"},
+		{"zero terminates", `0`, ""},
+		{"negative terminates", `-1`, ""},
+		{"null terminates", `null`, ""},
+		{"absent terminates", ``, ""},
+		{"empty string terminates", `""`, ""},
+		{"absolute url", `"https://api.respond.io/v2/contact/list?limit=100&cursorId=42"`, "42"},
+		{"relative url", `"/v2/contact/list?cursorId=9"`, "9"},
+		{"url without cursor terminates", `"https://api.respond.io/v2/contact/list?limit=100"`, ""},
+		{"numeric string", `"12"`, "12"},
+		{"opaque token terminates", `"abc"`, ""},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := contactListNextCursor(json.RawMessage(tc.raw))
+			if got != tc.want {
+				t.Fatalf("contactListNextCursor(%s) = %q, want %q", tc.raw, got, tc.want)
+			}
+		})
 	}
 }
 

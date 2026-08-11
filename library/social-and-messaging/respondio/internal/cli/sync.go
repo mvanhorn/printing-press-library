@@ -1103,11 +1103,14 @@ func syncResourceMethod(resource string) string {
 func syncResourceBodyParamTypes(resource string) map[string]string {
 	switch resource {
 	case "contact":
+		// PATCH(amend-2026-08-11: query-only pagination params) — limit and
+		// cursorId are deliberately absent. Respond.io only honors them as
+		// query parameters; a body limit is silently ignored and every page
+		// comes back at the server default of 10, so leaving them out here
+		// routes them through splitSyncPostParams into the query string.
 		return map[string]string{
 			"search":   "string",
 			"timezone": "string",
-			"limit":    "int",
-			"cursorId": "int",
 		}
 	}
 	return nil
@@ -1119,8 +1122,6 @@ func syncResourceBodyParamWireNames(resource string) map[string]string {
 		return map[string]string{
 			"search":   "search",
 			"timezone": "timezone",
-			"limit":    "limit",
-			"cursorId": "cursorId",
 		}
 	}
 	return nil
@@ -1146,6 +1147,17 @@ func coerceSyncBodyParam(value string, typ string) any {
 
 func syncResourceStaticBody(resource string) map[string]any {
 	switch resource {
+	case "contact":
+		// PATCH(amend-2026-08-11: required wildcard list body) — Respond.io
+		// rejects POST /contact/list with HTTP 400 ("Please check if filter is
+		// provided") unless search, filter, and timezone are all present. An
+		// empty search plus a wildcard $and filter matches every contact, so
+		// this is the neutral full-sync body.
+		return map[string]any{
+			"search":   "",
+			"filter":   map[string]any{"$and": []any{}},
+			"timezone": "UTC",
+		}
 	}
 	return map[string]any{}
 }
@@ -1590,6 +1602,16 @@ func extractPaginationFromEnvelope(envelope map[string]json.RawMessage, cursorPa
 			var inner map[string]json.RawMessage
 			if json.Unmarshal(rawWrapper, &inner) != nil {
 				continue
+			}
+			// PATCH(amend-2026-08-11: URL-valued wrapper cursors) — a wrapper
+			// "next" may hold a full URL rather than a bare token
+			// (Respond.io: {"pagination":{"next":"https://...&cursorId=N"}}),
+			// so pull the cursor out of its query string first. This must run
+			// before the name-based scan because "next" is in cursorKeys and
+			// would otherwise return the entire URL as the cursor value.
+			if c := nextCursorFromTopLevelURL(inner, cursorParam); c != "" {
+				nextCursor = c
+				break
 			}
 			if c := findCursorInMap(inner, cursorKeys); c != "" {
 				nextCursor = c
