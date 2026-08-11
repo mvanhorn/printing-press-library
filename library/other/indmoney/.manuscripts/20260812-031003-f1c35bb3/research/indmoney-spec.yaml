@@ -1,0 +1,101 @@
+name: indmoney
+display_name: INDmoney
+description: Scrape your INDmoney US stock portfolio, holdings, P&L, and order history.
+category: other
+cli_description: Scrape your INDmoney US stock portfolio, holdings, P&L, and full buy/sell order history.
+
+base_url: https://apixt-us.indmoney.com/us-stock-broker/us
+
+auth:
+  type: bearer_token
+  header: Authorization
+  env_vars:
+    - INDMONEY_TOKEN
+  description: >
+    INDmoney uses the "token" cookie (a JWT) from the browser session as a
+    Bearer token in the Authorization header. Run `auth login --chrome` to
+    extract the token cookie from your logged-in Chrome/ego-browser session.
+    The token expires every ~9 hours; re-run auth login to refresh.
+    You can also set INDMONEY_TOKEN manually by extracting the cookie value.
+
+headers:
+  platform: web
+
+resources:
+  portfolio:
+    description: US stock portfolio summary with holdings and P&L
+    endpoints:
+      summary:
+        method: GET
+        path: /portfolio/equity/summary
+        description: Get portfolio summary including current value, invested value, overall P&L, and per-stock holdings breakdown.
+        params:
+          - name: response_format
+            type: string
+            required: true
+            default: json
+            description: Response format (always json)
+        response_format: json
+        no_auth: false
+
+  orders:
+    description: US stock order history (all buys and sells)
+    endpoints:
+      summary:
+        method: GET
+        path: /portfolio/orders/summary
+        description: Get complete order history with transaction type, quantity, avg price, and status.
+        params:
+          - name: page
+            type: integer
+            required: true
+            default: 1
+            description: Page number for pagination
+          - name: limit
+            type: integer
+            required: true
+            default: 50
+            description: Number of orders per page
+          - name: tabId
+            type: integer
+            required: true
+            default: 4
+            description: Tab filter (4 = All Orders)
+          - name: filterId
+            type: integer
+            required: true
+            default: 1
+            description: Additional filter (1 = default)
+          - name: response_format
+            type: string
+            required: true
+            default: json
+            description: Response format (always json)
+        response_format: json
+        no_auth: false
+
+  indices:
+    description: US market indices with live prices
+    endpoints:
+      list:
+        method: GET
+        path: /catalog/indices
+        description: Get live prices for major US market indices (Nasdaq, S&P 500, Dow Jones, etc.) and market status.
+        params:
+          - name: segment
+            type: string
+            required: true
+            default: cash
+            description: Market segment
+          - name: mkt-status-required
+            type: boolean
+            required: true
+            default: true
+            description: Include market status details
+          - name: require_live_feed
+            type: boolean
+            required: true
+            default: true
+            description: Include live feed data
+        response_format: json
+        no_auth: false

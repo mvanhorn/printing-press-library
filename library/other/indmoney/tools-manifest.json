@@ -1,0 +1,113 @@
+{
+  "api_name": "indmoney",
+  "base_url": "https://apixt-us.indmoney.com/us-stock-broker/us",
+  "description": "Scrape your INDmoney US stock portfolio, holdings, and full trade history from the terminal.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "INDMONEY_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "INDMONEY_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "indices_list",
+      "description": "Get live prices for major US market indices (Nasdaq, S\u0026P 500, Dow Jones, etc.) and market status. Required: segment (default: cash), mkt-status-required (default: true), require_live_feed (default: true).",
+      "method": "GET",
+      "path": "/catalog/indices",
+      "params": [
+        {
+          "name": "segment",
+          "type": "string",
+          "location": "query",
+          "description": "Market segment",
+          "required": true
+        },
+        {
+          "name": "mkt-status-required",
+          "type": "boolean",
+          "location": "query",
+          "description": "Include market status details",
+          "required": true
+        },
+        {
+          "name": "require_live_feed",
+          "type": "boolean",
+          "location": "query",
+          "description": "Include live feed data",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "orders_summary",
+      "description": "Get complete order history with transaction type, quantity, avg price, and status. Required: page (default: 1), limit (default: 50), tabId (default: 4), filterId (default: 1), response_format (default: json).",
+      "method": "GET",
+      "path": "/portfolio/orders/summary",
+      "params": [
+        {
+          "name": "page",
+          "type": "integer",
+          "location": "query",
+          "description": "Page number for pagination",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "integer",
+          "location": "query",
+          "description": "Number of orders per page",
+          "required": true
+        },
+        {
+          "name": "tabId",
+          "type": "integer",
+          "location": "query",
+          "description": "Tab filter (4 = All Orders)",
+          "required": true
+        },
+        {
+          "name": "filterId",
+          "type": "integer",
+          "location": "query",
+          "description": "Additional filter (1 = default)",
+          "required": true
+        },
+        {
+          "name": "response_format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format (always json)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "portfolio_summary",
+      "description": "Get portfolio summary including current value, invested value, overall P\u0026L, and per-stock holdings breakdown. Required: response_format (default: json).",
+      "method": "GET",
+      "path": "/portfolio/equity/summary",
+      "params": [
+        {
+          "name": "response_format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format (always json)",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

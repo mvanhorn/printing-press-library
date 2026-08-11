@@ -1,0 +1,184 @@
+{
+  "api_name": "indmoney",
+  "novelty_score": 7,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-12T03:10:00Z",
+  "novel_features": [
+    {
+      "name": "Portfolio Summary with Per-Stock P&L",
+      "command": "portfolio summary",
+      "description": "See your total invested value, current value, overall P&L, and day change across all US stock holdings.",
+      "rationale": "Aggregates portfolio data from INDmoney's private API into a clean terminal table or JSON for agents.",
+      "example": "indmoney-pp-cli portfolio summary --json",
+      "why_it_matters": "Get instant portfolio overview without opening the INDmoney app.",
+      "group": "Portfolio visibility"
+    },
+    {
+      "name": "Holdings Detail",
+      "command": "portfolio holdings",
+      "description": "List every stock you hold with quantity, avg price, current value, unrealised gains, and day P&L.",
+      "rationale": "Per-stock breakdown with both metadata (sector, analyst rating) and holdings data in one query.",
+      "example": "indmoney-pp-cli portfolio holdings --select name,quantity,overall_pnl --json",
+      "why_it_matters": "Filter and sort holdings by any field without the INDmoney UI's fixed views.",
+      "group": "Portfolio visibility"
+    },
+    {
+      "name": "Full Order History",
+      "command": "orders list",
+      "description": "Every buy and sell order you have placed, with transaction type, quantity, avg price, and status.",
+      "rationale": "Complete trade history from INDmoney's order API, filterable and exportable.",
+      "example": "indmoney-pp-cli orders list --limit 100 --json",
+      "why_it_matters": "Export your full trade history for tax reporting or analysis in one command.",
+      "group": "Trade history"
+    },
+    {
+      "name": "Sync to Local SQLite",
+      "command": "sync",
+      "description": "Download all portfolio data and order history into a local SQLite database for offline analysis.",
+      "rationale": "Local store enables SQL queries, historical tracking, and offline access to your portfolio data.",
+      "example": "indmoney-pp-cli sync --db ~/my-portfolio.db",
+      "why_it_matters": "Build a local historical record of your portfolio snapshots and query it with SQL.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Market Indices Snapshot",
+      "command": "indices list",
+      "description": "Live prices for Nasdaq, S&P 500, Dow Jones, and other US indices with market status.",
+      "rationale": "Contextualize your portfolio performance against the broader market.",
+      "example": "indmoney-pp-cli indices list",
+      "why_it_matters": "Quick market context before making trading decisions.",
+      "group": "Market context"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Portfolio Summary with Per-Stock P&L",
+      "command": "portfolio summary",
+      "description": "See your total invested value, current value, overall P&L, and day change across all US stock holdings.",
+      "rationale": "Aggregates portfolio data from INDmoney's private API into a clean terminal table or JSON for agents.",
+      "example": "indmoney-pp-cli portfolio summary --json",
+      "why_it_matters": "Get instant portfolio overview without opening the INDmoney app.",
+      "group": "Portfolio visibility"
+    },
+    {
+      "name": "Holdings Detail",
+      "command": "portfolio holdings",
+      "description": "List every stock you hold with quantity, avg price, current value, unrealised gains, and day P&L.",
+      "rationale": "Per-stock breakdown with both metadata (sector, analyst rating) and holdings data in one query.",
+      "example": "indmoney-pp-cli portfolio holdings --select name,quantity,overall_pnl --json",
+      "why_it_matters": "Filter and sort holdings by any field without the INDmoney UI's fixed views.",
+      "group": "Portfolio visibility"
+    },
+    {
+      "name": "Full Order History",
+      "command": "orders list",
+      "description": "Every buy and sell order you have placed, with transaction type, quantity, avg price, and status.",
+      "rationale": "Complete trade history from INDmoney's order API, filterable and exportable.",
+      "example": "indmoney-pp-cli orders list --limit 100 --json",
+      "why_it_matters": "Export your full trade history for tax reporting or analysis in one command.",
+      "group": "Trade history"
+    },
+    {
+      "name": "Sync to Local SQLite",
+      "command": "sync",
+      "description": "Download all portfolio data and order history into a local SQLite database for offline analysis.",
+      "rationale": "Local store enables SQL queries, historical tracking, and offline access to your portfolio data.",
+      "example": "indmoney-pp-cli sync --db ~/my-portfolio.db",
+      "why_it_matters": "Build a local historical record of your portfolio snapshots and query it with SQL.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Market Indices Snapshot",
+      "command": "indices list",
+      "description": "Live prices for Nasdaq, S&P 500, Dow Jones, and other US indices with market status.",
+      "rationale": "Contextualize your portfolio performance against the broader market.",
+      "example": "indmoney-pp-cli indices list",
+      "why_it_matters": "Quick market context before making trading decisions.",
+      "group": "Market context"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "INDMONEY_TOKEN"
+  },
+  "narrative": {
+    "display_name": "INDmoney",
+    "headline": "Scrape your INDmoney US stock portfolio, holdings, and full trade history from the terminal.",
+    "value_prop": "Pull your complete portfolio summary, per-stock P&L, and every buy/sell order from INDmoney's private API. Sync to local SQLite for offline analysis, SQL queries, and historical tracking — no spreadsheet exports needed.",
+    "auth_narrative": "INDmoney authenticates via a JWT stored in the 'token' browser cookie. Extract the token cookie value from your logged-in browser session (DevTools > Application > Cookies > token), then run `auth set-token <token>` or set the INDMONEY_TOKEN env var. The token expires every ~9 hours; extract and set a fresh one to refresh.",
+    "quickstart": [
+      {
+        "command": "indmoney-pp-cli doctor --dry-run",
+        "comment": "Verify the CLI is ready before authenticating"
+      },
+      {
+        "command": "indmoney-pp-cli auth set-token <token>",
+        "comment": "Set your INDmoney token (extract from browser cookies)"
+      },
+      {
+        "command": "indmoney-pp-cli portfolio summary",
+        "comment": "See your total portfolio value and P&L"
+      },
+      {
+        "command": "indmoney-pp-cli orders list --json",
+        "comment": "Export your full trade history as JSON"
+      },
+      {
+        "command": "indmoney-pp-cli sync",
+        "comment": "Save everything to local SQLite for offline analysis"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "HTTP 400: Device Type doesn't exist",
+        "fix": "The platform header is missing or token is malformed. Re-extract the token cookie and run auth set-token again."
+      },
+      {
+        "symptom": "HTTP 512: Auth returned with status false",
+        "fix": "Your token expired (9h lifetime). Extract a fresh token cookie from the browser and run auth set-token again."
+      },
+      {
+        "symptom": "HTTP 401 or empty results",
+        "fix": "Token not set. Run auth set-token <token> or set INDMONEY_TOKEN env var with the token cookie value."
+      }
+    ],
+    "when_to_use": "Use this CLI when you want to check your INDmoney US stock portfolio, export your trade history, or sync portfolio data locally for analysis. Ideal for tax reporting, performance tracking, and building a local historical record.",
+    "anti_triggers": [
+      "Placing new buy/sell orders (use the INDmoney app)",
+      "Indian stock or mutual fund portfolios (this CLI covers US stocks only)",
+      "Real-time price alerts (use the INDmoney app's notification system)"
+    ],
+    "recipes": [
+      {
+        "title": "Portfolio overview",
+        "command": "indmoney-pp-cli portfolio summary",
+        "explanation": "Get total invested value, current value, and overall P&L in one call."
+      },
+      {
+        "title": "Export all holdings as JSON",
+        "command": "indmoney-pp-cli portfolio holdings --json",
+        "explanation": "Every stock with quantity, avg price, current value, and P&L for piping into jq or a spreadsheet."
+      },
+      {
+        "title": "Full trade history",
+        "command": "indmoney-pp-cli orders list --limit 200 --json --select name,transaction_type,qty,avg_price,date",
+        "explanation": "Every buy and sell with key fields only, ready for tax reporting."
+      },
+      {
+        "title": "Sync and search locally",
+        "command": "indmoney-pp-cli sync && indmoney-pp-cli search \"GOOGL\" --data-source local",
+        "explanation": "Sync to SQLite, then search your portfolio data offline."
+      }
+    ],
+    "trigger_phrases": [
+      "check my indmoney portfolio",
+      "my us stock holdings",
+      "indmoney order history",
+      "my stock trades",
+      "portfolio pnl",
+      "use indmoney"
+    ]
+  }
+}

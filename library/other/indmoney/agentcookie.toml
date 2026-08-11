@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "indmoney-pp-cli"
+display_name = "INDmoney"
+description = "Scrape your INDmoney US stock portfolio, holdings, and full trade history from the terminal."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/indmoney-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+INDMONEY_TOKEN = true

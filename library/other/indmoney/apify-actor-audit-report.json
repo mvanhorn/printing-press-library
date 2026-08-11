@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/indmoney-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260812-031003-f1c35bb3",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}
