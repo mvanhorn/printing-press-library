@@ -100,6 +100,7 @@ parent and sub-issue links.`,
 	cmd.AddCommand(newIssuesCreateCmd(flags))
 	cmd.AddCommand(newIssuesEditCmd(flags, &dbPath))
 	cmd.AddCommand(newIssuesReadAliasCmd(flags, &dbPath))
+	cmd.AddCommand(newIssuesCloseDuplicateCmd(flags))
 	return cmd
 }
 

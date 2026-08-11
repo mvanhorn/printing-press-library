@@ -318,6 +318,8 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newTodayCmd(flags))
 	rootCmd.AddCommand(newBottleneckCmd(flags))
 	rootCmd.AddCommand(newBlockingCmd(flags))
+	rootCmd.AddCommand(newRelationsCmd(flags))
+	rootCmd.AddCommand(newUnblockedCmd(flags))
 	rootCmd.AddCommand(newSimilarCmd(flags))
 	rootCmd.AddCommand(newVelocityCmd(flags))
 	rootCmd.AddCommand(newSlippedCmd(flags))
