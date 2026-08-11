@@ -100,6 +100,13 @@ parent and sub-issue links.`,
 	cmd.AddCommand(newIssuesCreateCmd(flags))
 	cmd.AddCommand(newIssuesEditCmd(flags, &dbPath))
 	cmd.AddCommand(newIssuesReadAliasCmd(flags, &dbPath))
+	cmd.AddCommand(newIssuesBatchCreateCmd(flags))
+	cmd.AddCommand(newIssuesBatchUpdateCmd(flags))
+	cmd.AddCommand(newIssuesArchiveCmd(flags))
+	cmd.AddCommand(newIssuesUnarchiveCmd(flags))
+	cmd.AddCommand(newIssuesDeleteCmd(flags))
+	cmd.AddCommand(newIssuesSubscribeCmd(flags))
+	cmd.AddCommand(newIssuesUnsubscribeCmd(flags))
 	cmd.AddCommand(newIssuesCloseDuplicateCmd(flags))
 	return cmd
 }

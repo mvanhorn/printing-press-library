@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/project-management/linear/internal/client"
@@ -26,6 +27,10 @@ func newIssuesCreateCmd(flags *rootFlags) *cobra.Command {
 	var mediaPublic bool
 	var dbPath string
 	var session string
+	var dueDateFlag, cycleFlag, milestoneFlag, templateFlag string
+	var estimateFlag int
+	var useDefaultTemplateFlag bool
+	var subscribersFlag []string
 	cmd := &cobra.Command{
 		Use:   "create",
 		Short: "Create a new Linear issue and record it in the pp_created ledger",
@@ -126,8 +131,56 @@ sub-issue under an existing parent.`,
 			if descSet {
 				input["description"] = descBody
 			}
-			if priorityFlag > 0 {
+			// priority is only sent when the flag was explicitly passed.
+			// IssueCreateInput.priority documents 0 as "No priority", so an
+			// unset flag and an explicit zero must stay distinguishable.
+			if cmd.Flags().Changed("priority") {
 				input["priority"] = priorityFlag
+			}
+			if cmd.Flags().Changed("estimate") {
+				if estimateFlag < 0 {
+					return usageErr(fmt.Errorf("--estimate expects a non-negative point value (got %d)", estimateFlag))
+				}
+				input["estimate"] = estimateFlag
+			}
+			if cmd.Flags().Changed("due-date") {
+				due, dueErr := parseTimelessDate("--due-date", dueDateFlag)
+				if dueErr != nil {
+					return dueErr
+				}
+				input["dueDate"] = due
+			}
+			if cycleFlag != "" {
+				if err := requireUUIDFlag("--cycle", "cycle", cycleFlag); err != nil {
+					return err
+				}
+				input["cycleId"] = cycleFlag
+			}
+			if milestoneFlag != "" {
+				if err := requireUUIDFlag("--milestone", "project milestone", milestoneFlag); err != nil {
+					return err
+				}
+				input["projectMilestoneId"] = milestoneFlag
+			}
+			if templateFlag != "" && useDefaultTemplateFlag {
+				return usageErr(fmt.Errorf("pass either --template <uuid> or --use-default-template, not both"))
+			}
+			if templateFlag != "" {
+				if err := requireUUIDFlag("--template", "template", templateFlag); err != nil {
+					return err
+				}
+				input["templateId"] = templateFlag
+			}
+			if cmd.Flags().Changed("use-default-template") {
+				input["useDefaultTemplate"] = useDefaultTemplateFlag
+			}
+			if len(subscribersFlag) > 0 {
+				for _, subscriber := range subscribersFlag {
+					if err := requireUUIDFlag("--subscriber", "user", subscriber); err != nil {
+						return err
+					}
+				}
+				input["subscriberIds"] = subscribersFlag
 			}
 			if assigneeFlag != "" {
 				input["assigneeId"] = assigneeFlag
@@ -388,7 +441,14 @@ sub-issue under an existing parent.`,
 	cmd.Flags().StringVar(&descFlag, "description", "", "Issue description (markdown)")
 	cmd.Flags().StringVar(&descFile, "description-file", "", "Read issue description markdown from file")
 	cmd.Flags().BoolVar(&descStdin, "description-stdin", false, "Read issue description markdown from stdin")
-	cmd.Flags().IntVar(&priorityFlag, "priority", 0, "Priority: 1=Urgent, 2=High, 3=Medium, 4=Low (0=None)")
+	cmd.Flags().IntVar(&priorityFlag, "priority", 0, "Priority: 1=Urgent, 2=High, 3=Medium, 4=Low (0=None). Only sent when the flag is passed, so --priority 0 is an explicit \"No priority\"")
+	cmd.Flags().IntVar(&estimateFlag, "estimate", 0, "Estimate points. Only sent when the flag is passed, so --estimate 0 is an explicit zero")
+	cmd.Flags().StringVar(&dueDateFlag, "due-date", "", "Due date as YYYY-MM-DD (TimelessDate). A timestamp is rejected")
+	cmd.Flags().StringVar(&cycleFlag, "cycle", "", "Cycle UUID to file the new issue into")
+	cmd.Flags().StringVar(&milestoneFlag, "milestone", "", "Project milestone UUID (projectMilestoneId)")
+	cmd.Flags().StringVar(&templateFlag, "template", "", "Template UUID to create from. Every other flag you pass explicitly overrides the matching template value")
+	cmd.Flags().BoolVar(&useDefaultTemplateFlag, "use-default-template", false, "Create from the team's default template. Every other flag you pass explicitly overrides the matching template value")
+	cmd.Flags().StringSliceVar(&subscribersFlag, "subscriber", nil, "Subscriber user UUIDs (repeatable)")
 	cmd.Flags().StringVar(&assigneeFlag, "assignee", "", "Assignee user UUID")
 	cmd.Flags().StringVar(&projectFlag, "project", "", "Project UUID")
 	cmd.Flags().StringVar(&projectNameFlag, "project-name", "", "Resolve and attach project by exact name")
@@ -431,4 +491,30 @@ func resolveTeam(db *store.Store, keyOrID string) (issueTeamInfo, bool) {
 		}
 	}
 	return issueTeamInfo{}, false
+}
+
+// parseTimelessDate validates a TimelessDate flag value. Linear's
+// TimelessDate scalar is a calendar day with no clock component, so a
+// timestamp is rejected outright instead of being silently truncated.
+func parseTimelessDate(flagName, value string) (string, error) {
+	trimmed := strings.TrimSpace(value)
+	if trimmed == "" {
+		return "", usageErr(fmt.Errorf("%s expects a date in YYYY-MM-DD form (got an empty value)", flagName))
+	}
+	if len(trimmed) != len("2006-01-02") {
+		return "", usageErr(fmt.Errorf("%s expects a date-only value in YYYY-MM-DD form, not a timestamp (got %q)", flagName, value))
+	}
+	if _, err := time.Parse("2006-01-02", trimmed); err != nil {
+		return "", usageErr(fmt.Errorf("%s expects a date in YYYY-MM-DD form (got %q)", flagName, value))
+	}
+	return trimmed, nil
+}
+
+// requireUUIDFlag rejects a non-UUID value for a flag whose Linear input
+// field only accepts an object id.
+func requireUUIDFlag(flagName, subject, value string) error {
+	if store.IsUUID(value) {
+		return nil
+	}
+	return usageErr(fmt.Errorf("%s expects a %s UUID (got %q)", flagName, subject, value))
 }

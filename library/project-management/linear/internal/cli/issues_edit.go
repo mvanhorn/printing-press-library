@@ -20,6 +20,14 @@ func newIssuesEditCmd(flags *rootFlags, dbPath *string) *cobra.Command {
 	var labelsFlag []string
 	var mediaFlag []string
 	var mediaPublic bool
+	var appendFlags descriptionAppendFlags
+	var dueDateFlag, cycleFlag, milestoneFlag, teamFlag string
+	var estimateFlag int
+	var subscribersFlag []string
+	var addLabelsFlag, removeLabelsFlag []string
+	var teamNeedsLiveResolve bool
+	var existingDescription string
+	var existingDescriptionLoaded bool
 	cmd := &cobra.Command{
 		Use:   "edit <issue-id>",
 		Short: "Edit a Linear issue",
@@ -36,7 +44,11 @@ Use --parent with an issue identifier or UUID to set/change parentage. Use
   linear-pp-cli issues edit ENG-123 --state-name "In Progress" --agent
   linear-pp-cli issues edit ENG-123 --state-type started --agent
   linear-pp-cli issues edit ENG-123 --parent ENG-100 --agent
-  linear-pp-cli issues edit ENG-123 --no-parent --agent`,
+  linear-pp-cli issues edit ENG-123 --no-parent --agent
+  linear-pp-cli issues edit ENG-123 --due-date 2026-09-30 --estimate 3 --agent
+  linear-pp-cli issues edit ENG-123 --add-label <label-uuid> --remove-label <label-uuid> --agent
+  linear-pp-cli issues edit ENG-123 --team OPS --agent
+  linear-pp-cli issues edit ENG-123 --description-append "Update: shipped behind a flag." --agent`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			input := map[string]any{}
@@ -48,6 +60,55 @@ Use --parent with an issue identifier or UUID to set/change parentage. Use
 			}
 			if cmd.Flags().Changed("priority") {
 				input["priority"] = priorityFlag
+			}
+			if cmd.Flags().Changed("estimate") {
+				if estimateFlag < 0 {
+					return usageErr(fmt.Errorf("--estimate expects a non-negative point value (got %d)", estimateFlag))
+				}
+				input["estimate"] = estimateFlag
+			}
+			if cmd.Flags().Changed("due-date") {
+				due, dueErr := parseTimelessDate("--due-date", dueDateFlag)
+				if dueErr != nil {
+					return dueErr
+				}
+				input["dueDate"] = due
+			}
+			if cycleFlag != "" {
+				if err := requireUUIDFlag("--cycle", "cycle", cycleFlag); err != nil {
+					return err
+				}
+				input["cycleId"] = cycleFlag
+			}
+			if milestoneFlag != "" {
+				if err := requireUUIDFlag("--milestone", "project milestone", milestoneFlag); err != nil {
+					return err
+				}
+				input["projectMilestoneId"] = milestoneFlag
+			}
+			if len(subscribersFlag) > 0 {
+				for _, subscriber := range subscribersFlag {
+					if err := requireUUIDFlag("--subscriber", "user", subscriber); err != nil {
+						return err
+					}
+				}
+				input["subscriberIds"] = subscribersFlag
+			}
+			if teamFlag != "" {
+				// Same two-step team resolution as issues create: the local
+				// teams cache first, a live lookup once the client exists.
+				resolvedTeamID := teamFlag
+				if !store.IsUUID(teamFlag) {
+					teamNeedsLiveResolve = true
+					if db, dbErr := store.Open(resolveDBPath(*dbPath)); dbErr == nil {
+						if resolved, ok := resolveTeam(db, teamFlag); ok {
+							resolvedTeamID = resolved.ID
+							teamNeedsLiveResolve = false
+						}
+						db.Close()
+					}
+				}
+				input["teamId"] = resolvedTeamID
 			}
 			if assigneeFlag != "" {
 				input["assigneeId"] = assigneeFlag
@@ -89,8 +150,17 @@ Use --parent with an issue identifier or UUID to set/change parentage. Use
 			if noParentFlag {
 				input["parentId"] = nil
 			}
+			if len(labelsFlag) > 0 && (len(addLabelsFlag) > 0 || len(removeLabelsFlag) > 0) {
+				return usageErr(fmt.Errorf("pass either --label (replaces the whole label set) or --add-label/--remove-label (incremental), not both"))
+			}
 			if len(labelsFlag) > 0 {
 				input["labelIds"] = labelsFlag
+			}
+			if len(addLabelsFlag) > 0 {
+				input["addedLabelIds"] = addLabelsFlag
+			}
+			if len(removeLabelsFlag) > 0 {
+				input["removedLabelIds"] = removeLabelsFlag
 			}
 
 			descBody, descSet, err := readMarkdownBody(cmd, markdownBodySpec{
@@ -107,6 +177,10 @@ Use --parent with an issue identifier or UUID to set/change parentage. Use
 			}
 			if descSet {
 				input["description"] = descBody
+			}
+			appendBody, appendSet, err := appendFlags.resolve(cmd, descSet)
+			if err != nil {
+				return err
 			}
 			var c *client.Client
 			if projectFlag != "" || projectNameFlag != "" {
@@ -140,14 +214,17 @@ Use --parent with an issue identifier or UUID to set/change parentage. Use
 					input["projectId"] = projectID
 				}
 			}
-			if len(input) == 0 && len(mediaFlag) == 0 && stateNameFlag == "" && stateTypeFlag == "" {
-				return usageErr(fmt.Errorf("no issue fields supplied; pass --title, --description-file, --media, --state, --state-name, --state-type, --project, --project-name, --assignee, --priority, --label, --parent, or --no-parent"))
+			if len(input) == 0 && len(mediaFlag) == 0 && stateNameFlag == "" && stateTypeFlag == "" && !appendSet {
+				return usageErr(fmt.Errorf("no issue fields supplied; pass --title, --description-file, --description-append, --media, --state, --state-name, --state-type, --team, --project, --project-name, --assignee, --priority, --estimate, --due-date, --cycle, --milestone, --subscriber, --label, --add-label, --remove-label, --parent, or --no-parent"))
 			}
 			if flags.dryRun {
 				out := map[string]any{"issue": args[0], "input": input}
 				if len(mediaFlag) > 0 {
 					out["media"] = mediaFlag
 					out["media_public"] = mediaPublic
+				}
+				if appendSet {
+					out["description_append"] = appendBody
 				}
 				if stateNameFlag != "" {
 					out["state_name"] = stateNameFlag
@@ -164,7 +241,7 @@ Use --parent with an issue identifier or UUID to set/change parentage. Use
 					return err
 				}
 			}
-			if (len(mediaFlag) > 0 && !descSet) || len(labelsFlag) > 0 || stateNameFlag != "" || stateTypeFlag != "" {
+			if (len(mediaFlag) > 0 && !descSet) || appendSet || len(labelsFlag) > 0 || len(addLabelsFlag) > 0 || stateNameFlag != "" || stateTypeFlag != "" {
 				existing, err := fetchIssueLive(c, args[0])
 				if err != nil {
 					return classifyLiveReadError(err, flags)
@@ -186,6 +263,8 @@ Use --parent with an issue identifier or UUID to set/change parentage. Use
 				issueID = issue.ID
 				issueTeam = issueTeamInfo{ID: issue.Team.ID, Key: issue.Team.Key}
 				issueMetaLoaded = true
+				existingDescription = issue.Description
+				existingDescriptionLoaded = true
 				if len(mediaFlag) > 0 && !descSet {
 					descBody = issue.Description
 					descSet = true
@@ -197,6 +276,24 @@ Use --parent with an issue identifier or UUID to set/change parentage. Use
 					return classifyLiveReadError(err, flags)
 				}
 			}
+			// --trust-mode strict: refuse to touch issues this CLI did not create.
+			if err := enforceIssueTrustMode(flags, resolveDBPath(*dbPath), issueID, args[0]); err != nil {
+				return err
+			}
+			if appendSet {
+				if !existingDescriptionLoaded {
+					return fmt.Errorf("internal error: description append requires the existing issue body")
+				}
+				descBody = appendedDescriptionBody(existingDescription, appendBody)
+				descSet = true
+			}
+			if teamNeedsLiveResolve {
+				resolvedTeamID, teamErr := resolveTeamIDLive(c, teamFlag)
+				if teamErr != nil {
+					return classifyLiveReadError(teamErr, flags)
+				}
+				input["teamId"] = resolvedTeamID
+			}
 			if parentFlag != "" {
 				parentID, err := resolveParentIssueID(c, parentRef)
 				if err != nil {
@@ -204,12 +301,25 @@ Use --parent with an issue identifier or UUID to set/change parentage. Use
 				}
 				input["parentId"] = parentID
 			}
-			if len(labelsFlag) > 0 {
+			if len(labelsFlag) > 0 || len(addLabelsFlag) > 0 {
 				if !issueMetaLoaded {
 					return fmt.Errorf("internal error: label validation requires issue metadata")
 				}
-				if err := validateIssueLabelTeams(c, labelsFlag, issueTeam); err != nil {
-					return classifyLiveReadError(err, flags)
+				labelTeam := issueTeam
+				if teamFlag != "" {
+					// A team move in the same call means the labels have to
+					// belong to the destination team, not the current one.
+					if movedTeamID, ok := input["teamId"].(string); ok && movedTeamID != "" {
+						labelTeam = issueTeamInfo{ID: movedTeamID}
+					}
+				}
+				for _, labelSet := range [][]string{labelsFlag, addLabelsFlag} {
+					if len(labelSet) == 0 {
+						continue
+					}
+					if err := validateIssueLabelTeams(c, labelSet, labelTeam); err != nil {
+						return classifyLiveReadError(err, flags)
+					}
 				}
 			}
 			if stateNameFlag != "" || stateTypeFlag != "" {
@@ -269,6 +379,12 @@ Use --parent with an issue identifier or UUID to set/change parentage. Use
 	cmd.Flags().StringVar(&descFile, "description-file", "", "Read issue description markdown from file")
 	cmd.Flags().BoolVar(&descStdin, "description-stdin", false, "Read issue description markdown from stdin")
 	cmd.Flags().IntVar(&priorityFlag, "priority", 0, "Priority: 1=Urgent, 2=High, 3=Medium, 4=Low")
+	cmd.Flags().IntVar(&estimateFlag, "estimate", 0, "Estimate points. Only sent when the flag is passed, so --estimate 0 is an explicit zero")
+	cmd.Flags().StringVar(&dueDateFlag, "due-date", "", "Due date as YYYY-MM-DD (TimelessDate). A timestamp is rejected")
+	cmd.Flags().StringVar(&teamFlag, "team", "", "Move the issue to this team: team key (e.g. ENG) or team UUID")
+	cmd.Flags().StringVar(&cycleFlag, "cycle", "", "Cycle UUID to file the issue into")
+	cmd.Flags().StringVar(&milestoneFlag, "milestone", "", "Project milestone UUID (projectMilestoneId)")
+	cmd.Flags().StringSliceVar(&subscribersFlag, "subscriber", nil, "Subscriber user UUIDs, replacing the current set (repeatable)")
 	cmd.Flags().StringVar(&assigneeFlag, "assignee", "", "Assignee user UUID")
 	cmd.Flags().StringVar(&projectFlag, "project", "", "Project UUID")
 	cmd.Flags().StringVar(&projectNameFlag, "project-name", "", "Resolve and attach project by exact name")
@@ -278,8 +394,11 @@ Use --parent with an issue identifier or UUID to set/change parentage. Use
 	cmd.Flags().StringVar(&parentFlag, "parent", "", "Parent issue identifier or UUID")
 	cmd.Flags().BoolVar(&noParentFlag, "no-parent", false, "Clear issue parentage")
 	cmd.Flags().StringSliceVar(&labelsFlag, "label", nil, "Replacement label UUIDs (repeatable)")
+	cmd.Flags().StringSliceVar(&addLabelsFlag, "add-label", nil, "Label UUIDs to add without touching the rest (repeatable). Cannot be combined with --label")
+	cmd.Flags().StringSliceVar(&removeLabelsFlag, "remove-label", nil, "Label UUIDs to remove without touching the rest (repeatable). Cannot be combined with --label")
 	cmd.Flags().StringSliceVar(&mediaFlag, "media", nil, "Upload file and append it to the description markdown (repeatable)")
 	cmd.Flags().BoolVar(&mediaPublic, "media-public", false, "Request public Linear asset URLs for uploaded media")
+	appendFlags.register(cmd)
 	return cmd
 }
 
