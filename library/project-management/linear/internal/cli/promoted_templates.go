@@ -83,6 +83,11 @@ func newTemplatesPromotedCmd(flags *rootFlags) *cobra.Command {
 	}
 
 	// Wire sibling endpoints and sub-resources as subcommands
+	cmd.AddCommand(newTemplatesListCmd(flags))
+	cmd.AddCommand(newTemplatesGetCmd(flags))
+	cmd.AddCommand(newTemplatesCreateCmd(flags))
+	cmd.AddCommand(newTemplatesUpdateCmd(flags))
+	cmd.AddCommand(newTemplatesDeleteCmd(flags))
 
 	return cmd
 }

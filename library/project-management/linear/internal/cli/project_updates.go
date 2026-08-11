@@ -10,12 +10,15 @@ import (
 func newProjectUpdatesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "project-updates",
-		Short:       "List and create Linear project updates",
+		Short:       "List, create, edit, and archive Linear project updates",
 		Annotations: map[string]string{"pp:typed-exit-codes": "0,2,3,4,5,7"},
 		RunE:        parentNoSubcommandRunE(flags),
 	}
 	cmd.AddCommand(newProjectUpdatesListCmd(flags))
 	cmd.AddCommand(newProjectUpdatesCreateCmd(flags))
+	cmd.AddCommand(newProjectUpdatesUpdateCmd(flags))
+	cmd.AddCommand(newProjectUpdatesArchiveCmd(flags))
+	cmd.AddCommand(newProjectUpdatesUnarchiveCmd(flags))
 	return cmd
 }
 
@@ -60,8 +63,8 @@ func newProjectUpdatesListCmd(flags *rootFlags) *cobra.Command {
 			}`
 			var resp struct {
 				Project struct {
-					ID   string `json:"id"`
-					Name string `json:"name"`
+					ID             string `json:"id"`
+					Name           string `json:"name"`
 					ProjectUpdates struct {
 						Nodes    []json.RawMessage `json:"nodes"`
 						PageInfo struct {

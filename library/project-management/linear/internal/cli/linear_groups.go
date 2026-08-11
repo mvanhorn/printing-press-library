@@ -25,6 +25,11 @@ func newProjectsGroupCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newProjectsSearchCmd(flags))
 	cmd.AddCommand(newProjectsResolveCmd(flags))
 	cmd.AddCommand(newProjectsBurndownCmd(flags))
+	cmd.AddCommand(newProjectsCreateCmd(flags))
+	cmd.AddCommand(newProjectsUpdateCmd(flags))
+	cmd.AddCommand(newProjectsDeleteCmd(flags))
+	cmd.AddCommand(newProjectsAddLabelCmd(flags))
+	cmd.AddCommand(newProjectsRemoveLabelCmd(flags))
 	return cmd
 }
 
@@ -38,6 +43,12 @@ func newCyclesGroupCmd(flags *rootFlags) *cobra.Command {
 		RunE:        parentNoSubcommandRunE(flags),
 	}
 	cmd.AddCommand(newCyclesCompareCmd(flags))
+	cmd.AddCommand(newCyclesListCmd(flags))
+	cmd.AddCommand(newCyclesCreateCmd(flags))
+	cmd.AddCommand(newCyclesUpdateCmd(flags))
+	cmd.AddCommand(newCyclesArchiveCmd(flags))
+	cmd.AddCommand(newCyclesShiftAllCmd(flags))
+	cmd.AddCommand(newCyclesStartUpcomingCmd(flags))
 	return cmd
 }
 
@@ -57,5 +68,12 @@ func newInitiativesGroupCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newInitiativesSearchCmd(flags))
 	cmd.AddCommand(newInitiativesResolveCmd(flags))
 	cmd.AddCommand(newInitiativesHealthCmd(flags))
+	cmd.AddCommand(newInitiativesCreateCmd(flags))
+	cmd.AddCommand(newInitiativesUpdateCmd(flags))
+	cmd.AddCommand(newInitiativesArchiveCmd(flags))
+	cmd.AddCommand(newInitiativesUnarchiveCmd(flags))
+	cmd.AddCommand(newInitiativesDeleteCmd(flags))
+	cmd.AddCommand(newInitiativesLinkProjectCmd(flags))
+	cmd.AddCommand(newInitiativesUnlinkProjectCmd(flags))
 	return cmd
 }

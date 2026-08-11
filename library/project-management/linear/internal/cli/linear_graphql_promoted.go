@@ -23,7 +23,7 @@ var linearPromotedGraphQLSpecs = map[string]linearPromotedGraphQLSpec{
 	"favorites":                        {Singular: "favorite", Connection: "favorites", Selection: "id type title url color icon createdAt updatedAt"},
 	"initiative-relations":             {Singular: "initiativeRelation", Connection: "initiativeRelations", Selection: "id sortOrder createdAt updatedAt"},
 	"initiative-to-projects":           {Singular: "initiativeToProject", Connection: "initiativeToProjects", Selection: "id sortOrder createdAt updatedAt"},
-	"initiatives":                      {Singular: "initiative", Connection: "initiatives", Selection: "id name description slugId status url createdAt updatedAt"},
+	"initiatives":                      {Singular: "initiative", Connection: "initiatives", Selection: "id name description content slugId status url createdAt updatedAt"},
 	"issue-priority-values":            {List: "issuePriorityValues", Selection: "priority label"},
 	"organizations":                    {Singleton: "organization", Selection: "id name urlKey createdAt updatedAt"},
 	"project-labels":                   {Singular: "projectLabel", Connection: "projectLabels", Selection: "id name description color isGroup createdAt updatedAt"},
@@ -58,6 +58,13 @@ func linearPromotedGraphQLReadIsList(resourceType string, params map[string]stri
 	return spec.Connection != "" || spec.List != ""
 }
 
+// resolveLinearPromotedGraphQLRead issues the mapped read and returns its raw
+// payload. In dry-run mode the request is still printed by the transport, but
+// the query yields no body. Rather than let downstream printing see a nil
+// payload, return an empty value shaped like the real one: [] for the list and
+// connection reads, {} for the singular and singleton reads. Mapping errors
+// still surface on the dry-run path because they are configuration faults, not
+// missing data.
 func resolveLinearPromotedGraphQLRead(c *client.Client, resourceType string, params map[string]string) (json.RawMessage, error) {
 	spec, ok := linearPromotedGraphQLSpecs[resourceType]
 	if !ok {
@@ -67,6 +74,20 @@ func resolveLinearPromotedGraphQLRead(c *client.Client, resourceType string, par
 	if params != nil {
 		id = params["id"]
 	}
+	raw, err := queryLinearPromotedGraphQLRead(c, spec, resourceType, id)
+	if err != nil {
+		return nil, err
+	}
+	if len(raw) == 0 {
+		if linearPromotedGraphQLReadIsList(resourceType, params) {
+			return json.RawMessage("[]"), nil
+		}
+		return json.RawMessage("{}"), nil
+	}
+	return raw, nil
+}
+
+func queryLinearPromotedGraphQLRead(c *client.Client, spec linearPromotedGraphQLSpec, resourceType, id string) (json.RawMessage, error) {
 	switch {
 	case id != "" && spec.Singular != "":
 		query := fmt.Sprintf(`query($id: String!) { %s(id: $id) { %s } }`, spec.Singular, spec.Selection)
@@ -78,6 +99,14 @@ func resolveLinearPromotedGraphQLRead(c *client.Client, resourceType string, par
 		nodes, err := c.PaginatedQuery(query, nil, spec.Connection, 100)
 		if err != nil {
 			return nil, err
+		}
+		if c.DryRun {
+			return nil, nil
+		}
+		// PaginatedQuery hands back a nil slice for an empty connection, and
+		// json.Marshal turns that into null, but --json consumers want an array.
+		if nodes == nil {
+			nodes = []json.RawMessage{}
 		}
 		return json.Marshal(nodes)
 	case spec.List != "":
@@ -95,6 +124,11 @@ func queryPromotedGraphQLField(c *client.Client, query string, variables map[str
 	data, err := c.Query(query, variables)
 	if err != nil {
 		return nil, err
+	}
+	if len(data) == 0 {
+		// Dry run: the request was printed and no body came back. Leave the
+		// empty-payload shaping to the caller, which knows list from object.
+		return nil, nil
 	}
 	var root map[string]json.RawMessage
 	if err := json.Unmarshal(data, &root); err != nil {

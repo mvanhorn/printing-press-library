@@ -11,6 +11,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// pp:data-source live
 // newInitiativesHealthCmd shows a portfolio rollup: each initiative with its
 // child projects, milestone target-vs-projected dates, and risk flags. Priya's
 // Tuesday portfolio review.

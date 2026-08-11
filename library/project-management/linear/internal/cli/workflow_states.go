@@ -6,6 +6,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/mvanhorn/printing-press-library/library/project-management/linear/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/project-management/linear/internal/store"
 
 	"github.com/spf13/cobra"
@@ -47,15 +48,44 @@ func normalizeWorkflowStateType(stateType string) (string, error) {
 	return normalizedType, nil
 }
 
+// creatableWorkflowStateTypes is the subset of WorkflowState.type values that
+// WorkflowStateCreateInput.type accepts. Triage and duplicate states are
+// provisioned by Linear itself and cannot be created through the API, and
+// WorkflowStateUpdateInput has no type field at all, so a state's type is
+// fixed for its lifetime.
+var creatableWorkflowStateTypes = map[string]struct{}{
+	"backlog":   {},
+	"unstarted": {},
+	"started":   {},
+	"completed": {},
+	"canceled":  {},
+}
+
+const creatableWorkflowStateTypeList = "backlog, unstarted, started, completed, canceled"
+
+func normalizeCreatableWorkflowStateType(stateType string) (string, error) {
+	normalizedType := strings.ToLower(strings.TrimSpace(stateType))
+	if _, ok := creatableWorkflowStateTypes[normalizedType]; !ok {
+		if _, known := validLinearWorkflowStateTypes[normalizedType]; known {
+			return "", usageErr(fmt.Errorf("--type %q cannot be created through the API. Linear provisions those states itself. Creatable types: %s", normalizedType, creatableWorkflowStateTypeList))
+		}
+		return "", usageErr(fmt.Errorf("--type %q is not a valid Linear workflow state type, creatable types: %s", stateType, creatableWorkflowStateTypeList))
+	}
+	return normalizedType, nil
+}
+
 func newWorkflowStatesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "workflow-states",
 		Aliases:     []string{"states"},
-		Short:       "List Linear workflow states (the UUIDs 'issues edit --state' needs)",
+		Short:       "Manage Linear workflow states: list, create, update, archive",
 		Annotations: map[string]string{"pp:typed-exit-codes": "0,2,3,4,5,7"},
 		RunE:        parentNoSubcommandRunE(flags),
 	}
 	cmd.AddCommand(newWorkflowStatesListCmd(flags))
+	cmd.AddCommand(newWorkflowStatesCreateCmd(flags))
+	cmd.AddCommand(newWorkflowStatesUpdateCmd(flags))
+	cmd.AddCommand(newWorkflowStatesArchiveCmd(flags))
 	return cmd
 }
 
@@ -288,4 +318,177 @@ func fetchWorkflowStatesLive(flags *rootFlags, team string) ([]json.RawMessage, 
 		}
 		cursor = resp.WorkflowStates.PageInfo.EndCursor
 	}
+}
+
+// Workflow state write surface (GAP-027). workflowStateCreate,
+// workflowStateUpdate, and workflowStateArchive are all live in
+// api-inventory.json.
+
+func newWorkflowStatesCreateCmd(flags *rootFlags) *cobra.Command {
+	var teamFlag, nameFlag, typeFlag, colorFlag, descFlag, dbPath string
+	var positionFlag float64
+	cmd := &cobra.Command{
+		Use:   "create",
+		Short: "Create a workflow state on a team's board",
+		Long: `Create a Linear workflow state via the workflowStateCreate mutation.
+
+--team, --name, --type, and --color are all required by WorkflowStateCreateInput.
+
+--type is restricted to the five creatable categories (` + creatableWorkflowStateTypeList + `).
+Triage and duplicate states are provisioned by Linear and cannot be created here,
+and no mutation can change a state's type afterwards, so pick it correctly now.`,
+		Example: `  linear-pp-cli workflow-states create --team ENG --name "In Review" --type started --color "#4ea7fc" --agent
+  linear-pp-cli workflow-states create --team ENG --name "Blocked" --type started --color "#f2994a" --position 3 --dry-run --agent`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if strings.TrimSpace(teamFlag) == "" {
+				return usageErr(fmt.Errorf("--team is required (team key like ENG or team UUID)"))
+			}
+			if strings.TrimSpace(nameFlag) == "" {
+				return usageErr(fmt.Errorf("--name is required"))
+			}
+			if strings.TrimSpace(colorFlag) == "" {
+				return usageErr(fmt.Errorf("--color is required (WorkflowStateCreateInput.color is non-null), pass a hex string such as #4ea7fc"))
+			}
+			stateType, err := normalizeCreatableWorkflowStateType(typeFlag)
+			if err != nil {
+				return err
+			}
+			buildInput := func(c graphqlQueryer) (map[string]any, error) {
+				teamID, err := resolveWriteTeamID(c, dbPath, teamFlag)
+				if err != nil {
+					return nil, err
+				}
+				input := map[string]any{
+					"teamId": teamID,
+					"name":   nameFlag,
+					"type":   stateType,
+					"color":  colorFlag,
+				}
+				setOptionalString(input, "description", descFlag)
+				if cmd.Flags().Changed("position") {
+					input["position"] = positionFlag
+				}
+				return input, nil
+			}
+			if flags.dryRun {
+				input, err := buildInput(nil)
+				if err != nil {
+					return err
+				}
+				return renderMutationDryRun(cmd, flags, "would_create_workflow_state", "workflowStateCreate", map[string]any{"input": input})
+			}
+			c, err := flags.newClient()
+			if err != nil {
+				return err
+			}
+			input, err := buildInput(c)
+			if err != nil {
+				return classifyLiveReadError(err, flags)
+			}
+			resp, err := c.Mutate(client.WorkflowStateCreateMutation, map[string]any{"input": input})
+			if err != nil {
+				return classifyGraphQLCreateError("workflowStateCreate", err, flags)
+			}
+			state, err := extractMutationObject(resp, "workflowStateCreate", "workflowState")
+			if err != nil {
+				return err
+			}
+			return renderLiveObject(cmd, flags, state, "workflow_states")
+		},
+	}
+	cmd.Flags().StringVar(&teamFlag, "team", "", "Team key or UUID that owns the state (required)")
+	cmd.Flags().StringVar(&nameFlag, "name", "", "State name (required)")
+	cmd.Flags().StringVar(&typeFlag, "type", "", "State category, one of: "+creatableWorkflowStateTypeList+" (required)")
+	cmd.Flags().StringVar(&colorFlag, "color", "", "State color as a hex string, e.g. #4ea7fc (required)")
+	cmd.Flags().StringVar(&descFlag, "description", "", "State description")
+	cmd.Flags().Float64Var(&positionFlag, "position", 0, "Board position, lower sorts earlier")
+	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (for team-key resolution)")
+	return cmd
+}
+
+// newWorkflowStatesUpdateCmd exposes no --type flag: WorkflowStateUpdateInput
+// has no type field, so the category is immutable after creation.
+func newWorkflowStatesUpdateCmd(flags *rootFlags) *cobra.Command {
+	var nameFlag, colorFlag, descFlag string
+	var positionFlag float64
+	cmd := &cobra.Command{
+		Use:   "update <state-id>",
+		Short: "Update a workflow state's name, color, description, or board position",
+		Long: `Update a Linear workflow state via the workflowStateUpdate mutation.
+
+There is no --type flag. WorkflowStateUpdateInput exposes only name, color,
+description, and position, so a state's category cannot be changed after it is
+created. Create a correctly typed state and move the issues instead.`,
+		Example: `  linear-pp-cli workflow-states update <state-uuid> --name "In Review" --agent
+  linear-pp-cli workflow-states update <state-uuid> --position 2 --dry-run --agent`,
+		Args: cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			input := map[string]any{}
+			setChangedString(cmd, input, "name", "name", nameFlag)
+			setChangedString(cmd, input, "color", "color", colorFlag)
+			setChangedString(cmd, input, "description", "description", descFlag)
+			if cmd.Flags().Changed("position") {
+				input["position"] = positionFlag
+			}
+			if len(input) == 0 {
+				return usageErr(fmt.Errorf("no workflow state fields supplied, pass --name, --color, --description, or --position"))
+			}
+			if flags.dryRun {
+				return renderMutationDryRun(cmd, flags, "would_update_workflow_state", "workflowStateUpdate", map[string]any{"state": args[0], "input": input})
+			}
+			c, err := flags.newClient()
+			if err != nil {
+				return err
+			}
+			resp, err := c.Mutate(client.WorkflowStateUpdateMutation, map[string]any{"id": args[0], "input": input})
+			if err != nil {
+				return classifyGraphQLMutationError("workflowStateUpdate", err, flags)
+			}
+			state, err := extractMutationObject(resp, "workflowStateUpdate", "workflowState")
+			if err != nil {
+				return err
+			}
+			return renderLiveObject(cmd, flags, state, "workflow_states")
+		},
+	}
+	cmd.Flags().StringVar(&nameFlag, "name", "", "New state name")
+	cmd.Flags().StringVar(&colorFlag, "color", "", "New state color as a hex string")
+	cmd.Flags().StringVar(&descFlag, "description", "", "New state description (pass an empty string to clear)")
+	cmd.Flags().Float64Var(&positionFlag, "position", 0, "New board position")
+	return cmd
+}
+
+func newWorkflowStatesArchiveCmd(flags *rootFlags) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "archive <state-id>",
+		Short: "Archive a workflow state",
+		Long: `Archive a Linear workflow state via the workflowStateArchive mutation.
+
+Linear only archives a state whose issues have all been archived, so move or
+archive the issues sitting in it first. Requires confirmation unless --yes is set.`,
+		Example: `  linear-pp-cli workflow-states archive <state-uuid> --yes --agent`,
+		Args:    cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if flags.dryRun {
+				return renderMutationDryRun(cmd, flags, "would_archive_workflow_state", "workflowStateArchive", map[string]any{"input": map[string]any{"id": args[0]}})
+			}
+			if err := confirmMutation(cmd, flags, fmt.Sprintf("Archive workflow state %s?", args[0])); err != nil {
+				return err
+			}
+			c, err := flags.newClient()
+			if err != nil {
+				return err
+			}
+			resp, err := c.Mutate(client.WorkflowStateArchiveMutation, map[string]any{"id": args[0]})
+			if err != nil {
+				return classifyGraphQLMutationError("workflowStateArchive", err, flags)
+			}
+			state, err := extractMutationObject(resp, "workflowStateArchive", "entity")
+			if err != nil {
+				return err
+			}
+			return renderLiveObject(cmd, flags, state, "workflow_states")
+		},
+	}
+	return cmd
 }

@@ -35,11 +35,16 @@ type issueTeamInfo struct {
 func newLabelsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "labels",
-		Short:       "List Linear issue labels with team ownership",
+		Short:       "Manage Linear issue labels: list, create, update, delete, retire, restore",
 		Annotations: map[string]string{"pp:typed-exit-codes": "0,2,3,4,5,7"},
 		RunE:        parentNoSubcommandRunE(flags),
 	}
 	cmd.AddCommand(newLabelsListCmd(flags))
+	cmd.AddCommand(newLabelsCreateCmd(flags))
+	cmd.AddCommand(newLabelsUpdateCmd(flags))
+	cmd.AddCommand(newLabelsDeleteCmd(flags))
+	cmd.AddCommand(newLabelsRetireCmd(flags))
+	cmd.AddCommand(newLabelsRestoreCmd(flags))
 	return cmd
 }
 
@@ -50,8 +55,9 @@ func newLabelsListCmd(flags *rootFlags) *cobra.Command {
 	var limit int
 	var dbPath string
 	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "List issue labels, optionally filtered to labels safe for a team",
+		Use:         "list",
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		Short:       "List issue labels, optionally filtered to labels safe for a team",
 		Example: `  linear-pp-cli labels list --team SYMPH --agent
   linear-pp-cli labels list --team HSUI --no-global --agent`,
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -253,4 +259,232 @@ func labelTeamName(team *issueLabelTeam) string {
 
 func issueTeamName(team issueTeamInfo) string {
 	return firstNonEmpty(team.Key, team.ID, "unknown")
+}
+
+// Label write surface (GAP-026). All five issueLabel mutations are live in
+// api-inventory.json. Retire and restore are the modern soft-delete pair and are
+// deliberately separate commands from the hard delete.
+
+// newLabelsCreateCmd creates a team label when --team is given and a workspace
+// label when it is not. IssueLabelCreateInput.teamId is optional and the API
+// documents the omitted case as "associated with the entire workspace".
+func newLabelsCreateCmd(flags *rootFlags) *cobra.Command {
+	var nameFlag, teamFlag, colorFlag, descFlag, parentFlag, dbPath string
+	cmd := &cobra.Command{
+		Use:   "create",
+		Short: "Create an issue label, workspace-wide or scoped to one team",
+		Long: `Create a Linear issue label via the issueLabelCreate mutation.
+
+Omit --team to create a workspace label visible to every team. Pass --team with
+a team key or UUID to create a label only that team can apply.`,
+		Example: `  linear-pp-cli labels create --name "needs-repro" --team ENG --agent
+  linear-pp-cli labels create --name "customer-reported" --color "#4ea7fc" --agent
+  linear-pp-cli labels create --name "child" --parent <label-uuid> --dry-run --agent`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if strings.TrimSpace(nameFlag) == "" {
+				return usageErr(fmt.Errorf("--name is required"))
+			}
+			// buildInput takes the client so the live path can fall back to a
+			// server-side team lookup when the local store has not been synced.
+			// The dry-run path passes nil and stays offline.
+			buildInput := func(c graphqlQueryer) (map[string]any, error) {
+				input := map[string]any{"name": nameFlag}
+				setOptionalString(input, "color", colorFlag)
+				setOptionalString(input, "description", descFlag)
+				setOptionalString(input, "parentId", parentFlag)
+				if teamFlag == "" {
+					return input, nil
+				}
+				teamID, err := resolveWriteTeamID(c, dbPath, teamFlag)
+				if err != nil {
+					return nil, err
+				}
+				input["teamId"] = teamID
+				return input, nil
+			}
+			if flags.dryRun {
+				input, err := buildInput(nil)
+				if err != nil {
+					return err
+				}
+				return renderMutationDryRun(cmd, flags, "would_create_label", "issueLabelCreate", map[string]any{"input": input})
+			}
+			c, err := flags.newClient()
+			if err != nil {
+				return err
+			}
+			input, err := buildInput(c)
+			if err != nil {
+				return classifyLiveReadError(err, flags)
+			}
+			resp, err := c.Mutate(client.IssueLabelCreateMutation, map[string]any{"input": input})
+			if err != nil {
+				return classifyGraphQLCreateError("issueLabelCreate", err, flags)
+			}
+			label, err := extractMutationObject(resp, "issueLabelCreate", "issueLabel")
+			if err != nil {
+				return err
+			}
+			return renderLiveObject(cmd, flags, label, "issue_labels")
+		},
+	}
+	cmd.Flags().StringVar(&nameFlag, "name", "", "Label name (required)")
+	cmd.Flags().StringVar(&teamFlag, "team", "", "Team key or UUID, omit to create a workspace label")
+	cmd.Flags().StringVar(&colorFlag, "color", "", "Label color as a hex string (e.g. #4ea7fc)")
+	cmd.Flags().StringVar(&descFlag, "description", "", "Label description")
+	cmd.Flags().StringVar(&parentFlag, "parent", "", "Parent label UUID, nests this label under a label group")
+	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (for team-key resolution)")
+	return cmd
+}
+
+// newLabelsUpdateCmd offers no --team flag on purpose: IssueLabelUpdateInput
+// has no teamId field, so a label cannot be moved between teams by mutation.
+func newLabelsUpdateCmd(flags *rootFlags) *cobra.Command {
+	var nameFlag, colorFlag, descFlag, parentFlag string
+	cmd := &cobra.Command{
+		Use:   "update <label-id>",
+		Short: "Update an issue label's name, color, description, or parent",
+		Long: `Update a Linear issue label via the issueLabelUpdate mutation.
+
+Only the fields you pass are sent. There is no --team flag: IssueLabelUpdateInput
+has no teamId field, so a label's team ownership is fixed at creation. Delete and
+recreate the label to change it.`,
+		Example: `  linear-pp-cli labels update <label-uuid> --name "needs-repro" --agent
+  linear-pp-cli labels update <label-uuid> --color "#f2994a" --dry-run --agent`,
+		Args: cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			input := map[string]any{}
+			setChangedString(cmd, input, "name", "name", nameFlag)
+			setChangedString(cmd, input, "color", "color", colorFlag)
+			setChangedString(cmd, input, "description", "description", descFlag)
+			setChangedString(cmd, input, "parent", "parentId", parentFlag)
+			if len(input) == 0 {
+				return usageErr(fmt.Errorf("no label fields supplied, pass --name, --color, --description, or --parent"))
+			}
+			if flags.dryRun {
+				return renderMutationDryRun(cmd, flags, "would_update_label", "issueLabelUpdate", map[string]any{"label": args[0], "input": input})
+			}
+			c, err := flags.newClient()
+			if err != nil {
+				return err
+			}
+			resp, err := c.Mutate(client.IssueLabelUpdateMutation, map[string]any{"id": args[0], "input": input})
+			if err != nil {
+				return classifyGraphQLMutationError("issueLabelUpdate", err, flags)
+			}
+			label, err := extractMutationObject(resp, "issueLabelUpdate", "issueLabel")
+			if err != nil {
+				return err
+			}
+			return renderLiveObject(cmd, flags, label, "issue_labels")
+		},
+	}
+	cmd.Flags().StringVar(&nameFlag, "name", "", "New label name")
+	cmd.Flags().StringVar(&colorFlag, "color", "", "New label color as a hex string")
+	cmd.Flags().StringVar(&descFlag, "description", "", "New label description (pass an empty string to clear)")
+	cmd.Flags().StringVar(&parentFlag, "parent", "", "New parent label UUID")
+	return cmd
+}
+
+// newLabelsDeleteCmd hard-deletes a label. Retire is the reversible option and
+// the one to reach for when the label is still on existing issues.
+func newLabelsDeleteCmd(flags *rootFlags) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "delete <label-id>",
+		Short: "Permanently delete an issue label",
+		Long: `Delete a Linear issue label via the issueLabelDelete mutation.
+
+This is not reversible and removes the label from every issue that carries it.
+Prefer 'labels retire' when the label should stop being applied to new issues
+but stay readable on old ones. Requires confirmation unless --yes is set.`,
+		Example: `  linear-pp-cli labels delete <label-uuid> --yes --agent
+  linear-pp-cli labels delete <label-uuid> --ignore-missing --yes --agent`,
+		Args: cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if flags.dryRun {
+				return renderMutationDryRun(cmd, flags, "would_delete_label", "issueLabelDelete", map[string]any{"input": map[string]any{"id": args[0]}})
+			}
+			if err := confirmMutation(cmd, flags, fmt.Sprintf("Permanently delete label %s and remove it from every issue?", args[0])); err != nil {
+				return err
+			}
+			c, err := flags.newClient()
+			if err != nil {
+				return err
+			}
+			resp, err := c.Mutate(client.IssueLabelDeleteMutation, map[string]any{"id": args[0]})
+			if err != nil {
+				return classifyGraphQLMutationError("issueLabelDelete", err, flags)
+			}
+			entityID, err := extractDeletedEntityID(resp, "issueLabelDelete")
+			if err != nil {
+				return err
+			}
+			return renderMutationEvent(cmd, flags, "label_deleted", map[string]any{"entity_id": firstNonEmpty(entityID, args[0])})
+		},
+	}
+	return cmd
+}
+
+// newLabelsRetireCmd and newLabelsRestoreCmd are the soft-delete pair. Retired
+// labels stay on the issues that already carry them and cannot be applied to
+// new ones. Both declare their own Use/Short/Example literally and share only
+// the RunE body, so the command surface stays greppable from this file.
+func newLabelsRetireCmd(flags *rootFlags) *cobra.Command {
+	return &cobra.Command{
+		Use:     "retire <label-id>",
+		Short:   "Retire an issue label so it can no longer be applied to new issues",
+		Long:    "Retire a Linear issue label via the issueLabelRetire mutation. Existing issues keep the label and stay searchable by it. Reverse with 'labels restore'.",
+		Example: "  linear-pp-cli labels retire <label-uuid> --agent",
+		Args:    cobra.ExactArgs(1),
+		RunE: labelStateChangeRunE(flags, labelStateChange{
+			event:    "would_retire_label",
+			mutation: "issueLabelRetire",
+			document: client.IssueLabelRetireMutation,
+		}),
+	}
+}
+
+func newLabelsRestoreCmd(flags *rootFlags) *cobra.Command {
+	return &cobra.Command{
+		Use:     "restore <label-id>",
+		Short:   "Restore a retired issue label so it can be applied again",
+		Long:    "Restore a previously retired Linear issue label via the issueLabelRestore mutation.",
+		Example: "  linear-pp-cli labels restore <label-uuid> --agent",
+		Args:    cobra.ExactArgs(1),
+		RunE: labelStateChangeRunE(flags, labelStateChange{
+			event:    "would_restore_label",
+			mutation: "issueLabelRestore",
+			document: client.IssueLabelRestoreMutation,
+		}),
+	}
+}
+
+// labelStateChange describes the two id-only IssueLabelPayload mutations.
+// Retire and restore differ only in their document and their dry-run event, so
+// they share one RunE rather than two near-identical bodies.
+type labelStateChange struct {
+	event    string
+	mutation string
+	document string
+}
+
+func labelStateChangeRunE(flags *rootFlags, spec labelStateChange) func(*cobra.Command, []string) error {
+	return func(cmd *cobra.Command, args []string) error {
+		if flags.dryRun {
+			return renderMutationDryRun(cmd, flags, spec.event, spec.mutation, map[string]any{"input": map[string]any{"id": args[0]}})
+		}
+		c, err := flags.newClient()
+		if err != nil {
+			return err
+		}
+		resp, err := c.Mutate(spec.document, map[string]any{"id": args[0]})
+		if err != nil {
+			return classifyGraphQLMutationError(spec.mutation, err, flags)
+		}
+		label, err := extractMutationObject(resp, spec.mutation, "issueLabel")
+		if err != nil {
+			return err
+		}
+		return renderLiveObject(cmd, flags, label, "issue_labels")
+	}
 }

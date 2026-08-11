@@ -19,6 +19,9 @@ func newRoadmapToProjectsPromotedCmd(flags *rootFlags) *cobra.Command {
 		Long:        "Shortcut for 'roadmap-to-projects get'. Get a single roadmaptoproject",
 		Example:     "  linear-pp-cli roadmap-to-projects 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "roadmap-to-projects.get", "pp:method": "GET", "pp:path": "/graphql", "mcp:read-only": "true"},
+		// Linear deprecated RoadmapToProject in favour of InitiativeToProject.
+		// The command still works, but cobra now says so on every invocation.
+		Deprecated: "Linear deprecated RoadmapToProject. Use 'linear-pp-cli initiative-to-projects' instead.",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {

@@ -97,6 +97,9 @@ func newFavoritesPromotedCmd(flags *rootFlags) *cobra.Command {
 	}
 
 	// Wire sibling endpoints and sub-resources as subcommands
+	cmd.AddCommand(newFavoritesCreateCmd(flags))
+	cmd.AddCommand(newFavoritesUpdateCmd(flags))
+	cmd.AddCommand(newFavoritesDeleteCmd(flags))
 
 	return cmd
 }

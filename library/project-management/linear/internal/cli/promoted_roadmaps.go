@@ -19,6 +19,9 @@ func newRoadmapsPromotedCmd(flags *rootFlags) *cobra.Command {
 		Long:        "Shortcut for 'roadmaps get'. Get a single roadmap",
 		Example:     "  linear-pp-cli roadmaps 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "roadmaps.get", "pp:method": "GET", "pp:path": "/graphql", "mcp:read-only": "true"},
+		// Linear deprecated the roadmap query in favour of initiatives. The
+		// command still works, but cobra now says so on every invocation.
+		Deprecated: "Linear deprecated Roadmaps. Use 'linear-pp-cli initiatives' instead.",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {

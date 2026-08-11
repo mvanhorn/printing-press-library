@@ -12,10 +12,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// pp:data-source auto
+// Document reads honour --data-source through the shared resolver: the local
+// snapshot answers first and the live query backs it, so the same command
+// works offline against synced rows.
 func newDocumentsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "documents [document-ref]",
-		Short: "View, list, create, and edit Linear documents",
+		Short: "View, list, create, edit, delete, and restore Linear documents",
 		Long: `View a Linear document, or manage documents with the subcommands.
 
 The positional document reference accepts every form Linear surfaces:
@@ -38,6 +42,8 @@ The positional document reference accepts every form Linear surfaces:
 	cmd.AddCommand(newDocumentsCreateCmd(flags))
 	cmd.AddCommand(newDocumentsEditCmd(flags))
 	cmd.AddCommand(newDocumentsReadAliasCmd(flags))
+	cmd.AddCommand(newDocumentsDeleteCmd(flags))
+	cmd.AddCommand(newDocumentsUnarchiveCmd(flags))
 	return cmd
 }
 
@@ -47,8 +53,10 @@ func newDocumentsReadAliasCmd(flags *rootFlags) *cobra.Command {
 		Aliases: []string{"view"},
 		Short:   "View a Linear document",
 		Long:    `Compatibility aliases for the canonical positional form: linear-pp-cli documents <document-ref>.`,
-		Hidden:  true,
-		Args:    cobra.MaximumNArgs(1),
+		Example: `  linear-pp-cli documents get my-runbook-f7f48ab36080
+  linear-pp-cli documents get my-runbook-f7f48ab36080 --agent`,
+		Hidden: true,
+		Args:   cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				// Preserve canonical reads for slug IDs that exactly match an

@@ -97,6 +97,11 @@ func newAttachmentsPromotedCmd(flags *rootFlags) *cobra.Command {
 	}
 
 	// Wire sibling endpoints and sub-resources as subcommands
+	cmd.AddCommand(newAttachmentsForURLCmd(flags))
+	cmd.AddCommand(newAttachmentsCreateCmd(flags))
+	cmd.AddCommand(newAttachmentsLinkURLCmd(flags))
+	cmd.AddCommand(newAttachmentsUpdateCmd(flags))
+	cmd.AddCommand(newAttachmentsDeleteCmd(flags))
 
 	return cmd
 }

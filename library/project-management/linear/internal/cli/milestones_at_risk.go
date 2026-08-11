@@ -22,6 +22,11 @@ func newMilestonesCmd(flags *rootFlags) *cobra.Command {
 		RunE:        parentNoSubcommandRunE(flags),
 	}
 	cmd.AddCommand(newMilestonesAtRiskCmd(flags))
+	cmd.AddCommand(newMilestonesListCmd(flags))
+	cmd.AddCommand(newMilestonesCreateCmd(flags))
+	cmd.AddCommand(newMilestonesUpdateCmd(flags))
+	cmd.AddCommand(newMilestonesDeleteCmd(flags))
+	cmd.AddCommand(newMilestonesMoveCmd(flags))
 	return cmd
 }
 

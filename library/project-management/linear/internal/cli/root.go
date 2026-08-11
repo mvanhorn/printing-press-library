@@ -305,6 +305,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newCyclesGroupCmd(flags))
 	rootCmd.AddCommand(newInitiativesGroupCmd(flags))
 	rootCmd.AddCommand(newMilestonesCmd(flags))
+	rootCmd.AddCommand(newCustomViewsCmd(flags))
 
 	// v3-ported top-level commands
 	rootCmd.AddCommand(newIssuesCmd(flags))
@@ -327,6 +328,8 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newPPCleanupCmd(flags))
 	rootCmd.AddCommand(newSQLCmd(flags))
 	rootCmd.AddCommand(newExportCmd(flags))
+	rootCmd.AddCommand(newReactionsCmd(flags))
+	rootCmd.AddCommand(newNotificationsCmd(flags))
 
 	// v3-ported persistent flags
 	rootCmd.PersistentFlags().StringVar(&flags.trustMode, "trust-mode", "", "Mutation guard: 'strict' refuses to mutate Linear issues absent from the local pp_created ledger. Enforced on 'issues create' (requires a session tag) and on 'issues edit' (refuses with exit 2 when the target was not created by this CLI). 'pp-cleanup' is exempt because it only touches ledger rows.")
