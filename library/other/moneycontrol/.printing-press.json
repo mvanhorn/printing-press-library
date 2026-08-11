@@ -1,0 +1,115 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-11T23:00:23.286635Z",
+  "printing_press_version": "4.30.1",
+  "api_name": "moneycontrol",
+  "display_name": "Moneycontrol",
+  "cli_name": "moneycontrol-pp-cli",
+  "creator": {
+    "handle": "dev-abhirup-sc",
+    "name": "dev-abhirup-sc"
+  },
+  "contributors": [
+    {
+      "handle": "abhirup-dev",
+      "name": "Abhirup Das"
+    }
+  ],
+  "owner": "dev-abhirup-sc",
+  "printer": "dev-abhirup-sc",
+  "printer_name": "dev-abhirup-sc",
+  "spec_path": "moneycontrol-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:49128add7202930348d4a2cea8d001f16399963ea5a6d0028882094f5723d46d",
+  "run_id": "20260812-032128-17bd665a",
+  "category": "other",
+  "description": "Indian market news and quotes without the scraping — offline-searchable and agent-native.",
+  "mcp_binary": "moneycontrol-pp-mcp",
+  "mcp_tool_count": 7,
+  "mcp_public_tool_count": 7,
+  "mcp_ready": "full",
+  "auth_type": "none",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Market Wrap",
+      "command": "market-wrap",
+      "description": "One-command end-of-day view: indices, top gainers, top losers, and the latest market headlines in a single read."
+    },
+    {
+      "name": "Stock Watch",
+      "command": "stock-watch",
+      "description": "Full picture for one ticker: live quote plus the most recent news tagged to that stock."
+    },
+    {
+      "name": "News Digest",
+      "command": "news digest",
+      "description": "Top market headlines plus brief recaps, deduplicated, ready to skim."
+    },
+    {
+      "name": "Since",
+      "command": "since",
+      "description": "Articles synced to the local store newer than N hours, with stock-symbol filter."
+    },
+    {
+      "name": "News For",
+      "command": "news-for",
+      "description": "Latest tagged news for several stocks at once, fetched in parallel."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Market Wrap",
+      "command": "market-wrap",
+      "description": "One-command end-of-day view: indices, top gainers, top losers, and the latest market headlines in a single read."
+    },
+    {
+      "name": "Stock Watch",
+      "command": "stock-watch",
+      "description": "Full picture for one ticker: live quote plus the most recent news tagged to that stock."
+    },
+    {
+      "name": "News Digest",
+      "command": "news digest",
+      "description": "Top market headlines plus brief recaps, deduplicated, ready to skim."
+    },
+    {
+      "name": "Since",
+      "command": "since",
+      "description": "Articles synced to the local store newer than N hours, with stock-symbol filter."
+    },
+    {
+      "name": "News For",
+      "command": "news-for",
+      "description": "Latest tagged news for several stocks at once, fetched in parallel."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 34,
+    "total": 34,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 85,
+      "grade": "A (1 of 24 dimensions unverified: live_api_verification)",
+      "total": 85
+    },
+    "unverified_dimensions": [
+      "live_api_verification"
+    ]
+  }
+}

@@ -1,0 +1,136 @@
+name: moneycontrol
+display_name: Moneycontrol
+description: >
+  Indian stock-market news, index quotes, market-action screens (gainers/losers/52-week/etc.),
+  and per-stock quotes from moneycontrol.com. News + market data only; no portfolio/MF/crypto.
+  Moneycontrol has no official API; endpoints are reverse-engineered from the live site and are
+  public (no auth). HTML endpoints are parsed server-side via goquery.
+category: finance
+base_url: https://www.moneycontrol.com
+cli_description: "Indian market news and quotes without the scraping — offline-searchable and agent-native."
+
+auth:
+  type: none
+
+resources:
+  articles:
+    description: News articles across categories and per-stock tags.
+    endpoints:
+      latest:
+        method: GET
+        path: /news/latest-news/
+        response_format: html
+        description: Latest news headlines across all categories.
+        html_extract:
+          mode: links
+          link_prefixes: ["/news"]
+      by_category:
+        method: GET
+        path: /news/{category_path}
+        response_format: html
+        description: News headlines within a category (e.g. business/markets, business/stocks, india, world).
+        params:
+          - name: category_path
+            location: path
+            type: string
+            required: true
+            description: "Category path, e.g. 'business/markets', 'business/stocks', 'india', 'world', 'business', 'latest-news'"
+        html_extract:
+          mode: links
+          link_prefixes: ["/news"]
+      by_tag:
+        method: GET
+        path: /news/tags/{slug}.html
+        response_format: html
+        description: News headlines tagged to a stock or topic (e.g. reliance-industries, infosys, nifty).
+        params:
+          - name: slug
+            location: path
+            type: string
+            required: true
+            description: "Tag slug, e.g. 'reliance-industries', 'infosys', 'tata-consultancy-services'"
+        html_extract:
+          mode: links
+          link_prefixes: ["/news"]
+      get:
+        method: GET
+        path: /news/{slug}.html
+        response_format: html
+        description: Full article page (title, description, and raw body HTML for goquery extraction).
+        params:
+          - name: slug
+            location: path
+            type: string
+            required: true
+            description: "Full article path after /news/, e.g. 'india/tribunals-reforms-bill-2026-...-14001877' or 'business/markets/stock-market-live-updates-...-14000775'"
+        html_extract:
+          mode: page
+        example: "  moneycontrol-pp-cli articles get --slug india/census-2027-rgi-issues-directives-for-formation-of-enumeration-blocks-14002256"
+        happy_args: "slug=india/census-2027-rgi-issues-directives-for-formation-of-enumeration-blocks-14002256"
+
+  indices:
+    description: Indian index quotes (SENSEX, NIFTY 50, NIFTY BANK, NIFTY IT).
+    endpoints:
+      get:
+        method: GET
+        path: /pricefeed/notapplicable/inidicesindia/{key}
+        base_url_override: https://priceapi.moneycontrol.com
+        response_format: json
+        response_path: data
+        description: Live quote for an Indian index.
+        params:
+          - name: key
+            location: path
+            type: string
+            required: true
+            description: "Index key: 'in;SEN' (SENSEX), 'in;NSX' (NIFTY 50), 'in;nbx' (NIFTY BANK), 'in;ccx' (NIFTY IT)"
+        example: "  moneycontrol-pp-cli indices get --key \"in;SEN\""
+
+  stocks:
+    description: "Per-stock quote (full pricefeed: price, 52H/L, 1d-10y %chg, CAGR, volume, sector)"
+    endpoints:
+      quote:
+        method: GET
+        path: /pricefeed/nse/equitycash/{sc_id}
+        base_url_override: https://priceapi.moneycontrol.com
+        response_format: json
+        response_path: data
+        description: Full NSE equity quote for a stock by its moneycontrol sc_id.
+        params:
+          - name: sc_id
+            location: path
+            type: string
+            required: true
+            description: "Moneycontrol sc_id, e.g. 'RI' (Reliance), 'HDF01' (HDFC Bank), 'ITC' (ITC), 'INF' (Infosys)"
+        example: "  moneycontrol-pp-cli stocks quote --sc-id RI"
+
+  trending:
+    description: Trending stocks widget (most-searched tickers right now).
+    endpoints:
+      list:
+        method: GET
+        path: /techmvc/mc_widgets/trending_stocks
+        response_format: html
+        description: Currently trending stocks on moneycontrol.
+        params:
+          - name: limit
+            location: query
+            type: integer
+            required: false
+            default: 10
+            description: Number of trending stocks to return.
+          - name: classic
+            location: query
+            type: string
+            required: false
+            default: "true"
+        html_extract:
+          mode: links
+          link_prefixes: ["/india/stockpricequote"]
+
+cache:
+  enabled: true
+  stale_after: 168h
+
+learn:
+  # learn no-entities escape: stock sc_ids and index keys are exact-match identifiers, not aliasable vocabulary

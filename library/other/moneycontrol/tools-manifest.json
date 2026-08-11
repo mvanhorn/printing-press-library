@@ -1,0 +1,121 @@
+{
+  "api_name": "moneycontrol",
+  "base_url": "https://www.moneycontrol.com",
+  "description": "Indian market news and quotes without the scraping — offline-searchable and agent-native.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "articles_by_category",
+      "description": "News headlines within a category (e.g. business/markets, business/stocks, india, world). Required: category_path.",
+      "method": "GET",
+      "path": "/news/{category_path}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "category_path",
+          "type": "string",
+          "location": "path",
+          "description": "Category path, e.g. 'business/markets', 'business/stocks', 'india', 'world', 'business', 'latest-news'",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "articles_by_tag",
+      "description": "News headlines tagged to a stock or topic (e.g. reliance-industries, infosys, nifty). Required: slug.",
+      "method": "GET",
+      "path": "/news/tags/{slug}.html",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Tag slug, e.g. 'reliance-industries', 'infosys', 'tata-consultancy-services'",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "articles_get",
+      "description": "Full article page (title, description, and raw body HTML for goquery extraction). Required: slug.",
+      "method": "GET",
+      "path": "/news/{slug}.html",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Full article path after /news/, e.g. 'india/tribunals-reforms-bill-2026-...-14001877' or 'business/markets/stock-market-live-updates-...-14000775'",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "articles_latest",
+      "description": "Latest news headlines across all categories.",
+      "method": "GET",
+      "path": "/news/latest-news/",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "indices_get",
+      "description": "Live quote for an Indian index. Required: key.",
+      "method": "GET",
+      "path": "/pricefeed/notapplicable/inidicesindia/{key}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "path",
+          "description": "Index key: 'in;SEN' (SENSEX), 'in;NSX' (NIFTY 50), 'in;nbx' (NIFTY BANK), 'in;ccx' (NIFTY IT)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "stocks_quote",
+      "description": "Full NSE equity quote for a stock by its moneycontrol sc_id. Required: sc_id.",
+      "method": "GET",
+      "path": "/pricefeed/nse/equitycash/{sc_id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "sc_id",
+          "type": "string",
+          "location": "path",
+          "description": "Moneycontrol sc_id, e.g. 'RI' (Reliance), 'HDF01' (HDFC Bank), 'ITC' (ITC), 'INF' (Infosys)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "trending_list",
+      "description": "Currently trending stocks on moneycontrol. Optional: limit (default: 10), classic (default: true).",
+      "method": "GET",
+      "path": "/techmvc/mc_widgets/trending_stocks",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "limit",
+          "type": "integer",
+          "location": "query",
+          "description": "Number of trending stocks to return."
+        },
+        {
+          "name": "classic",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    }
+  ]
+}
