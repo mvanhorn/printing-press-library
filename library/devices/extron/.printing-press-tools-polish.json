@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-08-11T14:24:56.653096Z",
+  "cli_dir": "\u003ccli-dir\u003e/extron-pp-cli",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-08-11T14:24:10.703384Z"
+  }
+}

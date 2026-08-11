@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/extron-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260811-011552-d999fbbe",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}
