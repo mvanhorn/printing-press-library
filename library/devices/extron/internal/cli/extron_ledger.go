@@ -66,6 +66,19 @@ func resolveLedgerPath(dir, file string) (string, error) {
 	return filepath.Join(dir, clean), nil
 }
 
+// readLedgerLocked loads the ledger under the same exclusive lock the writer
+// uses, so verification/update reads cannot observe a half-committed or
+// concurrently-replaced ledger.
+func readLedgerLocked(dir string) ([]downloadRecord, error) {
+	var recs []downloadRecord
+	err := withLedgerLock(dir, func() error {
+		var lerr error
+		recs, lerr = loadLedger(dir)
+		return lerr
+	})
+	return recs, err
+}
+
 func saveLedger(dir string, recs []downloadRecord) error {
 	data, err := json.MarshalIndent(recs, "", "  ")
 	if err != nil {

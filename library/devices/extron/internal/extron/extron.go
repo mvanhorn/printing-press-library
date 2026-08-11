@@ -238,7 +238,8 @@ func (c *Client) Download(ctx context.Context, docURL, dest string) (int64, erro
 		return 0, fmt.Errorf("download %s returned a non-PDF body (content-type %q); not writing it to disk", docURL, resp.Header.Get("Content-Type"))
 	}
 	body := io.MultiReader(bytes.NewReader(head), resp.Body)
-	if dir := filepath.Dir(dest); dir != "" {
+	dir := filepath.Dir(dest)
+	if dir != "" {
 		if err := os.MkdirAll(dir, 0o755); err != nil {
 			return 0, fmt.Errorf("creating download dir: %w", err)
 		}
@@ -247,14 +248,24 @@ func (c *Client) Download(ctx context.Context, docURL, dest string) (int64, erro
 	if fi, err := os.Lstat(dest); err == nil && fi.Mode()&os.ModeSymlink != 0 {
 		return 0, fmt.Errorf("refusing to overwrite symlink at %s", dest)
 	}
-	f, err := os.OpenFile(dest, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o644)
+	// Stream to a temp file first, then rename into place: an interrupted
+	// stream (WAF reset, timeout) leaves no truncated file at the final path.
+	tmp, err := os.CreateTemp(dir, ".download-*.part")
 	if err != nil {
-		return 0, fmt.Errorf("opening %s: %w", dest, err)
+		return 0, fmt.Errorf("creating temp file: %w", err)
 	}
-	defer f.Close()
-	n, err := io.Copy(f, body)
+	tmpName := tmp.Name()
+	defer os.Remove(tmpName)
+	n, err := io.Copy(tmp, body)
 	if err != nil {
+		tmp.Close()
 		return n, fmt.Errorf("writing %s: %w", dest, err)
+	}
+	if err := tmp.Close(); err != nil {
+		return n, fmt.Errorf("closing %s: %w", dest, err)
+	}
+	if err := os.Rename(tmpName, dest); err != nil {
+		return n, fmt.Errorf("finalizing %s: %w", dest, err)
 	}
 	return n, nil
 }

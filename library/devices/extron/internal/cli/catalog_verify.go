@@ -44,7 +44,7 @@ func newNovelCatalogVerifyCmd(flags *rootFlags) *cobra.Command {
 				_ = cmd.Usage()
 				return usageErr(fmt.Errorf("--dir is required (the folder holding downloaded docs)"))
 			}
-			recs, err := loadLedger(dir)
+			recs, err := readLedgerLocked(dir)
 			if err != nil {
 				return err
 			}

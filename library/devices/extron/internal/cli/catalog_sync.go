@@ -78,7 +78,7 @@ func newNovelCatalogSyncCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			cursor := "partial"
-			if full {
+			if full && maxPages <= 0 {
 				cursor = "full"
 			}
 			if err := db.SaveSyncState(catalogResource, cursor, total); err != nil {

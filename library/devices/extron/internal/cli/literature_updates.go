@@ -65,7 +65,7 @@ func newNovelLiteratureUpdatesCmd(flags *rootFlags) *cobra.Command {
 			for _, d := range docs {
 				byURL[d.URL] = d
 			}
-			recs, err := loadLedger(dir)
+			recs, err := readLedgerLocked(dir)
 			if err != nil {
 				return err
 			}
