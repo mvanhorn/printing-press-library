@@ -8,6 +8,8 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/health/suppco/internal/provider"
 )
 
+const printingPressMockAuthorization = "Bearer mock-token-for-testing"
+
 func init() {
 	registerClientHook(configureSuppCoClient)
 }
@@ -20,7 +22,9 @@ func configureSuppCoClient(c *client.Client) error {
 // non-secret credential. Binding all three facts prevents verify-like ambient
 // environment variables from redirecting a real saved bearer token.
 func allowPrintingPressMockOrigin(c *client.Client) bool {
-	return cliutil.IsVerifyEnv() && cliutil.IsVerifyLiveHTTPEnv() &&
-		c != nil && c.Config != nil &&
-		strings.TrimSpace(c.Config.AuthHeader()) == "Bearer mock-token-for-testing"
+	if !cliutil.IsVerifyEnv() || !cliutil.IsVerifyLiveHTTPEnv() || c == nil || c.Config == nil {
+		return false
+	}
+	authorization := strings.TrimSpace(c.Config.AuthHeader())
+	return authorization == printingPressMockAuthorization
 }

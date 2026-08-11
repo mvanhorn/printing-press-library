@@ -14,10 +14,14 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/health/suppco/internal/provider"
 )
 
+const printingPressMockAuthorization = "Bearer mock-token-for-testing"
+
 func allowPrintingPressMockOrigin(c *client.Client) bool {
-	return cliutil.IsVerifyEnv() && cliutil.IsVerifyLiveHTTPEnv() &&
-		c != nil && c.Config != nil &&
-		strings.TrimSpace(c.Config.AuthHeader()) == "Bearer mock-token-for-testing"
+	if !cliutil.IsVerifyEnv() || !cliutil.IsVerifyLiveHTTPEnv() || c == nil || c.Config == nil {
+		return false
+	}
+	authorization := strings.TrimSpace(c.Config.AuthHeader())
+	return authorization == printingPressMockAuthorization
 }
 
 func newMCPProvider() (*provider.Service, error) {

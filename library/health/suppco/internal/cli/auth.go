@@ -161,7 +161,13 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 			// log line): even a masked-tail notice could leak token bytes through
 			// scripted dogfood that captures stderr.
 			cfg.PrepareForBearerTokenSave()
-			if err := cfg.SaveTokens("", "", token, "", cfg.TokenExpiry); err != nil {
+			if err := cfg.SaveTokens(
+				"",
+				"",
+				token,
+				"",
+				cfg.TokenExpiry,
+			); err != nil {
 				return configErr(fmt.Errorf("saving token: %w", err))
 			}
 			envOverridesSaved := os.Getenv("SUPPCO_ACCESS_TOKEN") != ""

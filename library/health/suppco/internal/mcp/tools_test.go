@@ -18,7 +18,9 @@ import (
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 
+	"github.com/mvanhorn/printing-press-library/library/health/suppco/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/health/suppco/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/health/suppco/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/health/suppco/internal/mcp/bound"
 	"github.com/mvanhorn/printing-press-library/library/health/suppco/internal/store"
 )
@@ -112,6 +114,15 @@ func TestMCPRegisterToolsExposesExactSuppCoSurface(t *testing.T) {
 	sort.Strings(got)
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("MCP tools = %#v, want %#v", got, want)
+	}
+}
+
+func TestMCPVerifyEnvironmentCannotRedirectARealBearerToken(t *testing.T) {
+	t.Setenv("PRINTING_PRESS_VERIFY", "1")
+	t.Setenv("PRINTING_PRESS_VERIFY_LIVE_HTTP", "1")
+	c := &client.Client{Config: &config.Config{AccessToken: "synthetic-real-token"}}
+	if allowPrintingPressMockOrigin(c) {
+		t.Fatal("verifier flags accepted a non-mock bearer token for loopback")
 	}
 }
 
