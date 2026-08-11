@@ -149,7 +149,7 @@
     },
     {
       "name": "contact_list",
-      "description": "List contacts with optional search and filters. Optional: search, timezone, limit (plus 1 more). Returns array of Contact.",
+      "description": "List contacts with optional search and filters. Required body: search, filter, timezone (the CLI supplies wildcard defaults). Optional: limit, cursorId (query params). Returns array of Contact.",
       "method": "POST",
       "path": "/contact/list",
       "params": [
@@ -157,25 +157,34 @@
           "name": "search",
           "type": "string",
           "location": "body",
-          "description": "Free-text search across contacts"
+          "description": "Free-text search across contacts. Required by the API; the CLI defaults to \"\" (matches every contact)",
+          "required": true
+        },
+        {
+          "name": "filter",
+          "type": "object",
+          "location": "body",
+          "description": "Filter expression. Required by the API; the CLI defaults to the wildcard {\"$and\":[]}. Supply a custom filter with --stdin",
+          "required": true
         },
         {
           "name": "timezone",
           "type": "string",
           "location": "body",
-          "description": "Timezone for the filter evaluation"
+          "description": "Timezone for the filter evaluation. Required by the API; the CLI defaults to UTC",
+          "required": true
         },
         {
           "name": "limit",
           "type": "int",
-          "location": "body",
-          "description": "Max contacts to return (1-100)"
+          "location": "query",
+          "description": "Max contacts to return (1-100). Query parameter only: the API silently ignores it in the body"
         },
         {
           "name": "cursorId",
           "type": "int",
-          "location": "body",
-          "description": "Pagination cursor from previous response"
+          "location": "query",
+          "description": "Pagination cursor from previous response. Query parameter only: the API silently ignores it in the body"
         }
       ]
     },

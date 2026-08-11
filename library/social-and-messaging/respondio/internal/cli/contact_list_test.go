@@ -176,6 +176,13 @@ func TestContactListNextCursor(t *testing.T) {
 		{"url without cursor terminates", `"https://api.respond.io/v2/contact/list?limit=100"`, ""},
 		{"numeric string", `"12"`, "12"},
 		{"opaque token terminates", `"abc"`, ""},
+		// A cursor lifted out of a URL gets the same validation as a bare one:
+		// cursorId is an int parameter and the API does emit non-positive ids
+		// (pagination.previous carries negatives), so these must all stop the
+		// walk rather than send an unusable cursorId back.
+		{"url cursor zero terminates", `"https://api.respond.io/v2/contact/list?limit=100&cursorId=0"`, ""},
+		{"url cursor negative terminates", `"https://api.respond.io/v2/contact/list?limit=100&cursorId=-7"`, ""},
+		{"url cursor non-numeric terminates", `"https://api.respond.io/v2/contact/list?limit=100&cursorId=abc"`, ""},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -235,6 +242,211 @@ func TestContactList_AllDryRun_MatchesSingleShot(t *testing.T) {
 	}
 	if got := atomic.LoadInt32(&reqs); got != 0 {
 		t.Fatalf("dry run issued %d real request(s), want 0", got)
+	}
+}
+
+// captureContactListRequests runs `contact list` with extra against a stub
+// server and returns the decoded body and raw query string of every request it
+// received.
+func captureContactListRequests(t *testing.T, respond func(n int, w http.ResponseWriter), extra ...string) (bodies []map[string]any, queries []string) {
+	t.Helper()
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var body map[string]any
+		_ = json.NewDecoder(r.Body).Decode(&body)
+		bodies = append(bodies, body)
+		queries = append(queries, r.URL.RawQuery)
+		respond(len(bodies), w)
+	}))
+	defer srv.Close()
+
+	cmd := RootCmd()
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&out)
+	args := append([]string{"contact", "list", "--config", writeContactListConfig(t, srv.URL), "--agent"}, extra...)
+	cmd.SetArgs(args)
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("execute %v: %v\noutput=%s", args, err, out.String())
+	}
+	return bodies, queries
+}
+
+func onePage(_ int, w http.ResponseWriter) { w.Write([]byte(`{"items":[{"id":1}]}`)) }
+
+// TestContactList_AllDefaultsToMaxPageSize pins the page size `--all` requests
+// when the operator passed no --limit. Respond.io's own default is 10 items per
+// page, which against the --all page cap truncates the walk two orders of
+// magnitude early (~10k contacts) while reporting it as a cap hit.
+func TestContactList_AllDefaultsToMaxPageSize(t *testing.T) {
+	_, queries := captureContactListRequests(t, onePage, "--all")
+	if len(queries) != 1 {
+		t.Fatalf("requests = %d, want 1", len(queries))
+	}
+	q, err := url.ParseQuery(queries[0])
+	if err != nil {
+		t.Fatalf("parse query %q: %v", queries[0], err)
+	}
+	if got := q.Get("limit"); got != "100" {
+		t.Fatalf("--all limit query param = %q, want %q (query=%q)", got, "100", queries[0])
+	}
+}
+
+// TestContactList_AllHonorsExplicitLimit asserts the --all default never
+// overrides an operator-supplied --limit.
+func TestContactList_AllHonorsExplicitLimit(t *testing.T) {
+	_, queries := captureContactListRequests(t, onePage, "--all", "--limit", "25")
+	q, err := url.ParseQuery(queries[0])
+	if err != nil {
+		t.Fatalf("parse query %q: %v", queries[0], err)
+	}
+	if got := q.Get("limit"); got != "25" {
+		t.Fatalf("limit query param = %q, want %q (query=%q)", got, "25", queries[0])
+	}
+}
+
+// TestContactList_SinglePageSendsNoDefaultLimit asserts the --all page-size
+// default stays scoped to --all: a single-shot list still lets the API pick.
+func TestContactList_SinglePageSendsNoDefaultLimit(t *testing.T) {
+	_, queries := captureContactListRequests(t, onePage)
+	q, err := url.ParseQuery(queries[0])
+	if err != nil {
+		t.Fatalf("parse query %q: %v", queries[0], err)
+	}
+	if q.Has("limit") {
+		t.Fatalf("single-shot list sent an unexpected limit: %q", queries[0])
+	}
+}
+
+// setStdin points os.Stdin at a pipe carrying s for the duration of the test.
+func setStdin(t *testing.T, s string) {
+	t.Helper()
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Fatalf("pipe: %v", err)
+	}
+	orig := os.Stdin
+	os.Stdin = r
+	t.Cleanup(func() {
+		os.Stdin = orig
+		r.Close()
+	})
+	go func() {
+		w.WriteString(s)
+		w.Close()
+	}()
+}
+
+// TestContactList_StdinBodyGetsRequiredMembers asserts a partial stdin body is
+// backfilled with the search/filter/timezone trio Respond.io requires. Without
+// it, `echo '{"search":"x"}' | contact list --stdin` is an outright HTTP 400.
+// Members the caller did send must survive untouched.
+func TestContactList_StdinBodyGetsRequiredMembers(t *testing.T) {
+	setStdin(t, `{"search":"acme"}`)
+	bodies, _ := captureContactListRequests(t, onePage, "--stdin")
+	body := bodies[0]
+	for _, key := range []string{"search", "filter", "timezone"} {
+		if _, ok := body[key]; !ok {
+			t.Fatalf("stdin body missing required %q: %v", key, body)
+		}
+	}
+	if body["search"] != "acme" {
+		t.Fatalf("stdin search = %v, want %q (the caller's value must win)", body["search"], "acme")
+	}
+	filter, ok := body["filter"].(map[string]any)
+	if !ok {
+		t.Fatalf("stdin filter = %v (%T), want a wildcard object", body["filter"], body["filter"])
+	}
+	if _, ok := filter["$and"]; !ok {
+		t.Fatalf("stdin filter missing $and wildcard: %v", filter)
+	}
+}
+
+// TestContactList_StdinBodyKeepsCallerValues asserts the backfill only fills
+// gaps: a fully specified stdin body passes through verbatim.
+func TestContactList_StdinBodyKeepsCallerValues(t *testing.T) {
+	setStdin(t, `{"search":"acme","filter":{"$or":[]},"timezone":"Asia/Tokyo"}`)
+	bodies, _ := captureContactListRequests(t, onePage, "--stdin")
+	body := bodies[0]
+	if body["timezone"] != "Asia/Tokyo" {
+		t.Fatalf("stdin timezone = %v, want %q", body["timezone"], "Asia/Tokyo")
+	}
+	filter, ok := body["filter"].(map[string]any)
+	if !ok {
+		t.Fatalf("stdin filter = %v (%T), want the caller's object", body["filter"], body["filter"])
+	}
+	if _, ok := filter["$or"]; !ok {
+		t.Fatalf("caller filter was overwritten: %v", filter)
+	}
+}
+
+// TestContactList_EmptyTimezoneKeepsDefault asserts an explicit `--timezone ""`
+// does not blank out the UTC default. The flag being Changed() is not enough:
+// an empty timezone is the same HTTP 400 the default exists to prevent.
+func TestContactList_EmptyTimezoneKeepsDefault(t *testing.T) {
+	bodies, _ := captureContactListRequests(t, onePage, "--timezone", "")
+	if bodies[0]["timezone"] != "UTC" {
+		t.Fatalf("timezone = %v, want %q", bodies[0]["timezone"], "UTC")
+	}
+}
+
+// TestContactList_ExplicitTimezoneWins keeps the flag working.
+func TestContactList_ExplicitTimezoneWins(t *testing.T) {
+	bodies, _ := captureContactListRequests(t, onePage, "--timezone", "Asia/Tokyo")
+	if bodies[0]["timezone"] != "Asia/Tokyo" {
+		t.Fatalf("timezone = %v, want %q", bodies[0]["timezone"], "Asia/Tokyo")
+	}
+}
+
+// TestContactList_EmptySearchStaysWildcard asserts `--search ""` is honored as
+// the wildcard it is, rather than being treated like the empty timezone.
+func TestContactList_EmptySearchStaysWildcard(t *testing.T) {
+	bodies, _ := captureContactListRequests(t, onePage, "--search", "")
+	if bodies[0]["search"] != "" {
+		t.Fatalf("search = %v, want the empty wildcard", bodies[0]["search"])
+	}
+}
+
+// stuckContactPager always answers with the same next cursor, the shape an API
+// that never advances produces.
+type stuckContactPager struct{ n int }
+
+func (p *stuckContactPager) PostQueryWithParams(_ context.Context, _ string, _ map[string]string, _ any) (json.RawMessage, int, error) {
+	p.n++
+	return json.RawMessage(`{"items":[{"id":1}],"pagination":{"next":5}}`), 200, nil
+}
+
+// TestContactList_All_StuckCursorAborts asserts the --all loop stops as soon as
+// the API hands back the cursor it was just sent. Without the guard the loop
+// burns the full page cap on 1000 identical requests, accumulates 1000 duplicate
+// items, and then blames a truncation that never happened.
+func TestContactList_All_StuckCursorAborts(t *testing.T) {
+	pager := &stuckContactPager{}
+	cmd := &cobra.Command{}
+	cmd.SetOut(io.Discard)
+	flags := &rootFlags{}
+	var stderr bytes.Buffer
+
+	data, _, _, err := fetchAllContactPages(pager, cmd, flags, &stderr, "/contact/list", map[string]string{}, map[string]any{}, contactListAllPageCap)
+	if err != nil {
+		t.Fatalf("fetchAllContactPages: %v", err)
+	}
+	if pager.n != 2 {
+		t.Fatalf("pages fetched = %d, want 2 (abort on the first non-advancing cursor)", pager.n)
+	}
+	var env struct {
+		Items []json.RawMessage `json:"items"`
+	}
+	if err := json.Unmarshal(data, &env); err != nil {
+		t.Fatalf("parse accumulated payload: %v", err)
+	}
+	if len(env.Items) != 2 {
+		t.Fatalf("accumulated items = %d, want 2 (no duplicate flood)", len(env.Items))
+	}
+	if !strings.Contains(stderr.String(), `"reason":"stuck_pagination"`) {
+		t.Fatalf("stuck-cursor warning not emitted:\n%s", stderr.String())
+	}
+	if strings.Contains(stderr.String(), "pagination_cap_hit") {
+		t.Fatalf("a non-advancing cursor must not be reported as a cap truncation:\n%s", stderr.String())
 	}
 }
 

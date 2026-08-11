@@ -46,34 +46,47 @@ func newContactListCmd(flags *rootFlags) *cobra.Command {
 				if err := json.Unmarshal(stdinData, &jsonBody); err != nil {
 					return fmt.Errorf("parsing stdin JSON: %w", err)
 				}
+				// PATCH(amend-2026-08-11: required wildcard list body) — the
+				// API rejects a stdin body just as hard as a flag-built one,
+				// so backfill only the members the caller left out; anything
+				// they did send (including an explicit null) wins.
+				applyContactListRequiredBody(jsonBody)
 				body = jsonBody
 			} else {
 				// PATCH(amend-2026-08-11: required wildcard list body) —
 				// Respond.io rejects /contact/list with HTTP 400 unless
 				// search, filter, and timezone are all present; an empty
 				// search plus a wildcard $and filter matches every contact.
-				bodyMap := map[string]any{
-					"search":   "",
-					"filter":   map[string]any{"$and": []any{}},
-					"timezone": "UTC",
-				}
+				bodyMap := map[string]any{}
+				applyContactListRequiredBody(bodyMap)
 				body = bodyMap
+				// An empty --search is meaningful: it is the wildcard that
+				// matches every contact, and it is already the default.
 				if cmd.Flags().Changed("search") || bodySearch != "" {
 					bodyMap["search"] = bodySearch
 				}
-				if cmd.Flags().Changed("timezone") || bodyTimezone != "" {
+				// An empty --timezone is not meaningful, so it must never beat
+				// the UTC default: `--timezone ""` sets Changed(), and sending
+				// "" back is the same HTTP 400 the default exists to avoid.
+				if bodyTimezone != "" {
 					bodyMap["timezone"] = bodyTimezone
 				}
-				// PATCH(amend-2026-08-11: query-only pagination params) —
-				// limit and cursorId are only honored as query parameters; in
-				// the body they are silently ignored and every page comes back
-				// at the server default of 10.
-				if cmd.Flags().Changed("limit") || bodyLimit != 0 {
-					params["limit"] = strconv.Itoa(bodyLimit)
-				}
-				if cmd.Flags().Changed("cursor-id") || bodyCursorId != 0 {
-					params["cursorId"] = strconv.Itoa(bodyCursorId)
-				}
+			}
+			// PATCH(amend-2026-08-11: query-only pagination params) — limit and
+			// cursorId are only honored as query parameters; in the body they
+			// are silently ignored and every page comes back at the server
+			// default of 10. Applied to both body sources so --stdin paginates
+			// like the flag path.
+			if cmd.Flags().Changed("limit") || bodyLimit != 0 {
+				params["limit"] = strconv.Itoa(bodyLimit)
+			} else if flagAll {
+				// Without an explicit limit the API serves pages of 10, so the
+				// --all page cap would silently truncate the walk at ~10k
+				// contacts. Match the page size sync uses.
+				params["limit"] = strconv.Itoa(contactListAllPageSize)
+			}
+			if cmd.Flags().Changed("cursor-id") || bodyCursorId != 0 {
+				params["cursorId"] = strconv.Itoa(bodyCursorId)
 			}
 			var data []byte
 			var statusCode int
@@ -255,6 +268,29 @@ type postQueryPager interface {
 // hard cap and stop.
 const contactListAllPageCap = 1000
 
+// contactListAllPageSize is the page size `contact list --all` requests when the
+// operator did not pass --limit. Respond.io defaults to 10 items per page, which
+// combined with contactListAllPageCap would truncate the walk two orders of
+// magnitude early; 100 is the API maximum and the size sync already uses.
+const contactListAllPageSize = 100
+
+// applyContactListRequiredBody fills in the search/filter/timezone trio that
+// Respond.io requires on POST /contact/list ("Please check if filter is
+// provided" otherwise). Only absent keys are written, so a caller-supplied
+// value is never overwritten. An empty search plus a wildcard $and filter
+// matches every contact.
+func applyContactListRequiredBody(body map[string]any) {
+	if _, ok := body["search"]; !ok {
+		body["search"] = ""
+	}
+	if _, ok := body["filter"]; !ok {
+		body["filter"] = map[string]any{"$and": []any{}}
+	}
+	if _, ok := body["timezone"]; !ok {
+		body["timezone"] = "UTC"
+	}
+}
+
 // emitContactListTruncationWarning surfaces a `contact list --all` accumulation
 // that reached the page cap while the API still advertised a next cursor,
 // matching the codebase's truncation-warning conventions: a human-readable line
@@ -265,6 +301,19 @@ func emitContactListTruncationWarning(w io.Writer, humanFriendly bool, pages, it
 		return
 	}
 	fmt.Fprintf(w, `{"event":"contact_list_warning","resource":"contact","reason":"pagination_cap_hit","message":"contact list --all reached the page cap while more pages remained; data may be truncated. Use --cursor-id to page manually.","pages":%d,"items":%d}`+"\n", pages, items)
+}
+
+// emitContactListStuckCursorWarning reports a `contact list --all` accumulation
+// aborted because the API echoed back the cursor it was just sent. Distinct from
+// the cap warning on purpose: nothing was truncated by our ceiling, the API
+// simply never advanced, and the accumulated pages are duplicates of each other.
+// Mirrors the sync path's stuck-cursor detector.
+func emitContactListStuckCursorWarning(w io.Writer, humanFriendly bool, cursor string, pages, items int) {
+	if humanFriendly {
+		fmt.Fprintf(w, "\nwarning: contact list --all stopped after %d page(s), %d item(s): the API returned the same next cursor (%s) it was just sent, so pagination never advanced.\n", pages, items, cursor)
+		return
+	}
+	fmt.Fprintf(w, `{"event":"contact_list_warning","resource":"contact","reason":"stuck_pagination","message":"API returned the same next cursor it was just sent; pagination never advanced, so the accumulation was aborted.","cursor":%q,"pages":%d,"items":%d}`+"\n", cursor, pages, items)
 }
 
 // contactListNextCursor reads the next-page cursor out of a /contact/list
@@ -284,14 +333,16 @@ func contactListNextCursor(raw json.RawMessage) string {
 			return ""
 		}
 		if isFollowableNextURL(s) {
-			return cursorFromNextURL(s, "cursorId")
+			// The cursor extracted from the URL gets the same validation as a
+			// bare one: Respond.io does emit non-positive cursorIds (negatives
+			// show up in pagination.previous), and cursorId is an int
+			// parameter, so a zero/negative/non-numeric value is not a cursor
+			// we can send back.
+			return validContactListCursor(cursorFromNextURL(s, "cursorId"))
 		}
 		// A bare numeric token still advances; anything else is not a cursor
 		// we know how to send back.
-		if i, err := strconv.ParseInt(s, 10, 64); err == nil && i > 0 {
-			return strconv.FormatInt(i, 10)
-		}
-		return ""
+		return validContactListCursor(s)
 	case '-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
 		var num json.Number
 		if err := json.Unmarshal(raw, &num); err != nil {
@@ -306,14 +357,26 @@ func contactListNextCursor(raw json.RawMessage) string {
 	return ""
 }
 
+// validContactListCursor normalizes a candidate cursorId token, returning "" for
+// anything the API cannot be paged with: a non-integer token, or a zero/negative
+// id (which signals "no further page" rather than a position to resume from).
+func validContactListCursor(v string) string {
+	i, err := strconv.ParseInt(v, 10, 64)
+	if err != nil || i <= 0 {
+		return ""
+	}
+	return strconv.FormatInt(i, 10)
+}
+
 // fetchAllContactPages implements `contact list --all`: it POSTs /contact/list
 // repeatedly, threading the `pagination.next` cursor back into the request's
 // `cursorId` query parameter until the API stops returning one (absent, null,
 // or zero), then returns the accumulated items as one {"items":[...]} response so
 // downstream rendering sees the same shape as a single-page result. It also
 // returns the per-page partial-failure report (if any page reported one) so the
-// caller can preserve the non-zero partial-failure exit, and emits a truncation
-// warning when the page cap is hit while more pages remain.
+// caller can preserve the non-zero partial-failure exit. Two abnormal stops are
+// reported rather than swallowed: the page cap being hit while more pages
+// remain, and a cursor that comes back unchanged from the one just sent.
 func fetchAllContactPages(c postQueryPager, cmd *cobra.Command, flags *rootFlags, stderr io.Writer, path string, params map[string]string, body any, maxPages int) ([]byte, int, *partialFailureReport, error) {
 	var acc []json.RawMessage
 	var statusCode int
@@ -353,6 +416,14 @@ func fetchAllContactPages(c postQueryPager, cmd *cobra.Command, flags *rootFlags
 		if next == "" {
 			break
 		}
+		// Sticky-cursor detector, mirroring the sync path: an API that echoes
+		// back the cursor it was just sent would otherwise burn the full page
+		// cap re-fetching one page and report it as a truncation, which points
+		// at the wrong problem. Abort and say the cursor did not advance.
+		if next == params["cursorId"] {
+			emitContactListStuckCursorWarning(stderr, isTerminal(cmd.OutOrStdout()), next, page+1, len(acc))
+			return finishContactListPages(acc, statusCode, partialFailure)
+		}
 		// PATCH(amend-2026-08-11: query-only pagination params) — the cursor
 		// advances through the query string, not the body; Respond.io ignores
 		// a body cursorId, so threading it into the body looped forever on
@@ -365,6 +436,12 @@ func fetchAllContactPages(c postQueryPager, cmd *cobra.Command, flags *rootFlags
 	if page == maxPages {
 		emitContactListTruncationWarning(stderr, isTerminal(cmd.OutOrStdout()), maxPages, len(acc))
 	}
+	return finishContactListPages(acc, statusCode, partialFailure)
+}
+
+// finishContactListPages renders the accumulated pages as one {"items":[...]}
+// response so downstream rendering sees the same shape as a single-page result.
+func finishContactListPages(acc []json.RawMessage, statusCode int, partialFailure *partialFailureReport) ([]byte, int, *partialFailureReport, error) {
 	combined, err := json.Marshal(map[string]any{"items": acc})
 	if err != nil {
 		return nil, statusCode, partialFailure, fmt.Errorf("marshalling accumulated contact list: %w", err)

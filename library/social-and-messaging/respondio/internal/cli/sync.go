@@ -1819,7 +1819,8 @@ func findCursorInMap(m map[string]json.RawMessage, cursorKeys []string) string {
 		// Some APIs (Respond.io among them) ship the next cursor as a JSON
 		// number rather than a string (e.g. `pagination.next`). Render the
 		// integer form (no decimal point, no exponent) so the value round-trips
-		// cleanly into the next request body. A zero or non-integer value is
+		// cleanly into the next request — for contact that means the cursorId
+		// query parameter, not the body. A zero or non-integer value is
 		// treated as "skip", mirroring the existing string behavior.
 		var num json.Number
 		if err := json.Unmarshal(raw, &num); err == nil {
