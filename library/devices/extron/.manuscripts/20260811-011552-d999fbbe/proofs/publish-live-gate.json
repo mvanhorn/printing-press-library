@@ -200,7 +200,7 @@
         "--json"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"letters_fetched\": 1,\n  \"docs\": 30,\n  \"full\": false,\n  \"database\": \"/var/folders/sd/3jhmx2vs74v6g_zq2myslxcr0000gn/T/reasonix-session-tmp-173376762/printing-press-subprocess-1558301755/.local/share/extron-pp-cli/data.db\",\n  \"per_letter\": {\n    \"0\": 30\n  }\n}\ncatalog: letter 0: 30 docs (running total 30)\n"
+      "output_sample": "{\n  \"letters_fetched\": 1,\n  \"docs\": 30,\n  \"full\": false,\n  \"database\": \"/var/folders/sd/3jhmx2vs74v6g_zq2myslxcr0000gn/T/reasonix-session-tmp-173376762/printing-press-subprocess-4036028631/.local/share/extron-pp-cli/data.db\",\n  \"per_letter\": {\n    \"0\": 30\n  }\n}\ncatalog: letter 0: 30 docs (running total 30)\n"
     },
     {
       "command": "catalog sync",
@@ -270,7 +270,7 @@
         "doctor"
       ],
       "status": "pass",
-      "output_sample": "  OK Config: ok\n  OK Auth: not required\n  OK Verify Mode: normal operation\n  OK API: reachable\n  config_path: /var/folders/sd/3jhmx2vs74v6g_zq2myslxcr0000gn/T/reasonix-session-tmp-173376762/printing-press-subprocess-1558301755/.config/extron-pp-cli/config.toml\n  base_url: https://www.extron.com\n  credentials_location: none\n  version: 0.0.0-dev\n  OK Cache: fresh\n    db_path: /var/folders/sd/3jhmx2vs74v6g_zq2myslxcr0000gn/T/reasonix-session-tmp-173376762/printing-press-subprocess-1558301755/.local/share/extron-pp-cli/data.db\n    schema_version: 9\n    db_bytes: 180224\n    stale_after: 6h0m0s\n    resources:\n      - literature: 30 rows, 0s\n  Paths:\n    config: /var/folders/sd/3jhmx2vs74v6g_zq2myslxcr0000gn/T/reasonix-session-tmp-173376762/printing-press-subprocess-1558301755/.config/extron-pp-cli (XDG_CONFIG_HOME)\n    data: /var/folders/sd/3jhmx2vs74v6g_zq2myslxcr0000gn/T/reasonix-session-tmp-173376762/printing-press-subprocess-1558301755/.local/share/extron-pp-cli (XDG_DATA_HOME)\n    state: /var/folders/sd/3jhmx2vs74v6g_zq2myslxcr0000gn/T/reasonix-session-tmp-173376762/printing-press-subprocess-1558301755/.local/state/extron-pp-cli (XDG_STATE_HOME)\n    cache: /var/folders/sd/3jhmx2vs74v6g_zq2myslxcr0000gn/T/reasonix-session-tmp-173376762/printing-press-subprocess-1558301755/.cache/extron-pp-cli (XDG_CACHE_HOME)\n"
+      "output_sample": "  OK Config: ok\n  OK Auth: not required\n  OK Verify Mode: normal operation\n  OK API: reachable\n  config_path: /var/folders/sd/3jhmx2vs74v6g_zq2myslxcr0000gn/T/reasonix-session-tmp-173376762/printing-press-subprocess-4036028631/.config/extron-pp-cli/config.toml\n  base_url: https://www.extron.com\n  credentials_location: none\n  version: 0.0.0-dev\n  OK Cache: fresh\n    db_path: /var/folders/sd/3jhmx2vs74v6g_zq2myslxcr0000gn/T/reasonix-session-tmp-173376762/printing-press-subprocess-4036028631/.local/share/extron-pp-cli/data.db\n    schema_version: 9\n    db_bytes: 180224\n    stale_after: 6h0m0s\n    resources:\n      - literature: 30 rows, 0s\n  Paths:\n    config: /var/folders/sd/3jhmx2vs74v6g_zq2myslxcr0000gn/T/reasonix-session-tmp-173376762/printing-press-subprocess-4036028631/.config/extron-pp-cli (XDG_CONFIG_HOME)\n    data: /var/folders/sd/3jhmx2vs74v6g_zq2myslxcr0000gn/T/reasonix-session-tmp-173376762/printing-press-subprocess-4036028631/.local/share/extron-pp-cli (XDG_DATA_HOME)\n    state: /var/folders/sd/3jhmx2vs74v6g_zq2myslxcr0000gn/T/reasonix-session-tmp-173376762/printing-press-subprocess-4036028631/.local/state/extron-pp-cli (XDG_STATE_HOME)\n    cache: /var/folders/sd/3jhmx2vs74v6g_zq2myslxcr0000gn/T/reasonix-session-tmp-173376762/printing-press-subprocess-4036028631/.cache/extron-pp-cli (XDG_CACHE_HOME)\n"
     },
     {
       "command": "doctor",
@@ -280,7 +280,7 @@
         "--json"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"api\": \"reachable\",\n  \"auth\": \"not required\",\n  \"base_url\": \"https://www.extron.com\",\n  \"cache\": {\n    \"db_bytes\": 180224,\n    \"db_path\": \"/var/folders/sd/3jhmx2vs74v6g_zq2myslxcr0000gn/T/reasonix-session-tmp-173376762/printing-press-subprocess-1558301755/.local/share/extron-pp-cli/data.db\",\n    \"resources\": [\n      {\n        \"last_synced_at\": \"2026-08-11T15:09:34Z\",\n        \"rows\": 30,\n        \"staleness\": \"0s\",\n        \"type\": \"literature\"\n      }\n    ],\n    \"schema_version\": 9,\n    \"stale_after\": \"6h0m0s\",\n    \"status\": \"fresh\"\n  },\n  \"config\": \"ok\",\n  \"config_path\": \"/var/folders/sd/3jhmx2vs74v6g_zq2myslxcr0000gn/T/reasonix-session-tmp-173376762/printing-press-subprocess-1558301755/.config/extron-pp-cli/config.toml\",\n  \"credentials_location\": \"none\",\n  \"paths\": {\n    \"cache\": {\n      \"dir\": \"/var/folders/sd/3jhmx2vs74v6g_zq2myslxcr0000gn/T/reasonix-session-tmp-173376762/printing-press-subprocess-1558301755/.cache/extron-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CACHE_HOME\"\n    },\n    \"config\": {\n      \"dir\": \"/var/folders/sd/3jhmx2vs74v6g_zq2myslxcr0000gn/T/reasonix-session-tmp-173376762/printing-press-subprocess-1558301755/.config/extron-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CONFIG_HOME\"\n    },\n    \"data\": {\n      \"dir\": \"/var/folders/sd/3jhmx2vs74v6g_zq2myslxcr0000gn/T/reasonix-session-tmp-173376762/printing-press-subprocess-1558301755/.local/share/extron-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_DATA_HOME\"\n    },\n    \"state\": {\n      \"dir\": \"/var/folders/sd/3jhmx2vs74v6g_zq2myslxcr0000gn/T/reasonix-session-tmp-173376762/printing-press-subprocess-1558301755/.local/state/extron-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_STATE_HOME\"\n    },\n    \"status\": \"ok\"\n  },\n  \"verify_mode\": \"normal operation\",\n  \"version\": \"0.0.0-dev\"\n}\n"
+      "output_sample": "{\n  \"api\": \"reachable\",\n  \"auth\": \"not required\",\n  \"base_url\": \"https://www.extron.com\",\n  \"cache\": {\n    \"db_bytes\": 180224,\n    \"db_path\": \"/var/folders/sd/3jhmx2vs74v6g_zq2myslxcr0000gn/T/reasonix-session-tmp-173376762/printing-press-subprocess-4036028631/.local/share/extron-pp-cli/data.db\",\n    \"resources\": [\n      {\n        \"last_synced_at\": \"2026-08-11T17:15:25Z\",\n        \"rows\": 30,\n        \"staleness\": \"0s\",\n        \"type\": \"literature\"\n      }\n    ],\n    \"schema_version\": 9,\n    \"stale_after\": \"6h0m0s\",\n    \"status\": \"fresh\"\n  },\n  \"config\": \"ok\",\n  \"config_path\": \"/var/folders/sd/3jhmx2vs74v6g_zq2myslxcr0000gn/T/reasonix-session-tmp-173376762/printing-press-subprocess-4036028631/.config/extron-pp-cli/config.toml\",\n  \"credentials_location\": \"none\",\n  \"paths\": {\n    \"cache\": {\n      \"dir\": \"/var/folders/sd/3jhmx2vs74v6g_zq2myslxcr0000gn/T/reasonix-session-tmp-173376762/printing-press-subprocess-4036028631/.cache/extron-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CACHE_HOME\"\n    },\n    \"config\": {\n      \"dir\": \"/var/folders/sd/3jhmx2vs74v6g_zq2myslxcr0000gn/T/reasonix-session-tmp-173376762/printing-press-subprocess-4036028631/.config/extron-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CONFIG_HOME\"\n    },\n    \"data\": {\n      \"dir\": \"/var/folders/sd/3jhmx2vs74v6g_zq2myslxcr0000gn/T/reasonix-session-tmp-173376762/printing-press-subprocess-4036028631/.local/share/extron-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_DATA_HOME\"\n    },\n    \"state\": {\n      \"dir\": \"/var/folders/sd/3jhmx2vs74v6g_zq2myslxcr0000gn/T/reasonix-session-tmp-173376762/printing-press-subprocess-4036028631/.local/state/extron-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_STATE_HOME\"\n    },\n    \"status\": \"ok\"\n  },\n  \"verify_mode\": \"normal operation\",\n  \"version\": \"0.0.0-dev\"\n}\n"
     },
     {
       "command": "doctor",
@@ -620,7 +620,7 @@
         "./docs"
       ],
       "status": "pass",
-      "output_sample": "[\n  {\n    \"title\": \"MAV Plus Series\",\n    \"category\": \"Brochure\",\n    \"url\": \"/download/files/brochure/mav_plus_series_revE.pdf\",\n    \"file\": \"brochure/mav_plus_series_revE.pdf\",\n    \"bytes\": 2602041\n  },\n  {\n    \"title\": \"MAV Plus Series\",\n    \"category\": \"Declaration of Conformity\",\n    \"url\": \"/download/files/declaration/72-308-01_B.pdf\",\n    \"file\": \"declaration-of-conformity/72-308-01_B.pdf\",\n    \"bytes\": 389639\n  },\n  {\n    \"title\": \"MAV Plus Series\",\n    \"category\": \"Brochure\",\n    \"url\": \"/download/files/declaration/72-308-01_B.pdf\",\n    \"file\": \"brochure/72-308-01_B.pdf\",\n    \"bytes\": 389639\n  },\n  {\n    \"title\": \"MAV Plus Series\",\n    \"category\": \"Declaration of Conformity\",\n    \"url\": \"/download/files/brochure/mav_plus_series_revE.pdf\",\n    \"file\": \"declaration-of-conformity/mav_plus_series_revE.pdf\",\n    \"bytes\": 2602041\n  },\n  {\n    \"title\": \"MAV Plus Series\",\n    \"category\": \"Manual\",\n    \"url\": \"/download/files/brochure/mav_plus_series_revE.pdf\",\n    \"file\": \"manual/mav_plus_series_revE.pdf\",\n    \"bytes\": 2602041\n  },\n  {\n    \"title\": \"MAV Plus Series\",\n    \"category\": \"Manual\",\n    \"url\": \"/download/files/declaration/72-308-01_B.pdf\",\n    \"file\": \"manual/72-308-01_B.pdf\",\n    \"bytes\": 389639\n  }\n]\n"
+      "output_sample": "[\n  {\n    \"title\": \"MAV Plus Series\",\n    \"category\": \"Brochure\",\n    \"url\": \"/download/files/brochure/mav_plus_series_revE.pdf\",\n    \"file\": \"brochure/mav_plus_series_revE.pdf\",\n    \"bytes\": 2602041\n  },\n  {\n    \"title\": \"MAV Plus Series\",\n    \"category\": \"Declaration of Conformity\",\n    \"url\": \"/download/files/declaration/72-308-01_B.pdf\",\n    \"file\": \"declaration-of-conformity/72-308-01_B.pdf\",\n    \"bytes\": 389639\n  },\n  {\n    \"title\": \"MAV Plus Series\",\n    \"category\": \"Manual\",\n    \"url\": \"/download/files/brochure/mav_plus_series_revE.pdf\",\n    \"file\": \"manual/mav_plus_series_revE.pdf\",\n    \"bytes\": 2602041\n  },\n  {\n    \"title\": \"MAV Plus Series\",\n    \"category\": \"Manual\",\n    \"url\": \"/download/files/declaration/72-308-01_B.pdf\",\n    \"file\": \"manual/72-308-01_B.pdf\",\n    \"bytes\": 389639\n  },\n  {\n    \"title\": \"MAV Plus Series\",\n    \"category\": \"Brochure\",\n    \"url\": \"/download/files/declaration/72-308-01_B.pdf\",\n    \"file\": \"brochure/72-308-01_B.pdf\",\n    \"bytes\": 389639\n  },\n  {\n    \"title\": \"MAV Plus Series\",\n    \"category\": \"Declaration of Conformity\",\n    \"url\": \"/download/files/brochure/mav_plus_series_revE.pdf\",\n    \"file\": \"declaration-of-conformity/mav_plus_series_revE.pdf\",\n    \"bytes\": 2602041\n  }\n]\n"
     },
     {
       "command": "literature download",
@@ -1291,7 +1291,7 @@
         "sync"
       ],
       "status": "pass",
-      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"literature\"}\n{\"event\":\"sync_warning\",\"resource\":\"literature\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"literature\",\"fetched\":50}\n{\"event\":\"sync_complete\",\"resource\":\"literature\",\"total\":80,\"duration_ms\":994}\n{\"event\":\"sync_summary\",\"total_records\":80,\"resources\":1,\"success\":1,\"warned\":0,\"errored\":0,\"duration_ms\":994}\n"
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"literature\"}\n{\"event\":\"sync_warning\",\"resource\":\"literature\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"literature\",\"fetched\":50}\n{\"event\":\"sync_complete\",\"resource\":\"literature\",\"total\":80,\"duration_ms\":1602}\n{\"event\":\"sync_summary\",\"total_records\":80,\"resources\":1,\"success\":1,\"warned\":0,\"errored\":0,\"duration_ms\":1602}\n"
     },
     {
       "command": "sync",
@@ -1301,7 +1301,7 @@
         "--json"
       ],
       "status": "pass",
-      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"literature\"}\n{\"event\":\"sync_warning\",\"resource\":\"literature\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"literature\",\"fetched\":50}\n{\"event\":\"sync_complete\",\"resource\":\"literature\",\"total\":80,\"duration_ms\":898}\n{\"event\":\"sync_summary\",\"total_records\":80,\"resources\":1,\"success\":1,\"warned\":0,\"errored\":0,\"duration_ms\":898}\n"
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"literature\"}\n{\"event\":\"sync_warning\",\"resource\":\"literature\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"literature\",\"fetched\":50}\n{\"event\":\"sync_complete\",\"resource\":\"literature\",\"total\":80,\"duration_ms\":1138}\n{\"event\":\"sync_summary\",\"total_records\":80,\"resources\":1,\"success\":1,\"warned\":0,\"errored\":0,\"duration_ms\":1138}\n"
     },
     {
       "command": "sync",
@@ -1618,7 +1618,7 @@
         "archive"
       ],
       "status": "pass",
-      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"literature\"}\n{\"event\":\"sync_warning\",\"resource\":\"literature\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"literature\",\"fetched\":50}\n{\"event\":\"sync_complete\",\"resource\":\"literature\",\"total\":80,\"duration_ms\":746}\nArchived 80 items across 1 resources to /var/folders/sd/3jhmx2vs74v6g_zq2myslxcr0000gn/T/reasonix-session-tmp-173376762/printing-press-subprocess-1558301755/.local/share/extron-pp-cli/data.db\n  literature: 80 synced\n"
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"literature\"}\n{\"event\":\"sync_warning\",\"resource\":\"literature\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"literature\",\"fetched\":50}\n{\"event\":\"sync_complete\",\"resource\":\"literature\",\"total\":80,\"duration_ms\":1000}\nArchived 80 items across 1 resources to /var/folders/sd/3jhmx2vs74v6g_zq2myslxcr0000gn/T/reasonix-session-tmp-173376762/printing-press-subprocess-4036028631/.local/share/extron-pp-cli/data.db\n  literature: 80 synced\n"
     },
     {
       "command": "workflow archive",
@@ -1629,7 +1629,7 @@
         "--json"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"resources_synced\": 1,\n  \"store_path\": \"/var/folders/sd/3jhmx2vs74v6g_zq2myslxcr0000gn/T/reasonix-session-tmp-173376762/printing-press-subprocess-1558301755/.local/share/extron-pp-cli/data.db\",\n  \"timestamp\": \"2026-08-11T15:10:05Z\",\n  \"total_items\": 80\n}\n{\"event\":\"sync_start\",\"resource\":\"literature\"}\n{\"event\":\"sync_warning\",\"resource\":\"literature\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"literature\",\"fetched\":50}\n{\"event\":\"sync_complete\",\"resource\":\"literature\",\"total\":80,\"duration_ms\":807}\n  literature: 80 synced\n"
+      "output_sample": "{\n  \"resources_synced\": 1,\n  \"store_path\": \"/var/folders/sd/3jhmx2vs74v6g_zq2myslxcr0000gn/T/reasonix-session-tmp-173376762/printing-press-subprocess-4036028631/.local/share/extron-pp-cli/data.db\",\n  \"timestamp\": \"2026-08-11T17:16:04Z\",\n  \"total_items\": 80\n}\n{\"event\":\"sync_start\",\"resource\":\"literature\"}\n{\"event\":\"sync_warning\",\"resource\":\"literature\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"literature\",\"fetched\":50}\n{\"event\":\"sync_complete\",\"resource\":\"literature\",\"total\":80,\"duration_ms\":1260}\n  literature: 80 synced\n"
     },
     {
       "command": "workflow archive",
@@ -1657,7 +1657,7 @@
         "status"
       ],
       "status": "pass",
-      "output_sample": "Archive Status:\n  literature                     80 items\n\n  Total: 80 items\n  Store: /var/folders/sd/3jhmx2vs74v6g_zq2myslxcr0000gn/T/reasonix-session-tmp-173376762/printing-press-subprocess-1558301755/.local/share/extron-pp-cli/data.db\n"
+      "output_sample": "Archive Status:\n  literature                     80 items\n\n  Total: 80 items\n  Store: /var/folders/sd/3jhmx2vs74v6g_zq2myslxcr0000gn/T/reasonix-session-tmp-173376762/printing-press-subprocess-4036028631/.local/share/extron-pp-cli/data.db\n"
     },
     {
       "command": "workflow status",
@@ -1678,5 +1678,5 @@
       "reason": "no positional argument"
     }
   ],
-  "ran_at": "2026-08-11T15:09:33.027561Z"
+  "ran_at": "2026-08-11T17:15:23.476601Z"
 }

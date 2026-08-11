@@ -95,25 +95,29 @@ func saveLedger(dir string, recs []downloadRecord) error {
 	return os.Rename(tmpName, path)
 }
 
-// upsertLedgerRecords merges new records into the ledger by file path.
+// upsertLedgerRecords merges new records into the ledger by file path. The
+// read-merge-write runs under an exclusive lock so concurrent CLI processes
+// sharing --dir cannot silently drop each other's entries.
 func upsertLedgerRecords(dir string, recs []downloadRecord) error {
-	existing, err := loadLedger(dir)
-	if err != nil {
-		return err
-	}
-	byFile := make(map[string]int, len(existing))
-	for i, r := range existing {
-		byFile[r.File] = i
-	}
-	for _, r := range recs {
-		if i, ok := byFile[r.File]; ok {
-			existing[i] = r
-		} else {
-			existing = append(existing, r)
-			byFile[r.File] = len(existing) - 1
+	return withLedgerLock(dir, func() error {
+		existing, err := loadLedger(dir)
+		if err != nil {
+			return err
 		}
-	}
-	return saveLedger(dir, existing)
+		byFile := make(map[string]int, len(existing))
+		for i, r := range existing {
+			byFile[r.File] = i
+		}
+		for _, r := range recs {
+			if i, ok := byFile[r.File]; ok {
+				existing[i] = r
+			} else {
+				existing = append(existing, r)
+				byFile[r.File] = len(existing) - 1
+			}
+		}
+		return saveLedger(dir, existing)
+	})
 }
 
 func newDownloadRecord(doc extron.Doc, file string, sizeBytes int64) downloadRecord {

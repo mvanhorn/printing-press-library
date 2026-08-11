@@ -165,17 +165,26 @@ func downloadRackDocs(ctx context.Context, rows []rackRow, dir string) error {
 		return fmt.Errorf("--dir is required with --download")
 	}
 	client := extron.New()
+	recs := make([]downloadRecord, 0, 16)
 	for _, r := range rows {
 		if len(r.Docs) == 0 {
 			continue
 		}
 		for _, d := range r.Docs {
-			dest := downloadDest(dir, d)
-			if _, err := client.Download(ctx, client.AbsoluteURL(d.URL), dest); err != nil {
+			rel := downloadDest(dir, d)
+			full, err := resolveLedgerPath(dir, rel)
+			if err != nil {
 				return fmt.Errorf("downloading %s: %w", d.Title, err)
 			}
-			fmt.Fprintf(os.Stderr, "downloaded: %s -> %s\n", d.Title, dest)
+			n, err := client.Download(ctx, client.AbsoluteURL(d.URL), full)
+			if err != nil {
+				return fmt.Errorf("downloading %s: %w", d.Title, err)
+			}
+			recs = append(recs, newDownloadRecord(d, rel, n))
+			fmt.Fprintf(os.Stderr, "downloaded: %s -> %s\n", d.Title, rel)
 		}
 	}
-	return nil
+	// Keep rack downloads inside the same revision/integrity tracking as
+	// `literature download` so updates/verify cover the whole docs folder.
+	return upsertLedgerRecords(dir, recs)
 }

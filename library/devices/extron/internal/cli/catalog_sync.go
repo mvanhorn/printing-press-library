@@ -77,7 +77,11 @@ func newNovelCatalogSyncCmd(flags *rootFlags) *cobra.Command {
 				fmt.Fprintf(cmd.ErrOrStderr(), "catalog: letter %s: %d docs (running total %d)\n", letter, letterCounts[letter], total)
 			}
 
-			if err := db.SaveSyncState(catalogResource, "full", total); err != nil {
+			cursor := "partial"
+			if full {
+				cursor = "full"
+			}
+			if err := db.SaveSyncState(catalogResource, cursor, total); err != nil {
 				return fmt.Errorf("recording sync state: %w", err)
 			}
 

@@ -6,6 +6,7 @@
 package extron
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -225,6 +226,18 @@ func (c *Client) Download(ctx context.Context, docURL, dest string) (int64, erro
 	if resp.StatusCode != http.StatusOK {
 		return 0, fmt.Errorf("download %s returned HTTP %d", docURL, resp.StatusCode)
 	}
+	// Only accept PDF payloads: a 200 HTML error page or challenge body must
+	// not be written to disk or recorded as a valid document.
+	head := make([]byte, 5)
+	hn, err := io.ReadFull(resp.Body, head)
+	if err != nil && err != io.ErrUnexpectedEOF {
+		return 0, fmt.Errorf("reading %s: %w", docURL, err)
+	}
+	head = head[:hn]
+	if !strings.HasPrefix(string(head), "%PDF") {
+		return 0, fmt.Errorf("download %s returned a non-PDF body (content-type %q); not writing it to disk", docURL, resp.Header.Get("Content-Type"))
+	}
+	body := io.MultiReader(bytes.NewReader(head), resp.Body)
 	if dir := filepath.Dir(dest); dir != "" {
 		if err := os.MkdirAll(dir, 0o755); err != nil {
 			return 0, fmt.Errorf("creating download dir: %w", err)
@@ -239,7 +252,7 @@ func (c *Client) Download(ctx context.Context, docURL, dest string) (int64, erro
 		return 0, fmt.Errorf("opening %s: %w", dest, err)
 	}
 	defer f.Close()
-	n, err := io.Copy(f, resp.Body)
+	n, err := io.Copy(f, body)
 	if err != nil {
 		return n, fmt.Errorf("writing %s: %w", dest, err)
 	}
