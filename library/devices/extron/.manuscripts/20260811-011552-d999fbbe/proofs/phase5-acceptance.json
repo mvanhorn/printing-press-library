@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "43d19646f88cd9080c08f137c0c80a1e8b1c048c55f81b263b2e6453650d2e3f",
+  "source_fingerprint": "c9cdb0aca4e0f652740b55585d3b53174030062115fdd0d3744b4ff5e712f44b",
   "source_files": {
     "cmd/extron-pp-cli/main.go": "095b4ad87f8ece10f2581704187929c170128fc7e87dbd61372eab44c3d9bf8d",
     "cmd/extron-pp-mcp/main.go": "d25017a781fe13ee84794bd0644433605d767675fa64e34d8f2bf687abd98b31",
@@ -36,7 +36,7 @@
     "internal/cli/extron_catalog_test.go": "6a7fe163931f2049f15eb0355a8824d7f32db543f586113e7612177c714ee290",
     "internal/cli/extron_ledger.go": "1af26f29e40533c14bba20104b73c5c07102875570e650fd1fb20dfcaa8f1df7",
     "internal/cli/extron_ledger_lock_unix.go": "560de878b18581c4fcdca5181546aa7c7264399c4a0ee8a1cf2940947ce3d247",
-    "internal/cli/extron_ledger_lock_windows.go": "fda24f61893740bd86daba6598b4c7f6e353bbfc0968c6a65ef250deeb0b57c9",
+    "internal/cli/extron_ledger_lock_windows.go": "80e83bcb6500e5ea7f679fd172dab83e421a76f645d353f08966b8d6f4fb281a",
     "internal/cli/feedback.go": "8552154180ed53483a7fa72c4324d974c1cc55fa4b023a6ba50bb943ced3aa24",
     "internal/cli/helpers.go": "83d60f3cd32ad760dbb34d9bd55e1e16500e869d04e94567273d93dda2cba48d",
     "internal/cli/html_extract.go": "2d1cbca7d6784daa1a7432589c2debffe7a7073c68f25a77d1fb87ba762acf93",
