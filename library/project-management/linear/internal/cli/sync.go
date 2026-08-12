@@ -54,11 +54,18 @@ type syncPass struct {
 // fn is the full fetch. inc is the optional incremental fetch, narrowed to
 // rows updated after the given instant. A nil inc means the resource has no
 // filterable query and `sync --incremental` falls back to fn for it.
+//
+// mirror is the hyphenated resource type this resource is also written to in
+// the generic resources cache, empty when it is not mirrored. A reconcile pass
+// that prunes the typed table prunes the mirror under the same live set, so
+// the promoted local reads (which go through the cache) cannot keep answering
+// with an entity that was deleted upstream.
 type syncTable struct {
-	name  string
-	table string
-	fn    func(*client.Client, *store.Store, int) (syncPass, error)
-	inc   func(*client.Client, *store.Store, int, time.Time) (syncPass, error)
+	name   string
+	table  string
+	mirror string
+	fn     func(*client.Client, *store.Store, int) (syncPass, error)
+	inc    func(*client.Client, *store.Store, int, time.Time) (syncPass, error)
 }
 
 func newSyncCmd(flags *rootFlags) *cobra.Command {
@@ -130,12 +137,12 @@ func newSyncCmd(flags *rootFlags) *cobra.Command {
 				// the widest crawls and the least likely to be what a user
 				// interrupted a sync for.
 				{name: "documents", table: "documents", fn: syncDocuments},
-				{name: "templates", table: "templates", fn: syncTemplates},
+				{name: "templates", table: "templates", mirror: "templates", fn: syncTemplates},
 				{name: "custom views", table: "custom_views", fn: syncCustomViews},
-				{name: "favorites", table: "favorites", fn: syncFavorites},
-				{name: "project milestones", table: "project_milestones", fn: syncProjectMilestones},
-				{name: "project statuses", table: "project_statuses", fn: syncProjectStatuses},
-				{name: "initiatives", table: "initiatives", fn: syncInitiatives},
+				{name: "favorites", table: "favorites", mirror: "favorites", fn: syncFavorites},
+				{name: "project milestones", table: "project_milestones", mirror: "project-milestones", fn: syncProjectMilestones},
+				{name: "project statuses", table: "project_statuses", mirror: "project-statuses", fn: syncProjectStatuses},
+				{name: "initiatives", table: "initiatives", mirror: "initiatives", fn: syncInitiatives},
 				{name: "issue relations", table: "issue_relations", fn: syncIssueRelations},
 			}
 
@@ -242,6 +249,14 @@ func newSyncCmd(flags *rootFlags) *cobra.Command {
 						problems = append(problems, fmt.Sprintf("%s: %v", s.name, err))
 						continue
 					}
+					if s.mirror != "" {
+						staleMirror, merr := db.CountMissingMirror(s.mirror, pass.liveIDs)
+						if merr != nil {
+							problems = append(problems, fmt.Sprintf("%s cache: %v", s.name, merr))
+						} else {
+							stale += staleMirror
+						}
+					}
 					if stale > 0 {
 						fmt.Fprintf(os.Stderr, "sync: %s would prune %d stale row(s) (dry run)\n", s.name, stale)
 					}
@@ -252,6 +267,17 @@ func newSyncCmd(flags *rootFlags) *cobra.Command {
 				if err != nil {
 					problems = append(problems, fmt.Sprintf("%s: %v", s.name, err))
 					continue
+				}
+				if s.mirror != "" {
+					// The typed row is gone; the mirrored copy the promoted
+					// local reads answer from has to go with it, under the
+					// same live set that authorised the delete.
+					removedMirror, merr := db.PruneMissingMirror(s.mirror, pass.liveIDs)
+					if merr != nil {
+						problems = append(problems, fmt.Sprintf("%s cache: %v", s.name, merr))
+					} else {
+						removed += removedMirror
+					}
 				}
 				if removed > 0 {
 					fmt.Fprintf(os.Stderr, "sync: pruned %d stale %s row(s)\n", removed, s.name)

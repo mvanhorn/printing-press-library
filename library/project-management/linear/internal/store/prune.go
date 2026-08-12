@@ -1,6 +1,9 @@
 package store
 
-import "fmt"
+import (
+	"database/sql"
+	"fmt"
+)
 
 // Reconciliation of the local store against the live workspace.
 //
@@ -18,10 +21,11 @@ import "fmt"
 
 // prunableTables is the allowlist of typed tables a reconcile pass may delete
 // from. Table names reach SQL through string concatenation, so anything absent
-// from this map never gets near a statement. Two deliberate absences: the
-// pp_created ledger, which records issues this CLI created and is never pruned,
-// and the generic resources table, whose rows come from write-through caching
-// rather than from a complete enumeration.
+// from this map never gets near a statement. One deliberate absence: the
+// pp_created ledger, which records issues this CLI created and is never
+// pruned. The generic resources table is absent too, because its rows are not
+// all enumerable: it is reconciled per resource type through
+// PruneMissingMirror, which only the shell resources sync enumerates.
 var prunableTables = map[string]bool{
 	"teams":           true,
 	"users":           true,
@@ -45,6 +49,24 @@ var prunableTables = map[string]bool{
 	"issue_relations":    true,
 }
 
+// mirroredResourceTypes is the allowlist of resource types the shell-resource
+// sync mirrors into the generic resources cache, keyed by the hyphenated
+// command-level name the promoted read commands ask for. A type is listed here
+// only when one sync pass enumerates the whole population, which is what makes
+// "absent from the live set" mean "deleted upstream" rather than "never
+// fetched". Every other resources row is write-through cache and stays.
+var mirroredResourceTypes = map[string]bool{
+	"favorites":          true,
+	"project-milestones": true,
+	"project-statuses":   true,
+	"initiatives":        true,
+	"templates":          true,
+}
+
+// MirroredResourceType reports whether resourceType is reconciled alongside
+// its typed shell table.
+func MirroredResourceType(resourceType string) bool { return mirroredResourceTypes[resourceType] }
+
 // PrunableTable reports whether table may be reconciled by PruneMissing.
 func PrunableTable(table string) bool { return prunableTables[table] }
 
@@ -61,12 +83,88 @@ func (s *Store) CountMissing(table string, liveIDs []string) (int, error) {
 	return s.reconcileTable(table, liveIDs, false)
 }
 
+// PruneMissingMirror reconciles the copies of a shell resource that sync
+// mirrors into the generic resources cache, under the same live set that
+// reconciled its typed table. Without it a deleted favorite, milestone,
+// status, initiative or template loses its typed row and keeps its mirrored
+// one, and the promoted local get commands read the mirror: they would keep
+// answering with an entity that no longer exists upstream.
+func (s *Store) PruneMissingMirror(resourceType string, liveIDs []string) (int, error) {
+	return s.reconcileMirror(resourceType, liveIDs, true)
+}
+
+// CountMissingMirror reports how many mirrored rows PruneMissingMirror would
+// delete, deleting nothing.
+func (s *Store) CountMissingMirror(resourceType string, liveIDs []string) (int, error) {
+	return s.reconcileMirror(resourceType, liveIDs, false)
+}
+
 func (s *Store) reconcileTable(table string, liveIDs []string, del bool) (int, error) {
 	if !prunableTables[table] {
 		return 0, fmt.Errorf("table %q is not prunable", table)
 	}
+	return s.withLiveIDSet(table, liveIDs, func(tx *sql.Tx) (int, error) {
+		if !del {
+			var stale int
+			row := tx.QueryRow(`SELECT count(*) FROM ` + table + ` WHERE id NOT IN (SELECT id FROM temp.prune_live_ids)`)
+			if err := row.Scan(&stale); err != nil {
+				return 0, fmt.Errorf("counting stale %s rows: %w", table, err)
+			}
+			return stale, nil
+		}
+		// The issues_ad AFTER DELETE trigger keeps issues_fts consistent, so
+		// no reindex is needed here. VerifyIssuesFTS checks that it did.
+		res, err := tx.Exec(`DELETE FROM ` + table + ` WHERE id NOT IN (SELECT id FROM temp.prune_live_ids)`)
+		if err != nil {
+			return 0, fmt.Errorf("pruning %s: %w", table, err)
+		}
+		removed, err := res.RowsAffected()
+		if err != nil {
+			return 0, fmt.Errorf("counting pruned %s rows: %w", table, err)
+		}
+		return int(removed), nil
+	})
+}
+
+// reconcileMirror is the resources-table half of a reconcile pass. The rows it
+// touches are scoped to one resource type, so a live set that enumerates one
+// shell resource can never reach another resource's cached rows. resources has
+// no delete trigger on its FTS index, unlike issues, so the index row goes in
+// the same transaction as the row itself.
+func (s *Store) reconcileMirror(resourceType string, liveIDs []string, del bool) (int, error) {
+	if !mirroredResourceTypes[resourceType] {
+		return 0, fmt.Errorf("resource type %q is not mirrored by sync", resourceType)
+	}
+	return s.withLiveIDSet(resourceType, liveIDs, func(tx *sql.Tx) (int, error) {
+		const stalePredicate = `resource_type = ? AND id NOT IN (SELECT id FROM temp.prune_live_ids)`
+		if !del {
+			var stale int
+			row := tx.QueryRow(`SELECT count(*) FROM resources WHERE `+stalePredicate, resourceType)
+			if err := row.Scan(&stale); err != nil {
+				return 0, fmt.Errorf("counting stale %s cache rows: %w", resourceType, err)
+			}
+			return stale, nil
+		}
+		if _, err := tx.Exec(`DELETE FROM resources_fts WHERE id IN (SELECT id FROM resources WHERE `+stalePredicate+`)`, resourceType); err != nil {
+			return 0, fmt.Errorf("pruning %s cache index: %w", resourceType, err)
+		}
+		res, err := tx.Exec(`DELETE FROM resources WHERE `+stalePredicate, resourceType)
+		if err != nil {
+			return 0, fmt.Errorf("pruning %s cache: %w", resourceType, err)
+		}
+		removed, err := res.RowsAffected()
+		if err != nil {
+			return 0, fmt.Errorf("counting pruned %s cache rows: %w", resourceType, err)
+		}
+		return int(removed), nil
+	})
+}
+
+// withLiveIDSet loads liveIDs into a scratch table and runs fn against it
+// inside one transaction. label names the resource in the guardrail errors.
+func (s *Store) withLiveIDSet(label string, liveIDs []string, fn func(*sql.Tx) (int, error)) (int, error) {
 	if len(liveIDs) == 0 {
-		return 0, fmt.Errorf("refusing to prune %s: the live set is empty", table)
+		return 0, fmt.Errorf("refusing to prune %s: the live set is empty", label)
 	}
 
 	tx, err := s.db.Begin()
@@ -102,41 +200,20 @@ func (s *Store) reconcileTable(table string, liveIDs []string, del bool) (int, e
 	}
 	if loaded == 0 {
 		// Same guardrail as above, reached when every supplied id was blank.
-		return 0, fmt.Errorf("refusing to prune %s: the live set is empty", table)
+		return 0, fmt.Errorf("refusing to prune %s: the live set is empty", label)
 	}
 
-	if !del {
-		var stale int
-		row := tx.QueryRow(`SELECT count(*) FROM ` + table + ` WHERE id NOT IN (SELECT id FROM temp.prune_live_ids)`)
-		if err := row.Scan(&stale); err != nil {
-			return 0, fmt.Errorf("counting stale %s rows: %w", table, err)
-		}
-		if _, err := tx.Exec(`DROP TABLE IF EXISTS temp.prune_live_ids`); err != nil {
-			return 0, fmt.Errorf("dropping live id scratch table: %w", err)
-		}
-		if err := tx.Commit(); err != nil {
-			return 0, fmt.Errorf("committing prune count: %w", err)
-		}
-		return stale, nil
-	}
-
-	// The issues_ad AFTER DELETE trigger keeps issues_fts consistent, so no
-	// reindex is needed here. VerifyIssuesFTS checks that it actually did.
-	res, err := tx.Exec(`DELETE FROM ` + table + ` WHERE id NOT IN (SELECT id FROM temp.prune_live_ids)`)
+	result, err := fn(tx)
 	if err != nil {
-		return 0, fmt.Errorf("pruning %s: %w", table, err)
-	}
-	removed, err := res.RowsAffected()
-	if err != nil {
-		return 0, fmt.Errorf("counting pruned %s rows: %w", table, err)
+		return 0, err
 	}
 	if _, err := tx.Exec(`DROP TABLE IF EXISTS temp.prune_live_ids`); err != nil {
 		return 0, fmt.Errorf("dropping live id scratch table: %w", err)
 	}
 	if err := tx.Commit(); err != nil {
-		return 0, fmt.Errorf("committing prune of %s: %w", table, err)
+		return 0, fmt.Errorf("committing prune of %s: %w", label, err)
 	}
-	return int(removed), nil
+	return result, nil
 }
 
 // VerifyIssuesFTS returns the issues row count and the issues_fts row count.
