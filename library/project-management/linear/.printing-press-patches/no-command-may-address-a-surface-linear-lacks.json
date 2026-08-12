@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "no-command-may-address-a-surface-linear-lacks",
+  "applied_at": "2026-08-12",
+  "base_run_id": "20260518-232543",
+  "base_printing_press_version": "4.9.0",
+  "summary": "A command exists only when Linear can serve it: no REST-path commands, no stubs that POST an empty document, and no command registered without a GraphQL spec entry behind it. Rate-limit budget is readable, and one noun emits one output envelope with the root --agent and --json flags never shadowed.",
+  "reason": "Linear is GraphQL-only, so generated export, import, tail and integration write commands address paths that do not exist and always error, while advertising themselves in help and in the MCP tool list. A command that cannot succeed is worse than an absent one for an agent choosing from the surface. The envelope and flag-shadowing rules exist for the same reason: an agent that asked for machine output and got a human table has no way to tell.",
+  "files": [
+    "internal/cli/root.go",
+    "internal/cli/rate_limit.go",
+    "internal/mcp/tools.go",
+    "internal/cli/me.go",
+    "internal/cli/today.go",
+    "internal/cli/bottleneck.go",
+    "internal/cli/cycles_compare.go"
+  ],
+  "validated_outcome": "Root help and the MCP tool list carry no command that cannot reach a real Linear operation; 'rate-limit --agent' reports the live request and complexity budget with its reset instant; the four commands that used to declare their own --json honor the root flag."
+}
