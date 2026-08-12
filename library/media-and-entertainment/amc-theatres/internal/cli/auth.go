@@ -5,6 +5,7 @@ package cli
 
 import (
 	"bufio"
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -12,7 +13,6 @@ import (
 	"os/exec"
 	"runtime"
 	"strings"
-	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/amc-theatres/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/amc-theatres/internal/config"
@@ -142,7 +142,9 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 		Example: secureSetTokenExample,
 		Args:    cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			token, err := readToken(cmd.InOrStdin(), cmd.ErrOrStderr(), flags.noInput || flags.agent)
+			ctx, cancel := boundCtx(cmd.Context(), flags)
+			defer cancel()
+			token, err := readToken(ctx, cmd.InOrStdin(), cmd.ErrOrStderr(), flags.noInput || flags.agent)
 			if err != nil {
 				return configErr(err)
 			}
@@ -185,7 +187,7 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 	}
 }
 
-func readToken(r io.Reader, stderr io.Writer, nonInteractive bool) (string, error) {
+func readToken(ctx context.Context, r io.Reader, stderr io.Writer, nonInteractive bool) (string, error) {
 	input, isFile := r.(*os.File)
 	isTerminal := isFile && term.IsTerminal(int(input.Fd()))
 	if err := validateTokenInputMode(isTerminal, nonInteractive); err != nil {
@@ -219,8 +221,8 @@ func readToken(r io.Reader, stderr io.Writer, nonInteractive bool) (string, erro
 		select {
 		case got := <-ready:
 			token, err = got.token, got.err
-		case <-time.After(100 * time.Millisecond):
-			return "", fmt.Errorf("auth set-token requires a token on piped stdin in --no-input or --agent mode")
+		case <-ctx.Done():
+			return "", fmt.Errorf("reading token from stdin: %w", ctx.Err())
 		}
 	} else {
 		token, err = read()

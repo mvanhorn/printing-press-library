@@ -3,6 +3,7 @@
 package cli
 
 import (
+	"context"
 	"io"
 	"strings"
 	"testing"
@@ -25,7 +26,7 @@ func TestReadToken(t *testing.T) {
 		{name: "whitespace only", input: "   \n", wantErr: true},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			token, err := readToken(strings.NewReader(tc.input), &strings.Builder{}, false)
+			token, err := readToken(context.Background(), strings.NewReader(tc.input), &strings.Builder{}, false)
 			if (err != nil) != tc.wantErr {
 				t.Fatalf("readToken() error = %v, wantErr %v", err, tc.wantErr)
 			}
@@ -56,6 +57,9 @@ func TestSetTokenNonInteractiveDoesNotReadOpenPipe(t *testing.T) {
 
 	cmd := newAuthSetTokenCmd(&rootFlags{agent: true})
 	cmd.SetIn(reader)
+	ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
+	defer cancel()
+	cmd.SetContext(ctx)
 	done := make(chan error, 1)
 	go func() {
 		done <- cmd.RunE(cmd, nil)
@@ -63,10 +67,10 @@ func TestSetTokenNonInteractiveDoesNotReadOpenPipe(t *testing.T) {
 
 	select {
 	case err := <-done:
-		if err == nil || !strings.Contains(err.Error(), "requires a token on piped stdin") {
+		if err == nil || !strings.Contains(err.Error(), "context deadline exceeded") {
 			t.Fatalf("set-token error = %v, want non-interactive rejection", err)
 		}
-	case <-time.After(250 * time.Millisecond):
+	case <-time.After(500 * time.Millisecond):
 		t.Fatal("set-token blocked while reading an open empty stdin pipe")
 	}
 }
@@ -95,11 +99,31 @@ func TestValidateTokenInputMode(t *testing.T) {
 }
 
 func TestReadTokenAcceptsPipedAgentInput(t *testing.T) {
-	token, err := readToken(strings.NewReader("secret-token\n"), &strings.Builder{}, true)
+	token, err := readToken(context.Background(), strings.NewReader("secret-token\n"), &strings.Builder{}, true)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if token != "secret-token" {
 		t.Fatalf("readToken() = %q, want secret-token", token)
+	}
+}
+
+func TestReadTokenWaitsForDelayedPipedAgentInput(t *testing.T) {
+	reader, writer := io.Pipe()
+	defer reader.Close()
+	go func() {
+		time.Sleep(150 * time.Millisecond)
+		_, _ = io.WriteString(writer, "delayed-token\n")
+		_ = writer.Close()
+	}()
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	token, err := readToken(ctx, reader, &strings.Builder{}, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if token != "delayed-token" {
+		t.Fatalf("readToken() = %q, want delayed-token", token)
 	}
 }
