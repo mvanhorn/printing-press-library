@@ -1,0 +1,31 @@
+{
+  "schema_version": 2,
+  "id": "sync-community-resources",
+  "applied_at": "2026-08-12",
+  "base_run_id": "20260510-114931",
+  "base_printing_press_version": "4.0.6",
+  "summary": "Hydrate posts and members into the local SQLite mirror, add posts list / members list, and surface per-resource sync failures in agent mode.",
+  "reason": "defaultSyncResources() returned only [\"notifications\"] and syncResourcePath() knew only /notifications, so sync hydrated one resource and the SQLite mirror, FTS search, and cross-community SQL (this CLI's headline differentiators) had nothing to read. The cause is upstream of sync: the spec declared no plain list endpoint for posts or members, because both are rendered inside the community page's Next.js pageProps envelope, which the generated flat-list loop cannot unwrap. `sync --resources posts,members` therefore failed with `unknown sync resource`, and that error was returned without ever being printed in agent mode, leaving only the aggregate `N resource(s) failed to sync`.",
+  "files": [
+    "spec.yaml",
+    "internal/cli/sync.go",
+    "internal/cli/sync_skool.go",
+    "internal/cli/community_list_records.go",
+    "internal/cli/posts.go",
+    "internal/cli/members.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "`go build ./...`, `go vet ./...`, and `go test ./...` clean; `cli-printing-press publish validate` passes. `posts list` and `members list` register and expose --community/--pages/--limit. Per-resource failures now emit a sync_error event before the summary.",
+  "findings_addressed": ["F2"],
+  "deferred_to_upstream": [
+    {
+      "feature": "Spec-declared items path for enveloped list endpoints",
+      "reason": "The list endpoints added to spec.yaml carry an x-items-path hint the generator does not yet read, so sync_skool.go hand-writes the unwrap. Once the generator honors a per-endpoint items path, this file should collapse back into the generated sync loop."
+    },
+    {
+      "feature": "Non-cursor pagination in the generated sync loop",
+      "reason": "Skool paginates the community page with an integer `p` param, not limit/cursor. The generated loop only knows limit/cursor pairs."
+    }
+  ]
+}
