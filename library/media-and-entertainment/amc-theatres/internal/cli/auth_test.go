@@ -63,7 +63,7 @@ func TestSetTokenNonInteractiveDoesNotReadOpenPipe(t *testing.T) {
 
 	select {
 	case err := <-done:
-		if err == nil || !strings.Contains(err.Error(), "does not accept --no-input or --agent") {
+		if err == nil || !strings.Contains(err.Error(), "requires a token on piped stdin") {
 			t.Fatalf("set-token error = %v, want non-interactive rejection", err)
 		}
 	case <-time.After(250 * time.Millisecond):
@@ -82,7 +82,7 @@ func TestValidateTokenInputMode(t *testing.T) {
 	}{
 		{name: "interactive terminal", isTerminal: true},
 		{name: "piped interactive", isTerminal: false},
-		{name: "piped agent rejected", nonInteractive: true, wantErr: true},
+		{name: "piped agent", nonInteractive: true},
 		{name: "agent terminal rejected", isTerminal: true, nonInteractive: true, wantErr: true},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
@@ -91,5 +91,15 @@ func TestValidateTokenInputMode(t *testing.T) {
 				t.Fatalf("validateTokenInputMode() error = %v, wantErr %v", err, tc.wantErr)
 			}
 		})
+	}
+}
+
+func TestReadTokenAcceptsPipedAgentInput(t *testing.T) {
+	token, err := readToken(strings.NewReader("secret-token\n"), &strings.Builder{}, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if token != "secret-token" {
+		t.Fatalf("readToken() = %q, want secret-token", token)
 	}
 }

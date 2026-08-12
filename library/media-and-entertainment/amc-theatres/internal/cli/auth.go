@@ -12,6 +12,7 @@ import (
 	"os/exec"
 	"runtime"
 	"strings"
+	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/amc-theatres/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/amc-theatres/internal/config"
@@ -200,7 +201,30 @@ func readToken(r io.Reader, stderr io.Writer, nonInteractive bool) (string, erro
 		return validateToken(string(secret))
 	}
 
-	token, err := bufio.NewReader(r).ReadString('\n')
+	read := func() (string, error) {
+		return bufio.NewReader(r).ReadString('\n')
+	}
+	var token string
+	var err error
+	if nonInteractive {
+		type result struct {
+			token string
+			err   error
+		}
+		ready := make(chan result, 1)
+		go func() {
+			value, readErr := read()
+			ready <- result{token: value, err: readErr}
+		}()
+		select {
+		case got := <-ready:
+			token, err = got.token, got.err
+		case <-time.After(100 * time.Millisecond):
+			return "", fmt.Errorf("auth set-token requires a token on piped stdin in --no-input or --agent mode")
+		}
+	} else {
+		token, err = read()
+	}
 	if err != nil && !errors.Is(err, io.EOF) {
 		return "", fmt.Errorf("reading token from stdin: %w", err)
 	}
@@ -208,8 +232,8 @@ func readToken(r io.Reader, stderr io.Writer, nonInteractive bool) (string, erro
 }
 
 func validateTokenInputMode(isTerminal, nonInteractive bool) error {
-	if nonInteractive {
-		return fmt.Errorf("auth set-token does not accept --no-input or --agent; pipe the token without those flags")
+	if isTerminal && nonInteractive {
+		return fmt.Errorf("auth set-token requires piped stdin in --no-input or --agent mode")
 	}
 	return nil
 }
