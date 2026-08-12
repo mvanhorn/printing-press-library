@@ -27,7 +27,13 @@ func newIssuesEditCmd(flags *rootFlags, dbPath *string) *cobra.Command {
 	var addLabelsFlag, removeLabelsFlag []string
 	var teamNeedsLiveResolve bool
 	var existingDescription string
+	var existingDescriptionUpdatedAt string
 	var existingDescriptionLoaded bool
+	// descBodyDerivedFromRead marks a description composed from the body this
+	// command read, rather than one the caller supplied whole. Only the
+	// derived case can silently delete a concurrent edit, and only it is
+	// guarded before the write.
+	var descBodyDerivedFromRead bool
 	cmd := &cobra.Command{
 		Use:   "edit <issue-id>",
 		Short: "Edit a Linear issue",
@@ -249,6 +255,7 @@ Use --parent with an issue identifier or UUID to set/change parentage. Use
 				var issue struct {
 					ID          string `json:"id"`
 					Description string `json:"description"`
+					UpdatedAt   string `json:"updatedAt"`
 					Team        struct {
 						ID  string `json:"id"`
 						Key string `json:"key"`
@@ -264,10 +271,12 @@ Use --parent with an issue identifier or UUID to set/change parentage. Use
 				issueTeam = issueTeamInfo{ID: issue.Team.ID, Key: issue.Team.Key}
 				issueMetaLoaded = true
 				existingDescription = issue.Description
+				existingDescriptionUpdatedAt = issue.UpdatedAt
 				existingDescriptionLoaded = true
 				if len(mediaFlag) > 0 && !descSet {
 					descBody = issue.Description
 					descSet = true
+					descBodyDerivedFromRead = true
 				}
 			} else {
 				var err error
@@ -286,6 +295,7 @@ Use --parent with an issue identifier or UUID to set/change parentage. Use
 				}
 				descBody = appendedDescriptionBody(existingDescription, appendBody)
 				descSet = true
+				descBodyDerivedFromRead = true
 			}
 			if teamNeedsLiveResolve {
 				resolvedTeamID, teamErr := resolveTeamIDLive(c, teamFlag)
@@ -338,6 +348,14 @@ Use --parent with an issue identifier or UUID to set/change parentage. Use
 			}
 			if descSet {
 				input["description"] = descBody
+			}
+			if descSet && descBodyDerivedFromRead {
+				// The body was composed from the copy read above, and
+				// resolution plus media upload may have taken a while since.
+				// Refuse rather than overwrite an edit that landed meanwhile.
+				if err := guardStaleDescription(c, issueID, existingDescriptionUpdatedAt, existingDescription); err != nil {
+					return err
+				}
 			}
 
 			const mutation = `mutation($id: String!, $input: IssueUpdateInput!) {

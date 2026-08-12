@@ -45,14 +45,33 @@ func resolveIssueTargetWith(c graphqlQueryer, flags *rootFlags, dbPath, issueRef
 }
 
 // trustModeDryRunGuard applies the strict-mode ledger check on the --dry-run
-// path too, but only when the reference is already a UUID. A dry run must not
-// reach the network to resolve an identifier, and reporting "would archive" for
-// a target strict mode would refuse is a lie worth avoiding where it is cheap.
+// path. A dry run must not reach the network, so the reference is checked
+// against the ledger as given: the ledger records both the UUID and the
+// identifier the create mutation returned, which is what makes an offline
+// answer possible for a TEAM-NUMBER reference.
+//
+// It fails closed, like the live gate. Reporting "would update" for a target
+// the real invocation rejects after resolution is the failure this guard
+// exists to prevent, and a reference the ledger cannot vouch for offline is
+// exactly that case.
 func trustModeDryRunGuard(flags *rootFlags, dbPath, issueRef string) error {
-	if flags == nil || flags.trustMode != "strict" || !store.IsUUID(issueRef) {
+	if flags == nil || flags.trustMode != "strict" {
 		return nil
 	}
-	return enforceIssueTrustMode(flags, resolveDBPath(dbPath), issueRef, issueRef)
+	db, err := store.Open(resolveDBPath(dbPath))
+	if err != nil {
+		return usageErr(fmt.Errorf("trust-mode=strict: cannot read the local pp_created ledger at %s: %w\nRun 'linear-pp-cli sync' to create the store, or drop --trust-mode strict", resolveDBPath(dbPath), err))
+	}
+	defer db.Close()
+
+	created, err := db.IsPPCreatedRef(issueRef)
+	if err != nil {
+		return usageErr(fmt.Errorf("trust-mode=strict: reading the local pp_created ledger failed: %w", err))
+	}
+	if !created {
+		return usageErr(fmt.Errorf("trust-mode=strict: %s is not in the local pp_created ledger, so this CLI did not create it and the real invocation would refuse it.\nRun 'linear-pp-cli pp-test list' to see the fixtures this CLI owns, or drop --trust-mode strict to mutate pre-existing workspace issues", issueRef))
+	}
+	return nil
 }
 
 // inheritedDBPath reads the --db value the issues parent declares as a

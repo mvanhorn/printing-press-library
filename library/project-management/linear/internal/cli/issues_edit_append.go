@@ -101,6 +101,53 @@ func appendedDescriptionBodyWith(existing, addition, separator string) string {
 	return trimmedExisting + separator + trimmedAddition
 }
 
+// guardStaleDescription refuses a description write whose body was composed
+// from a copy of the issue that is no longer current.
+//
+// Every append is a read-modify-write, and Linear's issueUpdate takes no
+// precondition: the mutation carries a whole description, so a concurrent edit
+// landing after the read is overwritten with a body that never contained it.
+// The window is not theoretical on this path. `issues edit` may resolve a
+// team, a parent, labels and a workflow state, and may upload media, between
+// reading the body and writing it back.
+//
+// The guard re-reads the issue immediately before the write and compares both
+// the timestamp and the body. It shrinks the window to that final round trip
+// rather than closing it, which is the most this API allows, and it turns the
+// remaining loss from silent into a refusal the caller can retry.
+func guardStaleDescription(c graphqlQueryer, issueID, readUpdatedAt, readDescription string) error {
+	if c == nil || issueID == "" {
+		return nil
+	}
+	raw, err := fetchIssueByIDLive(c, issueID)
+	if err != nil {
+		// A failed re-read is not proof of a conflict, and refusing here would
+		// turn a transient read failure into a failed write. The caller's own
+		// error handling covers a genuinely unreachable API.
+		return nil
+	}
+	var current struct {
+		Description string `json:"description"`
+		UpdatedAt   string `json:"updatedAt"`
+	}
+	if err := json.Unmarshal(raw, &current); err != nil {
+		return nil
+	}
+	if current.Description == readDescription {
+		return nil
+	}
+	if readUpdatedAt != "" && current.UpdatedAt == readUpdatedAt {
+		return nil
+	}
+	// Exit 5: the write was refused because of upstream state, not because
+	// the invocation was wrong. No new exit code is minted for it, so the
+	// documented per-command code sets stay accurate.
+	return apiErr(fmt.Errorf(
+		"issue %s was edited while this command was composing its new description, so writing now would delete that edit.\nRe-run the command to append to the current body",
+		issueID,
+	))
+}
+
 // setIssueDescription writes a fully composed description onto one issue and
 // returns the decoded issueUpdate.issue payload. It performs no read, so the
 // caller owns both the composition and any before/after hashing.
@@ -188,12 +235,16 @@ func appendIssueDescription(c *client.Client, issueID string, text string) (map[
 	var existing struct {
 		ID          string `json:"id"`
 		Description string `json:"description"`
+		UpdatedAt   string `json:"updatedAt"`
 	}
 	if err := json.Unmarshal(raw, &existing); err != nil {
 		return nil, fmt.Errorf("parsing existing issue %q: %w", issueID, err)
 	}
 	if existing.ID == "" {
 		return nil, notFoundErr(fmt.Errorf("issue %q did not include an id", issueID))
+	}
+	if err := guardStaleDescription(c, existing.ID, existing.UpdatedAt, existing.Description); err != nil {
+		return nil, err
 	}
 	return setIssueDescription(c, existing.ID, appendedDescriptionBody(existing.Description, text))
 }

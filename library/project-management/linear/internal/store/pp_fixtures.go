@@ -40,6 +40,29 @@ func (s *Store) IsPPCreated(issueID string) (bool, error) {
 	return n > 0, nil
 }
 
+// IsPPCreatedRef is IsPPCreated for a reference that may still be an issue
+// identifier rather than a UUID. The ledger records the identifier the create
+// mutation returned, so a strict-mode check can be answered offline: resolving
+// TEAM-NUMBER to a UUID needs the API, and --dry-run must not reach it.
+func (s *Store) IsPPCreatedRef(ref string) (bool, error) {
+	if ref == "" {
+		return false, nil
+	}
+	var n int
+	err := s.db.QueryRow(
+		`SELECT COUNT(*) FROM pp_created
+		 WHERE archived_at IS NULL AND (issue_id = ? OR UPPER(IFNULL(identifier, '')) = UPPER(?))`,
+		ref, ref,
+	).Scan(&n)
+	if err == sql.ErrNoRows {
+		return false, nil
+	}
+	if err != nil {
+		return false, err
+	}
+	return n > 0, nil
+}
+
 // ListPPFixtures returns active (non-archived) fixtures for a given session,
 // or for all sessions if session is empty.
 func (s *Store) ListPPFixtures(session string) ([]PPFixture, error) {

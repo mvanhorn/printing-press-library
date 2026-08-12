@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "issue-writes-never-lie-and-never-clobber",
+  "applied_at": "2026-08-12",
+  "base_run_id": "20260518-232543",
+  "base_printing_press_version": "4.9.0",
+  "summary": "A dry run predicts exactly what the real invocation would do, including the trust-mode verdict for a TEAM-NUMBER reference, and a description composed from a body this CLI read is re-checked against the live body before it is written.",
+  "reason": "Linear's issueUpdate replaces the whole description and takes no precondition, so a read-modify-write append silently deletes any edit that landed after the read, and the gap is wide when the same call also uploads media or resolves a team, parent, labels or state. Separately, a dry run that skips a guard the real call applies is worse than no dry run: it reports success for a target the real invocation refuses. The pp_created ledger records identifiers as well as UUIDs, which is what lets the strict-mode check stay offline.",
+  "files": [
+    "internal/cli/issues_edit.go",
+    "internal/cli/issues_edit_append.go",
+    "internal/cli/issues_lifecycle.go",
+    "internal/cli/issues_batch.go",
+    "internal/cli/trust_gate.go",
+    "internal/store/pp_fixtures.go"
+  ],
+  "validated_outcome": "Under --trust-mode strict, 'issues edit ENG-8 --dry-run' refuses a target absent from the ledger instead of reporting a would-update, and an append whose issue description changed since the read exits 5 naming the edit it would have deleted."
+}
