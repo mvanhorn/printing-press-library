@@ -178,22 +178,28 @@ Do NOT use it to fetch a single named document; use 'docs download <doc-id>' ins
 				it.Size = int64(len(data))
 				downloaded++
 			}
+			rep := struct {
+				Model      string     `json:"model"`
+				OutDir     string     `json:"out_dir"`
+				Downloaded int        `json:"downloaded"`
+				Total      int        `json:"total"`
+				Complete   bool       `json:"complete"`
+				Items      []packItem `json:"items"`
+				Failures   []string   `json:"failures,omitempty"`
+			}{model, flagOut, downloaded, len(items), len(failures) == 0, items, failures}
 			if flags.asJSON {
-				return flags.printJSON(cmd, struct {
-					Model      string     `json:"model"`
-					OutDir     string     `json:"out_dir"`
-					Downloaded int        `json:"downloaded"`
-					Items      []packItem `json:"items"`
-					Failures   []string   `json:"failures,omitempty"`
-				}{model, flagOut, downloaded, items, failures})
-			}
-			w := cmd.OutOrStdout()
-			fmt.Fprintf(w, "packed %d/%d documents for %s into %s\n", downloaded, len(items), model, flagOut)
-			for _, it := range items {
-				fmt.Fprintf(w, "  %s\n", it.Name)
-			}
-			for _, f := range failures {
-				fmt.Fprintf(w, "  FAILED %s\n", f)
+				if err := flags.printJSON(cmd, rep); err != nil {
+					return err
+				}
+			} else {
+				w := cmd.OutOrStdout()
+				fmt.Fprintf(w, "packed %d/%d documents for %s into %s\n", downloaded, len(items), model, flagOut)
+				for _, it := range items {
+					fmt.Fprintf(w, "  %s\n", it.Name)
+				}
+				for _, f := range failures {
+					fmt.Fprintf(w, "  FAILED %s\n", f)
+				}
 			}
 			if len(failures) > 0 {
 				// Partial failure must not look like success: automation that
