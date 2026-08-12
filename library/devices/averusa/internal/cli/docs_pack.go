@@ -165,7 +165,8 @@ Do NOT use it to fetch a single named document; use 'docs download <doc-id>' ins
 			if err := os.MkdirAll(flagOut, 0o755); err != nil {
 				return fmt.Errorf("creating %s: %w", flagOut, err)
 			}
-			for _, it := range items {
+			for i := range items {
+				it := &items[i]
 				data, err := c.Download(ctx, it.URL)
 				if err != nil {
 					failures = appendBounded(failures, fmt.Sprintf("%s: %v", it.Name, err))
