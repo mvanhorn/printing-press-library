@@ -55,7 +55,8 @@ func newNovelWatchChangesCmd(flags *rootFlags) *cobra.Command {
 			}
 			defer db.Close()
 			previous := map[string]map[string]string{}
-			raw, baseline, err := loadWatchObservation(db, key, legacyWatchObservationKey(company, product, state, window))
+			legacyKey := legacyWatchObservationKey(company, product, state, window)
+			raw, baseline, migratedLegacy, err := loadWatchObservation(db, key, legacyKey)
 			if err != nil {
 				return err
 			}
@@ -83,7 +84,7 @@ func newNovelWatchChangesCmd(flags *rootFlags) *cobra.Command {
 			if observationComplete {
 				sort.Strings(newIDs)
 				next, _ := json.Marshal(current)
-				if err := db.Upsert("cfpb-complaint-watch", key, next); err != nil {
+				if err := persistWatchObservation(db, key, legacyKey, next, migratedLegacy); err != nil {
 					return err
 				}
 			}
@@ -111,22 +112,29 @@ func legacyWatchObservationKey(company, product, state, window string) string {
 	return strings.Join([]string{strings.ToUpper(company), product, strings.ToUpper(state), window}, "|")
 }
 
-func loadWatchObservation(db *store.Store, key, legacyKey string) (json.RawMessage, bool, error) {
+func loadWatchObservation(db *store.Store, key, legacyKey string) (json.RawMessage, bool, bool, error) {
 	raw, err := db.Get("cfpb-complaint-watch", key)
 	if err == nil {
-		return raw, false, nil
+		return raw, false, false, nil
 	}
 	if !errors.Is(err, sql.ErrNoRows) {
-		return nil, false, err
+		return nil, false, false, err
 	}
 	raw, err = db.Get("cfpb-complaint-watch", legacyKey)
 	if err == nil {
-		return raw, false, nil
+		return raw, false, true, nil
 	}
 	if errors.Is(err, sql.ErrNoRows) {
-		return nil, true, nil
+		return nil, true, false, nil
 	}
-	return nil, false, err
+	return nil, false, false, err
+}
+
+func persistWatchObservation(db *store.Store, key, legacyKey string, next json.RawMessage, migratedLegacy bool) error {
+	if migratedLegacy {
+		return db.ReplaceResourceKey("cfpb-complaint-watch", legacyKey, key, next)
+	}
+	return db.Upsert("cfpb-complaint-watch", key, next)
 }
 
 func sortedKeys(values map[string]bool) []string {

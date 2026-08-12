@@ -1,6 +1,6 @@
 {
-  "dir": "\u003ccli-dir\u003e/cfpb-complaints",
-  "spec_path": "\u003ccli-dir\u003e/spec.yaml",
+  "dir": "/Users/alderik/Code/projects/pr-worktrees/cfpb/library/other/cfpb-complaints",
+  "spec_path": "/Users/alderik/Code/projects/pr-worktrees/cfpb/library/other/cfpb-complaints/spec.yaml",
   "spec_source": "bundled",
   "verdict": "PASS",
   "path_check": {

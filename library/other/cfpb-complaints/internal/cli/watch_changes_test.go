@@ -7,7 +7,9 @@ package cli
 import (
 	"bytes"
 	"context"
+	"database/sql"
 	"encoding/json"
+	"errors"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -48,15 +50,33 @@ func TestLoadWatchObservationFallsBackToLegacyKey(t *testing.T) {
 	if err := db.Upsert("cfpb-complaint-watch", legacyKey, want); err != nil {
 		t.Fatal(err)
 	}
-	got, baseline, err := loadWatchObservation(db, watchObservationKey("ACME", "", "", "30d", 100), legacyKey)
+	key := watchObservationKey("ACME", "", "", "30d", 100)
+	got, baseline, migratedLegacy, err := loadWatchObservation(db, key, legacyKey)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if baseline {
 		t.Fatal("legacy snapshot was treated as a new baseline")
 	}
+	if !migratedLegacy {
+		t.Fatal("legacy snapshot source was not reported")
+	}
 	if string(got) != string(want) {
 		t.Fatalf("snapshot = %s, want %s", got, want)
+	}
+	next := json.RawMessage(`{"current":{"product":"Mortgage","issue":"Closing"}}`)
+	if err := persistWatchObservation(db, key, legacyKey, next, migratedLegacy); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := db.Get("cfpb-complaint-watch", legacyKey); !errors.Is(err, sql.ErrNoRows) {
+		t.Fatalf("legacy snapshot remains after migration: %v", err)
+	}
+	stored, err := db.Get("cfpb-complaint-watch", key)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(stored) != string(next) {
+		t.Fatalf("migrated snapshot = %s, want %s", stored, next)
 	}
 }
 

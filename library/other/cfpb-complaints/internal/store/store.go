@@ -936,6 +936,32 @@ func (s *Store) Upsert(resourceType, id string, data json.RawMessage) error {
 	return tx.Commit()
 }
 
+// ReplaceResourceKey atomically writes a resource under newID and removes the
+// old key. It is used for one-time key migrations where leaving the old row
+// visible could seed more than one successor history.
+func (s *Store) ReplaceResourceKey(resourceType, oldID, newID string, data json.RawMessage) error {
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := s.upsertGenericResourceTx(tx, resourceType, newID, data); err != nil {
+		return err
+	}
+	if oldID != newID {
+		if _, err := tx.Exec(`DELETE FROM resources_fts WHERE rowid = ?`, ftsRowID(resourceType, oldID)); err != nil {
+			return err
+		}
+		if _, err := tx.Exec(`DELETE FROM resources WHERE resource_type = ? AND id = ?`, resourceType, oldID); err != nil {
+			return err
+		}
+	}
+	return tx.Commit()
+}
+
 // Propagates sql.ErrNoRows on a miss so callers can distinguish absence from
 // other scan errors via errors.Is.
 func (s *Store) Get(resourceType, id string) (json.RawMessage, error) {
