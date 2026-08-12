@@ -10,14 +10,17 @@
     "spec.yaml",
     "internal/cli/sync.go",
     "internal/cli/sync_skool.go",
+    "internal/cli/sync_skool_test.go",
     "internal/cli/community_list_records.go",
     "internal/cli/posts.go",
     "internal/cli/members.go",
     "README.md",
     "SKILL.md"
   ],
-  "validated_outcome": "`go build ./...`, `go vet ./...`, and `go test ./...` clean; `cli-printing-press publish validate` passes. `posts list` and `members list` register and expose --community/--pages/--limit. Per-resource failures now emit a sync_error event before the summary.",
-  "findings_addressed": ["F2"],
+  "validated_outcome": "`go build ./...`, `go vet ./...`, and `go test ./...` clean; `cli-printing-press publish validate` passes. `posts list` and `members list` register and expose --community/--pages/--limit. Per-resource failures emit exactly one sync_error event in agent mode: the aggregation loop in sync.go is the sole emission point, and every worker-level failure path sets Err and stays silent, so an agent counting failures sees one line per failed resource. The wrapped worker errors (e.g. \"fetching posts page 2: ...\") are what the aggregation prints, so consolidating lost no detail. sync_warning paths return Warn rather than Err and are unaffected. TestSyncSkoolCommunityResourceDoesNotEmitSyncError pins the contract.",
+  "findings_addressed": [
+    "F2"
+  ],
   "deferred_to_upstream": [
     {
       "feature": "Spec-declared items path for enveloped list endpoints",

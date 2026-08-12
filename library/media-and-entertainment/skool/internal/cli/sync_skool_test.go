@@ -4,7 +4,10 @@
 package cli
 
 import (
+	"bytes"
 	"encoding/json"
+	"os"
+	"strings"
 	"testing"
 )
 
@@ -69,5 +72,42 @@ func TestIsSkoolCommunityResource(t *testing.T) {
 	}
 	if isSkoolCommunityResource("notifications") {
 		t.Fatal("notifications should stay on the generic flat-list sync path")
+	}
+}
+
+// TestSyncSkoolCommunityResourceDoesNotEmitSyncError pins the single-emission
+// contract: worker-level failure paths set Err and stay silent, and the
+// aggregation loop in sync.go is the only place that prints a sync_error line.
+// Two identical events per failed resource is worse than none for an agent
+// consumer counting failures.
+func TestSyncSkoolCommunityResourceDoesNotEmitSyncError(t *testing.T) {
+	prevHuman := humanFriendly
+	humanFriendly = false
+	defer func() { humanFriendly = prevHuman }()
+
+	prevStdout := os.Stdout
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Fatalf("creating pipe: %v", err)
+	}
+	os.Stdout = w
+	res := syncSkoolCommunityResource(nil, nil, "posts", "", 1)
+	w.Close()
+	os.Stdout = prevStdout
+
+	var buf bytes.Buffer
+	if _, err := buf.ReadFrom(r); err != nil {
+		t.Fatalf("reading captured stdout: %v", err)
+	}
+	out := buf.String()
+
+	if res.Err == nil {
+		t.Fatal("want an error result when no community is resolvable")
+	}
+	if strings.Contains(out, `"event":"sync_error"`) {
+		t.Fatalf("worker must not emit sync_error; aggregation owns it. got: %s", out)
+	}
+	if !strings.Contains(out, `"event":"sync_start"`) {
+		t.Fatalf("want the sync_start event preserved, got: %s", out)
 	}
 }

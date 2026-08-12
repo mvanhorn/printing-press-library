@@ -46,10 +46,9 @@ func syncSkoolCommunityResource(c interface {
 	}
 
 	if community == "" {
+		// The aggregation loop in sync.go is the single sync_error emission
+		// point; emitting here too would double-report every failure.
 		err := fmt.Errorf("syncing %s needs a community: pass --community <slug>, set SKOOL_COMMUNITY, or set template_vars.community in the config", resource)
-		if !humanFriendly {
-			fmt.Fprintln(os.Stdout, syncErrorJSON(resource, "", err))
-		}
 		return syncResult{Resource: resource, Err: err, Duration: time.Since(started)}
 	}
 
@@ -80,9 +79,6 @@ func syncSkoolCommunityResource(c interface {
 					fmt.Fprintf(os.Stdout, `{"event":"sync_warning","resource":"%s","status":%d,"reason":"%s"}`+"\n", resource, w.Status, w.Reason)
 				}
 				return syncResult{Resource: resource, Count: len(collected), Warn: fmt.Errorf("skipped %s: %s", resource, w.Reason), Duration: time.Since(started)}
-			}
-			if !humanFriendly {
-				fmt.Fprintln(os.Stdout, syncErrorJSON(resource, "", err))
 			}
 			return syncResult{Resource: resource, Count: len(collected), Err: fmt.Errorf("fetching %s page %d: %w", resource, page, err), Duration: time.Since(started)}
 		}
@@ -122,9 +118,6 @@ func syncSkoolCommunityResource(c interface {
 
 	stored, _, err := db.UpsertBatch(resource, collected)
 	if err != nil {
-		if !humanFriendly {
-			fmt.Fprintln(os.Stdout, syncErrorJSON(resource, "", err))
-		}
 		return syncResult{Resource: resource, Err: err, Duration: time.Since(started)}
 	}
 	_ = db.SaveSyncState(resource, "", stored)

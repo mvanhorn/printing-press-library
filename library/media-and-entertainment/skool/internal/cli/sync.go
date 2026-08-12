@@ -348,12 +348,10 @@ func syncResource(c interface {
 	path, err := syncResourcePath(resource)
 	if err != nil {
 		// PATCH(amend-2026-08-12: surface per-resource sync failures) — this
-		// early return emitted no sync_error line, so an unknown or
-		// unroutable resource surfaced only as the aggregate
-		// "N resource(s) failed to sync" with no reason attached.
-		if !humanFriendly {
-			fmt.Fprintln(os.Stdout, syncErrorJSON(resource, "", err))
-		}
+		// early return reported nothing, so an unknown or unroutable resource
+		// surfaced only as the aggregate "N resource(s) failed to sync" with
+		// no reason attached. The Err set here is now printed once by the
+		// aggregation loop, the single sync_error emission point.
 		return syncResult{Resource: resource, Err: err, Duration: time.Since(started)}
 	}
 
@@ -468,9 +466,9 @@ func syncResource(c interface {
 				}
 				return syncResult{Resource: resource, Count: totalCount, Warn: fmt.Errorf("skipped %s: %s", resource, w.Reason), Duration: time.Since(started)}
 			}
-			if !humanFriendly {
-				fmt.Fprintln(os.Stdout, syncErrorJSON(resource, "", err))
-			}
+			// PATCH(amend-2026-08-12: single sync_error emission point) — the
+			// aggregation loop prints this wrapped Err once; emitting here too
+			// double-reported every failure.
 			return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("fetching %s: %w", resource, err), Duration: time.Since(started)}
 		}
 
@@ -484,9 +482,7 @@ func syncResource(c interface {
 			}
 			// Single object response - try to store as-is
 			if err := upsertSingleObject(db, resource, data); err != nil {
-				if !humanFriendly {
-					fmt.Fprintln(os.Stdout, syncErrorJSON(resource, "", err))
-				}
+				// PATCH(amend-2026-08-12: single sync_error emission point)
 				return syncResult{Resource: resource, Err: err, Duration: time.Since(started)}
 			}
 			totalCount++
@@ -506,9 +502,7 @@ func syncResource(c interface {
 		// probe when extraction succeeded but rows still didn't land.
 		stored, extractFailures, err := upsertResourceBatch(db, resource, items)
 		if err != nil {
-			if !humanFriendly {
-				fmt.Fprintln(os.Stdout, syncErrorJSON(resource, "", err))
-			}
+			// PATCH(amend-2026-08-12: single sync_error emission point)
 			return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("upserting batch for %s: %w", resource, err), Duration: time.Since(started)}
 		}
 
