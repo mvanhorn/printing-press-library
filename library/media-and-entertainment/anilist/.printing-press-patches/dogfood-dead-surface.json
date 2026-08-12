@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "dogfood-dead-surface",
+  "applied_at": "2026-08-12",
+  "base_run_id": "20260721-155611-0c8ccb30",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Remove AniList's unreachable local-flag helper and freshness flag from the advertised command surface.",
+  "reason": "AniList has no command path that calls hasChangedLocalFlags or consumes the generated max-age setting, so retaining them advertises behavior the CLI cannot perform.",
+  "files": [
+    "internal/cli/helpers.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "Printing Press 4.30.2 structural dogfood reports no dead flags or helper functions."
+}
