@@ -543,7 +543,7 @@ func writeMutationResponseToStore(ctx context.Context, resourceType string, data
 
 func mutationResponseEntityItems(resourceType string, data json.RawMessage, responsePath string) []json.RawMessage {
 	if responsePath != "" {
-		if pathData, ok := responsePayloadAtPath(data, responsePath); ok {
+		if pathData, ok := ResponsePayloadAtPath(data, responsePath); ok {
 			data = pathData
 		}
 	}

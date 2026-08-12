@@ -1093,11 +1093,13 @@ func responsePayloadAtPath(data json.RawMessage, responsePath string) (json.RawM
 }
 
 // ResponsePayloadAtPath exposes the CLI's response-envelope extraction to the
-// companion MCP server so both surfaces read nested API resources identically.
+// MCP adapter so both surfaces route nested payloads identically.
 func ResponsePayloadAtPath(data json.RawMessage, responsePath string) (json.RawMessage, bool) {
 	return responsePayloadAtPath(data, responsePath)
 }
 
+// ResponsePayloadAtPath exposes the CLI's response-envelope extraction to the
+// companion MCP server so both surfaces read nested API resources identically.
 func responsePayloadParentAtPath(data json.RawMessage, responsePath string) (map[string]json.RawMessage, bool) {
 	path := strings.TrimPrefix(strings.TrimSpace(responsePath), "$.")
 	if path == "" {
