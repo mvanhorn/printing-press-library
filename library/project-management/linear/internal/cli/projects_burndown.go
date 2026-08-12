@@ -79,8 +79,10 @@ What counts as delivered is the 'completed' state group by default. Run
 
 			// "Delivered" is a declared group, not a hardcoded type
 			// comparison, so a workspace that ships out of a custom column
-			// can say so once in groups.toml.
-			completedSet, err := resolveStateSet(flags, "", completedGroup)
+			// can say so once in groups.toml. It resolves at the project's
+			// own team scope, so a team that redeclares "completed" gets
+			// its own definition here rather than the workspace one.
+			completedSet, err := resolveStateSet(flags, proj.TeamKey, completedGroup)
 			if err != nil {
 				return err
 			}
@@ -162,6 +164,10 @@ type projectRef struct {
 	Name       string `json:"name"`
 	State      string `json:"state"`
 	TargetDate string `json:"targetDate"`
+	// TeamKey is the project's sole team, or empty when the project spans
+	// several teams or records none. It is the scope every state group in
+	// this project's arithmetic resolves at.
+	TeamKey string `json:"-"`
 }
 
 func resolveProjectByNameOrID(db *store.Store, q string) (*projectRef, error) {
@@ -174,6 +180,7 @@ func resolveProjectByNameOrID(db *store.Store, q string) (*projectRef, error) {
 		Name       string `json:"name"`
 		State      string `json:"state"`
 		TargetDate string `json:"targetDate"`
+		TeamKey    string `json:"-"`
 	}
 	var matches []proj
 	qLower := strings.ToLower(q)
@@ -182,6 +189,7 @@ func resolveProjectByNameOrID(db *store.Store, q string) (*projectRef, error) {
 		if err := json.Unmarshal(raw, &p); err != nil {
 			continue
 		}
+		p.TeamKey = projectTeamKeyForGroups(raw)
 		if p.ID == q || p.Name == q {
 			matches = append(matches, p)
 			continue
@@ -198,10 +206,10 @@ func resolveProjectByNameOrID(db *store.Store, q string) (*projectRef, error) {
 		for _, p := range matches {
 			names = append(names, p.Name)
 		}
-		return nil, fmt.Errorf("project %q matched %d projects: %s — be more specific", q, len(matches), strings.Join(names, ", "))
+		return nil, fmt.Errorf("project %q matched %d projects: %s — be more specific.", q, len(matches), strings.Join(names, ", "))
 	}
 	m := matches[0]
-	return &projectRef{ID: m.ID, Name: m.Name, State: m.State, TargetDate: m.TargetDate}, nil
+	return &projectRef{ID: m.ID, Name: m.Name, State: m.State, TargetDate: m.TargetDate, TeamKey: m.TeamKey}, nil
 }
 
 type burndownStats struct {

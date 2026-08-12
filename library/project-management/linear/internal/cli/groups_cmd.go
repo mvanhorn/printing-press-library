@@ -84,6 +84,29 @@ func teamKeyForGroups(db *store.Store, input string) string {
 	return trimmed
 }
 
+// projectTeamKeyForGroups reports the team key a project's state predicates
+// must resolve against, given the project's stored payload. A Linear project
+// can span several teams, so a team-scoped override is only unambiguous when
+// the project belongs to exactly one team: anything else (no teams recorded,
+// or more than one) resolves at workspace scope, which is what the empty key
+// selects.
+func projectTeamKeyForGroups(raw json.RawMessage) string {
+	var payload struct {
+		Teams struct {
+			Nodes []struct {
+				Key string `json:"key"`
+			} `json:"nodes"`
+		} `json:"teams"`
+	}
+	if err := json.Unmarshal(raw, &payload); err != nil {
+		return ""
+	}
+	if len(payload.Teams.Nodes) != 1 {
+		return ""
+	}
+	return strings.TrimSpace(payload.Teams.Nodes[0].Key)
+}
+
 func newGroupsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "groups",
