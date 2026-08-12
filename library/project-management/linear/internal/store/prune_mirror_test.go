@@ -19,8 +19,10 @@ func shellNode(t *testing.T, id, name string) json.RawMessage {
 
 // A shell resource lives in two places: its typed table and the generic
 // resources cache the promoted local reads answer from. Reconciling only the
-// typed table leaves the cache serving an entity that is gone upstream.
-func TestPruneMissingMirrorRemovesStaleCacheRows(t *testing.T) {
+// typed table leaves the cache serving an entity that is gone upstream, and
+// reconciling them in two transactions leaves the same gap whenever the second
+// one fails, so one pass covers both.
+func TestPruneMissingWithMirrorRemovesBothCopies(t *testing.T) {
 	t.Parallel()
 	db, err := Open(filepath.Join(t.TempDir(), "linear.db"))
 	if err != nil {
@@ -44,33 +46,37 @@ func TestPruneMissingMirrorRemovesStaleCacheRows(t *testing.T) {
 	if err := db.UpsertBatch("initiatives", []json.RawMessage{live, dead}); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)
 	}
-	// A resource type sync does not enumerate must survive an id collision in
-	// name only: this row proves the delete is scoped by resource_type.
+	// A resource type sync does not enumerate must survive: this row proves
+	// the delete is scoped by resource_type.
 	if err := db.UpsertBatch("documents", []json.RawMessage{shellNode(t, "doc-1", "Untouched")}); err != nil {
 		t.Fatalf("UpsertBatch documents: %v", err)
 	}
 
 	liveIDs := []string{"init-live"}
 
-	stale, err := db.CountMissingMirror("initiatives", liveIDs)
+	// One stale typed row plus one stale mirrored row.
+	stale, err := db.CountMissingWithMirror("initiatives", "initiatives", liveIDs)
 	if err != nil {
-		t.Fatalf("CountMissingMirror: %v", err)
+		t.Fatalf("CountMissingWithMirror: %v", err)
 	}
-	if stale != 1 {
-		t.Fatalf("CountMissingMirror = %d, want 1", stale)
+	if stale != 2 {
+		t.Fatalf("CountMissingWithMirror = %d, want 2", stale)
 	}
 	if got := countResources(t, db, "initiatives"); got != 2 {
 		t.Fatalf("counting is not deleting: %d cached initiatives, want 2", got)
 	}
 
-	removed, err := db.PruneMissingMirror("initiatives", liveIDs)
+	removed, err := db.PruneMissingWithMirror("initiatives", "initiatives", liveIDs)
 	if err != nil {
-		t.Fatalf("PruneMissingMirror: %v", err)
+		t.Fatalf("PruneMissingWithMirror: %v", err)
 	}
-	if removed != 1 {
-		t.Fatalf("PruneMissingMirror = %d, want 1", removed)
+	if removed != 2 {
+		t.Fatalf("PruneMissingWithMirror = %d, want 2", removed)
 	}
 
+	if got := countTyped(t, db, "initiatives"); got != 1 {
+		t.Fatalf("typed initiatives = %d, want 1", got)
+	}
 	if got := countResources(t, db, "initiatives"); got != 1 {
 		t.Fatalf("cached initiatives = %d, want 1", got)
 	}
@@ -92,10 +98,9 @@ func TestPruneMissingMirrorRemovesStaleCacheRows(t *testing.T) {
 	}
 }
 
-// The two guardrails that make a prune safe apply to the mirror as well: never
-// reconcile against an empty live set, and never touch a resource type that no
-// sync pass enumerates in full.
-func TestPruneMissingMirrorRefusesUnsafeInput(t *testing.T) {
+// A refused pass leaves both copies untouched: the guardrails cannot fire
+// after the typed table has already been emptied.
+func TestPruneMissingWithMirrorRefusesUnsafeInput(t *testing.T) {
 	t.Parallel()
 	db, err := Open(filepath.Join(t.TempDir(), "linear.db"))
 	if err != nil {
@@ -103,15 +108,34 @@ func TestPruneMissingMirrorRefusesUnsafeInput(t *testing.T) {
 	}
 	t.Cleanup(func() { _ = db.Close() })
 
-	if _, err := db.PruneMissingMirror("initiatives", nil); err == nil {
+	node := shellNode(t, "init-1", "Present")
+	if err := db.UpsertShellRow("initiatives", "init-1", node); err != nil {
+		t.Fatalf("UpsertShellRow: %v", err)
+	}
+	if err := db.UpsertBatch("initiatives", []json.RawMessage{node}); err != nil {
+		t.Fatalf("UpsertBatch: %v", err)
+	}
+
+	if _, err := db.PruneMissingWithMirror("initiatives", "initiatives", nil); err == nil {
 		t.Fatal("pruning against an empty live set must fail")
 	}
-	if _, err := db.PruneMissingMirror("initiatives", []string{""}); err == nil {
+	if _, err := db.PruneMissingWithMirror("initiatives", "initiatives", []string{""}); err == nil {
 		t.Fatal("pruning against a live set of blank ids must fail")
 	}
-	if _, err := db.PruneMissingMirror("issues", []string{"issue-1"}); err == nil {
-		t.Fatal("pruning a resource type sync does not mirror must fail")
+	if _, err := db.PruneMissingWithMirror("initiatives", "issues", []string{"init-1"}); err == nil {
+		t.Fatal("a resource type sync does not mirror must fail")
 	}
+	if _, err := db.PruneMissingWithMirror("pp_created", "", []string{"init-1"}); err == nil {
+		t.Fatal("a table outside the prunable allowlist must fail")
+	}
+
+	if got := countTyped(t, db, "initiatives"); got != 1 {
+		t.Fatalf("a refused pass deleted typed rows: %d left, want 1", got)
+	}
+	if got := countResources(t, db, "initiatives"); got != 1 {
+		t.Fatalf("a refused pass deleted cached rows: %d left, want 1", got)
+	}
+
 	if MirroredResourceType("issues") {
 		t.Fatal("issues is a typed table, not a mirrored resource type")
 	}
@@ -125,6 +149,15 @@ func countResources(t *testing.T, db *Store, resourceType string) int {
 	var n int
 	if err := db.DB().QueryRow(`SELECT count(*) FROM resources WHERE resource_type = ?`, resourceType).Scan(&n); err != nil {
 		t.Fatalf("counting %s resources: %v", resourceType, err)
+	}
+	return n
+}
+
+func countTyped(t *testing.T, db *Store, table string) int {
+	t.Helper()
+	var n int
+	if err := db.DB().QueryRow(`SELECT count(*) FROM ` + table).Scan(&n); err != nil {
+		t.Fatalf("counting %s rows: %v", table, err)
 	}
 	return n
 }

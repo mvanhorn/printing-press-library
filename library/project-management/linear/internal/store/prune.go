@@ -74,90 +74,105 @@ func PrunableTable(table string) bool { return prunableTables[table] }
 // returns how many rows went. liveIDs MUST be the complete set of live upstream
 // ids for that resource: a partial set deletes live data.
 func (s *Store) PruneMissing(table string, liveIDs []string) (int, error) {
-	return s.reconcileTable(table, liveIDs, true)
+	return s.reconcile(table, "", liveIDs, true)
 }
 
 // CountMissing reports how many rows PruneMissing would delete, deleting
 // nothing. Used by sync --dry-run.
 func (s *Store) CountMissing(table string, liveIDs []string) (int, error) {
-	return s.reconcileTable(table, liveIDs, false)
+	return s.reconcile(table, "", liveIDs, false)
 }
 
-// PruneMissingMirror reconciles the copies of a shell resource that sync
-// mirrors into the generic resources cache, under the same live set that
-// reconciled its typed table. Without it a deleted favorite, milestone,
-// status, initiative or template loses its typed row and keeps its mirrored
-// one, and the promoted local get commands read the mirror: they would keep
-// answering with an entity that no longer exists upstream.
-func (s *Store) PruneMissingMirror(resourceType string, liveIDs []string) (int, error) {
-	return s.reconcileMirror(resourceType, liveIDs, true)
+// PruneMissingWithMirror reconciles a shell resource in both of the places
+// sync writes it: its typed table and the copy in the generic resources cache
+// that the promoted local get commands read. Both deletes commit together, so
+// a failure or a crash between them cannot leave the cache serving an entity
+// whose typed row is already gone.
+func (s *Store) PruneMissingWithMirror(table, resourceType string, liveIDs []string) (int, error) {
+	return s.reconcile(table, resourceType, liveIDs, true)
 }
 
-// CountMissingMirror reports how many mirrored rows PruneMissingMirror would
-// delete, deleting nothing.
-func (s *Store) CountMissingMirror(resourceType string, liveIDs []string) (int, error) {
-	return s.reconcileMirror(resourceType, liveIDs, false)
+// CountMissingWithMirror reports how many rows PruneMissingWithMirror would
+// delete across both copies, deleting nothing.
+func (s *Store) CountMissingWithMirror(table, resourceType string, liveIDs []string) (int, error) {
+	return s.reconcile(table, resourceType, liveIDs, false)
 }
 
-func (s *Store) reconcileTable(table string, liveIDs []string, del bool) (int, error) {
+// reconcile is the one reconcile pass. resourceType is empty for a resource
+// with no mirrored copy; when set, the mirror is reconciled in the same
+// transaction as the typed table and under the same live set.
+func (s *Store) reconcile(table, resourceType string, liveIDs []string, del bool) (int, error) {
 	if !prunableTables[table] {
 		return 0, fmt.Errorf("table %q is not prunable", table)
 	}
+	if resourceType != "" && !mirroredResourceTypes[resourceType] {
+		return 0, fmt.Errorf("resource type %q is not mirrored by sync", resourceType)
+	}
 	return s.withLiveIDSet(table, liveIDs, func(tx *sql.Tx) (int, error) {
-		if !del {
-			var stale int
-			row := tx.QueryRow(`SELECT count(*) FROM ` + table + ` WHERE id NOT IN (SELECT id FROM temp.prune_live_ids)`)
-			if err := row.Scan(&stale); err != nil {
-				return 0, fmt.Errorf("counting stale %s rows: %w", table, err)
-			}
-			return stale, nil
-		}
-		// The issues_ad AFTER DELETE trigger keeps issues_fts consistent, so
-		// no reindex is needed here. VerifyIssuesFTS checks that it did.
-		res, err := tx.Exec(`DELETE FROM ` + table + ` WHERE id NOT IN (SELECT id FROM temp.prune_live_ids)`)
+		total, err := reconcileTypedTable(tx, table, del)
 		if err != nil {
-			return 0, fmt.Errorf("pruning %s: %w", table, err)
+			return 0, err
 		}
-		removed, err := res.RowsAffected()
+		if resourceType == "" {
+			return total, nil
+		}
+		mirrored, err := reconcileMirroredRows(tx, resourceType, del)
 		if err != nil {
-			return 0, fmt.Errorf("counting pruned %s rows: %w", table, err)
+			return 0, err
 		}
-		return int(removed), nil
+		return total + mirrored, nil
 	})
 }
 
-// reconcileMirror is the resources-table half of a reconcile pass. The rows it
-// touches are scoped to one resource type, so a live set that enumerates one
-// shell resource can never reach another resource's cached rows. resources has
-// no delete trigger on its FTS index, unlike issues, so the index row goes in
-// the same transaction as the row itself.
-func (s *Store) reconcileMirror(resourceType string, liveIDs []string, del bool) (int, error) {
-	if !mirroredResourceTypes[resourceType] {
-		return 0, fmt.Errorf("resource type %q is not mirrored by sync", resourceType)
+func reconcileTypedTable(tx *sql.Tx, table string, del bool) (int, error) {
+	if !del {
+		var stale int
+		row := tx.QueryRow(`SELECT count(*) FROM ` + table + ` WHERE id NOT IN (SELECT id FROM temp.prune_live_ids)`)
+		if err := row.Scan(&stale); err != nil {
+			return 0, fmt.Errorf("counting stale %s rows: %w", table, err)
+		}
+		return stale, nil
 	}
-	return s.withLiveIDSet(resourceType, liveIDs, func(tx *sql.Tx) (int, error) {
-		const stalePredicate = `resource_type = ? AND id NOT IN (SELECT id FROM temp.prune_live_ids)`
-		if !del {
-			var stale int
-			row := tx.QueryRow(`SELECT count(*) FROM resources WHERE `+stalePredicate, resourceType)
-			if err := row.Scan(&stale); err != nil {
-				return 0, fmt.Errorf("counting stale %s cache rows: %w", resourceType, err)
-			}
-			return stale, nil
+	// The issues_ad AFTER DELETE trigger keeps issues_fts consistent, so no
+	// reindex is needed here. VerifyIssuesFTS checks that it did.
+	res, err := tx.Exec(`DELETE FROM ` + table + ` WHERE id NOT IN (SELECT id FROM temp.prune_live_ids)`)
+	if err != nil {
+		return 0, fmt.Errorf("pruning %s: %w", table, err)
+	}
+	removed, err := res.RowsAffected()
+	if err != nil {
+		return 0, fmt.Errorf("counting pruned %s rows: %w", table, err)
+	}
+	return int(removed), nil
+}
+
+// reconcileMirroredRows is the resources-table half of a reconcile pass. The
+// rows it touches are scoped to one resource type, so a live set that
+// enumerates one shell resource can never reach another resource's cached
+// rows. resources has no delete trigger on its FTS index, unlike issues, so
+// the index row goes with the row itself.
+func reconcileMirroredRows(tx *sql.Tx, resourceType string, del bool) (int, error) {
+	const stalePredicate = `resource_type = ? AND id NOT IN (SELECT id FROM temp.prune_live_ids)`
+	if !del {
+		var stale int
+		row := tx.QueryRow(`SELECT count(*) FROM resources WHERE `+stalePredicate, resourceType)
+		if err := row.Scan(&stale); err != nil {
+			return 0, fmt.Errorf("counting stale %s cache rows: %w", resourceType, err)
 		}
-		if _, err := tx.Exec(`DELETE FROM resources_fts WHERE id IN (SELECT id FROM resources WHERE `+stalePredicate+`)`, resourceType); err != nil {
-			return 0, fmt.Errorf("pruning %s cache index: %w", resourceType, err)
-		}
-		res, err := tx.Exec(`DELETE FROM resources WHERE `+stalePredicate, resourceType)
-		if err != nil {
-			return 0, fmt.Errorf("pruning %s cache: %w", resourceType, err)
-		}
-		removed, err := res.RowsAffected()
-		if err != nil {
-			return 0, fmt.Errorf("counting pruned %s cache rows: %w", resourceType, err)
-		}
-		return int(removed), nil
-	})
+		return stale, nil
+	}
+	if _, err := tx.Exec(`DELETE FROM resources_fts WHERE id IN (SELECT id FROM resources WHERE `+stalePredicate+`)`, resourceType); err != nil {
+		return 0, fmt.Errorf("pruning %s cache index: %w", resourceType, err)
+	}
+	res, err := tx.Exec(`DELETE FROM resources WHERE `+stalePredicate, resourceType)
+	if err != nil {
+		return 0, fmt.Errorf("pruning %s cache: %w", resourceType, err)
+	}
+	removed, err := res.RowsAffected()
+	if err != nil {
+		return 0, fmt.Errorf("counting pruned %s cache rows: %w", resourceType, err)
+	}
+	return int(removed), nil
 }
 
 // withLiveIDSet loads liveIDs into a scratch table and runs fn against it

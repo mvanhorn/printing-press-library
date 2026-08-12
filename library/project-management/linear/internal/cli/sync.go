@@ -244,18 +244,10 @@ func newSyncCmd(flags *rootFlags) *cobra.Command {
 				}
 
 				if flags.dryRun {
-					stale, err := db.CountMissing(s.table, pass.liveIDs)
+					stale, err := db.CountMissingWithMirror(s.table, s.mirror, pass.liveIDs)
 					if err != nil {
 						problems = append(problems, fmt.Sprintf("%s: %v", s.name, err))
 						continue
-					}
-					if s.mirror != "" {
-						staleMirror, merr := db.CountMissingMirror(s.mirror, pass.liveIDs)
-						if merr != nil {
-							problems = append(problems, fmt.Sprintf("%s cache: %v", s.name, merr))
-						} else {
-							stale += staleMirror
-						}
 					}
 					if stale > 0 {
 						fmt.Fprintf(os.Stderr, "sync: %s would prune %d stale row(s) (dry run)\n", s.name, stale)
@@ -263,21 +255,13 @@ func newSyncCmd(flags *rootFlags) *cobra.Command {
 					continue
 				}
 
-				removed, err := db.PruneMissing(s.table, pass.liveIDs)
+				// One transaction covers the typed row and the mirrored copy
+				// the promoted local reads answer from, so the two can never
+				// disagree about what upstream still has.
+				removed, err := db.PruneMissingWithMirror(s.table, s.mirror, pass.liveIDs)
 				if err != nil {
 					problems = append(problems, fmt.Sprintf("%s: %v", s.name, err))
 					continue
-				}
-				if s.mirror != "" {
-					// The typed row is gone; the mirrored copy the promoted
-					// local reads answer from has to go with it, under the
-					// same live set that authorised the delete.
-					removedMirror, merr := db.PruneMissingMirror(s.mirror, pass.liveIDs)
-					if merr != nil {
-						problems = append(problems, fmt.Sprintf("%s cache: %v", s.name, merr))
-					} else {
-						removed += removedMirror
-					}
 				}
 				if removed > 0 {
 					fmt.Fprintf(os.Stderr, "sync: pruned %d stale %s row(s)\n", removed, s.name)
