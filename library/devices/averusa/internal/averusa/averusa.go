@@ -185,6 +185,92 @@ func (c *Client) Head(ctx context.Context, url string) (int, int64, error) {
 	return resp.StatusCode, resp.ContentLength, nil
 }
 
+// ProbeFile HEAD-checks a document URL and falls back to a bounded GET when the
+// server rejects HEAD (403/405/501) or returns an ambiguous zero-length HEAD.
+// It reports whether the resource actually serves a PDF, so GET-only document
+// endpoints are never misclassified as broken.
+func (c *Client) ProbeFile(ctx context.Context, url string) (status int, size int64, isPDF bool, err error) {
+	status, size, ct, err := c.headWithType(ctx, url)
+	if err != nil {
+		return 0, 0, false, err
+	}
+	if status == http.StatusOK && strings.Contains(strings.ToLower(ct), "application/pdf") {
+		return status, size, true, nil
+	}
+	switch status {
+	case http.StatusForbidden, http.StatusMethodNotAllowed, http.StatusNotImplemented:
+		// HEAD rejected — probe with a bounded ranged GET.
+		return c.probeGET(ctx, url)
+	case http.StatusOK:
+		if size != 0 {
+			return status, size, false, nil
+		}
+		// 200 with zero length is ambiguous; confirm with a GET probe.
+		return c.probeGET(ctx, url)
+	}
+	return status, size, false, nil
+}
+
+// headWithType is Head plus the response Content-Type.
+func (c *Client) headWithType(ctx context.Context, url string) (int, int64, string, error) {
+	if c.lim != nil {
+		c.lim.Wait()
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodHead, url, nil)
+	if err != nil {
+		return 0, 0, "", err
+	}
+	req.Header.Set("User-Agent", crawlerUA)
+	resp, err := c.hc.Do(req)
+	if err != nil {
+		return 0, 0, "", fmt.Errorf("head %s: %w", url, err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode == http.StatusTooManyRequests || resp.StatusCode == http.StatusServiceUnavailable {
+		if c.lim != nil {
+			c.lim.OnRateLimit()
+		}
+		return resp.StatusCode, 0, "", &cliutil.RateLimitError{URL: url, RetryAfter: cliutil.RetryAfter(resp)}
+	}
+	if c.lim != nil {
+		c.lim.OnSuccess()
+	}
+	return resp.StatusCode, resp.ContentLength, resp.Header.Get("Content-Type"), nil
+}
+
+// probeGET fetches the first bytes of a document to classify it.
+func (c *Client) probeGET(ctx context.Context, url string) (int, int64, bool, error) {
+	if c.lim != nil {
+		c.lim.Wait()
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return 0, 0, false, err
+	}
+	req.Header.Set("User-Agent", crawlerUA)
+	req.Header.Set("Range", "bytes=0-63")
+	resp, err := c.hc.Do(req)
+	if err != nil {
+		return 0, 0, false, fmt.Errorf("get %s: %w", url, err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode == http.StatusTooManyRequests || resp.StatusCode == http.StatusServiceUnavailable {
+		if c.lim != nil {
+			c.lim.OnRateLimit()
+		}
+		return resp.StatusCode, 0, false, &cliutil.RateLimitError{URL: url, RetryAfter: cliutil.RetryAfter(resp)}
+	}
+	if c.lim != nil {
+		c.lim.OnSuccess()
+	}
+	// Bounded read: only the header bytes matter for classification, and some
+	// servers ignore Range and stream the whole file.
+	head := make([]byte, 64)
+	n, _ := io.ReadFull(resp.Body, head)
+	isPDF := n >= 5 && string(head[:5]) == "%PDF-"
+	return resp.StatusCode, int64(n), isPDF, nil
+}
+
 // ---------- sitemaps ----------
 
 var locRE = regexp.MustCompile(`(?s)<loc>\s*(.*?)\s*</loc>`)

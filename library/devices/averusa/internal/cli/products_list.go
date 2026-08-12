@@ -31,11 +31,15 @@ func newProductsListCmd(flags *rootFlags) *cobra.Command {
 			if dryRunOK(flags) {
 				return writeDryRun(cmd.OutOrStdout(), flags, "products list")
 			}
-			if flags.dataSource == "live" {
-				// Live mode: fall through to the raw sitemap fetch below.
-			} else {
+			// Store-backed path: serve from the corpus. A filtered query with
+			// no matches returns the honest empty result (never a fall-through
+			// to unrelated live data); --data-source local must never touch
+			// the network. Only --data-source auto with NO filter flags falls
+			// through to the live sitemap when the corpus is empty.
+			if flags.dataSource != "live" {
 				dbPath = corpusDBPath(dbPath)
-				if !corpusMissing(cmd, flags, dbPath) {
+				corpusPresent := !corpusMissing(cmd, flags, dbPath)
+				if corpusPresent {
 					ctx, cancel := boundCtx(cmd.Context(), flags)
 					defer cancel()
 					st, err := openCorpus(ctx, dbPath)
@@ -50,7 +54,13 @@ func newProductsListCmd(flags *rootFlags) *cobra.Command {
 					if err != nil {
 						return err
 					}
-					if len(prods) > 0 {
+					if len(prods) > 0 || category != "" || flags.dataSource == "local" {
+						// Non-empty, or an explicitly filtered / local-only
+						// query: empty is the correct answer, not live data.
+						if len(prods) == 0 {
+							fmt.Fprintf(cmd.ErrOrStderr(), "no products%s in the corpus; run `averusa-pp-cli harvest --only products` first\n",
+								map[bool]string{true: " for category " + category, false: ""}[category != ""])
+						}
 						if flags.asJSON {
 							return flags.printJSON(cmd, prods)
 						}
@@ -64,7 +74,14 @@ func newProductsListCmd(flags *rootFlags) *cobra.Command {
 						}
 						return nil
 					}
-					// Empty corpus: fall through to the live sitemap fetch.
+					// Empty corpus, unfiltered auto: fall through to live.
+				} else if flags.dataSource == "local" {
+					// Local mode with no corpus: no network, honest empty.
+					if flags.asJSON {
+						return flags.printJSON(cmd, []any{})
+					}
+					fmt.Fprintln(cmd.ErrOrStderr(), "no products in the corpus; run `averusa-pp-cli harvest --only products` first")
+					return nil
 				}
 			}
 

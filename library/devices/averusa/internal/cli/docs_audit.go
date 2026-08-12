@@ -103,7 +103,7 @@ have shipped mislinked datasheets (the CAM570 page links cam520pro3-datasheet.pd
 						now, d.URLName)
 					continue
 				}
-				status, size, err := c.Head(ctx, d.PDFURL)
+				status, size, isPDF, err := c.ProbeFile(ctx, d.PDFURL)
 				reason := ""
 				isNoFile := false
 				if err != nil {
@@ -113,10 +113,14 @@ have shipped mislinked datasheets (the CAM570 page links cam520pro3-datasheet.pd
 					// file (text-only article) — not a broken link.
 					noFile++
 					isNoFile = true
+				} else if isPDF {
+					// Confirmed downloadable (HEAD content-type or GET probe).
 				} else if status != 200 {
 					reason = fmt.Sprintf("HTTP %d", status)
 				} else if size == soft404ShellSize {
 					reason = "soft-404 shell (61301-byte 200 page)"
+				} else {
+					reason = "200 response is not a PDF (HTML shell?)"
 				}
 				if isNoFile {
 					_, _ = st.DB().ExecContext(ctx,

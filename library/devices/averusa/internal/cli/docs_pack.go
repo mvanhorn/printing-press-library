@@ -195,6 +195,12 @@ Do NOT use it to fetch a single named document; use 'docs download <doc-id>' ins
 			for _, f := range failures {
 				fmt.Fprintf(w, "  FAILED %s\n", f)
 			}
+			if len(failures) > 0 {
+				// Partial failure must not look like success: automation that
+				// consumes the pack needs a non-zero exit to notice the gap.
+				return apiErr(fmt.Errorf("%d of %d document(s) failed to download; the pack in %s is incomplete",
+					len(failures), len(items), flagOut))
+			}
 			return nil
 		},
 	}
