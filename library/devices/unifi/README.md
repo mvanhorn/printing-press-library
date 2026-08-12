@@ -9,26 +9,26 @@ unifi-pp-cli wraps the full local Network integration API (devices, clients, fir
 The recommended path installs both the `unifi-pp-cli` binary and the `pp-unifi` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install unifi
+npx -y @mvanhorn/printing-press-library install unifi
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install unifi --cli-only
+npx -y @mvanhorn/printing-press-library install unifi --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install unifi --skill-only
+npx -y @mvanhorn/printing-press-library install unifi --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install unifi --agent claude-code
-npx -y @mvanhorn/printing-press install unifi --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install unifi --agent claude-code
+npx -y @mvanhorn/printing-press-library install unifi --agent claude-code --agent codex
 ```
 
 ### Without Node (Go fallback)
@@ -51,7 +51,7 @@ Download a pre-built binary for your platform from the [latest release](https://
 Install the CLI binary first. The installer writes binaries to a per-user managed bin directory by default: `$HOME/.local/bin` on macOS/Linux and `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows.
 
 ```bash
-npx -y @mvanhorn/printing-press install unifi --cli-only
+npx -y @mvanhorn/printing-press-library install unifi --cli-only
 ```
 
 Then install the focused Hermes skill.
@@ -74,7 +74,7 @@ Restart the Hermes session or gateway if the newly installed skill is not visibl
 Install both the CLI binary and the focused OpenClaw skill. The installer defaults binaries to a per-user bin directory (`$HOME/.local/bin` on macOS/Linux, `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows):
 
 ```bash
-npx -y @mvanhorn/printing-press install unifi --agent openclaw
+npx -y @mvanhorn/printing-press-library install unifi --agent openclaw
 ```
 
 Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.

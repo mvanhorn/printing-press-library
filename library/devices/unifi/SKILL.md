@@ -24,7 +24,7 @@ This skill drives the `unifi-pp-cli` binary. **You must verify the CLI is instal
 
 1. Install via the Printing Press installer. It defaults binaries to `$HOME/.local/bin` on macOS/Linux and `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows:
    ```bash
-   npx -y @mvanhorn/printing-press install unifi --cli-only
+   npx -y @mvanhorn/printing-press-library install unifi --cli-only
    ```
 2. Verify: `unifi-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
