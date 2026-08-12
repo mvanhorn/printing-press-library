@@ -8,11 +8,13 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 
@@ -383,6 +385,16 @@ func ambiguousBooleanSetField(set map[string]string) (string, bool) {
 // apply run resume without resending already-applied writes.
 const bulkSetResumeFileName = "bulk-set-resume.json"
 
+// Lock timings for the shared resume file. An update is a small read, edit,
+// and rename, so a healthy holder releases in well under a millisecond; the
+// wait only has to outlast a burst of concurrent runs, and the stale age only
+// has to outlast a slow one before a waiter reclaims a lock nobody owns.
+const (
+	bulkSetResumeLockWait  = 2 * time.Second
+	bulkSetResumeLockPoll  = 5 * time.Millisecond
+	bulkSetResumeLockStale = 10 * time.Second
+)
+
 // bulkSetResumeFile records applied item IDs per batch signature. Every
 // in-flight bulk-set batch (whatever its --match/--set) shares this one file,
 // so it must be keyed by signature rather than holding a single record -
@@ -453,7 +465,10 @@ func readBulkSetResumeFile() bulkSetResumeFile {
 
 // writeBulkSetResumeFile is best-effort: a write failure only means the next
 // run redoes some already-applied writes, which wastes rate-limit budget but
-// does not corrupt data (Webflow field sets are idempotent).
+// does not corrupt data (Webflow field sets are idempotent). The write goes to
+// a temp file in the same directory and is renamed into place, so a concurrent
+// run reading the file never sees a half-written one and mistakes a live batch
+// for "nothing recorded".
 func writeBulkSetResumeFile(file bulkSetResumeFile) {
 	p, err := bulkSetResumePath()
 	if err != nil {
@@ -463,7 +478,64 @@ func writeBulkSetResumeFile(file bulkSetResumeFile) {
 	if err != nil {
 		return
 	}
-	_ = os.WriteFile(p, data, 0o600)
+	tmp, err := os.CreateTemp(filepath.Dir(p), bulkSetResumeFileName+".*.tmp")
+	if err != nil {
+		return
+	}
+	tmpName := tmp.Name() // os.CreateTemp already opens it 0600, matching the old write.
+	if _, err := tmp.Write(data); err != nil {
+		_ = tmp.Close()
+		_ = os.Remove(tmpName)
+		return
+	}
+	if err := tmp.Close(); err != nil {
+		_ = os.Remove(tmpName)
+		return
+	}
+	if err := os.Rename(tmpName, p); err != nil {
+		_ = os.Remove(tmpName)
+	}
+}
+
+// lockBulkSetResume serializes the read-modify-write of the shared resume file
+// across concurrent bulk-set runs. Without it, two runs with different
+// signatures each read the file, edit their own entry, and write the whole
+// thing back - the later writer silently drops the other batch's freshly
+// recorded entry, so that batch's retry resends updates it already applied and
+// burns rate-limit budget before reaching untouched items.
+//
+// The lock is a plain O_EXCL sidecar file rather than an OS advisory lock so
+// the same code works on every platform this CLI ships to. It returns false
+// when the lock cannot be taken; callers then skip their update, which loses
+// only their own bookkeeping instead of destroying another batch's.
+func lockBulkSetResume() (release func(), ok bool) {
+	p, err := bulkSetResumePath()
+	if err != nil {
+		return nil, false
+	}
+	lockPath := p + ".lock"
+	deadline := time.Now().Add(bulkSetResumeLockWait)
+	for {
+		f, openErr := os.OpenFile(lockPath, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0o600) // #nosec G304 -- fixed filename under the CLI's own state dir.
+		if openErr == nil {
+			_ = f.Close()
+			return func() { _ = os.Remove(lockPath) }, true
+		}
+		if !errors.Is(openErr, os.ErrExist) {
+			return nil, false
+		}
+		// A run killed between acquiring and releasing would otherwise wedge
+		// every later run's bookkeeping forever, so an untouched lock past the
+		// stale age is taken over rather than waited on.
+		if info, statErr := os.Stat(lockPath); statErr == nil && time.Since(info.ModTime()) > bulkSetResumeLockStale {
+			_ = os.Remove(lockPath)
+			continue
+		}
+		if time.Now().After(deadline) {
+			return nil, false
+		}
+		time.Sleep(bulkSetResumeLockPoll)
+	}
 }
 
 // loadBulkSetResume returns the item IDs already applied under this exact
@@ -483,8 +555,16 @@ func loadBulkSetResume(signature string) map[string]bool {
 // saveBulkSetResume persists which items this signature's batch has applied
 // so a follow-up run of the identical command skips them instead of
 // resending. Read-modify-write against the shared file so saving this
-// batch's progress never overwrites a different signature's entry.
+// batch's progress never overwrites a different signature's entry - held
+// under the lock so a concurrent run's entry cannot be lost between this
+// read and this write.
 func saveBulkSetResume(signature string, appliedIDs []string) {
+	release, ok := lockBulkSetResume()
+	if !ok {
+		return
+	}
+	defer release()
+
 	file := readBulkSetResumeFile()
 	file.Batches[signature] = appliedIDs
 	writeBulkSetResumeFile(file)
@@ -494,6 +574,12 @@ func saveBulkSetResume(signature string, appliedIDs []string) {
 // unrelated bulk-set on the same collection does not inherit a stale skip
 // list, while leaving every other signature's still-in-progress entry alone.
 func clearBulkSetResume(signature string) {
+	release, ok := lockBulkSetResume()
+	if !ok {
+		return
+	}
+	defer release()
+
 	file := readBulkSetResumeFile()
 	if _, ok := file.Batches[signature]; !ok {
 		return

@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"strings"
+	"sync"
 	"testing"
 
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/webflow/internal/store"
@@ -71,6 +72,69 @@ func TestBulkSetResumeRoundTrip(t *testing.T) {
 	clearBulkSetResume(sigA)
 	if got := loadBulkSetResume(sigA); len(got) != 0 {
 		t.Fatalf("loadBulkSetResume after clear = %v, want empty", got)
+	}
+}
+
+// TestBulkSetResumeConcurrentSavesKeepEveryBatch guards the shared resume
+// file against lost updates: several bulk-set runs with different signatures
+// each read-modify-write the same file, and every batch's entry must survive.
+// Without serialization the later writer replaces the file it read before the
+// others saved, dropping their entries - and a dropped entry makes that
+// batch's retry resend updates it already applied.
+func TestBulkSetResumeConcurrentSavesKeepEveryBatch(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	t.Setenv("XDG_STATE_HOME", home+"/state")
+
+	const batches = 8
+	sigs := make([]string, batches)
+	for i := range sigs {
+		sigs[i] = bulkSetResumeSignature("c1", map[string]string{"status": fmt.Sprintf("s%d", i)}, map[string]string{"author": "editorial"}, false)
+	}
+
+	var wg sync.WaitGroup
+	for i, sig := range sigs {
+		wg.Add(1)
+		go func(i int, sig string) {
+			defer wg.Done()
+			saveBulkSetResume(sig, []string{fmt.Sprintf("i%d", i)})
+		}(i, sig)
+	}
+	wg.Wait()
+
+	for i, sig := range sigs {
+		want := fmt.Sprintf("i%d", i)
+		got := loadBulkSetResume(sig)
+		if !got[want] {
+			t.Fatalf("batch %d resume entry = %v, want it to contain %q; a concurrent save dropped it", i, got, want)
+		}
+	}
+}
+
+// TestBulkSetResumeConcurrentClearKeepsOtherBatches pairs with the save test:
+// a batch that finishes and clears its own entry must not take a concurrently
+// saving batch's still-in-progress entry with it.
+func TestBulkSetResumeConcurrentClearKeepsOtherBatches(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	t.Setenv("XDG_STATE_HOME", home+"/state")
+
+	sigDone := bulkSetResumeSignature("c1", map[string]string{"status": "draft"}, map[string]string{"author": "editorial"}, false)
+	sigLive := bulkSetResumeSignature("c1", map[string]string{"status": "live"}, map[string]string{"author": "editorial"}, false)
+
+	saveBulkSetResume(sigDone, []string{"done1"})
+
+	var wg sync.WaitGroup
+	wg.Add(2)
+	go func() { defer wg.Done(); clearBulkSetResume(sigDone) }()
+	go func() { defer wg.Done(); saveBulkSetResume(sigLive, []string{"live1"}) }()
+	wg.Wait()
+
+	if got := loadBulkSetResume(sigLive); !got["live1"] {
+		t.Fatalf("in-progress batch resume = %v, want it to contain \"live1\"; the concurrent clear dropped it", got)
+	}
+	if got := loadBulkSetResume(sigDone); len(got) != 0 {
+		t.Fatalf("finished batch resume = %v, want empty after clear", got)
 	}
 }
 

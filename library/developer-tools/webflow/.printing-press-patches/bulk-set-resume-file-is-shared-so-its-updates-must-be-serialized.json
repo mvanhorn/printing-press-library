@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "bulk-set-resume-file-is-shared-so-its-updates-must-be-serialized",
+  "applied_at": "2026-08-12",
+  "base_run_id": "20260728-073020-15799c7c",
+  "base_printing_press_version": "4.29.0",
+  "summary": "The bulk-set resume sidecar holds every in-flight batch's state in one file, so saving or clearing one signature's entry is a read-modify-write of shared state and must be serialized across processes and written atomically; keying by signature alone does not make concurrent updates safe.",
+  "reason": "Two bulk-set runs with different --match/--set signatures can be in flight at once, and each save or clear reads the whole file, edits its own entry, and writes the whole file back. Unserialized, the later writer replaces the copy it read before the other run saved, silently dropping that batch's entry -- its retry then resends updates it already applied and burns the rate-limit budget before reaching untouched items, which is exactly what the resume state exists to prevent. A truncating in-place write has the same shape of harm on the read side: a concurrent reader can see a half-written file, fall through the corrupt-file path to 'no batches recorded', and resend everything. The fix serializes updates behind an O_EXCL sidecar lock file (a plain lock file rather than an OS advisory lock, because this CLI ships to Windows as well as Unix) with a stale-age takeover so a run killed mid-update cannot wedge later runs forever, and replaces the in-place write with a temp-file-plus-rename so readers never observe a partial file. A regen must keep both properties as long as one file carries every batch: the per-signature keying prevents intentional overwrites, not racing ones.",
+  "files": ["internal/cli/items_bulk_set.go"],
+  "validated_outcome": "TestBulkSetResumeConcurrentSavesKeepEveryBatch and TestBulkSetResumeConcurrentClearKeepsOtherBatches both fail with the lock removed (every concurrent batch's entry is lost) and pass with it, under -race -count=3.",
+  "upstream_issue": ""
+}
