@@ -33,6 +33,7 @@ func TestRequireBearerToken(t *testing.T) {
 		{name: "wrong scheme", authorize: "Basic test-secret", wantStatus: http.StatusUnauthorized},
 		{name: "wrong token", authorize: "Bearer wrong", wantStatus: http.StatusUnauthorized},
 		{name: "valid", authorize: "Bearer test-secret", wantStatus: http.StatusNoContent, wantCalled: true},
+		{name: "valid lowercase scheme", authorize: "bearer test-secret", wantStatus: http.StatusNoContent, wantCalled: true},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			called = false

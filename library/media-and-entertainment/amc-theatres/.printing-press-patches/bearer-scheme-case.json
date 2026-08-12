@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "bearer-scheme-case",
+  "applied_at": "2026-08-12",
+  "base_run_id": "20260724-145901",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Accept the case-insensitive HTTP Bearer authentication scheme while comparing credential bytes in constant time.",
+  "reason": "HTTP authentication scheme names are case-insensitive, so valid MCP clients using lowercase or mixed-case bearer must not be rejected.",
+  "files": [
+    "cmd/amc-theatres-pp-mcp/main.go",
+    "cmd/amc-theatres-pp-mcp/main_test.go"
+  ],
+  "validated_outcome": "The MCP handler accepts both Bearer and bearer with the correct token and continues to reject incorrect credentials."
+}
