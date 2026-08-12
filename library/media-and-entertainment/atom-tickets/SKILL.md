@@ -226,12 +226,12 @@ This CLI ships a self-capturing learning loop. The CLI does its own bookkeeping:
 ### Step 1: `recall` before any discovery
 
 Before list/search/drill commands on a new user question, run the command with
-`USER_QUESTION` supplied through the process runner's environment map. Never
+`ATOM_TICKETS_USER_QUESTION` supplied through the process runner's environment map. Never
 paste user-controlled text into shell source; quoting a placeholder in Bash
 does not prevent command substitutions in the text that replaces it.
 
 ```bash
-atom-tickets-pp-cli recall "$USER_QUESTION" --agent
+atom-tickets-pp-cli recall "$ATOM_TICKETS_USER_QUESTION" --agent
 ```
 
 The response envelope:
@@ -339,7 +339,7 @@ Graceful degradation: if `learnings confirm` is an unknown command, you are driv
 Teaching is unconditional. After resolving a query the store could not answer, background-teach the final resource mapping - no call-count threshold, no judging whether it was "worth" learning. The teach is the anchor of the loop: it triggers playbook synthesis for a family without a playbook, and same-referent phrasings fold into one family so near-duplicate teaches do not fragment the store. Fire it after assembling your user-facing response but BEFORE emitting it, with a shell `&` so the call returns immediately:
 
 ```bash
-atom-tickets-pp-cli teach --query "$USER_QUESTION" --resource-type <type> --resource <id1> --resource <id2>
+atom-tickets-pp-cli teach --query "$ATOM_TICKETS_USER_QUESTION" --resource-type <type> --resource <id1> --resource <id2>
 # (append shell `&` to background it)
 ```
 
@@ -354,7 +354,7 @@ You do not need to decide whether a session "deserves" a playbook: a teach on a 
 ```bash
 # Common case: record both the resource learning AND the playbook in one call.
 atom-tickets-pp-cli teach \
-  --query "$USER_QUESTION" \
+  --query "$ATOM_TICKETS_USER_QUESTION" \
   --resource <id> \
   --playbook-file ~/playbooks/<shape>.json \
   --playbook-notes-file ~/playbooks/<shape>-notes.md
@@ -362,7 +362,7 @@ atom-tickets-pp-cli teach \
 
 # Alternate: playbook-only (no resource to record alongside).
 atom-tickets-pp-cli teach-playbook \
-  --query "$USER_QUESTION" \
+  --query "$ATOM_TICKETS_USER_QUESTION" \
   --playbook-file ~/playbooks/<shape>.json \
   --notes-file ~/playbooks/<shape>-notes.md
 ```
@@ -374,12 +374,12 @@ When you DO find a playbook on a future recall, treat it as ground truth: replay
 ### Step 6: `playbook amend &` when your debug response identifies a correction
 
 If your debug-protocol response identifies a concrete correction the notes or playbook should know — a workaround, an undocumented endpoint shape, a stale field name, observed schema drift, an empty-payload fallback — fire `playbook amend` BEFORE emitting your user-facing response. Same fire-and-forget posture as `teach`.
-Supply both `USER_QUESTION` and `CORRECTION_NOTE` through the process runner's
+Supply both `ATOM_TICKETS_USER_QUESTION` and `CORRECTION_NOTE` through the process runner's
 environment map so neither value is parsed as shell source.
 
 ```bash
 atom-tickets-pp-cli playbook amend \
-  --query "$USER_QUESTION" \
+  --query "$ATOM_TICKETS_USER_QUESTION" \
   --add-note "$CORRECTION_NOTE"
 # (append shell `&` to background it)
 ```
