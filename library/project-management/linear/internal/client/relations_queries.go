@@ -185,7 +185,11 @@ type relationConnection struct {
 const defaultRelationPageSize = 50
 
 // maxRelationPages bounds the paging loop so a pathological issue cannot
-// spin forever against the rate-limit budget.
+// spin forever against the rate-limit budget. Hitting the bound is an error,
+// never a short read: every consumer of this result treats "absent" as
+// "no such relation", so a silently truncated set makes `relations list` drop
+// links, makes idempotent creation duplicate an existing relation, and lets
+// `unblocked` call an issue actionable while an unseen blocker is still open.
 const maxRelationPages = 20
 
 // FetchIssueRelations reads both relation connections of one issue to
@@ -270,7 +274,10 @@ func (c *Client) FetchIssueRelationsWith(issueID string, pageSize int, includeAr
 			inverseAfter = resp.Issue.InverseRelations.PageInfo.EndCursor
 		}
 	}
-	return out, nil
+	return out, fmt.Errorf(
+		"issue %s has more relations than %d pages of %d can read: refusing to answer from a partial relation set, retry with a larger page size",
+		issueID, maxRelationPages, pageSize,
+	)
 }
 
 // FetchIssueInverseRelations pages only the incoming side of one issue. Used

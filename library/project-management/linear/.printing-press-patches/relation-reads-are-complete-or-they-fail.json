@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "relation-reads-are-complete-or-they-fail",
+  "applied_at": "2026-08-12",
+  "base_run_id": "20260518-232543",
+  "base_printing_press_version": "4.9.0",
+  "summary": "An issue's relation set is read from both the outgoing and the inverse connection, and it is either complete or an error: a paging bound reached is never returned as a short read.",
+  "reason": "Linear exposes a relation from both ends, so reading one connection misses half the graph, and every consumer treats an absent relation as no relation. A silently truncated set drops links from the listing, makes idempotent creation duplicate an existing relation, and lets the unblocked query call an issue actionable while an unseen blocker is still open.",
+  "files": [
+    "internal/client/relations_queries.go",
+    "internal/cli/relations.go",
+    "internal/cli/unblocked.go"
+  ],
+  "validated_outcome": "An issue whose relation connection never reports exhaustion fails the read with a message naming the partial set, instead of answering from the pages it managed to fetch."
+}
