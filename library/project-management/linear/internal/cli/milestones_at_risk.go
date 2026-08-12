@@ -9,6 +9,7 @@ import (
 	"sort"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/project-management/linear/internal/groups"
 	"github.com/mvanhorn/printing-press-library/library/project-management/linear/internal/store"
 	"github.com/spf13/cobra"
 )
@@ -66,9 +67,25 @@ slipDays descending. Only milestones with slipDays > 0 are returned.`,
 			defer db.Close()
 
 			// Inherits the burndown arithmetic, so it must inherit the
-			// same declared notion of "delivered".
-			completedSet, err := resolveStateSet(flags, "", completedGroup)
-			if err != nil {
+			// same declared notion of "delivered". The token is resolved
+			// once per team scope rather than once for the whole run: a
+			// project whose team redeclares the group is counted by its
+			// own definition, and the workspace definition still covers
+			// projects that span teams. Resolution is memoized because a
+			// portfolio commonly holds many projects per team.
+			completedSets := map[string]groups.Set{}
+			completedSetFor := func(teamKey string) (groups.Set, error) {
+				if set, ok := completedSets[teamKey]; ok {
+					return set, nil
+				}
+				set, err := resolveStateSet(flags, teamKey, completedGroup)
+				if err != nil {
+					return groups.Set{}, err
+				}
+				completedSets[teamKey] = set
+				return set, nil
+			}
+			if _, err := completedSetFor(""); err != nil {
 				return err
 			}
 
@@ -117,6 +134,10 @@ slipDays descending. Only milestones with slipDays > 0 are returned.`,
 				projectLanding := ""
 				projectedSource := ""
 				if prj.ID != "" {
+					completedSet, cerr := completedSetFor(projectTeamKeyForGroups(prjRaw))
+					if cerr != nil {
+						return cerr
+					}
 					if issues, ierr := db.ListIssues(map[string]string{"project_id": prj.ID}, 1000); ierr == nil && len(issues) > 0 {
 						stats := computeBurndownStats(issues, 4, completedSet)
 						if stats.WeeklyVelocity > 0 {
