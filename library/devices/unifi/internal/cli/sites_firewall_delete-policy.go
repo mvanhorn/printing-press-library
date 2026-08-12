@@ -71,6 +71,12 @@ func newSitesFirewallDeletePolicyCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 			}
+			// PATCH(unifi-mirror-cleanup-on-delete): keep the local mirror in
+			// sync with a successful live delete so drift/search/rule-predict
+			// don't keep surfacing a resource that no longer exists upstream.
+			if !flags.dryRun && statusCode >= 200 && statusCode < 300 {
+				cleanupLocalMirrorAfterDelete("v1_sites_firewall_policies", args[1], args[0])
+			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")
 				var items []map[string]any

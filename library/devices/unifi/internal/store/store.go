@@ -1118,6 +1118,88 @@ func (s *Store) Upsert(resourceType, id string, data json.RawMessage) error {
 	return tx.Commit()
 }
 
+// typedResourceTables maps a generic resourceType to its domain-specific
+// typed table name for resource kinds that have one, mirroring UpsertBatch's
+// typed-table dispatch switch. Resource types absent from this map are
+// generic-only (no typed table row to clean up on delete).
+var typedResourceTables = map[string]string{
+	"acl_rules":              "acl_rules",
+	"clients":                "clients",
+	"device_tags":            "device_tags",
+	"devices":                "devices",
+	"dns":                    "dns",
+	"firewall":               "firewall",
+	"hotspot":                "hotspot",
+	"networks":               "networks",
+	"radius":                 "radius",
+	"switching":              "switching",
+	"traffic_matching_lists": "traffic_matching_lists",
+	"vpn":                    "vpn",
+	"wans":                   "wans",
+	"wifi":                   "wifi",
+}
+
+// DeleteResource removes a resource's local mirror row — the generic
+// resources table entry, its FTS index entry, and any domain-specific typed
+// table row — for the given bare API-level id, scoped to siteID (pass ""
+// for resource kinds with no site scope). Resolves the bare id to its
+// stored composite storageID via ListIDsScoped + BareResourceID rather than
+// guessing the storageID format, since dependent resources key their rows
+// as id+NUL+parentValue (see resourceStorageID).
+//
+// Returns (false, nil) when the resource was never in the local mirror
+// (not synced, or already removed) — this is not an error. Callers should
+// treat any returned error as best-effort/non-fatal: by the time this runs,
+// the live delete has already succeeded, so a local mirror cleanup failure
+// must not turn a successful delete into a command failure.
+func (s *Store) DeleteResource(resourceType, id, siteID string) (bool, error) {
+	scopedIDs, err := s.ListIDsScoped(resourceType, "sites_id", siteID)
+	if err != nil {
+		return false, err
+	}
+	var storageID string
+	found := false
+	for _, sid := range scopedIDs {
+		if BareResourceID(sid) == id {
+			storageID = sid
+			found = true
+			break
+		}
+	}
+	if !found {
+		return false, nil
+	}
+
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return false, err
+	}
+	defer tx.Rollback()
+
+	if _, err := tx.Exec(`DELETE FROM resources WHERE resource_type = ? AND id = ?`, resourceType, storageID); err != nil {
+		return false, err
+	}
+
+	ftsRowid := ftsRowID(resourceType, storageID)
+	// Use explicit rowid for FTS5 compatibility, matching upsertGenericResourceTx.
+	if _, err := tx.Exec(`DELETE FROM resources_fts WHERE rowid = ?`, ftsRowid); err != nil {
+		fmt.Fprintf(os.Stderr, "warning: FTS index cleanup failed for %s/%s: %v\n", resourceType, storageID, err)
+	}
+
+	if typedTable, ok := typedResourceTables[resourceType]; ok {
+		if _, err := tx.Exec(fmt.Sprintf(`DELETE FROM %q WHERE id = ?`, typedTable), storageID); err != nil {
+			fmt.Fprintf(os.Stderr, "warning: typed table cleanup failed for %s/%s: %v\n", typedTable, storageID, err)
+		}
+	}
+
+	if err := tx.Commit(); err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
 // Propagates sql.ErrNoRows on a miss so callers can distinguish absence from
 // other scan errors via errors.Is.
 func (s *Store) Get(resourceType, id string) (json.RawMessage, error) {
