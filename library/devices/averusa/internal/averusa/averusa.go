@@ -186,29 +186,31 @@ func (c *Client) Head(ctx context.Context, url string) (int, int64, error) {
 }
 
 // ProbeFile HEAD-checks a document URL and falls back to a bounded GET when the
-// server rejects HEAD (403/405/501) or returns an ambiguous zero-length HEAD.
-// It reports whether the resource actually serves a PDF, so GET-only document
-// endpoints are never misclassified as broken.
-func (c *Client) ProbeFile(ctx context.Context, url string) (status int, size int64, isPDF bool, err error) {
-	status, size, ct, err := c.headWithType(ctx, url)
+// server rejects HEAD (403/405/501) or returns a 200 whose content-type does
+// not confirm a PDF. It reports whether the resource actually serves a PDF, so
+// GET-only document endpoints are never misclassified as broken. size is the
+// response size used for display; headLen is the HEAD Content-Length (used by
+// the caller to recognize the vendor's 61301-byte soft-404 shell).
+func (c *Client) ProbeFile(ctx context.Context, url string) (status int, size int64, headLen int64, isPDF bool, err error) {
+	status, headLen, ct, err := c.headWithType(ctx, url)
 	if err != nil {
-		return 0, 0, false, err
+		return 0, 0, 0, false, err
 	}
 	if status == http.StatusOK && strings.Contains(strings.ToLower(ct), "application/pdf") {
-		return status, size, true, nil
+		return status, headLen, headLen, true, nil
 	}
 	switch status {
 	case http.StatusForbidden, http.StatusMethodNotAllowed, http.StatusNotImplemented:
 		// HEAD rejected — probe with a bounded ranged GET.
-		return c.probeGET(ctx, url)
+		gs, gsz, gpdf, gerr := c.probeGET(ctx, url)
+		return gs, gsz, headLen, gpdf, gerr
 	case http.StatusOK:
-		if size != 0 {
-			return status, size, false, nil
-		}
-		// 200 with zero length is ambiguous; confirm with a GET probe.
-		return c.probeGET(ctx, url)
+		// 200 with a non-PDF content-type is ambiguous (some endpoints serve
+		// files only to GET); confirm with a bounded GET before any verdict.
+		gs, gsz, gpdf, gerr := c.probeGET(ctx, url)
+		return gs, gsz, headLen, gpdf, gerr
 	}
-	return status, size, false, nil
+	return status, 0, headLen, false, nil
 }
 
 // headWithType is Head plus the response Content-Type.

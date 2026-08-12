@@ -11,13 +11,13 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "38248c5cbd9260f4355ccc02f96fa07086e74a808c99b53d9241b189125c6047",
+  "source_fingerprint": "da72158137fbde65ab10eaa7da14e7e16b6150f50f0b2f38b7c15ea8f5dabcd7",
   "source_files": {
     "cmd/averusa-pp-cli/main.go": "b4b5c57b8e944484d14b8563d7ec8662fc30f4e711f60454a3db2c94891591fb",
     "cmd/averusa-pp-mcp/main.go": "9dd34392413bf1227e31948296fee4e843b661c151d744320aaeef145da66ccc",
     "go.mod": "6cf18b4c700382c22b240f5aa22db9e3387fa6d234f024f4a339d43716130a11",
     "go.sum": "a801b89f092b9958643f512fcc77b65215ce178b7febff8611404502b80b89e2",
-    "internal/averusa/averusa.go": "58dc4aafdec58eb2a340c59fb6aa3a805182b0f8cd4111c8d42cf8b9556e0675",
+    "internal/averusa/averusa.go": "95a2364a3685036ebe36de2c8086e553090cfd6cb698696d1852aa3153034fc5",
     "internal/cache/cache.go": "2070a202881fa8eb33e0a8e6adb55edeb5f7c6836f539425147874e9f67288ff",
     "internal/cli/agent_context.go": "a4859d375737b83a93cb5b57e74d9ef0acc7df45defa0fa390b1ba25234d7c36",
     "internal/cli/averusa_corpus.go": "ebf07ee27fcf96e95775e8250a8018dcca58c0c741fae87126224ba56161f888",
@@ -29,7 +29,7 @@
     "internal/cli/data_source.go": "aaeb7010f0484f86cbe5f137161fdddc0abe373762fdb54937eaee4f8f11ed53",
     "internal/cli/deliver.go": "53cf0717c6ee3b720a16356dfe33e4cfe12cda231c8c9b1b7d7fd4a166c6c02f",
     "internal/cli/docs.go": "7a301f279168748db5762a413d91bc1a5272cfecf085c7bf039e88540de63af3",
-    "internal/cli/docs_audit.go": "34a143c4d5757f383159a499c29c3708116ace9eaf3802367660f48aaafaf36a",
+    "internal/cli/docs_audit.go": "11b43a375d485c662aefa7c71c31cee26a85389c785771cb759adfcb104de0d0",
     "internal/cli/docs_audit_test.go": "2ddb97843c673433fd7b023bb9288e32f4ceaf185c330dfd4f2150cc7ad9691b",
     "internal/cli/docs_download.go": "b112ef1fe36665c983f08a084ba680e7261066049e1b2ec699abe4ade58e4a7e",
     "internal/cli/docs_get.go": "442f622d7574cc5f6879e8507936c93114bdf00f064273c1e2daeb1b3022999f",

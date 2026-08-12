@@ -103,7 +103,7 @@ have shipped mislinked datasheets (the CAM570 page links cam520pro3-datasheet.pd
 						now, d.URLName)
 					continue
 				}
-				status, size, isPDF, err := c.ProbeFile(ctx, d.PDFURL)
+				status, _, headLen, isPDF, err := c.ProbeFile(ctx, d.PDFURL)
 				reason := ""
 				isNoFile := false
 				if err != nil {
@@ -117,7 +117,7 @@ have shipped mislinked datasheets (the CAM570 page links cam520pro3-datasheet.pd
 					// Confirmed downloadable (HEAD content-type or GET probe).
 				} else if status != 200 {
 					reason = fmt.Sprintf("HTTP %d", status)
-				} else if size == soft404ShellSize {
+				} else if headLen == soft404ShellSize {
 					reason = "soft-404 shell (61301-byte 200 page)"
 				} else {
 					reason = "200 response is not a PDF (HTML shell?)"
