@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "reconcile-is-one-audited-decision-per-issue",
+  "applied_at": "2026-08-12",
+  "base_run_id": "20260518-232543",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Reconciling a candidate issue to a routed decision is one command that hydrates the issue once, applies the whole decision, and appends its audit trail from the body it already holds, never from a second read.",
+  "reason": "Routing a candidate is several mutations (state, labels, parent, description note) that must agree about which issue body they saw. Splitting them across commands, or re-reading between them, reintroduces the lost-update the append guard exists to prevent and can leave an issue half-routed with an audit note that describes a state it never reached.",
+  "files": [
+    "internal/cli/reconcile.go",
+    "internal/cli/reconcile_decide.go",
+    "internal/cli/reconcile_score.go",
+    "internal/cli/issues_edit_append.go"
+  ],
+  "validated_outcome": "A reconcile run against a live workspace moves the issue, records the decision in its description, and reports the before and after body it acted on, with no read between hydration and the write."
+}
