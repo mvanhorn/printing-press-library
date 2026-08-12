@@ -61,6 +61,7 @@ Thumbs.db
 CLAUDE.local.md
 AGENTS.override.md
 .claude/settings.local.json
+.compound-engineering/*.local.yaml
 
 # Local project-scoped agent skill installs. These let private or
 # experimental skills live next to this checkout without being published from
