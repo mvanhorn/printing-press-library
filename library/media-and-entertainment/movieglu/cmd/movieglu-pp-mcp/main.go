@@ -4,10 +4,14 @@
 package main
 
 import (
+	"crypto/subtle"
 	"flag"
 	"fmt"
+	"net"
+	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/movieglu/internal/cli"
@@ -21,10 +25,8 @@ import (
 // guidance that production agents need a remote option.
 
 const (
-	// Keep the unauthenticated HTTP transport local by default. Operators who
-	// deliberately put the server behind an authenticated reverse proxy can
-	// still opt into another interface with --addr.
 	defaultHTTPAddr = "127.0.0.1:7777"
+	httpTokenEnv    = "PP_MCP_HTTP_TOKEN"
 )
 
 // version is the printed MCP server's version, overridable at build time via ldflags.
@@ -48,6 +50,8 @@ func main() {
 
 	transport := flag.String("transport", defaultTransport(), "MCP transport: stdio | http")
 	addr := flag.String("addr", defaultHTTPAddr, "bind address for http transport (host:port or :port)")
+	tlsCert := flag.String("tls-cert", "", "TLS certificate file for non-loopback http transport")
+	tlsKey := flag.String("tls-key", "", "TLS private key file for non-loopback http transport")
 	flag.Parse()
 
 	switch strings.ToLower(*transport) {
@@ -57,9 +61,13 @@ func main() {
 			os.Exit(1)
 		}
 	case "http":
-		httpSrv := server.NewStreamableHTTPServer(s)
+		token := os.Getenv(httpTokenEnv)
+		if token == "" {
+			fmt.Fprintf(os.Stderr, "MCP server error: %s is required for http transport\n", httpTokenEnv)
+			os.Exit(2)
+		}
 		fmt.Fprintf(os.Stderr, "movieglu-pp-mcp serving MCP over streamable HTTP at %s\n", *addr)
-		if err := httpSrv.Start(*addr); err != nil {
+		if err := serveHTTP(s, *addr, token, *tlsCert, *tlsKey); err != nil {
 			fmt.Fprintf(os.Stderr, "MCP server error: %v\n", err)
 			os.Exit(1)
 		}
@@ -67,6 +75,60 @@ func main() {
 		fmt.Fprintf(os.Stderr, "unknown --transport %q (supported: stdio, http)\n", *transport)
 		os.Exit(2)
 	}
+}
+
+func serveHTTP(s *server.MCPServer, addr, token, tlsCert, tlsKey string) error {
+	if err := validateHTTPTransport(addr, tlsCert, tlsKey); err != nil {
+		return err
+	}
+	mcpHandler := server.NewStreamableHTTPServer(s)
+	mux := http.NewServeMux()
+	mux.Handle("/mcp", requireBearerToken(token, mcpHandler))
+
+	httpServer := &http.Server{
+		Addr:              addr,
+		Handler:           mux,
+		ReadHeaderTimeout: 10 * time.Second,
+	}
+	if tlsCert != "" {
+		return httpServer.ListenAndServeTLS(tlsCert, tlsKey)
+	}
+	return httpServer.ListenAndServe()
+}
+
+func validateHTTPTransport(addr, tlsCert, tlsKey string) error {
+	if (tlsCert == "") != (tlsKey == "") {
+		return fmt.Errorf("--tls-cert and --tls-key must be provided together")
+	}
+	if !isLoopbackAddress(addr) && tlsCert == "" {
+		return fmt.Errorf("non-loopback --addr %q requires --tls-cert and --tls-key", addr)
+	}
+	return nil
+}
+
+func isLoopbackAddress(addr string) bool {
+	host, _, err := net.SplitHostPort(addr)
+	if err != nil {
+		return false
+	}
+	if strings.EqualFold(host, "localhost") {
+		return true
+	}
+	ip := net.ParseIP(host)
+	return ip != nil && ip.IsLoopback()
+}
+
+func requireBearerToken(token string, next http.Handler) http.Handler {
+	expected := []byte("Bearer " + token)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		provided := []byte(r.Header.Get("Authorization"))
+		if subtle.ConstantTimeCompare(provided, expected) != 1 {
+			w.Header().Set("WWW-Authenticate", "Bearer")
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
 }
 
 // defaultTransport reads PP_MCP_TRANSPORT env when set, otherwise falls back

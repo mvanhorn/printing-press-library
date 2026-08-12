@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "secure-http-mcp",
+  "applied_at": "2026-08-12",
+  "base_run_id": "20260724-143730",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Require bearer authentication for HTTP MCP and TLS for every non-loopback listener.",
+  "reason": "An unrestricted address override could otherwise expose credential-backed MovieGlu tools and local-store operations to unauthenticated network peers.",
+  "files": [
+    "cmd/movieglu-pp-mcp/main.go",
+    "cmd/movieglu-pp-mcp/main_test.go"
+  ],
+  "validated_outcome": "Loopback HTTP requires a bearer token; wildcard and remote plaintext listeners are rejected; remote TLS requires a paired certificate and key."
+}
