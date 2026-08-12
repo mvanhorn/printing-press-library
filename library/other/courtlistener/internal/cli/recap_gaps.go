@@ -18,6 +18,7 @@ func newNovelRecapGapsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "recap-gaps DOCKET_ID",
 		Short:       "Classify bounded docket document records by CourtListener availability fields without implying complete PACER coverage.",
+		Example:     "  courtlistener-pp-cli recap-gaps 123456 --agent",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		Args:        cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {

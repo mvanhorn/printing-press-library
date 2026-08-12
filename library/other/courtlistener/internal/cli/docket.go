@@ -11,6 +11,7 @@ func newNovelDocketCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "docket DOCKET_ID",
 		Short:       "Join one authenticated docket with bounded entries, documents, parties, and counsel in source chronology.",
+		Example:     "  courtlistener-pp-cli docket 123456 --agent",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		Args:        cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {

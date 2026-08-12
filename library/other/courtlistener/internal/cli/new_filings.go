@@ -23,6 +23,7 @@ func newNovelNewFilingsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "new-filings",
 		Short:       "Persist a bounded newest-first search observation and report newly observed CourtListener result IDs.",
+		Example:     "  courtlistener-pp-cli new-filings --query bankruptcy --agent",
 		Annotations: map[string]string{"mcp:local-write": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {

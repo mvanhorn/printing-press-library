@@ -14,6 +14,7 @@ func newNovelPartyCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "party NAME",
 		Short:       "Query authenticated party records by exact supplied name while preserving docket and API identifiers.",
+		Example:     "  courtlistener-pp-cli party 'Example Corporation' --agent",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		Args:        cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {

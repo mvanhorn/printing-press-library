@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "dogfood-command-evidence",
+  "applied_at": "2026-08-12",
+  "base_run_id": "20260717-002908-6e06aaaf",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Remove an unreachable helper and document runnable examples for every novel CourtListener command.",
+  "reason": "Structural dogfood found dead generated code and five novel commands without command-level examples, weakening agent verification evidence.",
+  "files": ["internal/cli/helpers.go", "internal/cli/docket.go", "internal/cli/judge.go", "internal/cli/new_filings.go", "internal/cli/party.go", "internal/cli/recap_gaps.go"],
+  "validated_outcome": "Printing Press 4.30.2 structural dogfood reports no dead helpers and 10/10 valid examples."
+}

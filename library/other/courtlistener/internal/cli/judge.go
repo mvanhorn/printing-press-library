@@ -14,6 +14,7 @@ func newNovelJudgeCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "judge PERSON_ID",
 		Short:       "Return sourced judge/person metadata and clearly prohibit outcome prediction or causal scoring.",
+		Example:     "  courtlistener-pp-cli judge 12345 --agent",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		Args:        cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
