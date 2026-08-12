@@ -119,10 +119,11 @@ func isLoopbackAddress(addr string) bool {
 }
 
 func requireBearerToken(token string, next http.Handler) http.Handler {
-	expected := []byte("Bearer " + token)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		provided := []byte(r.Header.Get("Authorization"))
-		if subtle.ConstantTimeCompare(provided, expected) != 1 {
+		scheme, provided, ok := strings.Cut(r.Header.Get("Authorization"), " ")
+		validScheme := ok && strings.EqualFold(scheme, "Bearer")
+		validToken := subtle.ConstantTimeCompare([]byte(provided), []byte(token)) == 1
+		if !validScheme || !validToken {
 			w.Header().Set("WWW-Authenticate", "Bearer")
 			http.Error(w, "unauthorized", http.StatusUnauthorized)
 			return
