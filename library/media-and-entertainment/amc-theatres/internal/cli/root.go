@@ -54,7 +54,6 @@ type rootFlags struct {
 	deliverSpec             string
 	timeout                 time.Duration
 	rateLimit               float64
-	maxAge                  time.Duration
 	dataSource              string
 	freshnessMeta           any
 
@@ -231,7 +230,6 @@ Run 'amc-theatres-pp-cli doctor' to verify auth and connectivity.`,
 	rootCmd.PersistentFlags().BoolVar(&flags.agent, "agent", false, "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)")
 	rootCmd.PersistentFlags().BoolVar(&flags.noLearn, "no-learn", false, "Disable the teach/recall learning loop for this invocation")
 	rootCmd.PersistentFlags().StringVar(&flags.dataSource, "data-source", "auto", "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only)")
-	rootCmd.PersistentFlags().DurationVar(&flags.maxAge, "max-age", 30*time.Minute, "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables")
 	rootCmd.PersistentFlags().StringVar(&flags.runProfileName, "profile", "", "Apply values from a saved run profile; this does not select a client (see 'amc-theatres-pp-cli profile list')")
 	rootCmd.PersistentFlags().StringVar(&flags.clientProfileName, "client-profile", "", "Select the tenant-gated client profile (env: PRINTING_PRESS_CLIENT_PROFILE)")
 	if strings.TrimSpace(os.Getenv(mcpBoundProfileEnv)) != "" {

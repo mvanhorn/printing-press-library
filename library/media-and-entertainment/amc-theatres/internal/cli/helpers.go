@@ -284,6 +284,10 @@ func replacePathParam(path, name, value string) string {
 func paginatedGet(ctx context.Context, c interface {
 	GetWithHeaders(ctx context.Context, path string, params map[string]string, headers map[string]string) (json.RawMessage, error)
 }, path string, params map[string]string, headers map[string]string, fetchAll bool, cursorParam, paginationType, limitParam string, defaultPageSize int, nextCursorPath, hasMoreField string) (json.RawMessage, error) {
+	isClientDryRunResponse := func(data json.RawMessage) bool {
+		dryRunClient, ok := c.(interface{ IsDryRun() bool })
+		return ok && isDryRunResponse(dryRunClient.IsDryRun(), data)
+	}
 	// Cursor params are exempt from the "0"/"false" strip: offset-paginated
 	// APIs send offset=0 on the first page.
 	clean := map[string]string{}
@@ -304,7 +308,7 @@ func paginatedGet(ctx context.Context, c interface {
 		if err != nil {
 			return nil, err
 		}
-		if isDryRunResponseForClient(c, data) {
+		if isClientDryRunResponse(data) {
 			return data, nil
 		}
 		emitTruncationWarning(ctx, data, cursorLookupPath, hasMoreField, paginationType)
@@ -349,7 +353,7 @@ func paginatedGet(ctx context.Context, c interface {
 		if err != nil {
 			return nil, err
 		}
-		if isDryRunResponseForClient(c, data) {
+		if isClientDryRunResponse(data) {
 			return data, nil
 		}
 
@@ -1177,11 +1181,6 @@ func isDryRunResponse(dryRun bool, data json.RawMessage) bool {
 	}
 	var v bool
 	return json.Unmarshal(raw, &v) == nil && v
-}
-
-func isDryRunResponseForClient(c any, data json.RawMessage) bool {
-	dryRunClient, ok := c.(interface{ IsDryRun() bool })
-	return ok && isDryRunResponse(dryRunClient.IsDryRun(), data)
 }
 
 func printOutputWithFlagsMeta(w io.Writer, data json.RawMessage, flags *rootFlags, agentMeta map[string]any) error {

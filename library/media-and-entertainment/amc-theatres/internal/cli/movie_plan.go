@@ -73,7 +73,9 @@ func newMoviePlanCmd(flags *rootFlags) *cobra.Command {
 				if _, err := strconv.Atoi(theatre); err != nil {
 					return usageErr(fmt.Errorf("--theatre must be a numeric AMC theatre number"))
 				}
-				path = "/v2/theatres/" + theatre + "/showtimes/" + date
+				path = "/v2/theatres/{theatreNumber}/showtimes/{searchDate}"
+				path = replacePathParam(path, "theatreNumber", theatre)
+				path = replacePathParam(path, "searchDate", date)
 			} else {
 				path = fmt.Sprintf("/v2/showtimes/views/current-location/%s/%s/%s",
 					date, strconv.FormatFloat(latitude, 'f', -1, 64), strconv.FormatFloat(longitude, 'f', -1, 64))
