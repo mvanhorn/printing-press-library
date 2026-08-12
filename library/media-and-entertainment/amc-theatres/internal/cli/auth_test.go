@@ -127,3 +127,16 @@ func TestReadTokenWaitsForDelayedPipedAgentInput(t *testing.T) {
 		t.Fatalf("readToken() = %q, want delayed-token", token)
 	}
 }
+
+func TestReadTokenOrdinaryPipeHonorsContext(t *testing.T) {
+	reader, writer := io.Pipe()
+	defer reader.Close()
+	defer writer.Close()
+	ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
+	defer cancel()
+
+	_, err := readToken(ctx, reader, &strings.Builder{}, false)
+	if err == nil || !strings.Contains(err.Error(), "context deadline exceeded") {
+		t.Fatalf("readToken() error = %v, want context deadline", err)
+	}
+}

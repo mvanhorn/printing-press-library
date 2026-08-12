@@ -208,24 +208,20 @@ func readToken(ctx context.Context, r io.Reader, stderr io.Writer, nonInteractiv
 	}
 	var token string
 	var err error
-	if nonInteractive {
-		type result struct {
-			token string
-			err   error
-		}
-		ready := make(chan result, 1)
-		go func() {
-			value, readErr := read()
-			ready <- result{token: value, err: readErr}
-		}()
-		select {
-		case got := <-ready:
-			token, err = got.token, got.err
-		case <-ctx.Done():
-			return "", fmt.Errorf("reading token from stdin: %w", ctx.Err())
-		}
-	} else {
-		token, err = read()
+	type result struct {
+		token string
+		err   error
+	}
+	ready := make(chan result, 1)
+	go func() {
+		value, readErr := read()
+		ready <- result{token: value, err: readErr}
+	}()
+	select {
+	case got := <-ready:
+		token, err = got.token, got.err
+	case <-ctx.Done():
+		return "", fmt.Errorf("reading token from stdin: %w", ctx.Err())
 	}
 	if err != nil && !errors.Is(err, io.EOF) {
 		return "", fmt.Errorf("reading token from stdin: %w", err)
