@@ -1,0 +1,588 @@
+name: averusa
+description: Discovered API spec for averusa-my-site
+version: 0.1.0
+base_url: https://averusa.my.site.com
+spec_source: sniffed
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+auth_warnings:
+    - 'rejected auth candidate "aura.token" from body: request body field'
+config:
+    format: toml
+    path: ~/.config/averusa-pp-cli/config.toml
+resources:
+    support:
+        description: Operations on aura
+        endpoints:
+            create_aura:
+                method: POST
+                path: /support/s/sfsites/aura
+                description: POST /support/s/sfsites/aura
+                params:
+                    - name: aura.Component.getComponent
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: r
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: ui-chatter-components-aura-components-forceChatter-relatedTopicsDataProvider.RelatedTopicsDataProvider.getRelatedTopics
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: ui-chatter-components-aura-components-forceChatter-topicDescription.TopicDescription.getTopicDescription
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: ui-chatter-components-aura-components-forceChatter-topicMetrics.TopicMetrics.getTopicMetrics
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: ui-comm-runtime-components-aura-components-siteforce-network-tracking.NetworkTracking.createLogRecord
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: ui-comm-runtime-components-aura-components-siteforce-qb.Quarterback.validateRoute
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: ui-comm-runtime-components-aura-components-siteforce-recordservicecomponent.RecordServiceComponent.getArticleUrlNameAndVersionId
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: ui-comm-runtime-components-aura-components-siteforce-recordservicecomponent.RecordServiceComponent.getArticleVersionId
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: ui-communities-components-aura-components-forceCommunity-breadcrumbs.Breadcrumbs.getAncestors
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: ui-communities-components-aura-components-forceCommunity-controller.Headline.getInitData
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: ui-communities-components-aura-components-forceCommunity-controller.TopArticleListDataProvider.loadMoreTopics
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: ui-communities-components-aura-components-forceCommunity-navigationMenu.NavigationMenuDataProvider.getNavigationMenu
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: ui-communities-components-aura-components-forceCommunity-richText.RichText.getParsedRichTextValue
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: ui-communities-components-aura-components-forceCommunity-seoAssistant.SeoAssistant.getRecordAndTranslationData
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: ui-communities-components-aura-components-forceCommunity-topicCatalog.TopicCatalog.getItems
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: ui-communities-components-aura-components-forceTopic-featuredTopicsDataProvider.FeaturedTopicsDataProvider.getFeaturedTopics
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: ui-communities-components-aura-components-forceTopic-subTopicNavigation.SubTopicNavigation.getSubTopics
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: ui-force-components-controllers-hostConfig.HostConfig.getConfigData
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: ui-force-components-controllers-recordGlobalValueProvider.RecordGvp.getRecord
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: ui-instrumentation-components-beacon.InstrumentationBeacon.sendData
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: ui-self-service-components-controller.ArticleTopicList.getTopics
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: ui-self-service-components-controller.ArticleView.addArticleViewCount
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: ui-self-service-components-controller.ArticleView.getArticleHeaderDetail
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: ui-self-service-components-controller.TopicArticleListDataProvider.loadMoreArticles
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: ui-self-service-components-profileMenu.ProfileMenu.getProfileMenuResponse
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body:
+                    - name: aura.context
+                      type: string
+                      required: true
+                      positional: false
+                      default: '{"mode":"PROD","fwuid":"OUcwT3JDYUZld21JQ2ZOckR1VnppUWtVMjdnTGFERUU2S3FfSVdrcU92bkExNC4xOTIuODM4ODYwOA","app":"siteforce:communityApp","loaded":{"APPLICATION@markup://siteforce:communityApp":"1692_mtviYwT4OQy30JbfgmF_yA","COMPONENT@markup://force:outputField":"1413_xGOW0U97o1ff08R7gctbzA"},"dn":[],"globals":{},"uad":true}'
+                      description: ""
+                      fields: []
+                    - name: aura.pageURI
+                      type: string
+                      required: true
+                      positional: false
+                      default: /support/s/article/CAM540-Manual
+                      description: ""
+                      fields: []
+                    - name: aura.token
+                      type: string
+                      required: true
+                      positional: false
+                      default: "null"
+                      description: ""
+                      fields: []
+                    - name: message
+                      type: string
+                      required: true
+                      positional: false
+                      default: '{"actions":[{"id":"1772;a","descriptor":"serviceComponent://ui.instrumentation.components.beacon.InstrumentationBeaconController/ACTION$sendData","callingDescriptor":"UNKNOWN","params":{"batch":[{"topic":"ailtn","schemaType":"LightningPerformance","payload":"{\"id\":\"ltng:performance\",\"ts\":84763.5,\"duration\":26092,\"pageStartTime\":1786503197732,\"marks\":{},\"owner\":\"siteforce:routerInitializer\",\"unixTS\":false,\"rootId\":\"8934c7dc5a7762d7\",\"eventType\":\"performance\",\"eventSource\":\"pageTracker\",\"attributes\":{\"pageId\":3,\"phase\":\"END\",\"defaultCmp\":[\"forceCommunity:breadcrumbs\",\"selfService:singleArticleView\",\"selfService:similarArticles42\",\"selfService:topicTrendingArticles42\",\"forceCommunity:contactSupportButton\"],\"nonDefaultCmp\":[],\"backgroundTime\":0,\"trxDeleted\":{},\"cdnEnabled\":false,\"cdnProviderFlags\":0,\"uriDefsEnabled\":true,\"oneRT\":false,\"gates\":{}},\"clientSessionId\":\"8f59f915e981a8a2\"}"},{"topic":"ailtn","schemaType":"LightningInteraction","payload":"{\"id\":\"ltng:interaction\",\"ts\":84764.29,\"pageStartTime\":1786503197732,\"owner\":\"siteforce:qb\",\"unixTS\":false,\"rootId\":\"8934c7dc5a7762d7\",\"eventType\":\"user\",\"eventSource\":\"synthetic-communitynavigation\",\"attributes\":{\"pageViewCounter\":4,\"cdnEnabled\":false,\"cdnProviderFlags\":0,\"uriDefsEnabled\":true,\"oneRT\":false,\"gates\":{}},\"locator\":{\"target\":\"link\",\"scope\":\"communitynavigation\",\"context\":{\"unifiedEventType\":\"COMMUNITY_PAGE_NAVIGATION\",\"referrer\":\"/support/s/article/CAM540-Manual\",\"requestURI\":\"/article/CAM540-Manual\",\"entityId\":\"ka00y000000DGArAAO\"}},\"sequence\":18,\"page\":{\"entity\":\"ka00y000000DGArAAO\",\"context\":\"article\",\"attributes\":{\"url\":\"/support/s/article/CAM540-Manual\"}},\"clientSessionId\":\"8f59f915e981a8a2\"}"},{"topic":"ailtn","schemaType":"LightningInteraction","payload":"{\"id\":\"ltng:interaction\",\"ts\":84996.79,\"pageStartTime\":1786503197732,\"owner\":\"siteforce:routerInitializer\",\"unixTS\":false,\"rootId\":\"8934c7dc5a7762d7\",\"eventType\":\"user\",\"eventSource\":\"synthetic-communitynavigation\",\"attributes\":{\"pageViewCounter\":4,\"cdnEnabled\":false,\"cdnProviderFlags\":0,\"uriDefsEnabled\":true,\"oneRT\":false,\"gates\":{}},\"locator\":{\"target\":\"link\",\"scope\":\"communitynavigation\",\"context\":{\"unifiedEventType\":\"COMMUNITY_PAGE_NAVIGATION\",\"referrer\":\"/support/s/article/CAM540-Manual\",\"requestURI\":\"/support/s/article/CAM540-Manual\",\"entityId\":\"ka00y000000DGArAAO\"}},\"sequence\":19,\"page\":{\"entity\":\"ka00y000000DGArAAO\",\"context\":\"article\",\"attributes\":{\"url\":\"/support/s/article/CAM540-Manual\"}},\"clientSessionId\":\"8f59f915e981a8a2\"}"},{"topic":"ailtn","schemaType":"LightningInteraction","payload":"{\"id\":\"ltng:interaction\",\"ts\":85239.1,\"pageStartTime\":1786503197732,\"owner\":\"force:record\",\"unixTS\":false,\"rootId\":\"8934c7dc5a7762d7\",\"eventType\":\"crud\",\"eventSource\":\"readsSummary\",\"attributes\":{\"read\":{\"ka0Rd00000075nlIAA\":3},\"reads\":{},\"missedRecordType\":{},\"shouldLog\":true,\"pageViewCounter\":4,\"cdnEnabled\":false,\"cdnProviderFlags\":0,\"uriDefsEnabled\":true,\"oneRT\":false,\"gates\":{}},\"locator\":{\"target\":\"read\",\"scope\":\"force_record\"},\"sequence\":20,\"page\":{\"entity\":\"ka00y000000DGArAAO\",\"context\":\"article\",\"attributes\":{\"url\":\"/support/s/article/CAM540-Manual\"}},\"clientSessionId\":\"8f59f915e981a8a2\"}"},{"topic":"ailtn","schemaType":"LightningInteraction","payload":"{\"id\":\"ltng:interaction\",\"ts\":85239.2,\"pageStartTime\":1786503197732,\"owner\":\"force:record\",\"unixTS\":false,\"rootId\":\"8934c7dc5a7762d7\",\"eventType\":\"crud\",\"eventSource\":\"read\",\"attributes\":{\"recordId\":\"ka00y000000DGArAAO\",\"recordType\":\"Knowledge__kav\",\"recordTypeSetInClient\":true,\"pageViewCounter\":4,\"cdnEnabled\":false,\"cdnProviderFlags\":0,\"uriDefsEnabled\":true,\"oneRT\":false,\"gates\":{}},\"locator\":{\"target\":\"read\",\"scope\":\"force_record\"},\"sequence\":21,\"page\":{\"entity\":\"ka00y000000DGArAAO\",\"context\":\"article\",\"attributes\":{\"url\":\"/support/s/article/CAM540-Manual\"}},\"clientSessionId\":\"8f59f915e981a8a2\"}"},{"topic":"ailtn","schemaType":"LightningPerformance","payload":"{\"id\":\"ltng:newDefs\",\"ts\":85430.4,\"duration\":0,\"pageStartTime\":1786503197732,\"marks\":{},\"owner\":\"force:record\",\"unixTS\":false,\"rootId\":\"8934c7dc5a7762d7\",\"eventType\":\"performance\",\"eventSource\":\"newDefs\",\"attributes\":{\"componentDefs\":[\"layout://rl-Knowledge__kav-VIEW-FULL-0120y000000CFX2AAO---selfService_singleArticleView-_1-0-4677594b592f326b4c6169756450427a2b6f716150673d3d.c\"],\"cdnEnabled\":false,\"cdnProviderFlags\":0,\"uriDefsEnabled\":true,\"oneRT\":false,\"gates\":{}},\"clientSessionId\":\"8f59f915e981a8a2\"}"},{"topic":"ailtn","schemaType":"LightningInteraction","payload":"{\"id\":\"ltng:interaction\",\"ts\":85448,\"pageStartTime\":1786503197732,\"owner\":\"selfService:similarArticlesDataProvider\",\"unixTS\":false,\"rootId\":\"8934c7dc5a7762d7\",\"eventType\":\"user\",\"eventSource\":\"synthetic-view\",\"attributes\":{\"pageViewCounter\":4,\"cdnEnabled\":false,\"cdnProviderFlags\":0,\"uriDefsEnabled\":true,\"oneRT\":false,\"gates\":{}},\"locator\":{\"target\":\"baseSimpleItems\",\"scope\":\"similarArticles\",\"context\":{\"locatorType\":\"similarArticlesView\"}},\"sequence\":22,\"page\":{\"entity\":\"ka00y000000DGArAAO\",\"context\":\"article\",\"attributes\":{\"url\":\"/support/s/article/CAM540-Manual\"}},\"clientSessionId\":\"8f59f915e981a8a2\"}"},{"topic":"ailtn","schemaType":"LightningPerformance","payload":"{\"id\":\"ltng:performance\",\"ts\":84577.4,\"duration\":914,\"pageStartTime\":1786503197732,\"marks\":{},\"owner\":null,\"unixTS\":false,\"rootId\":\"8934c7dc5a7762d7\",\"eventType\":\"performance\",\"eventSource\":\"scenarioTime\",\"attributes\":{\"startHeapMB\":45,\"endHeapMB\":46,\"uiThreadDelay\":0,\"target\":\"slds-p-vertical_small slds-border_bottom slds-hyphenate\",\"scope\":\"comm-topic-trending-articles__item\",\"notInstrumented\":true,\"pageContext\":\"article\",\"pageUrl\":\"/support/s/article/CAM540-Manual\",\"entityType\":\"unknown\",\"pageViewCounter\":4,\"cdnEnabled\":false,\"cdnProviderFlags\":0,\"uriDefsEnabled\":true,\"oneRT\":false,\"gates\":{\"scenarioTrackerMarksEnabled\":false}},\"clientSessionId\":\"8f59f915e981a8a2\"}"},{"topic":"ailtn","schemaType":"LightningInteraction","payload":"{\"id\":\"ltng:interaction\",\"ts\":85492.29,\"pageStartTime\":1786503197732,\"owner\":null,\"unixTS\":false,\"eventType\":\"system\",\"eventSource\":\"componentTracker\",\"attributes\":{\"pageViewCounter\":4,\"cdnEnabled\":false,\"cdnProviderFlags\":0,\"uriDefsEnabled\":true,\"oneRT\":false,\"gates\":{}},\"locator\":{\"target\":\"default\",\"scope\":\"component\",\"context\":{\"devNameOrId\":[\"forceCommunity:breadcrumbs\",\"selfService:singleArticleView\",\"selfService:similarArticles42\",\"selfService:topicTrendingArticles42\",\"forceCommunity:contactSupportButton\"]}},\"sequence\":23,\"page\":{\"entity\":\"ka00y000000DGArAAO\",\"context\":\"article\",\"attributes\":{\"url\":\"/support/s/article/CAM540-Manual\"}},\"clientSessionId\":\"8f59f915e981a8a2\"}"},{"topic":"ailtn","schemaType":"LightningPageView","payload":"{\"id\":\"ltng:pageView\",\"ts\":84764,\"duration\":728,\"pageStartTime\":1786503197732,\"marks\":{\"transport\":[{\"ts\":84764.6,\"context\":{\"auraXHRId\":42,\"requestLength\":917,\"background\":false,\"actionDefs\":[\"1580;a\"],\"requestId\":\"8476460000031287cf\",\"status\":200,\"statusText\":\"\",\"responseLength\":1748,\"xhrDuration\":229,\"xhrStall\":0,\"startTime\":84764,\"fetchStart\":84764,\"requestStart\":84765,\"dns\":0,\"tcp\":0,\"ttfb\":226,\"transfer\":2,\"transferSize\":1130,\"nextHopProtocol\":\"h3\",\"serverTime\":102,\"xhrDelay\":1},\"duration\":230},{\"ts\":84765.1,\"context\":{\"auraXHRId\":43,\"requestLength\":917,\"background\":false,\"actionDefs\":[\"1582;a\"],\"requestId\":\"8476510000075e340d\",\"status\":200,\"statusText\":\"\",\"responseLength\":1748,\"xhrDuration\":240,\"xhrStall\":0,\"startTime\":84765,\"fetchStart\":84765,\"requestStart\":84765,\"dns\":0,\"tcp\":0,\"ttfb\":237,\"transfer\":3,\"transferSize\":1132,\"nextHopProtocol\":\"h3\",\"serverTime\":122,\"xhrDelay\":3},\"duration\":243},{\"ts\":85041.79,\"context\":{\"auraXHRId\":48,\"requestLength\":1252,\"background\":false,\"actionDefs\":[\"1621;a\"],\"requestId\":\"85041790000100e3de\",\"status\":200,\"statusText\":\"\",\"responseLength\":1713,\"xhrDuration\":155,\"xhrStall\":0,\"startTime\":85041,\"fetchStart\":85041,\"requestStart\":85042,\"dns\":0,\"tcp\":0,\"ttfb\":153,\"transfer\":2,\"transferSize\":1110,\"nextHopProtocol\":\"h3\",\"serverTime\":35,\"xhrDelay\":0},\"duration\":155},{\"ts\":85041.7,\"context\":{\"auraXHRId\":47,\"requestLength\":912,\"background\":false,\"actionDefs\":[\"1613;a\"],\"requestId\":\"8504170000090aa534\",\"status\":200,\"statusText\":\"\",\"responseLength\":2745,\"xhrDuration\":171,\"xhrStall\":0,\"startTime\":85041,\"fetchStart\":85041,\"requestStart\":85042,\"dns\":0,\"tcp\":0,\"ttfb\":167,\"transfer\":3,\"transferSize\":1361,\"nextHopProtocol\":\"h3\",\"serverTime\":51,\"xhrDelay\":0},\"duration\":171},{\"ts\":85040.9,\"context\":{\"auraXHRId\":44,\"requestLength\":924,\"background\":false,\"actionDefs\":[\"1591;a\"],\"requestId\":\"85040900000903deab\",\"status\":200,\"statusText\":\"\",\"responseLength\":3828,\"xhrDuration\":196,\"xhrStall\":0,\"startTime\":85041,\"fetchStart\":85041,\"requestStart\":85041,\"dns\":0,\"tcp\":0,\"ttfb\":194,\"transfer\":2,\"transferSize\":1782,\"nextHopProtocol\":\"h3\",\"serverTime\":70,\"xhrDelay\":1},\"duration\":197},{\"ts\":85041.29,\"context\":{\"auraXHRId\":45,\"requestLength\":1031,\"background\":false,\"actionDefs\":[\"1592;a\"],\"requestId\":\"85041290000a74f691\",\"status\":200,\"statusText\":\"\",\"responseLength\":4292,\"xhrDuration\":205,\"xhrStall\":0,\"startTime\":85041,\"fetchStart\":85041,\"requestStart\":85041,\"dns\":0,\"tcp\":0,\"ttfb\":202,\"transfer\":3,\"transferSize\":1908,\"nextHopProtocol\":\"h3\",\"serverTime\":73,\"xhrDelay\":0},\"duration\":205},{\"ts\":85041.9,\"context\":{\"auraXHRId\":49,\"requestLength\":1326,\"background\":false,\"actionDefs\":[\"1627;a\",\"1628;a\"],\"requestId\":\"850419000002ca9ec7\",\"status\":200,\"statusText\":\"\",\"responseLength\":2104,\"xhrDuration\":263,\"xhrStall\":0,\"startTime\":85042,\"fetchStart\":85042,\"requestStart\":85042,\"dns\":0,\"tcp\":0,\"ttfb\":258,\"transfer\":4,\"transferSize\":1289,\"nextHopProtocol\":\"h3\",\"serverTime\":138,\"xhrDelay\":0},\"duration\":263},{\"ts\":85041.5,\"context\":{\"auraXHRId\":46,\"requestLength\":940,\"background\":false,\"actionDefs\":[\"1606;a\"],\"requestId\":\"850415000005552f93\",\"status\":200,\"statusText\":\"\",\"responseLength\":1772,\"xhrDuration\":303,\"xhrStall\":0,\"startTime\":85041,\"fetchStart\":85041,\"requestStart\":85041,\"dns\":0,\"tcp\":0,\"ttfb\":301,\"transfer\":2,\"transferSize\":1152,\"nextHopProtocol\":\"h3\",\"serverTime\":182,\"xhrDelay\":0},\"duration\":303},{\"ts\":85240.79,\"context\":{\"auraXHRId\":51,\"requestLength\":2604,\"background\":false,\"actionDefs\":[\"1730;a\"],\"requestId\":\"852407900004038c08\",\"status\":200,\"statusText\":\"\",\"responseLength\":17677,\"xhrDuration\":188,\"xhrStall\":0,\"startTime\":85241,\"fetchStart\":85241,\"requestStart\":85241,\"dns\":0,\"tcp\":0,\"ttfb\":182,\"transfer\":5,\"transferSize\":3978,\"nextHopProtocol\":\"h3\",\"serverTime\":69,\"xhrDelay\":1},\"duration\":189},{\"ts\":85042.2,\"context\":{\"auraXHRId\":50,\"requestLength\":862,\"background\":true,\"actionDefs\":[\"1596;a\"],\"requestId\":\"8504220000081f00cb\",\"status\":200,\"statusText\":\"\",\"responseLength\":5585,\"xhrDuration\":404,\"xhrStall\":0,\"startTime\":85042,\"fetchStart\":85042,\"requestStart\":85042,\"dns\":0,\"tcp\":0,\"ttfb\":398,\"transfer\":6,\"transferSize\":1886,\"nextHopProtocol\":\"h3\",\"serverTime\":213,\"xhrDelay\":1},\"duration\":405}],\"actions\":[{\"ts\":84764.6,\"context\":{\"id\":\"1580;a\",\"abortable\":true,\"storable\":false,\"background\":false,\"cmp\":\"siteforce:recordServiceComponent\",\"def\":\"serviceComponent://ui.comm.runtime.components.aura.components.siteforce.recordservicecomponent.RecordServiceComponentController/ACTION$getArticleVersionId\",\"state\":\"SUCCESS\",\"cache\":false},\"xhrWait\":0,\"enqueueWait\":0,\"serverTime\":{\"total\":74,\"db\":1,\"xhrServerTime\":101,\"boxCarCount\":1},\"callbackTime\":0,\"duration\":231},{\"ts\":84765.1,\"context\":{\"id\":\"1582;a\",\"abortable\":true,\"storable\":false,\"background\":false,\"cmp\":\"siteforce:recordServiceComponent\",\"def\":\"serviceComponent://ui.comm.runtime.components.aura.components.siteforce.recordservicecomponent.RecordServiceComponentController/ACTION$getArticleVersionId\",\"state\":\"SUCCESS\",\"cache\":false},\"xhrWait\":0,\"enqueueWait\":0,\"serverTime\":{\"total\":83,\"db\":0,\"xhrServerTime\":121,\"boxCarCount\":1},\"callbackTime\":0,\"duration\":243},{\"ts\":85012.7,\"context\":{\"id\":\"1600;a\",\"abortable\":true,\"storable\":true,\"background\":true,\"cmp\":\"selfService:topicTrendingArticlesDataProvider\",\"def\":\"serviceComponent://ui.self.service.components.controller.TopicTrendingArticleListDataProviderController/ACTION$getTrendingArticles\",\"state\":\"SUCCESS\",\"cache\":true},\"callbackTime\":0,\"enqueueWait\":7,\"duration\":7},{\"ts\":85017.29,\"context\":{\"id\":\"1621;a\",\"abortable\":false,\"storable\":false,\"background\":false,\"cmp\":\"siteforce:baseApp\",\"def\":\"serviceComponent://ui.comm.runtime.components.aura.components.siteforce.qb.QuarterbackController/ACTION$validateRoute\",\"state\":\"SUCCESS\",\"cache\":false},\"xhrWait\":24,\"enqueueWait\":0,\"serverTime\":{\"total\":13,\"db\":2,\"xhrServerTime\":33,\"boxCarCount\":1},\"callbackTime\":0,\"duration\":180},{\"ts\":85015.79,\"context\":{\"id\":\"1613;a\",\"abortable\":false,\"storable\":false,\"background\":false,\"cmp\":\"selfService:articleTopicList\",\"def\":\"serviceComponent://ui.self.service.components.controller.ArticleTopicListController/ACTION$getTopics\",\"state\":\"SUCCESS\",\"cache\":false},\"xhrWait\":24,\"enqueueWait\":2,\"serverTime\":{\"total\":23,\"db\":14,\"xhrServerTime\":50,\"boxCarCount\":1},\"callbackTime\":1,\"duration\":199},{\"ts\":85011.2,\"context\":{\"id\":\"1591;a\",\"abortable\":false,\"storable\":false,\"background\":false,\"cmp\":\"force:recordGlobalValueProvider\",\"def\":\"serviceComponent://ui.force.components.controllers.recordGlobalValueProvider.RecordGvpController/ACTION$getRecord\",\"state\":\"SUCCESS\",\"cache\":false},\"xhrWait\":23,\"enqueueWait\":6,\"serverTime\":{\"total\":41,\"db\":17,\"xhrServerTime\":69,\"boxCarCount\":1},\"callbackTime\":0,\"duration\":228},{\"ts\":85011.29,\"context\":{\"id\":\"1592;a\",\"abortable\":false,\"storable\":false,\"background\":false,\"cmp\":\"forceCommunity:seoAssistant\",\"def\":\"serviceComponent://ui.communities.components.aura.components.forceCommunity.seoAssistant.SeoAssistantController/ACTION$getRecordAndTranslationData\",\"state\":\"SUCCESS\",\"cache\":false},\"xhrWait\":24,\"enqueueWait\":6,\"serverTime\":{\"total\":43,\"db\":7,\"xhrServerTime\":72,\"boxCarCount\":1},\"callbackTime\":0,\"duration\":236},{\"ts\":85028.5,\"context\":{\"id\":\"1627;a\",\"abortable\":true,\"storable\":true,\"background\":false,\"cmp\":\"selfService:articleLayout\",\"def\":\"serviceComponent://ui.self.service.components.controller.ArticleViewController/ACTION$getArticleHeaderDetail\",\"state\":\"SUCCESS\",\"cache\":false},\"xhrWait\":1,\"enqueueWait\":12,\"serverTime\":{\"total\":76,\"db\":2,\"xhrServerTime\":137,\"boxCarCount\":2},\"callbackTime\":1,\"duration\":279},{\"ts\":85028.5,\"context\":{\"id\":\"1628;a\",\"abortable\":false,\"storable\":false,\"background\":false,\"cmp\":\"selfService:articleLayout\",\"def\":\"serviceComponent://ui.self.service.components.controller.ArticleViewController/ACTION$addArticleViewCount\",\"state\":\"SUCCESS\",\"cache\":false},\"xhrWait\":1,\"enqueueWait\":12,\"serverTime\":{\"total\":34,\"db\":14,\"xhrServerTime\":137,\"boxCarCount\":2},\"callbackTime\":0,\"duration\":279},{\"ts\":85014.1,\"context\":{\"id\":\"1606;a\",\"abortable\":false,\"storable\":false,\"background\":false,\"cmp\":\"forceCommunity:breadcrumbs\",\"def\":\"serviceComponent://ui.communities.components.aura.components.forceCommunity.breadcrumbs.BreadcrumbsController/ACTION$getAncestors\",\"state\":\"SUCCESS\",\"cache\":false},\"xhrWait\":24,\"enqueueWait\":3,\"serverTime\":{\"total\":148,\"db\":29,\"xhrServerTime\":180,\"boxCarCount\":1},\"callbackTime\":1,\"duration\":333},{\"ts\":85240.7,\"context\":{\"id\":\"1730;a\",\"abortable\":true,\"storable\":false,\"background\":false,\"cmp\":\"none\",\"def\":\"aura://ComponentController/ACTION$getComponent\",\"state\":\"SUCCESS\",\"cache\":false},\"params\":{\"name\":\"markup://force:recordLayout\"},\"xhrWait\":0,\"enqueueWait\":0,\"serverTime\":{\"total\":27,\"db\":0,\"xhrServerTime\":68,\"boxCarCount\":1},\"callbackTime\":7,\"duration\":197},{\"ts\":85012.1,\"context\":{\"id\":\"1596;a\",\"abortable\":true,\"storable\":true,\"background\":true,\"cmp\":\"selfService:similarArticlesDataProvider\",\"def\":\"serviceComponent://ui.self.service.components.controller.SimilarArticlesDataProviderController/ACTION$getSimilarArticles\",\"state\":\"SUCCESS\",\"cache\":false},\"xhrWait\":25,\"enqueueWait\":5,\"callbackTime\":0,\"duration\":436}],\"component\":[{\"totalCreateTime\":31.19,\"slowestCreates\":[{\"name\":\"siteforce-generatedpage-86d5d4b8-0032-4471-b3d9-5ec08b848222.c33\",\"createCount\":1,\"createTimeTotal\":8},{\"name\":\"forceCommunity:breadcrumbs\",\"createCount\":1,\"createTimeTotal\":2},{\"name\":\"selfService:singleArticleView\",\"createCount\":1,\"createTimeTotal\":1.9},{\"name\":\"forceCommunity:themeNavSubMenu\",\"createCount\":1,\"createTimeTotal\":3.8},{\"name\":\"rl-Knowledge__kav-VIEW-FULL-0120y000000CFX2AAO---selfService_singleArticleView-_1-0-4677594b592f326b4c6169756450427a2b6f716150673d3d.c\",\"createCount\":1,\"createTimeTotal\":6.6}]}],\"custom\":[{\"ns\":\"Communities\",\"name\":\"loadArticleHeader\",\"phase\":\"stamp\",\"ts\":85307.6,\"context\":null,\"owner\":\"selfService:articleLayout\"},{\"ns\":\"S1PERF\",\"name\":\"recordLayout:initToAfterRender.85437.6\",\"ts\":85437.6,\"context\":{\"globalId\":\"1:1730;a\",\"metaRecordLayoutQualifiedName\":\"layout://rl-Knowledge__kav-VIEW-FULL-0120y000000CFX2AAO---selfService_singleArticleView-_1-0-4677594b592f326b4c6169756450427a2b6f716150673d3d.c\"},\"owner\":\"force:recordLayout\",\"duration\":3}]},\"owner\":\"siteforce:routerInitializer\",\"unixTS\":false,\"rootId\":\"8934c7dc5a7762d7\",\"previousPage\":{\"entity\":\"ka0Rd00000075nlIAA\",\"context\":\"article\",\"attributes\":{\"url\":\"/support/s/article/Where-can-I-download-the-latest-Firmware-Version-for-the-CAM570\"}},\"attributes\":{\"designTime\":false,\"domain\":\"https://averusa.my.site.com\",\"template\":\"Service Community Template\",\"priorityDuration\":{},\"ltngRttMedian\":113.25,\"ltngDownloadMedian\":6.2,\"ltngCacheHits\":0,\"cdnRttMedian\":0,\"cdnDownloadMedian\":0,\"cdnCacheHits\":0,\"longTaskTotal\":0,\"longestTask\":0,\"network\":{\"rtt\":0,\"downlink\":1.55,\"maxAllowedParallelXHRs\":24},\"cores\":10,\"eptDeviation\":false,\"expTime\":915,\"expTimeDeviation\":false,\"expTimePageExists\":true,\"inFlightXHRS\":0,\"systemOrUntrackedNav\":false,\"routerNavigations\":1,\"eptRedirectTime\":0,\"density\":\"UNKNOWN\",\"totalEpt\":728,\"defaultCmp\":[\"forceCommunity:breadcrumbs\",\"selfService:singleArticleView\",\"selfService:similarArticles42\",\"selfService:topicTrendingArticles42\",\"forceCommunity:contactSupportButton\"],\"gates\":{\"ui.services.PageScopedCache.enabled\":true,\"updatedEpt.instrumentation.ltng\":false,\"arrayAtPolyfillEnabled.instrumentation.ltng\":true,\"browserIdleTime.instrumentation.ltng\":false,\"scenarioTrackerEnabled.instrumentation.ltng\":true,\"lds.pdl.applyRequestLimit\":false,\"lds.useHttpUiapiOneApp\":false,\"lds.lex.http.disableCreateContentDocumentAndVersion\":false,\"lds.pdl.useRelatedListsPredictions\":true,\"lds.pdl.useRelatedListPlus\":true,\"lds.useNewTrackedFieldBehavior\":true,\"lds.usePredictiveLoading\":true,\"lds.pdl.canCombineRecordLayoutRequests\":true,\"lds.pdl.useLocalStorage\":true,\"lds.pdl.useApexPredictions\":true,\"lds.oneStoreGraphqlEnabled.ltng\":false,\"clientTelemetry.instrumentation.ltng\":true,\"componentProfiler.instrumentation.ltng\":false,\"colorIconsMenuItem.bc.ltng\":true,\"bc.262.colorPickerButtonNotAnchorTag\":true,\"bc.260.enableA11yMultiColSortModal\":true,\"bc.262.enableAriaInvalidGroupCombobox\":true,\"bc.260.enableAssertContext260\":true,\"bc.260.enableAssertContext260Round2\":true,\"mpe.260.enableAssertContextForBarcodeScanner\":true,\"bc.260.enableBaseComboboxNullCheck\":true,\"bc.260.enableCalendarGridCellAriaFix\":true,\"bc.258.enableCalendarMinMaxNavigation\":true,\"bc.262.enableCarouselRTLFix\":true,\"bc.260.enableCheckboxGroupStaticErrDom\":true,\"bc.262.enableColorPickerEscapeStopPropagation\":false,\"bc.262.enableComboboxButtonVariant\":true,\"bc.260.enableComboboxElementInternals\":true,\"bc.262.enableComboboxPlaceholderA11y\":true,\"bc.258.enableConsolidateTypeAttributes\":true,\"bc.262.enableDTAutoInlineEditFix\":true,\"bc.260.enableDTHeightCalcForScrollbar\":true,\"bc.258.enableDatatableHoverStyling\":true,\"bc.258.enableDatatablePositionOverride\":true,\"bc.260.enableDatatableUseClientWidth\":true,\"bc.258.enableDatatableVoiceoverFix\":true,\"bc.258.enableDateInvalidYearHandling\":true,\"bc.262.enableDateRolloverFix\":false,\"bc.262.enableDatepickerAriaDescribedByDedup\":true,\"bc.262.enableDisabledOptDualListbox\":true,\"bc.258.enableDisabledRowsAttribute\":true,\"bc.258.enableDropdownCloseDelay\":true,\"bc.262.enableDtInlineEditBlurRace\":true,\"bc.260.enableDualListboxA11yReqOptionErrFix\":true,\"bc.262.enableDualListboxButtonDisablingFix\":true,\"bc.258.enableDualListboxSingleCharTypeahead\":true,\"bc.260.enableFontSizeThirteen\":true,\"bc.262.enableFormattedRichTextNoNestedShadow\":false,\"bc.260.enableFormattedRichTextParts\":true,\"bc.260.enableGeolocationTimeout\":true,\"bc.262.enableHelptextA11yInModal\":true,\"bc.262.enableIndeterminateForInput\":true,\"bc.258.enableInputModeOverride\":true,\"bc.262.enableInputNamePicklistRO\":false,\"bc.258.enableInputSearchCommitEvent\":true,\"bc.262.enableLargeNumberFormatting\":true,\"bc.258.enableLookupFieldObjApiName\":true,\"bc.260.enableManualImageUpload\":false,\"bc.258.enableMaxEditLimit\":true,\"bc.262.enableMessageTemplateData\":true,\"bc.262.enableMessageToLabelLink\":true,\"bc.262.enableMobileGroupedCbAriaUpdates\":true,\"bc.258.enableNoDescribedbyTooltip\":true,\"bc.258.enableOutputFieldReadOnlyClass\":true,\"bc.262.enableParseErrorSafeAccess\":true,\"bc.260.enablePositionLibFlipCalcWithViewportRight\":true,\"bc.258.enablePositionLibraryFlipInOverlay\":true,\"bc.260.enablePositionLibraryTransformScaleFix\":true,\"bc.262.enablePrivateMethodsComponents262\":true,\"bc.260.enableRadioGroupStaticErrDom\":true,\"bc.262.enableReadOnlyTimepickerFix\":true,\"bc.260.enableRelativeDateTimeLocale\":true,\"bc.260.enableSelectStaticErrDom\":true,\"bc.262.enableSliderMax0Value\":true,\"bc.262.enableTabsetRTLFix\":true,\"bc.258.enableTextareaReadOnlyStatic\":true,\"bc.258.enableTimeIntervalApi\":true,\"bc.260.enableTooltipFlashingFix\":true,\"bc.260.enableTooltipHoverDismiss\":true,\"bc.260.enableTreeGackFix\":true,\"bc.262.enableTreeGridRTLFix\":true,\"bc.260.enableTreeGridSecondArrKeyUpdate\":true,\"bc.262.enableUpdatedCheckboxButtonBlueprint\":true,\"com.salesforce.sldsv2.enableWcagRichTextDark\":true,\"com.salesforce.sldsv2.enableWcagRichTextLight\":true,\"bc.262.enableaftersanitizationhook\":true,\"bc.260.enableformattedtextlinkrouting\":false,\"bc.262.enablemcsfocusorderonadddelete\":true,\"primitiveThemeProviderDisabled.bc.ltng\":true,\"o11yAuraActionsEnabled.instrumentation.ltng\":false,\"o11yEnabled.instrumentation.ltng\":true,\"webVitalsKillSwitch.instrumentation.ltng\":true,\"com.salesforce.aura.enableAuraO11yMetrics\":true,\"disableFlushIfIdle.instrumentation.ltng\":true,\"scenarioTrackerMarksEnabled.instrumentation.ltng\":false,\"limitPerfTrxMarks.instrumentation.ltng\":true,\"forceRecordMarksEnabled\":false,\"LWCMarksEnabled\":false},\"cdnEnabled\":false,\"cdnProviderFlags\":0,\"uriDefsEnabled\":true,\"oneRT\":false},\"cacheStats\":{\"AuraStorage_actions\":{\"hits\":9,\"misses\":0},\"AuraRecordStore\":{\"hits\":0,\"misses\":3},\"AuraRecordStore_auraIf\":{\"hits\":0,\"misses\":1},\"AuraRecordStore_selfServiceArticleLayout\":{\"hits\":0,\"misses\":2},\"total\":{\"hits\":9,\"misses\":6}},\"complexity\":null,\"ept\":728,\"sequence\":4,\"page\":{\"entity\":\"ka00y000000DGArAAO\",\"context\":\"article\",\"attributes\":{\"url\":\"/support/s/article/CAM540-Manual\"}},\"clientSessionId\":\"8f59f915e981a8a2\"}"},{"topic":"ailtn","schemaType":"LightningInteraction","payload":"{\"id\":\"ltng:interaction\",\"ts\":85493.4,\"pageStartTime\":1786503197732,\"owner\":null,\"unixTS\":false,\"eventType\":\"system\",\"eventSource\":\"defsUsage\",\"attributes\":{\"defs\":[\"DEPRECATED_SEE_W-12458083\"],\"lwcDefs\":[],\"auraDefs\":[\"force:outputFile\"],\"pageCounter\":4,\"phase\":\"EPT\",\"pageViewCounter\":4,\"cdnEnabled\":false,\"cdnProviderFlags\":0,\"uriDefsEnabled\":true,\"oneRT\":false,\"gates\":{}},\"locator\":{\"target\":\"defsUsage\",\"scope\":\"defsUsage\"},\"sequence\":24,\"page\":{\"entity\":\"ka00y000000DGArAAO\",\"context\":\"article\",\"attributes\":{\"url\":\"/support/s/article/CAM540-Manual\"}},\"clientSessionId\":\"8f59f915e981a8a2\"}"}],"metrics":"[{\"owner\":\"Instrumentation\",\"name\":\"scenarioTime.ms\",\"type\":\"PercentileHistogram\",\"ts\":1786503283224,\"value\":[914]},{\"owner\":\"Instrumentation\",\"name\":\"bwUsageReceived.beforeEpt.bytes\",\"type\":\"PercentileHistogram\",\"ts\":1786503283225,\"value\":[52539]},{\"owner\":\"Instrumentation\",\"name\":\"bwUsageSent.beforeEpt.bytes\",\"type\":\"PercentileHistogram\",\"ts\":1786503283225,\"value\":[14150]},{\"owner\":\"Instrumentation\",\"name\":\"bwUsageReceived.afterEpt.bytes\",\"type\":\"PercentileHistogram\",\"ts\":1786503282496,\"value\":[8485]},{\"owner\":\"Instrumentation\",\"name\":\"bwUsageSent.afterEpt.bytes\",\"type\":\"PercentileHistogram\",\"ts\":1786503282496,\"value\":[70777]},{\"owner\":\"Instrumentation\",\"name\":\"bwUsage.instrSizePct\",\"type\":\"PercentileHistogram\",\"ts\":1786503282496,\"value\":[1]},{\"owner\":\"Instrumentation\",\"name\":\"pageview.ept.ms\",\"type\":\"PercentileHistogram\",\"ts\":1786503283226,\"value\":[728]},{\"owner\":\"lds\",\"name\":\"ads-bridge-add-records-duration\",\"type\":\"PercentileHistogram\",\"ts\":1786503282980,\"value\":[0,0]},{\"name\":\"acs.decode\",\"owner\":\"AuraClientService\",\"type\":\"Counter\",\"ts\":1786503283226,\"value\":13,\"tags\":{\"status\":\"success\"}},{\"name\":\"acs.internalSend\",\"owner\":\"AuraClientService\",\"type\":\"Counter\",\"ts\":1786503283226,\"value\":13,\"tags\":{\"status\":\"success\"}},{\"name\":\"acs.receive\",\"owner\":\"AuraClientService\",\"type\":\"Counter\",\"ts\":1786503283226,\"value\":13,\"tags\":{\"status\":\"success\"}},{\"name\":\"ars.render\",\"owner\":\"AuraClientService\",\"type\":\"Counter\",\"ts\":1786503283226,\"value\":266,\"tags\":{\"status\":\"success\"}},{\"name\":\"ars.rerender\",\"owner\":\"AuraClientService\",\"type\":\"Counter\",\"ts\":1786503283226,\"value\":37,\"tags\":{\"status\":\"success\"}},{\"name\":\"ars.unrender\",\"owner\":\"AuraClientService\",\"type\":\"Counter\",\"ts\":1786503283226,\"value\":1046,\"tags\":{\"status\":\"success\"}},{\"name\":\"evt.executeHandlerIterator\",\"owner\":\"AuraClientService\",\"type\":\"Counter\",\"ts\":1786503283226,\"value\":241,\"tags\":{\"status\":\"success\"}},{\"name\":\"startRootActivity\",\"owner\":\"o11y\",\"type\":\"Counter\",\"ts\":1786503282310,\"value\":1,\"tags\":{\"status\":\"success\"}},{\"name\":\"startActivity\",\"owner\":\"o11y\",\"type\":\"Counter\",\"ts\":1786503282497,\"value\":1,\"tags\":{\"status\":\"success\"}},{\"name\":\"transaction\",\"owner\":\"aurametricsservice\",\"type\":\"Counter\",\"ts\":1786503283226,\"value\":9,\"tags\":{\"status\":\"success\"}},{\"name\":\"incrementCounter\",\"owner\":\"o11y\",\"type\":\"Counter\",\"ts\":1786503283226,\"value\":7,\"tags\":{\"status\":\"success\"}},{\"name\":\"activity.stop\",\"owner\":\"o11y\",\"type\":\"Counter\",\"ts\":1786503283226,\"value\":2,\"tags\":{\"status\":\"success\"}},{\"name\":\"transactionEnd\",\"owner\":\"aurametricsservice\",\"type\":\"Counter\",\"ts\":1786503283226,\"value\":3,\"tags\":{\"status\":\"success\"}},{\"name\":\"log\",\"owner\":\"o11y\",\"type\":\"Counter\",\"ts\":1786503282750,\"value\":2,\"tags\":{\"status\":\"success\"}},{\"name\":\"transactionStart\",\"owner\":\"aurametricsservice\",\"type\":\"Counter\",\"ts\":1786503282497,\"value\":2,\"tags\":{\"status\":\"success\"}},{\"name\":\"trackValue\",\"owner\":\"o11y\",\"type\":\"Counter\",\"ts\":1786503282981,\"value\":7,\"tags\":{\"status\":\"success\"}},{\"name\":\"store-ingest-duration\",\"owner\":\"lds\",\"type\":\"PercentileHistogram\",\"ts\":1786503282981,\"value\":[0,0],\"tags\":{\"status\":\"success\"}},{\"name\":\"store-size-count\",\"owner\":\"lds\",\"type\":\"PercentileHistogram\",\"ts\":1786503282972,\"value\":[39],\"tags\":{\"status\":\"success\"}},{\"name\":\"store-snapshot-subscriptions-count\",\"owner\":\"lds\",\"type\":\"PercentileHistogram\",\"ts\":1786503282972,\"value\":[0],\"tags\":{\"status\":\"success\"}},{\"name\":\"store-watch-subscriptions-count\",\"owner\":\"lds\",\"type\":\"PercentileHistogram\",\"ts\":1786503282972,\"value\":[0],\"tags\":{\"status\":\"success\"}},{\"name\":\"store-broadcast-duration\",\"owner\":\"lds\",\"type\":\"PercentileHistogram\",\"ts\":1786503282981,\"value\":[0,1],\"tags\":{\"status\":\"success\"}}]","o11yLogs":"CiAKBG8xMXkRzKwhTD7/eUIYAyAAKAAyBzI2MC41LjA4ABKAJgobc2YuaW5zdHJ1bWVudGF0aW9uLkFjdGl2aXR5EpYDCcxk6Es+/3lCEskBChA4OTM0YzdkYzVhNzc2MmQ3Eg9MZXhSb290QWN0aXZpdHkZzczMzMyUjEAikgEKFnNmLmxleC5TY2VuYXJpb1RyYWNrZXISeAgEGI3YzxYgy5mXFygAMABSImNvbW0tdG9waWMtdHJlbmRpbmctYXJ0aWNsZXNfX2l0ZW1aN3NsZHMtcC12ZXJ0aWNhbF9zbWFsbCBzbGRzLWJvcmRlcl9ib3R0b20gc2xkcy1oeXBoZW5hdGVhAAAAAAAAAABoAEABUABYAGAAGQAAAGYWpvRAKBEyFnNpdGVmb3JjZTpjb21tdW5pdHlBcHA6VQoSc2YubGV4LlBhZ2VQYXlsb2FkEj8IAyI7aHR0cHM6Ly9hdmVydXNhLm15LnNpdGUuY29tL3N1cHBvcnQvcy9hcnRpY2xlL0NBTTU0MC1NYW51YWxCFnNpdGVmb3JjZTpjb21tdW5pdHlBcHBKAjRnUhUKEXNmLmxleC5BcHBQYXlsb2FkEgBYBGIQOGY1OWY5MTVlOTgxYThhMhLHIglmDvRLPv95QhLoIAoQYTZiYzE0NzdhZDRmNWYwZhIIcGFnZXZpZXcZMzMzMzPDhkAiuiAKD3NmLmxleC5QYWdldmlldxKmIAgEEQAAAAAAwIZAKQAAAAAAwIZAMQAAAAAAAAAAQQAAAAAAAAAASQAAAAAAAAAAUABZAAAAAAAAAABhzczMzMzM+D9wAYABGIoBI3VpLnNlcnZpY2VzLlBhZ2VTY29wZWRDYWNoZS5lbmFibGVkigErYXJyYXlBdFBvbHlmaWxsRW5hYmxlZC5pbnN0cnVtZW50YXRpb24ubHRuZ4oBK3NjZW5hcmlvVHJhY2tlckVuYWJsZWQuaW5zdHJ1bWVudGF0aW9uLmx0bmeKASJsZHMucGRsLnVzZVJlbGF0ZWRMaXN0c1ByZWRpY3Rpb25zigEabGRzLnBkbC51c2VSZWxhdGVkTGlzdFBsdXOKAR5sZHMudXNlTmV3VHJhY2tlZEZpZWxkQmVoYXZpb3KKARhsZHMudXNlUHJlZGljdGl2ZUxvYWRpbmeKASZsZHMucGRsLmNhbkNvbWJpbmVSZWNvcmRMYXlvdXRSZXF1ZXN0c4oBF2xkcy5wZGwudXNlTG9jYWxTdG9yYWdligEabGRzLnBkbC51c2VBcGV4UHJlZGljdGlvbnOKASRjbGllbnRUZWxlbWV0cnkuaW5zdHJ1bWVudGF0aW9uLmx0bmeKARpjb2xvckljb25zTWVudUl0ZW0uYmMubHRuZ4oBJGJjLjI2Mi5jb2xvclBpY2tlckJ1dHRvbk5vdEFuY2hvclRhZ4oBImJjLjI2MC5lbmFibGVBMTF5TXVsdGlDb2xTb3J0TW9kYWyKASViYy4yNjIuZW5hYmxlQXJpYUludmFsaWRHcm91cENvbWJvYm94igEdYmMuMjYwLmVuYWJsZUFzc2VydENvbnRleHQyNjCKASNiYy4yNjAuZW5hYmxlQXNzZXJ0Q29udGV4dDI2MFJvdW5kMooBLG1wZS4yNjAuZW5hYmxlQXNzZXJ0Q29udGV4dEZvckJhcmNvZGVTY2FubmVyigEiYmMuMjYwLmVuYWJsZUJhc2VDb21ib2JveE51bGxDaGVja4oBJGJjLjI2MC5lbmFibGVDYWxlbmRhckdyaWRDZWxsQXJpYUZpeIoBJWJjLjI1OC5lbmFibGVDYWxlbmRhck1pbk1heE5hdmlnYXRpb26KARtiYy4yNjIuZW5hYmxlQ2Fyb3VzZWxSVExGaXiKASZiYy4yNjAuZW5hYmxlQ2hlY2tib3hHcm91cFN0YXRpY0VyckRvbYoBImJjLjI2Mi5lbmFibGVDb21ib2JveEJ1dHRvblZhcmlhbnSKASViYy4yNjAuZW5hYmxlQ29tYm9ib3hFbGVtZW50SW50ZXJuYWxzigEkYmMuMjYyLmVuYWJsZUNvbWJvYm94UGxhY2Vob2xkZXJBMTF5igEmYmMuMjU4LmVuYWJsZUNvbnNvbGlkYXRlVHlwZUF0dHJpYnV0ZXOKASBiYy4yNjIuZW5hYmxlRFRBdXRvSW5saW5lRWRpdEZpeIoBJWJjLjI2MC5lbmFibGVEVEhlaWdodENhbGNGb3JTY3JvbGxiYXKKASJiYy4yNTguZW5hYmxlRGF0YXRhYmxlSG92ZXJTdHlsaW5nigEmYmMuMjU4LmVuYWJsZURhdGF0YWJsZVBvc2l0aW9uT3ZlcnJpZGWKASRiYy4yNjAuZW5hYmxlRGF0YXRhYmxlVXNlQ2xpZW50V2lkdGiKASJiYy4yNTguZW5hYmxlRGF0YXRhYmxlVm9pY2VvdmVyRml4igEkYmMuMjU4LmVuYWJsZURhdGVJbnZhbGlkWWVhckhhbmRsaW5nigErYmMuMjYyLmVuYWJsZURhdGVwaWNrZXJBcmlhRGVzY3JpYmVkQnlEZWR1cIoBI2JjLjI2Mi5lbmFibGVEaXNhYmxlZE9wdER1YWxMaXN0Ym94igEiYmMuMjU4LmVuYWJsZURpc2FibGVkUm93c0F0dHJpYnV0ZYoBH2JjLjI1OC5lbmFibGVEcm9wZG93bkNsb3NlRGVsYXmKASFiYy4yNjIuZW5hYmxlRHRJbmxpbmVFZGl0Qmx1clJhY2WKAStiYy4yNjAuZW5hYmxlRHVhbExpc3Rib3hBMTF5UmVxT3B0aW9uRXJyRml4igEqYmMuMjYyLmVuYWJsZUR1YWxMaXN0Ym94QnV0dG9uRGlzYWJsaW5nRml4igErYmMuMjU4LmVuYWJsZUR1YWxMaXN0Ym94U2luZ2xlQ2hhclR5cGVhaGVhZIoBHWJjLjI2MC5lbmFibGVGb250U2l6ZVRoaXJ0ZWVuigEjYmMuMjYwLmVuYWJsZUZvcm1hdHRlZFJpY2hUZXh0UGFydHOKAR9iYy4yNjAuZW5hYmxlR2VvbG9jYXRpb25UaW1lb3V0igEgYmMuMjYyLmVuYWJsZUhlbHB0ZXh0QTExeUluTW9kYWyKASJiYy4yNjIuZW5hYmxlSW5kZXRlcm1pbmF0ZUZvcklucHV0igEeYmMuMjU4LmVuYWJsZUlucHV0TW9kZU92ZXJyaWRligEjYmMuMjU4LmVuYWJsZUlucHV0U2VhcmNoQ29tbWl0RXZlbnSKASJiYy4yNjIuZW5hYmxlTGFyZ2VOdW1iZXJGb3JtYXR0aW5nigEiYmMuMjU4LmVuYWJsZUxvb2t1cEZpZWxkT2JqQXBpTmFtZYoBGWJjLjI1OC5lbmFibGVNYXhFZGl0TGltaXSKASBiYy4yNjIuZW5hYmxlTWVzc2FnZVRlbXBsYXRlRGF0YYoBH2JjLjI2Mi5lbmFibGVNZXNzYWdlVG9MYWJlbExpbmuKASdiYy4yNjIuZW5hYmxlTW9iaWxlR3JvdXBlZENiQXJpYVVwZGF0ZXOKASFiYy4yNTguZW5hYmxlTm9EZXNjcmliZWRieVRvb2x0aXCKASViYy4yNTguZW5hYmxlT3V0cHV0RmllbGRSZWFkT25seUNsYXNzigEhYmMuMjYyLmVuYWJsZVBhcnNlRXJyb3JTYWZlQWNjZXNzigExYmMuMjYwLmVuYWJsZVBvc2l0aW9uTGliRmxpcENhbGNXaXRoVmlld3BvcnRSaWdodIoBKWJjLjI1OC5lbmFibGVQb3NpdGlvbkxpYnJhcnlGbGlwSW5PdmVybGF5igEtYmMuMjYwLmVuYWJsZVBvc2l0aW9uTGlicmFyeVRyYW5zZm9ybVNjYWxlRml4igEoYmMuMjYyLmVuYWJsZVByaXZhdGVNZXRob2RzQ29tcG9uZW50czI2MooBI2JjLjI2MC5lbmFibGVSYWRpb0dyb3VwU3RhdGljRXJyRG9tigEiYmMuMjYyLmVuYWJsZVJlYWRPbmx5VGltZXBpY2tlckZpeIoBI2JjLjI2MC5lbmFibGVSZWxhdGl2ZURhdGVUaW1lTG9jYWxligEfYmMuMjYwLmVuYWJsZVNlbGVjdFN0YXRpY0VyckRvbYoBHGJjLjI2Mi5lbmFibGVTbGlkZXJNYXgwVmFsdWWKARliYy4yNjIuZW5hYmxlVGFic2V0UlRMRml4igEjYmMuMjU4LmVuYWJsZVRleHRhcmVhUmVhZE9ubHlTdGF0aWOKARxiYy4yNTguZW5hYmxlVGltZUludGVydmFsQXBpigEfYmMuMjYwLmVuYWJsZVRvb2x0aXBGbGFzaGluZ0ZpeIoBIGJjLjI2MC5lbmFibGVUb29sdGlwSG92ZXJEaXNtaXNzigEYYmMuMjYwLmVuYWJsZVRyZWVHYWNrRml4igEbYmMuMjYyLmVuYWJsZVRyZWVHcmlkUlRMRml4igEnYmMuMjYwLmVuYWJsZVRyZWVHcmlkU2Vjb25kQXJyS2V5VXBkYXRligErYmMuMjYyLmVuYWJsZVVwZGF0ZWRDaGVja2JveEJ1dHRvbkJsdWVwcmludIoBLGNvbS5zYWxlc2ZvcmNlLnNsZHN2Mi5lbmFibGVXY2FnUmljaFRleHREYXJrigEtY29tLnNhbGVzZm9yY2Uuc2xkc3YyLmVuYWJsZVdjYWdSaWNoVGV4dExpZ2h0igEiYmMuMjYyLmVuYWJsZWFmdGVyc2FuaXRpemF0aW9uaG9va4oBJWJjLjI2Mi5lbmFibGVtY3Nmb2N1c29yZGVyb25hZGRkZWxldGWKASZwcmltaXRpdmVUaGVtZVByb3ZpZGVyRGlzYWJsZWQuYmMubHRuZ4oBIG8xMXlFbmFibGVkLmluc3RydW1lbnRhdGlvbi5sdG5nigEod2ViVml0YWxzS2lsbFN3aXRjaC5pbnN0cnVtZW50YXRpb24ubHRuZ4oBKWNvbS5zYWxlc2ZvcmNlLmF1cmEuZW5hYmxlQXVyYU8xMXlNZXRyaWNzigEnZGlzYWJsZUZsdXNoSWZJZGxlLmluc3RydW1lbnRhdGlvbi5sdG5nigEmbGltaXRQZXJmVHJ4TWFya3MuaW5zdHJ1bWVudGF0aW9uLmx0bmeSAR91cGRhdGVkRXB0Lmluc3RydW1lbnRhdGlvbi5sdG5nkgEkYnJvd3NlcklkbGVUaW1lLmluc3RydW1lbnRhdGlvbi5sdG5nkgEZbGRzLnBkbC5hcHBseVJlcXVlc3RMaW1pdJIBFmxkcy51c2VIdHRwVWlhcGlPbmVBcHCSATNsZHMubGV4Lmh0dHAuZGlzYWJsZUNyZWF0ZUNvbnRlbnREb2N1bWVudEFuZFZlcnNpb26SAR9sZHMub25lU3RvcmVHcmFwaHFsRW5hYmxlZC5sdG5nkgEmY29tcG9uZW50UHJvZmlsZXIuaW5zdHJ1bWVudGF0aW9uLmx0bmeSAS1iYy4yNjIuZW5hYmxlQ29sb3JQaWNrZXJFc2NhcGVTdG9wUHJvcGFnYXRpb26SARxiYy4yNjIuZW5hYmxlRGF0ZVJvbGxvdmVyRml4kgEsYmMuMjYyLmVuYWJsZUZvcm1hdHRlZFJpY2hUZXh0Tm9OZXN0ZWRTaGFkb3eSASBiYy4yNjIuZW5hYmxlSW5wdXROYW1lUGlja2xpc3RST5IBHmJjLjI2MC5lbmFibGVNYW51YWxJbWFnZVVwbG9hZJIBJWJjLjI2MC5lbmFibGVmb3JtYXR0ZWR0ZXh0bGlua3JvdXRpbmeSAStvMTF5QXVyYUFjdGlvbnNFbmFibGVkLmluc3RydW1lbnRhdGlvbi5sdG5nkgEwc2NlbmFyaW9UcmFja2VyTWFya3NFbmFibGVkLmluc3RydW1lbnRhdGlvbi5sdG5nsgEaZm9yY2VDb21tdW5pdHk6YnJlYWRjcnVtYnOyAR1zZWxmU2VydmljZTpzaW5nbGVBcnRpY2xlVmlld7IBHXNlbGZTZXJ2aWNlOnNpbWlsYXJBcnRpY2xlczQysgEjc2VsZlNlcnZpY2U6dG9waWNUcmVuZGluZ0FydGljbGVzNDKyASNmb3JjZUNvbW11bml0eTpjb250YWN0U3VwcG9ydEJ1dHRvbsgBCoICD1BMQUNFSE9MREVSX1VSTIoCB2FydGljbGWSAg5QTEFDRUhPTERFUl9JRFAAWABgABkAAAAAwLH0QCIQODkzNGM3ZGM1YTc3NjJkNygSMhZzaXRlZm9yY2U6Y29tbXVuaXR5QXBwOlUKEnNmLmxleC5QYWdlUGF5bG9hZBI/CAQiO2h0dHBzOi8vYXZlcnVzYS5teS5zaXRlLmNvbS9zdXBwb3J0L3MvYXJ0aWNsZS9DQU01NDAtTWFudWFsQhZzaXRlZm9yY2U6Y29tbXVuaXR5QXBwSgI0Z1IVChFzZi5sZXguQXBwUGF5bG9hZBIAWARiEDhmNTlmOTE1ZTk4MWE4YTISqgMKDnNmLmxleC5QYWdlRW5kEpcDCcwM9Es+/3lCErgBCAMRAAAAAEB72UAaGmZvcmNlQ29tbXVuaXR5OmJyZWFkY3J1bWJzGh1zZWxmU2VydmljZTpzaW5nbGVBcnRpY2xlVmlldxodc2VsZlNlcnZpY2U6c2ltaWxhckFydGljbGVzNDIaI3NlbGZTZXJ2aWNlOnRvcGljVHJlbmRpbmdBcnRpY2xlczQyGiNmb3JjZUNvbW11bml0eTpjb250YWN0U3VwcG9ydEJ1dHRvbikAAAAAAAAAABkAAABmvrH0QCIQODkzNGM3ZGM1YTc3NjJkNygPMhZzaXRlZm9yY2U6Y29tbXVuaXR5QXBwOlUKEnNmLmxleC5QYWdlUGF5bG9hZBI/CAMiO2h0dHBzOi8vYXZlcnVzYS5teS5zaXRlLmNvbS9zdXBwb3J0L3MvYXJ0aWNsZS9DQU01NDAtTWFudWFsQhZzaXRlZm9yY2U6Y29tbXVuaXR5QXBwSgI0Z1IVChFzZi5sZXguQXBwUGF5bG9hZBIAWANiEDhmNTlmOTE1ZTk4MWE4YTISwQIKD3NmLnBkcC5QZHBFdmVudBKtAglm1gNMPv95QhJVChxrbm93bGVkZ2VBcnRpY2xlLnZpZXdDb250ZW50EhJrYTAweTAwMDAwMERHQXJBQU8aEmFKQ0VFMDAwMDAwNHRPMTRBSSoHbmV0d29yazIEc2l0ZRkAAAAAiMH0QCIQODkzNGM3ZGM1YTc3NjJkNygQMhBLbm93bGVkZ2VBcnRpY2xlOlUKEnNmLmxleC5QYWdlUGF5bG9hZBI/CAMiO2h0dHBzOi8vYXZlcnVzYS5teS5zaXRlLmNvbS9zdXBwb3J0L3MvYXJ0aWNsZS9DQU01NDAtTWFudWFsQhZzaXRlZm9yY2U6Y29tbXVuaXR5QXBwSgI0Z1IVChFzZi5sZXguQXBwUGF5bG9hZBIAWAJiEDhmNTlmOTE1ZTk4MWE4YTIaACIA","c":{"batch":23027,"metrics":3660,"o11yLogs":7544}}}]}'
+                      description: ""
+                      fields: []
+                request_content_type: application/x-www-form-urlencoded
+                response:
+                    type: array
+                    item: AuraAction
+                pagination: null
+                response_path: actions
+            list_aura:
+                method: GET
+                path: /support/s/sfsites/aura
+                description: GET /support/s/sfsites/aura
+                params:
+                    - name: aura.context
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: aura.isAction
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: message
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: AuraAction2
+                pagination: null
+                response_path: actions
+            list_s:
+                method: GET
+                path: /support/s/
+                description: Fetch structured links from /support/s/
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+types:
+    AuraAction:
+        fields:
+            - name: components
+              type: '[]ref:Component'
+              omit_empty: true
+            - name: error
+              type: array
+            - name: id
+              type: string
+            - name: returnValue
+              type: ref:ReturnValue
+              omit_empty: true
+            - name: state
+              type: string
+            - name: storable
+              type: bool
+              omit_empty: true
+    AuraAction2:
+        fields:
+            - name: error
+              type: array
+            - name: returnValue
+              type: '[]ref:ReturnValue2'
+            - name: state
+              type: string
+            - name: storable
+              type: bool
+    Component:
+        fields:
+            - name: attributes
+              type: object
+            - name: componentDef
+              type: object
+            - name: creationPath
+              type: string
+            - name: original
+              type: string
+            - name: version
+              type: string
+              omit_empty: true
+    ReturnValue:
+        fields:
+            - name: 'InstrumentationResult :  ( RECEIVED = 10 , SUCCESS -> UE = 2 , SUCCESS -> LOG = 10 , Topic = AILTN )  , TelemetryResponse : ( AsyncResults )O11yInstrumentationResult : O11y Logs successfully processed by instrumentation-processing'
+              type: object
+              omit_empty: true
+            - name: 'InstrumentationResult :  ( RECEIVED = 11 , SUCCESS -> LOG = 11 , SUCCESS -> UE = 2 , Topic = AILTN )  , TelemetryResponse : ( AsyncResults )O11yInstrumentationResult : O11y Logs successfully processed by instrumentation-processing'
+              type: object
+              omit_empty: true
+            - name: 'InstrumentationResult :  ( RECEIVED = 12 , SUCCESS -> LOG = 12 , SUCCESS -> UE = 2 , Topic = AILTN )  , TelemetryResponse : ( AsyncResults )O11yInstrumentationResult : O11y Logs successfully processed by instrumentation-processing'
+              type: object
+              omit_empty: true
+            - name: 'InstrumentationResult :  ( RECEIVED = 6 , SUCCESS -> UE = 1 , SUCCESS -> LOG = 6 , Topic = AILTN )  , TelemetryResponse : ( AsyncResults )O11yInstrumentationResult : O11y Logs successfully processed by instrumentation-processing'
+              type: object
+              omit_empty: true
+            - name: RecordData
+              type: object
+              omit_empty: true
+            - name: Translations
+              type: object
+              omit_empty: true
+            - name: accountSwitcherUser
+              type: bool
+              omit_empty: true
+            - name: apiNamesToKeyPrefixes
+              type: object
+              omit_empty: true
+            - name: article
+              type: object
+              omit_empty: true
+            - name: articleType
+              type: string
+              omit_empty: true
+            - name: articles
+              type: array
+              omit_empty: true
+            - name: attributes
+              type: object
+              omit_empty: true
+            - name: b2bCommerceSuperUser
+              type: bool
+              omit_empty: true
+            - name: baseUrl
+              type: string
+              omit_empty: true
+              format: url
+            - name: children
+              type: array
+              omit_empty: true
+            - name: communityBuilderAccess
+              type: bool
+              omit_empty: true
+            - name: communityBuilderUrl
+              type: string
+              omit_empty: true
+            - name: communityManageUrl
+              type: string
+              omit_empty: true
+            - name: communityManagementAccess
+              type: bool
+              omit_empty: true
+            - name: communitySetupAccess
+              type: bool
+              omit_empty: true
+            - name: communitySetupUrl
+              type: string
+              omit_empty: true
+              format: url
+            - name: communityWorkspacesLabel
+              type: string
+              omit_empty: true
+            - name: componentDef
+              type: object
+              omit_empty: true
+            - name: createdDate
+              type: string
+              omit_empty: true
+              format: date-time
+            - name: creationPath
+              type: string
+              omit_empty: true
+            - name: cspTrustedSites
+              type: array
+              omit_empty: true
+            - name: currentNetworkId
+              type: string
+              omit_empty: true
+            - name: defaultOrgDomain
+              type: string
+              omit_empty: true
+            - name: defaultOrgOrigin
+              type: string
+              omit_empty: true
+              format: url
+            - name: defaultServerDomain
+              type: string
+              omit_empty: true
+            - name: delegatedAdmin
+              type: bool
+              omit_empty: true
+            - name: externalMenuItems
+              type: array
+              omit_empty: true
+            - name: featuredTopicList
+              type: array
+              omit_empty: true
+            - name: guestUser
+              type: bool
+              omit_empty: true
+            - name: homeUrl
+              type: string
+              omit_empty: true
+            - name: id
+              type: string
+              omit_empty: true
+            - name: images
+              type: object
+              omit_empty: true
+            - name: internalMenuItemById
+              type: object
+              omit_empty: true
+            - name: isAlohaEmbeddable
+              type: bool
+              omit_empty: true
+            - name: isBeingDeleted
+              type: bool
+              omit_empty: true
+            - name: isKnowledgeEnabled
+              type: bool
+              omit_empty: true
+            - name: isNetworksEnabled
+              type: bool
+              omit_empty: true
+            - name: isSalesforceNativeDesktop
+              type: bool
+              omit_empty: true
+            - name: lightningOrgOrigin
+              type: string
+              omit_empty: true
+              format: url
+            - name: messagesEnabled
+              type: bool
+              omit_empty: true
+            - name: name
+              type: string
+              omit_empty: true
+            - name: nonLocalizedName
+              type: string
+              omit_empty: true
+            - name: nonNavigableEntities
+              type: array
+              omit_empty: true
+            - name: nonce
+              type: string
+              omit_empty: true
+            - name: original
+              type: string
+              omit_empty: true
+            - name: photoUrl
+              type: string
+              omit_empty: true
+            - name: rank
+              type: integer
+              omit_empty: true
+            - name: record
+              type: object
+              omit_empty: true
+            - name: recordId
+              type: string
+              omit_empty: true
+            - name: s1FullSiteUrl
+              type: string
+              omit_empty: true
+            - name: setupOrgOrigin
+              type: string
+              omit_empty: true
+              format: url
+            - name: siteURLPrefix
+              type: string
+              omit_empty: true
+            - name: talkingAbout
+              type: integer
+              omit_empty: true
+            - name: title
+              type: string
+              omit_empty: true
+            - name: topicArticles
+              type: string
+              omit_empty: true
+            - name: topicId
+              type: string
+              omit_empty: true
+            - name: topicName
+              type: string
+              omit_empty: true
+            - name: topicsList
+              type: array
+              omit_empty: true
+            - name: url
+              type: string
+              omit_empty: true
+            - name: urlName
+              type: string
+              omit_empty: true
+            - name: userDisplayName
+              type: string
+              omit_empty: true
+            - name: userHasEditTopicPerm
+              type: bool
+              omit_empty: true
+            - name: userId
+              type: string
+              omit_empty: true
+            - name: version
+              type: string
+              omit_empty: true
+            - name: vfDomain
+              type: string
+              omit_empty: true
+            - name: viewCount
+              type: integer
+              omit_empty: true
+    ReturnValue2:
+        fields:
+            - name: action
+              type: string
+              omit_empty: true
+            - name: articleType
+              type: string
+              omit_empty: true
+            - name: entity
+              type: object
+              omit_empty: true
+            - name: explanation
+              type: object
+              omit_empty: true
+            - name: id
+              type: string
+              omit_empty: true
+            - name: knowledgeArticleId
+              type: string
+              omit_empty: true
+            - name: lastPublishedDate
+              type: string
+              omit_empty: true
+              format: date-time
+            - name: recommendationType
+              type: string
+              omit_empty: true
+            - name: title
+              type: string
+              omit_empty: true
+            - name: totalViewCount
+              type: integer
+              omit_empty: true
+            - name: url
+              type: string
+              omit_empty: true
+            - name: urlName
+              type: string
+              omit_empty: true
