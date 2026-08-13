@@ -639,3 +639,35 @@ func mcpTextContent(t *testing.T, result *mcplib.CallToolResult) string {
 	}
 	return content.Text
 }
+
+// TestNewMCPClientAppliesManagedAuth guards against MCP tool calls silently
+// authenticating with no credential at all. newMCPClientFromConfig builds
+// its client directly via client.New (for MCP-specific NoCache/timeout
+// settings) rather than through rootFlags.newClient(), so it never ran the
+// cli package's clientHooks registry that installs Peloton's managed auth
+// -- every MCP tool call reached the live API with neither a bearer token
+// nor a session cookie. With no credentials available anywhere (no env
+// vars, no persisted bundle), cli.InstallManagedPelotonBearer fails fast
+// with an actionable "bootstrap credentials are unavailable" error and no
+// network call; asserting that error surfaces here is a black-box way to
+// confirm the hook actually runs, since this package cannot reach into
+// package cli's private OAuth test state to assert the success path
+// directly.
+func TestNewMCPClientAppliesManagedAuth(t *testing.T) {
+	t.Setenv("PELOTON_OAUTH_USERNAME", "")
+	t.Setenv("PELOTON_OAUTH_PASSWORD", "")
+	home := t.TempDir()
+	restore, err := cliutil.SetHomeOverride(home)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer restore()
+
+	_, err = newMCPClient()
+	if err == nil {
+		t.Fatal("newMCPClient succeeded with no credentials available anywhere; InstallManagedPelotonBearer does not appear to be wired in")
+	}
+	if !strings.Contains(err.Error(), "bootstrap credentials are unavailable") {
+		t.Fatalf("newMCPClient error = %q, want it to come from the managed-auth bootstrap check specifically", err.Error())
+	}
+}

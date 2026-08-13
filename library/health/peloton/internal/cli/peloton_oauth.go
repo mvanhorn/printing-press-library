@@ -157,6 +157,20 @@ func newManagedOAuthLogoutCmd() *cobra.Command {
 	}
 }
 
+// InstallManagedPelotonBearer applies this CLI's managed Peloton auth (the
+// Auth0 bearer token plus, best-effort, the real session cookie) to c. It is
+// the exported entry point for internal/mcp: MCP tool calls build their
+// client directly via client.New (for MCP-specific NoCache/timeout/rate
+// settings) rather than through rootFlags.newClient(), so they never ran the
+// clientHooks registry this same auth is registered into for CLI commands —
+// MCP tool calls were authenticating with no credential at all until this
+// was wired in. Both call sites must invoke the same underlying logic so
+// CLI and MCP never diverge in what credential they attach, the same
+// principle behind attaching bearer+cookie together in the first place.
+func InstallManagedPelotonBearer(c *client.Client) error {
+	return installManagedPelotonBearer(c)
+}
+
 // installManagedPelotonBearer injects the in-memory managed bearer token
 // plus (best-effort) the real Peloton session cookie. It deliberately
 // discards any stale persisted Authorization/Cookie header before doing so.
@@ -164,10 +178,12 @@ func newManagedOAuthLogoutCmd() *cobra.Command {
 // Peloton has no single auth surface: the bearer token above is accepted by
 // catalog/list endpoints, but the legacy REST surface (/api/me,
 // performance_graph, ...) checks a peloton_session_id cookie instead and
-// answers 401 without it regardless of the bearer. Attaching both here — the
-// one place every command's client passes through — means sync and
-// single-fetch commands alike carry whatever credential the endpoint they
-// hit actually needs, without special-casing individual endpoints.
+// answers 401 without it regardless of the bearer. Attaching both here means
+// sync and single-fetch commands alike carry whatever credential the
+// endpoint they hit actually needs, without special-casing individual
+// endpoints. Called from two places: the clientHooks registry below (CLI
+// commands, via rootFlags.newClient()) and InstallManagedPelotonBearer above
+// (MCP tool calls, via internal/mcp's own client construction).
 func installManagedPelotonBearer(c *client.Client) error {
 	if c == nil || c.Config == nil {
 		return authErr(fmt.Errorf("managed Peloton OAuth client is unavailable"))

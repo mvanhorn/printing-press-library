@@ -458,7 +458,7 @@ func newMCPClient() (*client.Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	return newMCPClientFromConfig(cfg), nil
+	return newMCPClientFromConfig(cfg)
 }
 
 func newMCPConfig() (*config.Config, error) {
@@ -469,7 +469,7 @@ func newMCPConfig() (*config.Config, error) {
 	return cfg, nil
 }
 
-func newMCPClientFromConfig(cfg *config.Config) *client.Client {
+func newMCPClientFromConfig(cfg *config.Config) (*client.Client, error) {
 	c := client.New(cfg, 60*time.Second, defaultMCPRateLimit)
 	// Agents calling through MCP need fresh data every call. The on-disk
 	// response cache survives across MCP server invocations, so a
@@ -477,7 +477,15 @@ func newMCPClientFromConfig(cfg *config.Config) *client.Client {
 	// pre-mutation snapshot for up to the cache TTL. The interactive CLI
 	// constructs its own client and is unaffected.
 	c.NoCache = true
-	return c
+	// This client is built directly (not via rootFlags.newClient()), so it
+	// never runs the clientHooks registry CLI commands go through — without
+	// this, every MCP tool call authenticates with no credential at all.
+	// See InstallManagedPelotonBearer's doc comment for why both call sites
+	// must invoke the same underlying auth logic.
+	if err := cli.InstallManagedPelotonBearer(c); err != nil {
+		return nil, err
+	}
+	return c, nil
 }
 
 func mcpDBPath() (string, error) {
