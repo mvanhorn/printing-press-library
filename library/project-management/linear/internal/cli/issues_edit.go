@@ -28,7 +28,6 @@ func newIssuesEditCmd(flags *rootFlags, dbPath *string) *cobra.Command {
 	var teamNeedsLiveResolve bool
 	var existingDescription string
 	var existingDescriptionUpdatedAt string
-	var existingDescriptionLoaded bool
 	// descBodyDerivedFromRead marks a description composed from the body this
 	// command read, rather than one the caller supplied whole. Only the
 	// derived case can silently delete a concurrent edit, and only it is
@@ -41,6 +40,11 @@ func newIssuesEditCmd(flags *rootFlags, dbPath *string) *cobra.Command {
 descriptions so shell commands, backticks, and GraphQL snippets are preserved
 literally. If --media is supplied without a description source, the existing
 description is fetched live and the uploaded media links are appended.
+
+--description-append posts a new Linear comment instead of rewriting the
+issue description. Comments are append-only, so a concurrent description
+edit cannot be overwritten. To replace the description, use --description
+or --description-file.
 
 Use --parent with an issue identifier or UUID to set/change parentage. Use
 --no-parent to clear parentage.`,
@@ -224,13 +228,19 @@ Use --parent with an issue identifier or UUID to set/change parentage. Use
 				return usageErr(fmt.Errorf("no issue fields supplied; pass --title, --description-file, --description-append, --media, --state, --state-name, --state-type, --team, --project, --project-name, --assignee, --priority, --estimate, --due-date, --cycle, --milestone, --subscriber, --label, --add-label, --remove-label, --parent, or --no-parent"))
 			}
 			if flags.dryRun {
+				if appendSet && len(input) == 0 && len(mediaFlag) == 0 && stateNameFlag == "" && stateTypeFlag == "" {
+					return renderMutationDryRun(cmd, flags, "would_create_comment", "commentCreate", map[string]any{
+						"issue": args[0],
+						"body":  appendBody,
+					})
+				}
 				out := map[string]any{"issue": args[0], "input": input}
 				if len(mediaFlag) > 0 {
 					out["media"] = mediaFlag
 					out["media_public"] = mediaPublic
 				}
 				if appendSet {
-					out["description_append"] = appendBody
+					out["comment_body"] = appendBody
 				}
 				if stateNameFlag != "" {
 					out["state_name"] = stateNameFlag
@@ -272,7 +282,6 @@ Use --parent with an issue identifier or UUID to set/change parentage. Use
 				issueMetaLoaded = true
 				existingDescription = issue.Description
 				existingDescriptionUpdatedAt = issue.UpdatedAt
-				existingDescriptionLoaded = true
 				if len(mediaFlag) > 0 && !descSet {
 					descBody = issue.Description
 					descSet = true
@@ -289,13 +298,12 @@ Use --parent with an issue identifier or UUID to set/change parentage. Use
 			if err := enforceIssueTrustMode(flags, resolveDBPath(*dbPath), issueID, args[0]); err != nil {
 				return err
 			}
-			if appendSet {
-				if !existingDescriptionLoaded {
-					return fmt.Errorf("internal error: description append requires the existing issue body")
+			if appendSet && issueID == "" {
+				resolvedID, resolveErr := resolveIssueID(c, args[0])
+				if resolveErr != nil {
+					return classifyLiveReadError(resolveErr, flags)
 				}
-				descBody = appendedDescriptionBody(existingDescription, appendBody)
-				descSet = true
-				descBodyDerivedFromRead = true
+				issueID = resolvedID
 			}
 			if teamNeedsLiveResolve {
 				resolvedTeamID, teamErr := resolveTeamIDLive(c, teamFlag)
@@ -358,7 +366,13 @@ Use --parent with an issue identifier or UUID to set/change parentage. Use
 				}
 			}
 
-			const mutation = `mutation($id: String!, $input: IssueUpdateInput!) {
+			if len(input) == 0 && !appendSet {
+				return usageErr(fmt.Errorf("no issue fields supplied after resolution"))
+			}
+
+			var updatedIssue json.RawMessage
+			if len(input) > 0 {
+				const mutation = `mutation($id: String!, $input: IssueUpdateInput!) {
 				issueUpdate(id: $id, input: $input) {
 					success
 					issue {
@@ -372,24 +386,40 @@ Use --parent with an issue identifier or UUID to set/change parentage. Use
 					}
 				}
 			}`
-			resp, err := c.Mutate(mutation, map[string]any{"id": issueID, "input": input})
-			if err != nil {
-				return classifyMutationError("issueUpdate", err, flags, uploaded)
+				resp, err := c.Mutate(mutation, map[string]any{"id": issueID, "input": input})
+				if err != nil {
+					return classifyMutationError("issueUpdate", err, flags, uploaded)
+				}
+				var parsed struct {
+					IssueUpdate struct {
+						Success bool            `json:"success"`
+						Issue   json.RawMessage `json:"issue"`
+					} `json:"issueUpdate"`
+				}
+				if err := json.Unmarshal(resp, &parsed); err != nil {
+					return fmt.Errorf("parsing issueUpdate response: %w", err)
+				}
+				if !parsed.IssueUpdate.Success {
+					return apiErr(fmt.Errorf("Linear reported issueUpdate success=false"))
+				}
+				updatedIssue = parsed.IssueUpdate.Issue
+				writeIssueBack(resolveDBPath(*dbPath), updatedIssue)
 			}
-			var parsed struct {
-				IssueUpdate struct {
-					Success bool            `json:"success"`
-					Issue   json.RawMessage `json:"issue"`
-				} `json:"issueUpdate"`
+
+			if appendSet {
+				comment, commentErr := createIssueComment(c, issueID, appendBody)
+				if commentErr != nil {
+					return classifyMutationError("commentCreate", commentErr, flags, uploaded)
+				}
+				if updatedIssue == nil {
+					raw, marshalErr := json.Marshal(comment)
+					if marshalErr != nil {
+						return fmt.Errorf("encoding commentCreate result: %w", marshalErr)
+					}
+					return renderLiveObject(cmd, flags, raw, "comments")
+				}
 			}
-			if err := json.Unmarshal(resp, &parsed); err != nil {
-				return fmt.Errorf("parsing issueUpdate response: %w", err)
-			}
-			if !parsed.IssueUpdate.Success {
-				return apiErr(fmt.Errorf("Linear reported issueUpdate success=false"))
-			}
-			writeIssueBack(resolveDBPath(*dbPath), parsed.IssueUpdate.Issue)
-			return renderLiveObject(cmd, flags, parsed.IssueUpdate.Issue, "issues")
+			return renderLiveObject(cmd, flags, updatedIssue, "issues")
 		},
 	}
 	cmd.Flags().StringVar(&titleFlag, "title", "", "Issue title")

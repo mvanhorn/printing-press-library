@@ -39,9 +39,9 @@ type descriptionAppendFlags struct {
 
 // register adds the append flag family to the given command.
 func (d *descriptionAppendFlags) register(cmd *cobra.Command) {
-	cmd.Flags().StringVar(&d.text, "description-append", "", "Append this markdown to the existing description instead of replacing it (read-modify-write, joined with a blank line)")
-	cmd.Flags().StringVar(&d.file, "description-append-file", "", "Append markdown read from this file to the existing description")
-	cmd.Flags().BoolVar(&d.stdin, "description-append-stdin", false, "Append markdown read from stdin to the existing description")
+	cmd.Flags().StringVar(&d.text, "description-append", "", "Post this markdown as a new comment on the issue (append-only, so a concurrent description edit cannot be overwritten)")
+	cmd.Flags().StringVar(&d.file, "description-append-file", "", "Post markdown read from this file as a new comment on the issue")
+	cmd.Flags().BoolVar(&d.stdin, "description-append-stdin", false, "Post markdown read from stdin as a new comment on the issue")
 }
 
 // resolve returns the append body and whether any append source was given.
@@ -104,12 +104,12 @@ func appendedDescriptionBodyWith(existing, addition, separator string) string {
 // guardStaleDescription refuses a description write whose body was composed
 // from a copy of the issue that is no longer current.
 //
-// Every append is a read-modify-write, and Linear's issueUpdate takes no
-// precondition: the mutation carries a whole description, so a concurrent edit
-// landing after the read is overwritten with a body that never contained it.
-// The window is not theoretical on this path. `issues edit` may resolve a
-// team, a parent, labels and a workflow state, and may upload media, between
-// reading the body and writing it back.
+// Linear's issueUpdate takes no precondition: the mutation carries a whole
+// description, so a concurrent edit landing after the read is overwritten
+// with a body that never contained it. The remaining callers are media
+// uploads that rewrite the description, and reconcile's hash-guarded
+// append. `--description-append` no longer uses this path. It posts a
+// comment instead.
 //
 // The guard re-reads the issue immediately before the write and compares both
 // the timestamp and the body. It shrinks the window to that final round trip
@@ -204,19 +204,49 @@ func appendIssueDescriptionFrom(c *client.Client, issueID string, existing strin
 	return existing, after, nil
 }
 
-// appendIssueDescription performs a standalone read-modify-write append on a
-// single issue description: it reads the current body with the same live
-// issue read the edit command uses, joins the addition after a blank line,
-// and commits the result through issueUpdate.
-//
-// Exact signature, relied on by the reconcile command:
+// createIssueComment posts a new comment on an issue. Comments are
+// append-only, so two callers can add notes at the same time without
+// either one deleting the other's description edit.
+func createIssueComment(c *client.Client, issueID, body string) (map[string]any, error) {
+	if c == nil {
+		return nil, fmt.Errorf("createIssueComment: nil Linear client")
+	}
+	if strings.TrimSpace(issueID) == "" {
+		return nil, usageErr(fmt.Errorf("createIssueComment: empty issue id"))
+	}
+	if strings.TrimSpace(body) == "" {
+		return nil, usageErr(fmt.Errorf("createIssueComment: empty comment body"))
+	}
+	resp, err := c.Mutate(client.CommentCreateMutation, map[string]any{
+		"input": map[string]any{
+			"issueId": issueID,
+			"body":    body,
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+	var parsed struct {
+		CommentCreate struct {
+			Success bool           `json:"success"`
+			Comment map[string]any `json:"comment"`
+		} `json:"commentCreate"`
+	}
+	if err := json.Unmarshal(resp, &parsed); err != nil {
+		return nil, fmt.Errorf("parsing commentCreate response: %w", err)
+	}
+	if !parsed.CommentCreate.Success {
+		return nil, apiErr(fmt.Errorf("Linear reported commentCreate success=false for issue %q", issueID))
+	}
+	return parsed.CommentCreate.Comment, nil
+}
+
+// appendIssueDescription posts text as a new comment on the issue.
 //
 //	func appendIssueDescription(c *client.Client, issueID string, text string) (map[string]any, error)
 //
-// c is the *client.Client that issues_edit.go builds via flags.newClient().
 // issueID may be an issue UUID or a TEAM-NUMBER identifier. The returned map
-// is the decoded issueUpdate.issue payload. A caller that already hydrated
-// the issue should use appendIssueDescriptionFrom instead and skip the read.
+// is the decoded commentCreate.comment payload.
 func appendIssueDescription(c *client.Client, issueID string, text string) (map[string]any, error) {
 	if c == nil {
 		return nil, fmt.Errorf("appendIssueDescription: nil Linear client")
@@ -233,9 +263,7 @@ func appendIssueDescription(c *client.Client, issueID string, text string) (map[
 		return nil, err
 	}
 	var existing struct {
-		ID          string `json:"id"`
-		Description string `json:"description"`
-		UpdatedAt   string `json:"updatedAt"`
+		ID string `json:"id"`
 	}
 	if err := json.Unmarshal(raw, &existing); err != nil {
 		return nil, fmt.Errorf("parsing existing issue %q: %w", issueID, err)
@@ -243,8 +271,5 @@ func appendIssueDescription(c *client.Client, issueID string, text string) (map[
 	if existing.ID == "" {
 		return nil, notFoundErr(fmt.Errorf("issue %q did not include an id", issueID))
 	}
-	if err := guardStaleDescription(c, existing.ID, existing.UpdatedAt, existing.Description); err != nil {
-		return nil, err
-	}
-	return setIssueDescription(c, existing.ID, appendedDescriptionBody(existing.Description, text))
+	return createIssueComment(c, existing.ID, text)
 }
