@@ -367,6 +367,45 @@ func TestThreadTraversal_PageFailureIsDiagnosedHonestly(t *testing.T) {
 	}
 }
 
+func TestThreadAllRepliesFailedPlusPageFailure_CarriesBothDiagnoses(t *testing.T) {
+	// Combined failure: every reply fetch fails AND the next top-level page
+	// fetch fails. The all-replies-failed hard error must not swallow the
+	// page-failure diagnosis: the returned error carries both causes, and the
+	// envelope keeps the page failure in note and fetch_failures.
+	g := &scriptedGetter{t: t, script: func(path string, params map[string]string) (json.RawMessage, error) {
+		switch path {
+		case "/v2/instagram/post/comments":
+			if params["cursor"] != "" {
+				return nil, fmt.Errorf("HTTP 502 from comments endpoint")
+			}
+			return json.RawMessage(fmt.Sprintf(
+				`{"comments":%s,"credits_charged":1,"has_more":true,"cursor":"cur-2"}`,
+				commentObjs("c", 3))), nil
+		case "/v1/instagram/post/comment/replies":
+			return nil, fmt.Errorf("HTTP 500 from replies endpoint")
+		}
+		t.Fatalf("unexpected fetch %s", path)
+		return nil, nil
+	}}
+	out, _, err := fetchCommentThread(context.Background(), g, threadFetchOpts{postURL: "https://x/p/1", route: "per-comment", maxCredits: 100})
+	if err == nil {
+		t.Fatal("all reply fetches failed: a hard error is required")
+	}
+	if !strings.Contains(err.Error(), "all 3 source fetch(es) failed") {
+		t.Errorf("error must carry the all-replies-failed diagnosis, got %q", err.Error())
+	}
+	if !strings.Contains(err.Error(), "page 2 fetch failed") {
+		t.Errorf("error must also carry the page-failure diagnosis, got %q", err.Error())
+	}
+	if !strings.Contains(out.Note, "page 2 fetch failed") {
+		t.Errorf("envelope note must keep the page-failure cause, got %q", out.Note)
+	}
+	// fetch_failures records the 3 reply failures plus the failed page.
+	if len(out.FetchFailures) != 4 {
+		t.Errorf("fetch_failures = %d entries, want 4 (3 replies + page 2): %+v", len(out.FetchFailures), out.FetchFailures)
+	}
+}
+
 func TestThreadTraversal_PerCommentReplyFetchesAreGated(t *testing.T) {
 	// per-comment route, 10 comments per page at 1 cr each + 1 cr per reply
 	// call: budget 6 admits the probe (1 cr) and then reply fetches until the

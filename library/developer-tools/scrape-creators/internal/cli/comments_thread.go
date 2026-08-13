@@ -274,6 +274,14 @@ func fetchCommentThread(ctx context.Context, c apiGetter, opts threadFetchOpts) 
 	}
 
 	if err := allSourcesFailedErr("comments thread replies", attemptedReplies, replyFailures); err != nil {
+		// An earlier stop already diagnosed in the note (a failed page fetch,
+		// a cursor cycle, a budget stop) must not vanish behind the aggregate
+		// reply error: carry both diagnoses in the hard error. The %w wrap
+		// keeps the underlying cliError in the chain, so the auth exit-code
+		// mapping of allSourcesFailedErr survives unchanged.
+		if out.Note != "" {
+			err = fmt.Errorf("%w\nadditionally: %s", err, out.Note)
+		}
 		return out, nil, err
 	}
 
