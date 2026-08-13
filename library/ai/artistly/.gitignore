@@ -1,0 +1,20 @@
+# Built binaries (rebuilt from source; never commit — 65MB each)
+/artistly
+/artistly-pp-cli
+/artistly-pp-mcp
+/bin/
+/build/
+
+# Local agent/editor settings
+.claude/
+
+# Downloaded design assets from local CLI runs (account data)
+*.png
+*.jpg
+*.jpeg
+*.webp
+
+# Local config / credentials never belong here
+config.toml
+*.env
+cookies.json

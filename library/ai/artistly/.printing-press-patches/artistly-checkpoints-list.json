@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "artistly-checkpoints-list",
+  "applied_at": "2026-06-16",
+  "base_run_id": "20260615-000318-b56125c5",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Add `checkpoints list` command that lists Artistly's checkpoint (model) catalog from POST /api/checkpoints.",
+  "reason": "generate/batch/preset accept --checkpoint-id (integer) but the CLI had no way to discover valid ids; users had to guess. The /api/checkpoints endpoint (found via a HAR capture of app.artistly.ai) returns the id->name/slug/trigger_words mapping. Distinct from `styles list` (illustrator styles driving --style).",
+  "files": ["internal/cli/checkpoints.go", "internal/cli/root.go"],
+  "validated_outcome": "Built and live-tested: `checkpoints list` returns the full catalog (32 Photorealistic, 34 Comic, 39 Anime, ...); `checkpoints list --match comic --json` returns the single Comic entry. go build ./... and go vet ./... pass."
+}

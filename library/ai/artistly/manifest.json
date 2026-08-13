@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "artistly-pp-mcp",
+  "display_name": "Artistly",
+  "version": "0.0.0",
+  "description": "The first CLI for Artistly — scriptable AI image generation, batch runs, and a searchable local archive the web app has no way to offer.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/artistly-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/artistly-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

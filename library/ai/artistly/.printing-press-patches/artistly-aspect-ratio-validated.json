@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "artistly-aspect-ratio-validated",
+  "applied_at": "2026-06-17",
+  "base_run_id": "20260615-000318-b56125c5",
+  "base_printing_press_version": "4.24.0",
+  "summary": "An unrecognized --aspect-ratio must fail with a usage error naming the valid set, not silently fall back to 1:1.",
+  "reason": "resolveAspect's default branch quietly returned 1:1 for any unknown label, so a typo like 5:4 produced a square image with no signal to the user. Validating at the single chokepoint (resolveAspect) surfaces the mistake; generate/batch/redo all route through it, and preset save validates up front so a bad ratio fails at save time rather than later at generation.",
+  "files": ["internal/cli/preset.go", "internal/cli/generate.go"],
+  "validated_outcome": "preset save --aspect-ratio 5:4 exits 2 with the valid-set error; valid ratios still save. go build ./... and go vet ./... pass."
+}

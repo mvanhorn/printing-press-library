@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "artistly-auth-jar-session",
+  "applied_at": "2026-06-27",
+  "base_run_id": "20260615-000318-b56125c5",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Make `auth status` and `doctor` recognize cookie-jar-based sessions: report Authenticated (Source: browser cookie jar) when a non-empty artistly_session cookie is present in the persistent jar, even when config.toml holds no auth_header/access_token.",
+  "reason": "The CLI keeps two separate credential stores: config.toml (auth_header/access_token, read by cfg.AuthHeader()) and the persistent cookie jar (~/.local/share/artistly-pp-cli/cookies.json). The jar is the sole source of outbound auth for cookie-auth requests (client.go: jar is loaded into every client; persistLocked is the only write path), and it is what `auth login --chrome` AND the Hermes auth-refresh sidecar populate. But `auth status` (auth.go newAuthStatusCmd) and `doctor` (doctor.go) decided authenticated/not solely from cfg.AuthHeader(), which never inspects the jar. Result: a freshly sidecar-refreshed session authenticates real requests fine, yet `artistly auth status` reports \"Not authenticated\" — the status surface read the wrong store. Fix adds jarSessionPresent() (reusing readJarCookie) and consults it as a fallback when cfg.AuthHeader() is empty, in both auth status and doctor (auth report + credential-probe gate). Presence of a non-empty artistly_session is sufficient to report authenticated; validity still surfaces as a 401 on the next real call, matching doctor's existing \"present, not verified\" treatment of config credentials. Upstream gap: the generated auth-status/doctor templates should consult the cookie jar, not just cfg.AuthHeader(), for cookie-auth specs.",
+  "files": [
+    "internal/cli/artistly.go",
+    "internal/cli/auth.go",
+    "internal/cli/doctor.go",
+    "internal/cli/auth_jar_status_test.go"
+  ],
+  "validated_outcome": "go build ./... passes; go vet ./... clean; go test ./... passes including 3 new TestAuthStatus_* jar tests. Live binary: with a sidecar-style cookies.json (artistly_session, no config token), `auth status` prints `Authenticated` / `Source: browser cookie jar`; with the jar removed it prints `Not authenticated` (exit error) as before."
+}

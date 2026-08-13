@@ -1,0 +1,17 @@
+{
+  "api_name": "artistly",
+  "base_url": "https://app.artistly.ai",
+  "description": "The first CLI for Artistly — scriptable AI image generation, batch runs, and a searchable local archive the web app has no way to offer.",
+  "mcp_ready": "partial",
+  "http_transport": "browser-chrome-h2",
+  "auth": {
+    "type": "cookie",
+    "cookie_domain": "app.artistly.ai",
+    "cookies": [
+      "artistly_session",
+      "XSRF-TOKEN"
+    ]
+  },
+  "required_headers": [],
+  "tools": []
+}

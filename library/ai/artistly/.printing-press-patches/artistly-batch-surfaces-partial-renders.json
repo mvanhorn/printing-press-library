@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "artistly-batch-surfaces-partial-renders",
+  "applied_at": "2026-06-17",
+  "base_run_id": "20260615-000318-b56125c5",
+  "base_printing_press_version": "4.24.0",
+  "summary": "On a per-prompt mid-render timeout, batch's text output must report how many images rendered before the failure, not just FAILED.",
+  "reason": "runGeneration returns the designs that finished before a timeout (already downloaded if --download was set); generate/redo surface that partial work but batch's text path only printed FAILED, hiding it. Extends the partial-render-on-timeout contract from artistly-review-fixes to batch.",
+  "files": ["internal/cli/batch.go"],
+  "validated_outcome": "go build ./..., go vet ./..., and go test ./internal/cli/ pass."
+}

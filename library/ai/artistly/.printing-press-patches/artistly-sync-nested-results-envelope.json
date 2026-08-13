@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "id": "artistly-sync-nested-results-envelope",
+  "applied_at": "2026-06-17",
+  "base_run_id": "20260615-000318-b56125c5",
+  "base_printing_press_version": "4.24.0",
+  "summary": "fix(artistly): cache designs (records-path unwrap) and point offline search at the prompt-bearing scope so the searchable local archive works",
+  "reason": "Two interlocking defects left the CLI's headline offline-search feature non-functional. (1) sync: both design resources return a two-sibling-array envelope {\"designs\":[...],\"folders\":[...],\"hasMore\":bool}. The generic item extractor (extractSingleObjectArraySibling) refuses to guess between two arrays, so it returned 0 items, the loop fell back to the single-object path, and UpsertDesigns got the whole wrapper (no top-level id) -> \"missing id for designs\" -> 0 designs cached. Fix: a deterministic resource->records-path map ({designs, designs-fetch-personal-designs} -> [\"designs\"]) unwraps the designs[] array before the heuristic result is trusted, with a hasMore-driven page-int continuation. (2) search: even with sync fixed, `search` queried the \"designs\" scope (from /designs-by-folder, a lightweight shape with NO positive_prompt); the prompt-rich records live under the \"designs-fetch-personal-designs\" scope (from /fetch-personal-designs). So prompt full-text matches never resolved. Fix: search the prompt-bearing scope. Masked in normal use because sync now exits 0 on non-critical resource errors (exit_policy_default_changed) and search returns [] with exit 0, so neither tripped polish; the publish full-matrix dogfood surfaced it.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/search.go",
+    "internal/cli/sync_nested_results_test.go"
+  ],
+  "validated_outcome": "go build ./... and go vet ./... pass; internal/cli and internal/store test suites pass (incl. new TestExtractItemsByRecordsPath_Designs / _MissingKey and TestExtractDesignsPagination). End-to-end against the live API: `sync` caches 82 records (50 designs + 32 personal-designs) with errored:0; `designs list --data-source local` returns real IDs; `search \"majestic\"` -> 8 hits, `search \"composition\"` -> 26 hits (real prompt-text matches, previously []). Phase5 live gate still reports 6/89 failures, but those are the pre-existing dogfood harness fixture-resolution gap (literal <design-id> placeholder passed to designs download / edit upscale / prompt extract, which need a real resource and can't dry-run) — all three verified working with a real design id (exit 0, real output). That harness gap is independent of this change and already tracked by the artistly-refresh-example-ids patch.",
+  "findings_addressed": ["F1", "F2"],
+  "deferred_to_upstream": [
+    {
+      "feature": "Generator response profiler should detect multi-array nested list envelopes ({\"<resource>\":[...],\"<sibling>\":[...],\"hasMore\":bool}) and emit a per-resource records-path, so sync need not be hand-patched per CLI.",
+      "reason": "The press profiled these endpoints as flat/single-object responses with no records-path, producing a CLI whose sync silently cached the wrapper. Machine-level profiling gap; the local records-path map is the narrow CLI fix until the generator learns the pattern."
+    },
+    {
+      "feature": "When a resource is synced under multiple scopes with different field richness, the generator should point novel offline-search/list commands at the scope that carries the searchable fields (here, the full /fetch-personal-designs record rather than the lightweight /designs-by-folder shape).",
+      "reason": "search was wired to the lightweight scope, so it found no prompt text even though prompts were synced under a sibling scope. The CLI-level scope fix is temporary until the generator picks the field-bearing scope for search."
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "artistly-usage-single-token-placeholder",
+  "applied_at": "2026-06-26",
+  "base_run_id": "20260615-000318-b56125c5",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Use single id-shaped Use: placeholders (<design-id>) for designs download / prompt extract / edit upscale instead of pipe-alternative forms (<id|uuid>) so live dogfood's positional resolver recognizes them.",
+  "reason": "The press's positional placeholder regex (positionalPlaceholderRe = `[<\\[]([a-zA-Z][\\w-]*)[>\\]]`) does not match pipe-alternative usage placeholders like `<id|uuid>` or `<design-id|image-url|file>` — the `|` breaks the token. So extractPositionalPlaceholders returned 0, the get-by-id fixture resolver (added in #3083 / press v4.26.x) never ran, and these three read-by-id commands executed the literal `<design-id>` example against the live API, failing the publish live gate (6/89). Switching the Use line to a single id-shaped token lets the resolver harvest a real id at runtime from the synced store / designs list (designs download) or skip cleanly when there is no list companion (prompt extract, edit upscale) — keeping the live gate green WITHOUT putting a real account id into the public source (preserves artistly-refresh-example-ids). Accepted input types (id/uuid/url/file) remain documented in each command's Long help. Upstream gap: positionalPlaceholderRe should accept `<a|b>` alternatives.",
+  "files": [
+    "internal/cli/designs_download.go",
+    "internal/cli/prompt.go",
+    "internal/cli/edit.go"
+  ],
+  "validated_outcome": "go build ./... passes; publish live gate (dogfood --live --level full) goes 92/0 (PASS) where it was 83/6 before — designs download/prompt extract/edit upscale now resolve a real id at runtime (no id in source) instead of running the literal placeholder.",
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/3083"
+}

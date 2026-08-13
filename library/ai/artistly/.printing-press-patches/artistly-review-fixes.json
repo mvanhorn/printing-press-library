@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "artistly-review-fixes",
+  "applied_at": "2026-06-16",
+  "base_run_id": "20260615-000318-b56125c5",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Resolve Greptile P1/P2 review findings: preserve partial renders on mid-render timeout (generate/redo RunE + pollForNewDesigns), and correct redo's Short description (checkpoint, not style).",
+  "reason": "Greptile re-review of the full CLI flagged that a mid-render timeout discarded already-finished (and downloaded) designs, and that redo's Short advertised 'style' which redo does not resubmit (Style is hardcoded empty; only checkpoint is reused).",
+  "files": ["internal/cli/generate.go", "internal/cli/redo.go", "internal/cli/artistly.go"],
+  "validated_outcome": "go build/vet pass; go test ./... passes. pollForNewDesigns now returns the last-known done set on fetch error; generate/redo emit partial results before the non-zero exit."
+}

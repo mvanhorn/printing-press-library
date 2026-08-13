@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "artistly-write-through-records-path",
+  "applied_at": "2026-06-22",
+  "base_run_id": "20260615-000318-b56125c5",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Apply the designs records-path unwrap to the live-read write-through cache so opportunistic caching from `designs list`/`by-folder` stores records instead of the wrapper.",
+  "reason": "writeThroughCache (data_source.go) used the generic envelope heuristic, which cannot disambiguate Artistly's two-sibling-array design envelope {\"designs\":[...],\"folders\":[...],\"hasMore\":bool}. It fell through to the single-object branch and passed the whole wrapper to UpsertBatch; the wrapper has no top-level id, so ExtractResourceID returned \"\" and every live read printed 'N/N designs items returned but not cached locally (no extractable ID field)' while the offline mirror stayed empty between explicit syncs. This is the same defect the sync path fixed in resourceRecordsPath (see artistly-sync-nested-results-envelope), on a second code path. Fix: refactor the row-resolution out of writeThroughCache into a pure, unit-testable writeThroughCacheRows, and unwrap the declared records-path first via a new arrayAtRecordsPath helper (treats an empty declared array as an empty list envelope so it never falls through to caching the wrapper).",
+  "files": [
+    "internal/cli/data_source.go",
+    "internal/cli/data_source_write_through_test.go"
+  ],
+  "validated_outcome": "go build ./... and go vet ./... pass; new TestWriteThroughCacheRows_{DesignsEnvelope,SingleDetail,GenericResultsEnvelope,EmptyListEnvelope} pass, and fail (red) when the records-path branch is disabled. Live: `designs list --json` no longer prints the 'not cached locally' warning, and a just-fetched live design id is subsequently readable via `designs list --data-source local`."
+}

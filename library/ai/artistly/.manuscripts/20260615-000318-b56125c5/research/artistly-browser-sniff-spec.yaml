@@ -1,0 +1,1346 @@
+name: artistly
+description: Discovered API spec for artistly
+version: 0.1.0
+base_url: https://app.artistly.ai
+spec_source: sniffed
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+auth_warnings:
+    - 'rejected auth candidate "page" from query: search input'
+    - 'rejected auth candidate "search" from query: search input'
+config:
+    format: toml
+    path: ~/.config/artistly-pp-cli/config.toml
+resources:
+    ai:
+        description: Operations on ai-design-agents
+        endpoints:
+            list_ai_design_agents:
+                method: GET
+                path: /ai/ai-design-agents
+                description: GET /ai/ai-design-agents
+                params:
+                    - name: clearHistory
+                      type: boolean
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: component
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: encryptHistory
+                      type: boolean
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: props
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: aiPostRoute
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                          format: url
+                        - name: auth
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: user
+                              type: object
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: concurrent_generation_count
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: concurrent_generation_limit
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: config
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: env
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: name
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: ngrok_url
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                              format: url
+                            - name: url
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                              format: url
+                        - name: csrfToken
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: dbmQwenStyleLabels
+                          type: array
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: errors
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: featureName
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: flash
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: featureName
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: folders
+                          type: array
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: created_at
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                              format: date-time
+                            - name: id
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: name
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: updated_at
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                              format: date-time
+                            - name: user_id
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: formErrors
+                          type: array
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: illustratorStyles
+                          type: array
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: cover
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                              format: url
+                            - name: created_at
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                              format: date-time
+                            - name: label
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: prefix
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: style
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: updated_at
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                              format: date-time
+                        - name: isProduction
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: maintenanceMessage
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: maintenanceMode
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: pageSettings
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: created_at
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: updated_at
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: personal_folders
+                          type: array
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: id
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: name
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: settings
+                          type: array
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: key
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: value
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                              format: url
+                        - name: userSetting
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: settings
+                              type: array
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: users_all_folders
+                          type: array
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: created_at
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                              format: date-time
+                            - name: id
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: name
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: updated_at
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                              format: date-time
+                            - name: user_id
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: ziggy
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: defaults
+                              type: array
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: location
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                              format: url
+                            - name: routes
+                              type: object
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: url
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                              format: url
+                    - name: url
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: version
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: AiDesignAgent
+                pagination: null
+                observed_auth:
+                    - x-xsrf-token
+    broadcasting:
+        description: Operations on auth
+        endpoints:
+            create_auth:
+                method: POST
+                path: /broadcasting/auth
+                description: POST /broadcasting/auth
+                params:
+                    - name: auth
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body:
+                    - name: channel_name
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: socket_id
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                response:
+                    type: object
+                    item: Auth3
+                pagination: null
+                observed_auth:
+                    - x-csrf-token
+    fetch-personal-designs:
+        description: Operations on fetch-personal-designs
+        endpoints:
+            list_fetch_personal_designs:
+                method: GET
+                path: /fetch-personal-designs
+                description: GET /fetch-personal-designs
+                params:
+                    - name: folder_id
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: page
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: search
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: FetchPersonalDesignDesign
+                pagination: null
+                response_path: designs
+    personal-designs:
+        description: Operations on personal-designs
+        endpoints:
+            list_personal_designs:
+                method: GET
+                path: /personal-designs
+                description: GET /personal-designs
+                params:
+                    - name: clearHistory
+                      type: boolean
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: component
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: encryptHistory
+                      type: boolean
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: props
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: auth
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: user
+                              type: object
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: concurrent_generation_count
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: concurrent_generation_limit
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: config
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: env
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: name
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: ngrok_url
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                              format: url
+                            - name: url
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                              format: url
+                        - name: csrfToken
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: dbmQwenStyleLabels
+                          type: array
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: errors
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: flash
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: folders
+                          type: array
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: created_at
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                              format: date-time
+                            - name: id
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: name
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: updated_at
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                              format: date-time
+                            - name: user_id
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: formErrors
+                          type: array
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: illustratorStyles
+                          type: array
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: cover
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                              format: url
+                            - name: created_at
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                              format: date-time
+                            - name: label
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: prefix
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: style
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: updated_at
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                              format: date-time
+                        - name: isProduction
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: maintenanceMessage
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: maintenanceMode
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: personal_folders
+                          type: array
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: created_at
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                              format: date-time
+                            - name: id
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: name
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: updated_at
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                              format: date-time
+                            - name: user_id
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: settings
+                          type: array
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: key
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: value
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                              format: url
+                        - name: userSetting
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: settings
+                              type: array
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: users_all_folders
+                          type: array
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: created_at
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                              format: date-time
+                            - name: id
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: name
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: updated_at
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                              format: date-time
+                            - name: user_id
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: ziggy
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: defaults
+                              type: array
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: location
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                              format: url
+                            - name: routes
+                              type: object
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: url
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                              format: url
+                    - name: url
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: version
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: PersonalDesign
+                pagination: null
+                observed_auth:
+                    - x-xsrf-token
+types:
+    AiDesignAgent:
+        fields:
+            - name: clearHistory
+              type: bool
+            - name: component
+              type: string
+            - name: encryptHistory
+              type: bool
+            - name: props
+              type: ref:Props
+            - name: url
+              type: string
+            - name: version
+              type: string
+    Auth:
+        fields:
+            - name: user
+              type: object
+    Auth2:
+        fields:
+            - name: user
+              type: object
+    Auth3:
+        fields:
+            - name: auth
+              type: string
+    Config:
+        fields:
+            - name: env
+              type: string
+            - name: name
+              type: string
+            - name: ngrok_url
+              type: string
+              format: url
+            - name: url
+              type: string
+              format: url
+    Config2:
+        fields:
+            - name: env
+              type: string
+            - name: name
+              type: string
+            - name: ngrok_url
+              type: string
+              format: url
+            - name: url
+              type: string
+              format: url
+    FetchPersonalDesignDesign:
+        fields:
+            - name: additional_info
+              type: string
+            - name: aspect_ratio
+              type: string
+            - name: category
+              type: string
+            - name: checkpoint
+              type: string
+            - name: checkpoint_id
+              type: integer
+            - name: created_at
+              type: string
+              format: date-time
+            - name: height
+              type: integer
+            - name: id
+              type: integer
+            - name: images
+              type: string
+            - name: latest_design
+              type: integer
+            - name: nsfw
+              type: integer
+            - name: page_number
+              type: integer
+            - name: positive_prompt
+              type: string
+            - name: quantity
+              type: integer
+            - name: seed
+              type: string
+            - name: status
+              type: string
+            - name: tags
+              type: array
+            - name: tool_used
+              type: string
+            - name: topic_name
+              type: string
+            - name: updated_at
+              type: string
+              format: date-time
+            - name: user_id
+              type: integer
+            - name: uuid
+              type: string
+            - name: width
+              type: integer
+    Flash:
+        fields:
+            - name: featureName
+              type: string
+    Folder:
+        fields:
+            - name: created_at
+              type: string
+              format: date-time
+            - name: id
+              type: integer
+            - name: name
+              type: string
+            - name: updated_at
+              type: string
+              format: date-time
+            - name: user_id
+              type: integer
+    Folder2:
+        fields:
+            - name: created_at
+              type: string
+              format: date-time
+            - name: id
+              type: integer
+            - name: name
+              type: string
+            - name: updated_at
+              type: string
+              format: date-time
+            - name: user_id
+              type: integer
+    IllustratorStyle:
+        fields:
+            - name: cover
+              type: string
+              format: url
+            - name: created_at
+              type: string
+              format: date-time
+            - name: label
+              type: string
+            - name: prefix
+              type: string
+            - name: style
+              type: string
+            - name: updated_at
+              type: string
+              format: date-time
+    IllustratorStyle2:
+        fields:
+            - name: cover
+              type: string
+              format: url
+            - name: created_at
+              type: string
+              format: date-time
+            - name: label
+              type: string
+            - name: prefix
+              type: string
+            - name: style
+              type: string
+            - name: updated_at
+              type: string
+              format: date-time
+    PageSettings:
+        fields:
+            - name: created_at
+              type: string
+            - name: updated_at
+              type: string
+    PersonalDesign:
+        fields:
+            - name: clearHistory
+              type: bool
+            - name: component
+              type: string
+            - name: encryptHistory
+              type: bool
+            - name: props
+              type: ref:Props2
+            - name: url
+              type: string
+            - name: version
+              type: string
+    PersonalFolder:
+        fields:
+            - name: id
+              type: integer
+            - name: name
+              type: string
+    PersonalFolder2:
+        fields:
+            - name: created_at
+              type: string
+              format: date-time
+            - name: id
+              type: integer
+            - name: name
+              type: string
+            - name: updated_at
+              type: string
+              format: date-time
+            - name: user_id
+              type: integer
+    Props:
+        fields:
+            - name: aiPostRoute
+              type: string
+              format: url
+            - name: auth
+              type: ref:Auth
+            - name: concurrent_generation_count
+              type: integer
+            - name: concurrent_generation_limit
+              type: integer
+            - name: config
+              type: ref:Config
+            - name: csrfToken
+              type: string
+            - name: dbmQwenStyleLabels
+              type: array
+            - name: errors
+              type: object
+            - name: featureName
+              type: string
+            - name: flash
+              type: ref:Flash
+            - name: folders
+              type: '[]ref:Folder'
+            - name: formErrors
+              type: array
+            - name: illustratorStyles
+              type: '[]ref:IllustratorStyle'
+            - name: isProduction
+              type: bool
+            - name: maintenanceMessage
+              type: string
+            - name: maintenanceMode
+              type: string
+            - name: pageSettings
+              type: ref:PageSettings
+            - name: personal_folders
+              type: '[]ref:PersonalFolder'
+            - name: settings
+              type: '[]ref:Setting'
+            - name: userSetting
+              type: ref:UserSetting
+            - name: users_all_folders
+              type: '[]ref:UsersAllFolder'
+            - name: ziggy
+              type: ref:Ziggy
+    Props2:
+        fields:
+            - name: auth
+              type: ref:Auth2
+            - name: concurrent_generation_count
+              type: integer
+            - name: concurrent_generation_limit
+              type: integer
+            - name: config
+              type: ref:Config2
+            - name: csrfToken
+              type: string
+            - name: dbmQwenStyleLabels
+              type: array
+            - name: errors
+              type: object
+            - name: flash
+              type: object
+            - name: folders
+              type: '[]ref:Folder2'
+            - name: formErrors
+              type: array
+            - name: illustratorStyles
+              type: '[]ref:IllustratorStyle2'
+            - name: isProduction
+              type: bool
+            - name: maintenanceMessage
+              type: string
+            - name: maintenanceMode
+              type: string
+            - name: personal_folders
+              type: '[]ref:PersonalFolder2'
+            - name: settings
+              type: '[]ref:Setting2'
+            - name: userSetting
+              type: ref:UserSetting2
+            - name: users_all_folders
+              type: '[]ref:UsersAllFolder2'
+            - name: ziggy
+              type: ref:Ziggy2
+    Setting:
+        fields:
+            - name: key
+              type: string
+            - name: value
+              type: string
+              format: url
+    Setting2:
+        fields:
+            - name: key
+              type: string
+            - name: value
+              type: string
+              format: url
+    UserSetting:
+        fields:
+            - name: settings
+              type: array
+    UserSetting2:
+        fields:
+            - name: settings
+              type: array
+    UsersAllFolder:
+        fields:
+            - name: created_at
+              type: string
+              format: date-time
+            - name: id
+              type: integer
+            - name: name
+              type: string
+            - name: updated_at
+              type: string
+              format: date-time
+            - name: user_id
+              type: integer
+    UsersAllFolder2:
+        fields:
+            - name: created_at
+              type: string
+              format: date-time
+            - name: id
+              type: integer
+            - name: name
+              type: string
+            - name: updated_at
+              type: string
+              format: date-time
+            - name: user_id
+              type: integer
+    Ziggy:
+        fields:
+            - name: defaults
+              type: array
+            - name: location
+              type: string
+              format: url
+            - name: routes
+              type: object
+            - name: url
+              type: string
+              format: url
+    Ziggy2:
+        fields:
+            - name: defaults
+              type: array
+            - name: location
+              type: string
+              format: url
+            - name: routes
+              type: object
+            - name: url
+              type: string
+              format: url
