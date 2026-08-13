@@ -181,6 +181,11 @@ Do NOT use it to estimate one model's cost interactively; use 'cost-estimate' in
 			if err != nil {
 				return err
 			}
+			// A row that was billed but could not be recorded in the ledger
+			// fails the whole run: surface a run-level error (non-zero exit)
+			// so automation cannot treat a batch with missing cost history
+			// as clean, and regenerate cannot silently lose it.
+			var runErr error
 			for i := range view.Rows {
 				item := &view.Rows[i]
 				r := rows[i]
@@ -268,13 +273,19 @@ Do NOT use it to estimate one model's cost interactively; use 'cost-estimate' in
 				if err := db.LedgerGeneration(ctx, entry); err != nil {
 					item.Status = "error"
 					item.Error = fmt.Sprintf("ledger: %v", err)
+					if runErr == nil {
+						runErr = fmt.Errorf("row %d (%s) was billed but its ledger write failed: %w", item.Row, r.Model, err)
+					}
 					continue
 				}
 				item.LedgerID = ledgerID
 			}
 
 			if flags.asJSON || flags.agent || !isTerminal(cmd.OutOrStdout()) {
-				return printJSONFiltered(cmd.OutOrStdout(), view, flags)
+				if err := printJSONFiltered(cmd.OutOrStdout(), view, flags); err != nil {
+					return err
+				}
+				return runErr
 			}
 			for _, item := range view.Rows {
 				fmt.Fprintf(cmd.OutOrStdout(), "row %d: %-10s %-40s $%.4f\n", item.Row, item.Status, item.Model, item.Estimate)
@@ -283,7 +294,7 @@ Do NOT use it to estimate one model's cost interactively; use 'cost-estimate' in
 				}
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "total estimate $%.2f | spent $%.2f | budget $%.2f\n", view.TotalEstimate, view.TotalCost, view.Budget)
-			return nil
+			return runErr
 		},
 	}
 	cmd.Flags().StringVar(&flagSpec, "spec", "", "Path to a CSV file (header: prompt,model,n,resolution,quality,output)")
