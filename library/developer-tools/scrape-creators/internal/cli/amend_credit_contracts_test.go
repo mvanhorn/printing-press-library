@@ -297,6 +297,76 @@ func TestThreadTraversal_BreachHaltsImmediately(t *testing.T) {
 	}
 }
 
+func TestThreadTraversal_CyclicCursorStopsWithoutRebuying(t *testing.T) {
+	// The endpoint always reports has_more=true and always serves the SAME
+	// cursor: page 2's envelope points back at cursor "cur-loop". The
+	// traversal must detect the repeat and stop after buying each page once,
+	// keeping truncated=true with a note naming the cycle — never re-buying
+	// the same page until the budget or the page cap intervenes.
+	g := &scriptedGetter{t: t, script: func(path string, params map[string]string) (json.RawMessage, error) {
+		if path != "/v2/instagram/post/comments" {
+			t.Fatalf("unexpected fetch %s", path)
+		}
+		return json.RawMessage(fmt.Sprintf(
+			`{"comments":%s,"credits_charged":1,"has_more":true,"cursor":"cur-loop"}`,
+			commentObjs("c", 16))), nil
+	}}
+	out, _, err := fetchCommentThread(context.Background(), g, threadFetchOpts{postURL: "https://x/p/1", route: "flat", maxCredits: 100})
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Page 1 (no cursor) + page 2 (cursor cur-loop); the second occurrence of
+	// cur-loop is refused before any fetch.
+	if got := g.callsTo("/v2/instagram/post/comments"); got != 2 {
+		t.Errorf("made %d comments fetches, want 2 (cycle detected before re-buying)", got)
+	}
+	if out.CreditsCharged != 2 {
+		t.Errorf("credits_charged = %d, want 2 (no charge for the repeated cursor)", out.CreditsCharged)
+	}
+	if !out.Truncated {
+		t.Error("cycle stop must keep truncated=true")
+	}
+	if !strings.Contains(out.Note, "already served") {
+		t.Errorf("note must name the cursor cycle, got %q", out.Note)
+	}
+	if strings.Contains(out.Note, "--max-credits") {
+		t.Errorf("a cursor cycle is not a budget problem; note must not suggest raising the budget, got %q", out.Note)
+	}
+}
+
+func TestThreadTraversal_PageFailureIsDiagnosedHonestly(t *testing.T) {
+	// Page 2's fetch fails outright: the note must name the failed page as
+	// the cause and must NOT suggest raising --max-credits — the stop has
+	// nothing to do with the budget.
+	g := &scriptedGetter{t: t, script: func(path string, params map[string]string) (json.RawMessage, error) {
+		if path != "/v2/instagram/post/comments" {
+			t.Fatalf("unexpected fetch %s", path)
+		}
+		if params["cursor"] != "" {
+			return nil, fmt.Errorf("HTTP 502 from comments endpoint")
+		}
+		return json.RawMessage(fmt.Sprintf(
+			`{"comments":%s,"credits_charged":1,"has_more":true,"cursor":"cur-2"}`,
+			commentObjs("c", 16))), nil
+	}}
+	out, _, err := fetchCommentThread(context.Background(), g, threadFetchOpts{postURL: "https://x/p/1", route: "flat", maxCredits: 100})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !out.Truncated {
+		t.Error("failed page with pages remaining must keep truncated=true")
+	}
+	if !strings.Contains(out.Note, "page 2 fetch failed") {
+		t.Errorf("note must name the failed page as the cause, got %q", out.Note)
+	}
+	if strings.Contains(out.Note, "--max-credits") {
+		t.Errorf("a page failure is not a budget problem; note must not suggest raising the budget, got %q", out.Note)
+	}
+	if len(out.FetchFailures) != 1 || out.FetchFailures[0].Source != "page 2" {
+		t.Errorf("fetch_failures must record the failed page, got %+v", out.FetchFailures)
+	}
+}
+
 func TestThreadTraversal_PerCommentReplyFetchesAreGated(t *testing.T) {
 	// per-comment route, 10 comments per page at 1 cr each + 1 cr per reply
 	// call: budget 6 admits the probe (1 cr) and then reply fetches until the

@@ -77,6 +77,10 @@ func fetchCommentThread(ctx context.Context, c apiGetter, opts threadFetchOpts) 
 	var lastRaw json.RawMessage
 	var truncatedTop bool
 	attemptedReplies := 0
+	// Reply failures are tracked separately from page failures so the
+	// all-replies-failed check can never be tripped (or masked) by a failed
+	// page fetch; out.FetchFailures aggregates both for the envelope.
+	var replyFailures []fetchFailure
 	var storeRows []store.CommentRow
 
 	// addPerCommentPage stores a page of top-level comments and fetches each
@@ -100,7 +104,9 @@ func fetchCommentThread(ctx context.Context, c apiGetter, opts threadFetchOpts) 
 			attemptedReplies++
 			repRaw, rerr := c.Get(ctx, "/v1/instagram/post/comment/replies", map[string]string{"url": opts.postURL, "comment_id": id})
 			if rerr != nil {
-				out.FetchFailures = append(out.FetchFailures, fetchFailure{Source: id, Error: sanitizeFetchErr(rerr)})
+				f := fetchFailure{Source: id, Error: sanitizeFetchErr(rerr)}
+				replyFailures = append(replyFailures, f)
+				out.FetchFailures = append(out.FetchFailures, f)
 				continue
 			}
 			rep := parseCommentsPayload(repRaw)
@@ -210,6 +216,10 @@ func fetchCommentThread(ctx context.Context, c apiGetter, opts threadFetchOpts) 
 		if chosen == "flat" {
 			params["include_replies"] = "true"
 		}
+		// Cursors already submitted: a cyclic cursor (the API reporting
+		// has_more with a cursor it has served before) would otherwise re-buy
+		// the same page until the budget or the page cap intervened.
+		seenCursors := map[string]bool{}
 		for page := out.PagesFetched + 1; truncatedTop && !budgetStopped; page++ {
 			if page > maxThreadPages {
 				out.Note = fmt.Sprintf("stopped at the %d-page safety cap with pages remaining; the thread is still truncated", maxThreadPages)
@@ -220,6 +230,11 @@ func fetchCommentThread(ctx context.Context, c apiGetter, opts threadFetchOpts) 
 				// has_more with no cursor: nothing to continue on.
 				break
 			}
+			if seenCursors[cursor] {
+				out.Note = fmt.Sprintf("comments endpoint returned a cursor it already served (page %d): stopped to avoid paying for the same page twice; the thread is still truncated", page)
+				break
+			}
+			seenCursors[cursor] = true
 			if !budget.allows() {
 				halt(budget.stopNote("comments page"))
 				break
@@ -231,10 +246,12 @@ func fetchCommentThread(ctx context.Context, c apiGetter, opts threadFetchOpts) 
 			raw, err := c.Get(ctx, commentsPath, pageParams)
 			if err != nil {
 				out.FetchFailures = append(out.FetchFailures, fetchFailure{Source: fmt.Sprintf("page %d", page), Error: sanitizeFetchErr(err)})
+				out.Note = fmt.Sprintf("page %d fetch failed (%s): traversal stopped; the thread is still truncated", page, sanitizeFetchErr(err))
 				break
 			}
 			if isErrorEnvelope(raw) {
 				out.FetchFailures = append(out.FetchFailures, fetchFailure{Source: fmt.Sprintf("page %d", page), Error: "error envelope from comments endpoint"})
+				out.Note = fmt.Sprintf("page %d fetch failed (error envelope from comments endpoint): traversal stopped; the thread is still truncated", page)
 				break
 			}
 			pl := parseCommentsPayload(raw)
@@ -256,7 +273,7 @@ func fetchCommentThread(ctx context.Context, c apiGetter, opts threadFetchOpts) 
 		}
 	}
 
-	if err := allSourcesFailedErr("comments thread replies", attemptedReplies, out.FetchFailures); err != nil {
+	if err := allSourcesFailedErr("comments thread replies", attemptedReplies, replyFailures); err != nil {
 		return out, nil, err
 	}
 
@@ -358,7 +375,7 @@ already-synced posts; use 'comments coverage' instead.`, "\n"),
 				// partial thread as complete without saying so on stderr.
 				fmt.Fprintf(cmd.ErrOrStderr(), "warning: %s\n", out.Note)
 			}
-			warnFetchFailures(cmd, "reply", out.FetchFailures)
+			warnFetchFailures(cmd, "thread", out.FetchFailures)
 
 			if !noStore {
 				if dbPath == "" {

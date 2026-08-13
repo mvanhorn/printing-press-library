@@ -12,7 +12,7 @@
     "type": "api_key",
     "api_key_available": true
   },
-  "source_fingerprint": "ebb2880886bb5934f483901502a3ab2312876e5d8f9cd6b4aeaa8b9dc4bc0523",
+  "source_fingerprint": "d0199b75a1016b83678438ee0736db51810705607d808b341b91ce20f8530071",
   "source_files": {
     "cmd/scrape-creators-pp-cli/main.go": "ef1eab3a3b10d5096fb560afbc66d9153e50c1fc137e3876cbdf9dbdce8ad8aa",
     "cmd/scrape-creators-pp-mcp/main.go": "b4d206615dfa206df57d26455b63bff53beb8a602b31eac9bcb3eb2afbe95c33",
@@ -34,7 +34,7 @@
     "internal/cli/agent_context.go": "911d4ee0dbf7288c43e78f98ae6b5b114cd7c57897f5ca21249d35229a55d91c",
     "internal/cli/amend_compact_comments_test.go": "f31179501d0bbd22883b86195d635b4070a9e365cfde8386044a374bce1d7992",
     "internal/cli/amend_completeness_test.go": "657097d3c09db6d2e7a1ed0a51f2c2744922a039b38ca08bd874c700d58259ab",
-    "internal/cli/amend_credit_contracts_test.go": "c485ef5fbcb8cf9410850c049bd670ac79d4044938d5989b358ad60565be2ec5",
+    "internal/cli/amend_credit_contracts_test.go": "4eb969ff9f7ebe5a138e9754d60cd162ccee67c9bf74c6493136eb8334d85904",
     "internal/cli/amend_credit_seam.go": "0070c1a5db7c86ee54fe76cf8106b357eebfae9bd64267fecd373de57e5d6e49",
     "internal/cli/amend_pagination_test.go": "e5c7567c2662a9701b77ab18dd12bb95ee20f3946336c031dfeb953ae07c7435",
     "internal/cli/amend_sweep_budget_test.go": "998bdd87f6078a7225f35b69bf54d55d0d754f3e0a1108d6e52fa83c0d0b45d2",
@@ -58,7 +58,7 @@
     "internal/cli/comments_search_test.go": "e90e2ab6cca7f00a36972787dd79eec8cadbe7f605017488f4c61ee32a59edab",
     "internal/cli/comments_sweep.go": "a5e70688b056d520004c53337c311d45aecefc16dcb3428a264a5edd42335de4",
     "internal/cli/comments_sweep_test.go": "775e950bcbfc3b16765fe6d0333014fdfdfdf985e5335196a436e9087ee11c67",
-    "internal/cli/comments_thread.go": "1a0d75295fef9bc88acdd45bee4622f2a411c3e2c2eb98ea2a4772823f33535f",
+    "internal/cli/comments_thread.go": "75269cc6aadd71516be2846a3574414fce52af9a535f14b2fd960b1fc89bfbf0",
     "internal/cli/comments_thread_test.go": "9916ed058bb1e28b6d982c8d1ed978192ee3c1f661f515747eb8397dc7e5ff99",
     "internal/cli/content.go": "694f244c53176d496d474278be5dce07dc6f8bf9b7c0aa2acf76476fc8603200",
     "internal/cli/content_spikes.go": "46abf65bac3ad0e202e3b9ecc8e3c33fe6d1e743d18e06d7c4b70c278989c5c9",
