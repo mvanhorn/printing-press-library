@@ -1869,6 +1869,8 @@ func syncPerformanceDependent(ctx context.Context, c interface {
 
 	var mu sync.Mutex
 	var totalCount, failures int
+	var firstErr error
+	var sawDryRun bool
 	var wg sync.WaitGroup
 	for i := 0; i < concurrency; i++ {
 		wg.Add(1)
@@ -1880,12 +1882,32 @@ func syncPerformanceDependent(ctx context.Context, c interface {
 				if err != nil {
 					mu.Lock()
 					failures++
+					if firstErr == nil {
+						firstErr = err
+					}
+					mu.Unlock()
+					continue
+				}
+				// Dry-run sentinel: client.dryRun() returns the same
+				// {"dry_run": true} envelope for every request when
+				// --dry-run is set (short-circuited client-side, before any
+				// network call), so this fires for every item — mirrors
+				// syncResource's dry-run handling. Without this check, a
+				// --dry-run sync would write the sentinel into
+				// provider_payloads as if it were real performance data,
+				// once per synced workout.
+				if isDryRunResponse(data) {
+					mu.Lock()
+					sawDryRun = true
 					mu.Unlock()
 					continue
 				}
 				if err := db.UpsertWithFacts("performance", workoutID, data); err != nil {
 					mu.Lock()
 					failures++
+					if firstErr == nil {
+						firstErr = err
+					}
 					mu.Unlock()
 					continue
 				}
@@ -1896,6 +1918,25 @@ func syncPerformanceDependent(ctx context.Context, c interface {
 		}()
 	}
 	wg.Wait()
+
+	if sawDryRun {
+		if !humanFriendly {
+			fmt.Fprintf(syncEvents, `{"event":"sync_dryrun","resource":"performance"}`+"\n")
+		}
+		return syncResult{Resource: "performance", Count: 0, Duration: time.Since(started)}
+	}
+
+	// A credential-placeholder condition affects every request identically
+	// (it's a local config problem, not a per-workout API response), so
+	// treat it as a hard failure here too — same as the flat resource loop
+	// does — rather than letting failures++ silently downgrade it to a
+	// warning. Any other per-item failure (a workout genuinely has no
+	// recorded performance data, a transient blip) stays a soft anomaly:
+	// escalating those to a hard error would turn an expected, benign
+	// per-item gap into a whole-sync failure.
+	if firstErr != nil && errors.Is(firstErr, client.ErrPlaceholderCredential) {
+		return syncResult{Resource: "performance", Err: firstErr, Duration: time.Since(started)}
+	}
 
 	if failures > 0 && !humanFriendly {
 		fmt.Fprintf(syncEvents, `{"event":"sync_anomaly","resource":"performance","consumed":%d,"stored":%d,"reason":"per_parent_fetch_failed"}`+"\n", len(workoutIDs), totalCount)

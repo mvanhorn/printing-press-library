@@ -5,6 +5,7 @@ package cli
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"path/filepath"
@@ -12,6 +13,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/mvanhorn/printing-press-library/library/health/peloton/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/health/peloton/internal/store"
 )
 
@@ -138,5 +140,88 @@ func TestSyncPerformanceDependentWithoutSyncedWorkoutsWarns(t *testing.T) {
 	}
 	if res.Warn == nil {
 		t.Fatal("expected a warning when no workouts are synced yet")
+	}
+}
+
+// alwaysDataSyncClient returns the same payload for every path, regardless
+// of the requested workout id — used to simulate --dry-run (every request
+// gets the same {"dry_run":true} sentinel) and total credential failure
+// (every request fails identically).
+type alwaysDataSyncClient struct {
+	data json.RawMessage
+	err  error
+}
+
+func (c *alwaysDataSyncClient) Get(context.Context, string, map[string]string) (json.RawMessage, error) {
+	if c.err != nil {
+		return nil, c.err
+	}
+	return c.data, nil
+}
+
+func (c *alwaysDataSyncClient) RateLimit() float64 { return 0 }
+
+// TestSyncPerformanceDependentDryRunWritesNothing guards against the
+// dry-run sentinel client.dryRun() returns for every request under
+// --dry-run being mistaken for real performance data and written to the
+// store: it must be detected and skipped, not upserted as if it were a
+// genuine performance_graph response.
+func TestSyncPerformanceDependentDryRunWritesNothing(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data", "data.db")
+	db, err := store.Open(dbPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	workouts := &fixtureSyncClient{items: []json.RawMessage{
+		json.RawMessage(`{"id":"w1","ride_id":"ride-a","start_time":"2026-01-01T10:00:00Z"}`),
+	}}
+	if res := syncResource(context.Background(), workouts, db, "workouts", "", false, 0, false, false, nil, io.Discard); res.Err != nil {
+		t.Fatalf("syncing workouts fixture: %v", res.Err)
+	}
+
+	dryRunClient := &alwaysDataSyncClient{data: json.RawMessage(`{"dry_run": true}`)}
+	res := syncPerformanceDependent(context.Background(), dryRunClient, db, 4, io.Discard)
+	if res.Err != nil || res.Warn != nil {
+		t.Fatalf("dry-run result should be clean, got err=%v warn=%v", res.Err, res.Warn)
+	}
+	if res.Count != 0 {
+		t.Fatalf("dry-run Count = %d, want 0", res.Count)
+	}
+	if _, err := db.GetProviderFact("performance", "w1"); err == nil {
+		t.Fatal("dry-run sentinel was written to the store as if it were real performance data")
+	}
+}
+
+// TestSyncPerformanceDependentSurfacesPlaceholderCredentialError guards
+// consistency with the flat resource loop: a placeholder-credential
+// condition affects every request identically (a local config problem, not
+// a per-workout API gap) and must surface as a hard error the same way it
+// does for flat resources, not get silently downgraded to a generic
+// "fetched 0/N" warning that a caller could mistake for "these workouts
+// just have no performance data".
+func TestSyncPerformanceDependentSurfacesPlaceholderCredentialError(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data", "data.db")
+	db, err := store.Open(dbPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	workouts := &fixtureSyncClient{items: []json.RawMessage{
+		json.RawMessage(`{"id":"w1","ride_id":"ride-a","start_time":"2026-01-01T10:00:00Z"}`),
+	}}
+	if res := syncResource(context.Background(), workouts, db, "workouts", "", false, 0, false, false, nil, io.Discard); res.Err != nil {
+		t.Fatalf("syncing workouts fixture: %v", res.Err)
+	}
+
+	failingClient := &alwaysDataSyncClient{err: client.ErrPlaceholderCredential}
+	res := syncPerformanceDependent(context.Background(), failingClient, db, 4, io.Discard)
+	if res.Err == nil {
+		t.Fatal("expected a hard error for a placeholder-credential failure, got none")
+	}
+	if !errors.Is(res.Err, client.ErrPlaceholderCredential) {
+		t.Fatalf("res.Err = %v, want it to wrap client.ErrPlaceholderCredential", res.Err)
 	}
 }

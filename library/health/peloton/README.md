@@ -83,7 +83,7 @@ Restart the OpenClaw session or gateway if the newly installed skill is not visi
 
 This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
 
-The bundle reuses your local OAuth2 refresh-token credentials — configure them first if you haven't:
+Peloton has no OAuth provisioning service — the bundle just needs your Peloton login. Set it first if you haven't:
 
 ```bash
 export PELOTON_OAUTH_USERNAME="your-username"
@@ -117,7 +117,8 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
       "command": "peloton-pp-mcp",
       "env": {
         "PELOTON_USER_ID": "<user_id>",
-        "PELOTON_OAUTH_USERNAME": "<your-key>"
+        "PELOTON_OAUTH_USERNAME": "<your-peloton-email-or-username>",
+        "PELOTON_OAUTH_PASSWORD": "<your-peloton-password>"
       }
     }
   }
@@ -132,13 +133,13 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 See [Install](#install) above.
 
-### 2. Set Up OAuth2 Refresh Credentials
+### 2. Set Your Peloton Login
 
-This CLI uses OAuth2 with refresh-token rotation. Provide the client credentials and refresh token; access tokens are refreshed automatically.
+Peloton has no OAuth provisioning service — this CLI just needs your Peloton login. The first live command logs in automatically and persists the result; later commands reuse or refresh it.
 
 ```bash
-export PELOTON_OAUTH_USERNAME="your-username"
-export PELOTON_OAUTH_PASSWORD="your-password"
+export PELOTON_OAUTH_USERNAME="your-peloton-email-or-username"
+export PELOTON_OAUTH_PASSWORD="your-peloton-password"
 ```
 
 ### 3. Verify Setup

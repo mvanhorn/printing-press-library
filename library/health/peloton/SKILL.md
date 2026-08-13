@@ -80,14 +80,14 @@ peloton-pp-cli which "<capability in your own words>"
 
 ## Auth Setup
 
-This CLI uses OAuth2 with refresh-token rotation. Configure the client credentials and refresh token:
+Peloton has no OAuth provisioning service — this CLI just needs your Peloton login. Set it once:
 
 ```bash
-export PELOTON_OAUTH_USERNAME="your-username"
-export PELOTON_OAUTH_PASSWORD="your-password"
+export PELOTON_OAUTH_USERNAME="your-peloton-email-or-username"
+export PELOTON_OAUTH_PASSWORD="your-peloton-password"
 ```
 
-Access tokens are refreshed automatically before API calls.
+The first live command logs in automatically and persists the resulting credentials to `~/.config/peloton-pp-cli/oauth-token.json`; later commands reuse or refresh them without the env vars set.
 
 Run `peloton-pp-cli doctor` to verify setup.
 
