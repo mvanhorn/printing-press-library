@@ -5,6 +5,7 @@ package cli
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -65,10 +66,14 @@ type stubQueryer struct {
 	description string
 	updatedAt   string
 	calls       int
+	err         error
 }
 
 func (s *stubQueryer) QueryInto(_ string, _ map[string]any, out any) error {
 	s.calls++
+	if s.err != nil {
+		return s.err
+	}
 	payload := map[string]any{
 		"issue": map[string]any{
 			"id":          "11111111-1111-1111-1111-111111111111",
@@ -116,5 +121,14 @@ func TestGuardStaleDescription(t *testing.T) {
 	}
 	if !strings.Contains(err.Error(), "would delete that edit") {
 		t.Fatalf("error must say what the write would destroy: %v", err)
+	}
+
+	broken := &stubQueryer{err: fmt.Errorf("linear unavailable")}
+	err = guardStaleDescription(broken, "11111111-1111-1111-1111-111111111111", "2026-08-12T09:00:00Z", "original body")
+	if err == nil {
+		t.Fatal("a failed freshness re-read must refuse the write")
+	}
+	if !errors.As(err, &cerr) || cerr.code != 5 {
+		t.Fatalf("want exit code 5 for a failed re-read, got %v", err)
 	}
 }

@@ -117,21 +117,18 @@ func appendedDescriptionBodyWith(existing, addition, separator string) string {
 // remaining loss from silent into a refusal the caller can retry.
 func guardStaleDescription(c graphqlQueryer, issueID, readUpdatedAt, readDescription string) error {
 	if c == nil || issueID == "" {
-		return nil
+		return apiErr(fmt.Errorf("cannot confirm the live description of issue %s is still the body this command read, so refusing the write", issueID))
 	}
 	raw, err := fetchIssueByIDLive(c, issueID)
 	if err != nil {
-		// A failed re-read is not proof of a conflict, and refusing here would
-		// turn a transient read failure into a failed write. The caller's own
-		// error handling covers a genuinely unreachable API.
-		return nil
+		return apiErr(fmt.Errorf("could not re-read issue %s before writing its description: %w\nRefusing the write rather than replacing a body that may have changed", issueID, err))
 	}
 	var current struct {
 		Description string `json:"description"`
 		UpdatedAt   string `json:"updatedAt"`
 	}
 	if err := json.Unmarshal(raw, &current); err != nil {
-		return nil
+		return apiErr(fmt.Errorf("could not parse the live description of issue %s before writing: %w\nRefusing the write rather than replacing a body that may have changed", issueID, err))
 	}
 	if current.Description == readDescription {
 		return nil
