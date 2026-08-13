@@ -8,8 +8,10 @@
   "reason": "Linear lets a workspace name its own workflow states, so a hardcoded state comparison is wrong for any team that ships out of a custom column, and a team may redeclare a group that the workspace already defines. Reintroducing per-command state literals silently returns wrong open counts, velocity and landing dates; resolving a project's group at workspace scope silently ignores that project's team override.",
   "files": [
     "internal/groups/groups.go",
+    "internal/groups/groups_test.go",
     "internal/groups/defaults.toml",
     "internal/cli/groups_cmd.go",
+    "internal/cli/groups_scope_test.go",
     "internal/cli/issues.go",
     "internal/cli/blocking.go",
     "internal/cli/bottleneck.go",

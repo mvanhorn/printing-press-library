@@ -11,7 +11,8 @@
     "internal/cli/blocking.go",
     "internal/cli/bottleneck.go",
     "internal/cli/slipped.go",
-    "internal/cli/today.go"
+    "internal/cli/today.go",
+    "internal/cli/similar.go"
   ],
   "validated_outcome": "An issue closed as a duplicate leaves 'issues list --state active' and is retrievable under '--state duplicate', on both the local and the live path."
 }

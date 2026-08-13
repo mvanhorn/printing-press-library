@@ -8,8 +8,10 @@
   "reason": "Linear exposes a relation from both ends, so reading one connection misses half the graph, and every consumer treats an absent relation as no relation. A silently truncated set drops links from the listing, makes idempotent creation duplicate an existing relation, and lets the unblocked query call an issue actionable while an unseen blocker is still open.",
   "files": [
     "internal/client/relations_queries.go",
+    "internal/client/relations_paging_test.go",
     "internal/cli/relations.go",
-    "internal/cli/unblocked.go"
+    "internal/cli/unblocked.go",
+    "internal/store/relations.go"
   ],
   "validated_outcome": "An issue whose relation connection never reports exhaustion fails the read with a message naming the partial set, instead of answering from the pages it managed to fetch."
 }

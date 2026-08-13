@@ -11,8 +11,11 @@
     "internal/cli/issues_edit_append.go",
     "internal/cli/issues_lifecycle.go",
     "internal/cli/issues_batch.go",
+    "internal/cli/issues_create.go",
     "internal/cli/trust_gate.go",
-    "internal/store/pp_fixtures.go"
+    "internal/cli/issues_write_guards_test.go",
+    "internal/store/pp_fixtures.go",
+    "internal/client/batch_queries.go"
   ],
   "validated_outcome": "Under --trust-mode strict, 'issues edit ENG-8 --dry-run' refuses a target absent from the ledger instead of reporting a would-update. 'issues edit ENG-7 --description-append note --dry-run' reports commentCreate. A media-derived description whose issue body changed since the read exits 5 naming the edit it would have deleted."
 }

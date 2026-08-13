@@ -8,9 +8,14 @@
   "reason": "Linear has no deletion feed, so an entity removed upstream is only detectable as an id absent from a complete enumeration. A generated write-through cache keeps a second copy of the shell resources, and reconciling only the typed table leaves the promoted local reads answering with deleted entities. The inverse failure is worse: reconciling against a partial live set, an incremental window or an empty response deletes live work, so those three cases must stay non-pruning.",
   "files": [
     "internal/store/prune.go",
+    "internal/store/prune_mirror_test.go",
     "internal/store/sync_cursors.go",
+    "internal/store/extended_sync.go",
     "internal/cli/sync.go",
-    "internal/cli/sync_extended.go"
+    "internal/cli/sync_extended.go",
+    "internal/cli/sync_test.go",
+    "internal/client/prune_queries.go",
+    "internal/client/extended_sync_queries.go"
   ],
   "validated_outcome": "After an entity is deleted upstream and a full sync runs, both 'sync --data-source local' reads of it (typed table and promoted cache) report it gone, and its resources_fts index row goes with it in the same commit; 'sync --incremental' and a --max-pages truncated crawl prune nothing."
 }
