@@ -1,0 +1,10 @@
+{
+  "schema_version": 2,
+  "id": "zero-reviews-insufficient-data",
+  "applied_at": "2026-08-13",
+  "base_run_id": "feat/apptweak",
+  "base_printing_press_version": "see .printing-press.json",
+  "summary": "When the reviews API returns zero reviews, emit sentiment='none' with a message and omit average_rating rather than defaulting avg=0.0 and misclassifying as 'negative'.",
+  "reason": "AppTweak reviews endpoints return empty arrays for apps with no reviews in the queried locale/period. The generated code set avg=0.0 in that case, which fell into the avg<3.0 branch and falsely reported negative sentiment; omitempty on *float64 + an explicit Message field avoids both the misclassification and the misleading zero average.",
+  "files": ["internal/cli/reviews_sentiment.go", "internal/cli/reviews_sentiment_test.go"]
+}

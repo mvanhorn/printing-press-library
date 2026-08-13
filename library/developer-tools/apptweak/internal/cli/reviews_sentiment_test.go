@@ -8,13 +8,14 @@ import (
 	"testing"
 )
 
+
 func TestClassifySentiment(t *testing.T) {
 	tests := []struct {
 		total int
 		avg   float64
 		want  string
 	}{
-		{0, 0.0, "unknown"},  // Greptile fix: zero reviews must not be "negative"
+		{0, 0.0, "none"},     // zero reviews → insufficient data, not negative
 		{5, 4.5, "positive"},
 		{5, 4.0, "positive"}, // boundary: exactly 4.0 → positive
 		{5, 3.9, "neutral"},
@@ -59,5 +60,30 @@ func TestExtractReviewRatingsNested(t *testing.T) {
 	got := extractReviewRatings(data)
 	if len(got) != 2 {
 		t.Fatalf("expected 2 ratings, got %v", got)
+	}
+}
+
+// TestReviewsSentimentZeroOutput verifies that a zero-review response omits
+// average_rating (avoiding the misleading 0.0) and includes a message.
+func TestReviewsSentimentZeroOutput(t *testing.T) {
+	out := reviewsSentimentOutput{
+		App:                "123",
+		TotalReviews:       0,
+		RatingDistribution: map[string]int{"1": 0, "2": 0, "3": 0, "4": 0, "5": 0},
+		Sentiment:          "none",
+		Message:            "no reviews found for this query",
+	}
+	b, _ := json.Marshal(out)
+	var m map[string]interface{}
+	json.Unmarshal(b, &m)
+
+	if _, ok := m["average_rating"]; ok {
+		t.Error("average_rating must be omitted when total_reviews=0")
+	}
+	if m["sentiment"] != "none" {
+		t.Errorf("sentiment = %v, want none", m["sentiment"])
+	}
+	if m["message"] == "" || m["message"] == nil {
+		t.Error("message must be present when total_reviews=0")
 	}
 }

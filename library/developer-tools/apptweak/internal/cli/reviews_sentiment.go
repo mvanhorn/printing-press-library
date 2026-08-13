@@ -15,8 +15,9 @@ type reviewsSentimentOutput struct {
 	Word               string         `json:"word,omitempty"`
 	TotalReviews       int            `json:"total_reviews"`
 	RatingDistribution map[string]int `json:"rating_distribution"`
-	AverageRating      float64        `json:"average_rating"`
+	AverageRating      *float64       `json:"average_rating,omitempty"`
 	Sentiment          string         `json:"sentiment"`
+	Message            string         `json:"message,omitempty"`
 }
 
 func newNovelReviewsSentimentCmd(flags *rootFlags) *cobra.Command {
@@ -103,8 +104,13 @@ func newNovelReviewsSentimentCmd(flags *rootFlags) *cobra.Command {
 				Word:               flagWord,
 				TotalReviews:       total,
 				RatingDistribution: dist,
-				AverageRating:      roundTo2(avg),
 				Sentiment:          sentiment,
+			}
+			if total > 0 {
+				v := roundTo2(avg)
+				out.AverageRating = &v
+			} else {
+				out.Message = "no reviews found for this query"
 			}
 
 			return json.NewEncoder(cmd.OutOrStdout()).Encode(out)
@@ -181,11 +187,11 @@ func extractRatingsFromReviewArray(data json.RawMessage) []int {
 	return ratings
 }
 
-// classifySentiment returns "unknown" when total == 0 (no data to analyze),
+// classifySentiment returns "none" when total == 0 (no data to analyze),
 // "positive" for avg >= 4.0, "negative" for avg < 3.0, and "neutral" otherwise.
 func classifySentiment(total int, avg float64) string {
 	if total == 0 {
-		return "unknown"
+		return "none"
 	}
 	if avg >= 4.0 {
 		return "positive"
