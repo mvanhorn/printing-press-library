@@ -123,6 +123,7 @@ Run sync first to populate the local search index.`,
 			}
 			defer db.Close()
 			maybeEmitSyncHints(cmd, db, resourceType, flags.maxAge)
+			hintIfCatalogIncomplete(cmd, db)
 
 			var results []json.RawMessage
 			switch resourceType {
