@@ -133,9 +133,7 @@ func guardStaleDescription(c graphqlQueryer, issueID, readUpdatedAt, readDescrip
 	if current.Description == readDescription {
 		return nil
 	}
-	if readUpdatedAt != "" && current.UpdatedAt == readUpdatedAt {
-		return nil
-	}
+	_ = readUpdatedAt
 	// Exit 5: the write was refused because of upstream state, not because
 	// the invocation was wrong. No new exit code is minted for it, so the
 	// documented per-command code sets stay accurate.

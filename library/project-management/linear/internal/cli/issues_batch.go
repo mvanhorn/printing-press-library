@@ -711,12 +711,12 @@ fixture this CLI created.`,
 
 			dbPath := inheritedDBPath(cmd)
 
-			if flags.dryRun && (flags == nil || flags.trustMode != "strict") {
-				// Offline when we are not proving fixture ownership.
-				// Strict mode must resolve each identifier first so a
-				// TEAM-NUMBER that the ledger still names cannot pass a dry
-				// run after Linear has reused that identifier for a different
-				// issue UUID.
+			if flags.dryRun {
+				// Offline: identifiers stay unresolved and a state alias is
+				// shown as the alias, because resolving either needs the API.
+				// Linear does not recycle TEAM-NUMBER identifiers, so the
+				// ledger's identifier column is the same identity the live
+				// path will resolve.
 				fields := map[string]any{
 					"ids":   targets,
 					"input": input,
@@ -730,6 +730,11 @@ fixture this CLI created.`,
 				}
 				if teamFlag != "" {
 					fields["team"] = teamFlag
+				}
+				for _, target := range targets {
+					if err := trustModeDryRunGuard(flags, dbPath, target); err != nil {
+						return err
+					}
 				}
 				return renderMutationDryRun(cmd, flags, "would_batch_update_issues", "issueBatchUpdate", fields)
 			}
@@ -764,24 +769,6 @@ fixture this CLI created.`,
 					return err
 				}
 				uuids = append(uuids, issueID)
-			}
-
-			if flags.dryRun {
-				fields := map[string]any{
-					"ids":   uuids,
-					"input": input,
-					"count": len(uuids),
-				}
-				if stateNameFlag != "" {
-					fields["state_name"] = stateNameFlag
-				}
-				if stateTypeFlag != "" {
-					fields["state_type"] = stateTypeFlag
-				}
-				if teamFlag != "" {
-					fields["team"] = teamFlag
-				}
-				return renderMutationDryRun(cmd, flags, "would_batch_update_issues", "issueBatchUpdate", fields)
 			}
 
 			if err := confirmMutation(cmd, flags, fmt.Sprintf("Apply this change to %d issues in one transaction?", len(uuids))); err != nil {
