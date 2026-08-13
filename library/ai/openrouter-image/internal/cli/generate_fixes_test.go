@@ -6,8 +6,14 @@
 package cli
 
 import (
+	"bytes"
+	"os"
+	"path/filepath"
 	"strings"
+	"sync/atomic"
 	"testing"
+
+	"github.com/mvanhorn/printing-press-library/library/ai/openrouter-image/internal/cliutil"
 )
 
 func TestParseImagesResponsePlainJSON(t *testing.T) {
@@ -161,5 +167,49 @@ func TestSsePayloads(t *testing.T) {
 	}
 	if payloads[0] != `{"a":1}` || payloads[2] != "[DONE]" {
 		t.Fatalf("payload mismatch: %v", payloads)
+	}
+}
+
+// TestNovelGenerateLedgerFailureFailsRun is the regression test for the
+// review finding "ledger write failures are hidden": generate must fail
+// (non-zero exit) when a billed generation cannot be recorded in the
+// ledger, instead of reporting success with no cost history.
+func TestNovelGenerateLedgerFailureFailsRun(t *testing.T) {
+	var hits atomic.Int32
+	srv := fakeImageAPI(t, &hits)
+	dir := cliTestEnv(t, srv)
+
+	// generate resolves its store through the default data dir; redirect it
+	// into the temp home and break the ledger write there.
+	if _, err := cliutil.SetHomeOverride(dir); err != nil {
+		t.Fatalf("set home override: %v", err)
+	}
+	dataDir, err := cliutil.DataDir()
+	if err != nil {
+		t.Fatalf("data dir: %v", err)
+	}
+	if err := os.MkdirAll(dataDir, 0o755); err != nil {
+		t.Fatalf("create data dir: %v", err)
+	}
+	breakLedgerWrite(t, filepath.Join(dataDir, "data.db"))
+
+	cmd := RootCmd()
+	cmd.SetArgs([]string{"generate", "--model", "openai/gpt-image-1", "--prompt", "a cat",
+		"--output", filepath.Join(dir, "img.png"), "--home", dir, "--agent"})
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&out)
+	err = cmd.Execute()
+	if err == nil {
+		t.Fatalf("generate with failing ledger write returned nil error; output:\n%s", out.String())
+	}
+	if !strings.Contains(err.Error(), "ledger") {
+		t.Fatalf("error %q does not mention the ledger", err)
+	}
+	if hits.Load() == 0 {
+		t.Fatalf("fake API server never hit; output:\n%s", out.String())
+	}
+	if code := ExitCode(err); code == 0 {
+		t.Fatalf("ExitCode(%v) = 0, want non-zero", err)
 	}
 }

@@ -342,6 +342,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newTailCmd(flags))
 	rootCmd.AddCommand(newAnalyticsCmd(flags))
 	rootCmd.AddCommand(newWorkflowCmd(flags))
+	rootCmd.AddCommand(newGenerateCmd(flags))
 	rootCmd.AddCommand(newNovelBatchCmd(flags))
 	rootCmd.AddCommand(newNovelCostEstimateCmd(flags))
 	rootCmd.AddCommand(newNovelRegenerateCmd(flags))

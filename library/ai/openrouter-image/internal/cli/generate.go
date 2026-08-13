@@ -439,26 +439,33 @@ Do NOT use it to run a budgeted batch; use 'batch' instead.`,
 				res.Images = append(res.Images, gi)
 			}
 
-			// Record in the local generation ledger.
+			// Record in the local generation ledger. A billed generation
+			// that cannot be recorded must fail the command: cost history
+			// and regeneration metadata must not silently disappear.
 			dbPath := defaultDBPath("openrouter-image-pp-cli")
-			if db, err := store.OpenWithContext(ctx, dbPath); err == nil {
-				_ = db.EnsureOpenRouterImageTables(ctx)
-				paramsJSON, _ := json.Marshal(body)
-				ledgerID := newLedgerID(flagModel)
-				entry := store.GenerationEntry{
-					ID:         ledgerID,
-					Model:      flagModel,
-					Prompt:     flagPrompt,
-					Params:     string(paramsJSON),
-					OutputPath: firstSaved(res.Images),
-				}
-				if resp.Usage != nil {
-					entry.CostUSD = resp.Usage.Cost
-				}
-				_ = db.LedgerGeneration(ctx, entry)
-				res.LedgerID = ledgerID
-				_ = db.Close()
+			db, err := store.OpenWithContext(ctx, dbPath)
+			if err != nil {
+				return fmt.Errorf("opening ledger database: %w", err)
 			}
+			_ = db.EnsureOpenRouterImageTables(ctx)
+			paramsJSON, _ := json.Marshal(body)
+			ledgerID := newLedgerID(flagModel)
+			entry := store.GenerationEntry{
+				ID:         ledgerID,
+				Model:      flagModel,
+				Prompt:     flagPrompt,
+				Params:     string(paramsJSON),
+				OutputPath: firstSaved(res.Images),
+			}
+			if resp.Usage != nil {
+				entry.CostUSD = resp.Usage.Cost
+			}
+			if err := db.LedgerGeneration(ctx, entry); err != nil {
+				_ = db.Close()
+				return fmt.Errorf("recording generation in ledger: %w", err)
+			}
+			res.LedgerID = ledgerID
+			_ = db.Close()
 
 			if flags.asJSON || flags.agent || !isTerminal(cmd.OutOrStdout()) {
 				return printJSONFiltered(cmd.OutOrStdout(), res, flags)

@@ -157,7 +157,9 @@ Do NOT use it for a brand-new prompt; use 'generate' instead.`,
 			if resp.Usage != nil {
 				newEntry.CostUSD = resp.Usage.Cost
 			}
-			_ = db.LedgerGeneration(ctx, newEntry)
+			if err := db.LedgerGeneration(ctx, newEntry); err != nil {
+				return fmt.Errorf("recording regenerated generation in ledger: %w", err)
+			}
 			res.LedgerID = newID
 
 			if flags.asJSON || flags.agent || !isTerminal(cmd.OutOrStdout()) {

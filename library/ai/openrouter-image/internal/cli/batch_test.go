@@ -62,11 +62,19 @@ func fakeImageAPI(t *testing.T, hits *atomic.Int32) *httptest.Server {
 // default state (learn store, caches) into the temp dir.
 func batchTestEnv(t *testing.T, srv *httptest.Server) (specPath, dbPath string) {
 	t.Helper()
-	dir := t.TempDir()
+	dir := cliTestEnv(t, srv)
 	specPath = filepath.Join(dir, "batch.csv")
 	if err := os.WriteFile(specPath, []byte("prompt,model\n\"a red panda astronaut\",openai/gpt-image-1\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
+	return specPath, filepath.Join(dir, "store.db")
+}
+
+// cliTestEnv writes a minimal config pointing at the fake API, sets the
+// env overrides, and returns the temp dir used by the test.
+func cliTestEnv(t *testing.T, srv *httptest.Server) string {
+	t.Helper()
+	dir := t.TempDir()
 	cfgPath := filepath.Join(dir, "config.toml")
 	if err := os.WriteFile(cfgPath, []byte("api_key = \"test-key\"\n"), 0o644); err != nil {
 		t.Fatal(err)
@@ -74,7 +82,40 @@ func batchTestEnv(t *testing.T, srv *httptest.Server) (specPath, dbPath string) 
 	t.Setenv("OPENROUTER_IMAGE_CONFIG", cfgPath)
 	t.Setenv("OPENROUTER_IMAGE_BASE_URL", srv.URL)
 	t.Setenv("OPENROUTER_API_KEY", "test-key")
-	return specPath, filepath.Join(dir, "store.db")
+	return dir
+}
+
+// breakLedgerWrite makes every generation_ledger INSERT fail at runtime
+// while leaving reads fully functional: a BEFORE INSERT trigger aborts the
+// write, deterministically simulating a persistence failure after a billed
+// generation.
+func breakLedgerWrite(t *testing.T, dbPath string) {
+	t.Helper()
+	raw, err := sql.Open("sqlite", dbPath)
+	if err != nil {
+		t.Fatalf("open raw sqlite: %v", err)
+	}
+	defer raw.Close()
+	stmts := []string{
+		`CREATE TABLE IF NOT EXISTS generation_ledger (
+			id TEXT PRIMARY KEY,
+			model TEXT NOT NULL,
+			prompt TEXT,
+			params TEXT,
+			cost_usd REAL,
+			tokens TEXT,
+			output_path TEXT,
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		)`,
+		`CREATE TRIGGER IF NOT EXISTS reject_generation_ledger_insert
+		 BEFORE INSERT ON generation_ledger
+		 BEGIN SELECT RAISE(ABORT, 'simulated ledger write failure'); END`,
+	}
+	for _, stmt := range stmts {
+		if _, err := raw.Exec(stmt); err != nil {
+			t.Fatalf("exec %q: %v", stmt, err)
+		}
+	}
 }
 
 // TestNovelBatchLedgerFailureFailsRun is the regression test for the review
