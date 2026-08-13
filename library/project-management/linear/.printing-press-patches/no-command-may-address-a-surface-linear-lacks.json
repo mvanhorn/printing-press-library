@@ -9,11 +9,14 @@
   "files": [
     "internal/cli/root.go",
     "internal/cli/rate_limit.go",
+    "internal/client/rate_limit_queries.go",
     "internal/mcp/tools.go",
     "internal/cli/me.go",
     "internal/cli/today.go",
     "internal/cli/bottleneck.go",
-    "internal/cli/cycles_compare.go"
+    "internal/cli/cycles_compare.go",
+    "internal/cli/velocity.go",
+    "internal/cli/portfolio_resolve.go"
   ],
   "validated_outcome": "Root help and the MCP tool list carry no command that cannot reach a real Linear operation; 'rate-limit --agent' reports the live request and complexity budget with its reset instant; the four commands that used to declare their own --json honor the root flag."
 }
