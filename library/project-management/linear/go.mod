@@ -1,5 +1,8 @@
 module github.com/mvanhorn/printing-press-library/library/project-management/linear
 
+// Published linear-pp-cli module file. Kept in the catalog package root so
+// install, govulncheck, and the publish-process check all see the same path.
+
 go 1.26.5
 
 require (
