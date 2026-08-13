@@ -5,6 +5,8 @@
 package cli
 
 import (
+	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -78,36 +80,6 @@ it for one post's complete threads; use 'comments thread' instead.`, "\n"),
 				return err
 			}
 
-			env := sweepEnvelope{Handle: handle, MaxCredits: maxCredits}
-
-			budget := newSweepBudget(maxCredits)
-			budgetAllows := func() bool { return budget.allows() }
-			noteBudgetStop := func(what string) {
-				env.StoppedEarly = true
-				env.Note = budget.stopNote(what)
-			}
-			chargeFetch := func(cost int64) {
-				if note, breached := budget.charge(cost); breached {
-					env.StoppedEarly = true
-					env.Note = note
-				}
-				env.CreditsCharged = budget.charged
-			}
-
-			if !budgetAllows() {
-				noteBudgetStop("posts fetch")
-				return printJSONFiltered(cmd.OutOrStdout(), env, flags)
-			}
-			postsRaw, err := c.Get(ctx, "/v2/instagram/user/posts", map[string]string{"handle": handle, "trim": "true"})
-			if err != nil {
-				return fmt.Errorf("fetching recent posts: %w", err)
-			}
-			if isErrorEnvelope(postsRaw) {
-				return fmt.Errorf("posts endpoint returned an error envelope for %s", handle)
-			}
-			chargeFetch(payloadCredits(postsRaw))
-			posts := extractPosts(postsRaw)
-
 			cutoff := time.Time{}
 			if sinceDur > 0 {
 				cutoff = time.Now().Add(-sinceDur)
@@ -125,98 +97,13 @@ it for one post's complete threads; use 'comments thread' instead.`, "\n"),
 				return fmt.Errorf("comment corpus migration: %w", err)
 			}
 
-			// The posts feed is paginated via next_max_id (newest-first). Walk
-			// pages under the same stops that bound the per-post loop, plus a
-			// page safety cap for the doubly-unbounded (--max-credits 0
-			// --max-posts 0) case.
-			const maxSweepPages = 25
-			cursor := ""
-			for page := 1; ; page++ {
-				pastCutoff := false
-				for _, p := range posts {
-					if env.StoppedEarly {
-						break
-					}
-					if maxPosts > 0 && env.PostsScanned >= maxPosts {
-						env.StoppedEarly = true
-						env.Note = fmt.Sprintf("stopped at --max-posts %d", maxPosts)
-						break
-					}
-					if !budgetAllows() {
-						noteBudgetStop("comments fetch")
-						break
-					}
-					if !cutoff.IsZero() && !p.takenAt.IsZero() && p.takenAt.Before(cutoff) {
-						pastCutoff = true
-						continue
-					}
-					if p.url == "" {
-						continue
-					}
-					env.PostsScanned++
-					raw, cerr := c.Get(ctx, "/v2/instagram/post/comments", map[string]string{"url": p.url})
-					if cerr != nil {
-						env.FetchFailures = append(env.FetchFailures, fetchFailure{Source: p.url, Error: sanitizeFetchErr(cerr)})
-						continue
-					}
-					if isErrorEnvelope(raw) {
-						env.FetchFailures = append(env.FetchFailures, fetchFailure{Source: p.url, Error: "error envelope from comments endpoint"})
-						continue
-					}
-					pl := parseCommentsPayload(raw)
-					chargeFetch(pl.creditsCharged)
-					rowsBatch := make([]store.CommentRow, 0, len(pl.comments))
-					for _, cm := range pl.comments {
-						rows, _ := commentToRows(cm, p.url, "")
-						rowsBatch = append(rowsBatch, rows...)
-					}
-					if err := store.UpsertCommentRows(ctx, db.DB(), rowsBatch); err != nil {
-						return fmt.Errorf("persisting comments for %s: %w", p.url, err)
-					}
-					reported := p.reportedCount
-					if reported == 0 {
-						if pl.reportedTotal > 0 {
-							reported = pl.reportedTotal
-						} else {
-							reported = int64(len(rowsBatch))
-						}
-					}
-					if err := store.UpsertPostMeta(ctx, db.DB(), p.url, handle, reported); err != nil {
-						return fmt.Errorf("persisting post metadata for %s: %w", p.url, err)
-					}
-					env.CommentsStored += len(rowsBatch)
-				}
-				if env.StoppedEarly || pastCutoff {
-					break
-				}
-				next, more := extractPostsCursor(postsRaw)
-				if !more || next == cursor {
-					break
-				}
-				if page >= maxSweepPages {
-					env.StoppedEarly = true
-					env.Note = fmt.Sprintf("stopped at the %d-page posts-feed safety cap; rerun with --since or --max-posts to bound the sweep", maxSweepPages)
-					break
-				}
-				if !budgetAllows() {
-					noteBudgetStop("posts page")
-					break
-				}
-				cursor = next
-				postsRaw, err = c.Get(ctx, "/v2/instagram/user/posts", map[string]string{"handle": handle, "trim": "true", "next_max_id": cursor})
-				if err != nil {
-					return fmt.Errorf("fetching recent posts (page %d): %w", page+1, err)
-				}
-				if isErrorEnvelope(postsRaw) {
-					return fmt.Errorf("posts endpoint returned an error envelope for %s (page %d)", handle, page+1)
-				}
-				chargeFetch(payloadCredits(postsRaw))
-				posts = extractPosts(postsRaw)
-				if len(posts) == 0 {
-					break
-				}
-			}
-			if err := allSourcesFailedErr("comments sweep", env.PostsScanned, env.FetchFailures); err != nil {
+			env, err := runCommentsSweep(ctx, c, db.DB(), sweepOpts{
+				handle:   handle,
+				cutoff:   cutoff,
+				maxPosts: maxPosts,
+				budget:   newSweepBudget(maxCredits),
+			})
+			if err != nil {
 				return err
 			}
 			warnFetchFailures(cmd, "comment", env.FetchFailures)
@@ -228,6 +115,151 @@ it for one post's complete threads; use 'comments thread' instead.`, "\n"),
 	cmd.Flags().IntVar(&maxPosts, "max-posts", 0, "Maximum posts to sweep (0 = all returned)")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
 	return cmd
+}
+
+// sweepOpts carries one sweep's knobs. cutoff zero means no --since bound;
+// maxPosts 0 means no post cap; budget must be non-nil (a zero-max budget
+// disables enforcement).
+type sweepOpts struct {
+	handle   string
+	cutoff   time.Time
+	maxPosts int
+	budget   *sweepBudget
+}
+
+// runCommentsSweep executes the paid part of `comments sweep` against the
+// injectable client seam: it walks the handle's recent posts (paginated via
+// next_max_id), pulls each post's comments, persists rows to db, and stops on
+// the first of --max-posts, --since cutoff, the credit budget, or the page
+// safety cap.
+//
+// Budget semantics: a fresh sweepBudget admits the first posts fetch by
+// construction (charged 0 + floor estimate 1 fits any positive integer
+// budget), so there is deliberately no pre-first-fetch gate here — one existed
+// and was unreachable dead code. Enforcement starts at the first charge():
+// every later fetch is gated on the running worst-case estimate, and a fetch
+// that takes the charged total past the budget halts the sweep immediately.
+func runCommentsSweep(ctx context.Context, c apiGetter, db *sql.DB, opts sweepOpts) (sweepEnvelope, error) {
+	env := sweepEnvelope{Handle: opts.handle, MaxCredits: opts.budget.max}
+
+	budgetAllows := func() bool { return opts.budget.allows() }
+	noteBudgetStop := func(what string) {
+		env.StoppedEarly = true
+		env.Note = opts.budget.stopNote(what)
+	}
+	chargeFetch := func(cost int64) {
+		if note, breached := opts.budget.charge(cost); breached {
+			env.StoppedEarly = true
+			env.Note = note
+		}
+		env.CreditsCharged = opts.budget.charged
+	}
+
+	postsRaw, err := c.Get(ctx, "/v2/instagram/user/posts", map[string]string{"handle": opts.handle, "trim": "true"})
+	if err != nil {
+		return env, fmt.Errorf("fetching recent posts: %w", err)
+	}
+	if isErrorEnvelope(postsRaw) {
+		return env, fmt.Errorf("posts endpoint returned an error envelope for %s", opts.handle)
+	}
+	chargeFetch(payloadCredits(postsRaw))
+	posts := extractPosts(postsRaw)
+
+	// The posts feed is paginated via next_max_id (newest-first). Walk
+	// pages under the same stops that bound the per-post loop, plus a
+	// page safety cap for the doubly-unbounded (--max-credits 0
+	// --max-posts 0) case.
+	const maxSweepPages = 25
+	cursor := ""
+	for page := 1; ; page++ {
+		pastCutoff := false
+		for _, p := range posts {
+			if env.StoppedEarly {
+				break
+			}
+			if opts.maxPosts > 0 && env.PostsScanned >= opts.maxPosts {
+				env.StoppedEarly = true
+				env.Note = fmt.Sprintf("stopped at --max-posts %d", opts.maxPosts)
+				break
+			}
+			if !budgetAllows() {
+				noteBudgetStop("comments fetch")
+				break
+			}
+			if !opts.cutoff.IsZero() && !p.takenAt.IsZero() && p.takenAt.Before(opts.cutoff) {
+				pastCutoff = true
+				continue
+			}
+			if p.url == "" {
+				continue
+			}
+			env.PostsScanned++
+			raw, cerr := c.Get(ctx, "/v2/instagram/post/comments", map[string]string{"url": p.url})
+			if cerr != nil {
+				env.FetchFailures = append(env.FetchFailures, fetchFailure{Source: p.url, Error: sanitizeFetchErr(cerr)})
+				continue
+			}
+			if isErrorEnvelope(raw) {
+				env.FetchFailures = append(env.FetchFailures, fetchFailure{Source: p.url, Error: "error envelope from comments endpoint"})
+				continue
+			}
+			pl := parseCommentsPayload(raw)
+			chargeFetch(pl.creditsCharged)
+			rowsBatch := make([]store.CommentRow, 0, len(pl.comments))
+			for _, cm := range pl.comments {
+				rows, _ := commentToRows(cm, p.url, "")
+				rowsBatch = append(rowsBatch, rows...)
+			}
+			if err := store.UpsertCommentRows(ctx, db, rowsBatch); err != nil {
+				return env, fmt.Errorf("persisting comments for %s: %w", p.url, err)
+			}
+			reported := p.reportedCount
+			if reported == 0 {
+				if pl.reportedTotal > 0 {
+					reported = pl.reportedTotal
+				} else {
+					reported = int64(len(rowsBatch))
+				}
+			}
+			if err := store.UpsertPostMeta(ctx, db, p.url, opts.handle, reported); err != nil {
+				return env, fmt.Errorf("persisting post metadata for %s: %w", p.url, err)
+			}
+			env.CommentsStored += len(rowsBatch)
+		}
+		if env.StoppedEarly || pastCutoff {
+			break
+		}
+		next, more := extractPostsCursor(postsRaw)
+		if !more || next == cursor {
+			break
+		}
+		if page >= maxSweepPages {
+			env.StoppedEarly = true
+			env.Note = fmt.Sprintf("stopped at the %d-page posts-feed safety cap; rerun with --since or --max-posts to bound the sweep", maxSweepPages)
+			break
+		}
+		if !budgetAllows() {
+			noteBudgetStop("posts page")
+			break
+		}
+		cursor = next
+		postsRaw, err = c.Get(ctx, "/v2/instagram/user/posts", map[string]string{"handle": opts.handle, "trim": "true", "next_max_id": cursor})
+		if err != nil {
+			return env, fmt.Errorf("fetching recent posts (page %d): %w", page+1, err)
+		}
+		if isErrorEnvelope(postsRaw) {
+			return env, fmt.Errorf("posts endpoint returned an error envelope for %s (page %d)", opts.handle, page+1)
+		}
+		chargeFetch(payloadCredits(postsRaw))
+		posts = extractPosts(postsRaw)
+		if len(posts) == 0 {
+			break
+		}
+	}
+	if err := allSourcesFailedErr("comments sweep", env.PostsScanned, env.FetchFailures); err != nil {
+		return env, err
+	}
+	return env, nil
 }
 
 // sweepBudget enforces --max-credits across every fetch a sweep makes.
@@ -242,6 +274,12 @@ it for one post's complete threads; use 'comments thread' instead.`, "\n"),
 // price alone. charge() closes that residue: the moment a fetch takes the
 // charged total past the budget, the sweep is halted and the breach is
 // reported, so the overshoot can never compound across further fetches.
+//
+// Invariant, stated so nobody re-adds a dead guard: a FRESH budget always
+// admits the first fetch — charged is 0 and the floor estimate is 1, so
+// allows() is true for every positive integer max (and non-positive max means
+// no budget at all). The budget's protection is therefore entirely reactive:
+// it begins with the first charge().
 type sweepBudget struct {
 	max     int64
 	charged int64

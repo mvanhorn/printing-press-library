@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "scrape-creators-thread-budgeted-traversal",
+  "applied_at": "2026-08-13",
+  "base_run_id": "20260808-150822-3ff3183d",
+  "base_printing_press_version": "4.30.1",
+  "summary": "comments thread: opt-in --max-credits budgeted traversal of further top-level comment pages; truncated:true retained whenever pages remain, including budget stops.",
+  "reason": "The command promised 'complete comment threads' but fetched only the first page of top-level comments, reporting truncated:true when the envelope said has_more — the in-code comment deferred cursor traversal until a credit-budget design existed. sweepBudget (built for comments sweep in PR #1680) is that design: with --max-credits N the command now follows the envelope's cursor across further pages on both routes, charging every paid call (probe, include_replies pages, per-comment reply calls) to one budget and stopping with truncated:true plus an explanatory note when the budget refuses the next fetch or a charge breaches it. The default (--max-credits 0) keeps the previous single-page cost profile exactly — deliberately opposite to sweep's 0-means-unbounded, because traversal is new spend on a command that used to make 1-2 calls; the flag help states the asymmetry. Envelope gains max_credits and pages_fetched.",
+  "files": [
+    "internal/cli/comments_thread.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "publish validate pass; traversal tests green (completes within budget across 3 pages; budget refusal stops before paying and keeps truncated:true; breach halts immediately with honest overshoot in credits_charged; per-comment reply fetches individually gated); library verify_skill.py pass on the updated docs.",
+  "findings_addressed": ["F3"]
+}

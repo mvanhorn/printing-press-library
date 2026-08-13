@@ -1,7 +1,8 @@
 // Copyright 2026 Adrian Horning and contributors. Licensed under Apache-2.0. See LICENSE.
-// Tests for the sweep credit budget: --max-credits gates EVERY fetch (the
-// initial posts fetch included), the worst-case estimate never goes stale,
-// and a fetch that prices above its estimate halts the sweep immediately.
+// Tests for the sweep credit budget: a fresh budget admits the first fetch by
+// construction, every later fetch is gated on the running worst-case
+// estimate, the estimate never goes stale, and a fetch that prices above its
+// estimate halts the sweep immediately.
 
 package cli
 
@@ -10,24 +11,18 @@ import (
 	"testing"
 )
 
-// Every fetch is gated, including the first one: a budget smaller than the
-// worst-case estimate admits nothing at all.
-func TestSweepBudget_GatesTheFirstFetch(t *testing.T) {
-	b := newSweepBudget(0) // no budget
-	if !b.allows() {
-		t.Fatal("a zero/absent budget must admit fetches")
-	}
-
-	b = newSweepBudget(1)
-	if !b.allows() {
-		t.Error("budget 1 with floor estimate 1 must admit the first fetch")
-	}
-
-	// A budget below the floor estimate admits nothing — not even the
-	// initial posts fetch, which previously ran unchecked.
-	b = newSweepBudget(-1)
-	if !b.allows() {
-		t.Error("negative max is treated as no budget")
+// A FRESH budget always admits the first fetch, whatever max is: charged is 0
+// and the floor estimate is 1, so allows() holds for every positive integer
+// budget, and non-positive budgets mean "no budget". This pins the invariant
+// so nobody re-adds a pre-first-fetch guard (one existed in comments sweep and
+// was unreachable dead code): the budget's protection is reactive and begins
+// with the first charge(). The reachable gates are proven end-to-end in
+// amend_credit_contracts_test.go against a fake client.
+func TestSweepBudget_FreshBudgetAlwaysAdmitsTheFirstFetch(t *testing.T) {
+	for _, max := range []int64{-1, 0, 1, 2, 100} {
+		if !newSweepBudget(max).allows() {
+			t.Errorf("fresh budget with max=%d must admit the first fetch", max)
+		}
 	}
 }
 

@@ -55,12 +55,13 @@ Do not use this CLI for:
 These capabilities aren't available in any other tool for this API.
 
 ### Comment-thread completeness
-- **`comments thread`** — Fetch one post's complete comment threads, automatically picking the cheaper route between the 15-credit flat include_replies call and 1-credit per-comment reply calls (don't trust child_comment_count to decide: it's unreliable).
+- **`comments thread`** — Fetch one post's complete comment threads, automatically picking the cheaper route between the 15-credit flat include_replies call and 1-credit per-comment reply calls (don't trust child_comment_count to decide: it's unreliable). By default only the first page of top-level comments is fetched and `truncated: true` reports when more exist; pass `--max-credits N` to keep traversing further pages under a credit budget that gates every paid call (the envelope's `note` says why a traversal stopped).
 
   _Reach for this when you need every reply on a post without doing credit arithmetic by hand._
 
   ```bash
   scrape-creators-pp-cli comments thread https://www.instagram.com/reel/C8rKmYvsrck --agent
+  scrape-creators-pp-cli comments thread https://www.instagram.com/reel/C8rKmYvsrck --max-credits 60 --agent
   ```
 - **`comments coverage`** — Rank synced posts by how many comments the API reported versus how many actually landed in your local store — ground truth where the API's child_comment_count is unreliable as a thread filter.
 

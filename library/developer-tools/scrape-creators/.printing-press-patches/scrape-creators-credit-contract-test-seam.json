@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "id": "scrape-creators-credit-contract-test-seam",
+  "applied_at": "2026-08-13",
+  "base_run_id": "20260808-150822-3ff3183d",
+  "base_printing_press_version": "4.30.1",
+  "summary": "Injectable apiGetter client seam for the credit-spending novel commands (comments sweep, comments thread, account estimate) plus offline behavioral tests for every credit-spend contract.",
+  "reason": "The novel commands' behavioral contracts (sweep --max-credits gating, account estimate's exit-7 boundary and creditCount parsing, comments thread's auto-routing thresholds) were built inside RunE closures with a concrete *client.Client, so their only tests were --help smoke tests — and one untested contract already shipped a real bug (estimate's balance parse, caught only by the publish live gate). The paid logic is now extracted into functions taking the minimal apiGetter interface (runCommentsSweep, fetchCommentThread, runAccountEstimate), exercised in amend_credit_contracts_test.go with a scripted fake client and a temp SQLite store: no live calls, no credits spent.",
+  "files": [
+    "internal/cli/amend_credit_seam.go",
+    "internal/cli/amend_credit_contracts_test.go",
+    "internal/cli/comments_sweep.go",
+    "internal/cli/comments_thread.go",
+    "internal/cli/account_estimate.go"
+  ],
+  "validated_outcome": "publish validate pass; 12 new behavioral tests green (routing thresholds 16/15/14, exit-7 strict boundary, balance shapes, budget gate/breach/max-posts stops); full unit suite green; pure refactor, no behavior change.",
+  "findings_addressed": ["F2"],
+  "deferred_to_upstream": [
+    {
+      "feature": "Novel-command scaffold emits a client-injection seam and a behavioral test skeleton instead of a vacuous --help-only test",
+      "reason": "This seam is the per-CLI instance of a generator-level gap: every 4.30 printed CLI's novel commands ship with untestable RunE closures. Once the scaffold ships the seam, this hand-authored one becomes the generated shape."
+    }
+  ],
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/4044",
+  "patch_count": 1
+}

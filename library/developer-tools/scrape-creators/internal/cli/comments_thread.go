@@ -5,6 +5,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -16,6 +17,10 @@ import (
 
 const includeRepliesFlatCredits = 15
 
+// maxThreadPages is a safety net behind the credit budget for --max-credits
+// traversal: even a large budget never walks more pages than this.
+const maxThreadPages = 50
+
 type threadEnvelope struct {
 	PostURL        string            `json:"post_url"`
 	Route          string            `json:"route"`
@@ -24,16 +29,280 @@ type threadEnvelope struct {
 	ReportedTotal  int64             `json:"reported_comment_count,omitempty"`
 	Replies        int               `json:"replies"`
 	CreditsCharged int64             `json:"credits_charged"`
+	MaxCredits     int64             `json:"max_credits,omitempty"`
+	PagesFetched   int               `json:"pages_fetched"`
 	Truncated      bool              `json:"truncated,omitempty"`
 	Note           string            `json:"note,omitempty"`
 	Comments       []json.RawMessage `json:"comments"`
 	FetchFailures  []fetchFailure    `json:"fetch_failures,omitempty"`
 }
 
+// threadFetchOpts carries the user-facing knobs of one thread fetch.
+type threadFetchOpts struct {
+	postURL string
+	route   string // auto|flat|per-comment (validated by the caller)
+	// maxCredits > 0 enables budgeted traversal of further top-level comment
+	// pages; 0 keeps the single-page behavior and reports truncation. This is
+	// deliberately opt-in (unlike sweep, where 0 disables the budget): page
+	// traversal is new spend on a command that used to make 1-2 calls.
+	maxCredits int64
+}
+
+// fetchCommentThread performs the whole paid part of `comments thread`:
+// route probe, route decision, flat/per-comment fetch, and (when a budget is
+// given) cursor traversal of further top-level comment pages. Every fetch —
+// probe, include_replies call, per-comment reply calls, and page fetches — is
+// charged to one sweepBudget, so --max-credits bounds the command's total
+// spend. It returns the output envelope plus the rows to persist.
+func fetchCommentThread(ctx context.Context, c apiGetter, opts threadFetchOpts) (threadEnvelope, []store.CommentRow, error) {
+	const commentsPath = "/v2/instagram/post/comments"
+
+	out := threadEnvelope{PostURL: opts.postURL, MaxCredits: opts.maxCredits}
+	budget := newSweepBudget(opts.maxCredits)
+	traverse := opts.maxCredits > 0
+	budgetStopped := false
+	halt := func(note string) {
+		budgetStopped = true
+		if note != "" {
+			out.Note = note
+		}
+	}
+	charge := func(cost int64) {
+		if note, breached := budget.charge(cost); breached {
+			halt(note)
+		}
+	}
+
+	var env commentsPayload
+	var lastRaw json.RawMessage
+	var truncatedTop bool
+	attemptedReplies := 0
+	var storeRows []store.CommentRow
+
+	// addPerCommentPage stores a page of top-level comments and fetches each
+	// comment's replies (1 credit per call), gating every reply fetch on the
+	// budget so a long comment list cannot overrun --max-credits.
+	addPerCommentPage := func(comments []json.RawMessage) {
+		for _, cm := range comments {
+			rows, _ := commentToRows(cm, opts.postURL, "")
+			storeRows = append(storeRows, rows...)
+			id := commentField(cm, "id")
+			if id == "" {
+				continue
+			}
+			if budgetStopped {
+				continue
+			}
+			if !budget.allows() {
+				halt(budget.stopNote("reply fetch"))
+				continue
+			}
+			attemptedReplies++
+			repRaw, rerr := c.Get(ctx, "/v1/instagram/post/comment/replies", map[string]string{"url": opts.postURL, "comment_id": id})
+			if rerr != nil {
+				out.FetchFailures = append(out.FetchFailures, fetchFailure{Source: id, Error: sanitizeFetchErr(rerr)})
+				continue
+			}
+			rep := parseCommentsPayload(repRaw)
+			charge(rep.creditsCharged)
+			out.Replies += len(rep.comments)
+			out.Comments = append(out.Comments, rep.comments...)
+			for _, rm := range rep.comments {
+				rows, _ := commentToRows(rm, opts.postURL, id)
+				storeRows = append(storeRows, rows...)
+			}
+		}
+	}
+
+	// addFlatPage stores a page returned by include_replies (replies inline).
+	addFlatPage := func(comments []json.RawMessage) {
+		for _, cm := range comments {
+			rows, replyCount := commentToRows(cm, opts.postURL, "")
+			storeRows = append(storeRows, rows...)
+			out.Replies += replyCount
+		}
+	}
+
+	chosen := opts.route
+	reason := "forced by --route"
+	if opts.route != "flat" {
+		// First page of top-level comments decides the route: N per-comment
+		// reply calls cost N credits, the flat route costs 15 regardless. A
+		// forced --route flat skips this probe so the flat path costs exactly
+		// 15 credits.
+		raw, err := c.Get(ctx, commentsPath, map[string]string{"url": opts.postURL})
+		if err != nil {
+			return out, nil, fmt.Errorf("fetching top-level comments: %w", err)
+		}
+		if isErrorEnvelope(raw) {
+			return out, nil, fmt.Errorf("comments endpoint returned an error envelope for %s", opts.postURL)
+		}
+		env = parseCommentsPayload(raw)
+		charge(env.creditsCharged)
+		truncatedTop = envelopeHasMore(raw)
+		lastRaw = raw
+		out.PagesFetched++
+		if opts.route == "auto" {
+			if len(env.comments) > includeRepliesFlatCredits {
+				chosen = "flat"
+				reason = fmt.Sprintf("%d top-level comments: include_replies (15 cr flat) beats %d per-comment calls", len(env.comments), len(env.comments))
+			} else if len(env.comments) == includeRepliesFlatCredits {
+				chosen = "flat"
+				reason = "15 top-level comments: per-comment and flat both cost 15 cr; flat wins for completeness"
+			} else {
+				chosen = "per-comment"
+				reason = fmt.Sprintf("%d top-level comments: per-comment replies (<=%d cr) beat the 15 cr flat call", len(env.comments), len(env.comments))
+			}
+		}
+	}
+
+	out.Route = chosen
+	out.RouteReason = reason
+	out.TopLevel = len(env.comments)
+
+	switch chosen {
+	case "flat":
+		flatOK := !budgetStopped
+		if flatOK && !budget.allows() {
+			halt(budget.stopNote("include_replies fetch"))
+			flatOK = false
+		}
+		if flatOK {
+			fullRaw, err := c.Get(ctx, commentsPath, map[string]string{"url": opts.postURL, "include_replies": "true"})
+			if err != nil {
+				return out, nil, fmt.Errorf("fetching threads with include_replies: %w", err)
+			}
+			if isErrorEnvelope(fullRaw) {
+				return out, nil, fmt.Errorf("comments endpoint returned an error envelope for %s", opts.postURL)
+			}
+			full := parseCommentsPayload(fullRaw)
+			charge(full.creditsCharged)
+			truncatedTop = envelopeHasMore(fullRaw)
+			lastRaw = fullRaw
+			out.PagesFetched++
+			if full.reportedTotal > 0 {
+				out.ReportedTotal = full.reportedTotal
+			}
+			out.TopLevel = len(full.comments)
+			out.Comments = full.comments
+			addFlatPage(full.comments)
+		} else if len(env.comments) > 0 {
+			// The probe already paid for the first page of top-level comments;
+			// return it rather than discarding paid data. Replies are missing,
+			// which the note (set by halt) explains.
+			out.Comments = env.comments
+			addFlatPage(env.comments)
+		}
+	case "per-comment":
+		if env.reportedTotal > 0 {
+			out.ReportedTotal = env.reportedTotal
+		}
+		out.Comments = env.comments
+		addPerCommentPage(env.comments)
+	}
+
+	// Budgeted traversal of further top-level comment pages (F3): only when
+	// the caller set --max-credits, so the default single-page cost profile is
+	// unchanged. The cursor comes from the envelope's cursor field (the same
+	// contract the generated `instagram list-post-2 --cursor` flag documents).
+	if traverse {
+		params := map[string]string{"url": opts.postURL}
+		if chosen == "flat" {
+			params["include_replies"] = "true"
+		}
+		for page := out.PagesFetched + 1; truncatedTop && !budgetStopped; page++ {
+			if page > maxThreadPages {
+				out.Note = fmt.Sprintf("stopped at the %d-page safety cap with pages remaining; the thread is still truncated", maxThreadPages)
+				break
+			}
+			cursor := extractCommentsCursor(lastRaw)
+			if cursor == "" {
+				// has_more with no cursor: nothing to continue on.
+				break
+			}
+			if !budget.allows() {
+				halt(budget.stopNote("comments page"))
+				break
+			}
+			pageParams := map[string]string{"cursor": cursor}
+			for k, v := range params {
+				pageParams[k] = v
+			}
+			raw, err := c.Get(ctx, commentsPath, pageParams)
+			if err != nil {
+				out.FetchFailures = append(out.FetchFailures, fetchFailure{Source: fmt.Sprintf("page %d", page), Error: sanitizeFetchErr(err)})
+				break
+			}
+			if isErrorEnvelope(raw) {
+				out.FetchFailures = append(out.FetchFailures, fetchFailure{Source: fmt.Sprintf("page %d", page), Error: "error envelope from comments endpoint"})
+				break
+			}
+			pl := parseCommentsPayload(raw)
+			charge(pl.creditsCharged)
+			truncatedTop = envelopeHasMore(raw)
+			lastRaw = raw
+			out.PagesFetched++
+			if len(pl.comments) == 0 {
+				break
+			}
+			out.TopLevel += len(pl.comments)
+			if chosen == "per-comment" {
+				out.Comments = append(out.Comments, pl.comments...)
+				addPerCommentPage(pl.comments)
+			} else {
+				out.Comments = append(out.Comments, pl.comments...)
+				addFlatPage(pl.comments)
+			}
+		}
+	}
+
+	if err := allSourcesFailedErr("comments thread replies", attemptedReplies, out.FetchFailures); err != nil {
+		return out, nil, err
+	}
+
+	out.CreditsCharged = budget.charged
+	out.Truncated = truncatedTop
+	if out.Truncated && out.Note == "" {
+		if traverse {
+			out.Note = "comments endpoint still reports more pages; raise --max-credits to continue the traversal"
+		} else {
+			out.Note = "comments endpoint reports has_more=true: only the first page of top-level comments is included; rerun with --max-credits to traverse further pages under a credit budget"
+		}
+	}
+	return out, storeRows, nil
+}
+
+// extractCommentsCursor pulls the continuation cursor from a comments
+// envelope. The comments endpoint names it cursor (see the generated
+// list-post-2 command's --cursor flag); next_max_id is accepted as a fallback
+// for older envelope shapes.
+func extractCommentsCursor(raw json.RawMessage) string {
+	var obj map[string]json.RawMessage
+	if err := json.Unmarshal(raw, &obj); err != nil {
+		return ""
+	}
+	for _, k := range []string{"cursor", "next_cursor", "next_max_id"} {
+		v, ok := obj[k]
+		if !ok {
+			continue
+		}
+		var s string
+		if json.Unmarshal(v, &s) == nil && s != "" {
+			return s
+		}
+		var n json.Number
+		if json.Unmarshal(v, &n) == nil && n.String() != "" && n.String() != "0" {
+			return n.String()
+		}
+	}
+	return ""
+}
+
 func newNovelCommentsThreadCmd(flags *rootFlags) *cobra.Command {
 	var route string
 	var dbPath string
 	var noStore bool
+	var maxCredits int64
 
 	cmd := &cobra.Command{
 		Use:   "thread [post-url]",
@@ -41,12 +310,15 @@ func newNovelCommentsThreadCmd(flags *rootFlags) *cobra.Command {
 		Long: strings.Trim(`
 Use this command to fetch one post's complete comment threads with cost-aware
 routing between include_replies (15 credits flat) and per-comment reply calls
-(1 credit each). Do NOT use it for bulk multi-post pulls; use 'comments sweep'
-instead. Do NOT use it to audit already-synced posts; use 'comments coverage'
-instead.`, "\n"),
+(1 credit each). By default only the first page of top-level comments is
+fetched and 'truncated' reports when more exist; pass --max-credits to keep
+traversing further pages under a credit budget. Do NOT use it for bulk
+multi-post pulls; use 'comments sweep' instead. Do NOT use it to audit
+already-synced posts; use 'comments coverage' instead.`, "\n"),
 		Example: strings.Trim(`
   scrape-creators-pp-cli comments thread https://www.instagram.com/reel/C8rKmYvsrck --agent
-  scrape-creators-pp-cli comments thread https://www.instagram.com/p/DEF456 --route flat`, "\n"),
+  scrape-creators-pp-cli comments thread https://www.instagram.com/p/DEF456 --route flat
+  scrape-creators-pp-cli comments thread https://www.instagram.com/p/DEF456 --max-credits 60 --agent`, "\n"),
 		Annotations: map[string]string{"mcp:read-only": "false", "pp:happy-args": "post-url=https://www.instagram.com/reel/C8rKmYvsrck"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
@@ -65,6 +337,10 @@ instead.`, "\n"),
 				_ = cmd.Usage()
 				return usageErr(fmt.Errorf("--route must be auto, flat, or per-comment"))
 			}
+			if maxCredits < 0 {
+				_ = cmd.Usage()
+				return usageErr(fmt.Errorf("--max-credits must be zero or positive"))
+			}
 
 			ctx, cancel := boundCtx(cmd.Context(), flags)
 			defer cancel()
@@ -73,105 +349,13 @@ instead.`, "\n"),
 				return err
 			}
 
-			var credits int64
-			var env commentsPayload
-			var truncatedTop bool
-			chosen := route
-			reason := "forced by --route"
-			if route != "flat" {
-				// First page of top-level comments decides the route: N
-				// per-comment reply calls cost N credits, the flat route costs
-				// 15 regardless. A forced --route flat skips this probe so the
-				// flat path costs exactly 15 credits.
-				raw, err := c.Get(ctx, "/v2/instagram/post/comments", map[string]string{"url": postURL})
-				if err != nil {
-					return fmt.Errorf("fetching top-level comments: %w", err)
-				}
-				if isErrorEnvelope(raw) {
-					return fmt.Errorf("comments endpoint returned an error envelope for %s", postURL)
-				}
-				env = parseCommentsPayload(raw)
-				credits = env.creditsCharged
-				truncatedTop = envelopeHasMore(raw)
-				if route == "auto" {
-					if len(env.comments) > includeRepliesFlatCredits {
-						chosen = "flat"
-						reason = fmt.Sprintf("%d top-level comments: include_replies (15 cr flat) beats %d per-comment calls", len(env.comments), len(env.comments))
-					} else if len(env.comments) == includeRepliesFlatCredits {
-						chosen = "flat"
-						reason = "15 top-level comments: per-comment and flat both cost 15 cr; flat wins for completeness"
-					} else {
-						chosen = "per-comment"
-						reason = fmt.Sprintf("%d top-level comments: per-comment replies (<=%d cr) beat the 15 cr flat call", len(env.comments), len(env.comments))
-					}
-				}
+			out, storeRows, err := fetchCommentThread(ctx, c, threadFetchOpts{postURL: postURL, route: route, maxCredits: maxCredits})
+			if err != nil {
+				return err
 			}
-
-			out := threadEnvelope{PostURL: postURL, Route: chosen, RouteReason: reason, TopLevel: len(env.comments)}
-			storeRows := make([]store.CommentRow, 0, len(env.comments)*2)
-
-			switch chosen {
-			case "flat":
-				fullRaw, err := c.Get(ctx, "/v2/instagram/post/comments", map[string]string{"url": postURL, "include_replies": "true"})
-				if err != nil {
-					return fmt.Errorf("fetching threads with include_replies: %w", err)
-				}
-				if isErrorEnvelope(fullRaw) {
-					return fmt.Errorf("comments endpoint returned an error envelope for %s", postURL)
-				}
-				full := parseCommentsPayload(fullRaw)
-				credits += full.creditsCharged
-				truncatedTop = envelopeHasMore(fullRaw)
-				if full.reportedTotal > 0 {
-					out.ReportedTotal = full.reportedTotal
-				}
-				out.TopLevel = len(full.comments)
-				out.Comments = full.comments
-				for _, cm := range full.comments {
-					rows, replyCount := commentToRows(cm, postURL, "")
-					storeRows = append(storeRows, rows...)
-					out.Replies += replyCount
-				}
-			case "per-comment":
-				if env.reportedTotal > 0 {
-					out.ReportedTotal = env.reportedTotal
-				}
-				out.Comments = env.comments
-				attemptedReplies := 0
-				for _, cm := range env.comments {
-					rows, _ := commentToRows(cm, postURL, "")
-					storeRows = append(storeRows, rows...)
-					id := commentField(cm, "id")
-					if id == "" {
-						continue
-					}
-					attemptedReplies++
-					repRaw, rerr := c.Get(ctx, "/v1/instagram/post/comment/replies", map[string]string{"url": postURL, "comment_id": id})
-					if rerr != nil {
-						out.FetchFailures = append(out.FetchFailures, fetchFailure{Source: id, Error: sanitizeFetchErr(rerr)})
-						continue
-					}
-					rep := parseCommentsPayload(repRaw)
-					credits += rep.creditsCharged
-					out.Replies += len(rep.comments)
-					out.Comments = append(out.Comments, rep.comments...)
-					for _, rm := range rep.comments {
-						rows, _ := commentToRows(rm, postURL, id)
-						storeRows = append(storeRows, rows...)
-					}
-				}
-				if err := allSourcesFailedErr("comments thread replies", attemptedReplies, out.FetchFailures); err != nil {
-					return err
-				}
-			}
-			out.CreditsCharged = credits
-			if truncatedTop {
-				// The comments endpoint reports more pages beyond the one
-				// fetched. Say so instead of presenting a partial thread as
-				// complete; a cursor traversal needs a credit-budget design
-				// first (each further page is a paid call).
-				out.Truncated = true
-				out.Note = "comments endpoint reports has_more=true: only the first page of top-level comments is included"
+			if out.Note != "" {
+				// Truncation and budget stops both land here: never present a
+				// partial thread as complete without saying so on stderr.
 				fmt.Fprintf(cmd.ErrOrStderr(), "warning: %s\n", out.Note)
 			}
 			warnFetchFailures(cmd, "reply", out.FetchFailures)
@@ -207,6 +391,7 @@ instead.`, "\n"),
 		},
 	}
 	cmd.Flags().StringVar(&route, "route", "auto", "Thread route: auto (cost-based), flat (include_replies, 15 cr), per-comment (1 cr per comment)")
+	cmd.Flags().Int64Var(&maxCredits, "max-credits", 0, "Credit budget for traversing further top-level comment pages (0 = fetch only the first page and report truncated; unlike sweep, 0 does NOT mean unlimited)")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path for persisting the fetched rows")
 	cmd.Flags().BoolVar(&noStore, "no-store", false, "Skip persisting fetched comments to the local store")
 	return cmd
