@@ -3,7 +3,13 @@
 package cli
 
 import (
+	"bytes"
 	"encoding/json"
+	"fmt"
+	"net/http"
+	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"testing"
 )
 
@@ -147,5 +153,49 @@ func TestFilterFieldsTreatsUnmatchedLeafAsMiss(t *testing.T) {
 	recordSelectNoMatch("")
 	if got := filterFields(payload, "tracks.bogus"); selectNoMatchSpec() == "" {
 		t.Fatalf("expected a recorded miss for an unmatched leaf, got %s", got)
+	}
+}
+
+// A --fail-on-miss run that resolves nothing must exit 2 in JSON modes too.
+// The JSON branch used to return the moment it had printed the rows, which
+// skipped the exit-code check entirely — and --agent is precisely the audience
+// the flag exists for, so the flag was dead where it mattered most.
+func TestResolveFailOnMissAppliesInJSONModes(t *testing.T) {
+	handler := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprint(w, `{"tracks":{"items":[]}}`)
+	})
+	for _, tc := range []struct {
+		name  string
+		flags *rootFlags
+	}{
+		{"json", &rootFlags{asJSON: true, dataSource: "live"}},
+		{"compact", &rootFlags{compact: true, dataSource: "live"}},
+		{"agent", &rootFlags{agent: true, asJSON: true, dataSource: "live"}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			server := httptest.NewServer(handler)
+			t.Cleanup(server.Close)
+			configPath := filepath.Join(t.TempDir(), "config.toml")
+			if err := os.WriteFile(configPath, []byte(fmt.Sprintf("base_url = %q\naccess_token = \"test-token\"\n", server.URL)), 0o600); err != nil {
+				t.Fatal(err)
+			}
+			tc.flags.configPath = configPath
+			cmd := newTracksResolveCmd(tc.flags)
+			var stdout, stderr bytes.Buffer
+			cmd.SetOut(&stdout)
+			cmd.SetErr(&stderr)
+			cmd.SetArgs([]string{"Nonexistent Song", "--artist", "Nobody", "--fail-on-miss"})
+			err := cmd.Execute()
+			if err == nil {
+				t.Fatal("want an error so the command exits 2, got nil")
+			}
+			if got := ExitCode(err); got != 2 {
+				t.Fatalf("exit code = %d, want 2", got)
+			}
+			if !bytes.Contains(stdout.Bytes(), []byte(`"missed"`)) {
+				t.Errorf("rows should still be emitted before the failure; stdout = %s", stdout.String())
+			}
+		})
 	}
 }

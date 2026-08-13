@@ -273,18 +273,24 @@ candidates were considered.`,
 			}
 
 			if flags.asJSON || flags.compact || flags.agent {
-				return printJSONFilteredMeta(cmd.OutOrStdout(), map[string]any{
+				// Emit the rows first: --fail-on-miss changes the exit code,
+				// not the output, and a caller that asked for JSON still wants
+				// to see which titles resolved before acting on the failure.
+				if err := printJSONFilteredMeta(cmd.OutOrStdout(), map[string]any{
 					"results":  results,
 					"resolved": len(results) - missed,
 					"missed":   missed,
-				}, flags, map[string]any{"source": "live"})
-			}
-			for _, r := range results {
-				if r.URI == "" {
-					fmt.Fprintf(cmd.ErrOrStderr(), "no match: %s\n", r.QueryTitle)
-					continue
+				}, flags, map[string]any{"source": "live"}); err != nil {
+					return err
 				}
-				fmt.Fprintln(cmd.OutOrStdout(), r.URI)
+			} else {
+				for _, r := range results {
+					if r.URI == "" {
+						fmt.Fprintf(cmd.ErrOrStderr(), "no match: %s\n", r.QueryTitle)
+						continue
+					}
+					fmt.Fprintln(cmd.OutOrStdout(), r.URI)
+				}
 			}
 			if missed > 0 && failOnMiss {
 				return usageErr(fmt.Errorf("%d of %d titles did not resolve", missed, len(results)))
