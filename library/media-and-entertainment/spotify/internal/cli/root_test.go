@@ -158,10 +158,14 @@ func TestFilterFields(t *testing.T) {
 			want:   `{"projects":[{"id":"a"}]}`,
 		},
 		{
-			name:   "flat object no match returns empty (no array fallback)",
+			// PATCH(amend-2026-08-13): a total miss used to return `{}` here
+			// and the untouched payload on envelope shapes — both read as
+			// success. It now returns a diagnostic naming the fields that
+			// were available, and Execute() exits 2.
+			name:   "flat object no match reports the miss and names available fields",
 			input:  `{"a":1,"b":2}`,
 			fields: "c",
-			want:   `{}`,
+			want:   `{"error":"--select matched no fields","select":"c","available_fields":["a","b"],"hint":"paths are relative to the payload, not to the JSON envelope: drop a leading \"results.\"/\"data.\" segment, or run without --select once to inspect the shape"}`,
 		},
 		{
 			// Null pagination cursors are common envelope metadata.
@@ -177,10 +181,10 @@ func TestFilterFields(t *testing.T) {
 			// Without a real array sibling the envelope fallback does not
 			// fire, so a flat object whose only "extra" key is null still
 			// returns {} for a non-matching selector.
-			name:   "flat object with null sibling no match returns empty",
+			name:   "flat object with null sibling no match reports the miss",
 			input:  `{"a":1,"b":null}`,
 			fields: "c",
-			want:   `{}`,
+			want:   `{"error":"--select matched no fields","select":"c","available_fields":["a","b"],"hint":"paths are relative to the payload, not to the JSON envelope: drop a leading \"results.\"/\"data.\" segment, or run without --select once to inspect the shape"}`,
 		},
 		{
 			// Multiple array siblings at the same level each receive the
@@ -204,10 +208,10 @@ func TestFilterFields(t *testing.T) {
 			want:   `{"artists":{"items":[{"id":"a","name":"x"}]},"tracks":{"items":[{"id":"t","name":"y"}]}}`,
 		},
 		{
-			name:   "nested object without array returns empty",
+			name:   "nested object without array reports the miss",
 			input:  `{"artists":{"paging":{"cursor":{"after":"a"}}}}`,
 			fields: "id",
-			want:   `{}`,
+			want:   `{"error":"--select matched no fields","select":"id","available_fields":["artists","artists.paging"],"hint":"paths are relative to the payload, not to the JSON envelope: drop a leading \"results.\"/\"data.\" segment, or run without --select once to inspect the shape"}`,
 		},
 		{
 			name:   "nested HAL embedded envelope still filters items",
@@ -216,10 +220,12 @@ func TestFilterFields(t *testing.T) {
 			want:   `{"_embedded":{"items":[{"id":"a","name":"x"}]}}`,
 		},
 		{
-			name:   "nested descent stops at depth bound",
+			// The available_fields list is capped so an over-deep payload
+			// cannot turn the diagnostic into its own token burn.
+			name:   "nested descent stops at depth bound and reports the miss",
 			input:  deepEnvelope,
 			fields: "id",
-			want:   `{}`,
+			want:   `{"error":"--select matched no fields","select":"id","available_fields":["nested","nested.nested"],"hint":"paths are relative to the payload, not to the JSON envelope: drop a leading \"results.\"/\"data.\" segment, or run without --select once to inspect the shape"}`,
 		},
 		{
 			name:   "nested descent succeeds exactly at depth bound",

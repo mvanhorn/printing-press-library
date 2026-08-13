@@ -96,6 +96,13 @@ func Execute() error {
 			return derr
 		}
 	}
+	// PATCH(amend-2026-08-13: --select that matches nothing is a usage error) —
+	// filterFields already replaced the output with a diagnostic naming the
+	// available fields; without this the run would still exit 0 and a caller
+	// piping to jq would read the miss as an empty result.
+	if missedSpec := selectNoMatchSpec(); err == nil && missedSpec != "" {
+		return usageErr(fmt.Errorf("--select %q matched no fields in the response; see the emitted available_fields", missedSpec))
+	}
 	if err != nil && isCobraUsageError(err) {
 		// Cobra/pflag pre-RunE errors (unknown flag, unknown command,
 		// missing required, etc.) never flow through usageErr() because
