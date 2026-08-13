@@ -227,7 +227,7 @@ Run `spotify-pp-cli doctor` to verify setup.
 
 Add `--agent` to any command. Expands to: `--json --compact --no-input --no-color --yes`.
 
-- **Pipeable** — JSON on stdout, errors on stderr
+- **Pipeable** — JSON on stdout, errors on stderr. One deliberate exception: a `--select` that matches nothing writes its `available_fields` diagnostic into the normal envelope on stdout, since that list is data worth parsing, and prints a one-line explanation on stderr alongside it.
 - **Filterable** — `--select` keeps a subset of fields. Dotted paths descend into nested structures; arrays traverse element-wise. Projection also descends through nested object envelopes (an object wrapping a single bounded collection) until it reaches the collection, so fields inside wrapped payloads are reachable without naming the envelope key. Critical for keeping context small on verbose APIs:
 
   ```bash

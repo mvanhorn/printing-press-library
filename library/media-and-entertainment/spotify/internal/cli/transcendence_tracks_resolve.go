@@ -192,7 +192,15 @@ candidates were considered.`,
 
 			results := make([]resolvedTrack, 0, len(rows))
 			missed := 0
-			for _, r := range rows {
+			// One search per row, paced by the client's default 3 req/s, so a
+			// full tracklist sits here for seconds with nothing on screen.
+			// Gate the counter the way printProvenance gates provenance: a
+			// human watching a TTY wants it, an agent reading a pipe does not.
+			showProgress := len(rows) > 1 && isTerminal(cmd.OutOrStdout())
+			for i, r := range rows {
+				if showProgress {
+					fmt.Fprintf(cmd.ErrOrStderr(), "\rresolving %d/%d: %-40.40s", i+1, len(rows), r.title)
+				}
 				q := searchQueryFor(r.artist, r.title)
 				params := map[string]string{
 					"q":     q,
@@ -257,6 +265,11 @@ candidates were considered.`,
 					missed++
 				}
 				results = append(results, row)
+			}
+			if showProgress {
+				// Retire the counter line so the first row of output does not
+				// land on top of it.
+				fmt.Fprintf(cmd.ErrOrStderr(), "\r%-60s\r", "")
 			}
 
 			if flags.asJSON || flags.compact || flags.agent {
