@@ -909,10 +909,10 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		// Command-mirror capabilities are exposed through MCP by shelling out
 		// to the companion CLI binary.
 		"command_mirror_capabilities": []map[string]string{
-			{"name": "Managed OAuth catalog access", "command": "auth setup", "description": "Bootstraps a private OAuth bundle and reuses or refreshes it for bearer-authenticated catalog reads.", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Automatic Peloton login", "command": "auth setup", "description": "Shows how to supply PELOTON_OAUTH_USERNAME/PELOTON_OAUTH_PASSWORD; the CLI logs in and persists credentials automatically, no external provisioning service involved.", "rationale": "", "via": "mcp-command-mirror"},
 		},
 		"playbook": []map[string]string{
-			{"topic": "Managed OAuth catalog access", "insight": ""},
+			{"topic": "Automatic Peloton login", "insight": ""},
 			{"topic": "Contact lookup", "insight": "Use search for finding contacts by name/email. List endpoints return unsorted results and require pagination for large datasets."},
 			{"topic": "Activity tracking", "insight": "When checking deal activity, sync first and query locally. CRM APIs often throttle activity-log endpoints heavily."},
 		},

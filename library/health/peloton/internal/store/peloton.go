@@ -147,3 +147,141 @@ func (s *Store) ListProviderFacts(family string, limit int) ([]ProviderFact, err
 	}
 	return facts, rows.Err()
 }
+
+// UpsertBatchWithFacts is UpsertBatch plus a best-effort dual-write into the
+// provider_payloads table the `offline` commands read from. Every write path
+// in this CLI — sync's paginated batches and the live-read write-through
+// cache — funnels through here so the two stores never drift the way they
+// used to: a full sync landed thousands of rows in `resources` while
+// `provider_payloads` (and therefore every `offline` command) stayed empty.
+// The fact write is best-effort and non-atomic with the resources write: it
+// mirrors the existing write-through cache's "the live/synced result already
+// succeeded" tolerance for a secondary, reconstructable local index.
+func (s *Store) UpsertBatchWithFacts(resourceType string, items []json.RawMessage) (int, int, error) {
+	items = enrichResourceItems(resourceType, items)
+	stored, extractFailures, err := s.UpsertBatch(resourceType, items)
+	if err != nil {
+		return stored, extractFailures, err
+	}
+	s.recordProviderFactsBestEffort(resourceType, items)
+	return stored, extractFailures, nil
+}
+
+// UpsertWithFacts mirrors UpsertBatchWithFacts for the generic single-object
+// write path (sync's single-object fallback, discriminator-resolved singles,
+// and per-parent dependent fan-outs like "performance"). Unlike
+// recordProviderFactsBestEffort's re-derivation from the body, this uses the
+// caller-supplied id directly: callers of Upsert already know the id
+// (sometimes, as with performance_graph, the response body carries no id
+// field at all — the workout id comes from the request path, not the body),
+// so re-deriving it here would silently drop exactly those facts.
+func (s *Store) UpsertWithFacts(resourceType, id string, data json.RawMessage) error {
+	if err := s.Upsert(resourceType, id, data); err != nil {
+		return err
+	}
+	if id != "" {
+		_, _ = s.RecordProviderFact(resourceType, id, data)
+	}
+	return nil
+}
+
+// UpsertClassesWithFacts mirrors UpsertBatchWithFacts for the typed
+// single-object classes upsert.
+func (s *Store) UpsertClassesWithFacts(data json.RawMessage) error {
+	if err := s.UpsertClasses(data); err != nil {
+		return err
+	}
+	s.recordProviderFactsBestEffort("classes", []json.RawMessage{data})
+	return nil
+}
+
+// UpsertWorkoutsWithFacts mirrors UpsertBatchWithFacts for the typed
+// single-object workouts upsert.
+func (s *Store) UpsertWorkoutsWithFacts(data json.RawMessage) error {
+	data = enrichWorkoutRideMetadata(data)
+	if err := s.UpsertWorkouts(data); err != nil {
+		return err
+	}
+	s.recordProviderFactsBestEffort("workouts", []json.RawMessage{data})
+	return nil
+}
+
+// enrichResourceItems applies best-effort peloton-specific fixups at the
+// single choke point every batch write funnels through. Currently only
+// "workouts" needs one — see enrichWorkoutRideMetadata.
+func enrichResourceItems(resourceType string, items []json.RawMessage) []json.RawMessage {
+	if resourceType != "workouts" {
+		return items
+	}
+	out := make([]json.RawMessage, len(items))
+	for i, item := range items {
+		out[i] = enrichWorkoutRideMetadata(item)
+	}
+	return out
+}
+
+// enrichWorkoutRideMetadata promotes ride.title/ride.id to top-level
+// title/ride_id on a workout item before it reaches the typed workouts
+// table's column extraction (lookupFieldValue(obj, "title"), which only
+// ever looks at the top level) and the raw JSON that gets stored.
+//
+// Confirmed against a live GET /api/user/{user_id}/workouts?joins=ride
+// response (2026-08-13): workout items carry no top-level "title" or
+// "ride_id" at all — both live nested under a "ride" object ("ride.title",
+// "ride.id"). Without this promotion every synced workout's title and ride
+// association land null even though the API is returning the data; sync
+// was already sending joins=ride's default value via the same query params
+// single-fetch commands use, so the fix here is entirely in extraction, not
+// in what's requested.
+func enrichWorkoutRideMetadata(item json.RawMessage) json.RawMessage {
+	dec := json.NewDecoder(bytes.NewReader(item))
+	dec.UseNumber()
+	var obj map[string]any
+	if dec.Decode(&obj) != nil {
+		return item
+	}
+	ride, ok := obj["ride"].(map[string]any)
+	if !ok {
+		return item
+	}
+	changed := false
+	if v, present := obj["title"]; !present || v == nil {
+		if title, ok := ride["title"]; ok && title != nil {
+			obj["title"] = title
+			changed = true
+		}
+	}
+	if v, present := obj["ride_id"]; !present || v == nil {
+		if rideID, ok := ride["id"]; ok && rideID != nil {
+			obj["ride_id"] = rideID
+			changed = true
+		}
+	}
+	if !changed {
+		return item
+	}
+	out, err := json.Marshal(obj)
+	if err != nil {
+		return item
+	}
+	return json.RawMessage(out)
+}
+
+// recordProviderFactsBestEffort re-derives each item's primary key the same
+// way UpsertBatch/Upsert do and records it as a provider fact. Failures
+// (undecodable item, unresolvable ID) are skipped rather than propagated:
+// the authoritative write to `resources`/typed tables already succeeded, and
+// this secondary index exists to serve `offline` reads, not to gate sync.
+func (s *Store) recordProviderFactsBestEffort(resourceType string, items []json.RawMessage) {
+	for _, item := range items {
+		obj, err := DecodeJSONObject(item)
+		if err != nil {
+			continue
+		}
+		id := ExtractResourceID(resourceType, obj)
+		if id == "" {
+			continue
+		}
+		_, _ = s.RecordProviderFact(resourceType, id, item)
+	}
+}

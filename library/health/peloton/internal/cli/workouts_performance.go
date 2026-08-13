@@ -36,7 +36,7 @@ func newWorkoutsPerformanceCmd(flags *rootFlags) *cobra.Command {
 			if flagEveryN != 0 {
 				params["every_n"] = formatCLIParamValue(flagEveryN)
 			}
-			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "workouts", false, path, params, nil, "", cmd.ErrOrStderr())
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "performance", false, path, params, nil, "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

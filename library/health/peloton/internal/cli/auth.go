@@ -36,8 +36,8 @@ func newAuthSetupCmd(_ *rootFlags) *cobra.Command {
 		Example: "  peloton-pp-cli auth setup\n  peloton-pp-cli auth setup --launch",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			w := cmd.OutOrStdout()
-			fmt.Fprintln(w, "The CLI includes Peloton's public OAuth configuration.")
-			fmt.Fprintln(w, "Use the environment's private credential wrapper for bootstrap credentials.")
+			fmt.Fprintln(w, "Peloton has no OAuth provisioning service to configure — this CLI just needs your Peloton login.")
+			fmt.Fprintln(w, "Set PELOTON_OAUTH_USERNAME and PELOTON_OAUTH_PASSWORD; the CLI logs in and persists credentials automatically.")
 			if !launch {
 				return nil
 			}
@@ -99,10 +99,10 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:   "set-token",
-		Short: "Unavailable: Peloton uses a managed OAuth bundle",
+		Short: "Unavailable: Peloton credentials are supplied via PELOTON_OAUTH_USERNAME/PELOTON_OAUTH_PASSWORD",
 		Args:  cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
-			return authErr(fmt.Errorf("manual bearer authentication is not supported; use the managed OAuth bootstrap"))
+			return authErr(fmt.Errorf("manual bearer authentication is not supported; set PELOTON_OAUTH_USERNAME and PELOTON_OAUTH_PASSWORD instead"))
 		},
 	}
 }

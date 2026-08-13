@@ -379,7 +379,7 @@ func writeThroughCache(ctx context.Context, resourceType string, data json.RawMe
 					}
 				}
 				if !looksLikeListEnvelope {
-					_, _, _ = db.UpsertBatch(resourceType, []json.RawMessage{data})
+					_, _, _ = db.UpsertBatchWithFacts(resourceType, []json.RawMessage{data})
 					return
 				}
 			}
@@ -387,7 +387,7 @@ func writeThroughCache(ctx context.Context, resourceType string, data json.RawMe
 	}
 
 	if len(items) > 0 {
-		_, _, _ = db.UpsertBatch(resourceType, items)
+		_, _, _ = db.UpsertBatchWithFacts(resourceType, items)
 	}
 }
 
@@ -498,7 +498,7 @@ func writeMutationResponseToStore(ctx context.Context, resourceType string, data
 	}
 	defer db.Close()
 
-	_, _, _ = db.UpsertBatch(resourceType, items)
+	_, _, _ = db.UpsertBatchWithFacts(resourceType, items)
 }
 
 func mutationResponseEntityItems(resourceType string, data json.RawMessage, responsePath string) []json.RawMessage {

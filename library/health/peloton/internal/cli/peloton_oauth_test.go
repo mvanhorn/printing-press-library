@@ -4,6 +4,7 @@ package cli
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -268,3 +269,149 @@ func TestManagedOAuthCommandsReplaceManualBearerCommands(t *testing.T) {
 type roundTripFunc func(*http.Request) (*http.Response, error)
 
 func (f roundTripFunc) RoundTrip(r *http.Request) (*http.Response, error) { return f(r) }
+
+func TestManagedSessionCookieAttachedFromCache(t *testing.T) {
+	withOAuthTestState(t)
+	if err := saveOAuthBundle(pelotonTokenBundle{AccessToken: "managed-access", RefreshToken: "managed-refresh", ExpiresAt: oauthNow().Add(time.Hour), SessionID: "cached-session"}); err != nil {
+		t.Fatal(err)
+	}
+	oauthHTTPClient = &http.Client{Transport: roundTripFunc(func(*http.Request) (*http.Response, error) {
+		t.Fatal("cached session made a login request")
+		return nil, nil
+	})}
+	cfg := &config.Config{}
+	c := client.New(cfg, time.Second, 0)
+	if err := installManagedPelotonBearer(c); err != nil {
+		t.Fatal(err)
+	}
+	if got := cfg.Headers["Cookie"]; got != "peloton_session_id=cached-session" {
+		t.Fatalf("cookie=%q", got)
+	}
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if got := r.Header.Get("Cookie"); got != "peloton_session_id=cached-session" {
+			t.Fatalf("cookie=%q", got)
+		}
+		if got := r.Header.Get("Authorization"); got != "Bearer managed-access" {
+			t.Fatalf("authorization=%q", got)
+		}
+		_, _ = w.Write([]byte(`{}`))
+	}))
+	defer server.Close()
+	c.BaseURL = server.URL
+	c.NoCache = true
+	if _, err := c.Get(context.Background(), "/api/me", nil); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestManagedSessionCookieBootstrapsViaRealLogin(t *testing.T) {
+	withOAuthTestState(t)
+	if err := saveOAuthBundle(pelotonTokenBundle{AccessToken: "managed-access", RefreshToken: "managed-refresh", ExpiresAt: oauthNow().Add(time.Hour)}); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("PELOTON_OAUTH_USERNAME", "fixture-user")
+	t.Setenv("PELOTON_OAUTH_PASSWORD", "fixture-password")
+
+	loginServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/auth/login" {
+			t.Fatalf("unexpected login path: %s", r.URL.Path)
+		}
+		var body pelotonLoginRequest
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			t.Fatal(err)
+		}
+		if body.UsernameOrEmail != "fixture-user" || body.Password != "fixture-password" {
+			t.Fatalf("unexpected login body: %+v", body)
+		}
+		if got := r.Header.Get("Peloton-Platform"); got != "web" {
+			t.Fatalf("Peloton-Platform=%q", got)
+		}
+		_, _ = w.Write([]byte(`{"session_id":"fresh-session"}`))
+	}))
+	defer loginServer.Close()
+	oauthHTTPClient = loginServer.Client()
+
+	cfg := &config.Config{BaseURL: loginServer.URL}
+	c := client.New(cfg, time.Second, 0)
+	if err := installManagedPelotonBearer(c); err != nil {
+		t.Fatal(err)
+	}
+	if got := cfg.Headers["Cookie"]; got != "peloton_session_id=fresh-session" {
+		t.Fatalf("cookie=%q", got)
+	}
+
+	bundle, err := loadOAuthBundle()
+	if err != nil || bundle.SessionID != "fresh-session" || bundle.AccessToken != "managed-access" {
+		t.Fatalf("bundle=%+v err=%v", bundle, err)
+	}
+}
+
+func TestManagedSessionCookieBootstrapFromSetCookieHeader(t *testing.T) {
+	withOAuthTestState(t)
+	if err := saveOAuthBundle(pelotonTokenBundle{AccessToken: "managed-access", RefreshToken: "managed-refresh", ExpiresAt: oauthNow().Add(time.Hour)}); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("PELOTON_OAUTH_USERNAME", "fixture-user")
+	t.Setenv("PELOTON_OAUTH_PASSWORD", "fixture-password")
+
+	loginServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.SetCookie(w, &http.Cookie{Name: "peloton_session_id", Value: "cookie-shaped-session"})
+		_, _ = w.Write([]byte(`{}`))
+	}))
+	defer loginServer.Close()
+	oauthHTTPClient = loginServer.Client()
+
+	cfg := &config.Config{BaseURL: loginServer.URL}
+	c := client.New(cfg, time.Second, 0)
+	if err := installManagedPelotonBearer(c); err != nil {
+		t.Fatal(err)
+	}
+	if got := cfg.Headers["Cookie"]; got != "peloton_session_id=cookie-shaped-session" {
+		t.Fatalf("cookie=%q", got)
+	}
+}
+
+// TestManagedSessionCookieMissingCredsIsNonFatal ensures a session that
+// can't be bootstrapped yet (no env creds, nothing cached) never fails the
+// command — only the bearer-only transport that already works today is used.
+func TestManagedSessionCookieMissingCredsIsNonFatal(t *testing.T) {
+	withOAuthTestState(t)
+	if err := saveOAuthBundle(pelotonTokenBundle{AccessToken: "managed-access", RefreshToken: "managed-refresh", ExpiresAt: oauthNow().Add(time.Hour)}); err != nil {
+		t.Fatal(err)
+	}
+	oauthHTTPClient = &http.Client{Transport: roundTripFunc(func(*http.Request) (*http.Response, error) {
+		t.Fatal("no credentials should not attempt a login request")
+		return nil, nil
+	})}
+	cfg := &config.Config{}
+	c := client.New(cfg, time.Second, 0)
+	if err := installManagedPelotonBearer(c); err != nil {
+		t.Fatal(err)
+	}
+	if _, ok := cfg.Headers["Cookie"]; ok {
+		t.Fatalf("cookie unexpectedly set: %q", cfg.Headers["Cookie"])
+	}
+}
+
+// TestManagedBearerRefreshPreservesCachedSessionID guards the bundle-rebuild
+// path in managedPelotonAccessToken: a routine bearer refresh/bootstrap must
+// not silently drop an already-cached session cookie.
+func TestManagedBearerRefreshPreservesCachedSessionID(t *testing.T) {
+	path := withOAuthTestState(t)
+	if err := saveOAuthBundle(pelotonTokenBundle{AccessToken: "expired", RefreshToken: "refresh-before", ExpiresAt: oauthNow().Add(-time.Minute), SessionID: "kept-session"}); err != nil {
+		t.Fatal(err)
+	}
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte(`{"access_token":"refreshed","refresh_token":"refresh-after","expires_in":3600}`))
+	}))
+	defer server.Close()
+	oauthHTTPClient, oauthTokenURL = server.Client(), server.URL
+	if _, err := managedPelotonAccessToken(); err != nil {
+		t.Fatal(err)
+	}
+	bundle, err := loadOAuthBundle()
+	if err != nil || bundle.SessionID != "kept-session" {
+		t.Fatalf("bundle=%+v err=%v path=%s", bundle, err, path)
+	}
+}

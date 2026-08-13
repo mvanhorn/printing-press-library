@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "performance-graph-dependent-sync",
+  "applied_at": "2026-08-13",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "performance_graph has no bulk list endpoint (GET /api/workout/{workout_id}/performance_graph only) so it cannot use the flat paginated syncResource loop the generic template assumes for every resource. It is wired in as a genuinely separate per-parent fan-out (syncPerformanceDependent in sync.go), cascading from \"workouts\" via expandSyncResourcesWithDependents, running after the flat phase completes (not in the same worker pool) since it depends on workouts already being in the local store. Any future regen must preserve this two-phase (flat, then dependent) structure and the concurrency on the fan-out -- sequential per-workout fetching took ~27 minutes against a real ~3.5k-workout account.",
+  "reason": "The generic printing-press parent-keyed-dependent sync machinery (parentTenantScopeColumns, flatReconcileModes, discriminatorDispatchers, criticalResources, etc. in sync.go) is entirely unpopulated for this CLI -- confirmed by reading every registry in the file: all are empty maps, and there is no dependent-fan-out loop body anywhere, only comments describing one. Peloton's spec is hand-written (internal, not profiled from a real OpenAPI doc), so the profiler that would normally populate this machinery never ran. Building the full generic framework from scratch was judged out of scope for this fix; a peloton-specific, well-tested dependent loop was implemented instead. Also fixed: defaultSyncResources() returned [] unconditionally (bare `sync` always emitted no_bulk_list_endpoints despite workouts/classes being registered) -- now returns [\"workouts\",\"classes\"]. Also fixed: synced workouts had null title/ride_id -- confirmed live against a real account (2026-08-13) that /api/user/{user_id}/workouts returns ride.title/ride.id nested, never flattened to the top level the typed workouts table's column extraction expects, and that sync's flat loop never sent the joins=ride param the single-fetch `workouts list` command already defaults to via its own --joins flag. Both are now handled: sync sends joins=ride, and store/peloton.go's enrichWorkoutRideMetadata promotes ride.title/ride.id to the top level before the typed-column extraction and raw JSON storage.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/workouts_performance.go",
+    "internal/store/peloton.go",
+    "internal/cli/sync_performance_test.go"
+  ],
+  "validated_outcome": "Verified live against a real Peloton account (read-only, user-authorized): `account` and `workouts performance` (previously 401) now return live data; `sync --resources workouts` (which cascades to performance automatically) synced 100 workouts + 100 performance_graph records with zero errors on a scoped run, and a full run against ~3.5k already-synced workouts completed performance sync for all of them; ride/title fields are now populated for freshly-synced workouts (confirmed via direct sqlite3 inspection); `offline history --data-source local` and `offline performance <id>` both now return real data end-to-end where they previously returned empty/caveat responses. Full go build/vet/test suite passes."
+}

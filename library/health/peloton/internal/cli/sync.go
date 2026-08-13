@@ -187,6 +187,27 @@ Resource scoping:
 				}
 			}
 
+			// Cascade: naming the parent ("workouts") also runs its
+			// parent-keyed dependent ("performance"), per the Long help's
+			// documented scoping contract. Naming "performance" alone (no
+			// "workouts") is left as-is — it runs against whatever workouts
+			// are already in the local store from a prior sync.
+			resources = expandSyncResourcesWithDependents(resources)
+
+			// performance is a parent-keyed dependent of workouts (one
+			// performance_graph per already-synced workout id), not a flat
+			// paginated list endpoint — split it out of the flat worker pool
+			// below and run it once the flat phase (which populates the
+			// workouts it depends on) has completed.
+			var flatResources, dependentResources []string
+			for _, resource := range resources {
+				if resource == "performance" {
+					dependentResources = append(dependentResources, resource)
+					continue
+				}
+				flatResources = append(flatResources, resource)
+			}
+
 			// Reject --resource-param keys that don't match a known resource.
 			// Validates against the full top-level + dependent set, not the
 			// user-filtered `resources` slice, so legitimate cases like
@@ -269,8 +290,8 @@ Resource scoping:
 			// --no-prune disables it. Flat tenant-scoped reconcile (per resource)
 			// and dependent per-parent reconcile share this gate.
 			prune := full && !noPrune
-			work := make(chan string, len(resources))
-			results := make(chan syncResult, len(resources))
+			work := make(chan string, len(flatResources))
+			results := make(chan syncResult, len(flatResources))
 
 			var wg sync.WaitGroup
 			for i := 0; i < concurrency; i++ {
@@ -284,8 +305,9 @@ Resource scoping:
 				}()
 			}
 
-			// Enqueue all resources
-			for _, resource := range resources {
+			// Enqueue flat resources only — dependents run after this phase
+			// completes, once their parent table is populated.
+			for _, resource := range flatResources {
 				work <- resource
 			}
 			close(work)
@@ -305,7 +327,7 @@ Resource scoping:
 			var criticalFailedResources []string
 			var firstErr error
 			var firstPlaceholderErr error
-			for res := range results {
+			accumulate := func(res syncResult) {
 				if res.Err != nil {
 					if humanFriendly {
 						fmt.Fprintf(os.Stderr, "  %s: error: %v\n", res.Resource, res.Err)
@@ -333,6 +355,19 @@ Resource scoping:
 					}
 					totalSynced += res.Count
 					successCount++
+				}
+			}
+			for res := range results {
+				accumulate(res)
+			}
+
+			// Dependent phase: runs after the flat phase so "performance"
+			// reads a workouts table the flat phase just finished
+			// populating (or a prior sync populated, when only
+			// "performance" was named).
+			for _, resource := range dependentResources {
+				if resource == "performance" {
+					accumulate(syncPerformanceDependent(cmd.Context(), c, db, concurrency, syncEventWriter))
 				}
 			}
 
@@ -552,6 +587,16 @@ func syncResource(ctx context.Context, c interface {
 		// Set since filter
 		if effectiveSince != "" {
 			params[sinceParam] = effectiveSince
+		}
+		// workouts list defaults to joins=ride on the single-fetch command
+		// (see workouts_list.go's --joins flag); the flat sync loop below
+		// doesn't go through that cobra flag machinery at all, so without
+		// this the API omits the nested "ride" object entirely and every
+		// synced workout's title/ride association lands null. Set as a
+		// default (not a hardcoded override) so --param/--resource-param
+		// can still replace it below.
+		if resource == "workouts" {
+			params["joins"] = "ride"
 		}
 		// Apply user-supplied --param / --resource-param overrides last so they
 		// win over spec-derived defaults (e.g. forcing mine=true on a list
@@ -1603,7 +1648,7 @@ var discriminatorDispatchers = map[string]discriminatorDispatch{}
 
 func upsertResourceBatch(db *store.Store, resource string, items []json.RawMessage) (int, int, error) {
 	if _, ok := discriminatorDispatchers[resource]; !ok {
-		return db.UpsertBatch(resource, items)
+		return db.UpsertBatchWithFacts(resource, items)
 	}
 
 	grouped := map[string][]json.RawMessage{}
@@ -1621,7 +1666,7 @@ func upsertResourceBatch(db *store.Store, resource string, items []json.RawMessa
 
 	var stored, extractFailures int
 	for _, target := range order {
-		targetStored, targetExtractFailures, err := db.UpsertBatch(target, grouped[target])
+		targetStored, targetExtractFailures, err := db.UpsertBatchWithFacts(target, grouped[target])
 		if err != nil {
 			return stored, extractFailures + targetExtractFailures, err
 		}
@@ -1663,11 +1708,11 @@ func upsertSingleObject(db *store.Store, resource string, data json.RawMessage) 
 
 	switch resource {
 	case "classes":
-		return db.UpsertClasses(data)
+		return db.UpsertClassesWithFacts(data)
 	case "workouts":
-		return db.UpsertWorkouts(data)
+		return db.UpsertWorkoutsWithFacts(data)
 	default:
-		return db.Upsert(resource, id, data)
+		return db.UpsertWithFacts(resource, id, data)
 	}
 }
 
@@ -1700,8 +1745,13 @@ func parseSinceDuration(s string) (time.Time, error) {
 	}
 }
 
+// defaultSyncResources returns the resources a bare `sync` (no --resources)
+// runs. Both are flat, paginated, list-endpoint resources; "performance" is
+// a parent-keyed dependent of "workouts" and is never a default target on
+// its own — it cascades in via expandSyncResourcesWithDependents whenever
+// "workouts" is selected (by default or explicitly).
 func defaultSyncResources() []string {
-	return []string{}
+	return []string{"workouts", "classes"}
 }
 
 // knownSyncResourceNames returns every resource name sync will accept —
@@ -1711,8 +1761,157 @@ func knownSyncResourceNames() []string {
 	names := []string{
 		"classes",
 		"workouts",
+		"performance",
 	}
 	return names
+}
+
+// expandSyncResourcesWithDependents applies the cascade rule documented in
+// the sync command's Long help: naming a parent also runs its parent-keyed
+// dependents. "performance" (per-workout performance_graph samples) is the
+// one dependent this CLI has, keyed on "workouts". Naming "performance"
+// without "workouts" is left alone — it runs against whatever workouts are
+// already in the local store from a prior sync, per the documented "run a
+// dependent without re-syncing its parent" scoping.
+func expandSyncResourcesWithDependents(resources []string) []string {
+	hasWorkouts := false
+	hasPerformance := false
+	for _, resource := range resources {
+		switch resource {
+		case "workouts":
+			hasWorkouts = true
+		case "performance":
+			hasPerformance = true
+		}
+	}
+	if hasWorkouts && !hasPerformance {
+		resources = append(resources, "performance")
+	}
+	return resources
+}
+
+// dependentParentIDs returns the distinct primary keys currently stored for
+// a resource, for dependent sync loops that fan out one request per parent
+// row (e.g. "performance" enumerating synced "workouts"). Reuses the same
+// DecodeJSONObject/ExtractResourceID pair UpsertBatch uses so a dependent's
+// view of "what IDs exist" never drifts from what's actually stored.
+func dependentParentIDs(db *store.Store, parentResource string) ([]string, error) {
+	items, err := db.List(parentResource, 0)
+	if err != nil {
+		return nil, err
+	}
+	seen := map[string]bool{}
+	ids := make([]string, 0, len(items))
+	for _, item := range items {
+		obj, err := store.DecodeJSONObject(item)
+		if err != nil {
+			continue
+		}
+		id := store.ExtractResourceID(parentResource, obj)
+		if id == "" || seen[id] {
+			continue
+		}
+		seen[id] = true
+		ids = append(ids, id)
+	}
+	return ids, nil
+}
+
+// syncPerformanceDependent syncs "performance" (per-workout performance_graph
+// samples), a parent-keyed dependent of "workouts": Peloton exposes this data
+// only per-workout (GET /api/workout/{workout_id}/performance_graph), never
+// as a bulk list, so it cannot go through the flat paginated syncResource
+// loop. It enumerates every workout id currently in the local store and
+// fetches+stores one performance_graph per id, keyed by that workout id.
+func syncPerformanceDependent(ctx context.Context, c interface {
+	Get(context.Context, string, map[string]string) (json.RawMessage, error)
+	RateLimit() float64
+}, db *store.Store, concurrency int, syncEvents io.Writer) syncResult {
+	started := time.Now()
+	if syncEvents == nil {
+		syncEvents = io.Discard
+	}
+	if !humanFriendly {
+		fmt.Fprintf(syncEvents, `{"event":"sync_start","resource":"performance"}`+"\n")
+	}
+
+	workoutIDs, err := dependentParentIDs(db, "workouts")
+	if err != nil {
+		if !humanFriendly {
+			fmt.Fprintln(syncEvents, syncErrorJSON("performance", "", err))
+		}
+		return syncResult{Resource: "performance", Err: fmt.Errorf("reading synced workouts for performance dependent sync: %w", err), Duration: time.Since(started)}
+	}
+	if len(workoutIDs) == 0 {
+		return syncResult{
+			Resource: "performance",
+			Warn:     fmt.Errorf("skipped performance: no synced workouts to derive parent ids from; sync workouts first"),
+			Duration: time.Since(started),
+		}
+	}
+
+	// Per-parent fan-out over potentially thousands of workouts: one HTTP
+	// round trip per id with no bulk endpoint to batch them. Sequential
+	// fetching made an otherwise-successful sync of ~3.5k workouts take
+	// over 25 minutes; mirror the flat phase's own worker pool so this
+	// dependent isn't the one resource stuck at concurrency=1.
+	if concurrency < 1 {
+		concurrency = 4
+	}
+	if cliutil.IsVerifyEnv() {
+		concurrency = 1
+	}
+	work := make(chan string, len(workoutIDs))
+	for _, id := range workoutIDs {
+		work <- id
+	}
+	close(work)
+
+	var mu sync.Mutex
+	var totalCount, failures int
+	var wg sync.WaitGroup
+	for i := 0; i < concurrency; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for workoutID := range work {
+				path := replacePathParam("/api/workout/{workout_id}/performance_graph", "workout_id", workoutID)
+				data, err := c.Get(ctx, path, nil)
+				if err != nil {
+					mu.Lock()
+					failures++
+					mu.Unlock()
+					continue
+				}
+				if err := db.UpsertWithFacts("performance", workoutID, data); err != nil {
+					mu.Lock()
+					failures++
+					mu.Unlock()
+					continue
+				}
+				mu.Lock()
+				totalCount++
+				mu.Unlock()
+			}
+		}()
+	}
+	wg.Wait()
+
+	if failures > 0 && !humanFriendly {
+		fmt.Fprintf(syncEvents, `{"event":"sync_anomaly","resource":"performance","consumed":%d,"stored":%d,"reason":"per_parent_fetch_failed"}`+"\n", len(workoutIDs), totalCount)
+	}
+	if !humanFriendly {
+		fmt.Fprintf(syncEvents, `{"event":"sync_complete","resource":"performance","total":%d,"duration_ms":%d}`+"\n", totalCount, time.Since(started).Milliseconds())
+	}
+
+	if totalCount == 0 {
+		return syncResult{
+			Resource: "performance",
+			Warn:     fmt.Errorf("performance: fetched 0/%d workout performance graphs", len(workoutIDs)),
+			Duration: time.Since(started),
+		}
+	}
+	return syncResult{Resource: "performance", Count: totalCount, Duration: time.Since(started)}
 }
 
 func describeFailedResources(count int, resources []string) string {

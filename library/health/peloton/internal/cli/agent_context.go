@@ -118,14 +118,14 @@ func buildAgentContext(rootCmd *cobra.Command) agentContext {
 			Kind:        "auth_flow_input",
 			Required:    true,
 			Sensitive:   true,
-			Description: "Supplied only by the private OAuth bootstrap wrapper.",
+			Description: "Your Peloton login email/username. Set it directly; the CLI logs in automatically on first use and persists the result — no external provisioning service involved.",
 		},
 		{
 			Name:        "PELOTON_OAUTH_PASSWORD",
 			Kind:        "auth_flow_input",
 			Required:    true,
 			Sensitive:   true,
-			Description: "Supplied only by the private OAuth bootstrap wrapper.",
+			Description: "Your Peloton account password. Set it directly; the CLI logs in automatically on first use and persists the result — no external provisioning service involved.",
 		},
 	}
 	authMode := "oauth2_refresh"
