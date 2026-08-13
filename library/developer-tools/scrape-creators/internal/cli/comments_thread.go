@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -273,20 +274,25 @@ func fetchCommentThread(ctx context.Context, c apiGetter, opts threadFetchOpts) 
 		}
 	}
 
+	// Finalize the envelope BEFORE the all-replies-failed check so the
+	// partial envelope the caller serializes on the error path is complete
+	// (credits, truncation, note, fetch_failures).
+	out.CreditsCharged = budget.charged
+	out.Truncated = truncatedTop
+
 	if err := allSourcesFailedErr("comments thread replies", attemptedReplies, replyFailures); err != nil {
 		// An earlier stop already diagnosed in the note (a failed page fetch,
 		// a cursor cycle, a budget stop) must not vanish behind the aggregate
 		// reply error: carry both diagnoses in the hard error. The %w wrap
 		// keeps the underlying cliError in the chain, so the auth exit-code
-		// mapping of allSourcesFailedErr survives unchanged.
+		// mapping of allSourcesFailedErr survives unchanged. The caller also
+		// serializes the partial envelope to stdout before exiting non-zero.
 		if out.Note != "" {
 			err = fmt.Errorf("%w\nadditionally: %s", err, out.Note)
 		}
 		return out, nil, err
 	}
 
-	out.CreditsCharged = budget.charged
-	out.Truncated = truncatedTop
 	if out.Truncated && out.Note == "" {
 		if traverse {
 			out.Note = "comments endpoint still reports more pages; raise --max-credits to continue the traversal"
@@ -321,6 +327,19 @@ func extractCommentsCursor(raw json.RawMessage) string {
 		}
 	}
 	return ""
+}
+
+// printPartialThreadEnvelope serializes a partially-populated thread envelope
+// to stdout on a hard-error exit, so structured diagnoses (note,
+// fetch_failures, any partial comments already paid for) are not lost to
+// stderr-only error text. A bare failure with nothing to report (e.g. the
+// very first probe errored) prints nothing, preserving the plain
+// error-only behavior for empty envelopes.
+func printPartialThreadEnvelope(w io.Writer, out threadEnvelope, flags *rootFlags) error {
+	if len(out.Comments) == 0 && len(out.FetchFailures) == 0 && out.Note == "" {
+		return nil
+	}
+	return printJSONFiltered(w, out, flags)
 }
 
 func newNovelCommentsThreadCmd(flags *rootFlags) *cobra.Command {
@@ -376,6 +395,15 @@ already-synced posts; use 'comments coverage' instead.`, "\n"),
 
 			out, storeRows, err := fetchCommentThread(ctx, c, threadFetchOpts{postURL: postURL, route: route, maxCredits: maxCredits})
 			if err != nil {
+				// Serialize the partial envelope BEFORE failing so the
+				// structured diagnoses (note, fetch_failures, partial
+				// comments) reach stdout consumers; the returned error still
+				// drives the non-zero exit (authErr mapping included). This
+				// return path never reaches the success-path print below, so
+				// the envelope is emitted exactly once.
+				if perr := printPartialThreadEnvelope(cmd.OutOrStdout(), out, flags); perr != nil {
+					return perr
+				}
 				return err
 			}
 			if out.Note != "" {

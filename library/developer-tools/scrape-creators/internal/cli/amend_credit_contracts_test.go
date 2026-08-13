@@ -6,6 +6,7 @@
 package cli
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -403,6 +404,38 @@ func TestThreadAllRepliesFailedPlusPageFailure_CarriesBothDiagnoses(t *testing.T
 	// fetch_failures records the 3 reply failures plus the failed page.
 	if len(out.FetchFailures) != 4 {
 		t.Errorf("fetch_failures = %d entries, want 4 (3 replies + page 2): %+v", len(out.FetchFailures), out.FetchFailures)
+	}
+
+	// The RunE error path serializes this envelope to stdout before exiting
+	// non-zero: the structured diagnoses must reach stdout consumers, not
+	// just the error text. Assert the exact bytes a --json caller would see.
+	var buf bytes.Buffer
+	if perr := printPartialThreadEnvelope(&buf, out, &rootFlags{asJSON: true}); perr != nil {
+		t.Fatalf("printing the partial envelope: %v", perr)
+	}
+	var printed struct {
+		Note          string         `json:"note"`
+		FetchFailures []fetchFailure `json:"fetch_failures"`
+		Truncated     bool           `json:"truncated"`
+	}
+	if uerr := json.Unmarshal(buf.Bytes(), &printed); uerr != nil {
+		t.Fatalf("stdout envelope is not valid JSON: %v\n%s", uerr, buf.String())
+	}
+	if !strings.Contains(printed.Note, "page 2 fetch failed") {
+		t.Errorf("stdout envelope note must carry the page-failure cause, got %q", printed.Note)
+	}
+	if len(printed.FetchFailures) != 4 {
+		t.Errorf("stdout envelope fetch_failures = %d entries, want 4: %s", len(printed.FetchFailures), buf.String())
+	}
+
+	// An empty envelope (e.g. first probe failed outright) stays silent on
+	// stdout: error-only behavior is preserved when there is nothing to report.
+	var empty bytes.Buffer
+	if perr := printPartialThreadEnvelope(&empty, threadEnvelope{PostURL: "https://x/p/1"}, &rootFlags{asJSON: true}); perr != nil {
+		t.Fatalf("printing the empty envelope: %v", perr)
+	}
+	if empty.Len() != 0 {
+		t.Errorf("empty envelope must print nothing, got %s", empty.String())
 	}
 }
 
