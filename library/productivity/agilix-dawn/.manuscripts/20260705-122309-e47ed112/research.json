@@ -1,0 +1,377 @@
+{
+  "api_name": "agilix-dawn",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "beneggett/agilix",
+      "url": "https://github.com/beneggett/agilix",
+      "language": "Ruby",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "StrongMind/agilix-buzz-client",
+      "url": "https://github.com/StrongMind/agilix-buzz-client",
+      "language": "Ruby",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-05T21:45:00Z",
+  "novel_features": [
+    {
+      "name": "Course structure tree",
+      "command": "course tree",
+      "description": "Render a course's full section → instruction → interaction hierarchy as a tree.",
+      "rationale": "Walks the nested concept/{id} structure (dozens of sections, hundreds of instructions) that the web app only shows one page at a time.",
+      "example": "agilix-dawn-pp-cli course tree c_f4bff87c0cab456984f2860af3e427d0 --json",
+      "why_it_matters": "Reach for this when an agent needs the whole shape of a course at once instead of paging the UI.",
+      "group": "Course structure insight"
+    },
+    {
+      "name": "Course stats rollup",
+      "command": "course stats",
+      "description": "Aggregate total instruction time, points, and section/instruction/interaction counts for a course.",
+      "rationale": "Sums instruction durations and points locally across the nested tree; no single API field exposes seat-time or content size.",
+      "example": "agilix-dawn-pp-cli course stats c_f4bff87c0cab456984f2860af3e427d0 --json",
+      "why_it_matters": "Use to answer 'how big / how many hours is this course' without opening it.",
+      "group": "Course structure insight"
+    },
+    {
+      "name": "Curriculum export",
+      "command": "course outline",
+      "description": "Flatten a course's section/instruction tree into a Markdown or CSV curriculum.",
+      "rationale": "Produces a syllabus / state-reporting artifact from structure the UI never exports.",
+      "example": "agilix-dawn-pp-cli course outline c_f4bff87c0cab456984f2860af3e427d0 --format md",
+      "why_it_matters": "Use to export a course's curriculum for documentation or compliance.",
+      "group": "Course structure insight"
+    },
+    {
+      "name": "Catalog drift",
+      "command": "catalog diff",
+      "description": "Show what changed in the catalog since the last local sync (new/removed courses, price/status/title changes).",
+      "rationale": "Compares the live catalog against the local SQLite snapshot — impossible without a persisted mirror.",
+      "example": "agilix-dawn-pp-cli catalog diff --json",
+      "why_it_matters": "Use to detect catalog changes over time; requires a prior sync.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Roster export",
+      "command": "roster export",
+      "description": "Export users (id, name, email, status, verified) to CSV for reporting.",
+      "rationale": "Turns paginated user search into a single clean CSV the UI does not offer.",
+      "example": "agilix-dawn-pp-cli roster export --format csv",
+      "why_it_matters": "Use to pull a roster for spreadsheets or state reporting.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Purchase reconcile",
+      "command": "purchase reconcile",
+      "description": "Join purchases against user records to show who paid for what.",
+      "rationale": "The purchase API returns bare ids; a local join against users produces a readable ledger.",
+      "example": "agilix-dawn-pp-cli purchase reconcile --json",
+      "why_it_matters": "Use to reconcile Stripe-backed purchases against enrolled users.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Edit course metadata",
+      "command": "edit concept",
+      "description": "Update a course's title, description, price, or status (preview by default; --apply to write).",
+      "rationale": "Wraps the Dawn read-modify-write PUT so a metadata edit is one safe command instead of a hand-assembled full-document PUT.",
+      "example": "agilix-dawn-pp-cli edit concept c_216daf6f76024e43b03b229895686555 --title \"New Title\"",
+      "why_it_matters": "Use to change course details scriptably; it previews the change and only writes with --apply.",
+      "group": "Course authoring"
+    },
+    {
+      "name": "Author sections",
+      "command": "edit section add",
+      "description": "Add, rename, or remove sections in a course (preview by default; --apply to write).",
+      "rationale": "Reads the whole concept, mutates the section array, and PUTs it back with optimistic-concurrency versioning handled for you.",
+      "example": "agilix-dawn-pp-cli edit section add c_216daf6f76024e43b03b229895686555 --title \"Module 1\"",
+      "why_it_matters": "Use to build a course's structure from the CLI without touching the whole document by hand.",
+      "group": "Course authoring"
+    },
+    {
+      "name": "Author instructions",
+      "command": "edit instruction add",
+      "description": "Add or remove instructions (lessons) within a section (preview by default; --apply to write).",
+      "rationale": "Locates the section inside the concept document and edits its instruction list in place.",
+      "example": "agilix-dawn-pp-cli edit instruction add c_216daf6f76024e43b03b229895686555 s_dd819fbaf2a642ffa9474c7f38e7f318 --title \"Lesson 1\"",
+      "why_it_matters": "Use to add lessons to a section scriptably; previews first, writes with --apply.",
+      "group": "Course authoring"
+    },
+    {
+      "name": "Publish control",
+      "command": "edit publish",
+      "description": "Enable (publish) or disable (unpublish) a course (preview by default; --apply to write).",
+      "rationale": "Toggles the concept status via the same safe read-modify-write path.",
+      "example": "agilix-dawn-pp-cli edit publish c_216daf6f76024e43b03b229895686555",
+      "why_it_matters": "Use to flip a course's published state from a script or agent.",
+      "group": "Course authoring"
+    },
+    {
+      "name": "Add quiz question",
+      "command": "edit interaction add-choice",
+      "description": "Add a typed multiple-choice question to a lesson (options + correct answers), preview by default; --apply to write.",
+      "rationale": "Builds the exact Dawn choice-interaction shape (choices + 0-based correct-answer indices) from friendly 1-based flags, so an agent never hand-crafts the nested JSON.",
+      "example": "agilix-dawn-pp-cli edit interaction add-choice c_216daf6f76024e43b03b229895686555 s_1 i_1 --body \"2+2=?\" --option 3 --option 4 --answer 2",
+      "why_it_matters": "Use to script multiple-choice quiz authoring; previews first, writes with --apply.",
+      "group": "Course authoring"
+    },
+    {
+      "name": "Add short-answer question",
+      "command": "edit interaction add-response",
+      "description": "Add a typed short-answer question to a lesson (accepted answers or coach review), preview by default; --apply to write.",
+      "rationale": "Builds the Dawn response-interaction shape (accepted answers + awardCriteria) so free-text questions are one command.",
+      "example": "agilix-dawn-pp-cli edit interaction add-response c_216daf6f76024e43b03b229895686555 s_1 i_1 --body \"Capital of Idaho?\" --answer Boise",
+      "why_it_matters": "Use to script short-answer quiz authoring; previews first, writes with --apply.",
+      "group": "Course authoring"
+    },
+    {
+      "name": "Resource inventory",
+      "command": "resource list",
+      "description": "List the file resources (video, images, PDFs, SCORM) attached to a course, with sizes and content types.",
+      "rationale": "Reads concept.resource[] to inventory a course's media in one command; the web UI only shows files one screen at a time.",
+      "example": "agilix-dawn-pp-cli resource list c_f4bff87c0cab456984f2860af3e427d0 --json",
+      "why_it_matters": "Use to audit a course's media footprint. Note: uploading files is a browser-only signed-URL flow this CLI does not replicate.",
+      "group": "Course authoring"
+    },
+    {
+      "name": "Enrollment groups",
+      "command": "enrollment group create",
+      "description": "List, create, or delete enrollment groups for a course (preview by default; --apply to write).",
+      "rationale": "Enrollment in Dawn is group membership; this manages the groups that hold enrolled learners via the safe PUT/DELETE /group path.",
+      "example": "agilix-dawn-pp-cli enrollment group list c_216daf6f76024e43b03b229895686555 --json",
+      "why_it_matters": "Use to organize learners into cohorts before enrolling them.",
+      "group": "Enrollment management"
+    },
+    {
+      "name": "Enroll and unenroll users",
+      "command": "enrollment add",
+      "description": "Enroll or unenroll a user in a course by adding/removing them from an enrollment group (preview by default; --apply to write).",
+      "rationale": "A learner's group membership IS their enrollment; add/remove edits the group's member list with the same safe read-modify-write gate.",
+      "example": "agilix-dawn-pp-cli enrollment members g_05d557b932364b66a310316a0e050ba7 --json",
+      "why_it_matters": "Use to script student enrollment; previews first, writes only with --apply.",
+      "group": "Enrollment management"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Course structure tree",
+      "command": "course tree",
+      "description": "Render a course's full section → instruction → interaction hierarchy as a tree.",
+      "rationale": "Walks the nested concept/{id} structure (dozens of sections, hundreds of instructions) that the web app only shows one page at a time.",
+      "example": "agilix-dawn-pp-cli course tree c_f4bff87c0cab456984f2860af3e427d0 --json",
+      "why_it_matters": "Reach for this when an agent needs the whole shape of a course at once instead of paging the UI.",
+      "group": "Course structure insight"
+    },
+    {
+      "name": "Course stats rollup",
+      "command": "course stats",
+      "description": "Aggregate total instruction time, points, and section/instruction/interaction counts for a course.",
+      "rationale": "Sums instruction durations and points locally across the nested tree; no single API field exposes seat-time or content size.",
+      "example": "agilix-dawn-pp-cli course stats c_f4bff87c0cab456984f2860af3e427d0 --json",
+      "why_it_matters": "Use to answer 'how big / how many hours is this course' without opening it.",
+      "group": "Course structure insight"
+    },
+    {
+      "name": "Curriculum export",
+      "command": "course outline",
+      "description": "Flatten a course's section/instruction tree into a Markdown or CSV curriculum.",
+      "rationale": "Produces a syllabus / state-reporting artifact from structure the UI never exports.",
+      "example": "agilix-dawn-pp-cli course outline c_f4bff87c0cab456984f2860af3e427d0 --format md",
+      "why_it_matters": "Use to export a course's curriculum for documentation or compliance.",
+      "group": "Course structure insight"
+    },
+    {
+      "name": "Catalog drift",
+      "command": "catalog diff",
+      "description": "Show what changed in the catalog since the last local sync (new/removed courses, price/status/title changes).",
+      "rationale": "Compares the live catalog against the local SQLite snapshot — impossible without a persisted mirror.",
+      "example": "agilix-dawn-pp-cli catalog diff --json",
+      "why_it_matters": "Use to detect catalog changes over time; requires a prior sync.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Roster export",
+      "command": "roster export",
+      "description": "Export users (id, name, email, status, verified) to CSV for reporting.",
+      "rationale": "Turns paginated user search into a single clean CSV the UI does not offer.",
+      "example": "agilix-dawn-pp-cli roster export --format csv",
+      "why_it_matters": "Use to pull a roster for spreadsheets or state reporting.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Purchase reconcile",
+      "command": "purchase reconcile",
+      "description": "Join purchases against user records to show who paid for what.",
+      "rationale": "The purchase API returns bare ids; a local join against users produces a readable ledger.",
+      "example": "agilix-dawn-pp-cli purchase reconcile --json",
+      "why_it_matters": "Use to reconcile Stripe-backed purchases against enrolled users.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Edit course metadata",
+      "command": "edit concept",
+      "description": "Update a course's title, description, price, or status (preview by default; --apply to write).",
+      "rationale": "Wraps the Dawn read-modify-write PUT so a metadata edit is one safe command instead of a hand-assembled full-document PUT.",
+      "example": "agilix-dawn-pp-cli edit concept c_216daf6f76024e43b03b229895686555 --title \"New Title\"",
+      "why_it_matters": "Use to change course details scriptably; it previews the change and only writes with --apply.",
+      "group": "Course authoring"
+    },
+    {
+      "name": "Author sections",
+      "command": "edit section add",
+      "description": "Add, rename, or remove sections in a course (preview by default; --apply to write).",
+      "rationale": "Reads the whole concept, mutates the section array, and PUTs it back with optimistic-concurrency versioning handled for you.",
+      "example": "agilix-dawn-pp-cli edit section add c_216daf6f76024e43b03b229895686555 --title \"Module 1\"",
+      "why_it_matters": "Use to build a course's structure from the CLI without touching the whole document by hand.",
+      "group": "Course authoring"
+    },
+    {
+      "name": "Author instructions",
+      "command": "edit instruction add",
+      "description": "Add or remove instructions (lessons) within a section (preview by default; --apply to write).",
+      "rationale": "Locates the section inside the concept document and edits its instruction list in place.",
+      "example": "agilix-dawn-pp-cli edit instruction add c_216daf6f76024e43b03b229895686555 s_dd819fbaf2a642ffa9474c7f38e7f318 --title \"Lesson 1\"",
+      "why_it_matters": "Use to add lessons to a section scriptably; previews first, writes with --apply.",
+      "group": "Course authoring"
+    },
+    {
+      "name": "Add quiz question",
+      "command": "edit interaction add-choice",
+      "description": "Add a typed multiple-choice question to a lesson (options + correct answers), preview by default; --apply to write.",
+      "rationale": "Builds the exact Dawn choice-interaction shape (choices + 0-based correct-answer indices) from friendly 1-based flags, so an agent never hand-crafts the nested JSON.",
+      "example": "agilix-dawn-pp-cli edit interaction add-choice c_216daf6f76024e43b03b229895686555 s_1 i_1 --body \"2+2=?\" --option 3 --option 4 --answer 2",
+      "why_it_matters": "Use to script multiple-choice quiz authoring; previews first, writes with --apply.",
+      "group": "Course authoring"
+    },
+    {
+      "name": "Add short-answer question",
+      "command": "edit interaction add-response",
+      "description": "Add a typed short-answer question to a lesson (accepted answers or coach review), preview by default; --apply to write.",
+      "rationale": "Builds the Dawn response-interaction shape (accepted answers + awardCriteria) so free-text questions are one command.",
+      "example": "agilix-dawn-pp-cli edit interaction add-response c_216daf6f76024e43b03b229895686555 s_1 i_1 --body \"Capital of Idaho?\" --answer Boise",
+      "why_it_matters": "Use to script short-answer quiz authoring; previews first, writes with --apply.",
+      "group": "Course authoring"
+    },
+    {
+      "name": "Resource inventory",
+      "command": "resource list",
+      "description": "List the file resources (video, images, PDFs, SCORM) attached to a course, with sizes and content types.",
+      "rationale": "Reads concept.resource[] to inventory a course's media in one command; the web UI only shows files one screen at a time.",
+      "example": "agilix-dawn-pp-cli resource list c_f4bff87c0cab456984f2860af3e427d0 --json",
+      "why_it_matters": "Use to audit a course's media footprint. Note: uploading files is a browser-only signed-URL flow this CLI does not replicate.",
+      "group": "Course authoring"
+    },
+    {
+      "name": "Enrollment groups",
+      "command": "enrollment group create",
+      "description": "List, create, or delete enrollment groups for a course (preview by default; --apply to write).",
+      "rationale": "Enrollment in Dawn is group membership; this manages the groups that hold enrolled learners via the safe PUT/DELETE /group path.",
+      "example": "agilix-dawn-pp-cli enrollment group list c_216daf6f76024e43b03b229895686555 --json",
+      "why_it_matters": "Use to organize learners into cohorts before enrolling them.",
+      "group": "Enrollment management"
+    },
+    {
+      "name": "Enroll and unenroll users",
+      "command": "enrollment add",
+      "description": "Enroll or unenroll a user in a course by adding/removing them from an enrollment group (preview by default; --apply to write).",
+      "rationale": "A learner's group membership IS their enrollment; add/remove edits the group's member list with the same safe read-modify-write gate.",
+      "example": "agilix-dawn-pp-cli enrollment members g_05d557b932364b66a310316a0e050ba7 --json",
+      "why_it_matters": "Use to script student enrollment; previews first, writes only with --apply.",
+      "group": "Enrollment management"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "AGILIX_DAWN_TOKEN"
+  },
+  "narrative": {
+    "display_name": "Agilix Dawn",
+    "headline": "The only CLI for the modern Agilix Dawn API — browse and AUTHOR courses (sections, lessons, quizzes, publish), manage enrollments, export curriculum and rosters, and mirror your catalog offline.",
+    "value_prop": "Every existing Agilix library wraps the legacy Buzz/DLAP API; this CLI talks to the modern same-origin Dawn REST API that the web app itself uses. It turns Dawn's search DSL into ergonomic commands, renders a course's entire section/instruction/interaction tree that the UI only paginates, and keeps a local SQLite mirror so 'course stats', 'catalog diff', and 'purchase reconcile' work offline.",
+    "auth_narrative": "Dawn authenticates with a raw token in the Authorization header (no 'Bearer ' prefix). Set AGILIX_DAWN_TOKEN to a Dawn API-user token (recommended, durable) or a session token from your logged-in browser. The token is passed as the Authorization header on every request.",
+    "quickstart": [
+      {
+        "command": "agilix-dawn-pp-cli doctor --dry-run",
+        "comment": "verify the CLI is wired before hitting the API"
+      },
+      {
+        "command": "agilix-dawn-pp-cli config",
+        "comment": "confirm the tenant and reachability (public endpoint)"
+      },
+      {
+        "command": "agilix-dawn-pp-cli concept list --search '{\"limit\":25}'",
+        "comment": "browse the catalog"
+      },
+      {
+        "command": "agilix-dawn-pp-cli course tree c_f4bff87c0cab456984f2860af3e427d0",
+        "comment": "see a whole course's structure at once"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "403 Forbidden with {description, message, requestId, status}",
+        "fix": "Set AGILIX_DAWN_TOKEN to a valid Dawn token (API-user token recommended)."
+      },
+      {
+        "symptom": "totalMatches is non-zero but no rows returned",
+        "fix": "Dawn requires the search wrapper; pass --search '{\"limit\":25}' rather than relying on top-level params."
+      },
+      {
+        "symptom": "Wrong tenant",
+        "fix": "Override the base URL in ~/.config/agilix-dawn-pp-cli/config.toml (default is drivered.agilixdawn.com)."
+      }
+    ],
+    "when_to_use": "Use this CLI to browse, export, AND author the Agilix Dawn course catalog and its deep content structure (edit metadata, add/rename/remove sections and lessons, publish/unpublish), look up users and organizations, and reconcile Stripe-backed purchases — scriptably and offline. Authoring commands under 'edit' preview by default and only write with --apply. It is aimed at Dawn tenant admins/staff who need the catalog and roster as data, not clicks.",
+    "anti_triggers": [
+      "Do not use this CLI for the legacy Agilix Buzz/DLAP API (api.agilixbuzz.com, gls.agilix.com) — use the Ruby 'agilix' gem for that generation.",
+      "Do not expect grade, enrollment, or certification collection endpoints — the modern Dawn /api does not expose them as top-level searchable resources.",
+      "Do not use it to create brand-new courses — POST /concept returns 403 unless you have Dawn publisher permissions (the edit commands update existing courses only).",
+      "Every 'edit' subcommand previews by default; nothing is written to a live course until you pass --apply.",
+      "Do not expect a file-upload command — uploading media is a browser-mediated signed-URL flow the Dawn editor performs; the CLI covers listing resources (resource list) but not uploading them."
+    ],
+    "recipes": [
+      {
+        "title": "Export the big course's curriculum",
+        "command": "agilix-dawn-pp-cli course outline c_f4bff87c0cab456984f2860af3e427d0 --format md",
+        "explanation": "Flattens a 34-section course into a Markdown syllabus."
+      },
+      {
+        "title": "Total seat-time of a course",
+        "command": "agilix-dawn-pp-cli course stats c_f4bff87c0cab456984f2860af3e427d0 --json --select total_duration_hours,instructions,interactions",
+        "explanation": "Sums instruction durations and counts locally, then narrows the output."
+      },
+      {
+        "title": "Roster to CSV",
+        "command": "agilix-dawn-pp-cli roster export --format csv",
+        "explanation": "Pulls all users into a clean CSV for reporting."
+      },
+      {
+        "title": "Search the catalog",
+        "command": "agilix-dawn-pp-cli concept list --search '{\"query\":\"title:driver\",\"limit\":10}' --agent --select id,title,status",
+        "explanation": "Runs a Lucene title search and narrows to the fields an agent needs."
+      }
+    ],
+    "trigger_phrases": [
+      "list dawn courses",
+      "show the course structure",
+      "export the curriculum",
+      "reconcile dawn purchases",
+      "export the roster",
+      "use agilix-dawn",
+      "run agilix-dawn"
+    ]
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "agilix-dawn",
+  "run_id": "20260705-122309-e47ed112",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 73,
+  "tests_passed": 73,
+  "tests_skipped": 40,
+  "auth_context": {
+    "type": "api_key"
+  }
+}

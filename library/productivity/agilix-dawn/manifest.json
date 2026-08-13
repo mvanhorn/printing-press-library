@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "agilix-dawn-pp-mcp",
+  "display_name": "Agilix Dawn",
+  "version": "0.1.0",
+  "description": "The only CLI for the modern Agilix Dawn API — render a course's full structure, export curriculum and rosters, and mirror your catalog offline.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/agilix-dawn-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/agilix-dawn-pp-mcp",
+      "args": [],
+      "env": {
+        "AGILIX_DAWN_TOKEN": "${user_config.agilix_dawn_token}"
+      }
+    }
+  },
+  "user_config": {
+    "agilix_dawn_token": {
+      "type": "string",
+      "title": "AGILIX_DAWN_TOKEN",
+      "description": "Sets AGILIX_DAWN_TOKEN for the Agilix Dawn MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

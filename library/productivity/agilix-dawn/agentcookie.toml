@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "agilix-dawn-pp-cli"
+display_name = "Agilix Dawn"
+description = "The only CLI for the modern Agilix Dawn API — render a course's full structure, export curriculum and rosters, and mirror your catalog offline."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/agilix-dawn-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+AGILIX_DAWN_TOKEN = true

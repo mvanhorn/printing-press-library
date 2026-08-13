@@ -1,0 +1,148 @@
+{
+  "api_name": "agilix-dawn",
+  "base_url": "https://drivered.agilixdawn.com/api",
+  "description": "The only CLI for the modern Agilix Dawn API — render a course's full structure, export curriculum and rosters, and mirror your catalog offline.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "Authorization",
+    "format": "{AGILIX_DAWN_TOKEN}",
+    "in": "header",
+    "env_vars": [
+      "AGILIX_DAWN_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "AGILIX_DAWN_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "concept_get",
+      "description": "Get one concept (course) by id, including full section/instruction structure. Required: id. Returns the Concept.",
+      "method": "GET",
+      "path": "/concept/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Concept id (c_...)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "concept_list",
+      "description": "List catalog concepts (courses/content). Uses the Dawn search DSL. Optional: search (default: {'limit':100}), order-featured. Returns array of Concept.",
+      "method": "GET",
+      "path": "/concept",
+      "params": [
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Dawn search DSL as JSON: {query,start,limit,sort,join,include}. query is Lucene (e.g. title:driver, status:enabled)."
+        },
+        {
+          "name": "order-featured",
+          "wire_name": "orderFeatured",
+          "type": "bool",
+          "location": "query",
+          "description": "Order results by featured flag"
+        }
+      ]
+    },
+    {
+      "name": "config_get",
+      "description": "Show the tenant's public configuration (name, root org, version, auth providers, payment). Returns the Config.",
+      "method": "GET",
+      "path": "/config",
+      "params": []
+    },
+    {
+      "name": "conversation_list",
+      "description": "List conversations. Uses the Dawn search DSL. Optional: search (default: {'limit':100}). Returns array of Conversation.",
+      "method": "GET",
+      "path": "/conversation",
+      "params": [
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Dawn search DSL as JSON: {query,start,limit,sort,include}."
+        }
+      ]
+    },
+    {
+      "name": "organization_list",
+      "description": "List organizations. Uses the Dawn search DSL. Optional: search (default: {'limit':100}). Returns array of Organization.",
+      "method": "GET",
+      "path": "/organization",
+      "params": [
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Dawn search DSL as JSON: {query,start,limit,sort,include}."
+        }
+      ]
+    },
+    {
+      "name": "progress_list",
+      "description": "List learner progress. Uses the Dawn search DSL (e.g. query:'user:u_... AND NOT state:preview'). Optional: search (default: {'limit':100}). Returns array of Progress.",
+      "method": "GET",
+      "path": "/progress",
+      "params": [
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Dawn search DSL as JSON: {query,start,limit,sort,join,include}."
+        }
+      ]
+    },
+    {
+      "name": "purchase_list",
+      "description": "List purchases. Uses the Dawn search DSL. Optional: search (default: {'limit':100}). Returns array of Purchase.",
+      "method": "GET",
+      "path": "/purchase",
+      "params": [
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Dawn search DSL as JSON: {query,start,limit,sort,include}."
+        }
+      ]
+    },
+    {
+      "name": "user_list",
+      "description": "List/search users. Uses the Dawn search DSL. Optional: search (default: {'limit':100}). Returns array of User.",
+      "method": "GET",
+      "path": "/user",
+      "params": [
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Dawn search DSL as JSON: {query,start,limit,sort,include}."
+        }
+      ]
+    },
+    {
+      "name": "user_me",
+      "description": "Show the authenticated user (whoami). Returns the User.",
+      "method": "GET",
+      "path": "/user/me",
+      "params": []
+    }
+  ]
+}
