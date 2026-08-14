@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -34,9 +35,11 @@ func newDuplicatesApplyCmd(flags *rootFlags) *cobra.Command {
 				return fmt.Errorf("plan %d is %s", planID, status)
 			}
 			var groups []struct {
-				Keep      string   `json:"keep"`
-				Remove    []string `json:"remove"`
-				MergeTags []string `json:"merge_tags"`
+				Keep       string           `json:"keep"`
+				Remove     []string         `json:"remove"`
+				MergeTags  []string         `json:"merge_tags"`
+				MergeNote  string           `json:"merge_note"`
+				Highlights []map[string]any `json:"highlights"`
 			}
 			if err := json.Unmarshal([]byte(payload), &groups); err != nil {
 				return err
@@ -52,12 +55,47 @@ func newDuplicatesApplyCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			deleted := 0
+			alreadyDeleted := 0
+			highlightsCreated := 0
 			for _, group := range groups {
-				if _, _, err := client.PutWithParams(cmd.Context(), "/raindrop/"+group.Keep, nil, map[string]any{"tags": group.MergeTags}); err != nil {
+				bookmarkBody := map[string]any{"tags": group.MergeTags}
+				if strings.TrimSpace(group.MergeNote) != "" {
+					bookmarkBody["note"] = group.MergeNote
+				}
+				if _, _, err := client.PutWithParams(cmd.Context(), "/raindrop/"+group.Keep, nil, bookmarkBody); err != nil {
 					return classifyAPIError(err, flags)
+				}
+				existing, err := client.GetNoCache(cmd.Context(), "/raindrop/"+group.Keep+"/highlights", nil)
+				if err != nil {
+					return classifyAPIError(err, flags)
+				}
+				highlightSet := highlightSignaturesFromResponse(existing)
+				for _, highlight := range group.Highlights {
+					body := highlightMutationBody(highlight)
+					if valueString(body["text"]) == "" {
+						continue
+					}
+					signature := highlightSignature(body)
+					if _, ok := highlightSet[signature]; ok {
+						continue
+					}
+					bookmarkID, parseErr := strconv.ParseInt(group.Keep, 10, 64)
+					if parseErr != nil {
+						return fmt.Errorf("invalid keeper bookmark id %q: %w", group.Keep, parseErr)
+					}
+					body["raindrop"] = map[string]any{"$id": bookmarkID}
+					if _, _, err := client.PostWithParams(cmd.Context(), "/highlights", nil, body); err != nil {
+						return classifyAPIError(err, flags)
+					}
+					highlightSet[signature] = struct{}{}
+					highlightsCreated++
 				}
 				for _, id := range group.Remove {
 					if _, _, err := client.DeleteWithParams(cmd.Context(), "/raindrop/"+id, nil); err != nil {
+						if strings.Contains(err.Error(), "HTTP 404") {
+							alreadyDeleted++
+							continue
+						}
 						return classifyDeleteError(err, flags)
 					}
 					deleted++
@@ -67,9 +105,46 @@ func newDuplicatesApplyCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"plan_id": planID, "status": "applied", "groups": len(groups), "deleted": deleted}, flags)
+			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"plan_id": planID, "status": "applied", "groups": len(groups), "deleted": deleted, "already_deleted": alreadyDeleted, "highlights_created": highlightsCreated}, flags)
 		},
 	}
 	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite database path")
 	return cmd
+}
+
+func highlightMutationBody(highlight map[string]any) map[string]any {
+	body := map[string]any{}
+	for _, key := range []string{"text", "note", "color"} {
+		if value := strings.TrimSpace(valueString(highlight[key])); value != "" {
+			body[key] = value
+		}
+	}
+	return body
+}
+
+func highlightSignature(highlight map[string]any) string {
+	return strings.Join([]string{
+		strings.TrimSpace(valueString(highlight["text"])),
+		strings.TrimSpace(valueString(highlight["note"])),
+		strings.TrimSpace(valueString(highlight["color"])),
+	}, "\x00")
+}
+
+func highlightSignaturesFromResponse(data json.RawMessage) map[string]struct{} {
+	var items []map[string]any
+	if json.Unmarshal(data, &items) != nil {
+		var envelope map[string]json.RawMessage
+		if json.Unmarshal(data, &envelope) == nil {
+			for _, key := range []string{"items", "data", "result"} {
+				if raw := envelope[key]; len(raw) > 0 && json.Unmarshal(raw, &items) == nil {
+					break
+				}
+			}
+		}
+	}
+	result := make(map[string]struct{}, len(items))
+	for _, item := range items {
+		result[highlightSignature(item)] = struct{}{}
+	}
+	return result
 }

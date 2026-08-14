@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "bearer_token"
   },
-  "source_fingerprint": "ccd75b6e4833088ea5361eb447c428a66839b1f6d15ef98c65497321af2c08f6",
+  "source_fingerprint": "7550f0e9c6f3c23ccef5f05cc0cdb709ef4bb1ecc4f6e26cad9a1e764e081ae4",
   "source_files": {
     "cmd/raindrop-pp-cli/main.go": "d02639239d69b044716317f311c18772c018f57a2baf6fbef25ba475720078d1",
     "cmd/raindrop-pp-mcp/main.go": "d117ca74cdb79b49d29e3206901df1e65262bcb747fb936016b0ff2b15ad42b3",
@@ -53,8 +53,9 @@
     "internal/cli/deliver.go": "4c93bf91bca0567077ebb3bd0910306400b905381479169047297505d8083c4d",
     "internal/cli/doctor.go": "2ad630af2cb4bab8be8ef19b4ce16d74abe2b74c6b76dc1fc0e205ba08837af5",
     "internal/cli/duplicates.go": "eaef190757647b5ed785ed9647a43b96317c9a1877d653fefc34db34c94b6bb6",
-    "internal/cli/duplicates_apply.go": "980ace8b68028f9af48b1262ba4213b94031d3faab70a6f464e79f3d69438869",
-    "internal/cli/duplicates_plan.go": "c0ef4239c3e1b4cfe972f836dbd742ded43e1c6a328e5dc84995b74a2b027810",
+    "internal/cli/duplicates_apply.go": "480614873cab869fa1c3ef1adb7ae1e47850d2ebecf9e081aa93a8b69d3a69d1",
+    "internal/cli/duplicates_apply_test.go": "dc208a4c3fee45e950310d44f8148d4e5d2a6c0d8ec0946492074834eb35c29f",
+    "internal/cli/duplicates_plan.go": "55d5ea1511991356b23c8ed7dadbef41e267b94f6535c2e85605d4dab7cebe19",
     "internal/cli/duplicates_plan_test.go": "eceddf63ea97fb90a4162e3daac7044ee17b13fe439aa014ce73537ec5fdb34d",
     "internal/cli/export.go": "5b9477d166d6a77a655087f8a26f0f337ae3a012e401d89de9cdd1db221d996d",
     "internal/cli/feedback.go": "1b3cac403f92c90e6433c2f28b94de636d46737cca7c749c51046fb55529a86d",
@@ -129,7 +130,7 @@
     "internal/cli/root.go": "b4bdd5f04744ec610188c0662bc8d10482308b039a0c34ae7f22decbede7dd4f",
     "internal/cli/root_test.go": "154fb7a7718a12bf1a2b2eff78719c9f8096896d4c02d438502aecc026948268",
     "internal/cli/search.go": "9c3f5fc6749b81aeb17036186c9fbfcd20425f3449ef9537161a80441124bb01",
-    "internal/cli/sync.go": "1eb229914cb5a085b38c89c83d5d7c2908f7517cd749f053e619703e35f31d89",
+    "internal/cli/sync.go": "b8a9a8a47e5b7e409e88eefec4eece5b3659df33203a898b6944e4fedb2516c3",
     "internal/cli/sync_hint.go": "2da9616e1a47671a0bcde8bdcabca841280b284cc06f3bd553c5f1bda2ebacae",
     "internal/cli/sync_hint_test.go": "a60099b6b47790f35338a4a9a7e1b67af76dcf71b222728f18adf3ee6fdf2be6",
     "internal/cli/sync_local.go": "a3eeb98ab1440581f21a27154e6ab4670bfe5fa043ea45c03590d2b2d62983f7",
@@ -266,8 +267,9 @@
     "internal/store/learnings_test.go": "de2183404594ce2dc7e0b157b31b27fa328ed532b8eb14b5f9122426e4120ae4",
     "internal/store/playbooks.go": "1cd609f323c08d013bd826aff4b961996086a13da03df022c01988c69ddfbf34",
     "internal/store/playbooks_test.go": "d2fdecdcebf8ba735854a756bb44294cadef6fe1e3069fd6cdcfa1e5a4d902df",
+    "internal/store/reconcile_resource_test.go": "476873f32c981d0a8a2f2e9895a5e18d842710e5851d858760df2dc807a65eee",
     "internal/store/schema_version_test.go": "c80e7fe6a69ff5de5a2dac8228af470e6f2a7c1f0189eae0836479b9f9ababd0",
-    "internal/store/store.go": "6d7c95f63947e8f85a6dac360c544d464020d160982c419925a98d26cd41b6af",
+    "internal/store/store.go": "fb1db87a9a23063bd9cc7f545b79e9ec188b81c21b37f96c0bac8bbb590987bd",
     "internal/store/upsert_batch_test.go": "6ffc312247294951cce12bea0685f465a7e02adf9534f73c912b40eb9a4abe34",
     "internal/types/types.go": "45a30ab4bf8b8e6a064df74ce7a185328c4492f73b4d659fcbefc8d9fc08b9ab",
     "spec.yaml": "3aec2c1fc997eb46c8e4fdd4dfa2b69d63561393cf938ba8445c19abbea5663c"

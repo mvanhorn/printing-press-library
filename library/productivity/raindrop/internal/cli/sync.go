@@ -504,7 +504,8 @@ func syncResource(ctx context.Context, c interface {
 	// resources classified reconcileMode=="flat" collect seen IDs and prune.
 	// outcome.complete is set ONLY at proven natural ends; any abnormal break
 	// sets outcome.reason and leaves complete=false so the reconcile SKIPS.
-	flatReconcilable := resourceReconcileMode(resource) == "flat"
+	reconcileMode := resourceReconcileMode(resource)
+	flatReconcilable := reconcileMode == "flat" || reconcileMode == "global"
 	outcome := partitionOutcome{}
 	var seenIDs []string
 
@@ -842,7 +843,20 @@ func syncResource(ctx context.Context, c interface {
 	//     we never delete on unknown.
 	//   - Incomplete sync (outcome.complete==false) ⇒ SKIP with the recorded
 	//     reason; an abnormal break never proves the partition was enumerated.
-	if prune && flatReconcilable {
+	if prune && reconcileMode == "global" {
+		if outcome.complete {
+			deleted, rerr := db.ReconcileResource(
+				resource, seenIDs, reconcileTypedTable(resource), store.CascadeJunctionsFor(resource),
+			)
+			if rerr != nil {
+				fmt.Fprintf(syncEvents, `{"event":"reconcile_error","resource":"%s","scope":"global","error":%q}`+"\n", resource, rerr.Error())
+			} else {
+				fmt.Fprintf(syncEvents, `{"event":"reconcile","resource":"%s","scope":"global","deleted":%d}`+"\n", resource, deleted)
+			}
+		} else {
+			fmt.Fprintf(syncEvents, `{"event":"reconcile_skipped","resource":"%s","scope":"global","reason":%q}`+"\n", resource, outcome.reason)
+		}
+	} else if prune && reconcileMode == "flat" {
 		def := flatReconcileDef(resource)
 		tenantUUID := resolveTenantID()
 		if tenantUUID == "" {
@@ -2064,7 +2078,12 @@ type partitionOutcome struct {
 // carries a tenant scope column AND an extractable IDField AND no discriminator).
 // Only "flat" resources are emitted; resourceReconcileMode returns "" for any
 // resource absent here, which is all the flat reconcile gate checks for.
-var flatReconcileModes = map[string]string{}
+var flatReconcileModes = map[string]string{
+	"collections": "global",
+	"highlights":  "global",
+	"raindrops":   "global",
+	"tags":        "global",
+}
 
 // resourceReconcileMode returns the flat reconcile classification for a resource,
 // or "" when it is not a flat-reconcilable resource.

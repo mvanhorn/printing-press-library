@@ -3455,6 +3455,69 @@ func (s *Store) ReconcilePartition(resourceType, genericScopeJSONPath, scopeValu
 	return len(victims), nil
 }
 
+// ReconcileResource hard-deletes account-global rows absent from a complete
+// enumeration. Callers must never use this for a tenant-partitioned resource.
+func (s *Store) ReconcileResource(resourceType string, seenIDs []string, typedTable string, cascades []CascadeJunction) (int, error) {
+	if resourceType == "" {
+		return 0, fmt.Errorf("reconcile: empty resource type")
+	}
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+
+	tx, err := s.db.Begin()
+	if err != nil {
+		return 0, err
+	}
+	defer tx.Rollback()
+
+	seen := make(map[string]struct{}, len(seenIDs))
+	for _, id := range seenIDs {
+		seen[id] = struct{}{}
+	}
+	rows, err := tx.Query(`SELECT id FROM resources WHERE resource_type = ?`, resourceType)
+	if err != nil {
+		return 0, fmt.Errorf("reconcile %s: select victims: %w", resourceType, err)
+	}
+	var victims []string
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			_ = rows.Close()
+			return 0, err
+		}
+		if _, ok := seen[BareResourceID(id)]; !ok {
+			victims = append(victims, id)
+		}
+	}
+	_ = rows.Close()
+	if err := rows.Err(); err != nil {
+		return 0, err
+	}
+
+	for _, id := range victims {
+		if typedTable != "" {
+			if _, err := tx.Exec(fmt.Sprintf(`DELETE FROM "%s" WHERE id = ?`, typedTable), id); err != nil {
+				return 0, fmt.Errorf("reconcile %s: typed delete: %w", resourceType, err)
+			}
+		}
+		if _, err := tx.Exec(`DELETE FROM resources_fts WHERE rowid = ?`, ftsRowID(resourceType, id)); err != nil {
+			return 0, fmt.Errorf("reconcile %s: fts delete: %w", resourceType, err)
+		}
+		if _, err := tx.Exec(`DELETE FROM resources WHERE resource_type = ? AND id = ?`, resourceType, id); err != nil {
+			return 0, fmt.Errorf("reconcile %s: generic delete: %w", resourceType, err)
+		}
+		for _, c := range cascades {
+			if _, err := tx.Exec(fmt.Sprintf(`DELETE FROM "%s" WHERE "%s" = ?`, c.Table, c.FKColumn), BareResourceID(id)); err != nil {
+				return 0, fmt.Errorf("reconcile %s: cascade %s: %w", resourceType, c.Table, err)
+			}
+		}
+	}
+	if err := tx.Commit(); err != nil {
+		return 0, err
+	}
+	return len(victims), nil
+}
+
 // ResolveByName resolves a human-readable name to a UUID from synced data.
 // If the input is already a UUID, it is returned as-is.
 // matchFields are JSON field names to search against (e.g., "name", "key", "email").

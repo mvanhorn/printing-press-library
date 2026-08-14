@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"sort"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -65,7 +66,15 @@ func newNovelDuplicatesPlanCmd(flags *rootFlags) *cobra.Command {
 				for _, duplicate := range group[1:] {
 					remove = append(remove, duplicate.ID)
 				}
-				plans = append(plans, map[string]any{"canonical_url": key, "keep": group[0].ID, "remove": remove, "merge_tags": mergedTags(group), "richness": bookmarkRichness(group[0])})
+				plans = append(plans, map[string]any{
+					"canonical_url": key,
+					"keep":          group[0].ID,
+					"remove":        remove,
+					"merge_tags":    mergedTags(group),
+					"merge_note":    mergedNote(group),
+					"highlights":    mergedHighlights(group),
+					"richness":      bookmarkRichness(group[0]),
+				})
 			}
 			payload, _ := json.Marshal(plans)
 			res, err := db.DB().ExecContext(cmd.Context(), `INSERT INTO cleanup_plans(kind,payload) VALUES('duplicates',?)`, string(payload))
@@ -79,6 +88,43 @@ func newNovelDuplicatesPlanCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagCanonical, "canonical", "richest", "Canonical selection: richest, newest, or oldest")
 	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite database path")
 	return cmd
+}
+
+func mergedNote(items []localBookmark) string {
+	seen := map[string]struct{}{}
+	parts := make([]string, 0, len(items))
+	for _, item := range items {
+		note := strings.TrimSpace(item.Note)
+		if note == "" {
+			continue
+		}
+		if _, ok := seen[note]; ok {
+			continue
+		}
+		seen[note] = struct{}{}
+		parts = append(parts, note)
+	}
+	return strings.Join(parts, "\n\n")
+}
+
+func mergedHighlights(items []localBookmark) []map[string]any {
+	seen := map[string]struct{}{}
+	result := make([]map[string]any, 0)
+	for _, item := range items {
+		for _, highlight := range item.Highlights {
+			clean := highlightMutationBody(highlight)
+			if valueString(clean["text"]) == "" {
+				continue
+			}
+			key := highlightSignature(clean)
+			if _, ok := seen[key]; ok {
+				continue
+			}
+			seen[key] = struct{}{}
+			result = append(result, clean)
+		}
+	}
+	return result
 }
 
 func mergedTags(items []localBookmark) []string {
