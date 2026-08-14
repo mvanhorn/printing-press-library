@@ -8,7 +8,7 @@ identifies the company (e.g. `stripe`, `airbnb`, `anthropic`).
 Generic CLI: the board_token is the first positional argument on every command.
 `greenhouse jobs list stripe` lists Stripe's open jobs.
 
-Created by [@mvanhorn](https://github.com/mvanhorn) (Hunter Veltri).
+Created by [@veltri-23](https://github.com/veltri-23) (Hunter Veltri).
 
 ## Install
 
