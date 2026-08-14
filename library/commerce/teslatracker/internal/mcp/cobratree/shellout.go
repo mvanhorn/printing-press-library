@@ -212,13 +212,26 @@ var blockedRootFlags = map[string]bool{
 	"token":        true,
 }
 
+// blockedDestinationFlags are filesystem-destination flags that must be blocked
+// even when a command declares them locally. blockedRootFlags is only consulted
+// for inherited flags (see cliFlagBlockedNames), so a local flag of the same
+// name would otherwise pass straight through — which is how `export --output`
+// reached os.Create with an MCP-caller-chosen path and could truncate any file
+// the server can write. Blocking these costs no capability over MCP: the tool
+// still returns its payload to the caller, it just cannot choose where on disk
+// to put it.
+var blockedDestinationFlags = map[string]bool{
+	"output": true,
+	"o":      true,
+}
+
 func cliArgsFromMCP(args map[string]any, blocked map[string]bool) []string {
 	keys := make([]string, 0, len(args))
 	for k := range args {
 		if strings.Contains(k, "=") {
 			continue
 		}
-		if blocked[k] {
+		if blocked[k] || blockedDestinationFlags[k] {
 			continue
 		}
 		keys = append(keys, k)

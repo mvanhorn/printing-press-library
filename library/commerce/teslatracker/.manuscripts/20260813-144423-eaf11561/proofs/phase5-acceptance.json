@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "7f3b2177bda8e881d23e170e58686b4a5704fc044dcc0cdb2d245dee5880ba26",
+  "source_fingerprint": "cefb329c9ff8a986255968ded8dfd205ea4b6bc34f6044da80995031cb92e06d",
   "source_files": {
     "cmd/teslatracker-pp-cli/main.go": "8d186e9af360b9830a9b9dd4db694f898fa050f829c0b07e47eeadf5a4a294b6",
     "cmd/teslatracker-pp-mcp/main.go": "dbb500daacc65a195d68cf866c3a3e13ba70bc77e0eeb2c6a9fc315dd962b9b6",
@@ -149,9 +149,9 @@
     "internal/mcp/cobratree/classify.go": "34c106dc61a29dd4997eb8ca9da2613ca878930284ad97837f668cba0bf241a7",
     "internal/mcp/cobratree/cli_path.go": "ac1e0ecc8271293ce9a74caf66f0aa2946fc3ac1310fd05b3713d7811af06434",
     "internal/mcp/cobratree/names.go": "096d259f21cbbda4ae65c49f8c2fc89b1f46e45efdf724a5ce73d5f37dcd5c79",
-    "internal/mcp/cobratree/shellout.go": "265cd6c15c1a14d6687a9c27d733644108fa0177aaf9961cd804290a53d1a5a7",
+    "internal/mcp/cobratree/shellout.go": "2c8548b03526d2b618773fd16ff17cd13a37692768853d51ae4670c53e14ab5b",
     "internal/mcp/cobratree/shellout_test.go": "267974d001783313ca1804049bd6212ba3bc0d93a1f2101c1118edca234c91d2",
-    "internal/mcp/cobratree/typemap.go": "11448c43da11eb0d0b680c7d079b97c416d2ddab2b8d79504e2da888428c2609",
+    "internal/mcp/cobratree/typemap.go": "56b704b6c34cf06c4def6fdb7f4f169b48b136a1bdaa286d56068dcb7a6e94f3",
     "internal/mcp/cobratree/walker.go": "03b9b146f1d3fad2d26e3744c644f45603f3ef9e1a2cca6cc0b1dd6b7d43aa79",
     "internal/mcp/intents.go": "10f8f9f75259e3825fe9090e8f8c0cd51e7c293fe15226c0e7544c6cbe7ad5ef",
     "internal/mcp/platform_gate.go": "2859ad25f7e19b0d881ce25018df7e7233d92c9308462bdafd4db3a8b98ee58f",

@@ -31,6 +31,12 @@ func toolOptionsForFlags(cmd *cobra.Command, blocked map[string]bool, positional
 		if reservedStructuredArgs[flag.Name] {
 			return
 		}
+		// Local flags are visited unconditionally below, so the destination
+		// block has to happen here or `export --output` is advertised as a
+		// tool parameter even though the execution path drops it.
+		if blockedDestinationFlags[flag.Name] {
+			return
+		}
 		if seen[flag.Name] {
 			return
 		}
@@ -208,6 +214,12 @@ func blockedStructuredArgsForCommand(cmd *cobra.Command) map[string]bool {
 			blocked[flag.Name] = true
 		}
 	})
+	// Destination flags are blocked whether they arrive inherited or local.
+	for name := range localFlags {
+		if blockedDestinationFlags[name] {
+			blocked[name] = true
+		}
+	}
 	return blocked
 }
 
