@@ -191,6 +191,28 @@ func TestHandleContextDescribesPelotonNotCRM(t *testing.T) {
 	}
 }
 
+// TestHandleContextDocumentsUnvalidatedArgumentPassthrough guards SIGNIFICANT
+// #3/#5's resolution: makeAPIHandler forwards any typed-tool argument it
+// doesn't recognize straight onto the live API as a raw param, unvalidated —
+// a deliberate design decision (kept as-is, per user direction, since it's
+// the only escape hatch for real Peloton filters the hand-written internal
+// spec doesn't declare) but one that must be documented so a misspelled
+// argument's silent no-op isn't a total surprise, and so agents know
+// --select/--compact/--csv/--quiet don't do anything on typed endpoint
+// tools (only on command-mirror tools).
+func TestHandleContextDocumentsUnvalidatedArgumentPassthrough(t *testing.T) {
+	result, err := handleContext(context.Background(), mcplib.CallToolRequest{})
+	if err != nil {
+		t.Fatalf("handleContext returned transport error: %v", err)
+	}
+	text := mcpTextContent(t, result)
+	for _, want := range []string{"unvalidated", "silently no-op"} {
+		if !strings.Contains(text, want) {
+			t.Fatalf("handleContext result does not document unvalidated argument passthrough (missing %q):\n%s", want, text)
+		}
+	}
+}
+
 func TestMCPSearchMissingStoreIsActionable(t *testing.T) {
 	resetMCPPathEnv(t)
 
@@ -594,6 +616,129 @@ func TestMCPToolResultTextBoundsSingleArrayEnvelope(t *testing.T) {
 	}
 	if envelope.ReturnedCount != len(envelope.Groups) {
 		t.Fatalf("returned_count = %d, want group count %d", envelope.ReturnedCount, len(envelope.Groups))
+	}
+}
+
+// classesArchivedFixture builds a payload shaped like the real
+// /api/v2/ride/archived response (classes_catalog, classes_search):
+// results in "data" alongside static ride_types/class_types catalog
+// vocabulary arrays that carry no query-specific information.
+func classesArchivedFixture(t *testing.T, itemCount int) json.RawMessage {
+	t.Helper()
+	items := make([]map[string]string, 0, itemCount)
+	for i := 0; i < itemCount; i++ {
+		items = append(items, map[string]string{
+			"id":    strings.Repeat("d", 8),
+			"title": strings.Repeat("verbose class title ", 90),
+		})
+	}
+	vocab := make([]map[string]string, 0, 234)
+	for i := 0; i < 234; i++ {
+		vocab = append(vocab, map[string]string{"id": strings.Repeat("v", 8), "name": strings.Repeat("vocab entry ", 10)})
+	}
+	data, err := json.Marshal(map[string]any{
+		"data":        items,
+		"ride_types":  vocab,
+		"class_types": vocab,
+	})
+	if err != nil {
+		t.Fatalf("marshal fixture: %v", err)
+	}
+	return data
+}
+
+// TestMCPToolResultTextMultiArrayEnvelopeFallsBackToRawPreview reproduces
+// SIGNIFICANT #6 from a live post-fix verification sweep: bound.go's
+// single-array-field trimmer (boundedSingleArrayObject) can only identify
+// "the" list field when exactly one array field is present. A real
+// classes_catalog/classes_search response big enough to need trimming has
+// three array fields (data, ride_types, class_types), so the trimmer bails
+// to an unbounded raw preview instead of returning a proper bounded item
+// list — this test guards that the *underlying* multi-array limitation
+// still exists in bound.go itself (the fix lives one layer up, in
+// makeAPIHandlerStripFields stripping the redundant fields before the data
+// ever reaches this code path — see the next test).
+func TestMCPToolResultTextMultiArrayEnvelopeFallsBackToRawPreview(t *testing.T) {
+	data := classesArchivedFixture(t, bound.MaxItems+25)
+
+	text := mcpTextContent(t, mcpToolResultText("GET", data))
+	if len(text) > bound.MaxBytes {
+		t.Fatalf("preview result length = %d, want <= %d", len(text), bound.MaxBytes)
+	}
+
+	var envelope struct {
+		Truncated bool   `json:"truncated"`
+		Preview   string `json:"preview"`
+	}
+	if err := json.Unmarshal([]byte(text), &envelope); err != nil {
+		t.Fatalf("result must remain valid JSON: %v\n%s", err, text)
+	}
+	if !envelope.Truncated || envelope.Preview == "" {
+		t.Fatalf("expected a raw preview fallback (multi-array object defeats the single-array trimmer): %s", text)
+	}
+}
+
+// TestStripTopLevelFieldsRemovesRedundantCatalogVocabulary guards the actual
+// SIGNIFICANT #6 fix: stripping ride_types/class_types before the response
+// reaches bound.go leaves exactly one array field ("data"), so the same
+// oversized response that fell back to a raw preview above now gets a
+// proper bounded item list with real count/truncation metadata instead.
+// ride_types/class_types remain fully available via classes_filters (its
+// class_type_id/ride_type_id filter entries carry the same id/name
+// vocabulary), so stripping them here loses no data.
+func TestStripTopLevelFieldsRemovesRedundantCatalogVocabulary(t *testing.T) {
+	data := classesArchivedFixture(t, bound.MaxItems+25)
+	stripped := stripTopLevelFields(data, rideArchivedRedundantFields)
+
+	var obj map[string]json.RawMessage
+	if err := json.Unmarshal(stripped, &obj); err != nil {
+		t.Fatalf("stripped payload must remain valid JSON: %v", err)
+	}
+	if _, ok := obj["ride_types"]; ok {
+		t.Fatal("ride_types was not stripped")
+	}
+	if _, ok := obj["class_types"]; ok {
+		t.Fatal("class_types was not stripped")
+	}
+	if _, ok := obj["data"]; !ok {
+		t.Fatal("stripping removed the real data field too")
+	}
+
+	text := mcpTextContent(t, mcpToolResultText("GET", stripped))
+	var envelope struct {
+		Data          []json.RawMessage `json:"data"`
+		Truncated     bool              `json:"_pp_truncated"`
+		TotalCount    int               `json:"_pp_total_count"`
+		ReturnedCount int               `json:"_pp_returned_count"`
+	}
+	if err := json.Unmarshal([]byte(text), &envelope); err != nil {
+		t.Fatalf("bounded result must remain valid JSON: %v\n%s", err, text)
+	}
+	if !envelope.Truncated {
+		t.Fatalf("expected the now-single-array response to use the bounded envelope, not a raw preview: %s", text)
+	}
+	if envelope.TotalCount != bound.MaxItems+25 {
+		t.Fatalf("total_count = %d, want %d", envelope.TotalCount, bound.MaxItems+25)
+	}
+	if envelope.ReturnedCount != len(envelope.Data) {
+		t.Fatalf("returned_count = %d, want data count %d", envelope.ReturnedCount, len(envelope.Data))
+	}
+}
+
+// TestStripTopLevelFieldsIsNoOpWhenFieldsAbsentOrNotAnObject guards the
+// helper's safety contract: it must never alter a payload with none of the
+// named fields, and must never panic or corrupt a payload that isn't a JSON
+// object (e.g. a bare array GET response), since makeAPIHandlerStripFields
+// calls it unconditionally whenever stripFields is non-empty.
+func TestStripTopLevelFieldsIsNoOpWhenFieldsAbsentOrNotAnObject(t *testing.T) {
+	unaffected := json.RawMessage(`{"data":[1,2,3],"cursor":"x"}`)
+	if got := stripTopLevelFields(unaffected, []string{"ride_types", "class_types"}); string(got) != string(unaffected) {
+		t.Fatalf("stripTopLevelFields altered a payload with none of the named fields: got %s, want unchanged %s", got, unaffected)
+	}
+
+	arrayPayload := json.RawMessage(`[1,2,3]`)
+	if got := stripTopLevelFields(arrayPayload, []string{"ride_types"}); string(got) != string(arrayPayload) {
+		t.Fatalf("stripTopLevelFields must no-op on a non-object payload: got %s, want unchanged %s", got, arrayPayload)
 	}
 }
 

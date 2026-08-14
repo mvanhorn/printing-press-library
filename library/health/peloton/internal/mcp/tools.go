@@ -33,6 +33,13 @@ const (
 	defaultMCPRateLimit = 2
 )
 
+// rideArchivedRedundantFields are top-level keys on /api/v2/ride/archived
+// responses (classes_catalog, classes_search) that duplicate static catalog
+// vocabulary already available in full via classes_filters (see
+// makeAPIHandlerStripFields's doc comment for why these must be stripped
+// rather than left for the shared MCP response trimmer to sort out).
+var rideArchivedRedundantFields = []string{"ride_types", "class_types"}
+
 // RegisterTools registers all API operations as MCP tools.
 func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
@@ -59,7 +66,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/api/v2/ride/archived", true, false, nil, mcpPageConfig{CursorParam: "page", NextCursorPath: ""}, []mcpParamBinding{{PublicName: "browse_category", WireName: "browse_category", Location: "query"}, {PublicName: "content_format", WireName: "content_format", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query", Default: "100"}, {PublicName: "sort_by", WireName: "sort_by", Location: "query", Default: "original_air_time"}, {PublicName: "desc", WireName: "desc", Location: "query", Default: "true"}, {PublicName: "instructor_id", WireName: "instructor_id", Location: "query"}, {PublicName: "class_type_id", WireName: "class_type_id", Location: "query"}}, []string{}),
+		makeAPIHandlerStripFields("GET", "/api/v2/ride/archived", true, false, nil, mcpPageConfig{CursorParam: "page", NextCursorPath: ""}, []mcpParamBinding{{PublicName: "browse_category", WireName: "browse_category", Location: "query"}, {PublicName: "content_format", WireName: "content_format", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query", Default: "100"}, {PublicName: "sort_by", WireName: "sort_by", Location: "query", Default: "original_air_time"}, {PublicName: "desc", WireName: "desc", Location: "query", Default: "true"}, {PublicName: "instructor_id", WireName: "instructor_id", Location: "query"}, {PublicName: "class_type_id", WireName: "class_type_id", Location: "query"}}, []string{}, rideArchivedRedundantFields),
 	)
 	s.AddTool(
 		mcplib.NewTool("classes_filters",
@@ -88,7 +95,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/api/v2/ride/archived", true, false, nil, mcpPageConfig{CursorParam: "page", NextCursorPath: ""}, []mcpParamBinding{{PublicName: "browse_category", WireName: "browse_category", Location: "query"}, {PublicName: "content_format", WireName: "content_format", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query", Default: "100"}, {PublicName: "sort_by", WireName: "sort_by", Location: "query", Default: "original_air_time"}, {PublicName: "desc", WireName: "desc", Location: "query", Default: "true"}, {PublicName: "instructor_id", WireName: "instructor_id", Location: "query"}, {PublicName: "class_type_id", WireName: "class_type_id", Location: "query"}}, []string{}),
+		makeAPIHandlerStripFields("GET", "/api/v2/ride/archived", true, false, nil, mcpPageConfig{CursorParam: "page", NextCursorPath: ""}, []mcpParamBinding{{PublicName: "browse_category", WireName: "browse_category", Location: "query"}, {PublicName: "content_format", WireName: "content_format", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query", Default: "100"}, {PublicName: "sort_by", WireName: "sort_by", Location: "query", Default: "original_air_time"}, {PublicName: "desc", WireName: "desc", Location: "query", Default: "true"}, {PublicName: "instructor_id", WireName: "instructor_id", Location: "query"}, {PublicName: "class_type_id", WireName: "class_type_id", Location: "query"}}, []string{}, rideArchivedRedundantFields),
 	)
 	s.AddTool(
 		mcplib.NewTool("classes_show",
@@ -243,6 +250,25 @@ func formatMCPParamValue(v any) string {
 
 // makeAPIHandler creates a generic MCP tool handler for an API endpoint.
 func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse bool, headerOverrides map[string]string, pageConfig mcpPageConfig, bindings []mcpParamBinding, positionalParams []string) server.ToolHandlerFunc {
+	return makeAPIHandlerStripFields(method, pathTemplate, readOnly, binaryResponse, headerOverrides, pageConfig, bindings, positionalParams, nil)
+}
+
+// makeAPIHandlerStripFields is makeAPIHandler plus stripFields: top-level
+// object keys to drop from a successful GET response before it reaches the
+// MCP result budget/trimming logic in bound.go. Peloton's real
+// /api/v2/ride/archived response (classes_catalog, classes_search) always
+// includes ride_types/class_types sidecar vocabulary arrays (234 items each)
+// alongside the actual "data" results — static catalog data already
+// available via classes_filters, unrelated to the query. Left in, they
+// starve bound.go's single-array-field trimmer (boundedSingleArrayObject /
+// boundedSingleArrayPageObject bail to an unbounded raw preview whenever a
+// response has 2+ array fields, since it can no longer tell which array is
+// "the" list), so any classes_catalog/classes_search response large enough
+// to need trimming got a useless raw preview instead of a proper bounded
+// item list. Stripping the known-redundant fields up front, endpoint by
+// endpoint, is a narrower and lower-risk fix than teaching the shared
+// trimmer to pick "the right array" out of an arbitrary multi-array object.
+func makeAPIHandlerStripFields(method, pathTemplate string, readOnly bool, binaryResponse bool, headerOverrides map[string]string, pageConfig mcpPageConfig, bindings []mcpParamBinding, positionalParams []string, stripFields []string) server.ToolHandlerFunc {
 	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 		c, err := newMCPClient()
 		if err != nil {
@@ -413,6 +439,10 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 			}
 		}
 
+		if len(stripFields) > 0 {
+			data = stripTopLevelFields(data, stripFields)
+		}
+
 		if binaryResponse {
 			encoded := base64.StdEncoding.EncodeToString(data)
 			out, err := json.Marshal(map[string]any{
@@ -437,6 +467,32 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 
 func mcpToolResultText(method string, data json.RawMessage) *mcplib.CallToolResult {
 	return mcplib.NewToolResultText(bound.EndpointResponse(method, data))
+}
+
+// stripTopLevelFields removes the named top-level keys from a JSON object
+// response, leaving every other field's bytes untouched. A no-op (returns
+// data unchanged) when data isn't a JSON object or none of the named keys
+// are present, so it's safe to call unconditionally on any response shape.
+func stripTopLevelFields(data json.RawMessage, fields []string) json.RawMessage {
+	var obj map[string]json.RawMessage
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return data
+	}
+	changed := false
+	for _, f := range fields {
+		if _, ok := obj[f]; ok {
+			delete(obj, f)
+			changed = true
+		}
+	}
+	if !changed {
+		return data
+	}
+	out, err := json.Marshal(obj)
+	if err != nil {
+		return data
+	}
+	return out
 }
 
 // mcpToolError keeps provider-controlled typed endpoint errors within the MCP
@@ -860,7 +916,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		"tool_count":  30,
 		"paths":       paths,
 		// tool_surface tells agents which surface a capability lives on.
-		"tool_surface": "MCP exposes typed endpoint tools, framework tools (search/sql/context/sync/offline/workflow), plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion peloton-pp-cli binary.",
+		"tool_surface": "MCP exposes typed endpoint tools, framework tools (search/sql/context/sync/offline/workflow), plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion peloton-pp-cli binary. Typed endpoint tools forward any argument not in their declared schema straight onto the live API as a raw query/body param, unvalidated — this is intentional (it's an escape hatch for real Peloton filters our internal spec doesn't declare, e.g. classes_search accepts more provider filters than its 8 typed params cover), but it also means a misspelled argument name silently no-ops instead of erroring, and CLI-only flags like --select/--compact/--csv/--quiet have no effect on typed endpoint tools (they only work on command-mirror tools).",
 		"auth": map[string]any{
 			"type": "oauth2_refresh",
 			"env_vars": []map[string]any{
@@ -930,6 +986,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			"Run sync (no args) to populate workouts and classes; naming workouts also cascades into per-workout performance and workout_details, which offline workout/intervals/repeat/strength read.",
 			"Use offline commands for network-free reads of previously-synced data; they never make a live API call.",
 			"Run doctor to check auth state, credential location, and sync cache freshness before assuming an API or credential problem.",
+			"Unrecognized typed-tool arguments are forwarded as raw live API params, not validated — a misspelled filter name silently no-ops instead of erroring. Double-check argument spelling against the tool's declared schema.",
 		},
 		// Command-mirror capabilities are exposed through MCP by shelling out
 		// to the companion CLI binary.
