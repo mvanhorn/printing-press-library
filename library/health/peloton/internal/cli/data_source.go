@@ -354,6 +354,27 @@ func cacheWorkoutDetail(ctx context.Context, id string, data json.RawMessage) {
 	_ = db.UpsertWithFacts("workout_details", id, data)
 }
 
+// cacheClassesFilters is cacheWorkoutDetail's counterpart for GET
+// /api/ride/filters: `offline classes filters` reads a single stored fact
+// at family="filters", id="v1" (see newOfflineClassesFiltersCmd,
+// internal/cli/offline.go), but nothing ever wrote it -- classes_filters.go
+// (unlike every other single-fetch command in this CLI) had no write-through
+// cache call at all, and the endpoint isn't a list response the generic
+// write-through cache's item-extraction logic could populate it from
+// either. Without this, `offline classes filters` 404'd unconditionally
+// regardless of how many live `classes filters` calls preceded it. "v1" is
+// a fixed key: this endpoint has no natural id of its own (it returns one
+// global filter vocabulary, not a collection), so offline reads always look
+// up that same fixed key.
+func cacheClassesFilters(ctx context.Context, data json.RawMessage) {
+	db, err := store.OpenWithContext(ctx, defaultDBPath("peloton-pp-cli"))
+	if err != nil {
+		return
+	}
+	defer db.Close()
+	_ = db.UpsertWithFacts("filters", "v1", data)
+}
+
 // writeThroughCache upserts live API results into the local SQLite store so
 // FTS search covers everything the user has looked up — not just explicit syncs.
 // Best-effort: failures are silently ignored (the live result already succeeded).

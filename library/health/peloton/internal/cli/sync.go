@@ -60,6 +60,7 @@ func newSyncCmd(flags *rootFlags) *cobra.Command {
 	var dbPath string
 	var maxPages int
 	var maxParents int
+	var staleBeforeFlag string
 	var latestOnly bool
 	var strict bool
 	var paramFlags []string
@@ -109,6 +110,12 @@ bounds and resumes this fan-out automatically:
   - --full ignores existing records (e.g. to backfill a fix retroactively)
     and resumes across repeated --full calls via a persisted offset,
     wrapping back to a fresh pass once one full pass completes.
+  - --stale-before <timestamp|duration> is a targeted alternative to --full
+    for backfills: it treats a record as pending -- refetch it -- if it
+    was last fetched before the given time, without needing --full's
+    "redo literally everything" cost. Once refetched, its fetched_at moves
+    forward and it naturally drops out of the pending set, so repeated
+    calls stay resumable the same way the default mode already is.
   - --max-parents bounds how many dependent fetches happen per call; a
     cap hit emits a sync_warning event and the run still exits 0 -- just
     re-run sync to continue.
@@ -135,7 +142,11 @@ bounds and resumes this fan-out automatically:
 
   # Backfill a fix (e.g. performance resolution) across an existing store
   # in bounded batches -- re-run to continue until nothing remains pending
-  peloton-pp-cli sync --resources performance --full --max-parents 500`,
+  peloton-pp-cli sync --resources performance --full --max-parents 500
+
+  # Targeted backfill: only refetch records older than a known cutoff
+  # (e.g. before a fix was deployed), skipping already-correct records
+  peloton-pp-cli sync --resources performance --stale-before 2026-08-14T09:00:00Z --max-parents 500`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			userParams, err := parseSyncUserParams(paramFlags, resourceParamFlags, globalParamFlags)
 			if err != nil {
@@ -310,6 +321,15 @@ bounds and resumes this fan-out automatically:
 				sinceTS = ts.Format(time.RFC3339)
 			}
 
+			var staleBefore *time.Time
+			if staleBeforeFlag != "" {
+				ts, err := parseStaleBefore(staleBeforeFlag)
+				if err != nil {
+					return usageErr(fmt.Errorf("invalid --stale-before value %q: %w", staleBeforeFlag, err))
+				}
+				staleBefore = &ts
+			}
+
 			// Worker pool: produce resources, N workers consume
 			if concurrency < 1 {
 				concurrency = 4
@@ -409,7 +429,7 @@ bounds and resumes this fan-out automatically:
 			// a prior sync populated, when only a dependent was named).
 			dependentScopeSince := dependentScopeSinceFor(effectiveLatestOnly, flatResources, runStarted)
 			for _, resource := range dependentResources {
-				plan, planErr := planDependentSync(db, "workouts", resource, full, dependentScopeSince, maxParents, c.DryRun)
+				plan, planErr := planDependentSync(db, "workouts", resource, full, dependentScopeSince, staleBefore, maxParents, c.DryRun)
 				if planErr != nil {
 					if !humanFriendly {
 						fmt.Fprintln(syncEventWriter, syncErrorJSON(resource, "", planErr))
@@ -487,6 +507,7 @@ bounds and resumes this fan-out automatically:
 	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite database file path (default: resolved data directory data.db)")
 	cmd.Flags().IntVar(&maxPages, "max-pages", 0, "Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)")
 	cmd.Flags().IntVar(&maxParents, "max-parents", 0, "Maximum parent-keyed dependent fetches (performance, workout_details) per invocation (0 = unlimited). By default only parents without an existing record are fetched, so repeated calls drain a large backlog incrementally; --full redoes everything and resumes across calls via a persisted offset. Cap-hit emits a sync_warning event.")
+	cmd.Flags().StringVar(&staleBeforeFlag, "stale-before", "", "Treat a parent-keyed dependent (performance, workout_details) record as pending -- refetch it -- if it was last fetched before this time, even without --full. Accepts an RFC3339 timestamp (2026-08-14T09:00:00Z) or a relative duration like --since (7d, 24h, 1w, 30m). Use this to backfill a fix (e.g. a resolution or shape change) across an already-synced store without --full's cost of redoing every record. Ignored when --full is set (which already redoes everything).")
 	cmd.Flags().BoolVar(&latestOnly, "latest-only", false, "Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).")
 	cmd.Flags().BoolVar(&strict, "strict", false, "Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).")
 	cmd.Flags().StringArrayVar(&paramFlags, "param", nil, "Extra query param to inject into flat-list sync requests (repeatable, key=value). Skipped on path-scoped dependent requests so a top-level scope like workspace=<id> does not double up on /parents/<id>/children calls. Use --global-param to inject everywhere. Avoid pagination keys (limit/since/cursor) — overriding them corrupts resume state.")
@@ -1800,6 +1821,22 @@ func parseSinceDuration(s string) (time.Time, error) {
 	}
 }
 
+// parseStaleBefore parses --stale-before's value as either an RFC3339
+// absolute timestamp (the natural form for "before this fix was deployed")
+// or a --since-style relative duration (7d, 24h, 1w, 30m -- the natural
+// form for "anything older than a week"). Tried in that order since a
+// relative duration string will never parse as RFC3339.
+func parseStaleBefore(s string) (time.Time, error) {
+	if ts, err := time.Parse(time.RFC3339, strings.TrimSpace(s)); err == nil {
+		return ts, nil
+	}
+	ts, err := parseSinceDuration(s)
+	if err != nil {
+		return time.Time{}, fmt.Errorf("expected an RFC3339 timestamp (2026-08-14T09:00:00Z) or a duration like 7d, 24h, 1w, 30m")
+	}
+	return ts, nil
+}
+
 // defaultSyncResources returns the resources a bare `sync` (no --resources)
 // runs. Both are flat, paginated, list-endpoint resources; "performance" and
 // "workout_details" are parent-keyed dependents of "workouts" and are never
@@ -1945,6 +1982,19 @@ type dependentSyncPlan struct {
 //  3. --max-parents caps how many ids a single invocation processes.  When
 //     the cap truncates the candidate set, callers must surface that a
 //     re-invocation is needed to finish the backlog (dependentSyncPlan.capped).
+//  4. staleBefore (--stale-before) extends rule 1's default-mode presence
+//     check into a freshness check, without requiring --full: a parent
+//     counts as pending if it has no record at all (unchanged) OR its
+//     existing record's fetched_at predates staleBefore. This is what
+//     makes an existing-but-wrong-shaped record reachable (e.g.
+//     backfilling the every_n=1 fix across records synced before that fix
+//     landed) without --full's expensive "redo literally everything"
+//     semantics -- once a record is refetched its fetched_at moves to
+//     "now" and naturally falls out of the pending set on the next call,
+//     so this stays resumable via the exact same presence-based mechanism
+//     as rule 1, no separate cursor needed. Ignored when full=true, since
+//     --full already treats every parent as pending regardless of
+//     freshness.
 //
 // dependentScopeSinceFor decides whether a dependent sync invocation's
 // parent-id candidates should be scoped to only the parents touched by
@@ -1966,7 +2016,7 @@ func dependentScopeSinceFor(effectiveLatestOnly bool, flatResources []string, ru
 
 // dryRun skips persisting the --full resume offset, matching --full's own
 // "a preview must not mutate sync-state" convention elsewhere in this file.
-func planDependentSync(db *store.Store, parentResource, dependentResource string, full bool, scopeSince *time.Time, maxParents int, dryRun bool) (dependentSyncPlan, error) {
+func planDependentSync(db *store.Store, parentResource, dependentResource string, full bool, scopeSince, staleBefore *time.Time, maxParents int, dryRun bool) (dependentSyncPlan, error) {
 	parentIDs, err := dependentParentIDs(db, parentResource)
 	if err != nil {
 		return dependentSyncPlan{}, err
@@ -1993,12 +2043,13 @@ func planDependentSync(db *store.Store, parentResource, dependentResource string
 		// already bounds the set to a small, run-specific batch.
 		candidates = parentIDs
 	default:
-		existing, existErr := db.ExistingProviderFactIDs(dependentResource)
+		existing, existErr := db.ExistingProviderFactFetchedAt(dependentResource)
 		if existErr != nil {
 			return dependentSyncPlan{}, existErr
 		}
 		for _, id := range parentIDs {
-			if !existing[id] {
+			fetchedAt, hasRecord := existing[id]
+			if !hasRecord || (staleBefore != nil && fetchedAt.Before(*staleBefore)) {
 				candidates = append(candidates, id)
 			}
 		}

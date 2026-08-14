@@ -79,6 +79,52 @@ func TestUpsertWithFacts_UsesCallerSuppliedID(t *testing.T) {
 	}
 }
 
+// TestRecordProviderFact_AdvancesFetchedAtEvenWhenContentUnchanged guards
+// NEW ISSUE E's --stale-before mechanism from a fourth live post-fix
+// verification sweep: a live-verify run found that refetching a record
+// whose content genuinely hadn't changed left fetched_at untouched (the
+// content-hash dedup short-circuited the write entirely), so --stale-before
+// would report the exact same record as stale on every subsequent call
+// forever, never actually clearing its stale status. fetched_at must mean
+// "when was this record last confirmed fresh," not "when did its content
+// last change" -- the payload rewrite can still be skipped as an
+// optimization, but the timestamp must always advance on a successful
+// fetch.
+func TestRecordProviderFact_AdvancesFetchedAtEvenWhenContentUnchanged(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	body := json.RawMessage(`{"id":"w1","metrics":[1,2,3]}`)
+	if _, err := s.RecordProviderFact("performance", "w1", body); err != nil {
+		t.Fatalf("first RecordProviderFact: %v", err)
+	}
+	first, err := s.GetProviderFact("performance", "w1")
+	if err != nil {
+		t.Fatalf("GetProviderFact after first write: %v", err)
+	}
+
+	// Re-record byte-identical content -- content_hash matches, so this
+	// exercises the short-circuit path specifically.
+	changed, err := s.RecordProviderFact("performance", "w1", body)
+	if err != nil {
+		t.Fatalf("second RecordProviderFact: %v", err)
+	}
+	if changed {
+		t.Fatal("changed=true for byte-identical content, want false (content really is unchanged)")
+	}
+	second, err := s.GetProviderFact("performance", "w1")
+	if err != nil {
+		t.Fatalf("GetProviderFact after second write: %v", err)
+	}
+	if !second.FetchedAt.After(first.FetchedAt) {
+		t.Fatalf("fetched_at did not advance on unchanged-content refetch: first=%v second=%v", first.FetchedAt, second.FetchedAt)
+	}
+}
+
 // TestRedactProviderPayload_PreservesJoinTokensButRedactsRealCredentials
 // guards MINOR #8 from a live post-fix verification sweep: "join_tokens" is
 // a short-lived identifier used to join a live class session in progress,

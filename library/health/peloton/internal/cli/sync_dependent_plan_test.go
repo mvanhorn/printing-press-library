@@ -46,7 +46,7 @@ func TestPlanDependentSync_ParentTableEmptyReported(t *testing.T) {
 	}
 	defer db.Close()
 
-	plan, err := planDependentSync(db, "workouts", "performance", false, nil, 0, false)
+	plan, err := planDependentSync(db, "workouts", "performance", false, nil, nil, 0, false)
 	if err != nil {
 		t.Fatalf("planDependentSync: %v", err)
 	}
@@ -77,7 +77,7 @@ func TestPlanDependentSync_DefaultSkipsAlreadySyncedParents(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	plan, err := planDependentSync(db, "workouts", "performance", false, nil, 0, false)
+	plan, err := planDependentSync(db, "workouts", "performance", false, nil, nil, 0, false)
 	if err != nil {
 		t.Fatalf("planDependentSync: %v", err)
 	}
@@ -108,7 +108,7 @@ func TestPlanDependentSync_FullIgnoresAlreadySyncedParents(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	plan, err := planDependentSync(db, "workouts", "performance", true, nil, 0, false)
+	plan, err := planDependentSync(db, "workouts", "performance", true, nil, nil, 0, false)
 	if err != nil {
 		t.Fatalf("planDependentSync: %v", err)
 	}
@@ -133,7 +133,7 @@ func TestPlanDependentSync_FullResumesAcrossCallsAndWrapsAfterACompletePass(t *t
 
 	// First call: capped at 2, should get the first 2 ids (sorted order)
 	// and persist an offset of 2.
-	plan1, err := planDependentSync(db, "workouts", "performance", true, nil, 2, false)
+	plan1, err := planDependentSync(db, "workouts", "performance", true, nil, nil, 2, false)
 	if err != nil {
 		t.Fatalf("planDependentSync call 1: %v", err)
 	}
@@ -145,7 +145,7 @@ func TestPlanDependentSync_FullResumesAcrossCallsAndWrapsAfterACompletePass(t *t
 	}
 
 	// Second call: should continue from offset 2, not restart from the top.
-	plan2, err := planDependentSync(db, "workouts", "performance", true, nil, 2, false)
+	plan2, err := planDependentSync(db, "workouts", "performance", true, nil, nil, 2, false)
 	if err != nil {
 		t.Fatalf("planDependentSync call 2: %v", err)
 	}
@@ -161,7 +161,7 @@ func TestPlanDependentSync_FullResumesAcrossCallsAndWrapsAfterACompletePass(t *t
 	}
 
 	// Third call: only 1 remains (5 - 2 - 2), not capped.
-	plan3, err := planDependentSync(db, "workouts", "performance", true, nil, 2, false)
+	plan3, err := planDependentSync(db, "workouts", "performance", true, nil, nil, 2, false)
 	if err != nil {
 		t.Fatalf("planDependentSync call 3: %v", err)
 	}
@@ -172,7 +172,7 @@ func TestPlanDependentSync_FullResumesAcrossCallsAndWrapsAfterACompletePass(t *t
 	// Fourth call: the pass is complete (offset >= len(parentIDs)); a
 	// fresh --full call must wrap around and start over, not return empty
 	// forever.
-	plan4, err := planDependentSync(db, "workouts", "performance", true, nil, 2, false)
+	plan4, err := planDependentSync(db, "workouts", "performance", true, nil, nil, 2, false)
 	if err != nil {
 		t.Fatalf("planDependentSync call 4: %v", err)
 	}
@@ -193,11 +193,11 @@ func TestPlanDependentSync_DryRunDoesNotPersistFullOffset(t *testing.T) {
 	defer db.Close()
 	seedPlanTestWorkouts(t, db, "w1", "w2", "w3")
 
-	plan1, err := planDependentSync(db, "workouts", "performance", true, nil, 1, true)
+	plan1, err := planDependentSync(db, "workouts", "performance", true, nil, nil, 1, true)
 	if err != nil {
 		t.Fatalf("planDependentSync (dry-run) call 1: %v", err)
 	}
-	plan2, err := planDependentSync(db, "workouts", "performance", true, nil, 1, true)
+	plan2, err := planDependentSync(db, "workouts", "performance", true, nil, nil, 1, true)
 	if err != nil {
 		t.Fatalf("planDependentSync (dry-run) call 2: %v", err)
 	}
@@ -217,7 +217,7 @@ func TestPlanDependentSync_MaxParentsCapsDefaultModeToo(t *testing.T) {
 	defer db.Close()
 	seedPlanTestWorkouts(t, db, "w1", "w2", "w3", "w4", "w5")
 
-	plan, err := planDependentSync(db, "workouts", "performance", false, nil, 2, false)
+	plan, err := planDependentSync(db, "workouts", "performance", false, nil, nil, 2, false)
 	if err != nil {
 		t.Fatalf("planDependentSync: %v", err)
 	}
@@ -278,11 +278,93 @@ func TestPlanDependentSync_ScopeSinceRestrictsToTouchedParents(t *testing.T) {
 	setProviderFactFetchedAt(t, db, "workouts", "w-old", cutoff.Add(-time.Hour))
 	setProviderFactFetchedAt(t, db, "workouts", "w-new", cutoff.Add(time.Hour))
 
-	plan, err := planDependentSync(db, "workouts", "performance", false, &cutoff, 0, false)
+	plan, err := planDependentSync(db, "workouts", "performance", false, &cutoff, nil, 0, false)
 	if err != nil {
 		t.Fatalf("planDependentSync: %v", err)
 	}
 	if len(plan.ids) != 1 || plan.ids[0] != "w-new" {
 		t.Fatalf("ids = %v, want exactly [w-new] (w-old was touched before scopeSince)", plan.ids)
+	}
+}
+
+// TestParseStaleBefore guards --stale-before accepting both the absolute
+// RFC3339 form (the natural way to say "before this fix was deployed") and
+// the relative --since-style duration form (the natural way to say
+// "anything older than a week").
+func TestParseStaleBefore(t *testing.T) {
+	got, err := parseStaleBefore("2026-08-14T09:00:00Z")
+	if err != nil {
+		t.Fatalf("parseStaleBefore(RFC3339): %v", err)
+	}
+	want := time.Date(2026, 8, 14, 9, 0, 0, 0, time.UTC)
+	if !got.Equal(want) {
+		t.Fatalf("parseStaleBefore(RFC3339) = %v, want %v", got, want)
+	}
+
+	before := time.Now().Add(-7 * 24 * time.Hour)
+	got, err = parseStaleBefore("7d")
+	if err != nil {
+		t.Fatalf("parseStaleBefore(7d): %v", err)
+	}
+	after := time.Now().Add(-7 * 24 * time.Hour)
+	if got.Before(before.Add(-time.Minute)) || got.After(after.Add(time.Minute)) {
+		t.Fatalf("parseStaleBefore(7d) = %v, want ~7 days ago", got)
+	}
+
+	if _, err := parseStaleBefore("not-a-timestamp"); err == nil {
+		t.Fatal("parseStaleBefore(garbage) should return an error")
+	}
+}
+
+// TestPlanDependentSync_StaleBeforeRefetchesOldRecordsWithoutFull guards
+// NEW ISSUE E from a fourth live post-fix verification sweep: the default
+// (non-full) mode only checks whether a dependentResource record exists at
+// all, which can't detect a record that exists but is stale in shape (e.g.
+// a performance record synced before the every_n=1 fix landed). Without
+// --stale-before, backfilling such a fix requires --full, which redoes
+// every record and wastes calls walking past already-correct ones.
+// staleBefore must treat an existing record as pending when its fetched_at
+// predates the cutoff, while a genuinely fresh record (fetched_at at or
+// after the cutoff) must NOT be needlessly reprocessed -- staleBefore is a
+// targeted backfill tool, not --full's blunt "redo everything."
+func TestPlanDependentSync_StaleBeforeRefetchesOldRecordsWithoutFull(t *testing.T) {
+	db, err := store.Open(filepath.Join(t.TempDir(), "data.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	seedPlanTestWorkouts(t, db, "w-stale", "w-fresh", "w-missing")
+
+	if err := db.UpsertWithFacts("performance", "w-stale", json.RawMessage(`{"metrics":[]}`)); err != nil {
+		t.Fatal(err)
+	}
+	if err := db.UpsertWithFacts("performance", "w-fresh", json.RawMessage(`{"metrics":[]}`)); err != nil {
+		t.Fatal(err)
+	}
+	cutoff := time.Now().UTC()
+	setProviderFactFetchedAt(t, db, "performance", "w-stale", cutoff.Add(-time.Hour))
+	setProviderFactFetchedAt(t, db, "performance", "w-fresh", cutoff.Add(time.Hour))
+	// w-missing has no performance record at all -- must stay pending
+	// regardless of staleBefore, same as the no-staleBefore default case.
+
+	plan, err := planDependentSync(db, "workouts", "performance", false, nil, &cutoff, 0, false)
+	if err != nil {
+		t.Fatalf("planDependentSync: %v", err)
+	}
+	got := map[string]bool{}
+	for _, id := range plan.ids {
+		got[id] = true
+	}
+	if !got["w-stale"] {
+		t.Fatalf("ids = %v, want w-stale included (its record predates --stale-before)", plan.ids)
+	}
+	if !got["w-missing"] {
+		t.Fatalf("ids = %v, want w-missing included (no record at all is always pending)", plan.ids)
+	}
+	if got["w-fresh"] {
+		t.Fatalf("ids = %v, want w-fresh excluded (its record is fresher than --stale-before, not stale)", plan.ids)
+	}
+	if len(plan.ids) != 2 {
+		t.Fatalf("ids = %v, want exactly 2 (w-stale, w-missing)", plan.ids)
 	}
 }

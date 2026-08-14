@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "classes-filters-cache-and-select-docs",
+  "applied_at": "2026-08-14",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Two independent, small fixes bundled together: (1) cacheClassesFilters (internal/cli/data_source.go) writes a live classes_filters response into provider_payloads family=\"filters\", id=\"v1\" -- classes_filters.go had no write-through cache call at all, unlike every other single-fetch command in this CLI, so `offline classes filters` was unconditionally unreachable regardless of how many live calls preceded it. (2) documentation-only: the --select flag help text (root.go) and a new context tool query_tip (tools.go) note that dotted paths (e.g. --select detail.title, --select result.segments) are required to reach fields inside offline output's wrapper shapes (detail/history on offline_workout, result on any offline command returning a caveat). Also fixed the self-contradictory \"Pass page parameter\" wording in context.query_tips (should say cursor, matching every declared MCP pagination param). Any future regen must keep classes_filters.go's live-branch calling cacheClassesFilters with the fixed \"v1\" key (this endpoint returns one global vocabulary object, not a per-id collection, so there is no natural id to key on).",
+  "reason": "NEW ISSUES D and H (H a relocation of the old defect 9, this time in context.query_tips rather than tool descriptions) from a third live post-fix verification sweep. The --select dotted-path finding (labeled B in that report) turned out not to be a functional bug on investigation -- filterFields already supports dotted paths, confirmed live -- so it resolved to a documentation fix rather than a behavior change.",
+  "files": [
+    "internal/cli/classes_filters.go",
+    "internal/cli/data_source.go",
+    "internal/cli/classes_filters_test.go",
+    "internal/cli/root.go",
+    "internal/mcp/tools.go"
+  ],
+  "validated_outcome": "go build/vet/test/govulncheck and verify_skill.py all green. New test TestClassesFiltersLiveFetchPopulatesOfflineRead drives the real `classes filters` command end-to-end against a fake server and confirms the store gets populated. Live-verified against the user's real account: a live `classes filters --browse-category cycling` call followed by `offline classes filters` now returns the full real filter vocabulary instead of \"not found\"."
+}

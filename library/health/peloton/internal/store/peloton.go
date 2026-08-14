@@ -36,10 +36,22 @@ func (s *Store) RecordProviderFact(family, id string, body json.RawMessage) (boo
 	defer s.writeMu.Unlock()
 	var old string
 	_ = s.db.QueryRow(`SELECT content_hash FROM provider_payloads WHERE family=? AND provider_id=?`, family, id).Scan(&old)
+	now := time.Now().UTC()
 	if old == digest {
-		return false, nil
+		// Content unchanged from what's already stored -- skip rewriting
+		// the (potentially large) payload blob, but still advance
+		// fetched_at: it represents "when was this record last confirmed
+		// fresh against the live API," not "when did its content last
+		// change," and callers (e.g. sync's --stale-before) rely on it to
+		// know a record was just re-verified, not just that its bytes
+		// happen to already match. Without this, a --stale-before refetch
+		// of a record whose live content genuinely hasn't changed would
+		// leave fetched_at untouched and the record would be reported
+		// stale again on every subsequent call, forever.
+		_, err := s.db.Exec(`UPDATE provider_payloads SET fetched_at=? WHERE family=? AND provider_id=?`, now, family, id)
+		return false, err
 	}
-	_, err = s.db.Exec(`INSERT INTO provider_payloads(family,provider_id,content_hash,payload,fetched_at) VALUES(?,?,?,?,?) ON CONFLICT(family,provider_id) DO UPDATE SET content_hash=excluded.content_hash,payload=excluded.payload,fetched_at=excluded.fetched_at`, family, id, digest, redacted, time.Now().UTC())
+	_, err = s.db.Exec(`INSERT INTO provider_payloads(family,provider_id,content_hash,payload,fetched_at) VALUES(?,?,?,?,?) ON CONFLICT(family,provider_id) DO UPDATE SET content_hash=excluded.content_hash,payload=excluded.payload,fetched_at=excluded.fetched_at`, family, id, digest, redacted, now)
 	return err == nil, err
 }
 
@@ -135,28 +147,32 @@ func (s *Store) GetProviderFact(family, id string) (ProviderFact, error) {
 	return fact, nil
 }
 
-// ExistingProviderFactIDs returns the set of provider ids already stored
-// for a family. Dependent syncs (performance, workout_details) use this to
-// skip parents that already have a record instead of always reprocessing
-// every parent id on every invocation -- an id with existing data doesn't
-// need reprocessing, and a call that gets cut off partway simply leaves
-// whatever it didn't reach as pending for the next call, with no separate
-// resume cursor required.
-func (s *Store) ExistingProviderFactIDs(family string) (map[string]bool, error) {
-	rows, err := s.db.Query(`SELECT provider_id FROM provider_payloads WHERE family=?`, family)
+// ExistingProviderFactFetchedAt returns fetched_at per provider id already
+// stored for a family. Dependent syncs (performance, workout_details) use
+// this to skip parents that already have a fresh-enough record instead of
+// always reprocessing every parent id on every invocation -- an id with
+// existing data doesn't need reprocessing (unless a --stale-before cutoff
+// says otherwise; see planDependentSync), and a call that gets cut off
+// partway simply leaves whatever it didn't reach as pending for the next
+// call, with no separate resume cursor required. Returning fetched_at
+// rather than a plain presence set lets callers distinguish "has a record"
+// from "has a record recent enough to trust."
+func (s *Store) ExistingProviderFactFetchedAt(family string) (map[string]time.Time, error) {
+	rows, err := s.db.Query(`SELECT provider_id, fetched_at FROM provider_payloads WHERE family=?`, family)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	ids := map[string]bool{}
+	fetchedAt := map[string]time.Time{}
 	for rows.Next() {
 		var id string
-		if err := rows.Scan(&id); err != nil {
+		var at time.Time
+		if err := rows.Scan(&id, &at); err != nil {
 			return nil, err
 		}
-		ids[id] = true
+		fetchedAt[id] = at
 	}
-	return ids, rows.Err()
+	return fetchedAt, rows.Err()
 }
 
 // ParentIDsTouchedSince returns provider_payloads ids for a family fetched

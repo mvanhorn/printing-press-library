@@ -51,6 +51,14 @@ func newClassesFiltersCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
+			if prov.Source == "live" {
+				// See cacheClassesFilters's doc comment: this endpoint
+				// returns one global filter-vocabulary object, not a list
+				// the generic write-through cache above (registered under
+				// "classes") can extract items from, so `offline classes
+				// filters` never had anything to read without this.
+				cacheClassesFilters(cmd.Context(), data)
+			}
 			// Print provenance to stderr for human-facing output only.
 			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
 			// --select) and piped stdout suppress this line; the JSON envelope

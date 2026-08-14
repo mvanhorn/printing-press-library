@@ -102,7 +102,7 @@ func newOfflineIntervalsCmd(flags *rootFlags) *cobra.Command {
 		if err != nil {
 			return nil, nil, err
 		}
-		rideID := stringValue(decodePayload(detail), "ride_id", "rideId")
+		rideID := workoutDetailRideID(decodePayload(detail))
 		if rideID == "" {
 			return map[string]any{"workout_id": id, "segments": []any{}}, []string{"workout detail does not include a class identifier"}, nil
 		}
@@ -223,7 +223,7 @@ func newOfflineRepeatCmd(flags *rootFlags) *cobra.Command {
 		if err != nil {
 			return err
 		}
-		firstRide, secondRide := stringValue(decodePayload(first), "ride_id", "rideId"), stringValue(decodePayload(second), "ride_id", "rideId")
+		firstRide, secondRide := workoutDetailRideID(decodePayload(first)), workoutDetailRideID(decodePayload(second))
 		if firstRide == "" || secondRide == "" {
 			return printOffline(cmd, flags, map[string]any{"same_class": false, "caveats": []string{"one or both workout details lack a comparable class identifier"}})
 		}
@@ -317,7 +317,7 @@ func printOffline(cmd *cobra.Command, flags *rootFlags, value any) error {
 	if flags.selectFields != "" {
 		data = filterFields(data, flags.selectFields)
 	} else if flags.compact {
-		data = compactFields(data)
+		data = compactOfflineFields(data)
 	}
 	var filteredValue any
 	if err := json.Unmarshal(data, &filteredValue); err != nil {
@@ -329,6 +329,67 @@ func printOffline(cmd *cobra.Command, flags *rootFlags, value any) error {
 	}
 	return printOutputWithFlagsMetaFiltered(cmd.OutOrStdout(), json.RawMessage(envelope), flags, map[string]any{"source": "local"})
 }
+
+// compactOfflineVerboseFields extends the shared compactVerboseObjectFields
+// blocklist with Peloton-specific bulky fields confirmed present in real
+// workout_details payloads (achievement_templates: badge metadata, ~370
+// bytes even when nearly empty; muscle_group_score: per-muscle-group
+// scoring detail on strength workouts). Kept separate from
+// compactVerboseObjectFields (helpers.go) rather than added to it, since
+// that set is shared by every printed CLI's --compact and these two names
+// are Peloton-specific noise, not generic API metadata.
+var compactOfflineVerboseFields = map[string]bool{
+	"achievement_templates": true,
+	"muscle_group_score":    true,
+}
+
+// compactOfflineFields is compactFields' offline counterpart: it applies
+// the same blocklist recursively at every nesting level, not just the top.
+// offline output routinely wraps the real payload under a structural key
+// (detail/history on offline_workout, result on any offline command that
+// returns a caveat) rather than exposing fields at the top level, so the
+// shared, shallow compactFields left --compact doing nothing for these
+// shapes -- the wrapper keys themselves never matched the blocklist, so
+// their full nested content passed through untouched (SIGNIFICANT #C from
+// a fourth live post-fix verification sweep). Deliberately scoped to
+// offline output only: live single-fetch commands' flat responses don't
+// have this wrapping problem, and their nested objects (e.g. `workouts
+// show`'s "ride" object) are meaningful content --compact should leave
+// intact, not blindly recurse into.
+func compactOfflineFields(data json.RawMessage) json.RawMessage {
+	var value any
+	if err := json.Unmarshal(data, &value); err != nil {
+		return data
+	}
+	compacted, err := json.Marshal(compactOfflineValue(value))
+	if err != nil {
+		return data
+	}
+	return compacted
+}
+
+func compactOfflineValue(value any) any {
+	switch v := value.(type) {
+	case map[string]any:
+		kept := make(map[string]any, len(v))
+		for k, child := range v {
+			if compactVerboseObjectFields[k] || compactOfflineVerboseFields[k] {
+				continue
+			}
+			kept[k] = compactOfflineValue(child)
+		}
+		return kept
+	case []any:
+		out := make([]any, len(v))
+		for i, item := range v {
+			out[i] = compactOfflineValue(item)
+		}
+		return out
+	default:
+		return value
+	}
+}
+
 func decodePayload(f store.ProviderFact) any {
 	var value any
 	dec := json.NewDecoder(strings.NewReader(string(f.Payload)))
@@ -366,6 +427,26 @@ func objectValue(value any, keys ...string) (any, bool) {
 func stringValue(value any, keys ...string) string {
 	if v, ok := objectValue(value, keys...); ok {
 		return fmt.Sprint(v)
+	}
+	return ""
+}
+
+// workoutDetailRideID extracts the class (ride) id from a decoded
+// "workout_details" payload. Unlike the "workouts" family -- where
+// enrichWorkoutRideMetadata (internal/store/peloton.go) promotes ride.id to
+// a top-level ride_id at write time, specifically because lookupFieldValue
+// only ever reads top-level fields -- workout_details is stored as-is, and
+// Peloton's API nests the class id under ride.id / ride.title with no
+// top-level ride_id/rideId at all. Without this fallback, offline_intervals
+// and offline_repeat treated every class-based workout as if it had no
+// class association, since they only checked the top-level keys that
+// workout_details payloads never actually carry.
+func workoutDetailRideID(value any) string {
+	if id := stringValue(value, "ride_id", "rideId"); id != "" {
+		return id
+	}
+	if ride, ok := objectValue(value, "ride"); ok {
+		return stringValue(ride, "id")
 	}
 	return ""
 }

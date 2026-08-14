@@ -3,6 +3,7 @@ package cli
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -171,6 +172,99 @@ func TestOfflineSelectFiltersThePayloadNotTheEnvelope(t *testing.T) {
 	}
 	if len(data) != 1 {
 		t.Fatalf("--select summary should leave exactly one field, got %#v", data)
+	}
+}
+
+// TestOfflineCompactRecursesIntoWrapperShapes guards NEW ISSUE C from a
+// fourth live post-fix verification sweep: --compact is documented as
+// "only key fields (id, name, status, timestamps)" but the shared
+// compactFields (helpers.go) only strips its blocklist at the top level.
+// offline_workout's output wraps the real payload under "detail"/"history"
+// keys, neither of which matches the blocklist, so --compact previously
+// returned the complete, unstripped payload -- achievement_templates and
+// all. compactOfflineFields must recurse so the blocklist actually reaches
+// the nested content.
+func TestOfflineCompactRecursesIntoWrapperShapes(t *testing.T) {
+	home := t.TempDir()
+	db, err := store.Open(filepath.Join(home, "data", "data.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	body := `{"id":"w1","name":"Ride","description":"verbose prose","achievement_templates":[{"id":"a1"}],"nested":{"comments":["noisy"],"keep":"yes"}}`
+	if _, err := db.RecordProviderFact("workout_details", "w1", json.RawMessage(body)); err != nil {
+		t.Fatal(err)
+	}
+	if err := db.Close(); err != nil {
+		t.Fatal(err)
+	}
+
+	got, err := executeOffline(t, home, "offline", "workout", "w1", "--compact")
+	if err != nil {
+		t.Fatalf("offline workout w1 --compact: %v", err)
+	}
+	encoded, _ := json.Marshal(got)
+	for _, verbose := range []string{"verbose prose", "achievement_templates", "noisy"} {
+		if strings.Contains(string(encoded), verbose) {
+			t.Fatalf("--compact left verbose content %q in nested output: %s", verbose, encoded)
+		}
+	}
+	for _, kept := range []string{`"id":"w1"`, `"name":"Ride"`, `"keep":"yes"`} {
+		if !strings.Contains(string(encoded), kept) {
+			t.Fatalf("--compact dropped legitimate content %q it should have kept: %s", kept, encoded)
+		}
+	}
+}
+
+// TestOfflineIntervalsAndRepeatResolveNestedRideID guards NEW ISSUE A from a
+// third live post-fix verification sweep: workout_details payloads never
+// carry a top-level ride_id/rideId -- the real Peloton API only nests it
+// under ride.id (confirmed against a real stored record) -- unlike the
+// "workouts" family, which enrichWorkoutRideMetadata promotes to a
+// top-level field at write time for exactly this reason. offline_intervals
+// and offline_repeat both read workout_details directly, so both hit the
+// same bug: every class-based workout looked like it had no class
+// association at all. The existing seedOfflineFacts fixture happens to put
+// ride_id at the top level already, which is why this slipped past earlier
+// tests -- this test uses the real, nested-only shape deliberately.
+func TestOfflineIntervalsAndRepeatResolveNestedRideID(t *testing.T) {
+	home := t.TempDir()
+	db, err := store.Open(filepath.Join(home, "data", "data.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	nested := `{"id":"%s","ride":{"id":"ride-nested","title":"Nested Ride"}}`
+	if _, err := db.RecordProviderFact("workout_details", "n1", json.RawMessage(fmt.Sprintf(nested, "n1"))); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := db.RecordProviderFact("workout_details", "n2", json.RawMessage(fmt.Sprintf(nested, "n2"))); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := db.RecordProviderFact("classes", "ride-nested", json.RawMessage(`{"id":"ride-nested","segments":[{"role":"warmup"}]}`)); err != nil {
+		t.Fatal(err)
+	}
+	if err := db.Close(); err != nil {
+		t.Fatal(err)
+	}
+
+	got, err := executeOffline(t, home, "offline", "intervals", "n1")
+	if err != nil {
+		t.Fatalf("offline intervals n1: %v", err)
+	}
+	encoded, _ := json.Marshal(got)
+	if strings.Contains(string(encoded), "does not include a class identifier") {
+		t.Fatalf("offline intervals failed to resolve the nested ride.id: %s", encoded)
+	}
+	if !strings.Contains(string(encoded), "ride-nested") {
+		t.Fatalf("offline intervals did not resolve ride_id=ride-nested: %s", encoded)
+	}
+
+	got, err = executeOffline(t, home, "offline", "repeat", "n1", "n2")
+	if err != nil {
+		t.Fatalf("offline repeat n1 n2: %v", err)
+	}
+	encoded, _ = json.Marshal(got)
+	if !strings.Contains(string(encoded), `"same_class":true`) {
+		t.Fatalf("offline repeat failed to resolve the nested ride.id on both workouts: %s", encoded)
 	}
 }
 

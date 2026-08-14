@@ -138,7 +138,7 @@ func (c *pathAwareSyncClient) RateLimit() float64 { return 0 }
 // tests).
 func mustPlanDependentSync(t *testing.T, db *store.Store, dependentResource string) dependentSyncPlan {
 	t.Helper()
-	plan, err := planDependentSync(db, "workouts", dependentResource, false, nil, 0, false)
+	plan, err := planDependentSync(db, "workouts", dependentResource, false, nil, nil, 0, false)
 	if err != nil {
 		t.Fatalf("planDependentSync(%s): %v", dependentResource, err)
 	}
