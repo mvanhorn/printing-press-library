@@ -135,6 +135,53 @@ func (s *Store) GetProviderFact(family, id string) (ProviderFact, error) {
 	return fact, nil
 }
 
+// ExistingProviderFactIDs returns the set of provider ids already stored
+// for a family. Dependent syncs (performance, workout_details) use this to
+// skip parents that already have a record instead of always reprocessing
+// every parent id on every invocation -- an id with existing data doesn't
+// need reprocessing, and a call that gets cut off partway simply leaves
+// whatever it didn't reach as pending for the next call, with no separate
+// resume cursor required.
+func (s *Store) ExistingProviderFactIDs(family string) (map[string]bool, error) {
+	rows, err := s.db.Query(`SELECT provider_id FROM provider_payloads WHERE family=?`, family)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	ids := map[string]bool{}
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		ids[id] = true
+	}
+	return ids, rows.Err()
+}
+
+// ParentIDsTouchedSince returns provider_payloads ids for a family fetched
+// at or after `since`. Dependent syncs use this to scope their
+// parent-keyed fan-out to only the parents a specific sync invocation
+// actually touched (e.g. under --latest-only, which promises a bounded
+// "refresh the top" operation), rather than every parent ever synced into
+// the local store.
+func (s *Store) ParentIDsTouchedSince(family string, since time.Time) ([]string, error) {
+	rows, err := s.db.Query(`SELECT provider_id FROM provider_payloads WHERE family=? AND fetched_at >= ?`, family, since)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var ids []string
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		ids = append(ids, id)
+	}
+	return ids, rows.Err()
+}
+
 // providerFactDateField names the JSON field within a family's payload that
 // carries the record's own real-world date, for families where one exists.
 // Concurrent sync workers write rows in whatever order requests happen to

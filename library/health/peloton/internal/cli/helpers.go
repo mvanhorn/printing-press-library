@@ -1165,6 +1165,21 @@ func printOutputWithFlagsMeta(w io.Writer, data json.RawMessage, flags *rootFlag
 	} else if flags.compact {
 		data = compactFields(data)
 	}
+	return printOutputWithFlagsMetaFiltered(w, data, flags, agentMeta)
+}
+
+// printOutputWithFlagsMetaFiltered is printOutputWithFlagsMeta's tail half
+// (everything after --select/--compact filtering), split out for callers
+// that must apply filtering to an inner payload before it gets wrapped in
+// an outer envelope. printOffline is the motivating case: applying
+// --select to its already-wrapped {"meta":...,"data":...} envelope looks
+// for the requested field names among top-level envelope keys
+// (meta/data) instead of the actual payload fields inside "data",
+// silently returning {} for any real field name (SIGNIFICANT #3 from a
+// live post-fix verification sweep). Live single-fetch commands
+// (e.g. workouts_performance.go) already filter before wrapping in their
+// provenance envelope; printOffline must do the same.
+func printOutputWithFlagsMetaFiltered(w io.Writer, data json.RawMessage, flags *rootFlags, agentMeta map[string]any) error {
 	if flags.agent && flags.asJSON && !flags.csv && !flags.plain && !flags.quiet {
 		wrapped, err := wrapAgentOutput(data, agentMeta)
 		if err != nil {

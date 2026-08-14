@@ -918,7 +918,13 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		// tool_surface tells agents which surface a capability lives on.
 		"tool_surface": "MCP exposes typed endpoint tools, framework tools (search/sql/context/sync/offline/workflow), plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion peloton-pp-cli binary. Typed endpoint tools forward any argument not in their declared schema straight onto the live API as a raw query/body param, unvalidated — this is intentional (it's an escape hatch for real Peloton filters our internal spec doesn't declare, e.g. classes_search accepts more provider filters than its 8 typed params cover), but it also means a misspelled argument name silently no-ops instead of erroring, and CLI-only flags like --select/--compact/--csv/--quiet have no effect on typed endpoint tools (they only work on command-mirror tools).",
 		"auth": map[string]any{
-			"type": "oauth2_refresh",
+			// "session_login" deliberately avoids any OAuth-flavored term:
+			// Peloton has no OAuth flow at all, just POST /auth/login once
+			// with the env vars below, then persist the resulting session.
+			// A prior "managed OAuth bundle" wording here cost hours of
+			// dead-end debugging chasing a nonexistent external OAuth
+			// provisioning service.
+			"type": "session_login",
 			"env_vars": []map[string]any{
 				{
 					"name":        "PELOTON_OAUTH_USERNAME",
@@ -984,6 +990,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			"Use the search tool for full-text search across all synced resources. Faster than iterating list endpoints.",
 			"Prefer sql/search over repeated API calls when the data is already synced.",
 			"Run sync (no args) to populate workouts and classes; naming workouts also cascades into per-workout performance and workout_details, which offline workout/intervals/repeat/strength read.",
+			"performance/workout_details have no bulk endpoint (one request per workout), so a large account's dependent sync is bounded and resumable per call: by default only workouts missing a record are fetched (repeated calls drain a backlog for free); sync --resources performance --full --max-parents <n> forces a bounded, resumable redo (e.g. to backfill a fix) via the sync command-mirror tool.",
 			"Use offline commands for network-free reads of previously-synced data; they never make a live API call.",
 			"Run doctor to check auth state, credential location, and sync cache freshness before assuming an API or credential problem.",
 			"Unrecognized typed-tool arguments are forwarded as raw live API params, not validated — a misspelled filter name silently no-ops instead of erroring. Double-check argument spelling against the tool's declared schema.",

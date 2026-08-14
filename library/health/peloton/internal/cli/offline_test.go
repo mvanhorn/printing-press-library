@@ -140,6 +140,40 @@ func TestOfflineQueriesUseOnlyU3FactsAndCaveatGaps(t *testing.T) {
 	}
 }
 
+// TestOfflineSelectFiltersThePayloadNotTheEnvelope guards SIGNIFICANT #3
+// from a live post-fix verification sweep: printOffline used to wrap its
+// value into {"meta":...,"data":value} and only then hand the whole
+// envelope to the shared --select filter, which looks for the requested
+// field names among the envelope's own top-level keys (meta/data) instead
+// of the real fields inside "data" -- so `offline performance <id> --select
+// summary` silently returned {} regardless of what field name was
+// requested, for every offline_* command. --select must filter the inner
+// value before it gets wrapped, matching how live single-fetch commands
+// (e.g. workouts_performance.go) already filter before wrapping their own
+// provenance envelope.
+func TestOfflineSelectFiltersThePayloadNotTheEnvelope(t *testing.T) {
+	home := t.TempDir()
+	seedOfflineFacts(t, home)
+
+	got, err := executeOffline(t, home, "offline", "performance", "w1", "--select", "summary")
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, ok := got["data"].(map[string]any)
+	if !ok {
+		t.Fatalf("data=%#v", got["data"])
+	}
+	if _, ok := data["summary"]; !ok {
+		t.Fatalf("--select summary dropped the requested field entirely: %#v", data)
+	}
+	if _, ok := data["samples"]; ok {
+		t.Fatalf("--select summary should have dropped the unrequested \"samples\" field: %#v", data)
+	}
+	if len(data) != 1 {
+		t.Fatalf("--select summary should leave exactly one field, got %#v", data)
+	}
+}
+
 func TestOfflineOutputAvoidsCoachingSemantics(t *testing.T) {
 	home := t.TempDir()
 	seedOfflineFacts(t, home)

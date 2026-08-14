@@ -269,6 +269,7 @@ Sync API data to local SQLite for offline search and analysis.
 
 - **`peloton-pp-cli sync`** - Sync the default resources (`workouts`, `classes`). Naming `workouts` also cascades into per-workout `performance` samples and `workout_details` payloads (no bulk endpoint exists for those; one request per workout each), which back `offline workout`/`intervals`/`repeat`/`strength`.
 - **`peloton-pp-cli sync --resources <list>`** - Sync specific resources: `workouts`, `classes`, `performance`, or `workout_details` (`strength` is accepted as an alias for `workout_details`).
+- **`peloton-pp-cli sync --resources performance --full --max-parents <n>`** - Bound and resume a per-workout dependent backfill (performance/workout_details have no bulk endpoint). Default (no `--full`) only fetches workouts missing a record, so repeated calls drain a large backlog for free; `--full` redoes everything (e.g. to backfill a fix) and resumes across calls via a persisted offset; `--max-parents` caps how much happens per call.
 
 ### workouts
 

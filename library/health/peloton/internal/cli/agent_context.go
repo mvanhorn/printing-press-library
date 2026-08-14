@@ -128,7 +128,13 @@ func buildAgentContext(rootCmd *cobra.Command) agentContext {
 			Description: "Your Peloton account password. Set it directly; the CLI logs in automatically on first use and persists the result — no external provisioning service involved.",
 		},
 	}
-	authMode := "oauth2_refresh"
+	// "session_login" deliberately avoids any OAuth-flavored term: Peloton
+	// has no OAuth flow at all, just POST /auth/login once with
+	// PELOTON_OAUTH_USERNAME/PASSWORD, then persist the resulting session.
+	// A prior "managed OAuth bundle" / "oauth2_refresh" wording here cost
+	// hours of dead-end debugging chasing a nonexistent external OAuth
+	// provisioning service -- see the peloton-managed-oauth patch record.
+	authMode := "session_login"
 	if authMode == "" {
 		authMode = "none"
 	}

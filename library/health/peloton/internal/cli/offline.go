@@ -302,9 +302,32 @@ func offlineClasses(cmd *cobra.Command) ([]store.ProviderFact, error) {
 	sort.SliceStable(all, func(i, j int) bool { return all[i].ProviderID < all[j].ProviderID })
 	return all, nil
 }
+// printOffline wraps value in the standard offline {"meta":...,"data":...}
+// envelope. --select/--compact must filter value itself before wrapping --
+// applying them to the already-wrapped envelope would look for the
+// requested field names among the envelope's own top-level keys
+// (meta/data) instead of value's real fields, silently returning {} for
+// any legitimate field name.
 func printOffline(cmd *cobra.Command, flags *rootFlags, value any) error {
-	out := map[string]any{"meta": map[string]any{"source": "local", "network": false}, "data": value}
-	return printJSONFiltered(cmd.OutOrStdout(), out, flags)
+	raw, err := json.Marshal(value)
+	if err != nil {
+		return err
+	}
+	data := json.RawMessage(raw)
+	if flags.selectFields != "" {
+		data = filterFields(data, flags.selectFields)
+	} else if flags.compact {
+		data = compactFields(data)
+	}
+	var filteredValue any
+	if err := json.Unmarshal(data, &filteredValue); err != nil {
+		return err
+	}
+	envelope, err := json.Marshal(map[string]any{"meta": map[string]any{"source": "local", "network": false}, "data": filteredValue})
+	if err != nil {
+		return err
+	}
+	return printOutputWithFlagsMetaFiltered(cmd.OutOrStdout(), json.RawMessage(envelope), flags, map[string]any{"source": "local"})
 }
 func decodePayload(f store.ProviderFact) any {
 	var value any

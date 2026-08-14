@@ -178,9 +178,9 @@ func TestHandleContextDescribesPelotonNotCRM(t *testing.T) {
 		}
 	}
 
-	for _, forbidden := range []string{"crm", "CRM", "Contact lookup", "deal activity"} {
+	for _, forbidden := range []string{"crm", "CRM", "Contact lookup", "deal activity", "oauth2_refresh"} {
 		if strings.Contains(text, forbidden) {
-			t.Fatalf("handleContext result still contains stale CRM-template text %q:\n%s", forbidden, text)
+			t.Fatalf("handleContext result still contains stale CRM-template or OAuth-flavored text %q:\n%s", forbidden, text)
 		}
 	}
 

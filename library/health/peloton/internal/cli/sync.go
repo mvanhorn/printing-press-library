@@ -59,6 +59,7 @@ func newSyncCmd(flags *rootFlags) *cobra.Command {
 	var concurrency int
 	var dbPath string
 	var maxPages int
+	var maxParents int
 	var latestOnly bool
 	var strict bool
 	var paramFlags []string
@@ -96,7 +97,24 @@ Resource scoping:
   by hand). There is no flag today to suppress the cascade for a named
   parent. To run a dependent without re-syncing its parent, list only
   the dependent by name; the parent table must already be populated
-  from a prior sync.`,
+  from a prior sync.
+
+Parent-keyed dependents (performance, workout_details) have no bulk list
+endpoint -- one HTTP request per already-synced workout. A large account
+can exceed a single call's practical time budget, so each invocation
+bounds and resumes this fan-out automatically:
+  - By default, only workouts that don't yet have a dependent record are
+    fetched, so repeated sync calls drain a large backlog incrementally
+    at no extra cost (an id with existing data is simply skipped).
+  - --full ignores existing records (e.g. to backfill a fix retroactively)
+    and resumes across repeated --full calls via a persisted offset,
+    wrapping back to a fresh pass once one full pass completes.
+  - --max-parents bounds how many dependent fetches happen per call; a
+    cap hit emits a sync_warning event and the run still exits 0 -- just
+    re-run sync to continue.
+  - --latest-only additionally scopes a dependent's fan-out to only the
+    workouts THIS run's flat phase actually touched, not the whole local
+    store, so "refresh the top" stays bounded end to end.`,
 		Example: `  # Sync all resources
   peloton-pp-cli sync
 
@@ -113,7 +131,11 @@ Resource scoping:
   peloton-pp-cli sync --concurrency 8
 
   # Latest-only: refresh head of each resource, no historical backfill
-  peloton-pp-cli sync --latest-only`,
+  peloton-pp-cli sync --latest-only
+
+  # Backfill a fix (e.g. performance resolution) across an existing store
+  # in bounded batches -- re-run to continue until nothing remains pending
+  peloton-pp-cli sync --resources performance --full --max-parents 500`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			userParams, err := parseSyncUserParams(paramFlags, resourceParamFlags, globalParamFlags)
 			if err != nil {
@@ -188,7 +210,19 @@ Resource scoping:
 			}
 
 			// Resolve --resources aliases (e.g. "strength" -> "workout_details")
-			// before any scoping/cascade/validation logic runs.
+			// before any scoping/cascade/validation logic runs. Report the
+			// substitution explicitly -- silently collapsing a caller-named
+			// resource into a different name (or deduping "workout_details,
+			// strength" down to one entry) without any note left a caller
+			// unable to tell why sync's own resources count/events named a
+			// resource they never asked for.
+			if slices.Contains(resources, "strength") {
+				if humanFriendly {
+					fmt.Fprintln(os.Stderr, `note: --resources "strength" is an alias for "workout_details"; sync results below are reported under "workout_details"`)
+				} else {
+					fmt.Fprintln(syncEventWriter, `{"event":"sync_note","reason":"resource_alias_substituted","from":"strength","to":"workout_details"}`)
+				}
+			}
 			resources = normalizeSyncResourceAliases(resources)
 
 			// Cascade: naming the parent ("workouts") also runs its
@@ -289,6 +323,11 @@ Resource scoping:
 			}
 
 			started := time.Now()
+			// runStarted anchors dependentScopeSince below (planDependentSync's
+			// --latest-only run-scoping rule): captured before the flat phase
+			// starts so ParentIDsTouchedSince can find every workout this
+			// specific invocation's flat phase writes, not just some of them.
+			runStarted := time.Now().UTC()
 			// prune gates deletion reconciliation: a full sync prunes local rows
 			// the API no longer returns within a fully-enumerated partition, unless
 			// --no-prune disables it. Flat tenant-scoped reconcile (per resource)
@@ -368,12 +407,21 @@ Resource scoping:
 			// Dependent phase: runs after the flat phase so dependents read
 			// a workouts table the flat phase just finished populating (or
 			// a prior sync populated, when only a dependent was named).
+			dependentScopeSince := dependentScopeSinceFor(effectiveLatestOnly, flatResources, runStarted)
 			for _, resource := range dependentResources {
+				plan, planErr := planDependentSync(db, "workouts", resource, full, dependentScopeSince, maxParents, c.DryRun)
+				if planErr != nil {
+					if !humanFriendly {
+						fmt.Fprintln(syncEventWriter, syncErrorJSON(resource, "", planErr))
+					}
+					accumulate(syncResult{Resource: resource, Err: fmt.Errorf("planning %s dependent sync: %w", resource, planErr)})
+					continue
+				}
 				switch resource {
 				case "performance":
-					accumulate(syncPerformanceDependent(cmd.Context(), c, db, concurrency, userParams, syncEventWriter))
+					accumulate(syncPerformanceDependent(cmd.Context(), c, db, plan, concurrency, userParams, syncEventWriter))
 				case "workout_details":
-					accumulate(syncWorkoutDetailsDependent(cmd.Context(), c, db, concurrency, userParams, syncEventWriter))
+					accumulate(syncWorkoutDetailsDependent(cmd.Context(), c, db, plan, concurrency, userParams, syncEventWriter))
 				}
 			}
 
@@ -438,6 +486,7 @@ Resource scoping:
 	cmd.Flags().IntVar(&concurrency, "concurrency", 4, "Number of parallel sync workers")
 	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite database file path (default: resolved data directory data.db)")
 	cmd.Flags().IntVar(&maxPages, "max-pages", 0, "Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)")
+	cmd.Flags().IntVar(&maxParents, "max-parents", 0, "Maximum parent-keyed dependent fetches (performance, workout_details) per invocation (0 = unlimited). By default only parents without an existing record are fetched, so repeated calls drain a large backlog incrementally; --full redoes everything and resumes across calls via a persisted offset. Cap-hit emits a sync_warning event.")
 	cmd.Flags().BoolVar(&latestOnly, "latest-only", false, "Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).")
 	cmd.Flags().BoolVar(&strict, "strict", false, "Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).")
 	cmd.Flags().StringArrayVar(&paramFlags, "param", nil, "Extra query param to inject into flat-list sync requests (repeatable, key=value). Skipped on path-scoped dependent requests so a top-level scope like workspace=<id> does not double up on /parents/<id>/children calls. Use --global-param to inject everywhere. Avoid pagination keys (limit/since/cursor) — overriding them corrupts resume state.")
@@ -1843,37 +1892,188 @@ func dependentParentIDs(db *store.Store, parentResource string) ([]string, error
 	return db.ListIDs(parentResource)
 }
 
-// syncPerformanceDependent syncs "performance" (per-workout performance_graph
-// samples), a parent-keyed dependent of "workouts": Peloton exposes this data
-// only per-workout (GET /api/workout/{workout_id}/performance_graph), never
-// as a bulk list, so it cannot go through the flat paginated syncResource
-// loop. It enumerates every workout id currently in the local store and
-// fetches+stores one performance_graph per id, keyed by that workout id.
-func syncPerformanceDependent(ctx context.Context, c interface {
+// dependentSyncPlan is the resolved set of parent ids a dependent sync
+// invocation should process this call, plus enough context to report
+// accurately whether the run is a genuine no-op, already fully caught up,
+// or was truncated by --max-parents with a backlog still pending.
+type dependentSyncPlan struct {
+	ids              []string // ids to process this invocation, already capped
+	totalPending     int      // ids pending before --max-parents capped them (0 = fully caught up)
+	capped           bool     // true if --max-parents truncated the pending set
+	parentTableEmpty bool     // true if the parent resource has zero rows at all
+}
+
+// planDependentSync resolves which parent ids a dependent sync call should
+// process this invocation. It exists to bound a parent-keyed fan-out
+// (performance, workout_details -- no bulk list endpoint, one HTTP request
+// per parent) so a single sync call can complete within an MCP client's
+// timeout, and to make repeated calls drain a large backlog incrementally
+// instead of restarting from scratch or fanning out over the entire local
+// store regardless of what --latest-only/--max-pages actually bounded.
+//
+// Three rules apply, in order:
+//
+//  1. Resumability. By default (full=false), parents that already have a
+//     dependentResource record are skipped -- an id with existing data
+//     doesn't need reprocessing, and a call cut off partway simply leaves
+//     whatever it didn't reach as pending for the next call. No separate
+//     cursor is needed: presence in provider_payloads IS the durable
+//     "done" signal, and it's correct regardless of how parent ids sort or
+//     when new parents get added. Under full=true ("--full", matching its
+//     "ignore previous checkpoint, redo everything" contract everywhere
+//     else in sync), every parent id is a candidate regardless of existing
+//     data -- skip-if-present doesn't apply when the whole point is to
+//     redo already-present data (e.g. backfilling a fix like every_n=1
+//     across historical performance records). Since parent ids aren't
+//     sequential/time-ordered, "redo everything, but resumably across
+//     several bounded calls" instead uses a persisted offset into a
+//     freshly sorted candidate list, keyed distinctly
+//     (dependentResource+":full_progress") from the flat resource's own
+//     sync_state row so the existing per-invocation --full cursor-reset
+//     loop (which clears entries for names in the caller's --resources
+//     list) never clobbers it. The offset wraps back to 0 once a pass
+//     finishes, so a --full call issued after a prior backfill completed
+//     starts a fresh pass rather than becoming a permanent no-op --
+//     matching --full's meaning as "redo," including on repeat use.
+//  2. Run-scoping. When scopeSince is non-nil (the parent "workouts"
+//     resource was actually flat-synced THIS invocation under
+//     --latest-only), candidates are further restricted to only the
+//     parents this run's flat phase touched, not the whole local store.
+//     --latest-only promises a bounded "refresh the top" operation; a
+//     dependent silently fanning out over the entire backlog broke that
+//     promise even though the flat phase itself stayed bounded.
+//  3. --max-parents caps how many ids a single invocation processes.  When
+//     the cap truncates the candidate set, callers must surface that a
+//     re-invocation is needed to finish the backlog (dependentSyncPlan.capped).
+//
+// dependentScopeSinceFor decides whether a dependent sync invocation's
+// parent-id candidates should be scoped to only the parents touched by
+// THIS run's flat phase (planDependentSync's scopeSince rule), instead of
+// the whole local store. This only applies when --latest-only is in effect
+// AND "workouts" was actually flat-synced this run (present in
+// flatResources) -- naming a dependent alone, with no "workouts" in this
+// invocation's flat phase, must keep scanning the whole store, per the
+// documented "run a dependent without re-syncing its parent" contract.
+// Extracted as a pure function so the --latest-only run-scoping decision
+// (NEW ISSUE B from a live post-fix verification sweep) is unit-testable
+// without a full HTTP-backed sync command run.
+func dependentScopeSinceFor(effectiveLatestOnly bool, flatResources []string, runStarted time.Time) *time.Time {
+	if effectiveLatestOnly && slices.Contains(flatResources, "workouts") {
+		return &runStarted
+	}
+	return nil
+}
+
+// dryRun skips persisting the --full resume offset, matching --full's own
+// "a preview must not mutate sync-state" convention elsewhere in this file.
+func planDependentSync(db *store.Store, parentResource, dependentResource string, full bool, scopeSince *time.Time, maxParents int, dryRun bool) (dependentSyncPlan, error) {
+	parentIDs, err := dependentParentIDs(db, parentResource)
+	if err != nil {
+		return dependentSyncPlan{}, err
+	}
+	if len(parentIDs) == 0 {
+		return dependentSyncPlan{parentTableEmpty: true}, nil
+	}
+	sort.Strings(parentIDs)
+
+	var candidates []string
+	progressKey := dependentResource + ":full_progress"
+	fullOffset := 0
+	switch {
+	case full && scopeSince == nil:
+		_, _, fullOffset, _ = db.GetSyncState(progressKey)
+		if fullOffset < 0 || fullOffset >= len(parentIDs) {
+			fullOffset = 0 // prior pass completed (or state is stale/out of range): start a fresh pass
+		}
+		candidates = parentIDs[fullOffset:]
+	case full:
+		// --full combined with --latest-only run-scoping: an unusual
+		// combination (force-redo, but only for this run's touched
+		// parents). No backlog-offset semantics apply since scopeSince
+		// already bounds the set to a small, run-specific batch.
+		candidates = parentIDs
+	default:
+		existing, existErr := db.ExistingProviderFactIDs(dependentResource)
+		if existErr != nil {
+			return dependentSyncPlan{}, existErr
+		}
+		for _, id := range parentIDs {
+			if !existing[id] {
+				candidates = append(candidates, id)
+			}
+		}
+	}
+
+	if scopeSince != nil {
+		touched, touchErr := db.ParentIDsTouchedSince(parentResource, *scopeSince)
+		if touchErr != nil {
+			return dependentSyncPlan{}, touchErr
+		}
+		touchedSet := make(map[string]bool, len(touched))
+		for _, id := range touched {
+			touchedSet[id] = true
+		}
+		scoped := make([]string, 0, len(candidates))
+		for _, id := range candidates {
+			if touchedSet[id] {
+				scoped = append(scoped, id)
+			}
+		}
+		candidates = scoped
+	}
+
+	plan := dependentSyncPlan{totalPending: len(candidates)}
+	if maxParents > 0 && len(candidates) > maxParents {
+		plan.ids = candidates[:maxParents]
+		plan.capped = true
+	} else {
+		plan.ids = candidates
+	}
+
+	if full && scopeSince == nil && !dryRun {
+		_ = db.SaveSyncState(progressKey, "", fullOffset+len(plan.ids))
+	}
+	return plan, nil
+}
+
+// runDependentFanOut is the shared per-parent fan-out engine for
+// parent-keyed dependents (performance, workout_details): both fetch one
+// item per workout id via a GET with no bulk list endpoint, concurrently,
+// differing only in the request path/params (buildRequest) and the family
+// they store under (resource). Factored out of two near-identical copies
+// when both dependents needed the same bounded/resumable planning logic
+// (dependentSyncPlan) layered on top of the existing fan-out mechanics.
+//
+// plan.ids is already fully resolved by planDependentSync (resumability +
+// --latest-only run-scoping + --max-parents cap applied); this function's
+// only remaining job is the actual fetch/store loop and reporting.
+func runDependentFanOut(ctx context.Context, c interface {
 	Get(context.Context, string, map[string]string) (json.RawMessage, error)
 	RateLimit() float64
-}, db *store.Store, concurrency int, userParams *syncUserParams, syncEvents io.Writer) syncResult {
+}, db *store.Store, resource string, plan dependentSyncPlan, concurrency int, buildRequest func(workoutID string) (path string, params map[string]string), syncEvents io.Writer) syncResult {
 	started := time.Now()
 	if syncEvents == nil {
 		syncEvents = io.Discard
 	}
 	if !humanFriendly {
-		fmt.Fprintf(syncEvents, `{"event":"sync_start","resource":"performance"}`+"\n")
+		fmt.Fprintf(syncEvents, `{"event":"sync_start","resource":"%s"}`+"\n", resource)
 	}
 
-	workoutIDs, err := dependentParentIDs(db, "workouts")
-	if err != nil {
-		if !humanFriendly {
-			fmt.Fprintln(syncEvents, syncErrorJSON("performance", "", err))
-		}
-		return syncResult{Resource: "performance", Err: fmt.Errorf("reading synced workouts for performance dependent sync: %w", err), Duration: time.Since(started)}
-	}
-	if len(workoutIDs) == 0 {
+	if plan.parentTableEmpty {
 		return syncResult{
-			Resource: "performance",
-			Warn:     fmt.Errorf("skipped performance: no synced workouts to derive parent ids from; sync workouts first"),
+			Resource: resource,
+			Warn:     fmt.Errorf("skipped %s: no synced workouts to derive parent ids from; sync workouts first", resource),
 			Duration: time.Since(started),
 		}
+	}
+	// Nothing pending is a legitimate success (already fully caught up),
+	// not a warning -- distinct from plan.parentTableEmpty above, which
+	// means there was never anything to sync against in the first place.
+	if len(plan.ids) == 0 {
+		if !humanFriendly {
+			fmt.Fprintf(syncEvents, `{"event":"sync_complete","resource":"%s","total":0,"duration_ms":%d,"reason":"already_up_to_date"}`+"\n", resource, time.Since(started).Milliseconds())
+		}
+		return syncResult{Resource: resource, Count: 0, Duration: time.Since(started)}
 	}
 
 	// Per-parent fan-out over potentially thousands of workouts: one HTTP
@@ -1887,8 +2087,8 @@ func syncPerformanceDependent(ctx context.Context, c interface {
 	if cliutil.IsVerifyEnv() {
 		concurrency = 1
 	}
-	work := make(chan string, len(workoutIDs))
-	for _, id := range workoutIDs {
+	work := make(chan string, len(plan.ids))
+	for _, id := range plan.ids {
 		work <- id
 	}
 	close(work)
@@ -1903,22 +2103,7 @@ func syncPerformanceDependent(ctx context.Context, c interface {
 		go func() {
 			defer wg.Done()
 			for workoutID := range work {
-				path := replacePathParam("/api/workout/{workout_id}/performance_graph", "workout_id", workoutID)
-				// The single-fetch command (workouts_performance.go) defaults
-				// --every-n=1 (full-resolution samples); the Peloton API's own
-				// default when every_n is omitted downsamples ~50x. Sync never
-				// went through that cobra flag machinery, so every synced
-				// performance_graph was silently downsampled. Set the same
-				// default here, before user overrides, so sync matches the
-				// single-fetch command's resolution by default.
-				//
-				// --global-param's help text promises injection into every
-				// sync request "including dependent path-scoped calls";
-				// isDependent=true skips --param (flat-list only) but still
-				// applies --global-param and --resource-param
-				// performance:key=value.
-				params := map[string]string{"every_n": "1"}
-				userParams.applyTo("performance", params, true)
+				path, params := buildRequest(workoutID)
 				data, err := c.Get(ctx, path, params)
 				if err != nil {
 					mu.Lock()
@@ -1935,15 +2120,15 @@ func syncPerformanceDependent(ctx context.Context, c interface {
 				// network call), so this fires for every item — mirrors
 				// syncResource's dry-run handling. Without this check, a
 				// --dry-run sync would write the sentinel into
-				// provider_payloads as if it were real performance data,
-				// once per synced workout.
+				// provider_payloads as if it were real data, once per
+				// synced workout.
 				if isDryRunResponse(data) {
 					mu.Lock()
 					sawDryRun = true
 					mu.Unlock()
 					continue
 				}
-				if err := db.UpsertWithFacts("performance", workoutID, data); err != nil {
+				if err := db.UpsertWithFacts(resource, workoutID, data); err != nil {
 					mu.Lock()
 					failures++
 					if firstErr == nil {
@@ -1962,9 +2147,9 @@ func syncPerformanceDependent(ctx context.Context, c interface {
 
 	if sawDryRun {
 		if !humanFriendly {
-			fmt.Fprintf(syncEvents, `{"event":"sync_dryrun","resource":"performance"}`+"\n")
+			fmt.Fprintf(syncEvents, `{"event":"sync_dryrun","resource":"%s"}`+"\n", resource)
 		}
-		return syncResult{Resource: "performance", Count: 0, Duration: time.Since(started)}
+		return syncResult{Resource: resource, Count: 0, Duration: time.Since(started)}
 	}
 
 	// A credential-placeholder condition affects every request identically
@@ -1972,28 +2157,67 @@ func syncPerformanceDependent(ctx context.Context, c interface {
 	// treat it as a hard failure here too — same as the flat resource loop
 	// does — rather than letting failures++ silently downgrade it to a
 	// warning. Any other per-item failure (a workout genuinely has no
-	// recorded performance data, a transient blip) stays a soft anomaly:
-	// escalating those to a hard error would turn an expected, benign
-	// per-item gap into a whole-sync failure.
+	// recorded data, a transient blip) stays a soft anomaly: escalating
+	// those to a hard error would turn an expected, benign per-item gap
+	// into a whole-sync failure.
 	if firstErr != nil && errors.Is(firstErr, client.ErrPlaceholderCredential) {
-		return syncResult{Resource: "performance", Err: firstErr, Duration: time.Since(started)}
+		return syncResult{Resource: resource, Err: firstErr, Duration: time.Since(started)}
 	}
 
 	if failures > 0 && !humanFriendly {
-		fmt.Fprintf(syncEvents, `{"event":"sync_anomaly","resource":"performance","consumed":%d,"stored":%d,"reason":"per_parent_fetch_failed"}`+"\n", len(workoutIDs), totalCount)
+		fmt.Fprintf(syncEvents, `{"event":"sync_anomaly","resource":"%s","consumed":%d,"stored":%d,"reason":"per_parent_fetch_failed"}`+"\n", resource, len(plan.ids), totalCount)
+	}
+	// --max-parents truncated the pending set: this call is still a
+	// success (it processed real work), but the caller needs an explicit
+	// signal that a backlog remains, mirroring the flat resource loop's
+	// own max_pages_cap_hit event.
+	if plan.capped && !humanFriendly {
+		remaining := plan.totalPending - len(plan.ids)
+		fmt.Fprintf(syncEvents, `{"event":"sync_warning","resource":"%s","reason":"max_parents_cap_hit","message":"processed %d of %d pending parents this call; %d remain. Re-run sync to continue."}`+"\n", resource, len(plan.ids), plan.totalPending, remaining)
 	}
 	if !humanFriendly {
-		fmt.Fprintf(syncEvents, `{"event":"sync_complete","resource":"performance","total":%d,"duration_ms":%d}`+"\n", totalCount, time.Since(started).Milliseconds())
+		fmt.Fprintf(syncEvents, `{"event":"sync_complete","resource":"%s","total":%d,"duration_ms":%d}`+"\n", resource, totalCount, time.Since(started).Milliseconds())
 	}
 
 	if totalCount == 0 {
 		return syncResult{
-			Resource: "performance",
-			Warn:     fmt.Errorf("performance: fetched 0/%d workout performance graphs", len(workoutIDs)),
+			Resource: resource,
+			Warn:     fmt.Errorf("%s: fetched 0/%d pending records", resource, len(plan.ids)),
 			Duration: time.Since(started),
 		}
 	}
-	return syncResult{Resource: "performance", Count: totalCount, Duration: time.Since(started)}
+	return syncResult{Resource: resource, Count: totalCount, Duration: time.Since(started)}
+}
+
+// syncPerformanceDependent syncs "performance" (per-workout performance_graph
+// samples), a parent-keyed dependent of "workouts": Peloton exposes this data
+// only per-workout (GET /api/workout/{workout_id}/performance_graph), never
+// as a bulk list, so it cannot go through the flat paginated syncResource
+// loop. plan (see planDependentSync) resolves which workout ids to fetch
+// this call.
+func syncPerformanceDependent(ctx context.Context, c interface {
+	Get(context.Context, string, map[string]string) (json.RawMessage, error)
+	RateLimit() float64
+}, db *store.Store, plan dependentSyncPlan, concurrency int, userParams *syncUserParams, syncEvents io.Writer) syncResult {
+	return runDependentFanOut(ctx, c, db, "performance", plan, concurrency, func(workoutID string) (string, map[string]string) {
+		path := replacePathParam("/api/workout/{workout_id}/performance_graph", "workout_id", workoutID)
+		// The single-fetch command (workouts_performance.go) defaults
+		// --every-n=1 (full-resolution samples); the Peloton API's own
+		// default when every_n is omitted downsamples ~50x. Sync never
+		// went through that cobra flag machinery, so every synced
+		// performance_graph was silently downsampled. Set the same
+		// default here, before user overrides, so sync matches the
+		// single-fetch command's resolution by default.
+		//
+		// --global-param's help text promises injection into every
+		// sync request "including dependent path-scoped calls";
+		// isDependent=true skips --param (flat-list only) but still
+		// applies --global-param and --resource-param
+		// performance:key=value.
+		params := map[string]string{"every_n": "1"}
+		userParams.applyTo("performance", params, true)
+		return path, params
+	}, syncEvents)
 }
 
 // syncWorkoutDetailsDependent syncs "workout_details" (the full per-workout
@@ -2004,120 +2228,18 @@ func syncPerformanceDependent(ctx context.Context, c interface {
 // `offline intervals`, `offline repeat`, and `offline strength` all read
 // this same "workout_details" family (see cacheWorkoutDetail's doc comment
 // in data_source.go), so syncing it once here satisfies all four instead of
-// requiring four separate dependent loops.
+// requiring four separate dependent loops. plan (see planDependentSync)
+// resolves which workout ids to fetch this call.
 func syncWorkoutDetailsDependent(ctx context.Context, c interface {
 	Get(context.Context, string, map[string]string) (json.RawMessage, error)
 	RateLimit() float64
-}, db *store.Store, concurrency int, userParams *syncUserParams, syncEvents io.Writer) syncResult {
-	started := time.Now()
-	if syncEvents == nil {
-		syncEvents = io.Discard
-	}
-	if !humanFriendly {
-		fmt.Fprintf(syncEvents, `{"event":"sync_start","resource":"workout_details"}`+"\n")
-	}
-
-	workoutIDs, err := dependentParentIDs(db, "workouts")
-	if err != nil {
-		if !humanFriendly {
-			fmt.Fprintln(syncEvents, syncErrorJSON("workout_details", "", err))
-		}
-		return syncResult{Resource: "workout_details", Err: fmt.Errorf("reading synced workouts for workout_details dependent sync: %w", err), Duration: time.Since(started)}
-	}
-	if len(workoutIDs) == 0 {
-		return syncResult{
-			Resource: "workout_details",
-			Warn:     fmt.Errorf("skipped workout_details: no synced workouts to derive parent ids from; sync workouts first"),
-			Duration: time.Since(started),
-		}
-	}
-
-	// Same per-parent fan-out rationale as syncPerformanceDependent: one
-	// HTTP round trip per workout id, no bulk endpoint to batch them.
-	if concurrency < 1 {
-		concurrency = 4
-	}
-	if cliutil.IsVerifyEnv() {
-		concurrency = 1
-	}
-	work := make(chan string, len(workoutIDs))
-	for _, id := range workoutIDs {
-		work <- id
-	}
-	close(work)
-
-	var mu sync.Mutex
-	var totalCount, failures int
-	var firstErr error
-	var sawDryRun bool
-	var wg sync.WaitGroup
-	for i := 0; i < concurrency; i++ {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			for workoutID := range work {
-				path := replacePathParam("/api/workout/{workout_id}", "workout_id", workoutID)
-				params := map[string]string{}
-				userParams.applyTo("workout_details", params, true)
-				data, err := c.Get(ctx, path, params)
-				if err != nil {
-					mu.Lock()
-					failures++
-					if firstErr == nil {
-						firstErr = err
-					}
-					mu.Unlock()
-					continue
-				}
-				if isDryRunResponse(data) {
-					mu.Lock()
-					sawDryRun = true
-					mu.Unlock()
-					continue
-				}
-				if err := db.UpsertWithFacts("workout_details", workoutID, data); err != nil {
-					mu.Lock()
-					failures++
-					if firstErr == nil {
-						firstErr = err
-					}
-					mu.Unlock()
-					continue
-				}
-				mu.Lock()
-				totalCount++
-				mu.Unlock()
-			}
-		}()
-	}
-	wg.Wait()
-
-	if sawDryRun {
-		if !humanFriendly {
-			fmt.Fprintf(syncEvents, `{"event":"sync_dryrun","resource":"workout_details"}`+"\n")
-		}
-		return syncResult{Resource: "workout_details", Count: 0, Duration: time.Since(started)}
-	}
-
-	if firstErr != nil && errors.Is(firstErr, client.ErrPlaceholderCredential) {
-		return syncResult{Resource: "workout_details", Err: firstErr, Duration: time.Since(started)}
-	}
-
-	if failures > 0 && !humanFriendly {
-		fmt.Fprintf(syncEvents, `{"event":"sync_anomaly","resource":"workout_details","consumed":%d,"stored":%d,"reason":"per_parent_fetch_failed"}`+"\n", len(workoutIDs), totalCount)
-	}
-	if !humanFriendly {
-		fmt.Fprintf(syncEvents, `{"event":"sync_complete","resource":"workout_details","total":%d,"duration_ms":%d}`+"\n", totalCount, time.Since(started).Milliseconds())
-	}
-
-	if totalCount == 0 {
-		return syncResult{
-			Resource: "workout_details",
-			Warn:     fmt.Errorf("workout_details: fetched 0/%d workout details", len(workoutIDs)),
-			Duration: time.Since(started),
-		}
-	}
-	return syncResult{Resource: "workout_details", Count: totalCount, Duration: time.Since(started)}
+}, db *store.Store, plan dependentSyncPlan, concurrency int, userParams *syncUserParams, syncEvents io.Writer) syncResult {
+	return runDependentFanOut(ctx, c, db, "workout_details", plan, concurrency, func(workoutID string) (string, map[string]string) {
+		path := replacePathParam("/api/workout/{workout_id}", "workout_id", workoutID)
+		params := map[string]string{}
+		userParams.applyTo("workout_details", params, true)
+		return path, params
+	}, syncEvents)
 }
 
 func describeFailedResources(count int, resources []string) string {
