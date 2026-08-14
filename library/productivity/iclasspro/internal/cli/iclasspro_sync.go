@@ -5,6 +5,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -19,16 +20,36 @@ import (
 
 // syncResult is the machine-readable outcome of one sync.
 type syncResult struct {
-	Account   string   `json:"account"`
-	Locations int      `json:"locations"`
-	Classes   int      `json:"classes"`
-	Camps     int      `json:"camps"`
-	Pages     int      `json:"pages_fetched"`
-	RunID     int64    `json:"run_id"`
-	DBPath    string   `json:"db_path"`
-	Gate      string   `json:"gate"`
-	Note      string   `json:"note,omitempty"`
-	Warnings  []string `json:"warnings"`
+	Account          string   `json:"account"`
+	Locations        int      `json:"locations"`
+	Classes          int      `json:"classes"`
+	Camps            int      `json:"camps"`
+	Pages            int      `json:"pages_fetched"`
+	RunID            int64    `json:"run_id"`
+	DBPath           string   `json:"db_path"`
+	Gate             string   `json:"gate"`
+	Truncated        bool     `json:"truncated"`
+	SnapshotRecorded bool     `json:"snapshot_recorded"`
+	Note             string   `json:"note,omitempty"`
+	Warnings         []string `json:"warnings"`
+}
+
+// icpRecordSyncObservations promotes complete catalog walks to snapshots.
+// Page-capped walks still add useful openings history, but they must never
+// become the newest catalog snapshot: drift would interpret every unseen row
+// beyond the cap as removed.
+func icpRecordSyncObservations(ctx context.Context, s *store.Store, account string, at time.Time, obs []store.ICPObservation, complete bool) (int64, error) {
+	if !complete {
+		return 0, s.RecordICPOpenings(ctx, at, obs)
+	}
+	runID, err := s.StartICPRun(ctx, account, at)
+	if err != nil {
+		return 0, err
+	}
+	if err := s.RecordICPObservations(ctx, runID, at, obs); err != nil {
+		return 0, err
+	}
+	return runID, nil
 }
 
 func newIclassproSyncCmd(flags *rootFlags) *cobra.Command {
@@ -128,6 +149,7 @@ anything to compare.`, "\n"),
 				Pages:     coll.Pages,
 				DBPath:    icpDBPath(dbPath),
 				Gate:      string(coll.Gate),
+				Truncated: coll.Truncated,
 				Note:      icpGateNote(account, coll.Gate),
 				Warnings:  coll.Warnings,
 			}
@@ -150,12 +172,6 @@ anything to compare.`, "\n"),
 				defer func() { _ = s.Close() }()
 
 				now := time.Now().UTC()
-				runID, err := s.StartICPRun(ctx, account, now)
-				if err != nil {
-					return err
-				}
-				res.RunID = runID
-
 				obs := make([]store.ICPObservation, 0, len(coll.Entities))
 				for _, e := range coll.Entities {
 					data, merr := json.Marshal(e)
@@ -169,9 +185,12 @@ anything to compare.`, "\n"),
 						Data: data,
 					})
 				}
-				if err := s.RecordICPObservations(ctx, runID, now, obs); err != nil {
+				runID, err := icpRecordSyncObservations(ctx, s, account, now, obs, !coll.Truncated)
+				if err != nil {
 					return err
 				}
+				res.RunID = runID
+				res.SnapshotRecorded = runID > 0
 
 				// The generic `resources` table backs the shared FTS index. It is
 				// written after the observation transaction commits, never inside
@@ -183,8 +202,10 @@ anything to compare.`, "\n"),
 						return fmt.Errorf("caching %s: %w", e.Key(), err)
 					}
 				}
-				if err := s.PruneICPRuns(ctx, account, keepRuns); err != nil {
-					return err
+				if res.SnapshotRecorded {
+					if err := s.PruneICPRuns(ctx, account, keepRuns); err != nil {
+						return err
+					}
 				}
 			}
 
@@ -199,6 +220,13 @@ anything to compare.`, "\n"),
 			}
 			if len(coll.Entities) == 0 {
 				fmt.Fprintf(cmd.OutOrStdout(), "Synced %s: nothing to record.\n", account)
+				return nil
+			}
+			if coll.Truncated {
+				fmt.Fprintf(cmd.OutOrStdout(),
+					"Observed %s: %d locations, %d classes, %d camps across %d requests; catalog snapshot unchanged because the scan hit --max-pages.\n",
+					account, res.Locations, res.Classes, res.Camps, res.Pages)
+				fmt.Fprintf(cmd.OutOrStdout(), "Local mirror: %s\n", res.DBPath)
 				return nil
 			}
 			fmt.Fprintf(cmd.OutOrStdout(),

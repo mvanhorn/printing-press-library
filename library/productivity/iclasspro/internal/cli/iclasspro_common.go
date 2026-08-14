@@ -231,6 +231,7 @@ type icpCollection struct {
 	Gate      icpGate
 	Locations []icpLocation
 	Pages     int
+	Truncated bool
 	Warnings  []string
 }
 
@@ -282,6 +283,7 @@ func icpCollect(ctx context.Context, c *client.Client, account string, opts icpC
 					break
 				}
 				if page == opts.MaxPages {
+					out.Truncated = true
 					out.Warnings = append(out.Warnings, fmt.Sprintf(
 						"class scan for location %d stopped at the %d-page cap; raise --max-pages to go deeper", loc.ID, opts.MaxPages))
 				}
@@ -318,6 +320,12 @@ func icpCollect(ctx context.Context, c *client.Client, account string, opts icpC
 					}
 					if len(rows) < opts.PageSize || (env.TotalRecords > 0 && page*opts.PageSize >= env.TotalRecords) {
 						break
+					}
+					if page == opts.MaxPages {
+						out.Truncated = true
+						out.Warnings = append(out.Warnings, fmt.Sprintf(
+							"camp scan for location %d and type %d stopped at the %d-page cap; raise --max-pages to go deeper",
+							loc.ID, tid, opts.MaxPages))
 					}
 				}
 			}
