@@ -195,15 +195,21 @@ var reservedStructuredArgs = map[string]bool{
 // per-client filesystem, relocate the config/data/state/cache roots, load a
 // malicious config file, or change the delivery target, all of which sit
 // outside the per-command surface the agent is supposed to be calling.
+// receipt-file and audit-dir belong to the same class as deliver: they are
+// caller-chosen filesystem destinations, and audit-dir causes MkdirAll plus
+// file writes under a path the MCP client picks, using the server's
+// privileges. Receipts are an operator concern, not a tool parameter.
 var blockedRootFlags = map[string]bool{
-	"base-url": true,
-	"client":   true,
-	"config":   true,
-	"deliver":  true,
-	"home":     true,
-	"insecure": true,
-	"profile":  true,
-	"token":    true,
+	"audit-dir":    true,
+	"base-url":     true,
+	"client":       true,
+	"config":       true,
+	"deliver":      true,
+	"home":         true,
+	"insecure":     true,
+	"profile":      true,
+	"receipt-file": true,
+	"token":        true,
 }
 
 func cliArgsFromMCP(args map[string]any, blocked map[string]bool) []string {

@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "teslatracker-mcp-block-fs-destinations",
+  "applied_at": "2026-08-14",
+  "base_run_id": "20260813-144423-eaf11561",
+  "base_printing_press_version": "4.30.2",
+  "summary": "Add receipt-file and audit-dir to blockedRootFlags so MCP callers cannot choose filesystem destinations.",
+  "reason": "Both flags reached the child CLI through the MCP root-flag filter. audit-dir drives os.MkdirAll plus receipt and index.jsonl writes at a caller-supplied path using the MCP server's privileges. They are the same class as deliver, which the generated list already blocks for exactly this reason; they appear to have been overlooked. Receipts are an operator concern, not an agent tool parameter, so blocking them costs no legitimate MCP capability. Raised as a P2 security finding by Greptile on library PR #1723; the gap is in the generator template and affects every printed CLI.",
+  "files": ["internal/mcp/cobratree/shellout.go"],
+  "validated_outcome": "go build and go vet pass; live dogfood reran at 121 passed / 0 failed; the two flags now sit alongside deliver in blockedRootFlags.",
+  "upstream_issue": "https://github.com/mvanhorn/printing-press-library/pull/1723"
+}
