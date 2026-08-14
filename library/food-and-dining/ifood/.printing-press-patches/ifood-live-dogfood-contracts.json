@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "ifood-live-dogfood-contracts",
+  "applied_at": "2026-08-14",
+  "base_run_id": "20260814-042201-817ea5ed",
+  "base_printing_press_version": "4.30.2",
+  "summary": "Add executable examples to iFood leaf commands and make feedback honor global dry-run semantics.",
+  "reason": "The canonical full dogfood matrix requires every leaf help surface to include an executable example; the generated bm example also omitted required request-body flags.",
+  "files": [
+    "internal/cli/browser_commands.go",
+    "internal/cli/ifood_commands.go",
+    "internal/cli/feedback.go",
+    "internal/cli/promoted_bm.go",
+    "internal/cli/testdata/ifood_browser_quote.json"
+  ],
+  "validated_outcome": "Every iFood-specific leaf command exposes a concrete Examples section, bm supplies its mandatory body flags, local credential imports and feedback are classified as local writes with dry-run examples, and four flagship commands provide executable credential-free example mode."
+}

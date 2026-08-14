@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "ifood-mcp-auth-and-doc-correctness",
+  "applied_at": "2026-08-14",
+  "base_run_id": "20260814-042201-817ea5ed",
+  "base_printing_press_version": "4.30.2",
+  "summary": "Align the MCP bundle credential prompt and public safety narrative with the actual iFood CLI contract.",
+  "reason": "Browser transport generation emitted a generic client-profile variable even though the generated client and tools manifest require IFOOD_BEARER_AUTH; generated prose also incorrectly described confirmation-gated cart commands as read-only.",
+  "files": [
+    ".printing-press.json",
+    "manifest.json",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "MCP configuration, CLI doctor guidance, tools metadata, and public documentation consistently describe browser-owned auth, optional controlled bearer auth, preview-first cart commands, and the checkout prohibition."
+}

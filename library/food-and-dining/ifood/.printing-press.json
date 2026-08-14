@@ -1,0 +1,112 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-14T05:22:43.244638Z",
+  "printing_press_version": "4.30.2",
+  "api_name": "ifood",
+  "display_name": "iFood",
+  "cli_name": "ifood-pp-cli",
+  "creator": {
+    "handle": "matheuscoelhomalta",
+    "name": "Matheus Coêlho"
+  },
+  "owner": "matheuscoelhomalta",
+  "printer": "matheuscoelhomalta",
+  "printer_name": "Matheus Coêlho",
+  "spec_path": "ifood-openapi.yaml",
+  "spec_format": "openapi3",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:6c5d66752aa751f00d4a3d26aeb7c20165b890d9379b927657a360505707d776",
+  "run_id": "20260814-042201-817ea5ed",
+  "category": "food-and-dining",
+  "description": "Agent-ready iFood grocery quoting with browser-owned authentication and confirmation-gated cart planning.",
+  "mcp_binary": "ifood-pp-mcp",
+  "mcp_tool_count": 4,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_preference": "bearerAuth",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Browser-safe workflow plan",
+      "command": "browser plan",
+      "description": "Emit the complete browser-owned quotation and cart workflow without exporting credentials."
+    },
+    {
+      "name": "Three-market quotation validator",
+      "command": "browser validate-quote",
+      "description": "Validate complete product observations from at least three markets meeting a configurable rating floor."
+    },
+    {
+      "name": "Confirmation-gated cart plan",
+      "command": "browser cart-plan",
+      "description": "Produce the exact selected merchant, products, quantities, and expected total before any cart interaction."
+    },
+    {
+      "name": "Cross-market grocery quote",
+      "command": "quote",
+      "description": "Compare requested grocery terms across eligible markets and return complete price estimates."
+    },
+    {
+      "name": "Preview-first cart builder",
+      "command": "cart build",
+      "description": "Resolve product terms into an exact read-only cart-item preview."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Browser-safe workflow plan",
+      "command": "browser plan",
+      "description": "Emit the complete browser-owned quotation and cart workflow without exporting credentials."
+    },
+    {
+      "name": "Three-market quotation validator",
+      "command": "browser validate-quote",
+      "description": "Validate complete product observations from at least three markets meeting a configurable rating floor."
+    },
+    {
+      "name": "Confirmation-gated cart plan",
+      "command": "browser cart-plan",
+      "description": "Produce the exact selected merchant, products, quantities, and expected total before any cart interaction."
+    },
+    {
+      "name": "Cross-market grocery quote",
+      "command": "quote",
+      "description": "Compare requested grocery terms across eligible markets and return complete price estimates."
+    },
+    {
+      "name": "Preview-first cart builder",
+      "command": "cart build",
+      "description": "Resolve product terms into an exact cart-item request and preview it before optional execution."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 95.23809523809523,
+    "passed": 40,
+    "total": 42,
+    "failed": 2,
+    "data_pipeline": true,
+    "verdict": "WARN"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 89,
+      "grade": "A (1 of 26 dimensions unverified: live_api_verification)",
+      "total": 89
+    },
+    "unverified_dimensions": [
+      "live_api_verification"
+    ]
+  }
+}

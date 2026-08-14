@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "ifood-x-text-security-floor",
+  "applied_at": "2026-08-14",
+  "base_run_id": "20260814-042201-817ea5ed",
+  "base_printing_press_version": "4.30.2",
+  "summary": "Raise golang.org/x/text to v0.39.0.",
+  "reason": "The canonical generator selected v0.38.0, which govulncheck identified as affected by reachable GO-2026-5970; v0.39.0 contains the fix.",
+  "files": [
+    "go.mod",
+    "go.sum"
+  ],
+  "validated_outcome": "The dependency graph uses the fixed x/text release and is rechecked with tests, vet, build, and govulncheck."
+}
