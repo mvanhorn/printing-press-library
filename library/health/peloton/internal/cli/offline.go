@@ -50,8 +50,13 @@ func newOfflineHistoryCmd(flags *rootFlags) *cobra.Command {
 	return cmd
 }
 
+// newOfflineWorkoutCmd builds its cobra.Command directly (Use as a literal,
+// not routed through offlineIDCmd) so verify-skill's static Use: scan can
+// resolve "offline workout" to this file. Routed through the shared helper,
+// the Use string only ever existed as a function argument, never as a
+// literal `Use: "..."` — invisible to a checker that only reads source text.
 func newOfflineWorkoutCmd(flags *rootFlags) *cobra.Command {
-	return offlineIDCmd("workout <workout_id>", "Show a locally stored workout detail and its recorded history fact.", flags, func(cmd *cobra.Command, id string) (any, []string, error) {
+	run := func(cmd *cobra.Command, id string) (any, []string, error) {
 		detail, err := offlineFact(cmd, "workout_details", id)
 		if err != nil {
 			return nil, nil, err
@@ -63,7 +68,17 @@ func newOfflineWorkoutCmd(flags *rootFlags) *cobra.Command {
 			out["caveats"] = []string{"recorded history fact is unavailable"}
 		}
 		return out, nil, nil
-	})
+	}
+	return &cobra.Command{Use: "workout <workout_id>", Short: "Show a locally stored workout detail and its recorded history fact.", Args: cobra.ExactArgs(1), RunE: func(cmd *cobra.Command, args []string) error {
+		value, caveats, err := run(cmd, args[0])
+		if err != nil {
+			return err
+		}
+		if len(caveats) > 0 {
+			return printOffline(cmd, flags, map[string]any{"result": value, "caveats": caveats})
+		}
+		return printOffline(cmd, flags, value)
+	}}
 }
 
 func newOfflinePerformanceCmd(flags *rootFlags) *cobra.Command {
@@ -79,8 +94,10 @@ func newOfflinePerformanceCmd(flags *rootFlags) *cobra.Command {
 	})
 }
 
+// newOfflineIntervalsCmd builds its cobra.Command directly for the same
+// reason as newOfflineWorkoutCmd above — see its comment.
 func newOfflineIntervalsCmd(flags *rootFlags) *cobra.Command {
-	return offlineIDCmd("intervals <workout_id>", "Show the stored class segments associated with a recorded workout when available.", flags, func(cmd *cobra.Command, id string) (any, []string, error) {
+	run := func(cmd *cobra.Command, id string) (any, []string, error) {
 		detail, err := offlineFact(cmd, "workout_details", id)
 		if err != nil {
 			return nil, nil, err
@@ -99,7 +116,17 @@ func newOfflineIntervalsCmd(flags *rootFlags) *cobra.Command {
 			return map[string]any{"workout_id": id, "ride_id": rideID, "segments": []any{}}, []string{"stored class has no comparable segment list"}, nil
 		}
 		return map[string]any{"workout_id": id, "ride_id": rideID, "segments": segments}, nil, nil
-	})
+	}
+	return &cobra.Command{Use: "intervals <workout_id>", Short: "Show the stored class segments associated with a recorded workout when available.", Args: cobra.ExactArgs(1), RunE: func(cmd *cobra.Command, args []string) error {
+		value, caveats, err := run(cmd, args[0])
+		if err != nil {
+			return err
+		}
+		if len(caveats) > 0 {
+			return printOffline(cmd, flags, map[string]any{"result": value, "caveats": caveats})
+		}
+		return printOffline(cmd, flags, value)
+	}}
 }
 
 func newOfflineClassesCmd(flags *rootFlags) *cobra.Command {

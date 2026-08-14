@@ -332,6 +332,28 @@ func cacheWorkoutPerformance(ctx context.Context, id string, data json.RawMessag
 	_ = db.UpsertWithFacts("performance", id, data)
 }
 
+// cacheWorkoutDetail is cacheWorkoutPerformance's counterpart for GET
+// /api/workout/{workout_id}: `workouts show` and `strength` both hit this
+// exact endpoint (returning the same full workout-detail payload, just
+// displaying different fields), each under their own resourceType
+// ("workouts", "strength") — neither of which is the "workout_details"
+// family `offline workout`, `offline intervals`, and `offline strength` all
+// read. Without this, those three offline commands 404 on every workout,
+// unconditionally, regardless of any prior sync or live fetch. Deliberately
+// additive: it does not change what "workouts"/"strength" live-mode caching
+// already does, only adds the family offline reads actually expect.
+func cacheWorkoutDetail(ctx context.Context, id string, data json.RawMessage) {
+	if id == "" {
+		return
+	}
+	db, err := store.OpenWithContext(ctx, defaultDBPath("peloton-pp-cli"))
+	if err != nil {
+		return
+	}
+	defer db.Close()
+	_ = db.UpsertWithFacts("workout_details", id, data)
+}
+
 // writeThroughCache upserts live API results into the local SQLite store so
 // FTS search covers everything the user has looked up — not just explicit syncs.
 // Best-effort: failures are silently ignored (the live result already succeeded).

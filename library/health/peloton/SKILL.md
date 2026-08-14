@@ -49,21 +49,49 @@ Do not activate this CLI for requests that require creating, updating, deleting,
 
 - `peloton-pp-cli account` — Show the current profile fact.
 
+**auth** — Manage Peloton credentials. No OAuth provisioning service is involved; this just wraps the automatic-login lifecycle (see Auth Setup below).
+
+- `peloton-pp-cli auth setup` — Show how to supply your Peloton login for automatic sign-in.
+- `peloton-pp-cli auth status` — Show whether a bearer token and/or session cookie are currently available.
+- `peloton-pp-cli auth logout` — Remove persisted Peloton credentials.
+
 **classes** — Read-only catalog, class detail, planned structure, and provider filter vocabulary.
 
 - `peloton-pp-cli classes catalog` — List a caller-scoped archived class catalog page.
 - `peloton-pp-cli classes filters` — Show provider class/filter vocabulary and embedded instructor metadata.
-- `peloton-pp-cli classes search` — Search the caller-scoped catalog by factual provider filters; U4 adds offline structural predicates.
+- `peloton-pp-cli classes search` — Search the caller-scoped catalog by factual provider filters.
 - `peloton-pp-cli classes show` — Show class metadata and supported planned structure.
 - `peloton-pp-cli classes structure` — Inspect ordered provider segments and target ranges without coaching labels.
+
+**doctor** — Check configuration, credential, and API-connectivity health.
+
+- `peloton-pp-cli doctor` — Report auth state, credential location, API reachability, and local sync cache freshness.
+
+**offline** — Inspect locally synced provider facts with no network access.
+
+- `peloton-pp-cli offline history` — List locally stored recorded workout facts.
+- `peloton-pp-cli offline workout <workout_id>` — Show a locally stored workout detail and its recorded history fact.
+- `peloton-pp-cli offline performance <workout_id>` — Show locally stored recorded performance samples for one workout.
+- `peloton-pp-cli offline intervals <workout_id>` — Show the stored class segments associated with a recorded workout, when available.
+- `peloton-pp-cli offline classes search` — Search local class facts by stored fields and structural predicates.
+- `peloton-pp-cli offline classes show <ride_id>` — Show one locally stored class fact.
+- `peloton-pp-cli offline classes structure <ride_id>` — Show ordered stored class segments and target fields.
+- `peloton-pp-cli offline classes filters` — Show locally stored provider filter vocabulary.
+- `peloton-pp-cli offline strength <workout_id>` — Show stored movement-tracker fields for one workout.
+- `peloton-pp-cli offline repeat <first_workout_id> <second_workout_id>` — Compare two recorded workouts, only when their stored class identifiers match.
 
 **strength** — Provider-supplied performed movement facts present only in workout detail payloads.
 
 - `peloton-pp-cli strength <workout_id>` — Inspect provider workout detail containing movement_tracker_data when present; no template fallback.
 
+**sync** — Sync API data to local SQLite for offline search and analysis.
+
+- `peloton-pp-cli sync` — Sync the default resources (`workouts`, `classes`). Naming `workouts` also cascades into per-workout `performance` samples (no bulk endpoint exists for those; one request per workout).
+- `peloton-pp-cli sync --resources <list>` — Sync specific resources: `workouts`, `classes`, or `performance`.
+
 **workouts** — Read-only recorded workout history, detail, and recorded performance facts.
 
-- `peloton-pp-cli workouts list` — List workout history in newest-first pages; user_id is supplied by the caller until U3 links the profile fact.
+- `peloton-pp-cli workouts list` — List workout history in newest-first pages; `user_id` must be supplied explicitly (no account-linking shortcut yet).
 - `peloton-pp-cli workouts performance` — Show recorded performance samples and summaries for one workout.
 - `peloton-pp-cli workouts show` — Show a recorded workout detail payload.
 
@@ -126,8 +154,8 @@ Agents should treat the CLI's path resolver as part of the runtime contract:
 - Use `--home <dir>` for one invocation, or set `PELOTON_HOME=<dir>` to relocate all four path kinds under one root.
 - Use per-kind env vars only when a specific kind must diverge: `PELOTON_CONFIG_DIR`, `PELOTON_DATA_DIR`, `PELOTON_STATE_DIR`, `PELOTON_CACHE_DIR`.
 - Resolution order is per-kind env var, `--home`, `PELOTON_HOME`, XDG (`XDG_CONFIG_HOME`, `XDG_DATA_HOME`, `XDG_STATE_HOME`, `XDG_CACHE_HOME`), then platform defaults.
-- `config` contains settings like `config.toml` and profiles. `data` contains `credentials.toml`, `data.db`, cookies, and auth sidecars. `state` contains persisted queries, jobs, and `teach.log`. `cache` contains regenerable HTTP/cache files.
-- Stored secrets live in `credentials.toml` under the data dir. Existing legacy `config.toml` secrets are read for compatibility and leave `config.toml` on the first auth write.
+- `config` contains `config.toml`, saved profiles, and the managed auth bundle (`oauth-token.json` — see Auth Setup above). `data` contains `data.db` (the local sync/offline store) and `feedback.jsonl`. `state` is resolved but not currently used by this CLI. `cache` contains the regenerable HTTP response cache.
+- Peloton's managed auth persists to `oauth-token.json` under the config dir automatically (see Auth Setup above) — not `credentials.toml` under the data dir. That generic credentials-file mechanism exists in the underlying framework but this CLI's real login flow never writes to it.
 - Run `peloton-pp-cli doctor --fail-on warn` to surface path and credential-location warnings. `agent-context` exposes a schema v4 `paths` block for agents that need the resolved dirs.
 - For MCP, pass relocation through the MCP host config. The MCP binary does not inherit CLI flags:
 
@@ -212,17 +240,20 @@ Parse `$ARGUMENTS`:
    ```bash
    go install github.com/mvanhorn/printing-press-library/library/health/peloton/cmd/peloton-pp-mcp@latest
    ```
-2. Register with Claude Code:
+2. The MCP server needs the same Peloton login as the CLI (see Auth Setup above) — it does not inherit a shell environment automatically, so pass the credentials through explicitly: either export them before registering, or set them in the registered server's `env` block (`claude mcp add --help` shows the exact flag for your Claude Code version). Without this, every tool call fails with an actionable "credentials unavailable" error instead of silently working.
+3. Register with Claude Code:
    ```bash
    claude mcp add peloton-pp-mcp -- peloton-pp-mcp
    ```
-3. Verify: `claude mcp list`
+4. Verify: `claude mcp list`
+
+For Claude Desktop (not Claude Code), use the prebuilt `.mcpb` bundle instead — see "Use with Claude Desktop" in README.md.
 
 ## Direct Use
 
 1. Check if installed: `which peloton-pp-cli`
    If not found, offer to install (see Prerequisites at the top of this skill).
-2. Match the user query to the best command from the Unique Capabilities and Command Reference above.
+2. Match the user query to the best command from the Command Reference above, or run `peloton-pp-cli which "<capability>"` (see Finding the right command above).
 3. Execute with the `--agent` flag:
    ```bash
    peloton-pp-cli <command> [subcommand] [args] --agent

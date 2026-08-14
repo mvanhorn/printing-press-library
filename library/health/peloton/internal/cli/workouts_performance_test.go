@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/health/peloton/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/health/peloton/internal/store"
@@ -35,19 +34,7 @@ func TestWorkoutsPerformanceLiveFetchPopulatesOfflineRead(t *testing.T) {
 	}))
 	defer server.Close()
 	t.Setenv("PELOTON_BASE_URL", server.URL)
-
-	bundlePath, err := oauthBundlePath()
-	if err != nil {
-		t.Fatal(err)
-	}
-	if err := saveOAuthBundle(pelotonTokenBundle{
-		AccessToken:  "fixture-access",
-		RefreshToken: "fixture-refresh",
-		ExpiresAt:    time.Now().Add(time.Hour),
-		SessionID:    "fixture-session",
-	}); err != nil {
-		t.Fatalf("seeding bundle at %s: %v", bundlePath, err)
-	}
+	seedValidOAuthBundleForLiveFetchTests(t)
 
 	root := newRootCmd(&rootFlags{})
 	var out bytes.Buffer
