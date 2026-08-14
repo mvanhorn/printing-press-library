@@ -35,9 +35,9 @@ type syncResult struct {
 }
 
 // icpRecordSyncObservations promotes complete whole-catalog walks to snapshots.
-// Page-capped and resource-scoped walks still add useful openings history, but
-// they must never become the newest catalog snapshot: drift would interpret
-// every unseen row as removed.
+// Page-capped, resource-scoped, and access-gated walks still add useful
+// openings history, but they must never become the newest catalog snapshot:
+// drift would interpret every unseen row as removed.
 func icpRecordSyncObservations(ctx context.Context, s *store.Store, account string, at time.Time, obs []store.ICPObservation, snapshotComplete bool) (int64, error) {
 	if !snapshotComplete {
 		return 0, s.RecordICPOpenings(ctx, at, obs)
@@ -52,8 +52,8 @@ func icpRecordSyncObservations(ctx context.Context, s *store.Store, account stri
 	return runID, nil
 }
 
-func icpSyncSnapshotComplete(wantClasses, wantCamps, truncated bool) bool {
-	return wantClasses && wantCamps && !truncated
+func icpSyncSnapshotComplete(wantClasses, wantCamps, truncated, gated bool) bool {
+	return wantClasses && wantCamps && !truncated && !gated
 }
 
 func newIclassproSyncCmd(flags *rootFlags) *cobra.Command {
@@ -79,8 +79,9 @@ Run sync at least twice, spaced apart, before expecting those commands to have
 anything to compare.
 
 Only a complete classes-and-camps walk replaces the authoritative snapshot.
-Runs limited by --resources or --max-pages still update openings history and
-the search cache without making omitted records look deleted.`, "\n"),
+Runs limited by --resources or --max-pages, or interrupted by a customer
+sign-in gate, still update openings history and the search cache without making
+omitted records look deleted.`, "\n"),
 		Example: strings.Trim(`
   iclasspro-pp-cli sync scottsdalegymnastics
   iclasspro-pp-cli sync scottsdalegymnastics --resources classes,camps
@@ -161,7 +162,7 @@ the search cache without making omitted records look deleted.`, "\n"),
 				Note:      icpGateNote(account, coll.Gate),
 				Warnings:  coll.Warnings,
 			}
-			snapshotComplete := icpSyncSnapshotComplete(wantClasses, wantCamps, coll.Truncated)
+			snapshotComplete := icpSyncSnapshotComplete(wantClasses, wantCamps, coll.Truncated, coll.Gated)
 			if !wantClasses || !wantCamps {
 				res.Note = "catalog snapshot unchanged because --resources did not include both classes and camps"
 			}

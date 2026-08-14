@@ -70,6 +70,97 @@ func TestIcpCollectMarksOnlyIncompletePageCapsTruncated(t *testing.T) {
 	}
 }
 
+func TestIcpCollectMarksPartialSignInGateIncomplete(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		switch r.URL.Path {
+		case "/testgym/locations":
+			_ = json.NewEncoder(w).Encode(map[string]any{
+				"data": []map[string]any{
+					{"id": 7, "name": "First", "active": true},
+					{"id": 8, "name": "Second", "active": true},
+				},
+			})
+		case "/testgym/classes":
+			if r.URL.Query().Get("locationId") == "7" {
+				_ = json.NewEncoder(w).Encode(map[string]any{
+					"data": []map[string]any{{"id": 101, "name": "Class A"}},
+				})
+				return
+			}
+			_ = json.NewEncoder(w).Encode(map[string]any{
+				"data":    []map[string]any{},
+				"message": "Please sign in to view classes",
+			})
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer server.Close()
+
+	c := client.New(&config.Config{BaseURL: server.URL}, time.Second, 0)
+	c.BaseURL = server.URL
+	coll, err := icpCollect(context.Background(), c, "testgym", icpCollectOptions{
+		IncludeClasses: true,
+		MaxPages:       2,
+		PageSize:       100,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(coll.Entities) != 1 {
+		t.Fatalf("entities = %d, want the one row collected before the gate", len(coll.Entities))
+	}
+	if coll.Gate != icpGateSignIn || !coll.Gated {
+		t.Fatalf("gate = %q, gated = %v; want sign-in-required and incomplete", coll.Gate, coll.Gated)
+	}
+	if icpSyncSnapshotComplete(true, true, coll.Truncated, coll.Gated) {
+		t.Fatal("partial sign-in-gated collection was eligible for an authoritative snapshot")
+	}
+}
+
+func TestIcpCollectPropagatesBookingMenuSignInGate(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		switch r.URL.Path {
+		case "/testgym/locations":
+			_ = json.NewEncoder(w).Encode(map[string]any{
+				"data": []map[string]any{{"id": 7, "name": "Main", "active": true}},
+			})
+		case "/testgym/classes":
+			_ = json.NewEncoder(w).Encode(map[string]any{
+				"data": []map[string]any{{"id": 101, "name": "Class A"}},
+			})
+		case "/testgym/bookings/7":
+			_ = json.NewEncoder(w).Encode(map[string]any{
+				"data":    []map[string]any{},
+				"message": "Please sign in to view bookings",
+			})
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer server.Close()
+
+	c := client.New(&config.Config{BaseURL: server.URL}, time.Second, 0)
+	c.BaseURL = server.URL
+	coll, err := icpCollect(context.Background(), c, "testgym", icpCollectOptions{
+		IncludeClasses: true,
+		IncludeCamps:   true,
+		MaxPages:       2,
+		PageSize:       100,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(coll.Entities) != 1 {
+		t.Fatalf("entities = %d, want the class collected before the booking gate", len(coll.Entities))
+	}
+	if coll.Gate != icpGateSignIn || !coll.Gated {
+		t.Fatalf("gate = %q, gated = %v; want booking gate to mark the collection incomplete", coll.Gate, coll.Gated)
+	}
+}
+
 func TestIcpRecordSyncObservationsDoesNotPromotePartialWalk(t *testing.T) {
 	ctx := context.Background()
 	s, err := store.OpenWithContext(ctx, filepath.Join(t.TempDir(), "mirror.db"))
@@ -125,19 +216,20 @@ func TestIcpRecordSyncObservationsDoesNotPromotePartialWalk(t *testing.T) {
 
 func TestIcpSyncSnapshotCompleteRequiresWholeCatalog(t *testing.T) {
 	tests := []struct {
-		name                    string
-		wantClasses, wantCamps  bool
-		truncated, wantComplete bool
+		name                           string
+		wantClasses, wantCamps         bool
+		truncated, gated, wantComplete bool
 	}{
 		{name: "complete whole catalog", wantClasses: true, wantCamps: true, wantComplete: true},
 		{name: "classes only", wantClasses: true, wantCamps: false},
 		{name: "camps only", wantClasses: false, wantCamps: true},
 		{name: "whole catalog page capped", wantClasses: true, wantCamps: true, truncated: true},
+		{name: "whole catalog access gated", wantClasses: true, wantCamps: true, gated: true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := icpSyncSnapshotComplete(tt.wantClasses, tt.wantCamps, tt.truncated); got != tt.wantComplete {
-				t.Fatalf("icpSyncSnapshotComplete(%v, %v, %v) = %v, want %v", tt.wantClasses, tt.wantCamps, tt.truncated, got, tt.wantComplete)
+			if got := icpSyncSnapshotComplete(tt.wantClasses, tt.wantCamps, tt.truncated, tt.gated); got != tt.wantComplete {
+				t.Fatalf("icpSyncSnapshotComplete(%v, %v, %v, %v) = %v, want %v", tt.wantClasses, tt.wantCamps, tt.truncated, tt.gated, got, tt.wantComplete)
 			}
 		})
 	}

@@ -205,10 +205,10 @@ func icpLocations(ctx context.Context, c *client.Client, account string) ([]icpL
 // endpoint returns are programIds, and passing one as `typeId` returns an empty
 // camp list with no error. That trap is the single most common way to build a
 // broken iClassPro integration.
-func icpCampTypeIDs(ctx context.Context, c *client.Client, account string, locationID int) ([]int, error) {
-	rows, _, _, err := icpGet(ctx, c, fmt.Sprintf("/%s/bookings/%d", account, locationID), nil)
+func icpCampTypeIDs(ctx context.Context, c *client.Client, account string, locationID int) ([]int, icpGate, error) {
+	rows, _, gate, err := icpGet(ctx, c, fmt.Sprintf("/%s/bookings/%d", account, locationID), nil)
 	if err != nil {
-		return nil, err
+		return nil, gate, err
 	}
 	ids := make([]int, 0)
 	seen := map[int]bool{}
@@ -226,7 +226,7 @@ func icpCampTypeIDs(ctx context.Context, c *client.Client, account string, locat
 		}
 	}
 	sort.Ints(ids)
-	return ids, nil
+	return ids, gate, nil
 }
 
 // icpCollectOptions bounds how much work a catalog walk performs.
@@ -241,6 +241,7 @@ type icpCollectOptions struct {
 type icpCollection struct {
 	Entities  []icp.Entity
 	Gate      icpGate
+	Gated     bool
 	Locations []icpLocation
 	Pages     int
 	Truncated bool
@@ -263,6 +264,7 @@ func icpCollect(ctx context.Context, c *client.Client, account string, opts icpC
 		return out, err
 	}
 	out.Gate = gate
+	out.Gated = gate == icpGateSignIn
 	out.Locations = locs
 	if gate == icpGateNotFound {
 		return out, nil
@@ -286,6 +288,7 @@ func icpCollect(ctx context.Context, c *client.Client, account string, opts icpC
 				out.Pages++
 				if g == icpGateSignIn {
 					out.Gate = icpGateSignIn
+					out.Gated = true
 					break
 				}
 				for _, r := range rows {
@@ -302,9 +305,14 @@ func icpCollect(ctx context.Context, c *client.Client, account string, opts icpC
 			}
 		}
 		if opts.IncludeCamps {
-			typeIDs, err := icpCampTypeIDs(ctx, c, account, loc.ID)
+			typeIDs, bookingGate, err := icpCampTypeIDs(ctx, c, account, loc.ID)
 			if err != nil {
 				return out, fmt.Errorf("booking menu for location %d: %w", loc.ID, err)
+			}
+			if bookingGate == icpGateSignIn {
+				out.Gate = icpGateSignIn
+				out.Gated = true
+				continue
 			}
 			for _, tid := range typeIDs {
 				for page := 1; page <= opts.MaxPages; page++ {
@@ -321,6 +329,7 @@ func icpCollect(ctx context.Context, c *client.Client, account string, opts icpC
 					out.Pages++
 					if g == icpGateSignIn {
 						out.Gate = icpGateSignIn
+						out.Gated = true
 						break
 					}
 					for _, r := range rows {
