@@ -856,27 +856,27 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 	ctx := map[string]any{
 		"api":         "peloton",
 		"description": "Read-only Peloton workout, class, and structural-provider facts in a private local store.",
-		"archetype":   "crm",
-		"tool_count":  10,
+		"archetype":   "health_fitness",
+		"tool_count":  30,
 		"paths":       paths,
 		// tool_surface tells agents which surface a capability lives on.
-		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion peloton-pp-cli binary.",
+		"tool_surface": "MCP exposes typed endpoint tools, framework tools (search/sql/context/sync/offline/workflow), plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion peloton-pp-cli binary.",
 		"auth": map[string]any{
 			"type": "oauth2_refresh",
 			"env_vars": []map[string]any{
 				{
 					"name":        "PELOTON_OAUTH_USERNAME",
 					"kind":        "auth_flow_input",
-					"required":    false,
+					"required":    true,
 					"sensitive":   true,
-					"description": "Set during initial auth setup.",
+					"description": "Your Peloton login email/username. Set it directly; the CLI logs in automatically on first use and persists the result — no external provisioning service involved. Not needed if a session from a prior login is already persisted.",
 				},
 				{
 					"name":        "PELOTON_OAUTH_PASSWORD",
 					"kind":        "auth_flow_input",
-					"required":    false,
+					"required":    true,
 					"sensitive":   true,
-					"description": "Set during initial auth setup.",
+					"description": "Your Peloton account password. Set it directly; the CLI logs in automatically on first use and persists the result — no external provisioning service involved. Not needed if a session from a prior login is already persisted.",
 				},
 			},
 		},
@@ -890,6 +890,20 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 				"name":        "classes",
 				"description": "Read-only catalog, class detail, planned structure, and provider filter vocabulary.",
 				"endpoints":   []string{"catalog", "filters", "search", "show", "structure"},
+				"syncable":    true,
+				"searchable":  true,
+			},
+			{
+				"name":        "performance",
+				"description": "Per-workout recorded performance samples and summaries. No bulk list endpoint; synced one request per workout as a parent-keyed dependent of workouts.",
+				"endpoints":   []string{"workouts performance"},
+				"syncable":    true,
+				"searchable":  true,
+			},
+			{
+				"name":        "workout_details",
+				"description": "Full per-workout detail payload, including the movement-tracker fields strength reads. No bulk list endpoint; synced one request per workout as a parent-keyed dependent of workouts. \"strength\" is accepted as a sync alias for this resource.",
+				"endpoints":   []string{"workouts show", "strength"},
 				"syncable":    true,
 				"searchable":  true,
 			},
@@ -913,16 +927,19 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			"Use the sql tool for ad-hoc analysis on synced data. Run sync first to populate the local database.",
 			"Use the search tool for full-text search across all synced resources. Faster than iterating list endpoints.",
 			"Prefer sql/search over repeated API calls when the data is already synced.",
+			"Run sync (no args) to populate workouts and classes; naming workouts also cascades into per-workout performance and workout_details, which offline workout/intervals/repeat/strength read.",
+			"Use offline commands for network-free reads of previously-synced data; they never make a live API call.",
+			"Run doctor to check auth state, credential location, and sync cache freshness before assuming an API or credential problem.",
 		},
 		// Command-mirror capabilities are exposed through MCP by shelling out
 		// to the companion CLI binary.
 		"command_mirror_capabilities": []map[string]string{
-			{"name": "Automatic Peloton login", "command": "auth setup", "description": "Shows how to supply PELOTON_OAUTH_USERNAME/PELOTON_OAUTH_PASSWORD; the CLI logs in and persists credentials automatically, no external provisioning service involved.", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Automatic Peloton login", "command": "auth setup", "description": "Shows how to supply PELOTON_OAUTH_USERNAME/PELOTON_OAUTH_PASSWORD; the CLI logs in and persists credentials automatically, no external provisioning service involved.", "rationale": "Peloton has no interactive OAuth consent screen to shell out to; login is just posting credentials once and persisting the resulting session, so a command mirror is enough — no dedicated typed tool is needed.", "via": "mcp-command-mirror"},
 		},
 		"playbook": []map[string]string{
-			{"topic": "Automatic Peloton login", "insight": ""},
-			{"topic": "Contact lookup", "insight": "Use search for finding contacts by name/email. List endpoints return unsorted results and require pagination for large datasets."},
-			{"topic": "Activity tracking", "insight": "When checking deal activity, sync first and query locally. CRM APIs often throttle activity-log endpoints heavily."},
+			{"topic": "Automatic Peloton login", "insight": "Set PELOTON_OAUTH_USERNAME/PELOTON_OAUTH_PASSWORD once; the CLI logs in and persists the session automatically on first use — no separate interactive login step."},
+			{"topic": "Sync workflow", "insight": "Run sync to populate workouts and classes locally; naming workouts cascades into per-workout performance and workout_details automatically (no bulk endpoint exists for either, so this is one request per workout)."},
+			{"topic": "Offline fallback", "insight": "offline commands only see what has already been synced or fetched live at least once. If a workout is missing, sync workouts first — it cascades into performance and workout_details for you."},
 		},
 	}
 	return toolResultJSON(ctx)

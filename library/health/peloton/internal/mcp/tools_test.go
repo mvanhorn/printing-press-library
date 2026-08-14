@@ -124,6 +124,73 @@ func TestMCPRegisterToolsPreservesTypedSpecialTools(t *testing.T) {
 	}
 }
 
+// TestHandleContextDescribesPelotonNotCRM guards against handleContext
+// regressing to the generator's generic CRM template scaffolding (SIGNIFICANT
+// #4 from a live post-fix verification sweep): the context tool is
+// front-loaded domain knowledge agents read first, and it previously
+// reported "archetype": "crm", a stale tool_count of 10 (actual is higher
+// once framework/command-mirror tools are counted), a "resources" list
+// missing "performance"/"workout_details" with no mention of sync/offline/
+// doctor, and CRM-specific playbook entries ("Contact lookup", "CRM APIs
+// often throttle activity-log endpoints heavily") that make no sense for a
+// fitness API.
+func TestHandleContextDescribesPelotonNotCRM(t *testing.T) {
+	result, err := handleContext(context.Background(), mcplib.CallToolRequest{})
+	if err != nil {
+		t.Fatalf("handleContext returned transport error: %v", err)
+	}
+	if result == nil || result.IsError {
+		t.Fatalf("handleContext IsError = %v, want false", result != nil && result.IsError)
+	}
+	text := mcpTextContent(t, result)
+
+	var ctx map[string]any
+	if err := json.Unmarshal([]byte(text), &ctx); err != nil {
+		t.Fatalf("handleContext result is not valid JSON: %v\n%s", err, text)
+	}
+
+	if archetype, _ := ctx["archetype"].(string); archetype == "crm" {
+		t.Fatalf("archetype = %q, want a peloton-accurate value, not the generic CRM template default", archetype)
+	}
+
+	toolCount, ok := ctx["tool_count"].(float64)
+	if !ok || toolCount < 20 {
+		t.Fatalf("tool_count = %v, want an accurate count reflecting all registered tools (endpoint + framework + command-mirror), not the stale template value of 10", ctx["tool_count"])
+	}
+
+	resources, ok := ctx["resources"].([]any)
+	if !ok {
+		t.Fatalf("resources = %#v, want an array", ctx["resources"])
+	}
+	names := map[string]bool{}
+	for _, r := range resources {
+		obj, ok := r.(map[string]any)
+		if !ok {
+			continue
+		}
+		if name, ok := obj["name"].(string); ok {
+			names[name] = true
+		}
+	}
+	for _, want := range []string{"performance", "workout_details"} {
+		if !names[want] {
+			t.Fatalf("resources missing %q entry: %#v", want, names)
+		}
+	}
+
+	for _, forbidden := range []string{"crm", "CRM", "Contact lookup", "deal activity"} {
+		if strings.Contains(text, forbidden) {
+			t.Fatalf("handleContext result still contains stale CRM-template text %q:\n%s", forbidden, text)
+		}
+	}
+
+	for _, want := range []string{"sync", "offline", "doctor"} {
+		if !strings.Contains(text, want) {
+			t.Fatalf("handleContext result does not mention %q anywhere; agents reading this first won't discover it", want)
+		}
+	}
+}
+
 func TestMCPSearchMissingStoreIsActionable(t *testing.T) {
 	resetMCPPathEnv(t)
 
