@@ -330,30 +330,6 @@ func (s *Store) UpsertLearning(ctx context.Context, in UpsertLearningInput) (int
 	}
 	defer tx.Rollback()
 
-	var existingID int64
-	err = tx.QueryRowContext(ctx,
-		`SELECT id FROM search_learnings
-		 WHERE query_pattern = ? AND resource_id = ? AND action = ?`,
-		pattern, in.ResourceID, action,
-	).Scan(&existingID)
-	if err == nil {
-		if _, err := tx.ExecContext(ctx,
-			`UPDATE search_learnings
-			 SET confidence = confidence + 1, last_observed_at = ?
-			 WHERE id = ?`,
-			now, existingID,
-		); err != nil {
-			return 0, false, fmt.Errorf("upsert learning bump confidence: %w", err)
-		}
-		if err := tx.Commit(); err != nil {
-			return 0, false, err
-		}
-		return existingID, false, nil
-	}
-	if err != sql.ErrNoRows {
-		return 0, false, fmt.Errorf("upsert learning lookup: %w", err)
-	}
-
 	var venue, resourceType, aliasTarget, notes, queryEntities any
 	if in.Venue != "" {
 		venue = in.Venue
@@ -392,27 +368,53 @@ func (s *Store) UpsertLearning(ctx context.Context, in UpsertLearningInput) (int
 	// learning effectively wasn't useful until its second observation,
 	// which usually came too late to matter. Starting at 2 means the
 	// first taught mapping is immediately load-bearing. Re-confirmations
-	// (the UPDATE branch above) still bump by 1, so high-confidence rows
+	// (the UPDATE path below) still bump by 1, so high-confidence rows
 	// (3+) remain a meaningful signal for ranking ties.
-	res, err := tx.Exec(
+	// Let the unique index arbitrate concurrent teachers. A targeted
+	// DO NOTHING avoids masking unrelated constraints, and RowsAffected
+	// tells us whether this transaction created the row. If a peer won
+	// the insert, the UPDATE below reinforces that row instead.
+	res, err := tx.ExecContext(ctx,
 		`INSERT INTO search_learnings
 		 (query_pattern, query_entities, venue, resource_type, resource_id, action, alias_target,
 		  source, confidence, created_at, last_observed_at, notes)
-		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, 2, ?, ?, ?)`,
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, 2, ?, ?, ?)
+		 ON CONFLICT(query_pattern, resource_id, action) DO NOTHING`,
 		pattern, queryEntities, venue, resourceType, in.ResourceID, action, aliasTarget,
 		source, now, now, notes,
 	)
 	if err != nil {
 		return 0, false, fmt.Errorf("upsert learning insert: %w", err)
 	}
-	id, err := res.LastInsertId()
+	inserted, err := res.RowsAffected()
 	if err != nil {
-		return 0, false, fmt.Errorf("upsert learning last id: %w", err)
+		return 0, false, fmt.Errorf("upsert learning rows affected: %w", err)
+	}
+	if inserted == 1 {
+		id, err := res.LastInsertId()
+		if err != nil {
+			return 0, false, fmt.Errorf("upsert learning last id: %w", err)
+		}
+		if err := tx.Commit(); err != nil {
+			return 0, false, err
+		}
+		return id, true, nil
+	}
+
+	var existingID int64
+	if err := tx.QueryRowContext(ctx,
+		`UPDATE search_learnings
+		 SET confidence = confidence + 1, last_observed_at = ?
+		 WHERE query_pattern = ? AND resource_id = ? AND action = ?
+		 RETURNING id`,
+		now, pattern, in.ResourceID, action,
+	).Scan(&existingID); err != nil {
+		return 0, false, fmt.Errorf("upsert learning bump confidence: %w", err)
 	}
 	if err := tx.Commit(); err != nil {
 		return 0, false, err
 	}
-	return id, true, nil
+	return existingID, false, nil
 }
 
 // ListLearningsFilter narrows ListLearnings. Zero values mean unfiltered.

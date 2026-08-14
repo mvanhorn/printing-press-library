@@ -83,6 +83,74 @@ func TestUpsertLearning_InsertsAndBumpsConfidence(t *testing.T) {
 	}
 }
 
+func TestUpsertLearning_ConcurrentStoresReinforceOneRow(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "concurrent-learn.db")
+	first, err := store.OpenWithContext(context.Background(), dbPath)
+	if err != nil {
+		t.Fatalf("open first store: %v", err)
+	}
+	t.Cleanup(func() { first.Close() })
+	second, err := store.OpenWithContext(context.Background(), dbPath)
+	if err != nil {
+		t.Fatalf("open second store: %v", err)
+	}
+	t.Cleanup(func() { second.Close() })
+
+	const teachers = 12
+	type upsertResult struct {
+		id      int64
+		created bool
+		err     error
+	}
+	start := make(chan struct{})
+	results := make(chan upsertResult, teachers)
+	stores := []*store.Store{first, second}
+	for i := 0; i < teachers; i++ {
+		s := stores[i%len(stores)]
+		go func() {
+			<-start
+			id, created, err := s.UpsertLearning(context.Background(), store.UpsertLearningInput{
+				Query:        "portugal world cup odds",
+				ResourceID:   "KXMENWORLDCUP-26-PT",
+				ResourceType: "markets",
+				Source:       store.LearningSourceTaught,
+			})
+			results <- upsertResult{id: id, created: created, err: err}
+		}()
+	}
+	close(start)
+
+	createdCount := 0
+	ids := map[int64]struct{}{}
+	for i := 0; i < teachers; i++ {
+		result := <-results
+		if result.err != nil {
+			t.Fatalf("concurrent upsert: %v", result.err)
+		}
+		if result.created {
+			createdCount++
+		}
+		ids[result.id] = struct{}{}
+	}
+	if createdCount != 1 {
+		t.Fatalf("created count = %d, want 1", createdCount)
+	}
+	if len(ids) != 1 {
+		t.Fatalf("row ids = %v, want one shared id", ids)
+	}
+
+	rows, err := first.ListLearnings(context.Background(), store.ListLearningsFilter{})
+	if err != nil {
+		t.Fatalf("list learnings: %v", err)
+	}
+	if len(rows) != 1 {
+		t.Fatalf("row count = %d, want 1", len(rows))
+	}
+	if want := teachers + 1; rows[0].Confidence != want {
+		t.Fatalf("confidence = %d, want %d", rows[0].Confidence, want)
+	}
+}
+
 func TestUpsertLearning_NormalizesQueryAcrossVariants(t *testing.T) {
 	s := openLearnings(t)
 	// Two different phrasings should collapse to the same row.

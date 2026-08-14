@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "bearer_token"
   },
-  "source_fingerprint": "17e88cf3370b1744a400ad12e286ef86485b28c8a51f4752b455deee0d5a7383",
+  "source_fingerprint": "41d4d64fbf337e0f58321d93e47e59c534d4db2af173775d370e2a129ec84f7c",
   "source_files": {
     "cmd/ifood-pp-cli/main.go": "914af6a005ec2fb02d79b1ba3bf299644ecdbab4cb73bd5f714e70e8fcc8e334",
     "cmd/ifood-pp-mcp/main.go": "1bb53e75c864648e049c30a3416a295eb84c16dcf9afd17c22a06a3caaec3e1d",
@@ -178,8 +178,8 @@
     "internal/store/events.go": "bd09e5153527cab968852f53a1d7f72a52878af8506825c87736b0ea6c24b188",
     "internal/store/events_test.go": "18804df276865be6a1e61530ec970922a144e69b3fae00d7059f9ff7d2f7100e",
     "internal/store/extras.go": "b9bbd5a7fb8a4033eaccc10a83097acc0bd7fadb8db533a0a426c5a6185c8bb6",
-    "internal/store/learnings.go": "a3359b425bb4e6339b1dc1c41a0c0174ab23cf6b85369f58d59658d9d768abe4",
-    "internal/store/learnings_test.go": "13098ad47aa7a45a59afd6d89a2ab2e0e148792880e45bc31ed8be1ce8fcb6f2",
+    "internal/store/learnings.go": "0662ade07760ac27e8aa61ef14e1fd68159cd93d7a6dbd32ebb50ef6f0827b0b",
+    "internal/store/learnings_test.go": "ce7604f9fa28ca94f2613fea004656191cd44c9ed708a22773658a374c702238",
     "internal/store/playbooks.go": "b51c150ada9e434fc035119b2a304772ca9348adb16042cad47e29088c763871",
     "internal/store/playbooks_test.go": "b1a5395aae0e00a3cc8d395f60853577de6688d6ac862256d944006315d67a63",
     "internal/store/schema_version_test.go": "34d7b900c06dd4c04f9954711a7c57b85b927f5990633ad2bba47ec6d4a458dc",
