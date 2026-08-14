@@ -187,21 +187,25 @@ Resource scoping:
 				}
 			}
 
+			// Resolve --resources aliases (e.g. "strength" -> "workout_details")
+			// before any scoping/cascade/validation logic runs.
+			resources = normalizeSyncResourceAliases(resources)
+
 			// Cascade: naming the parent ("workouts") also runs its
-			// parent-keyed dependent ("performance"), per the Long help's
-			// documented scoping contract. Naming "performance" alone (no
-			// "workouts") is left as-is — it runs against whatever workouts
-			// are already in the local store from a prior sync.
+			// parent-keyed dependents ("performance", "workout_details"), per
+			// the Long help's documented scoping contract. Naming a dependent
+			// alone (no "workouts") is left as-is — it runs against whatever
+			// workouts are already in the local store from a prior sync.
 			resources = expandSyncResourcesWithDependents(resources)
 
-			// performance is a parent-keyed dependent of workouts (one
-			// performance_graph per already-synced workout id), not a flat
-			// paginated list endpoint — split it out of the flat worker pool
-			// below and run it once the flat phase (which populates the
-			// workouts it depends on) has completed.
+			// performance/workout_details are parent-keyed dependents of
+			// workouts (one fetch per already-synced workout id), not flat
+			// paginated list endpoints — split them out of the flat worker
+			// pool below and run them once the flat phase (which populates
+			// the workouts they depend on) has completed.
 			var flatResources, dependentResources []string
 			for _, resource := range resources {
-				if resource == "performance" {
+				if resource == "performance" || resource == "workout_details" {
 					dependentResources = append(dependentResources, resource)
 					continue
 				}
@@ -361,13 +365,15 @@ Resource scoping:
 				accumulate(res)
 			}
 
-			// Dependent phase: runs after the flat phase so "performance"
-			// reads a workouts table the flat phase just finished
-			// populating (or a prior sync populated, when only
-			// "performance" was named).
+			// Dependent phase: runs after the flat phase so dependents read
+			// a workouts table the flat phase just finished populating (or
+			// a prior sync populated, when only a dependent was named).
 			for _, resource := range dependentResources {
-				if resource == "performance" {
+				switch resource {
+				case "performance":
 					accumulate(syncPerformanceDependent(cmd.Context(), c, db, concurrency, userParams, syncEventWriter))
+				case "workout_details":
+					accumulate(syncWorkoutDetailsDependent(cmd.Context(), c, db, concurrency, userParams, syncEventWriter))
 				}
 			}
 
@@ -425,7 +431,7 @@ Resource scoping:
 		},
 	}
 
-	cmd.Flags().StringSliceVar(&resources, "resources", nil, "Comma-separated resource types to sync. Naming a parent also runs its parent-keyed dependents (see Long help for scoping).")
+	cmd.Flags().StringSliceVar(&resources, "resources", nil, "Comma-separated resource types to sync. Naming a parent also runs its parent-keyed dependents (see Long help for scoping). \"strength\" is accepted as an alias for \"workout_details\".")
 	cmd.Flags().BoolVar(&full, "full", false, "Full resync (ignore previous checkpoint)")
 	cmd.Flags().BoolVar(&noPrune, "no-prune", false, "Disable deletion reconciliation on --full (by default a full sync prunes local rows the API no longer returns for a fully-enumerated parent partition)")
 	cmd.Flags().StringVar(&since, "since", "", "Incremental sync duration (e.g. 7d, 24h, 1w, 30m)")
@@ -1746,10 +1752,12 @@ func parseSinceDuration(s string) (time.Time, error) {
 }
 
 // defaultSyncResources returns the resources a bare `sync` (no --resources)
-// runs. Both are flat, paginated, list-endpoint resources; "performance" is
-// a parent-keyed dependent of "workouts" and is never a default target on
-// its own — it cascades in via expandSyncResourcesWithDependents whenever
-// "workouts" is selected (by default or explicitly).
+// runs. Both are flat, paginated, list-endpoint resources; "performance" and
+// "workout_details" are parent-keyed dependents of "workouts" and are never
+// default targets on their own — they cascade in via
+// expandSyncResourcesWithDependents whenever "workouts" is selected (by
+// default or explicitly), so a bare `sync` already populates everything
+// `offline workout`/`intervals`/`repeat`/`strength`/`performance` read.
 func defaultSyncResources() []string {
 	return []string{"workouts", "classes"}
 }
@@ -1757,35 +1765,71 @@ func defaultSyncResources() []string {
 // knownSyncResourceNames returns every resource name sync will accept —
 // flat resources plus any parent-child dependents. Used by --resource-param
 // validation to reject misspellings before they become silent no-ops.
+// "strength" is deliberately absent: it's a --resources selection alias for
+// "workout_details" (resolved by normalizeSyncResourceAliases before this
+// list is consulted), not a separate family — --resource-param targets must
+// use the canonical "workout_details" name.
 func knownSyncResourceNames() []string {
 	names := []string{
 		"classes",
 		"workouts",
 		"performance",
+		"workout_details",
 	}
 	return names
 }
 
+// normalizeSyncResourceAliases rewrites user-facing --resources aliases onto
+// their canonical dependent name before scoping/cascade logic runs.
+// "strength" is the command name users naturally think in terms of
+// (`workouts strength`, `offline strength`), but it reads the same
+// "workout_details" family that `offline workout`/`offline intervals` also
+// read — there's no separate strength-only payload to sync. Deduplicates so
+// e.g. --resources strength,workout_details doesn't run the dependent twice.
+func normalizeSyncResourceAliases(resources []string) []string {
+	normalized := make([]string, 0, len(resources))
+	seen := make(map[string]bool, len(resources))
+	for _, resource := range resources {
+		if resource == "strength" {
+			resource = "workout_details"
+		}
+		if seen[resource] {
+			continue
+		}
+		seen[resource] = true
+		normalized = append(normalized, resource)
+	}
+	return normalized
+}
+
 // expandSyncResourcesWithDependents applies the cascade rule documented in
 // the sync command's Long help: naming a parent also runs its parent-keyed
-// dependents. "performance" (per-workout performance_graph samples) is the
-// one dependent this CLI has, keyed on "workouts". Naming "performance"
-// without "workouts" is left alone — it runs against whatever workouts are
-// already in the local store from a prior sync, per the documented "run a
-// dependent without re-syncing its parent" scoping.
+// dependents. "performance" (per-workout performance_graph samples) and
+// "workout_details" (per-workout detail payload, backing `offline
+// workout`/`intervals`/`repeat`/`strength`) are this CLI's two dependents,
+// both keyed on "workouts". Naming a dependent without "workouts" is left
+// alone — it runs against whatever workouts are already in the local store
+// from a prior sync, per the documented "run a dependent without re-syncing
+// its parent" scoping.
 func expandSyncResourcesWithDependents(resources []string) []string {
 	hasWorkouts := false
 	hasPerformance := false
+	hasWorkoutDetails := false
 	for _, resource := range resources {
 		switch resource {
 		case "workouts":
 			hasWorkouts = true
 		case "performance":
 			hasPerformance = true
+		case "workout_details":
+			hasWorkoutDetails = true
 		}
 	}
 	if hasWorkouts && !hasPerformance {
 		resources = append(resources, "performance")
+	}
+	if hasWorkouts && !hasWorkoutDetails {
+		resources = append(resources, "workout_details")
 	}
 	return resources
 }
@@ -1950,6 +1994,130 @@ func syncPerformanceDependent(ctx context.Context, c interface {
 		}
 	}
 	return syncResult{Resource: "performance", Count: totalCount, Duration: time.Since(started)}
+}
+
+// syncWorkoutDetailsDependent syncs "workout_details" (the full per-workout
+// detail payload from GET /api/workout/{workout_id}), a second parent-keyed
+// dependent of "workouts" alongside "performance". Peloton exposes this
+// data only per-workout, never as a bulk list, so — like performance — it
+// cannot go through the flat paginated syncResource loop. `offline workout`,
+// `offline intervals`, `offline repeat`, and `offline strength` all read
+// this same "workout_details" family (see cacheWorkoutDetail's doc comment
+// in data_source.go), so syncing it once here satisfies all four instead of
+// requiring four separate dependent loops.
+func syncWorkoutDetailsDependent(ctx context.Context, c interface {
+	Get(context.Context, string, map[string]string) (json.RawMessage, error)
+	RateLimit() float64
+}, db *store.Store, concurrency int, userParams *syncUserParams, syncEvents io.Writer) syncResult {
+	started := time.Now()
+	if syncEvents == nil {
+		syncEvents = io.Discard
+	}
+	if !humanFriendly {
+		fmt.Fprintf(syncEvents, `{"event":"sync_start","resource":"workout_details"}`+"\n")
+	}
+
+	workoutIDs, err := dependentParentIDs(db, "workouts")
+	if err != nil {
+		if !humanFriendly {
+			fmt.Fprintln(syncEvents, syncErrorJSON("workout_details", "", err))
+		}
+		return syncResult{Resource: "workout_details", Err: fmt.Errorf("reading synced workouts for workout_details dependent sync: %w", err), Duration: time.Since(started)}
+	}
+	if len(workoutIDs) == 0 {
+		return syncResult{
+			Resource: "workout_details",
+			Warn:     fmt.Errorf("skipped workout_details: no synced workouts to derive parent ids from; sync workouts first"),
+			Duration: time.Since(started),
+		}
+	}
+
+	// Same per-parent fan-out rationale as syncPerformanceDependent: one
+	// HTTP round trip per workout id, no bulk endpoint to batch them.
+	if concurrency < 1 {
+		concurrency = 4
+	}
+	if cliutil.IsVerifyEnv() {
+		concurrency = 1
+	}
+	work := make(chan string, len(workoutIDs))
+	for _, id := range workoutIDs {
+		work <- id
+	}
+	close(work)
+
+	var mu sync.Mutex
+	var totalCount, failures int
+	var firstErr error
+	var sawDryRun bool
+	var wg sync.WaitGroup
+	for i := 0; i < concurrency; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for workoutID := range work {
+				path := replacePathParam("/api/workout/{workout_id}", "workout_id", workoutID)
+				params := map[string]string{}
+				userParams.applyTo("workout_details", params, true)
+				data, err := c.Get(ctx, path, params)
+				if err != nil {
+					mu.Lock()
+					failures++
+					if firstErr == nil {
+						firstErr = err
+					}
+					mu.Unlock()
+					continue
+				}
+				if isDryRunResponse(data) {
+					mu.Lock()
+					sawDryRun = true
+					mu.Unlock()
+					continue
+				}
+				if err := db.UpsertWithFacts("workout_details", workoutID, data); err != nil {
+					mu.Lock()
+					failures++
+					if firstErr == nil {
+						firstErr = err
+					}
+					mu.Unlock()
+					continue
+				}
+				mu.Lock()
+				totalCount++
+				mu.Unlock()
+			}
+		}()
+	}
+	wg.Wait()
+
+	if sawDryRun {
+		if !humanFriendly {
+			fmt.Fprintf(syncEvents, `{"event":"sync_dryrun","resource":"workout_details"}`+"\n")
+		}
+		return syncResult{Resource: "workout_details", Count: 0, Duration: time.Since(started)}
+	}
+
+	if firstErr != nil && errors.Is(firstErr, client.ErrPlaceholderCredential) {
+		return syncResult{Resource: "workout_details", Err: firstErr, Duration: time.Since(started)}
+	}
+
+	if failures > 0 && !humanFriendly {
+		fmt.Fprintf(syncEvents, `{"event":"sync_anomaly","resource":"workout_details","consumed":%d,"stored":%d,"reason":"per_parent_fetch_failed"}`+"\n", len(workoutIDs), totalCount)
+	}
+	if !humanFriendly {
+		fmt.Fprintf(syncEvents, `{"event":"sync_complete","resource":"workout_details","total":%d,"duration_ms":%d}`+"\n", totalCount, time.Since(started).Milliseconds())
+	}
+
+	if totalCount == 0 {
+		return syncResult{
+			Resource: "workout_details",
+			Warn:     fmt.Errorf("workout_details: fetched 0/%d workout details", len(workoutIDs)),
+			Duration: time.Since(started),
+		}
+	}
+	return syncResult{Resource: "workout_details", Count: totalCount, Duration: time.Since(started)}
 }
 
 func describeFailedResources(count int, resources []string) string {

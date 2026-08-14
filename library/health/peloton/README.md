@@ -267,8 +267,8 @@ Provider-supplied performed movement facts present only in workout detail payloa
 
 Sync API data to local SQLite for offline search and analysis.
 
-- **`peloton-pp-cli sync`** - Sync the default resources (`workouts`, `classes`). Naming `workouts` also cascades into per-workout `performance` samples (no bulk endpoint exists for those; one request per workout).
-- **`peloton-pp-cli sync --resources <list>`** - Sync specific resources: `workouts`, `classes`, or `performance`.
+- **`peloton-pp-cli sync`** - Sync the default resources (`workouts`, `classes`). Naming `workouts` also cascades into per-workout `performance` samples and `workout_details` payloads (no bulk endpoint exists for those; one request per workout each), which back `offline workout`/`intervals`/`repeat`/`strength`.
+- **`peloton-pp-cli sync --resources <list>`** - Sync specific resources: `workouts`, `classes`, `performance`, or `workout_details` (`strength` is accepted as an alias for `workout_details`).
 
 ### workouts
 

@@ -32,10 +32,13 @@ func TestExpandSyncResourcesWithDependentsCascadesFromWorkouts(t *testing.T) {
 		in   []string
 		want []string
 	}{
-		{"workouts alone cascades to performance", []string{"workouts"}, []string{"workouts", "performance"}},
-		{"workouts+classes cascades to performance", []string{"workouts", "classes"}, []string{"workouts", "classes", "performance"}},
-		{"already-explicit performance is not duplicated", []string{"workouts", "performance"}, []string{"workouts", "performance"}},
+		{"workouts alone cascades to both dependents", []string{"workouts"}, []string{"workouts", "performance", "workout_details"}},
+		{"workouts+classes cascades to both dependents", []string{"workouts", "classes"}, []string{"workouts", "classes", "performance", "workout_details"}},
+		{"already-explicit performance is not duplicated", []string{"workouts", "performance"}, []string{"workouts", "performance", "workout_details"}},
+		{"already-explicit workout_details is not duplicated", []string{"workouts", "workout_details"}, []string{"workouts", "workout_details", "performance"}},
+		{"both explicit dependents are not duplicated", []string{"workouts", "performance", "workout_details"}, []string{"workouts", "performance", "workout_details"}},
 		{"performance alone (no workouts) is left as-is", []string{"performance"}, []string{"performance"}},
+		{"workout_details alone (no workouts) is left as-is", []string{"workout_details"}, []string{"workout_details"}},
 		{"classes alone does not cascade", []string{"classes"}, []string{"classes"}},
 	}
 	for _, tc := range cases {
@@ -43,6 +46,33 @@ func TestExpandSyncResourcesWithDependentsCascadesFromWorkouts(t *testing.T) {
 			got := expandSyncResourcesWithDependents(append([]string(nil), tc.in...))
 			if !reflect.DeepEqual(got, tc.want) {
 				t.Fatalf("expandSyncResourcesWithDependents(%v) = %v, want %v", tc.in, got, tc.want)
+			}
+		})
+	}
+}
+
+// TestNormalizeSyncResourceAliasesMapsStrengthToWorkoutDetails guards the
+// user-facing "strength" alias: users think in terms of `offline strength`,
+// but that command reads the same "workout_details" family that `offline
+// workout`/`intervals` also read — there's no separate strength-only sync
+// target. Also guards that mixing the alias with the canonical name doesn't
+// produce a duplicate dependent sync.
+func TestNormalizeSyncResourceAliasesMapsStrengthToWorkoutDetails(t *testing.T) {
+	cases := []struct {
+		name string
+		in   []string
+		want []string
+	}{
+		{"strength alone maps to workout_details", []string{"strength"}, []string{"workout_details"}},
+		{"strength alongside workouts maps", []string{"workouts", "strength"}, []string{"workouts", "workout_details"}},
+		{"strength and workout_details together dedupe", []string{"strength", "workout_details"}, []string{"workout_details"}},
+		{"non-alias resources pass through unchanged", []string{"workouts", "classes"}, []string{"workouts", "classes"}},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := normalizeSyncResourceAliases(append([]string(nil), tc.in...))
+			if !reflect.DeepEqual(got, tc.want) {
+				t.Fatalf("normalizeSyncResourceAliases(%v) = %v, want %v", tc.in, got, tc.want)
 			}
 		})
 	}
@@ -136,6 +166,83 @@ func TestSyncPerformanceDependentWithoutSyncedWorkoutsWarns(t *testing.T) {
 	defer db.Close()
 
 	res := syncPerformanceDependent(context.Background(), &pathAwareSyncClient{byPath: map[string]json.RawMessage{}}, db, 4, nil, io.Discard)
+	if res.Err != nil {
+		t.Fatalf("expected a warning, not an error: %v", res.Err)
+	}
+	if res.Warn == nil {
+		t.Fatal("expected a warning when no workouts are synced yet")
+	}
+}
+
+// TestSyncWorkoutDetailsDependentFansOutOverSyncedWorkouts guards the fix
+// for BLOCKING #2: workout_details had no sync path at all, so `offline
+// workout`/`intervals`/`repeat`/`strength` 404'd unconditionally regardless
+// of any prior sync. Like performance, workout detail is per-workout only
+// (GET /api/workout/{workout_id}, no bulk list endpoint), so syncing it must
+// enumerate every workout id already in the local store and fetch one
+// detail payload per id, storing each keyed by that workout id under the
+// "workout_details" family the offline commands actually read.
+func TestSyncWorkoutDetailsDependentFansOutOverSyncedWorkouts(t *testing.T) {
+	home := t.TempDir()
+	dbPath := filepath.Join(home, "data", "data.db")
+	db, err := store.Open(dbPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	workouts := &fixtureSyncClient{items: []json.RawMessage{
+		json.RawMessage(`{"id":"w1","ride_id":"ride-a","start_time":"2026-01-01T10:00:00Z"}`),
+		json.RawMessage(`{"id":"w2","ride_id":"ride-a","start_time":"2026-01-08T10:00:00Z"}`),
+	}}
+	if res := syncResource(context.Background(), workouts, db, "workouts", "", false, 0, false, false, nil, io.Discard); res.Err != nil {
+		t.Fatalf("syncing workouts fixture: %v", res.Err)
+	}
+
+	details := &pathAwareSyncClient{byPath: map[string]json.RawMessage{
+		"/api/workout/w1": json.RawMessage(`{"id":"w1","movement_tracker_data":{"muscle_groups":[]}}`),
+		"/api/workout/w2": json.RawMessage(`{"id":"w2","movement_tracker_data":{"muscle_groups":[]}}`),
+	}}
+
+	res := syncWorkoutDetailsDependent(context.Background(), details, db, 4, nil, io.Discard)
+	if res.Err != nil {
+		t.Fatalf("syncWorkoutDetailsDependent: %v", res.Err)
+	}
+	if res.Count != 2 {
+		t.Fatalf("workout_details synced count = %d, want 2", res.Count)
+	}
+
+	fact, err := db.GetProviderFact("workout_details", "w1")
+	if err != nil {
+		t.Fatalf("GetProviderFact(workout_details, w1): %v", err)
+	}
+	if !strings.Contains(string(fact.Payload), `"movement_tracker_data"`) {
+		t.Fatalf("unexpected workout_details payload for w1: %s", fact.Payload)
+	}
+
+	if err := db.Close(); err != nil {
+		t.Fatal(err)
+	}
+	got, err := executeOffline(t, home, "offline", "workout", "w1")
+	if err != nil {
+		t.Fatalf("offline workout w1: %v", err)
+	}
+	if _, ok := got["data"]; !ok {
+		t.Fatalf("offline workout w1 missing data: %#v", got)
+	}
+}
+
+// TestSyncWorkoutDetailsDependentWithoutSyncedWorkoutsWarns mirrors
+// TestSyncPerformanceDependentWithoutSyncedWorkoutsWarns for the new
+// workout_details dependent.
+func TestSyncWorkoutDetailsDependentWithoutSyncedWorkoutsWarns(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data", "data.db")
+	db, err := store.Open(dbPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	res := syncWorkoutDetailsDependent(context.Background(), &pathAwareSyncClient{byPath: map[string]json.RawMessage{}}, db, 4, nil, io.Discard)
 	if res.Err != nil {
 		t.Fatalf("expected a warning, not an error: %v", res.Err)
 	}
