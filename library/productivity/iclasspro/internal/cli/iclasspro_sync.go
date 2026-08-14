@@ -34,12 +34,12 @@ type syncResult struct {
 	Warnings         []string `json:"warnings"`
 }
 
-// icpRecordSyncObservations promotes complete catalog walks to snapshots.
-// Page-capped walks still add useful openings history, but they must never
-// become the newest catalog snapshot: drift would interpret every unseen row
-// beyond the cap as removed.
-func icpRecordSyncObservations(ctx context.Context, s *store.Store, account string, at time.Time, obs []store.ICPObservation, complete bool) (int64, error) {
-	if !complete {
+// icpRecordSyncObservations promotes complete whole-catalog walks to snapshots.
+// Page-capped and resource-scoped walks still add useful openings history, but
+// they must never become the newest catalog snapshot: drift would interpret
+// every unseen row as removed.
+func icpRecordSyncObservations(ctx context.Context, s *store.Store, account string, at time.Time, obs []store.ICPObservation, snapshotComplete bool) (int64, error) {
+	if !snapshotComplete {
 		return 0, s.RecordICPOpenings(ctx, at, obs)
 	}
 	runID, err := s.StartICPRun(ctx, account, at)
@@ -50,6 +50,10 @@ func icpRecordSyncObservations(ctx context.Context, s *store.Store, account stri
 		return 0, err
 	}
 	return runID, nil
+}
+
+func icpSyncSnapshotComplete(wantClasses, wantCamps, truncated bool) bool {
+	return wantClasses && wantCamps && !truncated
 }
 
 func newIclassproSyncCmd(flags *rootFlags) *cobra.Command {
@@ -72,12 +76,16 @@ Each run also appends an openings observation for every entity. That history is
 what makes 'drift', 'fill-rate', and 'watch' possible: the portal API is
 present-tense only, so nothing upstream can tell you what a number used to be.
 Run sync at least twice, spaced apart, before expecting those commands to have
-anything to compare.`, "\n"),
+anything to compare.
+
+Only a complete classes-and-camps walk replaces the authoritative snapshot.
+Runs limited by --resources or --max-pages still update openings history and
+the search cache without making omitted records look deleted.`, "\n"),
 		Example: strings.Trim(`
   iclasspro-pp-cli sync scottsdalegymnastics
   iclasspro-pp-cli sync scottsdalegymnastics --resources classes,camps
   iclasspro-pp-cli sync scaq --resources classes --max-pages 3`, "\n"),
-		Annotations: map[string]string{"pp:happy-args": "<account>=scaq;--resources=classes;--max-pages=1"},
+		Annotations: map[string]string{"pp:happy-args": "<account>=scaq;--resources=classes,camps;--max-pages=1"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
 				if !cliutil.IsDogfoodEnv() {
@@ -88,7 +96,7 @@ anything to compare.`, "\n"),
 				// normal interactive behavior (help) while giving that harness one
 				// bounded, public catalog to mirror.
 				args = []string{"scaq"}
-				resources = "classes"
+				resources = "classes,camps"
 				maxPages = 1
 			}
 			if dryRunOK(flags) {
@@ -153,6 +161,10 @@ anything to compare.`, "\n"),
 				Note:      icpGateNote(account, coll.Gate),
 				Warnings:  coll.Warnings,
 			}
+			snapshotComplete := icpSyncSnapshotComplete(wantClasses, wantCamps, coll.Truncated)
+			if !wantClasses || !wantCamps {
+				res.Note = "catalog snapshot unchanged because --resources did not include both classes and camps"
+			}
 			for _, e := range coll.Entities {
 				if e.Kind == icp.KindCamp {
 					res.Camps++
@@ -185,7 +197,7 @@ anything to compare.`, "\n"),
 						Data: data,
 					})
 				}
-				runID, err := icpRecordSyncObservations(ctx, s, account, now, obs, !coll.Truncated)
+				runID, err := icpRecordSyncObservations(ctx, s, account, now, obs, snapshotComplete)
 				if err != nil {
 					return err
 				}
@@ -222,10 +234,14 @@ anything to compare.`, "\n"),
 				fmt.Fprintf(cmd.OutOrStdout(), "Synced %s: nothing to record.\n", account)
 				return nil
 			}
-			if coll.Truncated {
+			if !snapshotComplete {
+				reason := "the scan hit --max-pages"
+				if !wantClasses || !wantCamps {
+					reason = "--resources did not include both classes and camps"
+				}
 				fmt.Fprintf(cmd.OutOrStdout(),
-					"Observed %s: %d locations, %d classes, %d camps across %d requests; catalog snapshot unchanged because the scan hit --max-pages.\n",
-					account, res.Locations, res.Classes, res.Camps, res.Pages)
+					"Observed %s: %d locations, %d classes, %d camps across %d requests; catalog snapshot unchanged because %s.\n",
+					account, res.Locations, res.Classes, res.Camps, res.Pages, reason)
 				fmt.Fprintf(cmd.OutOrStdout(), "Local mirror: %s\n", res.DBPath)
 				return nil
 			}
@@ -238,7 +254,7 @@ anything to compare.`, "\n"),
 	}
 
 	cmd.Flags().StringVar(&dbPath, "db", "", "Local database path")
-	cmd.Flags().StringVar(&resources, "resources", "", "Comma-separated resources to sync: classes, camps (default both)")
+	cmd.Flags().StringVar(&resources, "resources", "", "Comma-separated resources to observe: classes, camps; only both together record a snapshot (default both)")
 	cmd.Flags().IntVar(&maxPages, "max-pages", 20, "Maximum result pages to fetch per location and camp type")
 	cmd.Flags().IntVar(&pageSize, "page-size", 100, "Results requested per page")
 	cmd.Flags().IntVar(&keepRuns, "keep-runs", 20, "Number of historical snapshots to retain per account")

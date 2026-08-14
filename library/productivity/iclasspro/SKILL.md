@@ -257,6 +257,14 @@ ICLASSPRO_STAFF_USERNAME=staff-user ICLASSPRO_STAFF_PASSWORD='...' iclasspro-pp-
 
 The password is used only for login and is never persisted. Verify with 'auth staff-status'; status output never exposes the cookie.
 
+### Record an authoritative catalog snapshot
+
+```bash
+iclasspro-pp-cli sync examplegym --resources classes,camps --agent
+```
+
+Only a complete classes-and-camps walk replaces the snapshot used by `drift`. A classes-only or camps-only run still updates openings history and the search cache, but it cannot make the omitted resource type look deleted.
+
 ### Read staff-side operational data
 
 ```bash

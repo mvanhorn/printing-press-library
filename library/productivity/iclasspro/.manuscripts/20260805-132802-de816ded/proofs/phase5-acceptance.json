@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "b49c2d6dff0d6ebdc5fb7253680c07ff766f4a41070e5c083b082d1b679f7790",
+  "source_fingerprint": "485083d6266d9f1649aba1aac6cb70170af5b489a9dd3905f722b76a9eb67332",
   "source_files": {
     "cmd/iclasspro-pp-cli/main.go": "0f38db12412df8e687763ec997918d04ad7d4eb8ce99cc136f8900db2aa6977a",
     "cmd/iclasspro-pp-mcp/main.go": "edbf0e948b4691849888e45abb9464b85e5f284d10dfb7dba3b58d56a0c98518",
@@ -46,8 +46,8 @@
     "internal/cli/iclasspro_staff_auth.go": "ed9dcd6ebdbca31cab560d166ec161c9727208ddd183a27ffbe9f528271520f9",
     "internal/cli/iclasspro_staff_capabilities.go": "97b4b839d3f24dcbdcea971a1491fc273e00a43aebfbd00301c61bf6ea02c1a5",
     "internal/cli/iclasspro_staff_test.go": "e52004e0014c067627a89491c332f6f8121421a5353fc02ce938af6c46c6c6c1",
-    "internal/cli/iclasspro_sync.go": "54394b7868482a249dec960069e9f9a4d1d1138a9c262f057d6e991a847d75fb",
-    "internal/cli/iclasspro_sync_test.go": "ae37ffce4d8ac5991bc198db3b4aa05374d071abe530f8fecc5c499943679587",
+    "internal/cli/iclasspro_sync.go": "50551ae8244ae3bd90481bdfef0a5a72fcf033e43a88ab2af1cd985602e42a04",
+    "internal/cli/iclasspro_sync_test.go": "30a11dd7fa72bf963bcf4b848514b73749530628f089fbbcaebf5ebeeae54295",
     "internal/cli/learn_init.go": "d7a504f9075113e48dcdd5f04daec7925f6aca2d080be4ce1ba724c6415558e7",
     "internal/cli/learn_init_test.go": "4aa7062e8ebb07181d8d08e6adece44b393f435dab264bd8d13cf2fca1933753",
     "internal/cli/learnings_candidates.go": "754788f5aa014c2362cea1480b531004d3c701a94a265193d41bc7138d75c84f",

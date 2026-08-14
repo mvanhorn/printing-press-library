@@ -122,3 +122,23 @@ func TestIcpRecordSyncObservationsDoesNotPromotePartialWalk(t *testing.T) {
 		t.Fatalf("openings observations = %d, want 3 (complete + partial)", len(history))
 	}
 }
+
+func TestIcpSyncSnapshotCompleteRequiresWholeCatalog(t *testing.T) {
+	tests := []struct {
+		name                    string
+		wantClasses, wantCamps  bool
+		truncated, wantComplete bool
+	}{
+		{name: "complete whole catalog", wantClasses: true, wantCamps: true, wantComplete: true},
+		{name: "classes only", wantClasses: true, wantCamps: false},
+		{name: "camps only", wantClasses: false, wantCamps: true},
+		{name: "whole catalog page capped", wantClasses: true, wantCamps: true, truncated: true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := icpSyncSnapshotComplete(tt.wantClasses, tt.wantCamps, tt.truncated); got != tt.wantComplete {
+				t.Fatalf("icpSyncSnapshotComplete(%v, %v, %v) = %v, want %v", tt.wantClasses, tt.wantCamps, tt.truncated, got, tt.wantComplete)
+			}
+		})
+	}
+}
