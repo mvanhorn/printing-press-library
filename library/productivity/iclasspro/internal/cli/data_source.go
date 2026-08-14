@@ -150,19 +150,12 @@ func resolveReadWithStrategyResponsePathAndJSONGuard(ctx context.Context, c *cli
 	if err := validateDataSourceStrategy(flags, strategy); err != nil {
 		return nil, DataProvenance{}, err
 	}
-	// Sign-in-gated accounts read the catalog from the JWT API instead of the
-	// Open API. Every generated read funnels through here, so the rewrite lives
-	// at this single point rather than in each command.
-	if restore, newPath, newHeaders, gated := icpApplySession(c, path, headers); gated {
-		defer restore()
-		path, headers = newPath, newHeaders
-	}
 	if strategy == "local" {
 		data, prov, err := resolveLocal(ctx, flags, hintWriter, resourceType, isList, path, params, "strategy_local")
 		return data, attachFreshness(prov, flags), err
 	}
 	if strategy == "live" {
-		data, err := c.GetWithHeaders(ctx, path, params, headers)
+		data, err := icpGetWithSessionFallback(ctx, c, path, params, headers)
 		if err != nil {
 			return nil, DataProvenance{}, err
 		}
@@ -183,7 +176,7 @@ func resolveReadWithStrategyResponsePathAndJSONGuard(ctx context.Context, c *cli
 		return data, attachFreshness(prov, flags), err
 
 	case "live":
-		data, err := c.GetWithHeaders(ctx, path, params, headers)
+		data, err := icpGetWithSessionFallback(ctx, c, path, params, headers)
 		if err != nil {
 			return nil, DataProvenance{}, err
 		}
@@ -199,7 +192,7 @@ func resolveReadWithStrategyResponsePathAndJSONGuard(ctx context.Context, c *cli
 		return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 
 	default: // "auto"
-		data, err := c.GetWithHeaders(ctx, path, params, headers)
+		data, err := icpGetWithSessionFallback(ctx, c, path, params, headers)
 		if err == nil {
 			if isDryRunResponse(c.IsDryRun(), data) {
 				return data, attachFreshness(DataProvenance{Source: "dry-run"}, flags), nil

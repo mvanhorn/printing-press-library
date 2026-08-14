@@ -11,7 +11,7 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "485083d6266d9f1649aba1aac6cb70170af5b489a9dd3905f722b76a9eb67332",
+  "source_fingerprint": "5db1d6f9867f8d0d094ef01b1d752faaec7c5ddaee627caec68e53c305661f8c",
   "source_files": {
     "cmd/iclasspro-pp-cli/main.go": "0f38db12412df8e687763ec997918d04ad7d4eb8ce99cc136f8900db2aa6977a",
     "cmd/iclasspro-pp-mcp/main.go": "edbf0e948b4691849888e45abb9464b85e5f284d10dfb7dba3b58d56a0c98518",
@@ -31,7 +31,7 @@
     "internal/cli/classes_list.go": "c943746f0cf870ba47d1a9b455f17163b72d42b19af041a86e6ff6ea2f767732",
     "internal/cli/compare.go": "49df1468d9e633c4d90c2aa49e2508b815064e68045c045b88bc586952e7f4aa",
     "internal/cli/compare_test.go": "ee07b5919d82c9a3f191fe97f1a15faede42efacd6f75ef165e5570f33293e1f",
-    "internal/cli/data_source.go": "7a5394d13285f3e5d6125d0cf2740d789a8dd82bfea7dac6badd43cb4f3d5326",
+    "internal/cli/data_source.go": "13696b0e004162067d000fe71049f085bdf41fd63fd7b0b622e5910752b28125",
     "internal/cli/deliver.go": "de207542ef194f3ebace91a5758c3e32d1dd87fe95616af0503c28d4ac0f2cc4",
     "internal/cli/doctor.go": "b916fcbd00877df7446c1ee24187913a24e47e8352e51757cdcb31cd4201bf23",
     "internal/cli/drift.go": "ee77c49228bd2683ffe513959e2cb93536f55dda4bbf4cfa2fa6660031b3eb20",
@@ -40,8 +40,9 @@
     "internal/cli/fill_rate.go": "5e0a1b3eb330c4b37fe247a105e82d557c8972599df6a0f458207ceb0c133521",
     "internal/cli/fill_rate_test.go": "ee1552bbd06ea2b1ca08f2271b096db2976e1f17781fa8146004ee50ed824981",
     "internal/cli/helpers.go": "05b90da8eeeecb835248cb7597c188d86ee64f3b8b518e18a99562db4c5801cc",
-    "internal/cli/iclasspro_auth.go": "4a5df55150de396c5f3f0cea50ef976ddbbf00eb49f821f74d65d1cb122324bb",
-    "internal/cli/iclasspro_common.go": "47e347e970f0e5b7aa0b1c0d5874bc79cc653fd193d3298b7c192d184814b9e7",
+    "internal/cli/iclasspro_auth.go": "79305af909165f25af42a4e156d5eb1575f9e76b8bad515e12f8e2e3dbec0a42",
+    "internal/cli/iclasspro_common.go": "2143ac407d886cbfb9fe79049b89b783064a21489f10055c13327112b572b6a4",
+    "internal/cli/iclasspro_common_test.go": "696199d286cd4fe4f85acb7d0cfbdfc9b0892323ea15788f0c6dcc9c467c99c6",
     "internal/cli/iclasspro_staff.go": "f4bb51033dc16218345d55d82a51e2070733d7d04f36d68c67d9508a528e0ba7",
     "internal/cli/iclasspro_staff_auth.go": "ed9dcd6ebdbca31cab560d166ec161c9727208ddd183a27ffbe9f528271520f9",
     "internal/cli/iclasspro_staff_capabilities.go": "97b4b839d3f24dcbdcea971a1491fc273e00a43aebfbd00301c61bf6ea02c1a5",

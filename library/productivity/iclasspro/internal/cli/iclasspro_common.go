@@ -10,8 +10,10 @@ package cli
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"path/filepath"
 	"sort"
@@ -69,21 +71,7 @@ func icpClassifyMessage(msg string) icpGate {
 // gate the message implies. A gate is never an error: the caller decides whether
 // an empty-but-gated result should stop the command or just be reported.
 func icpGet(ctx context.Context, c *client.Client, path string, params map[string]string) ([]map[string]any, icpEnvelope, icpGate, error) {
-	// Sign-in-gated accounts need the stored read-only session replayed. The
-	// account is the first path segment, so the token is attached here rather
-	// than threaded through every call site.
-	//
-	// The Open API ignores the customer session entirely — it answers "Please
-	// sign in to see classes." with or without a token. The signed-in portal
-	// reads the same catalog from the JWT API instead: absolute base
-	// https://app.iclasspro.com/api/jwt/v1, Bearer header, and no account
-	// segment in the path (the account is implicit in the token).
-	var headers map[string]string
-	if restore, newPath, newHeaders, gated := icpApplySession(c, path, nil); gated {
-		defer restore()
-		path, headers = newPath, newHeaders
-	}
-	raw, err := c.GetWithHeaders(ctx, path, params, headers)
+	raw, err := icpGetWithSessionFallback(ctx, c, path, params, nil)
 	if err != nil {
 		return nil, icpEnvelope{}, icpGateNone, err
 	}
@@ -104,6 +92,30 @@ func icpGet(ctx context.Context, c *client.Client, path string, params map[strin
 		}
 	}
 	return rows, env, gate, nil
+}
+
+// icpGetWithSessionFallback uses a stored customer JWT when available, but an
+// expired token must not break catalog data the account publishes anonymously.
+// Only a typed HTTP 401 retries against the Open API; every other error keeps
+// its original meaning. Sign-in-gated tenants still return their normal gate
+// message from the anonymous retry and can direct the user to auth login.
+func icpGetWithSessionFallback(ctx context.Context, c *client.Client, path string, params map[string]string, headers map[string]string) (json.RawMessage, error) {
+	restore, sessionPath, sessionHeaders, hasSession := icpApplySession(c, path, headers)
+	if !hasSession {
+		return c.GetWithHeaders(ctx, path, params, headers)
+	}
+
+	raw, err := c.GetWithHeaders(ctx, sessionPath, params, sessionHeaders)
+	restore()
+	if err == nil || !icpIsUnauthorized(err) {
+		return raw, err
+	}
+	return c.GetWithHeaders(ctx, path, params, headers)
+}
+
+func icpIsUnauthorized(err error) bool {
+	var apiErr *client.APIError
+	return errors.As(err, &apiErr) && apiErr.StatusCode == http.StatusUnauthorized
 }
 
 // icpAccountFromPath extracts the portal slug from an Open API path.

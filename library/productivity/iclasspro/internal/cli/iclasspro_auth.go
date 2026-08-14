@@ -30,12 +30,13 @@ import (
 )
 
 const (
-	icpJWTBase  = "https://app.iclasspro.com/api/jwt/v1"
 	icpEmailEnv = "ICLASSPRO_EMAIL"
 	// #nosec G101 -- this is the name of an environment variable the user sets, not a credential value.
 	icpPasswordEnv  = "ICLASSPRO_PASSWORD" //nolint:gosec // env var name, not a credential
 	icpSessionPerms = 0o600
 )
+
+var icpJWTBase = "https://app.iclasspro.com/api/jwt/v1"
 
 // icpSessionFile stores one token per account.
 type icpSessionFile struct {

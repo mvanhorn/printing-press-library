@@ -116,7 +116,7 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 ## Authentication
 
-Most accounts need no credentials for public catalog reads. Customer-gated catalogs use 'auth login'. Staff-side reads use a separate Office Portal session created by 'auth staff-login' from ICLASSPRO_STAFF_USERNAME and ICLASSPRO_STAFF_PASSWORD. Credentials are never accepted as flags, the password is never persisted, and only the server-issued cookie is stored in the private 0600 session file. The admin surface is an explicit read-only allow-list and does not cache Office Portal responses.
+Most accounts need no credentials for public catalog reads. Customer-gated catalogs use 'auth login'. If a stored customer token expires, the CLI retries the same read anonymously so an optional stale login cannot break a public catalog; a genuinely gated catalog still reports that a fresh login is required. Staff-side reads use a separate Office Portal session created by 'auth staff-login' from ICLASSPRO_STAFF_USERNAME and ICLASSPRO_STAFF_PASSWORD. Credentials are never accepted as flags, passwords are never persisted, and only server-issued session material is stored in the private 0600 session file. The admin surface is an explicit read-only allow-list and does not cache Office Portal responses.
 
 ## Quick Start
 
@@ -192,6 +192,13 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ### Multi-tenant reach
+- **Expired customer-session fallback** — Retry the anonymous Open API when a stored customer JWT returns HTTP 401.
+
+  _A login that was once needed cannot later take down a catalog the account publishes publicly. Sign-in-gated accounts still surface their login requirement._
+
+  ```bash
+  iclasspro-pp-cli locations examplegym --agent
+  ```
 - **`tenant`** — Report which surfaces an account actually exposes: open, sign-in-gated, or plan-gated.
 
   _Run this first against any new account; it prevents mistaking a sign-in gate for a gym with no classes._
@@ -218,6 +225,14 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ## Recipes
+
+### Keep public reads working after a customer session expires
+
+```bash
+iclasspro-pp-cli locations examplegym --agent
+```
+
+The CLI tries a stored customer session first. If iClassPro rejects that JWT with HTTP 401, it automatically retries the same read through the anonymous Open API. Public catalogs continue normally; gated catalogs return their sign-in message so you can run `auth login` again.
 
 ### Narrow a large class list down to just what an agent needs
 
