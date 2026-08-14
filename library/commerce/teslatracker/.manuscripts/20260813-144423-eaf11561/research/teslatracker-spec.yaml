@@ -1,0 +1,55 @@
+name: teslatracker
+display_name: TeslaTracker
+description: Used Tesla inventory across Tesla, Carvana, CarMax and private sellers
+category: commerce
+base_url: https://teslatracker.com
+cli_description: Track used Tesla inventory with a local price history, cohort comparisons and warranty math the website cannot offer
+
+auth:
+  type: none
+
+http_transport: standard
+
+cache:
+  enabled: true
+  stale_after: 6h
+
+resources:
+  inventory:
+    description: Used Tesla listings, VIN-keyed
+    syncable: true
+    id_field: vin
+    endpoints:
+      list:
+        method: GET
+        path: /inventory
+        no_auth: true
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: ["/inventory"]
+        params:
+          - name: page
+            in: query
+            type: integer
+            description: Page number; roughly 23 listings per page
+      get:
+        method: GET
+        path: /api/inventory/{vin}
+        no_auth: true
+        params:
+          - name: vin
+            in: path
+            required: true
+            type: string
+            description: 17-character vehicle identification number
+      report:
+        method: GET
+        path: /api/inventory/{vin}/report
+        no_auth: true
+        params:
+          - name: vin
+            in: path
+            required: true
+            type: string
+            description: 17-character vehicle identification number

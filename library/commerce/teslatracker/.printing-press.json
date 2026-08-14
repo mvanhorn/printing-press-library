@@ -1,0 +1,160 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-14T01:21:24.086888Z",
+  "printing_press_version": "4.30.2",
+  "api_name": "teslatracker",
+  "display_name": "TeslaTracker",
+  "cli_name": "teslatracker-pp-cli",
+  "creator": {
+    "handle": "michegz",
+    "name": "michegz"
+  },
+  "owner": "michegz",
+  "printer": "michegz",
+  "printer_name": "michegz",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:7ab65f04fd7a5abe3e96df7e2e49a3b4430fefc0e35127ecb82946d01d653eb2",
+  "run_id": "20260813-144423-eaf11561",
+  "category": "commerce",
+  "description": "Every used Tesla TeslaTracker lists, in a local store that answers questions the site cannot — price paths, cohort placement, warranty left, and what already left the lot.",
+  "mcp_binary": "teslatracker-pp-mcp",
+  "mcp_tool_count": 3,
+  "mcp_public_tool_count": 3,
+  "mcp_ready": "full",
+  "auth_type": "none",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Remaining-warranty ledger",
+      "command": "warranty",
+      "description": "See exactly how many months and miles of Tesla warranty are left on the day you would take delivery, and which limit runs out first."
+    },
+    {
+      "name": "Range delta with cohort placement",
+      "command": "degradation",
+      "description": "Compare a car's actual range against its rated range, and see where that gap sits among every similar car in your local store."
+    },
+    {
+      "name": "Cohort price placement",
+      "command": "comps",
+      "description": "See where one car's landed cost sits in the distribution of comparable cars, with the sample size and the arithmetic shown."
+    },
+    {
+      "name": "Departure log",
+      "command": "gone",
+      "description": "See which cars left inventory, at what landed price, and after how many days listed."
+    },
+    {
+      "name": "Per-VIN price trajectory",
+      "command": "price-history",
+      "description": "See a single car's full observed price path: every cut, its size, and how long it has held the current price."
+    },
+    {
+      "name": "Configuration premium analysis",
+      "command": "premium",
+      "description": "See what a configuration attribute actually costs across the market, computed within matched cohorts."
+    },
+    {
+      "name": "Aging leaderboard",
+      "command": "stale",
+      "description": "Rank the corpus by days listed and flag cars that are both long-listed and have never had a price cut."
+    },
+    {
+      "name": "Landed-cost distance curve",
+      "command": "radius",
+      "description": "See how the price floor and median change as you widen your search radius, with real transport fees included at every step."
+    },
+    {
+      "name": "Saved searches with a change cursor",
+      "command": "watch",
+      "description": "Save a named search and see only what is new, price-changed, or departed since the last time you ran it."
+    },
+    {
+      "name": "Mirror provenance and gap report",
+      "command": "coverage",
+      "description": "See how complete and how fresh your local mirror is, field by field, including whether any pages were dropped during sync."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Remaining-warranty ledger",
+      "command": "warranty",
+      "description": "See exactly how many months and miles of Tesla warranty are left on the day you would take delivery, and which limit runs out first."
+    },
+    {
+      "name": "Range delta with cohort placement",
+      "command": "degradation",
+      "description": "Compare a car's actual range against its rated range, and see where that gap sits among every similar car in your local store."
+    },
+    {
+      "name": "Cohort price placement",
+      "command": "comps",
+      "description": "See where one car's landed cost sits in the distribution of comparable cars, with the sample size and the arithmetic shown."
+    },
+    {
+      "name": "Departure log",
+      "command": "gone",
+      "description": "See which cars left inventory, at what landed price, and after how many days listed."
+    },
+    {
+      "name": "Per-VIN price trajectory",
+      "command": "price-history",
+      "description": "See a single car's full observed price path: every cut, its size, and how long it has held the current price."
+    },
+    {
+      "name": "Configuration premium analysis",
+      "command": "premium",
+      "description": "See what a configuration attribute actually costs across the market, computed within matched cohorts."
+    },
+    {
+      "name": "Aging leaderboard",
+      "command": "stale",
+      "description": "Rank the corpus by days listed and flag cars that are both long-listed and have never had a price cut."
+    },
+    {
+      "name": "Landed-cost distance curve",
+      "command": "radius",
+      "description": "See how the price floor and median change as you widen your search radius, with real transport fees included at every step."
+    },
+    {
+      "name": "Saved searches with a change cursor",
+      "command": "watch",
+      "description": "Save a named search and see only what is new, price-changed, or departed since the last time you ran it."
+    },
+    {
+      "name": "Mirror provenance and gap report",
+      "command": "coverage",
+      "description": "See how complete and how fresh your local mirror is, field by field, including whether any pages were dropped during sync."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 39,
+    "total": 39,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 91,
+      "grade": "A (1 of 25 dimensions unverified: live_api_verification)",
+      "total": 91
+    },
+    "unverified_dimensions": [
+      "live_api_verification"
+    ]
+  }
+}

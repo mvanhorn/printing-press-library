@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/teslatracker",
+  "research_dir": "\u003ccli-dir\u003e/20260813-144423-eaf11561",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

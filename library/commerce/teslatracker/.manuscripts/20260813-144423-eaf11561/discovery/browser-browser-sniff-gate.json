@@ -1,0 +1,11 @@
+{
+  "run_id": "20260813-144423-eaf11561",
+  "sources": [
+    {
+      "source_name": "teslatracker",
+      "decision": "approved",
+      "reason": "authenticated browser-sniff; user delegated the choice and confirmed an existing account. Detail-page data is RSC-deferred and alerts/saved-vehicles are account-gated, so both need capture.",
+      "asked_at": "2026-08-13T19:50:43Z"
+    }
+  ]
+}
