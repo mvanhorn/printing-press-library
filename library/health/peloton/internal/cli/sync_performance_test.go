@@ -256,6 +256,40 @@ func (c *paramCapturingSyncClient) RateLimit() float64 { return 0 }
 // specifically for this case -- but the dependent fan-out originally
 // called c.Get with a bare nil params map, silently dropping both flags
 // for the one resource that's actually a dependent.
+// TestSyncPerformanceDependentDefaultsEveryNToOne guards against the sync
+// path silently inheriting Peloton's own API default for every_n (~50x
+// fewer samples than the single-fetch `workouts performance` command, which
+// defaults its --every-n flag to 1). The dependent fan-out never goes
+// through cobra flag machinery, so without an explicit default here, every
+// performance_graph record written by sync was downsampled relative to a
+// manual single fetch.
+func TestSyncPerformanceDependentDefaultsEveryNToOne(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data", "data.db")
+	db, err := store.Open(dbPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	workouts := &fixtureSyncClient{items: []json.RawMessage{
+		json.RawMessage(`{"id":"w1","ride_id":"ride-a","start_time":"2026-01-01T10:00:00Z"}`),
+	}}
+	if res := syncResource(context.Background(), workouts, db, "workouts", "", false, 0, false, false, nil, io.Discard); res.Err != nil {
+		t.Fatalf("syncing workouts fixture: %v", res.Err)
+	}
+
+	capturing := &paramCapturingSyncClient{data: json.RawMessage(`{"metrics":[]}`)}
+	res := syncPerformanceDependent(context.Background(), capturing, db, 1, nil, io.Discard)
+	if res.Err != nil {
+		t.Fatalf("syncPerformanceDependent: %v", res.Err)
+	}
+
+	got := capturing.gotParams["/api/workout/w1/performance_graph"]
+	if got["every_n"] != "1" {
+		t.Fatalf("expected default every_n=1, got params %v", got)
+	}
+}
+
 func TestSyncPerformanceDependentAppliesGlobalAndResourceParams(t *testing.T) {
 	dbPath := filepath.Join(t.TempDir(), "data", "data.db")
 	db, err := store.Open(dbPath)

@@ -1860,12 +1860,20 @@ func syncPerformanceDependent(ctx context.Context, c interface {
 			defer wg.Done()
 			for workoutID := range work {
 				path := replacePathParam("/api/workout/{workout_id}/performance_graph", "workout_id", workoutID)
+				// The single-fetch command (workouts_performance.go) defaults
+				// --every-n=1 (full-resolution samples); the Peloton API's own
+				// default when every_n is omitted downsamples ~50x. Sync never
+				// went through that cobra flag machinery, so every synced
+				// performance_graph was silently downsampled. Set the same
+				// default here, before user overrides, so sync matches the
+				// single-fetch command's resolution by default.
+				//
 				// --global-param's help text promises injection into every
 				// sync request "including dependent path-scoped calls";
 				// isDependent=true skips --param (flat-list only) but still
 				// applies --global-param and --resource-param
 				// performance:key=value.
-				params := map[string]string{}
+				params := map[string]string{"every_n": "1"}
 				userParams.applyTo("performance", params, true)
 				data, err := c.Get(ctx, path, params)
 				if err != nil {
