@@ -668,11 +668,30 @@ func resolveLocal(ctx context.Context, flags *rootFlags, hintWriter io.Writer, r
 		return data, prov, nil
 	}
 
-	// Get by ID — extract the last path segment as the ID
+	// Get by ID. The resolved path's last segment is the ID for most
+	// single-item endpoints (e.g. /api/ride/{id}), but some have a
+	// trailing static sub-resource after it (e.g.
+	// /api/workout/{workout_id}/performance_graph, where the last segment
+	// is literally "performance_graph", not the workout id) — confirmed
+	// live: --data-source local on `workouts performance <id>` always
+	// 404'd, even for data the store genuinely had, because it looked up
+	// resource "performance" ID "performance_graph". Try the last segment
+	// first (the common case), then the second-to-last as a fallback.
+	// Safe either way: db.Get requires an exact key match, so a wrong
+	// guess on the fallback just falls through to the same "not found"
+	// error the last-segment-only version already returned — it can never
+	// return mismatched data for a different id.
 	parts := strings.Split(strings.TrimRight(path, "/"), "/")
 	id := parts[len(parts)-1]
 
 	item, err := db.Get(resourceType, id)
+	if err != nil && errors.Is(err, sql.ErrNoRows) && len(parts) >= 2 {
+		if altID := parts[len(parts)-2]; altID != id {
+			if altItem, altErr := db.Get(resourceType, altID); altErr == nil {
+				return altItem, prov, nil
+			}
+		}
+	}
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, DataProvenance{}, fmt.Errorf("resource %q with ID %q not found in local store. Run 'peloton-pp-cli sync' first", resourceType, id)
