@@ -14,6 +14,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
+	"sort"
 	"strings"
 	"time"
 
@@ -411,10 +412,10 @@ func icpStaffListRunE(flags *rootFlags, f *icpStaffListFlags, filterPath, path s
 
 func newIclassproAdminAttendanceCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
-		Use:         "attendance <account> <class-id> <date> <timeslot-id>",
+		Use:         "attendance <account> <class-id> <date> [timeslot-id]",
 		Short:       "Read a class roster and attendance state for one date",
-		Example:     "  iclasspro-pp-cli admin attendance examplegym 12345 2026-08-12 67890 --json",
-		Args:        cobra.ExactArgs(4),
+		Example:     "  iclasspro-pp-cli admin attendance examplegym 12345 2026-08-12 --json\n  iclasspro-pp-cli admin attendance examplegym 12345 2026-08-12 67890 --json",
+		Args:        cobra.RangeArgs(3, 4),
 		Annotations: map[string]string{"mcp:read-only": "true", "pp:requires-tier": "staff", "pp:endpoint": "staff.attendance.read"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			account, err := icpStaffAccount(args[0])
@@ -428,9 +429,12 @@ func newIclassproAdminAttendanceCmd(flags *rootFlags) *cobra.Command {
 			if err := icpStaffValidateDate("date", args[2]); err != nil {
 				return usageErr(err)
 			}
-			timeslotID, err := icpStaffSafeSegment("timeslot-id", args[3])
-			if err != nil {
-				return usageErr(err)
+			timeslotID := ""
+			if len(args) == 4 {
+				timeslotID, err = icpStaffSafeSegment("timeslot-id", args[3])
+				if err != nil {
+					return usageErr(err)
+				}
 			}
 			if dryRunOK(flags) {
 				return writeDryRun(cmd.OutOrStdout(), flags, "admin attendance")
@@ -441,6 +445,12 @@ func newIclassproAdminAttendanceCmd(flags *rootFlags) *cobra.Command {
 			}
 			ctx, cancel := boundCtx(cmd.Context(), flags)
 			defer cancel()
+			if timeslotID == "" {
+				timeslotID, err = icpStaffResolveTimeslotID(ctx, c, account, classID, args[2])
+				if err != nil {
+					return err
+				}
+			}
 			path := "/roster/classes/" + classID + "/" + args[2] + "/" + timeslotID
 			raw, err := icpStaffGet(ctx, c, account, path, nil)
 			if err != nil {
@@ -449,6 +459,63 @@ func newIclassproAdminAttendanceCmd(flags *rootFlags) *cobra.Command {
 			return icpPrintStaff(cmd, flags, raw)
 		},
 	}
+}
+
+type icpStaffScheduleItem struct {
+	Date       string          `json:"date"`
+	TimeslotID json.RawMessage `json:"tsId"`
+}
+
+func icpStaffResolveTimeslotID(ctx context.Context, c *client.Client, account, classID, date string) (string, error) {
+	raw, err := icpStaffGet(ctx, c, account, "/schedule/"+classID+"/class/"+date+"/"+date, nil)
+	if err != nil {
+		return "", fmt.Errorf("discover attendance timeslot: %w", err)
+	}
+
+	var envelope struct {
+		Data []icpStaffScheduleItem `json:"data"`
+	}
+	if err := json.Unmarshal(raw, &envelope); err != nil {
+		return "", fmt.Errorf("discover attendance timeslot: decode schedule response: %w", err)
+	}
+
+	seen := map[string]struct{}{}
+	for _, item := range envelope.Data {
+		if item.Date != date {
+			continue
+		}
+		id, ok := icpStaffScheduleTimeslotID(item.TimeslotID)
+		if ok {
+			seen[id] = struct{}{}
+		}
+	}
+
+	ids := make([]string, 0, len(seen))
+	for id := range seen {
+		ids = append(ids, id)
+	}
+	sort.Strings(ids)
+	switch len(ids) {
+	case 0:
+		return "", fmt.Errorf("no attendance timeslot found for class %s on %s", classID, date)
+	case 1:
+		return ids[0], nil
+	default:
+		return "", fmt.Errorf("multiple attendance timeslots found for class %s on %s (%s); rerun with one timeslot-id as the fourth argument", classID, date, strings.Join(ids, ", "))
+	}
+}
+
+func icpStaffScheduleTimeslotID(raw json.RawMessage) (string, bool) {
+	value := strings.TrimSpace(string(raw))
+	if len(value) >= 2 && value[0] == '"' && value[len(value)-1] == '"' {
+		var decoded string
+		if json.Unmarshal(raw, &decoded) != nil {
+			return "", false
+		}
+		value = decoded
+	}
+	value, err := icpStaffSafeSegment("timeslot-id", value)
+	return value, err == nil
 }
 
 func newIclassproAdminReportsCmd(flags *rootFlags) *cobra.Command {

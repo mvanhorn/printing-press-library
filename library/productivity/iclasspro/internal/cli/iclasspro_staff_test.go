@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"net/http"
@@ -200,4 +201,115 @@ func TestIcpStaffReadRequestsUseOnlyGETAndPostQuery(t *testing.T) {
 	if len(methods) != len(want) || methods[0] != want[0] || methods[1] != want[1] {
 		t.Fatalf("request methods = %#v, want %#v", methods, want)
 	}
+}
+
+func TestAdminAttendanceDiscoversTimeslotWhenOmitted(t *testing.T) {
+	var paths []string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		paths = append(paths, r.Method+" "+r.URL.Path)
+		w.Header().Set("Content-Type", "application/json")
+		switch r.URL.Path {
+		case "/api/v1/schedule/12345/class/2026-08-12/2026-08-12":
+			_, _ = w.Write([]byte(`{"data":[{"date":"2026-08-12","tsId":67890}]}`))
+		case "/api/v1/roster/classes/12345/2026-08-12/67890":
+			_, _ = w.Write([]byte(`{"data":[]}`))
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer server.Close()
+
+	installSyntheticStaffSession(t, server.URL)
+	cmd := newIclassproAdminAttendanceCmd(&rootFlags{asJSON: true})
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&out)
+	cmd.SetArgs([]string{"examplegym", "12345", "2026-08-12"})
+	if err := cmd.Execute(); err != nil {
+		t.Fatal(err)
+	}
+	want := []string{
+		"GET /api/v1/schedule/12345/class/2026-08-12/2026-08-12",
+		"GET /api/v1/roster/classes/12345/2026-08-12/67890",
+	}
+	if len(paths) != len(want) || paths[0] != want[0] || paths[1] != want[1] {
+		t.Fatalf("request paths = %#v, want %#v", paths, want)
+	}
+}
+
+func TestAdminAttendanceKeepsExplicitTimeslotForm(t *testing.T) {
+	var paths []string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		paths = append(paths, r.Method+" "+r.URL.Path)
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"data":[]}`))
+	}))
+	defer server.Close()
+
+	installSyntheticStaffSession(t, server.URL)
+	cmd := newIclassproAdminAttendanceCmd(&rootFlags{asJSON: true})
+	cmd.SetOut(&bytes.Buffer{})
+	cmd.SetErr(&bytes.Buffer{})
+	cmd.SetArgs([]string{"examplegym", "12345", "2026-08-12", "67890"})
+	if err := cmd.Execute(); err != nil {
+		t.Fatal(err)
+	}
+	want := "GET /api/v1/roster/classes/12345/2026-08-12/67890"
+	if len(paths) != 1 || paths[0] != want {
+		t.Fatalf("request paths = %#v, want only %q", paths, want)
+	}
+}
+
+func TestIcpStaffResolveTimeslotIDRejectsAmbiguousSchedule(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"data":[{"date":"2026-08-12","tsId":"222"},{"date":"2026-08-12","tsId":111},{"date":"2026-08-11","tsId":999}]}`))
+	}))
+	defer server.Close()
+
+	installSyntheticStaffSession(t, server.URL)
+	c := client.New(&config.Config{BaseURL: server.URL + "/api/v1"}, 5*time.Second, 0)
+	c.BaseURL = server.URL + "/api/v1"
+	c.NoCache = true
+	_, err := icpStaffResolveTimeslotID(context.Background(), c, "examplegym", "12345", "2026-08-12")
+	if err == nil || !strings.Contains(err.Error(), "111, 222") || !strings.Contains(err.Error(), "fourth argument") {
+		t.Fatalf("unexpected ambiguity error: %v", err)
+	}
+}
+
+func TestIcpStaffResolveTimeslotIDRejectsMissingSchedule(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"data":[]}`))
+	}))
+	defer server.Close()
+
+	installSyntheticStaffSession(t, server.URL)
+	c := client.New(&config.Config{BaseURL: server.URL + "/api/v1"}, 5*time.Second, 0)
+	c.BaseURL = server.URL + "/api/v1"
+	c.NoCache = true
+	_, err := icpStaffResolveTimeslotID(context.Background(), c, "examplegym", "12345", "2026-08-12")
+	if err == nil || !strings.Contains(err.Error(), "no attendance timeslot found") {
+		t.Fatalf("unexpected missing-timeslot error: %v", err)
+	}
+}
+
+func installSyntheticStaffSession(t *testing.T, officeBase string) {
+	t.Helper()
+	previous := icpStaffOfficeBase
+	icpStaffOfficeBase = officeBase
+	icpSessionOnce = sync.Once{}
+	icpSessionOnce.Do(func() {
+		icpSessionCache = icpSessionFile{
+			Sessions: map[string]icpSession{},
+			StaffSessions: map[string]icpStaffSession{
+				"examplegym": {Cookie: "office_session=synthetic"},
+			},
+		}
+	})
+	t.Cleanup(func() {
+		icpStaffOfficeBase = previous
+		icpSessionOnce = sync.Once{}
+		icpSessionCache = icpSessionFile{}
+	})
 }

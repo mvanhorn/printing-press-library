@@ -210,10 +210,11 @@ These capabilities aren't available in any other tool for this API.
 ### Read-only Office Portal access
 - **`admin`** — Read an explicit allow-list of authenticated staff resources without mutation, export, or response caching.
 
-  _Provides staff-side visibility without giving an agent a generic request escape hatch or any write capability._
+  _Provides staff-side visibility without giving an agent a generic request escape hatch or any write capability. Attendance reads discover the internal timeslot from the class and date when it is unambiguous._
 
   ```bash
   iclasspro-pp-cli admin families examplegym --q smith --limit 25 --agent
+  iclasspro-pp-cli admin attendance examplegym 12345 2026-08-12 --agent
   ```
 
 ## Recipes
@@ -273,6 +274,14 @@ iclasspro-pp-cli admin families examplegym --q smith --limit 25 --agent
 ```
 
 The admin group covers dashboard, families, students, class search, enrollments, attendance, transactions, and report definitions through an explicit read-only endpoint allow-list.
+
+### Read attendance without hunting for an internal timeslot ID
+
+```bash
+iclasspro-pp-cli admin attendance examplegym 12345 2026-08-12 --agent
+```
+
+The CLI resolves the date's unique `tsId` through the Office Portal schedule endpoint before reading the roster. If a class has multiple events that day, the error lists their non-sensitive timeslot IDs so you can pass the intended one as the optional fourth argument.
 
 ## Usage
 
