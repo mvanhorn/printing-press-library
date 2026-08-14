@@ -24,6 +24,7 @@
     "internal/mcp/tools.go",
     "spec.yaml",
     ".printing-press.json",
+    "manifest.json",
     ".manuscripts/20260805-132802-de816ded/research.json",
     "README.md",
     "SKILL.md",
