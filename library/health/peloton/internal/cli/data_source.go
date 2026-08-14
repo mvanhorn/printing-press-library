@@ -313,6 +313,25 @@ var writeThroughListWrapperKeys = []string{
 }
 var writeThroughNestedEnvelopeKeys = []string{"data", "Data", "result", "Result"}
 
+// cacheWorkoutPerformance is writeThroughCache's counterpart for
+// performance_graph responses specifically: writeThroughCache extracts its
+// cache key from the response body, which performance_graph never carries
+// (the workout id lives only in the request path). id is the workout id the
+// caller already resolved from its own path argument, not derived from
+// data. Best-effort, same as writeThroughCache: failures are silently
+// ignored since the live result already succeeded.
+func cacheWorkoutPerformance(ctx context.Context, id string, data json.RawMessage) {
+	if id == "" {
+		return
+	}
+	db, err := store.OpenWithContext(ctx, defaultDBPath("peloton-pp-cli"))
+	if err != nil {
+		return
+	}
+	defer db.Close()
+	_ = db.UpsertWithFacts("performance", id, data)
+}
+
 // writeThroughCache upserts live API results into the local SQLite store so
 // FTS search covers everything the user has looked up — not just explicit syncs.
 // Best-effort: failures are silently ignored (the live result already succeeded).

@@ -268,10 +268,18 @@ func enrichWorkoutRideMetadata(item json.RawMessage) json.RawMessage {
 }
 
 // recordProviderFactsBestEffort re-derives each item's primary key the same
-// way UpsertBatch/Upsert do and records it as a provider fact. Failures
-// (undecodable item, unresolvable ID) are skipped rather than propagated:
-// the authoritative write to `resources`/typed tables already succeeded, and
-// this secondary index exists to serve `offline` reads, not to gate sync.
+// way UpsertBatch/Upsert do — including the single-key envelope-unwrap
+// fallback (unwrapIDBearingEnvelopeItem) UpsertBatch falls back to when the
+// outer object has no direct id — and records it as a provider fact.
+// Without the unwrap fallback, an item UpsertBatch itself successfully
+// stores (e.g. {"workout":{"id":"w1",...}}) would still get silently
+// dropped here: the outer-envelope ExtractResourceID call that fails for
+// UpsertBatch would fail identically here, but UpsertBatch has already
+// moved on to the unwrapped inner object by the time it stores the row.
+// Failures (undecodable item, unresolvable ID even after unwrap) are
+// skipped rather than propagated: the authoritative write to
+// `resources`/typed tables already succeeded, and this secondary index
+// exists to serve `offline` reads, not to gate sync.
 func (s *Store) recordProviderFactsBestEffort(resourceType string, items []json.RawMessage) {
 	for _, item := range items {
 		obj, err := DecodeJSONObject(item)
@@ -279,6 +287,13 @@ func (s *Store) recordProviderFactsBestEffort(resourceType string, items []json.
 			continue
 		}
 		id := ExtractResourceID(resourceType, obj)
+		if id == "" {
+			if unwrappedObj, unwrappedItem, ok := unwrapIDBearingEnvelopeItem(resourceType, item, obj); ok {
+				obj = unwrappedObj
+				item = unwrappedItem
+				id = ExtractResourceID(resourceType, obj)
+			}
+		}
 		if id == "" {
 			continue
 		}

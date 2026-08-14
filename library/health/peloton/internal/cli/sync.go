@@ -367,7 +367,7 @@ Resource scoping:
 			// "performance" was named).
 			for _, resource := range dependentResources {
 				if resource == "performance" {
-					accumulate(syncPerformanceDependent(cmd.Context(), c, db, concurrency, syncEventWriter))
+					accumulate(syncPerformanceDependent(cmd.Context(), c, db, concurrency, userParams, syncEventWriter))
 				}
 			}
 
@@ -1696,7 +1696,7 @@ func upsertSingleObject(db *store.Store, resource string, data json.RawMessage) 
 	obj, err := store.DecodeJSONObject(data)
 	if err != nil {
 		// Not a JSON object either - store raw under resource name
-		return db.Upsert(resource, resource, data)
+		return db.UpsertWithFacts(resource, resource, data)
 	}
 
 	resource = resolveDiscriminatedResource(resource, obj)
@@ -1796,25 +1796,7 @@ func expandSyncResourcesWithDependents(resources []string) []string {
 // DecodeJSONObject/ExtractResourceID pair UpsertBatch uses so a dependent's
 // view of "what IDs exist" never drifts from what's actually stored.
 func dependentParentIDs(db *store.Store, parentResource string) ([]string, error) {
-	items, err := db.List(parentResource, 0)
-	if err != nil {
-		return nil, err
-	}
-	seen := map[string]bool{}
-	ids := make([]string, 0, len(items))
-	for _, item := range items {
-		obj, err := store.DecodeJSONObject(item)
-		if err != nil {
-			continue
-		}
-		id := store.ExtractResourceID(parentResource, obj)
-		if id == "" || seen[id] {
-			continue
-		}
-		seen[id] = true
-		ids = append(ids, id)
-	}
-	return ids, nil
+	return db.ListIDs(parentResource)
 }
 
 // syncPerformanceDependent syncs "performance" (per-workout performance_graph
@@ -1826,7 +1808,7 @@ func dependentParentIDs(db *store.Store, parentResource string) ([]string, error
 func syncPerformanceDependent(ctx context.Context, c interface {
 	Get(context.Context, string, map[string]string) (json.RawMessage, error)
 	RateLimit() float64
-}, db *store.Store, concurrency int, syncEvents io.Writer) syncResult {
+}, db *store.Store, concurrency int, userParams *syncUserParams, syncEvents io.Writer) syncResult {
 	started := time.Now()
 	if syncEvents == nil {
 		syncEvents = io.Discard
@@ -1878,7 +1860,14 @@ func syncPerformanceDependent(ctx context.Context, c interface {
 			defer wg.Done()
 			for workoutID := range work {
 				path := replacePathParam("/api/workout/{workout_id}/performance_graph", "workout_id", workoutID)
-				data, err := c.Get(ctx, path, nil)
+				// --global-param's help text promises injection into every
+				// sync request "including dependent path-scoped calls";
+				// isDependent=true skips --param (flat-list only) but still
+				// applies --global-param and --resource-param
+				// performance:key=value.
+				params := map[string]string{}
+				userParams.applyTo("performance", params, true)
+				data, err := c.Get(ctx, path, params)
 				if err != nil {
 					mu.Lock()
 					failures++

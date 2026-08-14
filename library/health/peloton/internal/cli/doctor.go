@@ -123,6 +123,15 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 					authConfigured = true
 					report["auth"] = "configured (persisted token; no bootstrap env vars set)"
 					report["auth_source"] = "persisted bundle"
+				case bootstrapEnvSet:
+					// Fresh install: env vars are set but no live command has
+					// run yet, so oauth-token.json doesn't exist. Without this
+					// case, "auth" reported not-configured right next to
+					// "env_vars: OK" (below), a first-run instance of the same
+					// contradiction this whole check exists to eliminate.
+					authConfigured = true
+					report["auth"] = "configured (bootstrap env vars set; not yet used to log in)"
+					report["auth_source"] = "env:PELOTON_OAUTH_USERNAME"
 				default:
 					report["auth"] = "not configured"
 					report["auth_hint"] = "Set PELOTON_OAUTH_USERNAME and PELOTON_OAUTH_PASSWORD to your Peloton login email/username and password, then run any command — peloton-pp-cli logs in automatically and persists the result to " + bundlePath + "."

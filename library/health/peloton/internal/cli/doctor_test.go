@@ -107,7 +107,62 @@ func TestDoctorReportsNoCredentialsAnywhere(t *testing.T) {
 	if auth, _ := report["auth"].(string); auth != "not configured" {
 		t.Fatalf(`auth = %q, want "not configured"`, auth)
 	}
-	if credLoc, _ := report["credentials_location"].(string); credLoc != "none" {
-		t.Fatalf(`credentials_location = %q, want "none"`, credLoc)
+	// This test's zero-credentials setup means flags.newClient() fails at
+	// the managed-auth bootstrap check (bootstrapPelotonToken sees both env
+	// vars empty and returns before any network call) -- no real HTTP
+	// request happens here, unlike a scenario with a valid-looking bundle.
+}
+
+// TestDoctorReportsFreshBootstrapEnvVarsBeforeFirstLogin guards a third
+// state distinct from both cases above: bootstrap env vars are set (valid
+// credentials available) but no live command has run yet, so
+// oauth-token.json doesn't exist. Without checking bootstrapEnvSet directly,
+// authConfigured fell through to "not configured" here -- a first-run
+// instance of the exact contradiction (Auth: FAIL next to Env Vars: OK) this
+// whole check exists to eliminate.
+func TestDoctorReportsFreshBootstrapEnvVarsBeforeFirstLogin(t *testing.T) {
+	home := t.TempDir()
+	restore, err := cliutil.SetHomeOverride(home)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer restore()
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte(`{}`))
+	}))
+	defer server.Close()
+	t.Setenv("PELOTON_BASE_URL", server.URL)
+	t.Setenv("PELOTON_OAUTH_USERNAME", "fixture-user")
+	t.Setenv("PELOTON_OAUTH_PASSWORD", "fixture-password")
+	oldClient, oldURL := oauthHTTPClient, oauthTokenURL
+	t.Cleanup(func() { oauthHTTPClient, oauthTokenURL = oldClient, oldURL })
+	oauthHTTPClient = server.Client()
+	oauthTokenURL = server.URL
+
+	root := newRootCmd(&rootFlags{})
+	var out bytes.Buffer
+	root.SetOut(&out)
+	root.SetArgs([]string{"doctor", "--home", home, "--json"})
+	if err := root.Execute(); err != nil {
+		t.Fatalf("doctor: %v\noutput: %s", err, out.String())
+	}
+
+	var report map[string]any
+	if err := json.Unmarshal(out.Bytes(), &report); err != nil {
+		t.Fatalf("invalid JSON %q: %v", out.String(), err)
+	}
+	auth, _ := report["auth"].(string)
+	if auth == "not configured" {
+		t.Fatalf(`auth = %q, want something other than "not configured" (bootstrap env vars are set)`, auth)
+	}
+	if envVars, _ := report["env_vars"].(string); len(envVars) >= 5 && envVars[:5] == "ERROR" {
+		t.Fatalf("env_vars = %q, want no ERROR (bootstrap env vars are set)", envVars)
+	}
+	// config.Load() sets cfg.CredentialSource from the env var itself in
+	// this scenario, independent of the bundle-file check this test targets
+	// -- just confirm it's not the "nothing anywhere" sentinel.
+	if credLoc, _ := report["credentials_location"].(string); credLoc == "none" || credLoc == "" {
+		t.Fatalf(`credentials_location = %q, want a non-empty, non-"none" source (bootstrap env vars are set)`, credLoc)
 	}
 }

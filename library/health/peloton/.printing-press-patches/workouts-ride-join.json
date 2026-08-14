@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "workouts-ride-join",
+  "applied_at": "2026-08-13",
+  "base_run_id": "20260714-231159",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Peloton's workouts list endpoint (GET /api/user/{user_id}/workouts) nests ride/class metadata under a \"ride\" object (ride.title, ride.id) rather than flattening it to the top level -- confirmed live against a real account (2026-08-13). The typed workouts table's column extraction (lookupFieldValue(obj, \"title\")/\"ride_id\") only ever looks at the top level, and the endpoint requires a joins=ride query param to include the nested object at all (the single-fetch `workouts list` command already defaults this via its own --joins flag; sync's flat loop builds its own params independently and did not). Any future regen must keep both: sync sending joins=ride for the \"workouts\" resource, and enrichWorkoutRideMetadata (store/peloton.go) promoting ride.title/ride.id to the top level before typed-column extraction and raw JSON storage -- dropping either one reintroduces null title/ride_id on synced workouts.",
+  "reason": "Synced workouts had null title and ride_id despite the API actually returning the data (confirmed via direct sqlite3 inspection of a live sync), because sync never requested the joins and, independently, the generic top-level-only field extraction can't see data Peloton nests under \"ride\" even when the API does return it.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/store/peloton.go"
+  ],
+  "validated_outcome": "Verified live: a scoped sync of 100 real workouts populated title (e.g. \"5 min Post-Run Stretch\", \"45 min Power Zone Endurance Ride\") and ride_id for all re-synced rows. Full go build/vet/test suite passes."
+}

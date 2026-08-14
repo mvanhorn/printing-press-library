@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"strings"
+	"sync"
 	"testing"
 
 	"github.com/mvanhorn/printing-press-library/library/health/peloton/internal/client"
@@ -27,9 +28,9 @@ func TestDefaultSyncResourcesIncludesWorkoutsAndClasses(t *testing.T) {
 
 func TestExpandSyncResourcesWithDependentsCascadesFromWorkouts(t *testing.T) {
 	cases := []struct {
-		name  string
-		in    []string
-		want  []string
+		name string
+		in   []string
+		want []string
 	}{
 		{"workouts alone cascades to performance", []string{"workouts"}, []string{"workouts", "performance"}},
 		{"workouts+classes cascades to performance", []string{"workouts", "classes"}, []string{"workouts", "classes", "performance"}},
@@ -90,7 +91,7 @@ func TestSyncPerformanceDependentFansOutOverSyncedWorkouts(t *testing.T) {
 		"/api/workout/w2/performance_graph": json.RawMessage(`{"seconds_since_pedaling_start":[0,1],"metrics":[{"display_name":"Output","values":[90,95]}]}`),
 	}}
 
-	res := syncPerformanceDependent(context.Background(), perf, db, 4, io.Discard)
+	res := syncPerformanceDependent(context.Background(), perf, db, 4, nil, io.Discard)
 	if res.Err != nil {
 		t.Fatalf("syncPerformanceDependent: %v", res.Err)
 	}
@@ -134,7 +135,7 @@ func TestSyncPerformanceDependentWithoutSyncedWorkoutsWarns(t *testing.T) {
 	}
 	defer db.Close()
 
-	res := syncPerformanceDependent(context.Background(), &pathAwareSyncClient{byPath: map[string]json.RawMessage{}}, db, 4, io.Discard)
+	res := syncPerformanceDependent(context.Background(), &pathAwareSyncClient{byPath: map[string]json.RawMessage{}}, db, 4, nil, io.Discard)
 	if res.Err != nil {
 		t.Fatalf("expected a warning, not an error: %v", res.Err)
 	}
@@ -182,7 +183,7 @@ func TestSyncPerformanceDependentDryRunWritesNothing(t *testing.T) {
 	}
 
 	dryRunClient := &alwaysDataSyncClient{data: json.RawMessage(`{"dry_run": true}`)}
-	res := syncPerformanceDependent(context.Background(), dryRunClient, db, 4, io.Discard)
+	res := syncPerformanceDependent(context.Background(), dryRunClient, db, 4, nil, io.Discard)
 	if res.Err != nil || res.Warn != nil {
 		t.Fatalf("dry-run result should be clean, got err=%v warn=%v", res.Err, res.Warn)
 	}
@@ -217,11 +218,74 @@ func TestSyncPerformanceDependentSurfacesPlaceholderCredentialError(t *testing.T
 	}
 
 	failingClient := &alwaysDataSyncClient{err: client.ErrPlaceholderCredential}
-	res := syncPerformanceDependent(context.Background(), failingClient, db, 4, io.Discard)
+	res := syncPerformanceDependent(context.Background(), failingClient, db, 4, nil, io.Discard)
 	if res.Err == nil {
 		t.Fatal("expected a hard error for a placeholder-credential failure, got none")
 	}
 	if !errors.Is(res.Err, client.ErrPlaceholderCredential) {
 		t.Fatalf("res.Err = %v, want it to wrap client.ErrPlaceholderCredential", res.Err)
+	}
+}
+
+// paramCapturingSyncClient records the params map passed to each Get call,
+// keyed by path, for tests that need to assert on outgoing query params
+// rather than just responses.
+type paramCapturingSyncClient struct {
+	data      json.RawMessage
+	mu        sync.Mutex
+	gotParams map[string]map[string]string
+}
+
+func (c *paramCapturingSyncClient) Get(_ context.Context, path string, params map[string]string) (json.RawMessage, error) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if c.gotParams == nil {
+		c.gotParams = map[string]map[string]string{}
+	}
+	c.gotParams[path] = params
+	return c.data, nil
+}
+
+func (c *paramCapturingSyncClient) RateLimit() float64 { return 0 }
+
+// TestSyncPerformanceDependentAppliesGlobalAndResourceParams guards
+// --global-param and --resource-param actually reaching the per-workout
+// performance_graph request. --global-param's own flag help promises
+// injection "into every sync request including dependent path-scoped
+// calls", and syncUserParams.applyTo's isDependent parameter exists
+// specifically for this case -- but the dependent fan-out originally
+// called c.Get with a bare nil params map, silently dropping both flags
+// for the one resource that's actually a dependent.
+func TestSyncPerformanceDependentAppliesGlobalAndResourceParams(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data", "data.db")
+	db, err := store.Open(dbPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	workouts := &fixtureSyncClient{items: []json.RawMessage{
+		json.RawMessage(`{"id":"w1","ride_id":"ride-a","start_time":"2026-01-01T10:00:00Z"}`),
+	}}
+	if res := syncResource(context.Background(), workouts, db, "workouts", "", false, 0, false, false, nil, io.Discard); res.Err != nil {
+		t.Fatalf("syncing workouts fixture: %v", res.Err)
+	}
+
+	userParams, err := parseSyncUserParams(nil, []string{"performance:every_n=5"}, []string{"tenant=acme"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	capturing := &paramCapturingSyncClient{data: json.RawMessage(`{"metrics":[]}`)}
+	res := syncPerformanceDependent(context.Background(), capturing, db, 1, userParams, io.Discard)
+	if res.Err != nil {
+		t.Fatalf("syncPerformanceDependent: %v", res.Err)
+	}
+
+	got := capturing.gotParams["/api/workout/w1/performance_graph"]
+	if got["every_n"] != "5" {
+		t.Fatalf("--resource-param performance:every_n=5 not applied: got params %v", got)
+	}
+	if got["tenant"] != "acme" {
+		t.Fatalf("--global-param tenant=acme not applied: got params %v", got)
 	}
 }
