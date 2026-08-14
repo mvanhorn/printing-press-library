@@ -53,7 +53,7 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("classes_catalog",
-			mcplib.WithDescription("List a caller-scoped archived class catalog page. Required: browse_category, content_format. Optional: limit (default: 100), page (default: 0), sort_by (default: original_air_time) (plus 3 more). Returns array of Class."),
+			mcplib.WithDescription("List a caller-scoped archived class catalog page. Required: browse_category, content_format. Optional: limit (default: 100), cursor, sort_by (default: original_air_time) (plus 3 more). Returns array of Class."),
 			mcplib.WithString("browse_category", mcplib.Required(), mcplib.Description("Required catalog category.")),
 			mcplib.WithString("content_format", mcplib.Required(), mcplib.Description("Required provider content format.")),
 			mcplib.WithNumber("limit", mcplib.Description("Maximum records per page.")),
@@ -71,7 +71,7 @@ func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("classes_filters",
 			mcplib.WithDescription("Show provider class/filter vocabulary and embedded instructor metadata. Required: browse_category. Optional: include_icon_images (default: true), library_type (default: on_demand). Returns the FilterVocabulary."),
-			mcplib.WithBoolean("include_icon_images", mcplib.Description("Include provider icon image references.")),
+			mcplib.WithBoolean("include_icon_images", mcplib.Description("Include provider icon image references. Caveat: Peloton's API does not omit display_image_url when this is false (upstream API behavior, not a client-side gap).")),
 			mcplib.WithString("library_type", mcplib.Description("Provider library type.")),
 			mcplib.WithString("browse_category", mcplib.Required(), mcplib.Description("Provider browse category.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
@@ -82,7 +82,7 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("classes_search",
-			mcplib.WithDescription("Search the caller-scoped catalog by factual provider filters; U4 adds offline structural predicates. Required: browse_category, content_format. Optional: limit (default: 100), page (default: 0), sort_by (default: original_air_time) (plus 3 more). Returns array of Class."),
+			mcplib.WithDescription("Search the caller-scoped catalog by factual provider filters; U4 adds offline structural predicates. Required: browse_category, content_format. Optional: limit (default: 100), cursor, sort_by (default: original_air_time) (plus 3 more). Returns array of Class."),
 			mcplib.WithString("browse_category", mcplib.Required(), mcplib.Description("Required catalog category.")),
 			mcplib.WithString("content_format", mcplib.Required(), mcplib.Description("Required provider content format.")),
 			mcplib.WithNumber("limit", mcplib.Description("Maximum records per page.")),
@@ -129,7 +129,7 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("workouts_list",
-			mcplib.WithDescription("List workout history in newest-first pages; user_id is supplied by the caller until U3 links the profile fact. Required: user_id. Optional: joins (default: ride), limit (default: 100), page (default: 0) (plus 1 more). Returns array of Workout."),
+			mcplib.WithDescription("List workout history in newest-first pages; user_id is supplied by the caller until U3 links the profile fact. Required: user_id. Optional: joins (default: ride), limit (default: 100), cursor (plus 1 more). Returns array of Workout."),
 			mcplib.WithString("user_id", mcplib.Required(), mcplib.Description("Provider user identifier.")),
 			mcplib.WithString("joins", mcplib.Description("Include linked ride metadata.")),
 			mcplib.WithNumber("limit", mcplib.Description("Maximum records per page.")),

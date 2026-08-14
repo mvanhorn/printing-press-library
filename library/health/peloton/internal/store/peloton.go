@@ -83,8 +83,23 @@ func redactProviderValue(value any) {
 	}
 }
 
+// providerKeyRedactionExclusions lists normalized keys (matching
+// isSensitiveProviderKey's own normalization) that would otherwise
+// substring-match a sensitive needle but are not actually credential- or
+// session-shaped. "jointokens" (from Peloton's "join_tokens" field) is a
+// short-lived identifier used to join a live class session in progress —
+// not a credential, not long-lived, and not reusable outside that session —
+// but its normalized form contains "token", so without this exclusion a
+// live-class-join response field was redacted on every store write.
+var providerKeyRedactionExclusions = map[string]bool{
+	"jointokens": true,
+}
+
 func isSensitiveProviderKey(key string) bool {
 	key = strings.ToLower(strings.ReplaceAll(strings.ReplaceAll(key, "_", ""), "-", ""))
+	if providerKeyRedactionExclusions[key] {
+		return false
+	}
 	for _, needle := range []string{"authorization", "apikey", "cookie", "credential", "jwt", "password", "secret", "session", "signature", "token"} {
 		if strings.Contains(key, needle) {
 			return true
@@ -120,11 +135,35 @@ func (s *Store) GetProviderFact(family, id string) (ProviderFact, error) {
 	return fact, nil
 }
 
+// providerFactDateField names the JSON field within a family's payload that
+// carries the record's own real-world date, for families where one exists.
+// Concurrent sync workers write rows in whatever order requests happen to
+// complete, not the order the underlying events occurred in, so ordering by
+// fetched_at (write time) scrambles a family's natural chronological order
+// (e.g. offline history listing workouts newest-first by sync completion
+// time instead of by when they were actually recorded). Families with no
+// entry here keep the original fetched_at-based ordering.
+func providerFactDateField(family string) string {
+	switch family {
+	case "workouts":
+		return "start_time"
+	}
+	return ""
+}
+
 // ListProviderFacts returns the retained facts for one source family. A
-// non-positive limit returns all facts. Ordering is stable and factual: newest
-// fetched record first, then the provider ID as a deterministic tie-breaker.
+// non-positive limit returns all facts. Ordering is stable and factual:
+// newest record first by the family's own date field when one is known
+// (providerFactDateField), falling back to fetched_at (sync/write time) when
+// the family has no natural date field or a given row's date is absent;
+// provider ID is always the final deterministic tie-breaker.
 func (s *Store) ListProviderFacts(family string, limit int) ([]ProviderFact, error) {
-	query := `SELECT family, provider_id, payload, fetched_at FROM provider_payloads WHERE family=? ORDER BY fetched_at DESC, provider_id ASC`
+	var query string
+	if dateField := providerFactDateField(family); dateField != "" {
+		query = fmt.Sprintf(`SELECT family, provider_id, payload, fetched_at FROM provider_payloads WHERE family=? ORDER BY COALESCE(json_extract(payload,'$.%s'), 0) DESC, fetched_at DESC, provider_id ASC`, dateField)
+	} else {
+		query = `SELECT family, provider_id, payload, fetched_at FROM provider_payloads WHERE family=? ORDER BY fetched_at DESC, provider_id ASC`
+	}
 	args := []any{family}
 	if limit > 0 {
 		query += ` LIMIT ?`

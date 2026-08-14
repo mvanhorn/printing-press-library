@@ -95,7 +95,7 @@ func newClassesFiltersCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
-	cmd.Flags().BoolVar(&flagIncludeIconImages, "include-icon-images", true, "Include provider icon image references.")
+	cmd.Flags().BoolVar(&flagIncludeIconImages, "include-icon-images", true, "Include provider icon image references. Caveat: Peloton's API does not omit display_image_url when this is false (upstream API behavior, not a client-side gap).")
 	cmd.Flags().StringVar(&flagLibraryType, "library-type", "on_demand", "Provider library type.")
 	cmd.Flags().StringVar(&flagBrowseCategory, "browse-category", "", "Provider browse category.")
 
