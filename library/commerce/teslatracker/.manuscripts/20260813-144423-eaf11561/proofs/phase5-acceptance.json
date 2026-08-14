@@ -11,11 +11,11 @@
   "auth_context": {
     "type": "none"
   },
-  "source_fingerprint": "408a7bdc984e7527e9d745984aac0f8493a57155649ff80d470cd85f5d9d05f3",
+  "source_fingerprint": "e571db7311ce05c3e37bc6959a45f4d7b6d9a09df96ad7de0611ddaa93a26a9b",
   "source_files": {
     "cmd/teslatracker-pp-cli/main.go": "8d186e9af360b9830a9b9dd4db694f898fa050f829c0b07e47eeadf5a4a294b6",
     "cmd/teslatracker-pp-mcp/main.go": "dbb500daacc65a195d68cf866c3a3e13ba70bc77e0eeb2c6a9fc315dd962b9b6",
-    "go.mod": "2d3e4d8d4bac2bc883c6d45b19e84096736e87f9695de3aa2c93171b642d9842",
+    "go.mod": "a6ec2051e3d4779a8dc5c7bebf13f55cebde2ceda200b2ca89678919982bdeb0",
     "go.sum": "942ab5b77e348ac72120bfb28b83b3b9d2a4b8fe3e915a075b3544ac87a8a226",
     "internal/cache/cache.go": "65d76d6d005e19fe5b26d0842f49c129d287f1f39a2c6cce1b3971cdec7ee491",
     "internal/cli/agent_context.go": "ec76bdd07c62e9cb69954317128f37d394ed07069c20bee5312f6ab5317a652c",
