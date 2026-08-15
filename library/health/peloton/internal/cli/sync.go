@@ -1956,7 +1956,14 @@ type dependentSyncPlan struct {
 //     whatever it didn't reach as pending for the next call. No separate
 //     cursor is needed: presence in provider_payloads IS the durable
 //     "done" signal, and it's correct regardless of how parent ids sort or
-//     when new parents get added. Under full=true ("--full", matching its
+//     when new parents get added. Pending candidates in this mode are
+//     ordered oldest-fetched-first (missing records sort first of all),
+//     not by id, so a --max-parents cap always makes progress on the
+//     most-overdue records regardless of where their ids happen to fall
+//     in the id space -- with plain presence-checking (no staleBefore)
+//     every pending id has the same zero fetchedAt, so this is a no-op
+//     ordering-wise; it only matters once staleBefore makes "pending" a
+//     scattered subset. Under full=true ("--full", matching its
 //     "ignore previous checkpoint, redo everything" contract everywhere
 //     else in sync), every parent id is a candidate regardless of existing
 //     data -- skip-if-present doesn't apply when the whole point is to
@@ -2047,11 +2054,38 @@ func planDependentSync(db *store.Store, parentResource, dependentResource string
 		if existErr != nil {
 			return dependentSyncPlan{}, existErr
 		}
+		// Order pending candidates oldest-first (missing records sort as
+		// the Go zero time.Time, i.e. before any real timestamp, so they
+		// come first too) rather than leaving them in parentIDs' id-sort
+		// order. With --stale-before, "pending" can be a small subset
+		// scattered across the id space; a --max-parents cap over
+		// id-ordered candidates can exhaust itself entirely on whichever
+		// ids happen to sort first, even when those are only barely stale
+		// (e.g. records fetched moments before the cutoff by an unrelated
+		// earlier run) while genuinely old records elsewhere in the id
+		// space never get reached. Oldest-first guarantees a capped call
+		// always makes progress on the most-overdue records, regardless
+		// of where their ids happen to fall.
+		type pendingID struct {
+			id        string
+			fetchedAt time.Time
+		}
+		pending := make([]pendingID, 0, len(parentIDs))
 		for _, id := range parentIDs {
 			fetchedAt, hasRecord := existing[id]
 			if !hasRecord || (staleBefore != nil && fetchedAt.Before(*staleBefore)) {
-				candidates = append(candidates, id)
+				pending = append(pending, pendingID{id: id, fetchedAt: fetchedAt})
 			}
+		}
+		sort.Slice(pending, func(i, j int) bool {
+			if !pending[i].fetchedAt.Equal(pending[j].fetchedAt) {
+				return pending[i].fetchedAt.Before(pending[j].fetchedAt)
+			}
+			return pending[i].id < pending[j].id // deterministic tiebreak
+		})
+		candidates = make([]string, len(pending))
+		for i, p := range pending {
+			candidates[i] = p.id
 		}
 	}
 

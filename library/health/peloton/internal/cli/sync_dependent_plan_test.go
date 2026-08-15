@@ -368,3 +368,51 @@ func TestPlanDependentSync_StaleBeforeRefetchesOldRecordsWithoutFull(t *testing.
 		t.Fatalf("ids = %v, want exactly 2 (w-stale, w-missing)", plan.ids)
 	}
 }
+
+// TestPlanDependentSync_StaleBeforePrioritizesOldestFirstUnderCap guards a
+// fifth live post-fix verification sweep's finding against NEW ISSUE E:
+// --stale-before correctly identified genuinely-stale records (confirmed
+// separately), but a --max-parents cap was exhausting itself on whichever
+// pending ids happened to sort first lexically, not the most-overdue ones.
+// On the real account, a batch of records backfilled moments before the
+// chosen --stale-before cutoff by an unrelated earlier run happened to sort
+// early enough that two capped calls (100 each) never got past them,
+// leaving the true ~1600-workout stale backlog (scattered elsewhere in the
+// id space, fetched hours earlier) completely untouched. Candidates must
+// be ordered oldest-fetched-first so a capped call always makes progress
+// on the most-overdue records regardless of where their ids fall. This
+// fixture deliberately gives the OLDEST record the lexically-LAST id (and
+// the newest-but-still-stale record the lexically-FIRST id) so an
+// id-ordered bug and a fetched_at-ordered correct result produce visibly
+// different results.
+func TestPlanDependentSync_StaleBeforePrioritizesOldestFirstUnderCap(t *testing.T) {
+	db, err := store.Open(filepath.Join(t.TempDir(), "data.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	// "w-a..." sorts before "w-z...": deliberately opposite of fetched_at
+	// order, so an id-ordered bug and the correct oldest-first order
+	// disagree on which id comes first.
+	seedPlanTestWorkouts(t, db, "w-a-newer-stale", "w-z-oldest-stale", "w-m-fresh")
+	for _, id := range []string{"w-a-newer-stale", "w-z-oldest-stale", "w-m-fresh"} {
+		if err := db.UpsertWithFacts("performance", id, json.RawMessage(`{"metrics":[]}`)); err != nil {
+			t.Fatal(err)
+		}
+	}
+	cutoff := time.Now().UTC()
+	setProviderFactFetchedAt(t, db, "performance", "w-z-oldest-stale", cutoff.Add(-2*time.Hour))
+	setProviderFactFetchedAt(t, db, "performance", "w-a-newer-stale", cutoff.Add(-time.Minute))
+	setProviderFactFetchedAt(t, db, "performance", "w-m-fresh", cutoff.Add(time.Hour))
+
+	plan, err := planDependentSync(db, "workouts", "performance", false, nil, &cutoff, 1, false)
+	if err != nil {
+		t.Fatalf("planDependentSync: %v", err)
+	}
+	if len(plan.ids) != 1 || plan.ids[0] != "w-z-oldest-stale" {
+		t.Fatalf("ids = %v, want exactly [w-z-oldest-stale] (the most-overdue record, despite its id sorting last)", plan.ids)
+	}
+	if plan.totalPending != 2 {
+		t.Fatalf("totalPending = %d, want 2 (both stale records pending, fresh one excluded)", plan.totalPending)
+	}
+}

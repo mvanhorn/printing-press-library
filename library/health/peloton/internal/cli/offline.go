@@ -308,6 +308,15 @@ func offlineClasses(cmd *cobra.Command) ([]store.ProviderFact, error) {
 // requested field names among the envelope's own top-level keys
 // (meta/data) instead of value's real fields, silently returning {} for
 // any legitimate field name.
+//
+// --select wins over --compact when both are set (matching
+// printOutputWithFlagsMeta's identical precedence elsewhere): an explicit
+// field list is the user's authoritative request, so naming a field
+// --compact would otherwise strip (e.g. --select detail.achievement_templates
+// --compact) correctly returns that field in full -- the caller asked for
+// it by name, so --compact does not run at all in that case. This is
+// intentional, not a --compact regression; verify --compact's own
+// stripping behavior with a standalone --compact call, no --select.
 func printOffline(cmd *cobra.Command, flags *rootFlags, value any) error {
 	raw, err := json.Marshal(value)
 	if err != nil {
