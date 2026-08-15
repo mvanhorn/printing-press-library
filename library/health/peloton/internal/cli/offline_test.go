@@ -251,7 +251,7 @@ func TestOfflineIntervalsAndRepeatResolveNestedRideID(t *testing.T) {
 		t.Fatalf("offline intervals n1: %v", err)
 	}
 	encoded, _ := json.Marshal(got)
-	if strings.Contains(string(encoded), "does not include a class identifier") {
+	if strings.Contains(string(encoded), "not class-based") {
 		t.Fatalf("offline intervals failed to resolve the nested ride.id: %s", encoded)
 	}
 	if !strings.Contains(string(encoded), "ride-nested") {
@@ -265,6 +265,58 @@ func TestOfflineIntervalsAndRepeatResolveNestedRideID(t *testing.T) {
 	encoded, _ = json.Marshal(got)
 	if !strings.Contains(string(encoded), `"same_class":true`) {
 		t.Fatalf("offline repeat failed to resolve the nested ride.id on both workouts: %s", encoded)
+	}
+}
+
+// TestOfflineIntervalsAndRepeatTreatFreestyleSentinelAsNoClass guards a
+// sixth live post-fix verification sweep's finding: Peloton uses
+// "00000000000000000000000000000000" (32 zeros) as ride.id for
+// freestyle/non-class workouts (Just Run, Outdoor Running, Just Ride) --
+// a genuine-looking value, not an empty/absent field. Before this fix,
+// offline_repeat treated any two freestyle workouts (both carrying the
+// identical sentinel) as belonging to the SAME class -- a false positive
+// confirmed live on the real account (84 of 430 workout_details records
+// carry this sentinel, so unrelated freestyle sessions like "Outdoor
+// Running" and "Just Run" were reported same_class:true) -- and
+// offline_intervals reported a misleading "stored class structure is
+// unavailable" caveat implying a sync gap, for a workout that was never a
+// class at all.
+func TestOfflineIntervalsAndRepeatTreatFreestyleSentinelAsNoClass(t *testing.T) {
+	home := t.TempDir()
+	db, err := store.Open(filepath.Join(home, "data", "data.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	freestyle := `{"id":"%s","ride":{"id":"00000000000000000000000000000000","title":null}}`
+	if _, err := db.RecordProviderFact("workout_details", "f1", json.RawMessage(fmt.Sprintf(freestyle, "f1"))); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := db.RecordProviderFact("workout_details", "f2", json.RawMessage(fmt.Sprintf(freestyle, "f2"))); err != nil {
+		t.Fatal(err)
+	}
+	if err := db.Close(); err != nil {
+		t.Fatal(err)
+	}
+
+	got, err := executeOffline(t, home, "offline", "intervals", "f1")
+	if err != nil {
+		t.Fatalf("offline intervals f1: %v", err)
+	}
+	encoded, _ := json.Marshal(got)
+	if !strings.Contains(string(encoded), "not class-based") {
+		t.Fatalf("offline intervals did not recognize the freestyle sentinel as no-class: %s", encoded)
+	}
+	if strings.Contains(string(encoded), "00000000000000000000000000000000") {
+		t.Fatalf("offline intervals treated the freestyle sentinel as a real ride_id: %s", encoded)
+	}
+
+	got, err = executeOffline(t, home, "offline", "repeat", "f1", "f2")
+	if err != nil {
+		t.Fatalf("offline repeat f1 f2: %v", err)
+	}
+	encoded, _ = json.Marshal(got)
+	if !strings.Contains(string(encoded), `"same_class":false`) {
+		t.Fatalf("offline repeat false-positived two unrelated freestyle workouts as same_class: %s", encoded)
 	}
 }
 

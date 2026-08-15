@@ -104,7 +104,7 @@ func newOfflineIntervalsCmd(flags *rootFlags) *cobra.Command {
 		}
 		rideID := workoutDetailRideID(decodePayload(detail))
 		if rideID == "" {
-			return map[string]any{"workout_id": id, "segments": []any{}}, []string{"workout detail does not include a class identifier"}, nil
+			return map[string]any{"workout_id": id, "segments": []any{}}, []string{"workout is not class-based (e.g. a freestyle Just Run/Just Ride/Outdoor session), so it has no associated class structure"}, nil
 		}
 		class, err := offlineFact(cmd, "classes", rideID)
 		if err != nil {
@@ -225,7 +225,7 @@ func newOfflineRepeatCmd(flags *rootFlags) *cobra.Command {
 		}
 		firstRide, secondRide := workoutDetailRideID(decodePayload(first)), workoutDetailRideID(decodePayload(second))
 		if firstRide == "" || secondRide == "" {
-			return printOffline(cmd, flags, map[string]any{"same_class": false, "caveats": []string{"one or both workout details lack a comparable class identifier"}})
+			return printOffline(cmd, flags, map[string]any{"same_class": false, "caveats": []string{"one or both workouts are not class-based (e.g. a freestyle Just Run/Just Ride/Outdoor session), so they cannot share a class"}})
 		}
 		if firstRide != secondRide {
 			return notFoundErr(fmt.Errorf("workouts %q and %q have different stored class identifiers", args[0], args[1]))
@@ -440,6 +440,15 @@ func stringValue(value any, keys ...string) string {
 	return ""
 }
 
+// pelotonNoClassRideID is Peloton's sentinel ride id for freestyle/
+// non-class workouts (Just Run, Outdoor Running, Just Ride, and similar)
+// that have no associated class. It's a genuine-looking 32-character value
+// -- indistinguishable from a real class id by shape alone -- appearing in
+// workout_details' nested ride.id for any workout that isn't tied to a
+// scheduled or on-demand class. Confirmed against real account data: 84 of
+// 430 synced workout_details records carry this exact value.
+const pelotonNoClassRideID = "00000000000000000000000000000000"
+
 // workoutDetailRideID extracts the class (ride) id from a decoded
 // "workout_details" payload. Unlike the "workouts" family -- where
 // enrichWorkoutRideMetadata (internal/store/peloton.go) promotes ride.id to
@@ -450,14 +459,29 @@ func stringValue(value any, keys ...string) string {
 // and offline_repeat treated every class-based workout as if it had no
 // class association, since they only checked the top-level keys that
 // workout_details payloads never actually carry.
+//
+// Returns "" both when no ride id is present at all and when Peloton's
+// pelotonNoClassRideID sentinel is found -- both mean "this workout has no
+// class association." Without the sentinel check, offline_repeat treated
+// any two freestyle workouts (both carrying the identical sentinel) as
+// belonging to the same class (a false positive same_class:true), and
+// offline_intervals reported a misleading "stored class structure is
+// unavailable" caveat -- implying a sync gap -- for a workout that was
+// never a class in the first place. Callers that need "no class" as a
+// distinct outcome from "class data unavailable" should treat this
+// function's empty return as the former; the class-lookup failure caveat
+// is a separate, later step.
 func workoutDetailRideID(value any) string {
-	if id := stringValue(value, "ride_id", "rideId"); id != "" {
-		return id
+	id := stringValue(value, "ride_id", "rideId")
+	if id == "" {
+		if ride, ok := objectValue(value, "ride"); ok {
+			id = stringValue(ride, "id")
+		}
 	}
-	if ride, ok := objectValue(value, "ride"); ok {
-		return stringValue(ride, "id")
+	if id == pelotonNoClassRideID {
+		return ""
 	}
-	return ""
+	return id
 }
 func numberValue(value any, keys ...string) (float64, bool) {
 	v, ok := objectValue(value, keys...)
