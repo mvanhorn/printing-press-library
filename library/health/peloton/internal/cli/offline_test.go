@@ -351,12 +351,8 @@ func TestOfflineRepeatIncludesPerformanceFacts(t *testing.T) {
 	if !ok {
 		t.Fatalf("workouts[0]=%#v", workouts[0])
 	}
-	perf, ok := w1["performance"].(map[string]any)
-	if !ok {
+	if _, ok := w1["performance"]; !ok {
 		t.Fatalf("w1 missing performance data: %#v", w1)
-	}
-	if _, ok := perf["samples"]; !ok {
-		t.Fatalf("w1 performance missing samples: %#v", perf)
 	}
 	w2, ok := workouts[1].(map[string]any)
 	if !ok {
@@ -367,6 +363,151 @@ func TestOfflineRepeatIncludesPerformanceFacts(t *testing.T) {
 	}
 	if cav, _ := w2["performance_caveat"].(string); cav == "" {
 		t.Fatalf("w2 missing a performance_caveat explaining the absent data: %#v", w2)
+	}
+}
+
+// TestOfflineRepeatDefaultsToPerformanceSummaryUnlessFull guards NEW ISSUE
+// (offline_repeat payload size) from a seventh live post-fix verification
+// sweep: a real account's largest performance record was ~5MB, dominated by
+// per-second sample arrays (metrics: 522KB, location_data: 4.3MB,
+// seconds_since_pedaling_start: 157KB) -- two workouts' worth of that
+// unconditionally embedded in offline_repeat's output (added the prior
+// round) routinely exceeded the 60KB MCP result budget, discarding almost
+// all of the comparative content behind a raw-text truncation fallback.
+// Default output must keep only the compact summary fields (well under
+// 15KB even for the largest real record); --full must still provide the
+// complete record for callers who actually want it and can accept the
+// size.
+func TestOfflineRepeatDefaultsToPerformanceSummaryUnlessFull(t *testing.T) {
+	home := t.TempDir()
+	db, err := store.Open(filepath.Join(home, "data", "data.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	detail := `{"id":"%s","ride":{"id":"ride-a"}}`
+	if _, err := db.RecordProviderFact("workout_details", "p1", json.RawMessage(fmt.Sprintf(detail, "p1"))); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := db.RecordProviderFact("workout_details", "p2", json.RawMessage(fmt.Sprintf(detail, "p2"))); err != nil {
+		t.Fatal(err)
+	}
+	// Mirrors the real API's field names: summaries/average_summaries are
+	// the compact, comparison-relevant aggregates; metrics is the large
+	// per-second sample array that must NOT appear by default.
+	perf := `{"summaries":[{"slug":"calories","value":400}],"average_summaries":[{"slug":"avg_pace","value":9.1}],"duration":1800,"metrics":[{"display_name":"Output","values":[1,2,3,4,5]}]}`
+	if _, err := db.RecordProviderFact("performance", "p1", json.RawMessage(perf)); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := db.RecordProviderFact("performance", "p2", json.RawMessage(perf)); err != nil {
+		t.Fatal(err)
+	}
+	if err := db.Close(); err != nil {
+		t.Fatal(err)
+	}
+
+	got, err := executeOffline(t, home, "offline", "repeat", "p1", "p2")
+	if err != nil {
+		t.Fatalf("offline repeat p1 p2: %v", err)
+	}
+	encoded, _ := json.Marshal(got)
+	if !strings.Contains(string(encoded), "avg_pace") {
+		t.Fatalf("default output dropped a summary field it should have kept: %s", encoded)
+	}
+	if strings.Contains(string(encoded), "Output") {
+		t.Fatalf("default output included the large per-second metrics field, defeating the whole point: %s", encoded)
+	}
+
+	got, err = executeOffline(t, home, "offline", "repeat", "p1", "p2", "--full")
+	if err != nil {
+		t.Fatalf("offline repeat p1 p2 --full: %v", err)
+	}
+	encoded, _ = json.Marshal(got)
+	if !strings.Contains(string(encoded), "avg_pace") || !strings.Contains(string(encoded), "Output") {
+		t.Fatalf("--full output should include both summary and per-second fields: %s", encoded)
+	}
+}
+
+// TestOfflineIDCmdKeepsFieldsAtTopLevelRegardlessOfCaveat guards a seventh
+// live post-fix verification sweep's finding: offlineIDCmd (shared by
+// offline_performance, offline_classes_show/structure, offline_strength)
+// only nested its payload under a "result" key when a caveat fired; with
+// no caveat, the same fields sat at the top of "data" instead. That made
+// the correct --select path data-dependent and unknowable before the
+// call -- an agent had to make an unprojected call first just to discover
+// which shape it got back, defeating the point of projecting at all.
+// printOfflineWithCaveats now merges caveats into the SAME top-level shape
+// used when there's no caveat, so a field's location never depends on
+// whether this particular call happened to produce one. seedOfflineFacts
+// gives w1 a performance record and w2 none, so `offline performance w2`
+// reliably exercises the caveat-firing path in one call.
+func TestOfflineIDCmdKeepsFieldsAtTopLevelRegardlessOfCaveat(t *testing.T) {
+	home := t.TempDir()
+	seedOfflineFacts(t, home)
+
+	got, err := executeOffline(t, home, "offline", "performance", "w2")
+	if err != nil {
+		t.Fatalf("offline performance w2: %v", err)
+	}
+	data, ok := got["data"].(map[string]any)
+	if !ok {
+		t.Fatalf("data=%#v", got["data"])
+	}
+	if _, ok := data["result"]; ok {
+		t.Fatalf("caveat-firing response still nests under a \"result\" key: %#v", data)
+	}
+	if _, ok := data["samples"]; !ok {
+		t.Fatalf("caveat-firing response should still have \"samples\" at the top level: %#v", data)
+	}
+	if _, ok := data["caveats"]; !ok {
+		t.Fatalf("caveat-firing response is missing its caveats entirely: %#v", data)
+	}
+
+	// --select samples must work identically whether or not this specific
+	// call happens to produce a caveat -- the whole point of the fix.
+	selected, err := executeOffline(t, home, "offline", "performance", "w2", "--select", "samples")
+	if err != nil {
+		t.Fatalf("offline performance w2 --select samples: %v", err)
+	}
+	selData, ok := selected["data"].(map[string]any)
+	if !ok {
+		t.Fatalf("data=%#v", selected["data"])
+	}
+	if _, ok := selData["samples"]; !ok {
+		t.Fatalf("--select samples returned nothing usable on a caveat-firing call: %#v", selData)
+	}
+
+	// newOfflineWorkoutCmd builds its own RunE rather than routing through
+	// offlineIDCmd (see its doc comment), so it carried the identical
+	// wrap-in-"result" bug independently and needed the same fix. Seed a
+	// workout_details-only record (no matching workouts record) to reliably
+	// fire its "recorded history fact is unavailable" caveat.
+	db, err := store.Open(filepath.Join(home, "data", "data.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := db.RecordProviderFact("workout_details", "w4", json.RawMessage(`{"id":"w4","ride_id":"ride-a"}`)); err != nil {
+		t.Fatal(err)
+	}
+	if err := db.Close(); err != nil {
+		t.Fatal(err)
+	}
+
+	workoutGot, err := executeOffline(t, home, "offline", "workout", "w4")
+	if err != nil {
+		t.Fatalf("offline workout w4: %v", err)
+	}
+	workoutData, ok := workoutGot["data"].(map[string]any)
+	if !ok {
+		t.Fatalf("data=%#v", workoutGot["data"])
+	}
+	if _, ok := workoutData["result"]; ok {
+		t.Fatalf("offline workout caveat-firing response still nests under a \"result\" key: %#v", workoutData)
+	}
+	if _, ok := workoutData["detail"]; !ok {
+		t.Fatalf("offline workout caveat-firing response should still have \"detail\" at the top level: %#v", workoutData)
+	}
+	if _, ok := workoutData["caveats"]; !ok {
+		t.Fatalf("offline workout caveat-firing response is missing its caveats entirely: %#v", workoutData)
 	}
 }
 

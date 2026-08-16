@@ -74,10 +74,7 @@ func newOfflineWorkoutCmd(flags *rootFlags) *cobra.Command {
 		if err != nil {
 			return err
 		}
-		if len(caveats) > 0 {
-			return printOffline(cmd, flags, map[string]any{"result": value, "caveats": caveats})
-		}
-		return printOffline(cmd, flags, value)
+		return printOfflineWithCaveats(cmd, flags, value, caveats)
 	}}
 }
 
@@ -122,10 +119,7 @@ func newOfflineIntervalsCmd(flags *rootFlags) *cobra.Command {
 		if err != nil {
 			return err
 		}
-		if len(caveats) > 0 {
-			return printOffline(cmd, flags, map[string]any{"result": value, "caveats": caveats})
-		}
-		return printOffline(cmd, flags, value)
+		return printOfflineWithCaveats(cmd, flags, value, caveats)
 	}}
 }
 
@@ -214,7 +208,8 @@ func newOfflineStrengthCmd(flags *rootFlags) *cobra.Command {
 }
 
 func newOfflineRepeatCmd(flags *rootFlags) *cobra.Command {
-	return &cobra.Command{Use: "repeat <first_workout_id> <second_workout_id>", Short: "Compare two recorded workouts only when their stored class identifiers match.", Args: cobra.ExactArgs(2), RunE: func(cmd *cobra.Command, args []string) error {
+	var full bool
+	cmd := &cobra.Command{Use: "repeat <first_workout_id> <second_workout_id>", Short: "Compare two recorded workouts only when their stored class identifiers match.", Args: cobra.ExactArgs(2), RunE: func(cmd *cobra.Command, args []string) error {
 		first, err := offlineFact(cmd, "workout_details", args[0])
 		if err != nil {
 			return err
@@ -230,9 +225,11 @@ func newOfflineRepeatCmd(flags *rootFlags) *cobra.Command {
 		if firstRide != secondRide {
 			return notFoundErr(fmt.Errorf("workouts %q and %q have different stored class identifiers", args[0], args[1]))
 		}
-		out := map[string]any{"same_class": true, "ride_id": firstRide, "workouts": []any{repeatFact(cmd, args[0]), repeatFact(cmd, args[1])}}
+		out := map[string]any{"same_class": true, "ride_id": firstRide, "workouts": []any{repeatFact(cmd, args[0], full), repeatFact(cmd, args[1], full)}}
 		return printOffline(cmd, flags, out)
 	}}
+	cmd.Flags().BoolVar(&full, "full", false, "Include each workout's complete raw performance record (all per-second sample arrays: metrics, location_data, seconds_since_pedaling_start) instead of just the compact summary/average fields. Full records can be several MB for long workouts and will likely exceed the MCP result budget; prefer the default summary output through MCP, or query offline performance <workout_id> directly for one workout's full data at a time.")
+	return cmd
 }
 
 func offlineIDCmd(use, short string, flags *rootFlags, run func(*cobra.Command, string) (any, []string, error)) *cobra.Command {
@@ -241,11 +238,36 @@ func offlineIDCmd(use, short string, flags *rootFlags, run func(*cobra.Command, 
 		if err != nil {
 			return err
 		}
-		if len(caveats) > 0 {
-			return printOffline(cmd, flags, map[string]any{"result": value, "caveats": caveats})
-		}
-		return printOffline(cmd, flags, value)
+		return printOfflineWithCaveats(cmd, flags, value, caveats)
 	}}
+}
+
+// printOfflineWithCaveats prints value via printOffline, merging any
+// caveats into value's own top-level shape rather than nesting value under
+// a separate "result" key. A response's field locations must not depend on
+// whether that particular call happened to produce a caveat: before this,
+// --select <field> worked when a call was caveat-free but required
+// --select result.<field> when it wasn't -- unknowable in advance, since it
+// depends on the very data the caller is trying to select from. Keeping
+// fields at the same stable top-level location either way removes that
+// guesswork.
+func printOfflineWithCaveats(cmd *cobra.Command, flags *rootFlags, value any, caveats []string) error {
+	if len(caveats) == 0 {
+		return printOffline(cmd, flags, value)
+	}
+	if obj, ok := value.(map[string]any); ok {
+		merged := make(map[string]any, len(obj)+1)
+		for k, v := range obj {
+			merged[k] = v
+		}
+		merged["caveats"] = caveats
+		return printOffline(cmd, flags, merged)
+	}
+	// Defensive fallback: value isn't a JSON object, so caveats can't be
+	// merged into it directly (no current offline command's run callback
+	// ever returns a non-object value here, but the wrapped shape is
+	// still safer than silently dropping the value or the caveats).
+	return printOffline(cmd, flags, map[string]any{"result": value, "caveats": caveats})
 }
 
 func offlineFacts(cmd *cobra.Command, family string, limit int) ([]store.ProviderFact, error) {
@@ -302,6 +324,7 @@ func offlineClasses(cmd *cobra.Command) ([]store.ProviderFact, error) {
 	sort.SliceStable(all, func(i, j int) bool { return all[i].ProviderID < all[j].ProviderID })
 	return all, nil
 }
+
 // printOffline wraps value in the standard offline {"meta":...,"data":...}
 // envelope. --select/--compact must filter value itself before wrapping --
 // applying them to the already-wrapped envelope would look for the
@@ -649,16 +672,30 @@ func walkTargetNumbers(value any, inTargetField bool, visit func(float64)) {
 func normalKey(key string) string {
 	return strings.ReplaceAll(strings.ReplaceAll(strings.ToLower(key), "_", ""), "-", "")
 }
+
+// performanceSummaryFields are the compact, comparison-relevant fields of a
+// "performance" record -- confirmed against the largest real record on a
+// live account: together well under 15KB even for a multi-hour workout.
+// Everything else in that same record was per-second sample data (metrics:
+// 522KB, location_data: 4.3MB, seconds_since_pedaling_start: 157KB) --
+// exactly the fields offline_repeat's default output must NOT include, or
+// two workouts' worth vastly exceeds the MCP result budget.
+var performanceSummaryFields = []string{"summaries", "average_summaries", "duration", "effort_zones", "splits_data", "splits_metrics", "summary_available"}
+
 // repeatFact builds one side of offline_repeat's comparison: the workout's
-// id, recorded date, and its stored performance record (samples/summary)
-// verbatim, when available. Performance is included raw rather than as any
-// computed delta/ranking between the two workouts, keeping offline_repeat
-// consistent with this file's "factual, non-prescriptive" contract (see the
-// package-level comment above) while still giving a caller something to
-// actually compare -- a command literally named "repeat" that returned no
-// comparative data at all was surprising for callers expecting a
-// comparison, not just a same-class gate.
-func repeatFact(cmd *cobra.Command, id string) any {
+// id, recorded date, and its stored performance record, when available.
+// full=false (the default) keeps only performanceSummaryFields -- a
+// compact, comparison-relevant subset -- since a real performance record
+// can be several MB (per-second metric/location/timestamp arrays) and two
+// of them together routinely exceed the 60KB MCP result budget, silently
+// defeating the comparison this command exists to provide. full=true
+// (--full) returns the complete raw record, samples and all, for callers
+// that specifically need it and can accept the size (or aren't running
+// through the MCP surface's budget). Performance data is included raw
+// either way, not as any computed delta/ranking between the two workouts,
+// keeping offline_repeat consistent with this file's "factual,
+// non-prescriptive" contract (see the package-level comment above).
+func repeatFact(cmd *cobra.Command, id string, full bool) any {
 	out := map[string]any{"workout_id": id}
 	if f, e := offlineFact(cmd, "workouts", id); e == nil {
 		v := decodePayload(f)
@@ -667,10 +704,28 @@ func repeatFact(cmd *cobra.Command, id string) any {
 	if out["recorded_at"] == "" {
 		out["caveat"] = "recorded date is unavailable"
 	}
-	if perf, e := offlineFact(cmd, "performance", id); e == nil {
-		out["performance"] = decodePayload(perf)
-	} else {
+	perf, e := offlineFact(cmd, "performance", id)
+	if e != nil {
 		out["performance_caveat"] = "recorded performance graph is unavailable"
+		return out
 	}
+	payload := decodePayload(perf)
+	if full {
+		out["performance"] = payload
+		return out
+	}
+	obj, ok := payload.(map[string]any)
+	if !ok {
+		out["performance"] = payload
+		return out
+	}
+	summary := make(map[string]any, len(performanceSummaryFields))
+	for _, key := range performanceSummaryFields {
+		if v, present := obj[key]; present {
+			summary[key] = v
+		}
+	}
+	out["performance"] = summary
+	out["performance_note"] = "summary fields only; pass --full for the complete raw record (may be several MB for long workouts)"
 	return out
 }
