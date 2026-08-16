@@ -1,0 +1,35 @@
+{
+  "schema_version": 2,
+  "id": "wework-renewable-headless-auth",
+  "applied_at": "2026-08-14",
+  "base_run_id": "20260812-170930",
+  "base_printing_press_version": "4.30.2",
+  "summary": "feat(wework): enforce headless-first renewable auth ownership and secure remote push",
+  "reason": "The initial renewable flow still defaulted auth login to Chrome, accepted incomplete imports, swallowed required refresh failures, could consume a rotating refresh token concurrently, and lacked a one-command stdin-only transfer from an authenticated workstation to a headless host.",
+  "files": [
+    "README.md",
+    "SKILL.md",
+    "internal/cli/wework_auth.go",
+    "internal/cli/wework_auth_test.go",
+    "internal/cli/wework_chrome.go",
+    "internal/cli/wework_refresh_hook.go",
+    "internal/cliutil/testenv/testenv.go",
+    "internal/config/wework_auth_persist.go",
+    "internal/config/wework_refresh.go",
+    "internal/config/wework_refresh_lock.go",
+    "internal/config/wework_refresh_test.go"
+  ],
+  "validated_outcome": "Focused auth tests, go test -count=1 ./..., go vet ./..., both binary builds, verify-skill, and the source-blind SSH behavior contract pass. Printing Press verify exercises 37/37 command checks but retains the inherited sync data-pipeline failure; publish validate remains unavailable because this inherited run was never promoted and has no .printing-press.json manifest.",
+  "findings_addressed": [
+    "F1-refresh-token-import",
+    "F2-refresh-token-environment-bootstrap",
+    "F3-explicit-refresh-and-renewability-status",
+    "F4-remote-stdin-handoff",
+    "F5-browser-bootstrap-explicit-only",
+    "F6-complete-renewable-import-validation",
+    "F7-refresh-failure-preflight",
+    "F8-serialized-rotating-token-ownership",
+    "F9-headless-readiness-status",
+    "F10-verified-ssh-stdin-auth-push"
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "schema_version": 2,
+  "id": "wework-cli-contract-fixes",
+  "applied_at": "2026-08-15",
+  "base_run_id": "20260812-170930",
+  "base_printing_press_version": "4.30.2",
+  "summary": "fix(wework): enforce live read contracts and machine-output formats",
+  "reason": "Direct VPS dogfood showed malformed dates reaching WeWork, live-only aliases accepting local mode, live agent output mislabeled as local, city filtering matching a nearby street address, and friendly location/desk commands ignoring CSV and quiet output flags.",
+  "files": [
+    "README.md",
+    "SKILL.md",
+    "internal/cli/wework_locations.go",
+    "internal/cli/wework_novel.go",
+    "internal/cli/wework_novel_contract_test.go"
+  ],
+  "validated_outcome": "CLI-boundary regressions, go test -count=1 ./..., go vet ./..., both binary builds, verify-skill, autoreview, and direct installed-VPS read-only behavior checks pass. Publish validation remains blocked by the inherited missing .printing-press.json manifest, non-library module path, and Go 1.26.5 standard-library advisories.",
+  "findings_addressed": [
+    "F1-invalid-date-before-network",
+    "F2-live-only-data-source-rejection",
+    "F3-truthful-live-agent-metadata",
+    "F4-city-identity-filtering",
+    "F5-friendly-command-csv-and-quiet-output"
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-15T20:46:37.546491Z",
+  "printing_press_version": "4.30.2",
+  "api_name": "wework",
+  "display_name": "WeWork",
+  "cli_name": "wework-pp-cli",
+  "owner": "paul-byrne",
+  "printer": "ptbyrne",
+  "printer_name": "Paul Byrne",
+  "spec_path": ".manuscripts/20260812-170930/pipeline/wework-openapi.yaml",
+  "spec_format": "openapi",
+  "spec_checksum": "sha256:dd148b1df566e6be8ac4d42e65985d6e4035906ccae7629e6d22f0e081e43b7b",
+  "run_id": "20260812-170930",
+  "category": "productivity",
+  "description": "Find and book WeWork day-desks from the terminal — cities, buildings, availability, price, and your bookings — with a local store for instant, agent-native queries.",
+  "mcp_binary": "wework-pp-mcp",
+  "mcp_tool_count": 11,
+  "mcp_ready": "full",
+  "auth_type": "bearer_token",
+  "auth_preference": "bearerAuth",
+  "auth_env_vars": [
+    "WEWORK_TOKEN"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "WEWORK_TOKEN",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": true
+    }
+  ],
+  "auth_key_url": "https://members.wework.com",
+  "novel_features": [
+    {
+      "name": "Offline city \u0026 location search",
+      "command": "search",
+      "description": "Full-text search across every synced WeWork city and building, offline and instant."
+    },
+    {
+      "name": "City-name desk search",
+      "command": "desks",
+      "description": "Search bookable desks by city name and date, deriving the map bounding box the API requires from cached city geo."
+    },
+    {
+      "name": "Cheapest / availability-aware ranking",
+      "command": "desks",
+      "description": "Sort desks by credits or price and filter to only those with open seats."
+    }
+  ],
+  "source_url": "https://members.wework.com"
+}

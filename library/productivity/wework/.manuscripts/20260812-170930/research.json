@@ -1,0 +1,134 @@
+{
+  "api_name": "wework",
+  "novelty_score": 8,
+  "alternatives": [],
+  "gaps": [
+    "book/cancel endpoints inferred from app JS + confirm modal, not verified against a live booking (ship behind --dry-run).",
+    "desk search requires a cached city geo to derive the API's bounding box; run sync first."
+  ],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-12T17:20:00Z",
+  "novel_features": [
+    {
+      "name": "Offline city \u0026 location search",
+      "command": "search",
+      "description": "Full-text search across every synced WeWork city and building, offline and instant.",
+      "rationale": "Requires a local SQLite FTS index over synced cities and locations; the web app has no offline or scriptable search.",
+      "example": "wework-pp-cli search \"austin\" --agent",
+      "why_it_matters": "Reach for this to resolve a place name to concrete city/building UUIDs without hitting the network.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "City-name desk search",
+      "command": "desks",
+      "description": "Search bookable desks by city name and date, deriving the map bounding box the API requires from cached city geo.",
+      "rationale": "The API only accepts lat/lng bounds; this derives them from a city's cached marketgeo so you never touch the map UI.",
+      "example": "wework-pp-cli desks --city \"Austin, TX\" --date 2026-08-18 --agent",
+      "why_it_matters": "The headline command: turns a plain city name + date into structured desk availability with price and seats.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Cheapest / availability-aware ranking",
+      "command": "desks",
+      "description": "Sort desks by credits or price and filter to only those with open seats.",
+      "rationale": "Requires ranking and filtering the full desk result set locally on seat.available and productPrice; the web UI only sorts visually.",
+      "example": "wework-pp-cli desks --city \"Austin, TX\" --date 2026-08-18 --sort credits --available-only",
+      "why_it_matters": "Answers 'what is the cheapest available desk here tomorrow' in one call.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Offline city \u0026 location search",
+      "command": "search",
+      "description": "Full-text search across every synced WeWork city and building, offline and instant.",
+      "rationale": "Requires a local SQLite FTS index over synced cities and locations; the web app has no offline or scriptable search.",
+      "example": "wework-pp-cli search \"austin\" --agent",
+      "why_it_matters": "Reach for this to resolve a place name to concrete city/building UUIDs without hitting the network.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "City-name desk search",
+      "command": "desks",
+      "description": "Search bookable desks by city name and date, deriving the map bounding box the API requires from cached city geo.",
+      "rationale": "The API only accepts lat/lng bounds; this derives them from a city's cached marketgeo so you never touch the map UI.",
+      "example": "wework-pp-cli desks --city \"Austin, TX\" --date 2026-08-18 --agent",
+      "why_it_matters": "The headline command: turns a plain city name + date into structured desk availability with price and seats.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Cheapest / availability-aware ranking",
+      "command": "desks",
+      "description": "Sort desks by credits or price and filter to only those with open seats.",
+      "rationale": "Requires ranking and filtering the full desk result set locally on seat.available and productPrice; the web UI only sorts visually.",
+      "example": "wework-pp-cli desks --city \"Austin, TX\" --date 2026-08-18 --sort credits --available-only",
+      "why_it_matters": "Answers 'what is the cheapest available desk here tomorrow' in one call.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "WeWork",
+    "headline": "Find and book WeWork day-desks from the terminal — cities, buildings, availability, price, and your bookings — with a local store for instant, agent-native queries.",
+    "value_prop": "WeWork's desk booking is a map-and-modal web app with no CLI and no public API. This CLI reverse-engineers the members-portal read API into scriptable commands: resolve any city, search bookable desks by city + date with credits/price/seat availability, browse buildings and amenities, and list your bookings. Cities and locations sync into a local SQLite store so repeat queries are instant and work offline.",
+    "auth_narrative": "WeWork uses a short-lived auth0 Bearer token plus weworkuuid and weworkmembertype headers from a logged-in browser session. Two ways to authenticate: (1) 'wework-pp-cli auth login --chrome' reads the token straight from your Chrome/Brave/Edge profile — quick, but Chrome buffers the live token in memory and flushes to disk lazily, so the on-disk copy can be stale; (2) 'wework-pp-cli auth import' with the DevTools JSON snippet reliably captures a live token. The account uuid + member type are not stored in Chrome — set them once with 'auth import --uuid ... --member-type ...' and they persist (auth login then only refreshes the token). Check with 'wework-pp-cli auth whoami'; re-authenticate when the token goes stale.",
+    "quickstart": [
+      {
+        "command": "wework-pp-cli doctor --dry-run",
+        "comment": "Health check — confirms the binary and config load (no auth needed). Set up auth first with: wework-pp-cli auth login --chrome (or auth import; see 'auth import --help')"
+      },
+      {
+        "command": "wework-pp-cli cities --limit 5",
+        "comment": "List bookable cities (credential-only, no geo)"
+      },
+      {
+        "command": "wework-pp-cli bookings",
+        "comment": "Show your upcoming desk bookings"
+      },
+      {
+        "command": "wework-pp-cli desks --city \"Austin, TX\" --date 2026-08-18 --agent",
+        "comment": "Search bookable desks in a city on a date"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 / empty results on every command",
+        "fix": "Your auth0 token expired (check 'wework-pp-cli auth whoami'). Re-authenticate: 'wework-pp-cli auth login --chrome' (quick; may be stale if Chrome hasn't flushed) or 'wework-pp-cli auth import' with the live DevTools snippet (reliable)."
+      },
+      {
+        "symptom": "desks returns nothing for a valid city",
+        "fix": "Run 'wework-pp-cli sync' first so the city geo is cached, then retry — the search bounding box is derived from cached city coordinates."
+      },
+      {
+        "symptom": "book fails or returns an unexpected shape",
+        "fix": "The book/cancel endpoints are inferred from discovery, not verified. Run with --dry-run to inspect the request, then verify against your account before using --confirm."
+      }
+    ],
+    "when_to_use": "Use this CLI to script or agent-drive WeWork day-desk discovery: check whether a desk is available in a given city on a given date, compare prices/credits across buildings, resolve city and building UUIDs, and review your upcoming bookings — all without the web map UI.",
+    "recipes": [
+      {
+        "title": "Cheapest available desk in a city",
+        "command": "wework-pp-cli desks --city \"Austin, TX\" --date 2026-08-18 --sort credits --available-only --agent",
+        "explanation": "Ranks bookable desks by credits and drops any with no open seats."
+      },
+      {
+        "title": "Compact desk view for agents",
+        "command": "wework-pp-cli desks --city \"New York, NY\" --date 2026-08-18 --agent --select desks.location.name,desks.credits,desks.seat.available",
+        "explanation": "Returns only high-gravity fields from the deeply-nested desk response to keep agent context small."
+      },
+      {
+        "title": "Resolve a place to UUIDs offline",
+        "command": "wework-pp-cli search \"barton springs\" --json",
+        "explanation": "Finds the matching city/building from the local store without a network call."
+      }
+    ],
+    "trigger_phrases": [
+      "find a wework desk",
+      "book a wework desk",
+      "wework desks in austin",
+      "my wework bookings",
+      "use wework",
+      "run wework"
+    ]
+  }
+}

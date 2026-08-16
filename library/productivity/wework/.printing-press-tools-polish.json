@@ -1,0 +1,40 @@
+{
+  "timestamp": "2026-08-13T22:01:13.180433Z",
+  "cli_dir": "\u003ccli-dir\u003e/wework-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file (platform client-profile framework surface). Short is verb-led and accurate for a local profile-list read; a richer agent-grade Short belongs in the generator template, not a hand-edit that regen wipes. Retro candidate."
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 691,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file (self-learning surface). 'List recorded learnings' is verb-led and accurate for the local learnings-table read; the fix belongs in the learnings generator template, not a hand-edit that regen wipes. Retro candidate."
+    },
+    {
+      "kind": "thin-mcp-description",
+      "command": "wework-yardi_get-city-details",
+      "file": "tools-manifest.json",
+      "line": 0,
+      "evidence": "Get details for a city. Optional: city.",
+      "status": "accepted",
+      "note": "Richer override written to mcp-descriptions.json but not applied: mcp-sync is blocked in this never-promoted working copy (no archived spec.yaml at CLI root; the run's corrected spec carries name 'wework-workplaceone' which mismatches the 'wework' directory slug, which the promote step reconciles). The override applies on the next promote/sync.",
+      "spec_source_material": "spec.paths['/wework-yardi/location/get-city-details'].get: summary='Get details for a city'; one parameter city (in:query, type string, NOT required); responses.200 description 'City details' with NO schema. Operation is summary-only with nothing to compose a Required/Returns clause from.",
+      "target_description": "Fetch detail metadata for WeWork cities from the WorkplaceOne location (Yardi) service. Optional: city (name) narrows to one city; omit for the full set. Served from local cache after sync, or live. Returns city detail records with market geo (lat/lng) and nearest-location attributes. Call wework-yardi_list-cities first to discover valid names.",
+      "gap_analysis": "The composer can only emit the bare summary because the spec operation has no requestBody, no response schema, and a single optional query param. The target description (grounded in the command's resolveRead cache/live behavior and sibling list-cities context) exceeds what the spec alone yields, so an mcp-descriptions.json override is the correct fix per the playbook. That override is written; it cannot be synced into tools-manifest.json in this never-promoted copy without running promote-owned steps (archive spec.yaml, reconcile spec name vs slug) that are outside polish scope. Not a generator systemic gap."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 7,
+    "captured": "2026-08-13T21:56:45.175877Z"
+  }
+}

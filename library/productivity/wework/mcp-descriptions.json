@@ -1,0 +1,5 @@
+{
+  "descriptions": {
+    "wework-yardi_get-city-details": "Fetch detail metadata for WeWork cities from the WorkplaceOne location (Yardi) service. Optional: city (name) narrows the result to a single city; omit it to return the full set. Served from the local cache after `sync`, or live otherwise. Returns city detail records with market geo (latitude/longitude) and nearest-location attributes. Call wework-yardi_list-cities (or the `cities` command) to discover valid city names first, then use this to inspect one."
+  }
+}

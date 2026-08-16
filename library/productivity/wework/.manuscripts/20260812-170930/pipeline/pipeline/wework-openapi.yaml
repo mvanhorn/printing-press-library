@@ -1,0 +1,426 @@
+openapi: 3.0.3
+info:
+  title: WeWork WorkplaceOne
+  version: "1.0.0"
+  x-cli-description: "Find and book WeWork desks from the terminal — cities, buildings, day-desk availability, price, and your bookings — reverse-engineered from the members portal with a local store for instant, agent-native queries."
+  description: >
+    Reverse-engineered read + booking API for WeWork's WorkplaceOne member portal
+    (members.wework.com), captured from the authenticated "Book a desk" flow.
+    Auth is a short-lived auth0 Bearer JWT plus weworkuuid and weworkmembertype
+    request headers, imported from a logged-in browser session.
+servers:
+  - url: https://members.wework.com/workplaceone/api
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      x-auth-env-vars:
+        - WEWORK_TOKEN
+    weworkUuid:
+      type: apiKey
+      in: header
+      name: weworkuuid
+      x-auth-env-vars:
+        - WEWORK_UUID
+    weworkMemberType:
+      type: apiKey
+      in: header
+      name: weworkmembertype
+      x-auth-env-vars:
+        - WEWORK_MEMBER_TYPE
+  schemas:
+    City:
+      type: object
+      properties:
+        name: {type: string}
+        marketgeo:
+          type: object
+          properties:
+            id: {type: string}
+            latitude: {type: number}
+            longitude: {type: number}
+            name: {type: string}
+            name_abbreviation: {type: string}
+        countrygeo:
+          type: object
+          properties:
+            id: {type: string}
+            iso: {type: string}
+            latitude: {type: number}
+            longitude: {type: number}
+            name: {type: string}
+            name_abbreviation: {type: string}
+        nearby_location:
+          type: object
+          properties:
+            uuid: {type: string}
+            default_name: {type: string}
+            default_country: {type: string}
+            latitude: {type: number}
+            longitude: {type: number}
+            time_zone: {type: string}
+            city: {type: string}
+            state: {type: string}
+            zip: {type: string}
+            address: {type: string}
+            is_open: {type: boolean}
+            is_favorite: {type: boolean}
+            is_published: {type: boolean}
+            on_demand_enabled: {type: boolean}
+            brand_name: {type: string}
+        nearby_locations_count: {type: integer}
+    Address:
+      type: object
+      properties:
+        line1: {type: string}
+        city: {type: string}
+        state: {type: string}
+        country: {type: string}
+        zip: {type: string}
+    OperatingHour:
+      type: object
+      properties:
+        dayOfWeek: {type: integer}
+        day: {type: string}
+        open: {type: string}
+        close: {type: string}
+        isClosed: {type: boolean}
+    Location:
+      type: object
+      properties:
+        uuid: {type: string}
+        name: {type: string}
+        latitude: {type: number}
+        longitude: {type: number}
+        address: {$ref: '#/components/schemas/Address'}
+        timeZone: {type: string}
+        distance: {type: number}
+        brandName: {type: string}
+        image: {type: string}
+        spaceAvailabilityCount: {type: integer}
+        accountType: {type: integer}
+        affiliateSpaceType: {type: integer}
+        vastAmenities:
+          type: array
+          items:
+            type: object
+            properties:
+              Id: {type: integer}
+              Name: {type: string}
+        operatingHours:
+          type: array
+          items: {$ref: '#/components/schemas/OperatingHour'}
+    Desk:
+      type: object
+      properties:
+        uuid: {type: string}
+        inventoryUuid: {type: string}
+        imageUrl: {type: string}
+        capacity: {type: integer}
+        credits: {type: number}
+        openTime: {type: string}
+        closeTime: {type: string}
+        cancellationPolicy: {type: string}
+        seatsAvailable: {type: integer}
+        isHybridSpace: {type: boolean}
+        MinAdvanceBookingRequestHours: {type: integer}
+        SpaceTypeID: {type: integer}
+        seat:
+          type: object
+          properties:
+            total: {type: integer}
+            available: {type: integer}
+        productPrice:
+          type: object
+          properties:
+            uuid: {type: string}
+            productUuid: {type: string}
+            rateUnit: {type: integer}
+            price:
+              type: object
+              properties:
+                currency: {type: string}
+                amount: {type: number}
+        operatingHours:
+          type: array
+          items: {$ref: '#/components/schemas/OperatingHour'}
+        location:
+          type: object
+          properties:
+            uuid: {type: string}
+            name: {type: string}
+            description: {type: string}
+            currency: {type: string}
+            latitude: {type: number}
+            longitude: {type: number}
+            timeZoneIdentifier: {type: string}
+            supportEmail: {type: string}
+            phoneNormalized: {type: string}
+            address: {$ref: '#/components/schemas/Address'}
+            amenities:
+              type: array
+              items:
+                type: object
+                properties:
+                  uuid: {type: string}
+                  name: {type: string}
+                  highlight: {type: boolean}
+            images:
+              type: array
+              items:
+                type: object
+                properties:
+                  url: {type: string}
+    BookingRequest:
+      type: object
+      description: "Verified desk booking/quote payload (captured from a live booking 2026-08-12)."
+      properties:
+        ApplicationType: {type: integer}
+        SpaceType: {type: string}
+        SpaceTypeID: {type: integer}
+        ReservationID: {type: string}
+        LocationID: {type: string}
+        LocationType: {type: string}
+        SpaceID: {type: string}
+        WeWorkSpaceID: {type: string}
+        StartTime: {type: string}
+        EndTime: {type: string}
+        Currency: {type: string}
+        UTCOffset: {type: string}
+        CardUuid: {type: string, description: "Saved payment account UUID (book only)"}
+        CreditCharged: {type: boolean, description: "Credits vs card (book only)"}
+        TriggerCalendarEvent: {type: boolean}
+        Notes: {type: string}
+        MailData: {type: object}
+        PlatFormTypeEnum: {type: integer}
+    CancelRequest:
+      type: object
+      description: "Verified desk cancellation payload (captured from a live cancel 2026-08-12)."
+      properties:
+        bookingId: {type: string}
+        reservationId: {type: string}
+        bookingExternaluuid: {type: string}
+        bookingType: {type: string}
+        bookingLocationType: {type: string}
+        locationId: {type: string}
+        spaceId: {type: string}
+        reservableId: {type: string}
+        startTime: {type: string}
+        endTime: {type: string}
+        creditsUsed: {type: number}
+        isBookingApprovalOn: {type: boolean}
+        cancellationNote: {type: string}
+        mailParams: {type: object}
+security:
+  - bearerAuth: []
+    weworkUuid: []
+    weworkMemberType: []
+paths:
+  /wework-yardi/location/get-affiliate-cities:
+    get:
+      operationId: listCities
+      summary: List bookable WeWork cities
+      description: >
+        Returns every city where WeWork desks can be booked (~842), each with its
+        market geo (latitude/longitude) and nearest location. The geo is used to
+        derive the bounding box that the desk/location search endpoints require.
+      responses:
+        "200":
+          description: Cities
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/City'
+  /wework-yardi/ondemand/get-locations-by-geo:
+    get:
+      operationId: listLocationsByGeo
+      summary: List WeWork buildings within a geo bounding box
+      parameters:
+        - {name: city, in: query, schema: {type: string}}
+        - {name: boundnwLat, in: query, schema: {type: number}}
+        - {name: boundnwLng, in: query, schema: {type: number}}
+        - {name: boundseLat, in: query, schema: {type: number}}
+        - {name: boundseLng, in: query, schema: {type: number}}
+        - {name: userLatitude, in: query, schema: {type: number}}
+        - {name: userLongitude, in: query, schema: {type: number}}
+        - {name: accountUUID, in: query, schema: {type: string}}
+        - {name: isAuthenticated, in: query, schema: {type: boolean}}
+        - {name: isOnDemandUser, in: query, schema: {type: boolean}}
+      responses:
+        "200":
+          description: Locations
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  locationsByGeo:
+                    type: array
+                    items: {$ref: '#/components/schemas/Location'}
+  /spaces/get-affiliate-locations:
+    get:
+      operationId: listLocations
+      summary: List WeWork buildings in a city with availability
+      parameters:
+        - {name: city, in: query, schema: {type: string}}
+        - {name: date, in: query, schema: {type: string}}
+        - {name: endDate, in: query, schema: {type: string}}
+        - {name: type, in: query, schema: {type: string}}
+        - {name: boundnwLat, in: query, schema: {type: number}}
+        - {name: boundnwLng, in: query, schema: {type: number}}
+        - {name: boundseLat, in: query, schema: {type: number}}
+        - {name: boundseLng, in: query, schema: {type: number}}
+        - {name: userLatitude, in: query, schema: {type: number}}
+        - {name: userLongitude, in: query, schema: {type: number}}
+        - {name: platFormType, in: query, schema: {type: string}}
+      responses:
+        "200":
+          description: Locations
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  locationsByGeo:
+                    type: array
+                    items: {$ref: '#/components/schemas/Location'}
+  /spaces/get-spaces:
+    get:
+      operationId: searchDesks
+      summary: Search bookable desks (shared workspaces)
+      description: >
+        The primary desk-search endpoint. Returns bookable day-desks for a city/date,
+        with capacity, credits, price, seat availability, hours and cancellation policy.
+        Narrow to specific buildings with locationUUIDs; bounds+city define the area.
+      parameters:
+        - {name: city, in: query, schema: {type: string}}
+        - {name: closestCity, in: query, schema: {type: string}}
+        - {name: date, in: query, schema: {type: string}}
+        - {name: endDate, in: query, schema: {type: string}}
+        - {name: capacity, in: query, schema: {type: integer}}
+        - {name: duration, in: query, schema: {type: string}}
+        - {name: locationType, in: query, schema: {type: string}}
+        - {name: locationUUIDs, in: query, schema: {type: string}}
+        - {name: roomTypeFilter, in: query, schema: {type: string}}
+        - {name: type, in: query, schema: {type: string}}
+        - {name: limit, in: query, schema: {type: integer}}
+        - {name: offset, in: query, schema: {type: integer}}
+        - {name: locationOffset, in: query, schema: {type: integer}}
+        - {name: boundnwLat, in: query, schema: {type: number}}
+        - {name: boundnwLng, in: query, schema: {type: number}}
+        - {name: boundseLat, in: query, schema: {type: number}}
+        - {name: boundseLng, in: query, schema: {type: number}}
+        - {name: userLatitude, in: query, schema: {type: number}}
+        - {name: userLongitude, in: query, schema: {type: number}}
+        - {name: isWeb, in: query, schema: {type: boolean}}
+        - {name: isFromWp, in: query, schema: {type: boolean}}
+        - {name: platFormType, in: query, schema: {type: string}}
+      responses:
+        "200":
+          description: Desks
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  limit: {type: integer}
+                  offset: {type: integer}
+                  getSharedWorkspaces:
+                    type: object
+                    properties:
+                      totalCount: {type: integer}
+                      workspaces:
+                        type: array
+                        items: {$ref: '#/components/schemas/Desk'}
+  /wework-yardi/booking/start-locations-for-amenities-list:
+    get:
+      operationId: listAmenities
+      summary: List amenities for locations
+      parameters:
+        - {name: amenity_uuids, in: query, schema: {type: string}}
+        - {name: location_uuids, in: query, schema: {type: string}}
+        - {name: page_size, in: query, schema: {type: integer}}
+      responses:
+        "200":
+          description: Amenities
+          content:
+            application/json:
+              schema: {type: array, items: {type: object}}
+  /common-booking/upcoming-bookings:
+    get:
+      operationId: listBookings
+      summary: List my upcoming desk bookings
+      responses:
+        "200":
+          description: Bookings
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  WeWorkBookings: {type: array, items: {type: object}}
+                  AllowReservation: {type: boolean}
+                  IsInactive: {type: boolean}
+  /common-booking/quote:
+    post:
+      operationId: quoteBooking
+      summary: Get a price quote for a desk booking (no charge)
+      description: >
+        Returns the price breakdown (grandTotal, subTotal, taxes, lineItems) for a
+        prospective desk booking. Safe — no reservation is created and no card is charged.
+        Verified against a live booking on 2026-08-12.
+      requestBody:
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/BookingRequest'}
+      responses:
+        "200": {description: Quote}
+  /common-booking/:
+    post:
+      operationId: bookDesk
+      summary: "Book a desk (VERIFIED — real card charge)"
+      description: >
+        Creates a real desk reservation and charges the member's saved payment account.
+        Verified against a live booking on 2026-08-12 (801 Barton Springs Rd, $47).
+        Recommended flow: quote first, then book. Returns ReservationID + BookingStatus.
+        The generated command should default to --dry-run; require an explicit confirm flag to charge.
+      requestBody:
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/BookingRequest'}
+      responses:
+        "200": {description: Booking created (ReservationID, BookingStatus, WeworkUUID, Errors)}
+  /common-booking/cancel:
+    post:
+      operationId: cancelBooking
+      summary: "Cancel a desk booking (VERIFIED — full refund if >=24h before start)"
+      description: >
+        Cancels an existing booking. Verified against a live cancellation on 2026-08-12
+        (full $47 refund confirmed). Full refund if canceled >=24h before start time.
+        Identify the booking with bookingId + reservationId (from list-bookings / bookDesk).
+      requestBody:
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/CancelRequest'}
+      responses:
+        "200": {description: Booking canceled}
+  /common-booking/user-booking-details:
+    get:
+      operationId: getBookingDetails
+      summary: "[BEST-EFFORT/UNVERIFIED] Get booking details"
+      parameters:
+        - {name: bookingUuid, in: query, schema: {type: string}}
+      responses:
+        "200": {description: Booking details}
+  /wework-yardi/location/get-city-details:
+    get:
+      operationId: getCityDetails
+      summary: Get details for a city
+      parameters:
+        - {name: city, in: query, schema: {type: string}}
+      responses:
+        "200": {description: City details}

@@ -1,0 +1,700 @@
+{
+  "api_name": "wework",
+  "base_url": "https://members.wework.com/workplaceone/api",
+  "description": "Find and book WeWork day-desks from the terminal — cities, buildings, availability, price, and your bookings — with a local store for instant, agent-native queries.",
+  "mcp_ready": "full",
+  "http_transport": "browser-chrome",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "WEWORK_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "WEWORK_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "common-booking_book-desk",
+      "description": "Creates a real desk reservation and charges the member's saved payment account. Verified against a live booking on 2026-08-12 (801 Barton Springs Rd, $47). Recommended flow: quote first, then book. Returns ReservationID + BookingStatus. The generated command should default to --dry-run; require an explicit confirm flag to charge. Optional: ApplicationType, CardUuid, CreditCharged (plus 15 more).",
+      "method": "POST",
+      "path": "/common-booking/",
+      "params": [
+        {
+          "name": "ApplicationType",
+          "type": "int",
+          "location": "body",
+          "description": "Application type"
+        },
+        {
+          "name": "CardUuid",
+          "type": "string",
+          "location": "body",
+          "description": "Saved payment account UUID (book only)"
+        },
+        {
+          "name": "CreditCharged",
+          "type": "bool",
+          "location": "body",
+          "description": "Credits vs card (book only)"
+        },
+        {
+          "name": "Currency",
+          "type": "string",
+          "location": "body",
+          "description": "Currency"
+        },
+        {
+          "name": "EndTime",
+          "type": "string",
+          "location": "body",
+          "description": "End time"
+        },
+        {
+          "name": "LocationID",
+          "type": "string",
+          "location": "body",
+          "description": "Location id"
+        },
+        {
+          "name": "LocationType",
+          "type": "string",
+          "location": "body",
+          "description": "Location type"
+        },
+        {
+          "name": "MailData",
+          "type": "object",
+          "location": "body",
+          "description": "Mail data"
+        },
+        {
+          "name": "Notes",
+          "type": "string",
+          "location": "body",
+          "description": "Notes"
+        },
+        {
+          "name": "PlatFormTypeEnum",
+          "type": "int",
+          "location": "body",
+          "description": "Plat form type enum"
+        },
+        {
+          "name": "ReservationID",
+          "type": "string",
+          "location": "body",
+          "description": "Reservation id"
+        },
+        {
+          "name": "SpaceID",
+          "type": "string",
+          "location": "body",
+          "description": "Space id"
+        },
+        {
+          "name": "SpaceType",
+          "type": "string",
+          "location": "body",
+          "description": "Space type"
+        },
+        {
+          "name": "SpaceTypeID",
+          "type": "int",
+          "location": "body",
+          "description": "Space type id"
+        },
+        {
+          "name": "StartTime",
+          "type": "string",
+          "location": "body",
+          "description": "Start time"
+        },
+        {
+          "name": "TriggerCalendarEvent",
+          "type": "bool",
+          "location": "body",
+          "description": "Trigger calendar event"
+        },
+        {
+          "name": "UTCOffset",
+          "type": "string",
+          "location": "body",
+          "description": "Utcoffset"
+        },
+        {
+          "name": "WeWorkSpaceID",
+          "type": "string",
+          "location": "body",
+          "description": "We work space id"
+        }
+      ]
+    },
+    {
+      "name": "common-booking_cancel-booking",
+      "description": "Cancels an existing booking. Verified against a live cancellation on 2026-08-12 (full $47 refund confirmed). Full refund if canceled \u003e=24h before start time. Identify the booking with bookingId + reservationId (from list-bookings / bookDesk). Optional: bookingExternaluuid, bookingId, bookingLocationType (plus 11 more).",
+      "method": "POST",
+      "path": "/common-booking/cancel",
+      "params": [
+        {
+          "name": "bookingExternaluuid",
+          "type": "string",
+          "location": "body",
+          "description": "Booking externaluuid"
+        },
+        {
+          "name": "bookingId",
+          "type": "string",
+          "location": "body",
+          "description": "Booking id"
+        },
+        {
+          "name": "bookingLocationType",
+          "type": "string",
+          "location": "body",
+          "description": "Booking location type"
+        },
+        {
+          "name": "bookingType",
+          "type": "string",
+          "location": "body",
+          "description": "Booking type"
+        },
+        {
+          "name": "cancellationNote",
+          "type": "string",
+          "location": "body",
+          "description": "Cancellation note"
+        },
+        {
+          "name": "creditsUsed",
+          "type": "float",
+          "location": "body",
+          "description": "Credits used"
+        },
+        {
+          "name": "endTime",
+          "type": "string",
+          "location": "body",
+          "description": "End time"
+        },
+        {
+          "name": "isBookingApprovalOn",
+          "type": "bool",
+          "location": "body",
+          "description": "Is booking approval on"
+        },
+        {
+          "name": "locationId",
+          "type": "string",
+          "location": "body",
+          "description": "Location id"
+        },
+        {
+          "name": "mailParams",
+          "type": "object",
+          "location": "body",
+          "description": "Mail params"
+        },
+        {
+          "name": "reservableId",
+          "type": "string",
+          "location": "body",
+          "description": "Reservable id"
+        },
+        {
+          "name": "reservationId",
+          "type": "string",
+          "location": "body",
+          "description": "Reservation id"
+        },
+        {
+          "name": "spaceId",
+          "type": "string",
+          "location": "body",
+          "description": "Space id"
+        },
+        {
+          "name": "startTime",
+          "type": "string",
+          "location": "body",
+          "description": "Start time"
+        }
+      ]
+    },
+    {
+      "name": "common-booking_get-booking-details",
+      "description": "[BEST-EFFORT/UNVERIFIED] Get booking details. Optional: bookingUuid.",
+      "method": "GET",
+      "path": "/common-booking/user-booking-details",
+      "params": [
+        {
+          "name": "bookingUuid",
+          "type": "string",
+          "location": "query",
+          "description": "Booking uuid"
+        }
+      ]
+    },
+    {
+      "name": "common-booking_list-bookings",
+      "description": "List my upcoming desk bookings. Returns array of CommonBookingListBookingsItem.",
+      "method": "GET",
+      "path": "/common-booking/upcoming-bookings",
+      "params": []
+    },
+    {
+      "name": "common-booking_quote-booking",
+      "description": "Returns the price breakdown (grandTotal, subTotal, taxes, lineItems) for a prospective desk booking. Safe — no reservation is created and no card is charged. Verified against a live booking on 2026-08-12. Optional: ApplicationType, CardUuid, CreditCharged (plus 15 more).",
+      "method": "POST",
+      "path": "/common-booking/quote",
+      "params": [
+        {
+          "name": "ApplicationType",
+          "type": "int",
+          "location": "body",
+          "description": "Application type"
+        },
+        {
+          "name": "CardUuid",
+          "type": "string",
+          "location": "body",
+          "description": "Saved payment account UUID (book only)"
+        },
+        {
+          "name": "CreditCharged",
+          "type": "bool",
+          "location": "body",
+          "description": "Credits vs card (book only)"
+        },
+        {
+          "name": "Currency",
+          "type": "string",
+          "location": "body",
+          "description": "Currency"
+        },
+        {
+          "name": "EndTime",
+          "type": "string",
+          "location": "body",
+          "description": "End time"
+        },
+        {
+          "name": "LocationID",
+          "type": "string",
+          "location": "body",
+          "description": "Location id"
+        },
+        {
+          "name": "LocationType",
+          "type": "string",
+          "location": "body",
+          "description": "Location type"
+        },
+        {
+          "name": "MailData",
+          "type": "object",
+          "location": "body",
+          "description": "Mail data"
+        },
+        {
+          "name": "Notes",
+          "type": "string",
+          "location": "body",
+          "description": "Notes"
+        },
+        {
+          "name": "PlatFormTypeEnum",
+          "type": "int",
+          "location": "body",
+          "description": "Plat form type enum"
+        },
+        {
+          "name": "ReservationID",
+          "type": "string",
+          "location": "body",
+          "description": "Reservation id"
+        },
+        {
+          "name": "SpaceID",
+          "type": "string",
+          "location": "body",
+          "description": "Space id"
+        },
+        {
+          "name": "SpaceType",
+          "type": "string",
+          "location": "body",
+          "description": "Space type"
+        },
+        {
+          "name": "SpaceTypeID",
+          "type": "int",
+          "location": "body",
+          "description": "Space type id"
+        },
+        {
+          "name": "StartTime",
+          "type": "string",
+          "location": "body",
+          "description": "Start time"
+        },
+        {
+          "name": "TriggerCalendarEvent",
+          "type": "bool",
+          "location": "body",
+          "description": "Trigger calendar event"
+        },
+        {
+          "name": "UTCOffset",
+          "type": "string",
+          "location": "body",
+          "description": "Utcoffset"
+        },
+        {
+          "name": "WeWorkSpaceID",
+          "type": "string",
+          "location": "body",
+          "description": "We work space id"
+        }
+      ]
+    },
+    {
+      "name": "spaces_list-locations",
+      "description": "List WeWork buildings in a city with availability. Optional: city, date, endDate (plus 8 more). Returns array of Location.",
+      "method": "GET",
+      "path": "/spaces/get-affiliate-locations",
+      "params": [
+        {
+          "name": "city",
+          "type": "string",
+          "location": "query",
+          "description": "City"
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "query",
+          "description": "Date"
+        },
+        {
+          "name": "endDate",
+          "type": "string",
+          "location": "query",
+          "description": "End date"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Type"
+        },
+        {
+          "name": "boundnwLat",
+          "type": "float",
+          "location": "query",
+          "description": "Boundnw lat"
+        },
+        {
+          "name": "boundnwLng",
+          "type": "float",
+          "location": "query",
+          "description": "Boundnw lng"
+        },
+        {
+          "name": "boundseLat",
+          "type": "float",
+          "location": "query",
+          "description": "Boundse lat"
+        },
+        {
+          "name": "boundseLng",
+          "type": "float",
+          "location": "query",
+          "description": "Boundse lng"
+        },
+        {
+          "name": "userLatitude",
+          "type": "float",
+          "location": "query",
+          "description": "User latitude"
+        },
+        {
+          "name": "userLongitude",
+          "type": "float",
+          "location": "query",
+          "description": "User longitude"
+        },
+        {
+          "name": "platFormType",
+          "type": "string",
+          "location": "query",
+          "description": "Plat form type"
+        }
+      ]
+    },
+    {
+      "name": "spaces_search-desks",
+      "description": "The primary desk-search endpoint. Returns bookable day-desks for a city/date, with capacity, credits, price, seat availability, hours and cancellation policy. Narrow to specific buildings with locationUUIDs; bounds+city define the area. Optional: city, closestCity, date (plus 19 more).",
+      "method": "GET",
+      "path": "/spaces/get-spaces",
+      "params": [
+        {
+          "name": "city",
+          "type": "string",
+          "location": "query",
+          "description": "City"
+        },
+        {
+          "name": "closestCity",
+          "type": "string",
+          "location": "query",
+          "description": "Closest city"
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "query",
+          "description": "Date"
+        },
+        {
+          "name": "endDate",
+          "type": "string",
+          "location": "query",
+          "description": "End date"
+        },
+        {
+          "name": "capacity",
+          "type": "int",
+          "location": "query",
+          "description": "Capacity"
+        },
+        {
+          "name": "duration",
+          "type": "string",
+          "location": "query",
+          "description": "Duration"
+        },
+        {
+          "name": "locationType",
+          "type": "string",
+          "location": "query",
+          "description": "Location type"
+        },
+        {
+          "name": "locationUUIDs",
+          "type": "string",
+          "location": "query",
+          "description": "Location uuids"
+        },
+        {
+          "name": "roomTypeFilter",
+          "type": "string",
+          "location": "query",
+          "description": "Room type filter"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Type"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "locationOffset",
+          "type": "int",
+          "location": "query",
+          "description": "Location offset"
+        },
+        {
+          "name": "boundnwLat",
+          "type": "float",
+          "location": "query",
+          "description": "Boundnw lat"
+        },
+        {
+          "name": "boundnwLng",
+          "type": "float",
+          "location": "query",
+          "description": "Boundnw lng"
+        },
+        {
+          "name": "boundseLat",
+          "type": "float",
+          "location": "query",
+          "description": "Boundse lat"
+        },
+        {
+          "name": "boundseLng",
+          "type": "float",
+          "location": "query",
+          "description": "Boundse lng"
+        },
+        {
+          "name": "userLatitude",
+          "type": "float",
+          "location": "query",
+          "description": "User latitude"
+        },
+        {
+          "name": "userLongitude",
+          "type": "float",
+          "location": "query",
+          "description": "User longitude"
+        },
+        {
+          "name": "isWeb",
+          "type": "bool",
+          "location": "query",
+          "description": "Is web"
+        },
+        {
+          "name": "isFromWp",
+          "type": "bool",
+          "location": "query",
+          "description": "Is from wp"
+        },
+        {
+          "name": "platFormType",
+          "type": "string",
+          "location": "query",
+          "description": "Plat form type"
+        }
+      ]
+    },
+    {
+      "name": "wework-yardi_get-city-details",
+      "description": "Fetch detail metadata for WeWork cities from the WorkplaceOne location (Yardi) service. Optional: city (name) narrows the result to a single city; omit it to return the full set. Served from the local cache after `sync`, or live otherwise. Returns city detail records with market geo (latitude/longitude) and nearest-location attributes. Call wework-yardi_list-cities (or the `cities` command) to discover valid city names first, then use this to inspect one.",
+      "method": "GET",
+      "path": "/wework-yardi/location/get-city-details",
+      "params": [
+        {
+          "name": "city",
+          "type": "string",
+          "location": "query",
+          "description": "City"
+        }
+      ]
+    },
+    {
+      "name": "wework-yardi_list-amenities",
+      "description": "List amenities for locations. Optional: amenity_uuids, location_uuids, page_size. Returns array of WeworkYardiListAmenitiesItem.",
+      "method": "GET",
+      "path": "/wework-yardi/booking/start-locations-for-amenities-list",
+      "params": [
+        {
+          "name": "amenity_uuids",
+          "type": "string",
+          "location": "query",
+          "description": "Amenity uuids"
+        },
+        {
+          "name": "location_uuids",
+          "type": "string",
+          "location": "query",
+          "description": "Location uuids"
+        },
+        {
+          "name": "page_size",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        }
+      ]
+    },
+    {
+      "name": "wework-yardi_list-cities",
+      "description": "Returns every city where WeWork desks can be booked (~842), each with its market geo (latitude/longitude) and nearest location. The geo is used to derive the bounding box that the desk/location search endpoints require.",
+      "method": "GET",
+      "path": "/wework-yardi/location/get-affiliate-cities",
+      "params": []
+    },
+    {
+      "name": "wework-yardi_list-locations-by-geo",
+      "description": "List WeWork buildings within a geo bounding box. Optional: city, boundnwLat, boundnwLng (plus 7 more). Returns array of Location.",
+      "method": "GET",
+      "path": "/wework-yardi/ondemand/get-locations-by-geo",
+      "params": [
+        {
+          "name": "city",
+          "type": "string",
+          "location": "query",
+          "description": "City"
+        },
+        {
+          "name": "boundnwLat",
+          "type": "float",
+          "location": "query",
+          "description": "Boundnw lat"
+        },
+        {
+          "name": "boundnwLng",
+          "type": "float",
+          "location": "query",
+          "description": "Boundnw lng"
+        },
+        {
+          "name": "boundseLat",
+          "type": "float",
+          "location": "query",
+          "description": "Boundse lat"
+        },
+        {
+          "name": "boundseLng",
+          "type": "float",
+          "location": "query",
+          "description": "Boundse lng"
+        },
+        {
+          "name": "userLatitude",
+          "type": "float",
+          "location": "query",
+          "description": "User latitude"
+        },
+        {
+          "name": "userLongitude",
+          "type": "float",
+          "location": "query",
+          "description": "User longitude"
+        },
+        {
+          "name": "accountUUID",
+          "type": "string",
+          "location": "query",
+          "description": "Account uuid"
+        },
+        {
+          "name": "isAuthenticated",
+          "type": "bool",
+          "location": "query",
+          "description": "Is authenticated"
+        },
+        {
+          "name": "isOnDemandUser",
+          "type": "bool",
+          "location": "query",
+          "description": "Is on demand user"
+        }
+      ]
+    }
+  ]
+}

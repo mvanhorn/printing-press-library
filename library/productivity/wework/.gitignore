@@ -1,0 +1,18 @@
+# Built binaries
+/wework-pp-cli
+/wework-pp-mcp
+*.exe
+
+# Build / stage output
+/build/
+/dist/
+
+# Local state, caches, credentials
+*.db
+*.sqlite
+*.sqlite3
+/.printing-press-pii-polish.json
+
+# OS / editor
+.DS_Store
+*.swp

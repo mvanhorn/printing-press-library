@@ -1,0 +1,140 @@
+{
+  "api": "wework-workplaceone",
+  "display_name": "WeWork WorkplaceOne",
+  "base_url": "https://members.wework.com/workplaceone/api",
+  "captured_via": "claude-in-chrome browser-sniff against authenticated members.wework.com session (desk-bookings flow)",
+  "captured_at": "2026-08-12",
+  "auth": {
+    "type": "composed-bearer",
+    "headers": [
+      "authorization: Bearer <auth0 JWT>",
+      "weworkuuid: <member/account uuid>",
+      "weworkmembertype: <member type code>"
+    ],
+    "constant_headers": ["request-source", "fe-pg"],
+    "token_source": "auth0 SPA cache (@@auth0spajs@@ localStorage) — obtained via browser login",
+    "token_lifetime": "short-lived JWT; expires (typical auth0 access-token TTL). CLI must re-import from a live browser session when expired.",
+    "env_vars": ["WEWORK_TOKEN", "WEWORK_UUID", "WEWORK_MEMBER_TYPE"]
+  },
+  "endpoints": [
+    {
+      "name": "cities",
+      "method": "GET",
+      "path": "/wework-yardi/location/get-affiliate-cities",
+      "params": [],
+      "auth_required": true,
+      "verify_safe": true,
+      "notes": "Returns ~842 bookable cities. No params. Best first/health-adjacent read command. Provides marketgeo lat/lng used to derive bounding boxes for desk/location search.",
+      "response_schema": {
+        "_root": "array",
+        "item": {
+          "name": "string",
+          "marketgeo": {"id": "string", "latitude": "number", "longitude": "number", "name": "string", "name_abbreviation": "string"},
+          "countrygeo": {"id": "string", "iso": "string", "latitude": "number", "longitude": "number", "name": "string", "name_abbreviation": "string"},
+          "nearby_location": {"uuid": "string", "default_name": "string", "default_country": "string", "latitude": "number", "longitude": "number", "time_zone": "string", "city": "string", "state": "string", "zip": "string", "address": "string", "is_open": "boolean", "is_favorite": "boolean", "is_published": "boolean", "on_demand_enabled": "boolean", "brand_name": "string"},
+          "nearby_locations_count": "number"
+        }
+      }
+    },
+    {
+      "name": "locations-by-geo",
+      "method": "GET",
+      "path": "/wework-yardi/ondemand/get-locations-by-geo",
+      "params": ["accountUUID", "boundnwLat", "boundnwLng", "boundseLat", "boundseLng", "city", "isAuthenticated", "isOnDemandUser", "userLatitude", "userLongitude"],
+      "auth_required": true,
+      "response_schema": {"locationsByGeo": "array<location>"}
+    },
+    {
+      "name": "affiliate-locations",
+      "method": "GET",
+      "path": "/spaces/get-affiliate-locations",
+      "params": ["boundnwLat", "boundnwLng", "boundseLat", "boundseLng", "city", "date", "endDate", "platFormType", "type", "userLatitude", "userLongitude"],
+      "auth_required": true,
+      "notes": "Locations in a city/date window with availability. type=desk booking space type.",
+      "response_schema": {
+        "locationsByGeo": {
+          "_type": "array",
+          "item": {
+            "uuid": "string", "name": "string", "latitude": "number", "longitude": "number",
+            "address": {"line1": "string", "city": "string", "state": "string", "country": "string", "zip": "string"},
+            "timeZone": "string", "distance": "number", "brandName": "string", "hasThirdPartyDisplay": "boolean",
+            "image": "string", "isMigrated": "boolean", "spaceAvailabilityCount": "number", "accountType": "number",
+            "vastAmenities": {"_type": "array", "item": {"Id": "number", "Name": "string"}},
+            "affiliateSpaceType": "number",
+            "operatingHours": {"_type": "array", "item": {"dayOfWeek": "number", "day": "string", "open": "string", "close": "string", "isClosed": "boolean"}}
+          }
+        }
+      }
+    },
+    {
+      "name": "get-spaces",
+      "method": "GET",
+      "path": "/spaces/get-spaces",
+      "params": ["boundnwLat", "boundnwLng", "boundseLat", "boundseLng", "capacity", "closestCity", "date", "duration", "endDate", "isFromWp", "isWeb", "limit", "locationOffset", "locationType", "locationUUIDs", "offset", "platFormType", "roomTypeFilter", "type", "userLatitude", "userLongitude"],
+      "auth_required": true,
+      "notes": "PRIMARY desk-search endpoint. Returns bookable shared workspaces (desks) with credits/price/seat availability. locationUUIDs narrows to specific buildings; bounds+city define the search area.",
+      "response_schema": {
+        "limit": "number", "offset": "number",
+        "getSharedWorkspaces": {
+          "workspaces": {
+            "_type": "array",
+            "item": {
+              "uuid": "string", "inventoryUuid": "string", "imageUrl": "string", "headerImageUrl": "string",
+              "capacity": "number", "credits": "number",
+              "location": {
+                "description": "string", "supportEmail": "string", "phoneNormalized": "string", "currency": "string",
+                "amenities": {"_type": "array", "item": {"uuid": "string", "name": "string", "highlight": "boolean"}},
+                "timeZoneIdentifier": "string", "timeZoneWinId": "string",
+                "images": {"_type": "array", "item": {"url": "string"}},
+                "kubeProperty": {"Id": "number", "Latitude": "number", "Longitude": "number", "VoyagerPropertyId": "number"},
+                "uuid": "string", "name": "string", "latitude": "number", "longitude": "number",
+                "address": {"line1": "string", "city": "string", "state": "string", "country": "string", "zip": "string"},
+                "distance": "number", "spaceAvailabilityCount": "number", "accountType": "number", "affiliateSpaceType": "number"
+              },
+              "openTime": "string", "closeTime": "string", "cancellationPolicy": "string",
+              "operatingHours": {"_type": "array", "item": {"dayOfWeek": "number", "day": "string", "open": "string", "close": "string", "isClosed": "boolean"}},
+              "productPrice": {"uuid": "string", "productUuid": "string", "price": {"currency": "string", "amount": "number"}, "rateUnit": "number"},
+              "seat": {"total": "number", "available": "number"}, "seatsAvailable": "number",
+              "order": "number", "isHybridSpace": "boolean", "MinAdvanceBookingRequestHours": "number", "SpaceTypeID": "number"
+            }
+          },
+          "totalCount": "number"
+        }
+      }
+    },
+    {
+      "name": "amenities-list",
+      "method": "GET",
+      "path": "/wework-yardi/booking/start-locations-for-amenities-list",
+      "params": ["amenity_uuids", "location_uuids", "page_size"],
+      "auth_required": true,
+      "response_schema": "array"
+    },
+    {
+      "name": "upcoming-bookings",
+      "method": "GET",
+      "path": "/common-booking/upcoming-bookings",
+      "params": [],
+      "auth_required": true,
+      "verify_safe": true,
+      "notes": "Current user's upcoming bookings (empty for this test account).",
+      "response_schema": {"WeWorkBookings": "array", "AllowReservation": "boolean", "IsInactive": "boolean"}
+    },
+    {
+      "name": "recents-and-favorites",
+      "method": "GET",
+      "path": "/recent-and-favorite/v2/get-recents-and-favorite-location-data",
+      "params": ["requestType", "spaceType"],
+      "auth_required": true,
+      "response_schema": {"FavoriteLocations": "array"}
+    }
+  ],
+  "not_captured": [
+    "Booking create/confirm (POST) — deliberately NOT triggered (would place a real desk reservation). Scope chosen: read-first. Booking mutation lives behind the desk-detail 'confirm' flow under /common-booking or /wework-yardi/booking; requires a separate, explicitly-consented capture to author safely.",
+    "get-city-details response schema (endpoint exists; not schematized)."
+  ],
+  "reachability": {
+    "mode": "browser_clearance_http",
+    "note": "members.wework.com/workplaceone/api/* is reachable via direct HTTPS with the composed-bearer headers replayed. No Cloudflare/WAF challenge observed on the XHR API host; auth is the gate, not bot-protection. Token is browser-session-derived."
+  }
+}
