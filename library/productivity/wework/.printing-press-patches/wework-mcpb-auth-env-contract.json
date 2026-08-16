@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "wework-mcpb-auth-env-contract",
+  "applied_at": "2026-08-15",
+  "base_run_id": "20260812-170930",
+  "base_printing_press_version": "4.30.2",
+  "summary": "fix(wework): declare the MCPB bearer-token environment contract",
+  "reason": "The MCP server accepts WEWORK_TOKEN, so the packaged MCPB manifest must map that variable to a sensitive required user-config field. Without the mapping, public-library manifest validation rejects the package and MCPB hosts cannot provision the token.",
+  "files": [
+    "manifest.json"
+  ],
+  "validated_outcome": "The public-library MCPB manifest verifier accepts the package and the declared token remains a sensitive user-config value rather than embedded data.",
+  "findings_addressed": [
+    "F1-mcpb-wework-token-env-mapping"
+  ]
+}
