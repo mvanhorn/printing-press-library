@@ -320,6 +320,56 @@ func TestOfflineIntervalsAndRepeatTreatFreestyleSentinelAsNoClass(t *testing.T) 
 	}
 }
 
+// TestOfflineRepeatIncludesPerformanceFacts guards a sixth live post-fix
+// verification sweep's finding: offline_repeat's own description says
+// "Compare two recorded workouts," but it returned no comparative data at
+// all -- just same_class, ride_id, and each workout's id/date -- even
+// though both workouts' already-synced "performance" records (samples,
+// summary) were available. repeatFact must include each workout's stored
+// performance record verbatim (raw facts, not a computed delta/ranking,
+// keeping this file's "factual, non-prescriptive" contract) when present,
+// and an explicit caveat -- not silence -- when it's genuinely missing.
+// seedOfflineFacts gives w1 a performance record and w2 none, so this
+// exercises both branches in one call.
+func TestOfflineRepeatIncludesPerformanceFacts(t *testing.T) {
+	home := t.TempDir()
+	seedOfflineFacts(t, home)
+
+	got, err := executeOffline(t, home, "offline", "repeat", "w1", "w2")
+	if err != nil {
+		t.Fatalf("offline repeat w1 w2: %v", err)
+	}
+	data, ok := got["data"].(map[string]any)
+	if !ok {
+		t.Fatalf("data=%#v", got["data"])
+	}
+	workouts, ok := data["workouts"].([]any)
+	if !ok || len(workouts) != 2 {
+		t.Fatalf("workouts=%#v", data["workouts"])
+	}
+	w1, ok := workouts[0].(map[string]any)
+	if !ok {
+		t.Fatalf("workouts[0]=%#v", workouts[0])
+	}
+	perf, ok := w1["performance"].(map[string]any)
+	if !ok {
+		t.Fatalf("w1 missing performance data: %#v", w1)
+	}
+	if _, ok := perf["samples"]; !ok {
+		t.Fatalf("w1 performance missing samples: %#v", perf)
+	}
+	w2, ok := workouts[1].(map[string]any)
+	if !ok {
+		t.Fatalf("workouts[1]=%#v", workouts[1])
+	}
+	if _, hasPerf := w2["performance"]; hasPerf {
+		t.Fatalf("w2 has no synced performance record but got one anyway: %#v", w2)
+	}
+	if cav, _ := w2["performance_caveat"].(string); cav == "" {
+		t.Fatalf("w2 missing a performance_caveat explaining the absent data: %#v", w2)
+	}
+}
+
 func TestOfflineOutputAvoidsCoachingSemantics(t *testing.T) {
 	home := t.TempDir()
 	seedOfflineFacts(t, home)

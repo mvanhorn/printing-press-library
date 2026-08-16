@@ -649,6 +649,15 @@ func walkTargetNumbers(value any, inTargetField bool, visit func(float64)) {
 func normalKey(key string) string {
 	return strings.ReplaceAll(strings.ReplaceAll(strings.ToLower(key), "_", ""), "-", "")
 }
+// repeatFact builds one side of offline_repeat's comparison: the workout's
+// id, recorded date, and its stored performance record (samples/summary)
+// verbatim, when available. Performance is included raw rather than as any
+// computed delta/ranking between the two workouts, keeping offline_repeat
+// consistent with this file's "factual, non-prescriptive" contract (see the
+// package-level comment above) while still giving a caller something to
+// actually compare -- a command literally named "repeat" that returned no
+// comparative data at all was surprising for callers expecting a
+// comparison, not just a same-class gate.
 func repeatFact(cmd *cobra.Command, id string) any {
 	out := map[string]any{"workout_id": id}
 	if f, e := offlineFact(cmd, "workouts", id); e == nil {
@@ -657,6 +666,11 @@ func repeatFact(cmd *cobra.Command, id string) any {
 	}
 	if out["recorded_at"] == "" {
 		out["caveat"] = "recorded date is unavailable"
+	}
+	if perf, e := offlineFact(cmd, "performance", id); e == nil {
+		out["performance"] = decodePayload(perf)
+	} else {
+		out["performance_caveat"] = "recorded performance graph is unavailable"
 	}
 	return out
 }
