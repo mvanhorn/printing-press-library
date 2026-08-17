@@ -1363,6 +1363,9 @@
         "Cross-List Item Search",
         "item search",
         "Find any item across all your shopping lists at once — shows which list it's on and whether it's checked.",
+        "Barcode Product Lookup",
+        "items lookup --barcode",
+        "Resolve a UPC/EAN through AnyList's product catalog before adding it, including canonical name, package size, and catalog thumbnail.",
         "Sync Cache Staleness Check",
         "sync status",
         "Report how fresh your local cache is per entity type, with exit code 1 if any data is stale."
@@ -1386,7 +1389,7 @@
           "stdio",
           "http"
         ],
-        "tool_count": 43,
+        "tool_count": 44,
         "public_tool_count": 0,
         "auth_type": "bearer_token",
         "env_vars": [
