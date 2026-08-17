@@ -129,7 +129,7 @@ Requires a Notion Internal Integration token. Create one at notion.so/my-integra
 
 ```bash
 # Paste your NOTION_TOKEN from notion.so/my-integrations
-notion-pp-cli auth set-token
+notion-pp-cli auth set-token "$NOTION_TOKEN"
 
 # Mirror your entire workspace to local SQLite — takes 30-120 seconds depending on workspace size
 notion-pp-cli sync --full
@@ -137,11 +137,11 @@ notion-pp-cli sync --full
 # Find everything untouched for 30+ days
 notion-pp-cli stale --days 30 --json
 
-# Get a hygiene scorecard for the whole workspace
-notion-pp-cli workspace-health
+# See what changed in the last week
+notion-pp-cli changed --since 7d --json
 
-# Raw SQL against the local store for custom queries
-notion-pp-cli sql "SELECT title, last_edited_time FROM pages ORDER BY last_edited_time DESC LIMIT 20" --agent
+# Search the local store for a page or record
+notion-pp-cli search "project kickoff" --agent
 
 ```
 
