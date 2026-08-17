@@ -6,6 +6,25 @@ module github.com/mvanhorn/printing-press-library/library/ai/v0/vzero
 // versions, and explicit /v0 or /v1 suffixes are invalid, so install paths use
 // this nested vzero module instead of ending at .../library/ai/v0.
 //
+// Invariants for future reprints and hand repairs:
+// - keep .printing-press.json in the parent v0 catalog directory;
+// - keep README/SKILL public installer examples on `install v0`;
+// - keep direct Go fallback examples pointed at this vzero module;
+// - keep npm install mapping from the v0 registry entry to this module;
+// - keep cmd/v0-pp-cli and cmd/v0-pp-mcp binary names unchanged;
+// - keep local config/data/cache names tied to v0-pp-cli;
+// - keep release tags tied to v0-current;
+// - do not introduce a second catalog entry named vzero;
+// - do not move this module back to the parent v0 directory;
+// - if Go semantic import versioning rules change, re-evaluate this split;
+// - if a future public v1 CLI appears, avoid a trailing /v1 install module too;
+// - if registry generation gains an explicit module override field, prefer that
+//   over npm-side special casing and keep this note in sync;
+// - if this nested module is regenerated, update imports to this full module
+//   path before running gofmt, go vet, and go test;
+// - if direct installs fail, first verify `go list ./cmd/v0-pp-cli` from this
+//   directory prints the full vzero import path below.
+//
 go 1.26.6
 
 require (
