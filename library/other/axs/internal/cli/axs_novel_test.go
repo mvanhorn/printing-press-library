@@ -4,6 +4,7 @@
 package cli
 
 import (
+	"encoding/json"
 	"strings"
 	"testing"
 	"time"
@@ -149,5 +150,20 @@ func TestSummaryFirmwareVersionAcceptsNumericFallback(t *testing.T) {
 	})
 	if !ok || got != "12" {
 		t.Fatalf("summaryFirmwareVersion() = %q, %v; want 12, true", got, ok)
+	}
+}
+
+func TestWearBatteryStatusPreservesZero(t *testing.T) {
+	row := &wearRow{}
+	applyWearBatteryStatus(row, map[string]any{"battery_status": float64(0)}, nil)
+	if row.BatteryStatus == nil || *row.BatteryStatus != 0 {
+		t.Fatalf("BatteryStatus = %v, want pointer to zero", row.BatteryStatus)
+	}
+	data, err := json.Marshal(row)
+	if err != nil {
+		t.Fatalf("json.Marshal() error = %v", err)
+	}
+	if !strings.Contains(string(data), `"battery_status":0`) {
+		t.Fatalf("wear JSON = %s, want explicit zero battery_status", data)
 	}
 }

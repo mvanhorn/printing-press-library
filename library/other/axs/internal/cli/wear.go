@@ -13,18 +13,18 @@ import (
 )
 
 type wearRow struct {
-	ID              string  `json:"id"`
-	Serial          string  `json:"serial,omitempty"`
-	Component       string  `json:"component,omitempty"`
-	DeviceType      string  `json:"device_type,omitempty"`
-	DeviceLabel     string  `json:"device_label,omitempty"`
-	TotalDistance   float64 `json:"total_distance,omitempty"`
-	ShiftCount      float64 `json:"shift_count,omitempty"`
-	FDShiftCount    float64 `json:"fd_shift_count,omitempty"`
-	RDShiftCount    float64 `json:"rd_shift_count,omitempty"`
-	ActuationCount  float64 `json:"actuation_count,omitempty"`
-	BatteryStatus   float64 `json:"battery_status,omitempty"`
-	FirmwareVersion string  `json:"firmware_version,omitempty"`
+	ID              string   `json:"id"`
+	Serial          string   `json:"serial,omitempty"`
+	Component       string   `json:"component,omitempty"`
+	DeviceType      string   `json:"device_type,omitempty"`
+	DeviceLabel     string   `json:"device_label,omitempty"`
+	TotalDistance   float64  `json:"total_distance,omitempty"`
+	ShiftCount      float64  `json:"shift_count,omitempty"`
+	FDShiftCount    float64  `json:"fd_shift_count,omitempty"`
+	RDShiftCount    float64  `json:"rd_shift_count,omitempty"`
+	ActuationCount  float64  `json:"actuation_count,omitempty"`
+	BatteryStatus   *float64 `json:"battery_status,omitempty"`
+	FirmwareVersion string   `json:"firmware_version,omitempty"`
 }
 
 func newNovelWearCmd(flags *rootFlags) *cobra.Command {
@@ -80,11 +80,7 @@ func newNovelWearCmd(flags *rootFlags) *cobra.Command {
 				if v, ok := gnum(detail, "actuation_count", "total_actuations"); ok {
 					row.ActuationCount += v
 				}
-				if v, ok := gnum(detail, "battery_status"); ok {
-					row.BatteryStatus = v
-				} else if v, ok := gnum(item, "battery_status"); ok {
-					row.BatteryStatus = v
-				}
+				applyWearBatteryStatus(row, detail, item)
 			}
 			rows := []wearRow{}
 			for _, row := range byKey {
@@ -109,6 +105,16 @@ func newNovelWearCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
 	return cmd
+}
+
+func applyWearBatteryStatus(row *wearRow, detail, item map[string]any) {
+	status, ok := gnum(detail, "battery_status")
+	if !ok {
+		status, ok = gnum(item, "battery_status")
+	}
+	if ok {
+		row.BatteryStatus = &status
+	}
 }
 
 func applyWearShiftCounts(row *wearRow, detail map[string]any) {
