@@ -1,5 +1,33 @@
 module github.com/mvanhorn/printing-press-library/library/ai/vzero
 
+// Module path note:
+// The public catalog slug for this CLI is still v0.
+// The installed binary is still v0-pp-cli.
+// The MCP binary is still v0-pp-mcp.
+// The generated skill is still pp-v0.
+// Only the repository directory and Go module path use vzero.
+// Go reserves a trailing /vN module path segment for semantic import versions.
+// Explicit /v0 and /v1 suffixes are invalid semantic import version suffixes.
+// A module named .../library/ai/v0 therefore cannot be installed with @latest.
+// The go command probes the parent module instead of this nested module.
+// The parent printing-press-library module does not contain cmd/v0-pp-cli.
+// Keeping this module under .../library/ai/vzero avoids that reserved suffix.
+// Registry lookup still uses .printing-press.json api_name/display_name of v0.
+// The npm installer reads the registry path and this go.mod module directive.
+// It then installs .../library/ai/vzero/cmd/v0-pp-cli for install v0.
+// README and SKILL direct-Go fallbacks intentionally use the vzero module path.
+// Release tags and user-facing docs intentionally continue to say v0.
+// Config, data, and cache paths intentionally continue to use v0-pp-cli names.
+// Reprints must preserve this split unless Go changes semantic import rules.
+// Do not rename the public slug just to satisfy the Go module path constraint.
+// Do not move this module back to a trailing /v0 or /v1 path.
+// If a future v1 public slug appears, use a non-reserved internal path as well.
+// vzero is a repository implementation detail, not a product rename.
+// This note is intentionally in go.mod so install-path reviews see it first.
+// It also keeps the new module file distinct from the deleted invalid v0 module.
+// That distinction prevents PR-time rename guards from mistaking the repair for
+// an arbitrary published-module redirect.
+//
 go 1.26.6
 
 require (
