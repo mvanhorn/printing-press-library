@@ -83,14 +83,15 @@ jobs:
             low_water_mark="$(git rev-parse "$legacy_release_commit^")"
           fi
 
-          if [ -n "$MANUAL_CHANGED_FROM" ] || [ -n "$MANUAL_CHANGED_TO" ]; then
-            # Explicit workflow_dispatch inputs are an escape hatch for
-            # repairing or replaying a deliberately chosen range.
+          changed_from="$low_water_mark"
+          changed_to="$EVENT_SHA"
+          # Explicit workflow_dispatch inputs are independent escape hatches
+          # for repairing or replaying a deliberately chosen range.
+          if [ -n "$MANUAL_CHANGED_FROM" ]; then
             changed_from="$MANUAL_CHANGED_FROM"
+          fi
+          if [ -n "$MANUAL_CHANGED_TO" ]; then
             changed_to="$MANUAL_CHANGED_TO"
-          else
-            changed_from="$low_water_mark"
-            changed_to="$EVENT_SHA"
           fi
           if [ -z "$changed_from" ] || [ "$changed_from" = "0000000000000000000000000000000000000000" ]; then
             changed_from="$(git rev-list --max-parents=0 HEAD | tail -n 1)"
