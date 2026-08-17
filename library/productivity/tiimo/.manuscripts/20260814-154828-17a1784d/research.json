@@ -1,0 +1,290 @@
+{
+  "api_name": "tiimo",
+  "novelty_score": 10,
+  "alternatives": [],
+  "gaps": [
+    "No mood or energy endpoint was found during discovery.",
+    "No focus-timer session endpoint was found; timer state appears folded into an activity's actual duration and paused duration.",
+    "The AI Co-planner service at ai.tiimoapp.com was observed but not probed.",
+    "The routines item schema is unverified because the discovery account had no saved routines."
+  ],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-14T21:20:00Z",
+  "novel_features": [
+    {
+      "name": "Export",
+      "command": "export",
+      "description": "Stream a paginated resource straight to JSON or JSONL. Use backup for a whole-planner snapshot and feed for calendar or spreadsheet formats.",
+      "rationale": "Tiimo declines data export as a stated design decision, so only an external tool can put your own schedule in your hands.",
+      "example": "tiimo-pp-cli export profiles --format json",
+      "why_it_matters": "Reach for this to pull one resource as a stream; for everything at once use backup, and for a calendar file use feed.",
+      "group": "Your data, out of the app"
+    },
+    {
+      "name": "Calendar feed",
+      "command": "feed",
+      "description": "Generate a subscribable read-only iCalendar file of your Tiimo activities.",
+      "rationale": "Users asked for exactly this as a compromise on two-way calendar sync and were declined; the local mirror makes it a one-liner.",
+      "example": "tiimo-pp-cli feed --out ~/tiimo.ics --days 30",
+      "why_it_matters": "Use this to make Tiimo activities visible inside any calendar client without giving that client write access.",
+      "group": "Your data, out of the app"
+    },
+    {
+      "name": "Local backup",
+      "command": "backup",
+      "description": "Write every mirrored record - activities, to-dos, tags, routines, calendars - to one portable JSON snapshot. This is the whole-planner export Tiimo does not offer.",
+      "rationale": "A product that declines to export your data offers no lock-in insurance; a schema-independent snapshot of the local mirror is that insurance.",
+      "example": "tiimo-pp-cli backup --out ~/tiimo-backups",
+      "why_it_matters": "This is the command to reach for when the user says they want their Tiimo data out. Use it before any bulk change, or on a schedule.",
+      "group": "Your data, out of the app"
+    },
+    {
+      "name": "Plan-versus-actual drift",
+      "command": "drift",
+      "description": "Show which activities consistently start late, overrun, or spend the most time paused.",
+      "rationale": "Requires joining planned start and duration against the actual start, actual duration, and paused time across months of history - Tiimo records all of it and surfaces almost none of it.",
+      "example": "tiimo-pp-cli drift --days 30 --agent",
+      "why_it_matters": "Reach for this when the user asks why their schedule never holds, or which task always blows its estimate.",
+      "group": "Plan versus reality"
+    },
+    {
+      "name": "Checklist stall points",
+      "command": "stalls",
+      "description": "Find the exact checklist step where a multi-step routine tends to break down.",
+      "rationale": "Needs per-step checked state and timestamps across many days of nested checklists, which no single API response exposes.",
+      "example": "tiimo-pp-cli stalls --weeks 8",
+      "why_it_matters": "Use when a routine keeps failing and the user does not know which step is the blocker.",
+      "group": "Plan versus reality"
+    },
+    {
+      "name": "Routine adherence",
+      "command": "adherence",
+      "description": "Completion rate for each recurring activity over a window.",
+      "rationale": "Requires historical snapshots of recurring activities in the local store; the API only ever returns the current window.",
+      "example": "tiimo-pp-cli adherence --weeks 4 --agent",
+      "why_it_matters": "Use to answer how reliably a habit is actually being kept, rather than whether it exists on the calendar.",
+      "group": "Plan versus reality"
+    },
+    {
+      "name": "Overlap detection",
+      "command": "overlaps",
+      "description": "List activities that are double-booked against each other.",
+      "rationale": "Requested on Tiimo's feedback board and never shipped; a local interval join over the timeline answers it directly.",
+      "example": "tiimo-pp-cli overlaps --from 2026-08-14 --to 2026-08-21",
+      "why_it_matters": "Use before committing to a plan, or when the user suspects their day is over-scheduled.",
+      "group": "Timeline intelligence"
+    },
+    {
+      "name": "Free-gap finder",
+      "command": "gaps",
+      "description": "Find the unscheduled windows in a day that are at least a given length.",
+      "rationale": "Users asked for visualization of gaps in the day; the complement of scheduled intervals is a local computation.",
+      "example": "tiimo-pp-cli gaps --min 30m --from 2026-08-14",
+      "why_it_matters": "Use when fitting something new into an existing day without opening the app.",
+      "group": "Timeline intelligence"
+    },
+    {
+      "name": "Rolling window",
+      "command": "rolling",
+      "description": "List the next N days of activities starting from today, grouped by day - a rolling window rather than Tiimo's fixed Monday-to-Sunday week.",
+      "rationale": "Tiimo's fixed week view means the following week arrives unannounced; a rolling window is trivial from the local mirror.",
+      "example": "tiimo-pp-cli rolling --days 7",
+      "why_it_matters": "Use for a forward-looking view that does not reset at an arbitrary week boundary.",
+      "group": "Timeline intelligence"
+    },
+    {
+      "name": "Day capacity",
+      "command": "capacity",
+      "description": "Committed versus free minutes per day, broken down by time-of-day bucket.",
+      "rationale": "Requires summing activity durations per grouping bucket, which the app never totals for you.",
+      "example": "tiimo-pp-cli capacity --from 2026-08-14 --to 2026-08-21 --agent",
+      "why_it_matters": "Use to judge whether a day has real room left before agreeing to add something to it.",
+      "group": "Timeline intelligence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Export",
+      "command": "export",
+      "description": "Stream a paginated resource straight to JSON or JSONL. Use backup for a whole-planner snapshot and feed for calendar or spreadsheet formats.",
+      "rationale": "Tiimo declines data export as a stated design decision, so only an external tool can put your own schedule in your hands.",
+      "example": "tiimo-pp-cli export profiles --format json",
+      "why_it_matters": "Reach for this to pull one resource as a stream; for everything at once use backup, and for a calendar file use feed.",
+      "group": "Your data, out of the app"
+    },
+    {
+      "name": "Calendar feed",
+      "command": "feed",
+      "description": "Generate a subscribable read-only iCalendar file of your Tiimo activities.",
+      "rationale": "Users asked for exactly this as a compromise on two-way calendar sync and were declined; the local mirror makes it a one-liner.",
+      "example": "tiimo-pp-cli feed --out ~/tiimo.ics --days 30",
+      "why_it_matters": "Use this to make Tiimo activities visible inside any calendar client without giving that client write access.",
+      "group": "Your data, out of the app"
+    },
+    {
+      "name": "Local backup",
+      "command": "backup",
+      "description": "Write every mirrored record - activities, to-dos, tags, routines, calendars - to one portable JSON snapshot. This is the whole-planner export Tiimo does not offer.",
+      "rationale": "A product that declines to export your data offers no lock-in insurance; a schema-independent snapshot of the local mirror is that insurance.",
+      "example": "tiimo-pp-cli backup --out ~/tiimo-backups",
+      "why_it_matters": "This is the command to reach for when the user says they want their Tiimo data out. Use it before any bulk change, or on a schedule.",
+      "group": "Your data, out of the app"
+    },
+    {
+      "name": "Plan-versus-actual drift",
+      "command": "drift",
+      "description": "Show which activities consistently start late, overrun, or spend the most time paused.",
+      "rationale": "Requires joining planned start and duration against the actual start, actual duration, and paused time across months of history - Tiimo records all of it and surfaces almost none of it.",
+      "example": "tiimo-pp-cli drift --days 30 --agent",
+      "why_it_matters": "Reach for this when the user asks why their schedule never holds, or which task always blows its estimate.",
+      "group": "Plan versus reality"
+    },
+    {
+      "name": "Checklist stall points",
+      "command": "stalls",
+      "description": "Find the exact checklist step where a multi-step routine tends to break down.",
+      "rationale": "Needs per-step checked state and timestamps across many days of nested checklists, which no single API response exposes.",
+      "example": "tiimo-pp-cli stalls --weeks 8",
+      "why_it_matters": "Use when a routine keeps failing and the user does not know which step is the blocker.",
+      "group": "Plan versus reality"
+    },
+    {
+      "name": "Routine adherence",
+      "command": "adherence",
+      "description": "Completion rate for each recurring activity over a window.",
+      "rationale": "Requires historical snapshots of recurring activities in the local store; the API only ever returns the current window.",
+      "example": "tiimo-pp-cli adherence --weeks 4 --agent",
+      "why_it_matters": "Use to answer how reliably a habit is actually being kept, rather than whether it exists on the calendar.",
+      "group": "Plan versus reality"
+    },
+    {
+      "name": "Overlap detection",
+      "command": "overlaps",
+      "description": "List activities that are double-booked against each other.",
+      "rationale": "Requested on Tiimo's feedback board and never shipped; a local interval join over the timeline answers it directly.",
+      "example": "tiimo-pp-cli overlaps --from 2026-08-14 --to 2026-08-21",
+      "why_it_matters": "Use before committing to a plan, or when the user suspects their day is over-scheduled.",
+      "group": "Timeline intelligence"
+    },
+    {
+      "name": "Free-gap finder",
+      "command": "gaps",
+      "description": "Find the unscheduled windows in a day that are at least a given length.",
+      "rationale": "Users asked for visualization of gaps in the day; the complement of scheduled intervals is a local computation.",
+      "example": "tiimo-pp-cli gaps --min 30m --from 2026-08-14",
+      "why_it_matters": "Use when fitting something new into an existing day without opening the app.",
+      "group": "Timeline intelligence"
+    },
+    {
+      "name": "Rolling window",
+      "command": "rolling",
+      "description": "List the next N days of activities starting from today, grouped by day - a rolling window rather than Tiimo's fixed Monday-to-Sunday week.",
+      "rationale": "Tiimo's fixed week view means the following week arrives unannounced; a rolling window is trivial from the local mirror.",
+      "example": "tiimo-pp-cli rolling --days 7",
+      "why_it_matters": "Use for a forward-looking view that does not reset at an arbitrary week boundary.",
+      "group": "Timeline intelligence"
+    },
+    {
+      "name": "Day capacity",
+      "command": "capacity",
+      "description": "Committed versus free minutes per day, broken down by time-of-day bucket.",
+      "rationale": "Requires summing activity durations per grouping bucket, which the app never totals for you.",
+      "example": "tiimo-pp-cli capacity --from 2026-08-14 --to 2026-08-21 --agent",
+      "why_it_matters": "Use to judge whether a day has real room left before agreeing to add something to it.",
+      "group": "Timeline intelligence"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "TIIMO_TOKEN"
+  },
+  "narrative": {
+    "display_name": "Tiimo",
+    "headline": "Your Tiimo plan, finally exportable, queryable, and yours.",
+    "value_prop": "Tiimo has no public API and declines to let you export your data or sync it back to a calendar. This CLI mirrors your own planner into local SQLite and gives you the surfaces the app will not: export to JSON, CSV, or iCalendar, a subscribable calendar feed, and analysis of what you planned versus what actually happened.",
+    "auth_narrative": "Tiimo authenticates through OpenID Connect at auth.tiimoapp.com. The simplest path is to set TIIMO_TOKEN to a bearer token for the tiimo_webapi scope; run `tiimo-pp-cli doctor` to confirm the token is accepted. Tokens are short-lived, so store a refresh token when available and let the CLI renew it.",
+    "quickstart": [
+      {
+        "command": "tiimo-pp-cli doctor",
+        "comment": "confirm the token is set and the API is reachable before anything else"
+      },
+      {
+        "command": "tiimo-pp-cli sync --since 90d",
+        "comment": "mirror the last 90 days of activities into local SQLite so reads are offline and fast"
+      },
+      {
+        "command": "tiimo-pp-cli today",
+        "comment": "the plan for today, grouped the way the app groups it"
+      },
+      {
+        "command": "tiimo-pp-cli feed --out tiimo.ics --days 30",
+        "comment": "the headline: your plan as a calendar file, which Tiimo itself will not give you"
+      },
+      {
+        "command": "tiimo-pp-cli drift --days 30",
+        "comment": "what actually happened versus what you planned"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "doctor reports 401 Unauthorized",
+        "fix": "The bearer token has expired. Tiimo access tokens are short-lived; refresh it and re-export TIIMO_TOKEN."
+      },
+      {
+        "symptom": "Commands return no rows even though the app shows activities",
+        "fix": "The local mirror is empty or stale. Run `tiimo-pp-cli sync --since 90d`."
+      },
+      {
+        "symptom": "400 with a fromDate validation error",
+        "fix": "The activities endpoint requires a date window. Pass --from and --to, or let sync supply defaults."
+      },
+      {
+        "symptom": "An activity will not update and reports read-only",
+        "fix": "It came from a linked external calendar. Edit it in the source calendar; Tiimo treats imported events as read-only."
+      }
+    ],
+    "when_to_use": "Use this CLI for any task involving a Tiimo user's schedule, routines, or to-do list: reading what is planned, capturing new tasks or activities, checking things off, and above all getting the data out of Tiimo. It is the only way to export Tiimo data or analyze planned-versus-actual behavior, because the product itself offers neither.",
+    "anti_triggers": [
+      "Do not use this CLI for generic calendar work that is not in Tiimo; use the calendar provider's own tooling.",
+      "Do not use it to edit events that came from a linked external calendar - those are read-only in Tiimo and must be changed at the source.",
+      "Do not use it for mood, energy, or focus-timer history; no API surface for those was found.",
+      "Do not use it to reach Tiimo's AI Co-planner; that is a separate service this CLI does not wrap."
+    ],
+    "recipes": [
+      {
+        "title": "Brain-dump a list of tasks",
+        "command": "tiimo-pp-cli todo add --stdin",
+        "explanation": "Capture is the whole point for the target user, so the CLI takes one task per line on stdin. Pipe into it (printf 'call pharmacy\\nbook dentist\\n' | tiimo-pp-cli todo add --stdin) or redirect a file with \u003c tasks.txt; blank lines are skipped and each line becomes its own task."
+      },
+      {
+        "title": "Narrow a deeply nested activity payload for an agent",
+        "command": "tiimo-pp-cli agenda --from 2026-08-14 --to 2026-08-21 --agent --select title,startTime,duration,completedAt,checklist.isCompleted",
+        "explanation": "Activities carry dozens of fields including nested checklists and recurrence; selecting a handful keeps the response small enough to reason over."
+      },
+      {
+        "title": "Find a free hour this week",
+        "command": "tiimo-pp-cli gaps --min 60m --from 2026-08-14 --to 2026-08-21",
+        "explanation": "Returns the unscheduled windows long enough to actually use, without opening the app."
+      },
+      {
+        "title": "Publish a calendar feed your other tools can subscribe to",
+        "command": "tiimo-pp-cli feed --out ~/Public/tiimo.ics --days 60",
+        "explanation": "Produces the read-only calendar view Tiimo users asked for and were told would not be built."
+      },
+      {
+        "title": "See which routine step keeps breaking",
+        "command": "tiimo-pp-cli stalls --weeks 8 --agent",
+        "explanation": "Aggregates per-step checklist completion so the failure point is a fact rather than a guess."
+      }
+    ],
+    "trigger_phrases": [
+      "what's on my Tiimo plan today",
+      "add a task to my to-do list",
+      "export my Tiimo data",
+      "how much free time do I have this week",
+      "which of my routines am I actually keeping",
+      "use tiimo",
+      "run tiimo"
+    ]
+  }
+}

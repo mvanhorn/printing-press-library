@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "planner-exports-land-in-private-directories",
+  "applied_at": "2026-08-14",
+  "base_run_id": "20260814-154828-17a1784d",
+  "base_printing_press_version": "4.30.2",
+  "summary": "Directories this CLI creates for backup and feed output are 0700, matching the 0600 the files themselves already carry, because everything it writes is one person's schedule.",
+  "reason": "backup and feed deliberately write 0600 files, then created their parent directory 0755, so the filenames and the directory listing stayed world-readable. gosec G301 flags it and the inconsistency was unintentional rather than a considered trade-off. A separate G202 on the legacy-database VACUUM INTO is a false positive kept narrow with an inline suppression: SQLite takes a string literal there, the path is process-derived, and single quotes are already doubled.",
+  "files": ["internal/cli/backup.go", "internal/cli/feed.go", "internal/platform/migration.go"],
+  "validated_outcome": "gosec findings in hand-authored files went from 3 to 0; a fresh backup directory is created drwx------."
+}

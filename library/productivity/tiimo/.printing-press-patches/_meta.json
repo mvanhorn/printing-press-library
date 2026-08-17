@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "upstream_tracking": [
+    "syncResourcePath() omits parent-scoped resources",
+    "extractObjectID() does not recognize <resource>Id naming",
+    "generated subcommand parents ship without an Examples section and fail the dogfood help check",
+    "generated go.mod pinned a vulnerable golang.org/x/text",
+    "scorecard live sample probe intermittently SIGBUSes",
+    "verify-skill resolves a command path by walking literal rootCmd.AddCommand calls, so novel commands registered through addNovelCommandIfAbsent fall through to a leaf-name heuristic and resolve to the wrong file when leaves collide",
+    "helpers.go emits collectionItemsForOutput even when no generated command calls it, so every such CLI ships a dead helper and loses a Dead Code scorecard point",
+    "the learn-loop template's 'learnings list' Short omits its own filters (--query, --warnings, --min-confidence, --limit), and the file is DO-NOT-EDIT so it cannot be fixed per-CLI",
+    "dogfood syncs the manifest's novel_features from research.json but leaves the manifest's novel_features_built stale, so the two disagree after a description edit",
+    "scorecard --live-check EXECUTES narrative examples verbatim, so an example carrying --output writes real account data into the CLI package directory; a run of `export profiles --format json --output tiimo-profiles.json` left a file containing a live profile UUID and the account holder's given name at the CLI root, where publish would have shipped it",
+    "pii-audit does not flag a standalone given name in a stray package-root artifact, and there is no stray-file check before publish; both would have caught the above",
+    "dogfood --live executes pp:happy-args for MUTATING commands against the real account with no cleanup contract, so every run writes real records and a title-resolving mutator (todo rm, done) can alter or destroy user data; there is no annotation to mark a command write-unsafe for live probing",
+    "TWO harnesses execute mutating commands for real and neither is detectable from the environment alone: `verify --api-key` sets no PRINTING_PRESS_VERIFY (that variable means 'mock the wire', so live mode omits it), leaving a CLI that guards on the env var wide open under live verify",
+    "for a parent command that declares no pp:happy-args, dogfood SCRAPES a runnable example out of the help prose and executes it live; the `todo` group's Long text caused `todo add \"book dentist\"` to run twice and create two real to-dos, so annotation-level write-safety controls are bypassable by documentation text",
+    "the live matrix MERGES flags harvested from a command's help Example into the flags supplied by pp:happy-args, so a documented-but-unsafe flag executes even when the annotation is safe; the generator's stock `export` example carries `--output data.jsonl`, which ran with the CLI package root as cwd and wrote a live profile id and account name into the directory publish collects for a public repo",
+    "verify classifies OPTIONAL auth env vars as required per-call: TIIMO_SKIP_TLS_VERIFY (a TLS-bypass toggle) and TIIMO_TOKEN_URL (an OIDC endpoint override) each score 0 critical when unset, capping an otherwise-passing live verify at 97% and inviting the operator to export a TLS-bypass flag just to get a green run"
+  ]
+}
