@@ -117,7 +117,7 @@ func TestApplyWearShiftCountsDoesNotDoubleCountTotal(t *testing.T) {
 	applyWearShiftCounts(row, map[string]any{
 		"shift_count":    float64(20),
 		"fd_shift_count": float64(3),
-	})
+	}, nil)
 	if row.ShiftCount != 20 {
 		t.Fatalf("ShiftCount = %v, want total shift_count without adding fd again", row.ShiftCount)
 	}
@@ -129,9 +129,20 @@ func TestApplyWearShiftCountsDoesNotDoubleCountTotal(t *testing.T) {
 	applyWearShiftCounts(row, map[string]any{
 		"rd_shift_count": float64(17),
 		"fd_shift_count": float64(3),
-	})
+	}, nil)
 	if row.ShiftCount != 20 || row.RDShiftCount != 17 || row.FDShiftCount != 3 {
 		t.Fatalf("counts = total:%v rd:%v fd:%v, want 20/17/3", row.ShiftCount, row.RDShiftCount, row.FDShiftCount)
+	}
+}
+
+func TestApplyWearShiftCountsFallsBackToItem(t *testing.T) {
+	row := &wearRow{}
+	applyWearShiftCounts(row, nil, map[string]any{
+		"rd_shift_count": float64(17),
+		"fd_shift_count": float64(3),
+	})
+	if row.ShiftCount != 20 || row.RDShiftCount != 17 || row.FDShiftCount != 3 {
+		t.Fatalf("counts = total:%v rd:%v fd:%v, want item fallback 20/17/3", row.ShiftCount, row.RDShiftCount, row.FDShiftCount)
 	}
 }
 

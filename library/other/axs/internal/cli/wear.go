@@ -76,7 +76,7 @@ func newNovelWearCmd(flags *rootFlags) *cobra.Command {
 				if v, ok := gnum(detail, "distance", "total_distance"); ok {
 					row.TotalDistance += v
 				}
-				applyWearShiftCounts(row, detail)
+				applyWearShiftCounts(row, detail, item)
 				if v, ok := gnum(detail, "actuation_count", "total_actuations"); ok {
 					row.ActuationCount += v
 				}
@@ -117,10 +117,19 @@ func applyWearBatteryStatus(row *wearRow, detail, item map[string]any) {
 	}
 }
 
-func applyWearShiftCounts(row *wearRow, detail map[string]any) {
+func applyWearShiftCounts(row *wearRow, detail, item map[string]any) {
 	rd, hasRD := gnum(detail, "rd_shift_count")
+	if !hasRD {
+		rd, hasRD = gnum(item, "rd_shift_count")
+	}
 	total, hasTotal := gnum(detail, "shift_count")
+	if !hasTotal {
+		total, hasTotal = gnum(item, "shift_count")
+	}
 	fd, hasFD := gnum(detail, "fd_shift_count")
+	if !hasFD {
+		fd, hasFD = gnum(item, "fd_shift_count")
+	}
 	if hasRD {
 		row.RDShiftCount += rd
 		row.ShiftCount += rd
