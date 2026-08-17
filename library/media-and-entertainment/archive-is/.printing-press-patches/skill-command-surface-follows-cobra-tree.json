@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "skill-command-surface-follows-cobra-tree",
+  "applied_at": "2026-08-17",
+  "base_run_id": "20260410-233336",
+  "base_printing_press_version": "1.2.1",
+  "summary": "Keep archive-is skill and agent-guide command references aligned with the actual nested Cobra command tree.",
+  "reason": "The published skill had stale top-level check and newest entries from an older graph; agents must be directed to implemented forms such as snapshots, snapshots newest, and request check.",
+  "files": [
+    "SKILL.md",
+    "AGENTS.md"
+  ],
+  "validated_outcome": "Verified command help exposes snapshots, snapshots newest, snapshots timemap, and request check while omitting top-level check, newest, archive, which, and agent-context."
+}

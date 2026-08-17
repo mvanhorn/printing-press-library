@@ -8,6 +8,8 @@ Bypass paywalls and look up web archives via archive.today. Looks up existing sn
 
 Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
 
+Contributors: [@tmchow](https://github.com/tmchow) (Trevin Chow).
+
 ## Install
 
 The recommended path installs both the `archive-is-pp-cli` binary and the `pp-archive-is` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

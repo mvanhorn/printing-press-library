@@ -93,12 +93,14 @@ Archive + retrieve:
 - `archive-is-pp-cli tldr <url>` — Fetch + summarize
 - `archive-is-pp-cli save <url>` — Force fresh capture
 - `archive-is-pp-cli request <url>` — Fire-and-forget submit
-- `archive-is-pp-cli check <url>` — Does an archive exist?
+- `archive-is-pp-cli request check <url>` — Check whether a submitted request has completed
 
 Listing + history:
 
 - `archive-is-pp-cli history <url>` — All known snapshots
-- `archive-is-pp-cli newest <url>` — Newest snapshot URL
+- `archive-is-pp-cli snapshots <url>` — Best known snapshot for a URL
+- `archive-is-pp-cli snapshots newest <url>` — Newest snapshot URL
+- `archive-is-pp-cli snapshots timemap <url>` — Raw Memento timemap
 - `archive-is-pp-cli captures` — Local capture index
 - `archive-is-pp-cli feeds` — Global recent feed
 
@@ -108,7 +110,7 @@ Batch:
 
 Local store:
 
-- `archive-is-pp-cli sync` / `archive` / `export` / `import` — Local SQLite ops
+- `archive-is-pp-cli sync` / `export` / `import` / `workflow archive` — Local SQLite ops
 
 Auth + health:
 
