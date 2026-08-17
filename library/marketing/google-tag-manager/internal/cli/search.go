@@ -98,6 +98,9 @@ measurement ids, stray vendor pixels, or leftover URLs. Run 'pull' first.`,
 				}
 				hits = append(hits, searchHit{Container: label[snapID], Kind: k, Name: name, Type: typ})
 			}
+			if err := rows.Err(); err != nil {
+				return err
+			}
 			return gtmEmit(cmd, flags, hits, func(w io.Writer) {
 				if len(hits) == 0 {
 					fmt.Fprintf(w, "no matches for %q\n", term)
