@@ -1,0 +1,392 @@
+{
+  "api_name": "peerspace",
+  "novelty_score": 8,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [
+    "browser_http",
+    "cookie_auth",
+    "offline_store"
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-16T10:54:15Z",
+  "novel_features": [
+    {
+      "name": "Budget scout",
+      "command": "scout budget",
+      "description": "Band market listings by hourly/day rate so you can see what a city+activity actually costs.",
+      "rationale": "Requires a local search snapshot and offline histogram math the website never exposes.",
+      "example": "peerspace-pp-cli scout budget --city Paris --activity meetup --band 50 --json",
+      "why_it_matters": "Use when planning a budget before deep-diving individual venues.",
+      "group": "Market intelligence"
+    },
+    {
+      "name": "Capacity bands",
+      "command": "scout capacity",
+      "description": "Histogram of guest capacity for a synced market so you can re-cut when headcount changes.",
+      "rationale": "Capacity is only a live filter on the web; banding needs the full local hit set.",
+      "example": "peerspace-pp-cli scout capacity --city Paris --activity meetup --band 10 --json",
+      "why_it_matters": "Use when guest count is the binding constraint, not price.",
+      "group": "Market intelligence"
+    },
+    {
+      "name": "Shortlist compare",
+      "command": "shortlist compare",
+      "description": "Join your favorites board to listing attributes for a sortable offline comparison table.",
+      "rationale": "fav_board returns IDs only; joining to price, capacity, and instant-book needs local listing cache plus cookie auth.",
+      "example": "peerspace-pp-cli shortlist compare --sort price --json",
+      "why_it_matters": "Use when deciding among saved venues without reopening browser tabs.",
+      "group": "Shortlist intelligence"
+    },
+    {
+      "name": "Multi-city market pulse",
+      "command": "markets pulse",
+      "description": "Cross-city rollup of median price, listing density, instant-book share, and capacity quantiles.",
+      "rationale": "Only possible by aggregating multiple local (city, activity) sync keys.",
+      "example": "peerspace-pp-cli markets pulse --city Paris --city Lyon --activity meetup --json",
+      "why_it_matters": "Use when comparing host cities for the same event type.",
+      "group": "Market intelligence"
+    },
+    {
+      "name": "Shortlist delta",
+      "command": "shortlist delta",
+      "description": "Show favorites added, removed, or changed since the last sync snapshot.",
+      "rationale": "Website favorites have no history; SQLite snapshots make deltas first-class.",
+      "example": "peerspace-pp-cli shortlist delta --json",
+      "why_it_matters": "Use to see what changed on your board without scrolling hearts.",
+      "group": "Shortlist intelligence"
+    },
+    {
+      "name": "Neighborhood market cut",
+      "command": "markets neighborhoods",
+      "description": "Per-neighborhood listing stats plus optional --vibe tech keyword signals from descriptions (WiFi, projector, transit) and a built-in tech-cluster map.",
+      "rationale": "Elasticsearch hits in SQLite enable GROUP BY neighborhood with no public analytics API.",
+      "example": "peerspace-pp-cli markets neighborhoods --city Paris --activity meetup --vibe tech --json",
+      "why_it_matters": "Use to pick tech-friendly neighborhoods before refining a shortlist.",
+      "group": "Market intelligence"
+    },
+    {
+      "name": "Similar-to-shortlist",
+      "command": "shortlist similar",
+      "description": "Find local listings near a favorite on capacity, price, and neighborhood.",
+      "rationale": "Mechanical similarity over the local hit set — no LLM, no website feature.",
+      "example": "peerspace-pp-cli shortlist similar --within-pct 20 --json",
+      "why_it_matters": "Use when a favorite is booked or too expensive and you need substitutes.",
+      "group": "Shortlist intelligence"
+    },
+    {
+      "name": "Project scout pack",
+      "command": "projects scout",
+      "description": "Combine project location metadata with fitting listings from the local store.",
+      "rationale": "Projects and search are separate API surfaces; only the CLI joins them.",
+      "example": "peerspace-pp-cli projects scout --json",
+      "why_it_matters": "Use when a saved project needs a ready market pack.",
+      "group": "Shortlist intelligence"
+    },
+    {
+      "name": "Sync coverage",
+      "command": "sync coverage",
+      "description": "Report which market query keys are present, row counts, and last-synced times.",
+      "rationale": "Offline commands fail silently without a sync metadata plane; the website has none.",
+      "example": "peerspace-pp-cli sync coverage --json",
+      "why_it_matters": "Use before scout/markets/sql so agents fail closed on empty markets.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Coordination pulse",
+      "command": "pulse",
+      "description": "One cookie-auth shot: message thread count, favorites summary, profile identity, and optional recent shortlist activity.",
+      "rationale": "Three authenticated GETs the UI never composes into a single agent payload.",
+      "example": "peerspace-pp-cli pulse --include-shortlist --json",
+      "why_it_matters": "Use for a daily inbox + shortlist health check without opening Peerspace.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Venue fit recommender",
+      "command": "venues recommend",
+      "description": "Rank synced venues for tech meetups/workshops by headcount, date window, budget, and vibe keywords.",
+      "rationale": "Requires local multi-field scoring over the hit set; the website only sorts relevance cards.",
+      "example": "peerspace-pp-cli venues recommend --guests 40 --budget-max 180 --vibe projector,wifi --json",
+      "why_it_matters": "Use when an agent or planner needs a ranked shortlist for a tech event, not a raw search scroll.",
+      "group": "Tech event planning"
+    },
+    {
+      "name": "Shortlist proposal bridge",
+      "command": "shortlist export",
+      "description": "Export favorites as clean JSON plus a markdown block (price, capacity, amenities, fit notes) for Eventbrite/Luma/Slack.",
+      "rationale": "Joins fav IDs to listing attributes and formats a handoff pack no website export provides.",
+      "example": "peerspace-pp-cli shortlist export --format markdown --json",
+      "why_it_matters": "Use when turning a Peerspace shortlist into a Luma/Eventbrite draft or Slack approval message.",
+      "group": "Shortlist intelligence"
+    },
+    {
+      "name": "Shortlist venue drift",
+      "command": "shortlist drift",
+      "description": "Track price and availability-field changes on favorites over time (Luma-style watch).",
+      "rationale": "Needs historical snapshots of joined favorite attributes in SQLite.",
+      "example": "peerspace-pp-cli shortlist drift --since 7d --json",
+      "why_it_matters": "Use to catch rate spikes or lost instant-book before you pitch a venue.",
+      "group": "Shortlist intelligence"
+    },
+    {
+      "name": "Amenity gap analysis",
+      "command": "scout gaps",
+      "description": "Surface missing tech-event must-haves (WiFi, AV/projector, late access, flexible seating, transit) on any shortlist.",
+      "rationale": "Maps amenity/keyword presence across favorites against a tech-event checklist stored locally.",
+      "example": "peerspace-pp-cli scout gaps --checklist tech-meetup --json",
+      "why_it_matters": "Use before finalizing a venue to see what each shortlist option lacks for a tech event.",
+      "group": "Tech event planning"
+    },
+    {
+      "name": "Multi-city campaign scout",
+      "command": "scout multi-city",
+      "description": "Cross-city comparison with top venue options per city under shared tech-event constraints.",
+      "rationale": "Fans out over multiple local market keys with one constraint set; website is multi-tab only.",
+      "example": "peerspace-pp-cli scout multi-city --city Paris --city Lyon --guests 30 --budget-max 200 --top 3 --json",
+      "why_it_matters": "Use for multi-city meetup tours or choosing a host city under the same constraints.",
+      "group": "Tech event planning"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Budget scout",
+      "command": "scout budget",
+      "description": "Band market listings by hourly/day rate so you can see what a city+activity actually costs.",
+      "rationale": "Requires a local search snapshot and offline histogram math the website never exposes.",
+      "example": "peerspace-pp-cli scout budget --city Paris --activity meetup --band 50 --json",
+      "why_it_matters": "Use when planning a budget before deep-diving individual venues.",
+      "group": "Market intelligence"
+    },
+    {
+      "name": "Capacity bands",
+      "command": "scout capacity",
+      "description": "Histogram of guest capacity for a synced market so you can re-cut when headcount changes.",
+      "rationale": "Capacity is only a live filter on the web; banding needs the full local hit set.",
+      "example": "peerspace-pp-cli scout capacity --city Paris --activity meetup --band 10 --json",
+      "why_it_matters": "Use when guest count is the binding constraint, not price.",
+      "group": "Market intelligence"
+    },
+    {
+      "name": "Shortlist compare",
+      "command": "shortlist compare",
+      "description": "Join your favorites board to listing attributes for a sortable offline comparison table.",
+      "rationale": "fav_board returns IDs only; joining to price, capacity, and instant-book needs local listing cache plus cookie auth.",
+      "example": "peerspace-pp-cli shortlist compare --sort price --json",
+      "why_it_matters": "Use when deciding among saved venues without reopening browser tabs.",
+      "group": "Shortlist intelligence"
+    },
+    {
+      "name": "Multi-city market pulse",
+      "command": "markets pulse",
+      "description": "Cross-city rollup of median price, listing density, instant-book share, and capacity quantiles.",
+      "rationale": "Only possible by aggregating multiple local (city, activity) sync keys.",
+      "example": "peerspace-pp-cli markets pulse --city Paris --city Lyon --activity meetup --json",
+      "why_it_matters": "Use when comparing host cities for the same event type.",
+      "group": "Market intelligence"
+    },
+    {
+      "name": "Shortlist delta",
+      "command": "shortlist delta",
+      "description": "Show favorites added, removed, or changed since the last sync snapshot.",
+      "rationale": "Website favorites have no history; SQLite snapshots make deltas first-class.",
+      "example": "peerspace-pp-cli shortlist delta --json",
+      "why_it_matters": "Use to see what changed on your board without scrolling hearts.",
+      "group": "Shortlist intelligence"
+    },
+    {
+      "name": "Neighborhood market cut",
+      "command": "markets neighborhoods",
+      "description": "Per-neighborhood listing stats plus optional --vibe tech keyword signals from descriptions (WiFi, projector, transit) and a built-in tech-cluster map.",
+      "rationale": "Elasticsearch hits in SQLite enable GROUP BY neighborhood with no public analytics API.",
+      "example": "peerspace-pp-cli markets neighborhoods --city Paris --activity meetup --vibe tech --json",
+      "why_it_matters": "Use to pick tech-friendly neighborhoods before refining a shortlist.",
+      "group": "Market intelligence"
+    },
+    {
+      "name": "Similar-to-shortlist",
+      "command": "shortlist similar",
+      "description": "Find local listings near a favorite on capacity, price, and neighborhood.",
+      "rationale": "Mechanical similarity over the local hit set — no LLM, no website feature.",
+      "example": "peerspace-pp-cli shortlist similar --within-pct 20 --json",
+      "why_it_matters": "Use when a favorite is booked or too expensive and you need substitutes.",
+      "group": "Shortlist intelligence"
+    },
+    {
+      "name": "Project scout pack",
+      "command": "projects scout",
+      "description": "Combine project location metadata with fitting listings from the local store.",
+      "rationale": "Projects and search are separate API surfaces; only the CLI joins them.",
+      "example": "peerspace-pp-cli projects scout --json",
+      "why_it_matters": "Use when a saved project needs a ready market pack.",
+      "group": "Shortlist intelligence"
+    },
+    {
+      "name": "Sync coverage",
+      "command": "sync coverage",
+      "description": "Report which market query keys are present, row counts, and last-synced times.",
+      "rationale": "Offline commands fail silently without a sync metadata plane; the website has none.",
+      "example": "peerspace-pp-cli sync coverage --json",
+      "why_it_matters": "Use before scout/markets/sql so agents fail closed on empty markets.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Coordination pulse",
+      "command": "pulse",
+      "description": "One cookie-auth shot: message thread count, favorites summary, profile identity, and optional recent shortlist activity.",
+      "rationale": "Three authenticated GETs the UI never composes into a single agent payload.",
+      "example": "peerspace-pp-cli pulse --include-shortlist --json",
+      "why_it_matters": "Use for a daily inbox + shortlist health check without opening Peerspace.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Venue fit recommender",
+      "command": "venues recommend",
+      "description": "Rank synced venues for tech meetups/workshops by headcount, date window, budget, and vibe keywords.",
+      "rationale": "Requires local multi-field scoring over the hit set; the website only sorts relevance cards.",
+      "example": "peerspace-pp-cli venues recommend --guests 40 --budget-max 180 --vibe projector,wifi --json",
+      "why_it_matters": "Use when an agent or planner needs a ranked shortlist for a tech event, not a raw search scroll.",
+      "group": "Tech event planning"
+    },
+    {
+      "name": "Shortlist proposal bridge",
+      "command": "shortlist export",
+      "description": "Export favorites as clean JSON plus a markdown block (price, capacity, amenities, fit notes) for Eventbrite/Luma/Slack.",
+      "rationale": "Joins fav IDs to listing attributes and formats a handoff pack no website export provides.",
+      "example": "peerspace-pp-cli shortlist export --format markdown --json",
+      "why_it_matters": "Use when turning a Peerspace shortlist into a Luma/Eventbrite draft or Slack approval message.",
+      "group": "Shortlist intelligence"
+    },
+    {
+      "name": "Shortlist venue drift",
+      "command": "shortlist drift",
+      "description": "Track price and availability-field changes on favorites over time (Luma-style watch).",
+      "rationale": "Needs historical snapshots of joined favorite attributes in SQLite.",
+      "example": "peerspace-pp-cli shortlist drift --since 7d --json",
+      "why_it_matters": "Use to catch rate spikes or lost instant-book before you pitch a venue.",
+      "group": "Shortlist intelligence"
+    },
+    {
+      "name": "Amenity gap analysis",
+      "command": "scout gaps",
+      "description": "Surface missing tech-event must-haves (WiFi, AV/projector, late access, flexible seating, transit) on any shortlist.",
+      "rationale": "Maps amenity/keyword presence across favorites against a tech-event checklist stored locally.",
+      "example": "peerspace-pp-cli scout gaps --checklist tech-meetup --json",
+      "why_it_matters": "Use before finalizing a venue to see what each shortlist option lacks for a tech event.",
+      "group": "Tech event planning"
+    },
+    {
+      "name": "Multi-city campaign scout",
+      "command": "scout multi-city",
+      "description": "Cross-city comparison with top venue options per city under shared tech-event constraints.",
+      "rationale": "Fans out over multiple local market keys with one constraint set; website is multi-tab only.",
+      "example": "peerspace-pp-cli scout multi-city --city Paris --city Lyon --guests 30 --budget-max 200 --top 3 --json",
+      "why_it_matters": "Use for multi-city meetup tours or choosing a host city under the same constraints.",
+      "group": "Tech event planning"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "REDACTED",
+    "headline": "Tech-event venue scout for Peerspace: search and filter spaces, rank fit for meetups/workshops, compare shortlists, export proposal packs for Luma/Eventbrite/Slack, and query markets offline.",
+    "value_prop": "Peerspace has no public API. peerspace-pp-cli wraps live venue search behind Surf transport, syncs listings into SQLite, then compounds them for tech meetup and workshop planners: budget/capacity bands, amenity gap analysis, multi-city campaign scouts, shortlist drift, and clean JSON/markdown export for Eventbrite/Luma drafts or Slack approval.",
+    "auth_narrative": "Public search and filters work without login (Surf clears Cloudflare). Favorites, profile, messages, and projects need a browser session: run `peerspace-pp-cli auth login --chrome` while logged into peerspace.com in Chrome.",
+    "quickstart": [
+      {
+        "command": "peerspace-pp-cli doctor --dry-run",
+        "comment": "Verify the CLI boots and transport is wired"
+      },
+      {
+        "command": "peerspace-pp-cli venues filters --activity meetup --json",
+        "comment": "Discover space types and amenities for an activity"
+      },
+      {
+        "command": "peerspace-pp-cli venues list --activity meetup --viewport-location paris--france --size 24 --json",
+        "comment": "Pull a live market snapshot"
+      },
+      {
+        "command": "peerspace-pp-cli scout budget --city Paris --activity meetup --json",
+        "comment": "Band prices offline after hydrate"
+      },
+      {
+        "command": "peerspace-pp-cli auth login --chrome",
+        "comment": "Import Chrome cookies for favorites and profile"
+      },
+      {
+        "command": "peerspace-pp-cli shortlist compare --json",
+        "comment": "Join favorites to listing attributes"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "HTTP 403 or Cloudflare challenge HTML on venues list",
+        "fix": "Browser-Chrome transport is default; retry; if still blocked, run auth login --chrome for clearance cookies"
+      },
+      {
+        "symptom": "profiles me or fav-board returns 401",
+        "fix": "Run peerspace-pp-cli auth login --chrome while logged into peerspace.com"
+      },
+      {
+        "symptom": "scout/markets returns empty",
+        "fix": "Run venues list for that city+activity first, then peerspace-pp-cli sync coverage --json"
+      }
+    ],
+    "when_to_use": "Use when planning tech meetups, workshops, or community events: scout venues by headcount/budget/date, score fit, watch favorites for price changes, and hand off shortlists to Luma/Eventbrite workflows.",
+    "anti_triggers": [
+      "Do not use this CLI to place or pay for bookings — booking checkout is not in the captured surface",
+      "Do not use for host listing management or calendar sync — host tools were not captured",
+      "Do not expect a stable official API contract; endpoints are reverse-engineered from site traffic"
+    ],
+    "recipes": [
+      {
+        "title": "Scout Paris meetups under budget",
+        "command": "peerspace-pp-cli venues list --activity meetup --viewport-location paris--france --size 24 --json --select hits.hits.title,hits.hits.city,hits.hits.number_guests",
+        "explanation": "Live search with field narrowing for agent context"
+      },
+      {
+        "title": "Price bands after hydrate",
+        "command": "peerspace-pp-cli scout budget --city Paris --activity meetup --band 50 --json",
+        "explanation": "Offline price histogram from local market snapshot"
+      },
+      {
+        "title": "Compare favorites",
+        "command": "peerspace-pp-cli shortlist compare --sort price --agent",
+        "explanation": "Cookie session + joined shortlist table"
+      },
+      {
+        "title": "Multi-city pulse",
+        "command": "peerspace-pp-cli markets pulse --city Paris --city Lyon --activity meetup --json",
+        "explanation": "Cross-city aggregates over synced keys"
+      },
+      {
+        "title": "Daily coordination pulse",
+        "command": "peerspace-pp-cli pulse --json --select thread_count,favorites_count,profile.first_name",
+        "explanation": "Inbox + shortlist + identity in one call"
+      },
+      {
+        "title": "Rank tech meetup fit",
+        "command": "peerspace-pp-cli venues recommend --guests 40 --budget-max 180 --vibe wifi,projector --json --select id,title,score,gaps",
+        "explanation": "Ranked venues with token-efficient fields for agent planning"
+      },
+      {
+        "title": "Export shortlist for Luma",
+        "command": "peerspace-pp-cli shortlist export --format markdown --agent",
+        "explanation": "Markdown + JSON handoff for Eventbrite/Luma/Slack"
+      },
+      {
+        "title": "Amenity gaps on favorites",
+        "command": "peerspace-pp-cli scout gaps --checklist tech-meetup --json",
+        "explanation": "Missing tech-event must-haves on the shortlist"
+      }
+    ],
+    "trigger_phrases": [
+      "find tech meetup venues",
+      "Peerspace spaces for workshop",
+      "venue fit for hackathon",
+      "export Peerspace shortlist for Luma",
+      "compare Peerspace favorites",
+      "search Peerspace venues",
+      "use peerspace",
+      "run peerspace-pp-cli"
+    ]
+  }
+}

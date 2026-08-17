@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "airhint-pp-mcp",
+  "display_name": "Airhint",
+  "version": "0.0.0",
+  "description": "AirHint flight price prediction API — buy/wait recommendations for airline tickets",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/airhint-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/airhint-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

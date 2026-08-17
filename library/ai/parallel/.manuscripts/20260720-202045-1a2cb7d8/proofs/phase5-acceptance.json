@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "api_name": "parallel",
+  "run_id": "20260720-202045-1a2cb7d8",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 169,
+  "tests_passed": 169,
+  "tests_skipped": 160,
+  "auth_context": {
+    "type": "api_key",
+    "api_key_available": true
+  }
+}

@@ -1,0 +1,716 @@
+openapi: 3.0.3
+info:
+  title: Wahoo Cloud API
+  description: >-
+    The Wahoo Cloud API connects Wahoo Fitness users to mobile and web
+    applications. OAuth 2.0 (with PKCE option) authorizes access to user
+    profiles, workouts, workout summaries, FIT-file uploads, structured
+    workout plans, GPS routes, and cycling power zones. Webhooks deliver
+    workout_summary notifications when offline_data scope is granted.
+  version: v1
+  contact:
+    name: Wahoo Developer Support
+    email: wahooapi[at]wahoofitness.com
+    url: https://developers.wahooligan.com
+  termsOfService: https://www.wahoofitness.com/wahoo-api-agreement
+servers:
+  - url: https://api.wahooligan.com
+    description: Production
+externalDocs:
+  description: Wahoo Cloud API Reference
+  url: https://cloud-api.wahooligan.com/
+tags:
+  - name: Users
+    description: Authenticated user profile.
+  - name: Workouts
+    description: Workout records (CRUD + listing).
+  - name: Workout Summaries
+    description: Aggregate results for a completed workout.
+  - name: Workout File Uploads
+    description: Asynchronous FIT-file ingestion.
+  - name: Plans
+    description: Structured workout plans.
+  - name: Routes
+    description: Navigation / course data backed by FIT files.
+  - name: Power Zones
+    description: Cycling power training zones.
+  - name: Permissions
+    description: Revoke OAuth app access.
+security:
+  - OAuth2: []
+paths:
+  /v1/user:
+    get:
+      tags: [Users]
+      summary: Get Authenticated User
+      operationId: getUser
+      security:
+        - OAuth2: [user_read]
+      responses:
+        '200':
+          description: The authenticated user record.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+    put:
+      tags: [Users]
+      summary: Update Authenticated User
+      operationId: updateUser
+      security:
+        - OAuth2: [user_write]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdate'
+      responses:
+        '200':
+          description: Updated user record.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /v1/workouts:
+    get:
+      tags: [Workouts]
+      summary: List Workouts
+      operationId: listWorkouts
+      security:
+        - OAuth2: [workouts_read]
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Paginated workout list.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkoutList'
+    post:
+      tags: [Workouts]
+      summary: Create Workout
+      operationId: createWorkout
+      security:
+        - OAuth2: [workouts_write]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkoutCreate'
+      responses:
+        '201':
+          description: Workout created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workout'
+  /v1/workouts/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      tags: [Workouts]
+      summary: Get Workout
+      operationId: getWorkout
+      security:
+        - OAuth2: [workouts_read]
+      responses:
+        '200':
+          description: Workout record.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workout'
+    put:
+      tags: [Workouts]
+      summary: Update Workout
+      operationId: updateWorkout
+      security:
+        - OAuth2: [workouts_write]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkoutCreate'
+      responses:
+        '200':
+          description: Updated workout record.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workout'
+    delete:
+      tags: [Workouts]
+      summary: Delete Workout
+      operationId: deleteWorkout
+      security:
+        - OAuth2: [workouts_write]
+      responses:
+        '204':
+          description: Workout deleted.
+  /v1/workouts/{id}/workout_summary:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      tags: [Workout Summaries]
+      summary: Get Workout Summary
+      operationId: getWorkoutSummary
+      security:
+        - OAuth2: [workouts_read]
+      responses:
+        '200':
+          description: Workout summary record.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkoutSummary'
+    post:
+      tags: [Workout Summaries]
+      summary: Create Workout Summary (Deprecated)
+      operationId: createWorkoutSummary
+      deprecated: true
+      security:
+        - OAuth2: [workouts_write]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkoutSummary'
+      responses:
+        '201':
+          description: Summary created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkoutSummary'
+  /v1/workout_file_uploads:
+    post:
+      tags: [Workout File Uploads]
+      summary: Upload Workout FIT File
+      operationId: createWorkoutFileUpload
+      security:
+        - OAuth2: [workouts_write]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: FIT file to ingest.
+              required: [file]
+      responses:
+        '202':
+          description: Upload accepted; returns a token for polling.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkoutFileUpload'
+  /v1/workout_file_uploads/{token}:
+    get:
+      tags: [Workout File Uploads]
+      summary: Get Workout File Upload Status
+      operationId: getWorkoutFileUpload
+      security:
+        - OAuth2: [workouts_write]
+      parameters:
+        - in: path
+          name: token
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Upload status.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkoutFileUpload'
+  /v1/plans:
+    get:
+      tags: [Plans]
+      summary: List Plans
+      operationId: listPlans
+      security:
+        - OAuth2: [plans_read]
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Paginated plan list.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Plan' }
+    post:
+      tags: [Plans]
+      summary: Create Plan
+      operationId: createPlan
+      security:
+        - OAuth2: [plans_write]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PlanCreate' }
+      responses:
+        '201':
+          description: Plan created.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Plan' }
+  /v1/plans/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      tags: [Plans]
+      summary: Get Plan
+      operationId: getPlan
+      security:
+        - OAuth2: [plans_read]
+      responses:
+        '200':
+          description: Plan record.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Plan' }
+    put:
+      tags: [Plans]
+      summary: Update Plan
+      operationId: updatePlan
+      security:
+        - OAuth2: [plans_write]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PlanCreate' }
+      responses:
+        '200':
+          description: Updated plan record.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Plan' }
+    delete:
+      tags: [Plans]
+      summary: Delete Plan
+      operationId: deletePlan
+      security:
+        - OAuth2: [plans_write]
+      responses:
+        '204':
+          description: Plan deleted.
+  /v1/workouts/{workout_id}/plans:
+    get:
+      tags: [Plans]
+      summary: List Plans For Workout
+      operationId: listPlansForWorkout
+      security:
+        - OAuth2: [plans_read]
+      parameters:
+        - in: path
+          name: workout_id
+          required: true
+          schema: { type: integer, format: int64 }
+      responses:
+        '200':
+          description: Plans associated with the workout.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Plan' }
+  /v1/routes:
+    get:
+      tags: [Routes]
+      summary: List Routes
+      operationId: listRoutes
+      security:
+        - OAuth2: [routes_read]
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Paginated route list.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Route' }
+    post:
+      tags: [Routes]
+      summary: Create Route
+      operationId: createRoute
+      security:
+        - OAuth2: [routes_write]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema: { $ref: '#/components/schemas/RouteCreate' }
+      responses:
+        '201':
+          description: Route created.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Route' }
+  /v1/routes/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      tags: [Routes]
+      summary: Get Route
+      operationId: getRoute
+      security:
+        - OAuth2: [routes_read]
+      responses:
+        '200':
+          description: Route record.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Route' }
+    put:
+      tags: [Routes]
+      summary: Update Route
+      operationId: updateRoute
+      security:
+        - OAuth2: [routes_write]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema: { $ref: '#/components/schemas/RouteCreate' }
+      responses:
+        '200':
+          description: Updated route record.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Route' }
+    delete:
+      tags: [Routes]
+      summary: Delete Route
+      operationId: deleteRoute
+      security:
+        - OAuth2: [routes_write]
+      responses:
+        '204':
+          description: Route deleted.
+  /v1/power_zones:
+    get:
+      tags: [Power Zones]
+      summary: List Power Zones
+      operationId: listPowerZones
+      security:
+        - OAuth2: [power_zones_read]
+      responses:
+        '200':
+          description: Power zones list.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/PowerZone' }
+    post:
+      tags: [Power Zones]
+      summary: Create Power Zones
+      operationId: createPowerZones
+      security:
+        - OAuth2: [power_zones_write]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PowerZoneCreate' }
+      responses:
+        '201':
+          description: Power zones created.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PowerZone' }
+  /v1/power_zones/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      tags: [Power Zones]
+      summary: Get Power Zones
+      operationId: getPowerZones
+      security:
+        - OAuth2: [power_zones_read]
+      responses:
+        '200':
+          description: Power zones record.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PowerZone' }
+    put:
+      tags: [Power Zones]
+      summary: Update Power Zones
+      operationId: updatePowerZones
+      security:
+        - OAuth2: [power_zones_write]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PowerZoneCreate' }
+      responses:
+        '200':
+          description: Updated power zones.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PowerZone' }
+    delete:
+      tags: [Power Zones]
+      summary: Delete Power Zones
+      operationId: deletePowerZones
+      security:
+        - OAuth2: [power_zones_write]
+      responses:
+        '204':
+          description: Power zones deleted.
+  /v1/permissions:
+    delete:
+      tags: [Permissions]
+      summary: Revoke App Access
+      operationId: revokeAppAccess
+      security:
+        - OAuth2: []
+      responses:
+        '204':
+          description: Permissions revoked for the calling app/user.
+components:
+  parameters:
+    Id:
+      in: path
+      name: id
+      required: true
+      schema: { type: integer, format: int64 }
+    Page:
+      in: query
+      name: page
+      schema: { type: integer, minimum: 1, default: 1 }
+    PerPage:
+      in: query
+      name: per_page
+      schema: { type: integer, minimum: 1, maximum: 100, default: 30 }
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      description: >-
+        OAuth 2.0 Authorization Code (with PKCE option for public apps).
+        Access tokens are bearer tokens with a 2-hour TTL; refresh tokens are
+        single-use. Starting 2026-01-01, apps are limited to 10 unrevoked
+        access tokens per user.
+      flows:
+        authorizationCode:
+          authorizationUrl: https://api.wahooligan.com/oauth/authorize
+          tokenUrl: https://api.wahooligan.com/oauth/token
+          refreshUrl: https://api.wahooligan.com/oauth/token
+          scopes:
+            email: Access the user's email address
+            user_read: Read user profile
+            user_write: Update user profile
+            workouts_read: Read workouts and summaries
+            workouts_write: Create/update/delete workouts and uploads
+            offline_data: Receive webhook events while the app is closed
+            plans_read: Read workout plans
+            plans_write: Manage workout plans
+            power_zones_read: Read cycling power zones
+            power_zones_write: Manage cycling power zones
+            routes_read: Read GPS routes
+            routes_write: Manage GPS routes
+  schemas:
+    User:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        email: { type: string, format: email }
+        first: { type: string }
+        last: { type: string }
+        birth: { type: string, format: date }
+        gender: { type: integer, description: '0 = male, 1 = female, 2 = other' }
+        height: { type: string, description: Meters as string. }
+        weight: { type: string, description: Kilograms as string. }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    UserUpdate:
+      type: object
+      properties:
+        first: { type: string }
+        last: { type: string }
+        birth: { type: string, format: date }
+        gender: { type: integer }
+        height: { type: string }
+        weight: { type: string }
+    Workout:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        user_id: { type: integer, format: int64 }
+        starts: { type: string, format: date-time }
+        minutes: { type: integer }
+        name: { type: string }
+        plan_id: { type: integer, format: int64, nullable: true }
+        workout_token: { type: string }
+        workout_type_id: { type: integer }
+        workout_summary:
+          $ref: '#/components/schemas/WorkoutSummary'
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    WorkoutCreate:
+      type: object
+      required: [starts, minutes, name, workout_type_id]
+      properties:
+        starts: { type: string, format: date-time }
+        minutes: { type: integer }
+        name: { type: string }
+        plan_id: { type: integer, format: int64 }
+        workout_token: { type: string }
+        workout_type_id: { type: integer }
+    WorkoutList:
+      type: object
+      properties:
+        workouts:
+          type: array
+          items: { $ref: '#/components/schemas/Workout' }
+        total: { type: integer }
+        page: { type: integer }
+        per_page: { type: integer }
+        order: { type: string }
+        sort: { type: string }
+    WorkoutSummary:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        ascent_accum: { type: string }
+        calories_accum: { type: string }
+        distance_accum: { type: string }
+        duration_active_accum: { type: string }
+        duration_paused_accum: { type: string }
+        duration_total_accum: { type: string }
+        cadence_avg: { type: string }
+        heart_rate_avg: { type: string }
+        power_bike_avg: { type: string }
+        speed_avg: { type: string }
+        work_accum: { type: string }
+        file:
+          type: object
+          properties:
+            url: { type: string, format: uri }
+    WorkoutFileUpload:
+      type: object
+      properties:
+        token: { type: string }
+        state:
+          type: string
+          enum: [queued, processing, completed, failed]
+        workout_id: { type: integer, format: int64, nullable: true }
+        error: { type: string, nullable: true }
+    Plan:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        name: { type: string }
+        description: { type: string }
+        external_id: { type: string }
+        file:
+          type: object
+          properties:
+            url: { type: string, format: uri }
+        provider_updated_at: { type: string, format: date-time }
+        workout_type_family_id: { type: integer }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    PlanCreate:
+      type: object
+      required: [name, file]
+      properties:
+        name: { type: string }
+        description: { type: string }
+        external_id: { type: string }
+        provider_updated_at: { type: string, format: date-time }
+        workout_type_family_id: { type: integer }
+        file:
+          type: string
+          format: binary
+          description: JSON plan file.
+    Route:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        name: { type: string }
+        description: { type: string }
+        external_id: { type: string }
+        starting_lat: { type: number, format: float }
+        starting_lng: { type: number, format: float }
+        ending_lat: { type: number, format: float }
+        ending_lng: { type: number, format: float }
+        distance: { type: number, format: float }
+        ascent: { type: number, format: float }
+        descent: { type: number, format: float }
+        workout_type_family_id: { type: integer }
+        file:
+          type: object
+          properties:
+            url: { type: string, format: uri }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    RouteCreate:
+      type: object
+      required: [name, file]
+      properties:
+        name: { type: string }
+        description: { type: string }
+        external_id: { type: string }
+        starting_lat: { type: number, format: float }
+        starting_lng: { type: number, format: float }
+        ending_lat: { type: number, format: float }
+        ending_lng: { type: number, format: float }
+        distance: { type: number, format: float }
+        ascent: { type: number, format: float }
+        descent: { type: number, format: float }
+        workout_type_family_id: { type: integer }
+        file:
+          type: string
+          format: binary
+          description: FIT-format route file.
+    PowerZone:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        zone_1: { type: integer }
+        zone_2: { type: integer }
+        zone_3: { type: integer }
+        zone_4: { type: integer }
+        zone_5: { type: integer }
+        zone_6: { type: integer }
+        zone_7: { type: integer }
+        ftp: { type: integer, description: Functional Threshold Power in watts. }
+        critical_power: { type: integer }
+        workout_type_family_id: { type: integer }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    PowerZoneCreate:
+      type: object
+      required: [ftp, workout_type_family_id]
+      properties:
+        ftp: { type: integer }
+        critical_power: { type: integer }
+        workout_type_family_id: { type: integer }
+        zone_1: { type: integer }
+        zone_2: { type: integer }
+        zone_3: { type: integer }
+        zone_4: { type: integer }
+        zone_5: { type: integer }
+        zone_6: { type: integer }
+        zone_7: { type: integer }

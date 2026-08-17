@@ -1,0 +1,254 @@
+{
+  "api_name": "unifi",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "unifi-cli",
+      "url": "https://github.com/lucasilverentand/unifi-cli",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 67,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "mcp-unifi",
+      "url": "https://github.com/pete-builds/mcp-unifi",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 57,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "go-unifi-mcp",
+      "url": "https://github.com/claytono/go-unifi-mcp",
+      "language": "Go",
+      "install_method": "",
+      "stars": 3,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "unifi-mcp",
+      "url": "https://github.com/gordcurrie/unifi-mcp",
+      "language": "Go",
+      "install_method": "",
+      "stars": 2,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "homelab-mcp",
+      "url": "https://github.com/bjeans/homelab-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 39,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-12T16:40:00Z",
+  "novel_features": [
+    {
+      "name": "Device topology tree",
+      "command": "topology",
+      "description": "See the physical device tree (gateway to switches to APs) built entirely from local mirror data, no live crawl needed.",
+      "rationale": "Requires joining devices and uplink/port data locally into a tree; no single endpoint returns hierarchy.",
+      "example": "unifi-pp-cli topology --site default --json",
+      "why_it_matters": "Reach for this when an agent needs to understand physical network layout without walking every device endpoint individually.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Config drift detection",
+      "command": "drift",
+      "description": "Show what changed in site config (networks, firewall, wifi, DNS) since the last sync snapshot.",
+      "rationale": "Requires comparing two local snapshots taken at different sync times; the API has no versioning or audit trail.",
+      "example": "unifi-pp-cli drift --site default --since 24h --json",
+      "why_it_matters": "Use after a suspected config change to see exactly what moved, without manually diffing the controller UI.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Newcomer detection",
+      "command": "newcomer",
+      "description": "List devices and clients first seen since a given sync, for spotting new hardware joining the network.",
+      "rationale": "Requires a local snapshot diff of the devices and clients tables; the API has no since filter.",
+      "example": "unifi-pp-cli newcomer --since 7d --json",
+      "why_it_matters": "Use for periodic security review of what joined the network recently.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Port audit",
+      "command": "port-audit",
+      "description": "Review port utilization and PoE status across every switch on a site in one table.",
+      "rationale": "Requires joining device port config with local topology and PoE/link data across all switches; no endpoint aggregates this.",
+      "example": "unifi-pp-cli port-audit --site default --json",
+      "why_it_matters": "Use before adding new PoE devices to check headroom, or to find unused ports across a stack.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Guest network report",
+      "command": "guest report",
+      "description": "Summarize guest network usage: active vouchers and connected guest clients, from local data.",
+      "rationale": "Requires joining hotspot vouchers, guest WiFi broadcasts, and guest client sessions from the local store; no combined endpoint exists.",
+      "example": "unifi-pp-cli guest report --site default --json",
+      "why_it_matters": "Use for a quick guest-network health check without cross-referencing three separate UI screens.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Firewall rule prediction",
+      "command": "rule-predict",
+      "description": "Predict which firewall policy would match a hypothetical packet before making a live change.",
+      "rationale": "Requires locally replaying firewall zone/policy/ACL/traffic-matching-list evaluation order; the API has no trace/simulate endpoint.",
+      "example": "unifi-pp-cli rule-predict --src 10.0.3.0/24 --dst 10.0.0.1 --port 443 --json",
+      "why_it_matters": "Use to check the effect of a proposed firewall change before applying it live.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Device topology tree",
+      "command": "topology",
+      "description": "See the physical device tree (gateway to switches to APs) built entirely from local mirror data, no live crawl needed.",
+      "rationale": "Requires joining devices and uplink/port data locally into a tree; no single endpoint returns hierarchy.",
+      "example": "unifi-pp-cli topology --site default --json",
+      "why_it_matters": "Reach for this when an agent needs to understand physical network layout without walking every device endpoint individually.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Config drift detection",
+      "command": "drift",
+      "description": "Show what changed in site config (networks, firewall, wifi, DNS) since the last sync snapshot.",
+      "rationale": "Requires comparing two local snapshots taken at different sync times; the API has no versioning or audit trail.",
+      "example": "unifi-pp-cli drift --site default --since 24h --json",
+      "why_it_matters": "Use after a suspected config change to see exactly what moved, without manually diffing the controller UI.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Newcomer detection",
+      "command": "newcomer",
+      "description": "List devices and clients first seen since a given sync, for spotting new hardware joining the network.",
+      "rationale": "Requires a local snapshot diff of the devices and clients tables; the API has no since filter.",
+      "example": "unifi-pp-cli newcomer --since 7d --json",
+      "why_it_matters": "Use for periodic security review of what joined the network recently.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Port audit",
+      "command": "port-audit",
+      "description": "Review port utilization and PoE status across every switch on a site in one table.",
+      "rationale": "Requires joining device port config with local topology and PoE/link data across all switches; no endpoint aggregates this.",
+      "example": "unifi-pp-cli port-audit --site default --json",
+      "why_it_matters": "Use before adding new PoE devices to check headroom, or to find unused ports across a stack.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Guest network report",
+      "command": "guest report",
+      "description": "Summarize guest network usage: active vouchers and connected guest clients, from local data.",
+      "rationale": "Requires joining hotspot vouchers, guest WiFi broadcasts, and guest client sessions from the local store; no combined endpoint exists.",
+      "example": "unifi-pp-cli guest report --site default --json",
+      "why_it_matters": "Use for a quick guest-network health check without cross-referencing three separate UI screens.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Firewall rule prediction",
+      "command": "rule-predict",
+      "description": "Predict which firewall policy would match a hypothetical packet before making a live change.",
+      "rationale": "Requires locally replaying firewall zone/policy/ACL/traffic-matching-list evaluation order; the API has no trace/simulate endpoint.",
+      "example": "unifi-pp-cli rule-predict --src 10.0.3.0/24 --dst 10.0.0.1 --port 443 --json",
+      "why_it_matters": "Use to check the effect of a proposed firewall change before applying it live.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "UNIFI_API_KEY"
+  },
+  "narrative": {
+    "display_name": "UniFi",
+    "headline": "Every UniFi Network API operation, plus drift detection, topology, and rule prediction no other UniFi tool has.",
+    "value_prop": "unifi-pp-cli wraps the full local Network integration API (devices, clients, firewall, ACL, networks, VPN, switching) with a local SQLite mirror. That mirror is what lets it answer questions the live API can't: what changed since yesterday, what device just joined, and which firewall rule would match a given packet.",
+    "auth_narrative": "Generate a local API key from the gateway's own UI (Settings -\u003e Control Plane -\u003e Integrations -\u003e Create API Key) and set UNIFI_API_KEY. The gateway's self-signed certificate is handled automatically for private/loopback/link-local hosts; no --insecure flag needed for the common case.",
+    "quickstart": [
+      {
+        "command": "unifi-pp-cli doctor --dry-run",
+        "comment": "Confirm config and connectivity without making a live call."
+      },
+      {
+        "command": "unifi-pp-cli sites",
+        "comment": "Find the site ID you'll use for every other command."
+      },
+      {
+        "command": "unifi-pp-cli sync",
+        "comment": "Populate the local mirror so drift/topology/newcomer have a baseline."
+      },
+      {
+        "command": "unifi-pp-cli topology",
+        "comment": "See the physical device tree."
+      },
+      {
+        "command": "unifi-pp-cli drift --since 24h",
+        "comment": "Check what changed in the last day."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "x509: certificate signed by unknown authority",
+        "fix": "This should auto-resolve for private/loopback/link-local gateway hosts; if your gateway is reachable via a public hostname, set UNIFI_INSECURE_SKIP_VERIFY=1 explicitly."
+      },
+      {
+        "symptom": "401 Unauthorized",
+        "fix": "Regenerate the API key under Settings -\u003e Control Plane -\u003e Integrations on the gateway and re-export UNIFI_API_KEY."
+      },
+      {
+        "symptom": "drift/newcomer/topology return empty",
+        "fix": "Run 'unifi-pp-cli sync' first to populate the local mirror; these commands are local-mirror-only."
+      }
+    ],
+    "when_to_use": "Use this CLI for scripted or agent-driven UniFi Network audits, firewall/ACL review, and change-detection on a self-hosted gateway. Best for homelab/prosumer operators who want terminal-first control instead of the web UI.",
+    "anti_triggers": [
+      "Do not use this for UniFi Protect (cameras) or UniFi Access (doors) — this CLI only covers the Network integration API.",
+      "Do not use this for the legacy cloud/CloudKey Controller API — that's a different auth model entirely.",
+      "Do not treat rule-predict's output as a live-gateway guarantee — it simulates against the last synced ruleset."
+    ],
+    "recipes": [
+      {
+        "title": "Find who just joined the network",
+        "command": "unifi-pp-cli newcomer --since 7d --json --select id,name,mac",
+        "explanation": "Narrow a potentially large newcomer list down to just the fields needed to identify each device."
+      },
+      {
+        "title": "Audit switch port headroom before adding a PoE device",
+        "command": "unifi-pp-cli port-audit --site default --json",
+        "explanation": "Lists PoE status and free ports across every switch on the site."
+      },
+      {
+        "title": "Check what a firewall change would match",
+        "command": "unifi-pp-cli rule-predict --src 10.0.3.0/24 --dst 10.0.0.1 --port 443 --json",
+        "explanation": "Simulates rule evaluation order against the synced ruleset before making a live change."
+      }
+    ],
+    "trigger_phrases": [
+      "audit my unifi network",
+      "what changed on my network",
+      "list unifi devices",
+      "check unifi firewall rules",
+      "unifi port audit",
+      "use unifi-pp-cli",
+      "run unifi-pp-cli"
+    ]
+  }
+}

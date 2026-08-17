@@ -75,7 +75,7 @@ func deliverFile(path string, body []byte) error {
 	// file if the process is interrupted mid-write.
 	dir := filepath.Dir(path)
 	if dir != "" && dir != "." {
-		if err := os.MkdirAll(dir, 0o755); err != nil {
+		if err := os.MkdirAll(dir, 0o700); err != nil {
 			return fmt.Errorf("creating deliver dir: %w", err)
 		}
 	}
@@ -99,7 +99,7 @@ func deliverWebhook(url string, body []byte, compact bool) error {
 		return fmt.Errorf("building webhook request: %w", err)
 	}
 	req.Header.Set("Content-Type", contentType)
-	req.Header.Set("User-Agent", "espn-pp-cli/deliver")
+	req.Header.Set("User-Agent", "github.com/mvanhorn/printing-press-library/library/media-and-entertainment/espn/deliver")
 
 	client := &http.Client{Timeout: 30 * time.Second}
 	resp, err := client.Do(req)

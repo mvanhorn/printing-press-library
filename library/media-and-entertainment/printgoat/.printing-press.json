@@ -1,0 +1,78 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-21T18:33:13.878016Z",
+  "printing_press_version": "4.29.0",
+  "api_name": "printgoat",
+  "display_name": "PrintGoat",
+  "cli_name": "printgoat-pp-cli",
+  "creator": {
+    "handle": "nate-d-olson",
+    "name": "Nate Olson"
+  },
+  "owner": "nate-d-olson",
+  "printer": "nate-d-olson",
+  "printer_name": "Nate Olson",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:33f66b200cd8f4ec8d6fc8f9750839ffdff939b53332b229f6496bbb244342a2",
+  "run_id": "20260721-105814-1da3c401",
+  "category": "media-and-entertainment",
+  "description": "Search and reliably download 3D-print files across Printables and Thingiverse (plus search Cults3D) — with real resumable downloads and cross-site duplicate detection nothing else has.",
+  "mcp_binary": "printgoat-pp-mcp",
+  "mcp_tool_count": 17,
+  "mcp_public_tool_count": 17,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Cross-Source Duplicate \u0026 Value Detection",
+      "command": "duplicates",
+      "description": "See instantly when the same design is listed free on one site and paid on another, before you download the wrong one."
+    },
+    {
+      "name": "Local History Diff / Staleness",
+      "command": "history diff",
+      "description": "Know exactly what changed on a model since you last looked — new files, price changes, license changes."
+    },
+    {
+      "name": "License Compliance Audit",
+      "command": "license audit",
+      "description": "Flag license conflicts across your entire local library against how you actually intend to use the files."
+    },
+    {
+      "name": "Failure-Informed Re-Search",
+      "command": "similar",
+      "description": "Re-search for alternatives after a bad print, automatically excluding the model and designer that failed you."
+    },
+    {
+      "name": "Cross-Source Resumable Batch Job",
+      "command": "job download",
+      "description": "Batch-download across all three sites as one crash-safe job that actually resumes from where it stopped."
+    },
+    {
+      "name": "Cross-Site Designer Following",
+      "command": "feed",
+      "description": "Follow a designer across all the sites they post to and see new uploads from any of them in one feed."
+    },
+    {
+      "name": "Print-Job Version Pinning",
+      "command": "snapshot verify",
+      "description": "Prove exactly which file version you used for a past print job, even if the upstream model has since changed."
+    },
+    {
+      "name": "Library Health / Link-Rot Report",
+      "command": "library doctor",
+      "description": "Find orphaned files, missing files, silent duplicates, and remote listings that have been delisted (and can never be re-fetched)."
+    },
+    {
+      "name": "Format-Availability Gap Finder",
+      "command": "formats gaps",
+      "description": "Find alternatives when a model only ships in one file format and you need another."
+    },
+    {
+      "name": "Personal Designer Reliability Score",
+      "command": "designer stats",
+      "description": "See your own success/failure rate with a specific designer, pooled across every site they publish on."
+    }
+  ]
+}

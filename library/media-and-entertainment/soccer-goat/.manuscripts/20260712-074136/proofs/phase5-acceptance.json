@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "soccer-goat",
+  "run_id": "20260712-074136",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 104,
+  "tests_passed": 104,
+  "tests_skipped": 69,
+  "auth_context": {
+    "type": "none"
+  }
+}

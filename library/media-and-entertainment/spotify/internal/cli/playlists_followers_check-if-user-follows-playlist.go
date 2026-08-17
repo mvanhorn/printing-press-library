@@ -17,30 +17,36 @@ func newPlaylistsFollowersCheckIfUserFollowsPlaylistCmd(flags *rootFlags) *cobra
 	cmd := &cobra.Command{
 		Use:         "check-if-user-follows-playlist <playlist_id>",
 		Aliases:     []string{"get"},
-		Short:       "Check to see if the current user is following a specified playlist. **Note:** This endpoint is deprecated. Use...",
-		Example:     "  spotify-pp-cli playlists followers check-if-user-follows-playlist 550e8400-e29b-41d4-a716-446655440000",
+		Short:       "Check to see if the current user is following a specified playlist. **Note:** This endpoint is deprecated.",
+		Example:     "  spotify-pp-cli playlists followers check-if-user-follows-playlist 3cEYpjA9oz9GiPac4AsH4n",
 		Annotations: map[string]string{"pp:endpoint": "followers.check-if-user-follows-playlist", "pp:method": "GET", "pp:path": "/playlists/{playlist_id}/followers/contains", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
+			path := "/playlists/{playlist_id}/followers/contains"
+			if len(args) < 1 || args[0] == "" {
+				return usageErr(fmt.Errorf("playlist_id is required\nUsage: %s <%s>", cmd.CommandPath(), "playlist_id"))
+			}
+			path = replacePathParam(path, "playlist_id", args[0])
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/playlists/{playlist_id}/followers/contains"
-			path = replacePathParam(path, "playlist_id", args[0])
 			params := map[string]string{}
 			if flagIds != "" {
-				params["ids"] = fmt.Sprintf("%v", flagIds)
+				params["ids"] = formatCLIParamValue(flagIds)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "followers", false, path, params, nil)
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "followers", false, path, params, nil, "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
@@ -76,7 +82,7 @@ func newPlaylistsFollowersCheckIfUserFollowsPlaylistCmd(flags *rootFlags) *cobra
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagIds, "ids", "", "Ids")

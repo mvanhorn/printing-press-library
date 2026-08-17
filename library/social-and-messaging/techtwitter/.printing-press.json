@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-15T03:17:39.723396Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "techtwitter",
+  "display_name": "Tech Twitter",
+  "cli_name": "techtwitter-pp-cli",
+  "creator": {
+    "handle": "danielkhunter",
+    "name": "danielkhunter"
+  },
+  "owner": "danielkhunter",
+  "printer": "danielkhunter",
+  "printer_name": "danielkhunter",
+  "spec_path": "techtwitter-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:19875067095495777ffcf87315f6ee2425a98e5cae9f23529f5e1134c727d135",
+  "run_id": "20260614-151701-381d1e6b",
+  "category": "social-and-messaging",
+  "description": "Every Tech Twitter read endpoint, plus an offline-searchable local mirror and cited evidence bundles no other tool has.",
+  "mcp_binary": "techtwitter-pp-mcp",
+  "mcp_tool_count": 16,
+  "mcp_public_tool_count": 16,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "What changed since last sync",
+      "command": "since",
+      "description": "See only the tweets curated or newly hot since your last sync, instead of re-reading the whole stream."
+    },
+    {
+      "name": "Topic momentum over time",
+      "command": "momentum",
+      "description": "Show which topics are rising, falling, or newly appearing across the heatmap snapshots stored on each sync."
+    },
+    {
+      "name": "Emerging-narrative detector",
+      "command": "narrative",
+      "description": "Surface keywords that newly emerged or accelerated versus prior snapshots, grounded in supporting stored tweets."
+    },
+    {
+      "name": "Author engagement leaderboard",
+      "command": "author-rank",
+      "description": "Rank authors by accumulated stored engagement over a window, each with their best curated tweet."
+    },
+    {
+      "name": "Time travel by date",
+      "command": "time-travel",
+      "description": "Show the curated tweets for a specific date (YYYY-MM-DD, today, yesterday, or latest), live or fully offline from the local store."
+    },
+    {
+      "name": "Offline composed digest",
+      "command": "digest",
+      "description": "Assemble a read-list from the local store for a window: top tweets, recent articles, and top authors."
+    },
+    {
+      "name": "Offline cited evidence bundle",
+      "command": "evidence",
+      "description": "Build an evidence bundle mirroring the agent-context kinds from local SQLite, with canonical-URL citations and no network."
+    }
+  ]
+}

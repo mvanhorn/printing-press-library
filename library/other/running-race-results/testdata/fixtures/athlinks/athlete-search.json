@@ -1,0 +1,186 @@
+{
+  "success": true,
+  "errorMessage": null,
+  "result": {
+    "searchTerm": "Sample",
+    "location": null,
+    "total": 15074,
+    "athletes": [
+      {
+        "avatarUrl": null,
+        "racerId": 338681853,
+        "profileUrl": null,
+        "displayName": "Sample Athlete",
+        "gender": "M",
+        "age": 41,
+        "city": "amadora",
+        "stateProv": "LIS",
+        "country": "PT",
+        "linked": false,
+        "totalRaces": 0,
+        "headToHeadRaces": 0,
+        "raceCategs": [],
+        "showPersonalData": false
+      },
+      {
+        "avatarUrl": null,
+        "racerId": 43234281,
+        "profileUrl": "/athletes/43234281",
+        "displayName": "Sample Athlete B",
+        "gender": "F",
+        "age": 54,
+        "city": "Albuquerque",
+        "stateProv": "NM",
+        "country": "US",
+        "linked": false,
+        "totalRaces": 118,
+        "headToHeadRaces": 0,
+        "raceCategs": [
+          2,
+          15
+        ],
+        "showPersonalData": true
+      },
+      {
+        "avatarUrl": null,
+        "racerId": 114334245,
+        "profileUrl": "/athletes/114334245",
+        "displayName": "Sample Athlete C",
+        "gender": "F",
+        "age": 65,
+        "city": "Melbourne",
+        "stateProv": "FL",
+        "country": "US",
+        "linked": false,
+        "totalRaces": 6,
+        "headToHeadRaces": 0,
+        "raceCategs": [],
+        "showPersonalData": true
+      },
+      {
+        "avatarUrl": null,
+        "racerId": 309385625,
+        "profileUrl": null,
+        "displayName": "Sample Athlete D",
+        "gender": "M",
+        "age": 49,
+        "city": "Chicago",
+        "stateProv": "IL",
+        "country": "US",
+        "linked": false,
+        "totalRaces": 76,
+        "headToHeadRaces": 0,
+        "raceCategs": [
+          2
+        ],
+        "showPersonalData": false
+      },
+      {
+        "avatarUrl": null,
+        "racerId": 350273315,
+        "profileUrl": "/athletes/350273315",
+        "displayName": "Sample Athlete E",
+        "gender": "M",
+        "age": 33,
+        "city": "Lilburn",
+        "stateProv": "GA",
+        "country": "US",
+        "linked": false,
+        "totalRaces": 0,
+        "headToHeadRaces": 0,
+        "raceCategs": [],
+        "showPersonalData": true
+      },
+      {
+        "avatarUrl": null,
+        "racerId": 375657429,
+        "profileUrl": "/athletes/375657429",
+        "displayName": "Sample Athlete F",
+        "gender": "M",
+        "age": 31,
+        "city": "Niantic",
+        "stateProv": "CT",
+        "country": "US",
+        "linked": false,
+        "totalRaces": 0,
+        "headToHeadRaces": 0,
+        "raceCategs": [],
+        "showPersonalData": true
+      },
+      {
+        "avatarUrl": null,
+        "racerId": 378295930,
+        "profileUrl": "/athletes/378295930",
+        "displayName": "Sample Athlete G",
+        "gender": "F",
+        "age": 55,
+        "city": "Alexandria",
+        "stateProv": "VA",
+        "country": "US",
+        "linked": false,
+        "totalRaces": 3,
+        "headToHeadRaces": 0,
+        "raceCategs": [
+          2
+        ],
+        "showPersonalData": true
+      },
+      {
+        "avatarUrl": null,
+        "racerId": 490261630,
+        "profileUrl": "/athletes/490261630",
+        "displayName": "Sample Athlete H",
+        "gender": "M",
+        "age": 51,
+        "city": "Haarlem",
+        "stateProv": "NOO",
+        "country": "NL",
+        "linked": false,
+        "totalRaces": 0,
+        "headToHeadRaces": 0,
+        "raceCategs": [],
+        "showPersonalData": true
+      },
+      {
+        "avatarUrl": null,
+        "racerId": 530169066,
+        "profileUrl": "/athletes/530169066",
+        "displayName": "Sample Athlete I",
+        "gender": "F",
+        "age": 69,
+        "city": "Colorado Springs ",
+        "stateProv": "CO",
+        "country": "US",
+        "linked": false,
+        "totalRaces": 104,
+        "headToHeadRaces": 0,
+        "raceCategs": [
+          2,
+          15
+        ],
+        "showPersonalData": true
+      },
+      {
+        "avatarUrl": null,
+        "racerId": 70104562,
+        "profileUrl": "/athletes/70104562",
+        "displayName": "Sample Athlete J",
+        "gender": "F",
+        "age": 50,
+        "city": "Redondo Beach",
+        "stateProv": "CA",
+        "country": "US",
+        "linked": false,
+        "totalRaces": 24,
+        "headToHeadRaces": 0,
+        "raceCategs": [
+          2,
+          7,
+          16,
+          23
+        ],
+        "showPersonalData": true
+      }
+    ]
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "finra-greptile-review-fixes",
+  "applied_at": "2026-07-07",
+  "base_run_id": "20260705-224800-9d954693",
+  "base_printing_press_version": "4.27.1",
+  "summary": "Fixed 6 correctness findings from PR #1449's Greptile review: auth.go had a duplicate, unfixed copy of the OAuth2 token-request-shape and expires_in-type bugs already fixed in client.go; data_query.go's --offset was typed string instead of int for the JSON body; data_list.go called the data-source resolver with isList=false for an array-returning endpoint; trace_liquidity.go's numeric field sum silently dropped JSON-string-encoded values; complaints new/list picked an alphabetically-arbitrary date field instead of the confirmed submissionDate; registration_validate_batch.go's CSV-vs-plain-list detection used an unqualified substring check.",
+  "reason": "The auth.go duplicate went unnoticed because generate emits two independent token-mint code paths (client.go's automatic re-mint, auth.go's interactive `auth login`) and only the former was fixed during live testing. The other 5 are real correctness bugs an automated review caught that manual live testing (with a basic-tier credential exercising only 6 of 12 commands' happy paths) did not exercise.",
+  "files": [
+    "internal/cli/auth.go",
+    "internal/cli/data_query.go",
+    "internal/cli/data_list.go",
+    "internal/cli/trace_liquidity.go",
+    "internal/cli/complaints_new.go",
+    "internal/cli/complaints_list.go",
+    "internal/cli/registration_validate_batch.go",
+    "internal/cli/regsho_threshold_watch.go"
+  ],
+  "validated_outcome": "go build/vet/test clean, govulncheck clean; existing test suite (including the CSV-routing edge-case test) passes unchanged.",
+  "upstream_issue": null
+}

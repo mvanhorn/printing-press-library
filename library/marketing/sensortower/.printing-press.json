@@ -1,0 +1,55 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-17T20:13:04.450182Z",
+  "printing_press_version": "4.29.0",
+  "api_name": "sensortower",
+  "display_name": "Sensor Tower",
+  "cli_name": "sensortower-pp-cli",
+  "creator": {
+    "handle": "waveriderai",
+    "name": "waveriderai"
+  },
+  "owner": "waveriderai",
+  "printer": "waveriderai",
+  "printer_name": "waveriderai",
+  "spec_path": "sensortower-sniff-spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:645f8ddccb05f5e63689aa8d933bed2131a5b8bba7fdfa98befac8dd98b210b8",
+  "run_id": "20260717-030012-35521069",
+  "category": "marketing",
+  "description": "Every free Sensor Tower ranking, plus the rank history the dashboard forgets the moment you close the tab.",
+  "mcp_binary": "sensortower-pp-mcp",
+  "mcp_tool_count": 12,
+  "mcp_public_tool_count": 10,
+  "mcp_ready": "partial",
+  "api_version": "0.1.0",
+  "auth_type": "cookie",
+  "novel_features": [
+    {
+      "name": "Category movers and new entrants",
+      "command": "movers",
+      "description": "See which apps climbed, fell, or newly appeared in a category chart since the previous 'movers' run."
+    },
+    {
+      "name": "Release-vs-rank teardown",
+      "command": "teardown",
+      "description": "Align an app's release timeline against its rank history to see which shipped version moved the needle."
+    },
+    {
+      "name": "Weekly watch digest",
+      "command": "watch digest",
+      "description": "Print every tracked app's current rank per chart plus its delta since the previous 'movers' run."
+    },
+    {
+      "name": "Free-vs-grossing divergence",
+      "command": "divergence",
+      "description": "Find monetization outliers in a category by comparing each app's free-chart rank against its grossing-chart rank."
+    },
+    {
+      "name": "Cross-platform comparison",
+      "command": "compare",
+      "description": "Compare one product's iOS and Android standing side by side after resolving cross-platform identity."
+    }
+  ]
+}

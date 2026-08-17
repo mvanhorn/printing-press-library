@@ -1,0 +1,98 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-24T13:07:26.399376Z",
+  "printing_press_version": "4.29.0",
+  "api_name": "inaturalist",
+  "display_name": "iNaturalist",
+  "cli_name": "inaturalist-pp-cli",
+  "creator": {
+    "handle": "Avanderheyde",
+    "name": "avanderheyde"
+  },
+  "owner": "avanderheyde",
+  "printer": "Avanderheyde",
+  "printer_name": "avanderheyde",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:96d31a8b3fbf55d3cfdb9c085790587d7e7566faab3753f53fcdf8d135d9df88",
+  "run_id": "20260724-125048-42f61ac7",
+  "category": "other",
+  "description": "Explore iNaturalist's full API, plus privacy-safe field briefings and identification progress that ordinary endpoint wrappers miss.",
+  "mcp_binary": "inaturalist-pp-mcp",
+  "mcp_tool_count": 105,
+  "mcp_ready": "full",
+  "api_version": "1.3.0",
+  "auth_type": "api_key",
+  "auth_preference": "api_token",
+  "auth_env_vars": [
+    "INATURALIST_API_TOKEN"
+  ],
+  "auth_key_url": "https://api.inaturalist.org/v1/",
+  "novel_features": [
+    {
+      "name": "Nearby highlights",
+      "command": "nearby highlights",
+      "description": "Get a transparent, recent wildlife briefing for an area without exposing observation coordinates."
+    },
+    {
+      "name": "Nature scavenger hunt",
+      "command": "hunt create",
+      "description": "Create a factual, balanced nature scavenger-hunt checklist from taxa actually observed nearby."
+    },
+    {
+      "name": "Current identification status",
+      "command": "observations id-status",
+      "description": "See which of an observer's recent observations are identified, need IDs, disagree, or have no taxon."
+    },
+    {
+      "name": "Identification changes since sync",
+      "command": "observations id-changes",
+      "description": "Report observations that became identified, changed, withdrew, or still need IDs since a previous privacy-safe sync."
+    },
+    {
+      "name": "Seasonal shift briefing",
+      "command": "nearby seasonal-shift",
+      "description": "Compare two field windows and surface taxa that newly appeared, returned, or changed materially."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Nearby highlights",
+      "command": "nearby highlights",
+      "description": "Get a transparent, recent wildlife briefing for an area without exposing observation coordinates."
+    },
+    {
+      "name": "Nature scavenger hunt",
+      "command": "hunt create",
+      "description": "Create a factual, balanced nature scavenger-hunt checklist from taxa actually observed nearby."
+    },
+    {
+      "name": "Current identification status",
+      "command": "observations id-status",
+      "description": "See which of an observer's recent observations are identified, need IDs, disagree, or have no taxon."
+    },
+    {
+      "name": "Identification changes since sync",
+      "command": "observations id-changes",
+      "description": "Report observations that became identified, changed, withdrew, or still need IDs since a previous privacy-safe sync."
+    },
+    {
+      "name": "Seasonal shift briefing",
+      "command": "nearby seasonal-shift",
+      "description": "Compare two field windows and surface taxa that newly appeared, returned, or changed materially."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 39,
+    "total": 39,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 97,
+      "grade": "A",
+      "total": 97
+    }
+  }
+}

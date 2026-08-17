@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "pinecone-cascade-accounting",
+  "applied_at": "2026-08-13",
+  "base_run_id": "20260813-214420-550eb813",
+  "base_printing_press_version": "4.30.2",
+  "summary": "Cascade: per-index dimension validation with failure accounting, and score-descending sort of merged results.",
+  "reason": "Output review (phase 4.85) found missing indexes silently dropped and nondeterministic merge ordering; both fixed in-session.",
+  "files": ["internal/cli/cascade.go"],
+  "validated_outcome": "Output review findings resolved; live cascade tests pass"
+}

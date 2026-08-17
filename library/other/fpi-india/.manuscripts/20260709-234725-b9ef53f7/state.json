@@ -1,0 +1,11 @@
+{
+  "version": 0,
+  "api_name": "fpi-india",
+  "run_id": "20260709-234725-b9ef53f7",
+  "scope": "cli-printing-press-00dee511",
+  "output_dir": "/Users/mayanklavania/printing-press/.runstate/cli-printing-press-00dee511/runs/20260709-234725-b9ef53f7/working/fpi-india-pp-cli",
+  "working_dir": "/Users/mayanklavania/printing-press/library/fpi-india",
+  "published_dir": "/Users/mayanklavania/printing-press/library/fpi-india",
+  "started_at": "0001-01-01T00:00:00Z",
+  "phases": {}
+}

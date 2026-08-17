@@ -18,11 +18,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	neturl "net/url"
 	"sort"
 	"strings"
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/spotify/internal/mcp/bound"
 )
 
 // RegisterCodeOrchestrationTools registers the two agent-facing tools that
@@ -59,7 +61,32 @@ type codeOrchEndpoint struct {
 	Tier       string
 	Summary    string
 	Positional []string
-	keywords   []string
+	// TemplateParams carries public-to-wire bindings for promoted global path
+	// placeholders. These resolve through Config.TemplateVars just like the
+	// per-endpoint MCP tool inputs do.
+	TemplateParams []codeOrchParamBinding
+	// QueryParams carries public-to-wire bindings for spec-declared in:query
+	// parameters. Write methods (POST/PUT/PATCH) route these to the query
+	// string instead of dumping them into the JSON body. Derived from the
+	// same mcpParamBindings location data the per-endpoint tools use.
+	QueryParams []codeOrchParamBinding
+	// HeaderOverrides carries per-endpoint request headers (e.g. an
+	// Accept override for binary-only response endpoints). Without
+	// threading these through, the code-orchestration execute path
+	// sends the client's default Accept and binary endpoints 406.
+	HeaderOverrides map[string]string
+	// BodyIsArray marks endpoints whose request body schema root is a
+	// bare top-level JSON array. The execute path then sends a top-level
+	// array (the agent supplies it as params["body"]) instead of the
+	// params object; a strict-mapping API rejects an object at the body
+	// root with HTTP 422 "Invalid json".
+	BodyIsArray bool
+	keywords    []string
+}
+
+type codeOrchParamBinding struct {
+	PublicName string
+	WireName   string
 }
 
 // codeOrchEndpoints is the generator-populated registry covering every
@@ -67,780 +94,974 @@ type codeOrchEndpoint struct {
 // via <api>_search, so hierarchy shows up as dotted IDs, not nested maps.
 var codeOrchEndpoints = []codeOrchEndpoint{
 	{
-		ID:         "albums.get-an",
-		Method:     "GET",
-		Path:       "/albums/{id}",
-		Summary:    "Get Spotify catalog information for a single album.",
-		Positional: []string{"id"},
-		keywords:   codeOrchKeywords("albums", "get-an", "Get Spotify catalog information for a single album.", "/albums/{id}"),
-	},
-	{
-		ID:         "albums.get-multiple",
-		Method:     "GET",
-		Path:       "/albums",
-		Summary:    "Get Spotify catalog information for multiple albums identified by their Spotify IDs.",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("albums", "get-multiple", "Get Spotify catalog information for multiple albums identified by their Spotify IDs.", "/albums"),
-	},
-	{
-		ID:         "albums.tracks.get-an-albums",
-		Method:     "GET",
-		Path:       "/albums/{id}/tracks",
-		Summary:    "Get Spotify catalog information about an album’s tracks. Optional parameters can be used to limit the number of...",
-		Positional: []string{"id"},
-		keywords:   codeOrchKeywords("albums", "get-an-albums", "Get Spotify catalog information about an album’s tracks. Optional parameters can be used to limit the number of...", "/albums/{id}/tracks"),
-	},
-	{
-		ID:         "artists.get-an",
-		Method:     "GET",
-		Path:       "/artists/{id}",
-		Summary:    "Get Spotify catalog information for a single artist identified by their unique Spotify ID.",
-		Positional: []string{"id"},
-		keywords:   codeOrchKeywords("artists", "get-an", "Get Spotify catalog information for a single artist identified by their unique Spotify ID.", "/artists/{id}"),
-	},
-	{
-		ID:         "artists.get-multiple",
-		Method:     "GET",
-		Path:       "/artists",
-		Summary:    "Get Spotify catalog information for several artists based on their Spotify IDs.",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("artists", "get-multiple", "Get Spotify catalog information for several artists based on their Spotify IDs.", "/artists"),
-	},
-	{
-		ID:         "artists.albums.get-an-artists",
-		Method:     "GET",
-		Path:       "/artists/{id}/albums",
-		Summary:    "Get Spotify catalog information about an artist's albums.",
-		Positional: []string{"id"},
-		keywords:   codeOrchKeywords("artists", "get-an-artists", "Get Spotify catalog information about an artist's albums.", "/artists/{id}/albums"),
-	},
-	{
-		ID:         "artists.related-artists.get-an-artists",
-		Method:     "GET",
-		Path:       "/artists/{id}/related-artists",
-		Summary:    "Get Spotify catalog information about artists similar to a given artist. Similarity is based on analysis of the...",
-		Positional: []string{"id"},
-		keywords:   codeOrchKeywords("artists", "get-an-artists", "Get Spotify catalog information about artists similar to a given artist. Similarity is based on analysis of the...", "/artists/{id}/related-artists"),
-	},
-	{
-		ID:         "artists.top-tracks.get-an-artists",
-		Method:     "GET",
-		Path:       "/artists/{id}/top-tracks",
-		Summary:    "Get Spotify catalog information about an artist's top tracks by country.",
-		Positional: []string{"id"},
-		keywords:   codeOrchKeywords("artists", "get-an-artists", "Get Spotify catalog information about an artist's top tracks by country.", "/artists/{id}/top-tracks"),
-	},
-	{
-		ID:         "audio-analysis.get",
-		Method:     "GET",
-		Path:       "/audio-analysis/{id}",
-		Summary:    "Get a low-level audio analysis for a track in the Spotify catalog. The audio analysis describes the track’s...",
-		Positional: []string{"id"},
-		keywords:   codeOrchKeywords("audio-analysis", "get", "Get a low-level audio analysis for a track in the Spotify catalog. The audio analysis describes the track’s...", "/audio-analysis/{id}"),
-	},
-	{
-		ID:         "audio-features.get",
-		Method:     "GET",
-		Path:       "/audio-features/{id}",
-		Summary:    "Get audio feature information for a single track identified by its unique Spotify ID.",
-		Positional: []string{"id"},
-		keywords:   codeOrchKeywords("audio-features", "get", "Get audio feature information for a single track identified by its unique Spotify ID.", "/audio-features/{id}"),
-	},
-	{
-		ID:         "audio-features.get-several",
-		Method:     "GET",
-		Path:       "/audio-features",
-		Summary:    "Get audio features for multiple tracks based on their Spotify IDs.",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("audio-features", "get-several", "Get audio features for multiple tracks based on their Spotify IDs.", "/audio-features"),
-	},
-	{
-		ID:         "audiobooks.get-an",
-		Method:     "GET",
-		Path:       "/audiobooks/{id}",
-		Summary:    "Get Spotify catalog information for a single audiobook. Audiobooks are only available within the US, UK, Canada,...",
-		Positional: []string{"id"},
-		keywords:   codeOrchKeywords("audiobooks", "get-an", "Get Spotify catalog information for a single audiobook. Audiobooks are only available within the US, UK, Canada,...", "/audiobooks/{id}"),
-	},
-	{
-		ID:         "audiobooks.get-multiple",
-		Method:     "GET",
-		Path:       "/audiobooks",
-		Summary:    "Get Spotify catalog information for several audiobooks identified by their Spotify IDs. Audiobooks are only...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("audiobooks", "get-multiple", "Get Spotify catalog information for several audiobooks identified by their Spotify IDs. Audiobooks are only...", "/audiobooks"),
-	},
-	{
-		ID:         "audiobooks.chapters.get-audiobook",
-		Method:     "GET",
-		Path:       "/audiobooks/{id}/chapters",
-		Summary:    "Get Spotify catalog information about an audiobook's chapters. Audiobooks are only available within the US, UK,...",
-		Positional: []string{"id"},
-		keywords:   codeOrchKeywords("audiobooks", "get-audiobook", "Get Spotify catalog information about an audiobook's chapters. Audiobooks are only available within the US, UK,...", "/audiobooks/{id}/chapters"),
-	},
-	{
-		ID:         "browse.get-a-categories-playlists",
-		Method:     "GET",
-		Path:       "/browse/categories/{category_id}/playlists",
-		Summary:    "Get a list of Spotify playlists tagged with a particular category.",
-		Positional: []string{"category_id"},
-		keywords:   codeOrchKeywords("browse", "get-a-categories-playlists", "Get a list of Spotify playlists tagged with a particular category.", "/browse/categories/{category_id}/playlists"),
-	},
-	{
-		ID:         "browse.get-a-category",
-		Method:     "GET",
-		Path:       "/browse/categories/{category_id}",
-		Summary:    "Get a single category used to tag items in Spotify (on, for example, the Spotify player’s “Browse” tab).",
-		Positional: []string{"category_id"},
-		keywords:   codeOrchKeywords("browse", "get-a-category", "Get a single category used to tag items in Spotify (on, for example, the Spotify player’s “Browse” tab).", "/browse/categories/{category_id}"),
-	},
-	{
-		ID:         "browse.get-categories",
-		Method:     "GET",
-		Path:       "/browse/categories",
-		Summary:    "Get a list of categories used to tag items in Spotify (on, for example, the Spotify player’s “Browse” tab).",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("browse", "get-categories", "Get a list of categories used to tag items in Spotify (on, for example, the Spotify player’s “Browse” tab).", "/browse/categories"),
-	},
-	{
-		ID:         "browse.get-featured-playlists",
-		Method:     "GET",
-		Path:       "/browse/featured-playlists",
-		Summary:    "Get a list of Spotify featured playlists (shown, for example, on a Spotify player's 'Browse' tab).",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("browse", "get-featured-playlists", "Get a list of Spotify featured playlists (shown, for example, on a Spotify player's 'Browse' tab).", "/browse/featured-playlists"),
-	},
-	{
-		ID:         "browse.get-new-releases",
-		Method:     "GET",
-		Path:       "/browse/new-releases",
-		Summary:    "Get a list of new album releases featured in Spotify (shown, for example, on a Spotify player’s “Browse” tab).",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("browse", "get-new-releases", "Get a list of new album releases featured in Spotify (shown, for example, on a Spotify player’s “Browse” tab).", "/browse/new-releases"),
-	},
-	{
-		ID:         "chapters.get-a",
-		Method:     "GET",
-		Path:       "/chapters/{id}",
-		Summary:    "Get Spotify catalog information for a single audiobook chapter. Chapters are only available within the US, UK,...",
-		Positional: []string{"id"},
-		keywords:   codeOrchKeywords("chapters", "get-a", "Get Spotify catalog information for a single audiobook chapter. Chapters are only available within the US, UK,...", "/chapters/{id}"),
-	},
-	{
-		ID:         "chapters.get-several",
-		Method:     "GET",
-		Path:       "/chapters",
-		Summary:    "Get Spotify catalog information for several audiobook chapters identified by their Spotify IDs. Chapters are only...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("chapters", "get-several", "Get Spotify catalog information for several audiobook chapters identified by their Spotify IDs. Chapters are only...", "/chapters"),
-	},
-	{
-		ID:         "episodes.get-an",
-		Method:     "GET",
-		Path:       "/episodes/{id}",
-		Summary:    "Get Spotify catalog information for a single episode identified by its unique Spotify ID.",
-		Positional: []string{"id"},
-		keywords:   codeOrchKeywords("episodes", "get-an", "Get Spotify catalog information for a single episode identified by its unique Spotify ID.", "/episodes/{id}"),
-	},
-	{
-		ID:         "episodes.get-multiple",
-		Method:     "GET",
-		Path:       "/episodes",
-		Summary:    "Get Spotify catalog information for several episodes based on their Spotify IDs.",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("episodes", "get-multiple", "Get Spotify catalog information for several episodes based on their Spotify IDs.", "/episodes"),
-	},
-	{
-		ID:         "markets.get-available",
-		Method:     "GET",
-		Path:       "/markets",
-		Summary:    "Get the list of markets where Spotify is available.",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("markets", "get-available", "Get the list of markets where Spotify is available.", "/markets"),
-	},
-	{
-		ID:         "me.add-to-queue",
-		Method:     "POST",
-		Path:       "/me/player/queue",
-		Summary:    "Add an item to be played next in the user's current playback queue. This API only works for users who have Spotify...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("me", "add-to-queue", "Add an item to be played next in the user's current playback queue. This API only works for users who have Spotify...", "/me/player/queue"),
-	},
-	{
-		ID:         "me.check-current-user-follows",
-		Method:     "GET",
-		Path:       "/me/following/contains",
-		Summary:    "Check to see if the current user is following one or more artists or other Spotify users. **Note:** This endpoint is...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("me", "check-current-user-follows", "Check to see if the current user is following one or more artists or other Spotify users. **Note:** This endpoint is...", "/me/following/contains"),
-	},
-	{
-		ID:         "me.check-library-contains",
-		Method:     "GET",
-		Path:       "/me/library/contains",
-		Summary:    "Check if one or more items are already saved in the current user's library. Accepts Spotify URIs for tracks, albums,...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("me", "check-library-contains", "Check if one or more items are already saved in the current user's library. Accepts Spotify URIs for tracks, albums,...", "/me/library/contains"),
-	},
-	{
-		ID:         "me.check-users-saved-albums",
-		Method:     "GET",
-		Path:       "/me/albums/contains",
-		Summary:    "Check if one or more albums is already saved in the current Spotify user's 'Your Music' library. **Note:** This...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("me", "check-users-saved-albums", "Check if one or more albums is already saved in the current Spotify user's 'Your Music' library. **Note:** This...", "/me/albums/contains"),
-	},
-	{
-		ID:         "me.check-users-saved-audiobooks",
-		Method:     "GET",
-		Path:       "/me/audiobooks/contains",
-		Summary:    "Check if one or more audiobooks are already saved in the current Spotify user's library. **Note:** This endpoint is...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("me", "check-users-saved-audiobooks", "Check if one or more audiobooks are already saved in the current Spotify user's library. **Note:** This endpoint is...", "/me/audiobooks/contains"),
-	},
-	{
-		ID:         "me.check-users-saved-episodes",
-		Method:     "GET",
-		Path:       "/me/episodes/contains",
-		Summary:    "Check if one or more episodes is already saved in the current Spotify user's 'Your Episodes' library. **Note:** This...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("me", "check-users-saved-episodes", "Check if one or more episodes is already saved in the current Spotify user's 'Your Episodes' library. **Note:** This...", "/me/episodes/contains"),
-	},
-	{
-		ID:         "me.check-users-saved-shows",
-		Method:     "GET",
-		Path:       "/me/shows/contains",
-		Summary:    "Check if one or more shows is already saved in the current Spotify user's library. **Note:** This endpoint is...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("me", "check-users-saved-shows", "Check if one or more shows is already saved in the current Spotify user's library. **Note:** This endpoint is...", "/me/shows/contains"),
-	},
-	{
-		ID:         "me.check-users-saved-tracks",
-		Method:     "GET",
-		Path:       "/me/tracks/contains",
-		Summary:    "Check if one or more tracks is already saved in the current Spotify user's 'Your Music' library. **Note:** This...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("me", "check-users-saved-tracks", "Check if one or more tracks is already saved in the current Spotify user's 'Your Music' library. **Note:** This...", "/me/tracks/contains"),
-	},
-	{
-		ID:         "me.create-playlist",
-		Method:     "POST",
-		Path:       "/me/playlists",
-		Summary:    "Create a playlist for the current Spotify user. (The playlist will be empty until you [add...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("me", "create-playlist", "Create a playlist for the current Spotify user. (The playlist will be empty until you [add...", "/me/playlists"),
-	},
-	{
-		ID:         "me.follow-artists-users",
-		Method:     "PUT",
-		Path:       "/me/following",
-		Summary:    "Add the current user as a follower of one or more artists or other Spotify users. **Note:** This endpoint is...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("me", "follow-artists-users", "Add the current user as a follower of one or more artists or other Spotify users. **Note:** This endpoint is...", "/me/following"),
-	},
-	{
-		ID:         "me.get-a-list-of-current-users-playlists",
-		Method:     "GET",
-		Path:       "/me/playlists",
-		Summary:    "Get a list of the playlists owned or followed by the current Spotify user.",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("me", "get-a-list-of-current-users-playlists", "Get a list of the playlists owned or followed by the current Spotify user.", "/me/playlists"),
-	},
-	{
-		ID:         "me.get-a-users-available-devices",
-		Method:     "GET",
-		Path:       "/me/player/devices",
-		Summary:    "Get information about a user’s available Spotify Connect devices. Some device models are not supported and will...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("me", "get-a-users-available-devices", "Get information about a user’s available Spotify Connect devices. Some device models are not supported and will...", "/me/player/devices"),
-	},
-	{
-		ID:         "me.get-current-users-profile",
-		Method:     "GET",
-		Path:       "/me",
-		Summary:    "Get detailed profile information about the current user (including the current user's username).",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("me", "get-current-users-profile", "Get detailed profile information about the current user (including the current user's username).", "/me"),
-	},
-	{
-		ID:         "me.get-followed",
-		Method:     "GET",
-		Path:       "/me/following",
-		Summary:    "Get the current user's followed artists.",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("me", "get-followed", "Get the current user's followed artists.", "/me/following"),
-	},
-	{
-		ID:         "me.get-information-about-the-users-current-playback",
-		Method:     "GET",
-		Path:       "/me/player",
-		Summary:    "Get information about the user’s current playback state, including track or episode, progress, and active device.",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("me", "get-information-about-the-users-current-playback", "Get information about the user’s current playback state, including track or episode, progress, and active device.", "/me/player"),
-	},
-	{
-		ID:         "me.get-queue",
-		Method:     "GET",
-		Path:       "/me/player/queue",
-		Summary:    "Get the list of objects that make up the user's queue.",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("me", "get-queue", "Get the list of objects that make up the user's queue.", "/me/player/queue"),
-	},
-	{
-		ID:         "me.get-recently-played",
-		Method:     "GET",
-		Path:       "/me/player/recently-played",
-		Summary:    "Get tracks from the current user's recently played tracks. _**Note**: Currently doesn't support podcast episodes._",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("me", "get-recently-played", "Get tracks from the current user's recently played tracks. _**Note**: Currently doesn't support podcast episodes._", "/me/player/recently-played"),
-	},
-	{
-		ID:         "me.get-the-users-currently-playing-track",
-		Method:     "GET",
-		Path:       "/me/player/currently-playing",
-		Summary:    "Get the object currently being played on the user's Spotify account.",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("me", "get-the-users-currently-playing-track", "Get the object currently being played on the user's Spotify account.", "/me/player/currently-playing"),
-	},
-	{
-		ID:         "me.get-users-saved-albums",
-		Method:     "GET",
-		Path:       "/me/albums",
-		Summary:    "Get a list of the albums saved in the current Spotify user's 'Your Music' library.",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("me", "get-users-saved-albums", "Get a list of the albums saved in the current Spotify user's 'Your Music' library.", "/me/albums"),
-	},
-	{
-		ID:         "me.get-users-saved-audiobooks",
-		Method:     "GET",
-		Path:       "/me/audiobooks",
-		Summary:    "Get a list of the audiobooks saved in the current Spotify user's 'Your Music' library.",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("me", "get-users-saved-audiobooks", "Get a list of the audiobooks saved in the current Spotify user's 'Your Music' library.", "/me/audiobooks"),
-	},
-	{
-		ID:         "me.get-users-saved-episodes",
-		Method:     "GET",
-		Path:       "/me/episodes",
-		Summary:    "Get a list of the episodes saved in the current Spotify user's library.",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("me", "get-users-saved-episodes", "Get a list of the episodes saved in the current Spotify user's library.", "/me/episodes"),
-	},
-	{
-		ID:         "me.get-users-saved-shows",
-		Method:     "GET",
-		Path:       "/me/shows",
-		Summary:    "Get a list of shows saved in the current Spotify user's library. Optional parameters can be used to limit the number...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("me", "get-users-saved-shows", "Get a list of shows saved in the current Spotify user's library. Optional parameters can be used to limit the number...", "/me/shows"),
-	},
-	{
-		ID:         "me.get-users-saved-tracks",
-		Method:     "GET",
-		Path:       "/me/tracks",
-		Summary:    "Get a list of the songs saved in the current Spotify user's 'Your Music' library.",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("me", "get-users-saved-tracks", "Get a list of the songs saved in the current Spotify user's 'Your Music' library.", "/me/tracks"),
-	},
-	{
-		ID:         "me.get-users-top-artists",
-		Method:     "GET",
-		Path:       "/me/top/artists",
-		Summary:    "Get the current user's top artists based on calculated affinity.",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("me", "get-users-top-artists", "Get the current user's top artists based on calculated affinity.", "/me/top/artists"),
-	},
-	{
-		ID:         "me.get-users-top-tracks",
-		Method:     "GET",
-		Path:       "/me/top/tracks",
-		Summary:    "Get the current user's top tracks based on calculated affinity.",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("me", "get-users-top-tracks", "Get the current user's top tracks based on calculated affinity.", "/me/top/tracks"),
-	},
-	{
-		ID:         "me.pause-a-users-playback",
-		Method:     "PUT",
-		Path:       "/me/player/pause",
-		Summary:    "Pause playback on the user's account. This API only works for users who have Spotify Premium. The order of execution...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("me", "pause-a-users-playback", "Pause playback on the user's account. This API only works for users who have Spotify Premium. The order of execution...", "/me/player/pause"),
-	},
-	{
-		ID:         "me.remove-albums-user",
-		Method:     "DELETE",
-		Path:       "/me/albums",
-		Summary:    "Remove one or more albums from the current user's 'Your Music' library. **Note:** This endpoint is deprecated. Use...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("me", "remove-albums-user", "Remove one or more albums from the current user's 'Your Music' library. **Note:** This endpoint is deprecated. Use...", "/me/albums"),
-	},
-	{
-		ID:         "me.remove-audiobooks-user",
-		Method:     "DELETE",
-		Path:       "/me/audiobooks",
-		Summary:    "Remove one or more audiobooks from the Spotify user's library. **Note:** This endpoint is deprecated. Use [Remove...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("me", "remove-audiobooks-user", "Remove one or more audiobooks from the Spotify user's library. **Note:** This endpoint is deprecated. Use [Remove...", "/me/audiobooks"),
-	},
-	{
-		ID:         "me.remove-episodes-user",
-		Method:     "DELETE",
-		Path:       "/me/episodes",
-		Summary:    "Remove one or more episodes from the current user's library. **Note:** This endpoint is deprecated. Use [Remove...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("me", "remove-episodes-user", "Remove one or more episodes from the current user's library. **Note:** This endpoint is deprecated. Use [Remove...", "/me/episodes"),
-	},
-	{
-		ID:         "me.remove-library-items",
-		Method:     "DELETE",
-		Path:       "/me/library",
-		Summary:    "Remove one or more items from the current user's library. Accepts Spotify URIs for tracks, albums, episodes, shows,...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("me", "remove-library-items", "Remove one or more items from the current user's library. Accepts Spotify URIs for tracks, albums, episodes, shows,...", "/me/library"),
-	},
-	{
-		ID:         "me.remove-shows-user",
-		Method:     "DELETE",
-		Path:       "/me/shows",
-		Summary:    "Delete one or more shows from current Spotify user's library. **Note:** This endpoint is deprecated. Use [Remove...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("me", "remove-shows-user", "Delete one or more shows from current Spotify user's library. **Note:** This endpoint is deprecated. Use [Remove...", "/me/shows"),
-	},
-	{
-		ID:         "me.remove-tracks-user",
-		Method:     "DELETE",
-		Path:       "/me/tracks",
-		Summary:    "Remove one or more tracks from the current user's 'Your Music' library. **Note:** This endpoint is deprecated. Use...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("me", "remove-tracks-user", "Remove one or more tracks from the current user's 'Your Music' library. **Note:** This endpoint is deprecated. Use...", "/me/tracks"),
-	},
-	{
-		ID:         "me.save-albums-user",
-		Method:     "PUT",
-		Path:       "/me/albums",
-		Summary:    "Save one or more albums to the current user's 'Your Music' library. **Note:** This endpoint is deprecated. Use [Save...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("me", "save-albums-user", "Save one or more albums to the current user's 'Your Music' library. **Note:** This endpoint is deprecated. Use [Save...", "/me/albums"),
-	},
-	{
-		ID:         "me.save-audiobooks-user",
-		Method:     "PUT",
-		Path:       "/me/audiobooks",
-		Summary:    "Save one or more audiobooks to the current Spotify user's library. **Note:** This endpoint is deprecated. Use [Save...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("me", "save-audiobooks-user", "Save one or more audiobooks to the current Spotify user's library. **Note:** This endpoint is deprecated. Use [Save...", "/me/audiobooks"),
-	},
-	{
-		ID:         "me.save-episodes-user",
-		Method:     "PUT",
-		Path:       "/me/episodes",
-		Summary:    "Save one or more episodes to the current user's library. **Note:** This endpoint is deprecated. Use [Save Items to...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("me", "save-episodes-user", "Save one or more episodes to the current user's library. **Note:** This endpoint is deprecated. Use [Save Items to...", "/me/episodes"),
-	},
-	{
-		ID:         "me.save-library-items",
-		Method:     "PUT",
-		Path:       "/me/library",
-		Summary:    "Add one or more items to the current user's library. Accepts Spotify URIs for tracks, albums, episodes, shows,...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("me", "save-library-items", "Add one or more items to the current user's library. Accepts Spotify URIs for tracks, albums, episodes, shows,...", "/me/library"),
-	},
-	{
-		ID:         "me.save-shows-user",
-		Method:     "PUT",
-		Path:       "/me/shows",
-		Summary:    "Save one or more shows to current Spotify user's library. **Note:** This endpoint is deprecated. Use [Save Items to...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("me", "save-shows-user", "Save one or more shows to current Spotify user's library. **Note:** This endpoint is deprecated. Use [Save Items to...", "/me/shows"),
-	},
-	{
-		ID:         "me.save-tracks-user",
-		Method:     "PUT",
-		Path:       "/me/tracks",
-		Summary:    "Save one or more tracks to the current user's 'Your Music' library. **Note:** This endpoint is deprecated. Use [Save...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("me", "save-tracks-user", "Save one or more tracks to the current user's 'Your Music' library. **Note:** This endpoint is deprecated. Use [Save...", "/me/tracks"),
-	},
-	{
-		ID:         "me.seek-to-position-in-currently-playing-track",
-		Method:     "PUT",
-		Path:       "/me/player/seek",
-		Summary:    "Seeks to the given position in the user’s currently playing track. This API only works for users who have Spotify...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("me", "seek-to-position-in-currently-playing-track", "Seeks to the given position in the user’s currently playing track. This API only works for users who have Spotify...", "/me/player/seek"),
-	},
-	{
-		ID:         "me.set-repeat-mode-on-users-playback",
-		Method:     "PUT",
-		Path:       "/me/player/repeat",
-		Summary:    "Set the repeat mode for the user's playback. This API only works for users who have Spotify Premium. The order of...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("me", "set-repeat-mode-on-users-playback", "Set the repeat mode for the user's playback. This API only works for users who have Spotify Premium. The order of...", "/me/player/repeat"),
-	},
-	{
-		ID:         "me.set-volume-for-users-playback",
-		Method:     "PUT",
-		Path:       "/me/player/volume",
-		Summary:    "Set the volume for the user’s current playback device. This API only works for users who have Spotify Premium. The...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("me", "set-volume-for-users-playback", "Set the volume for the user’s current playback device. This API only works for users who have Spotify Premium. The...", "/me/player/volume"),
-	},
-	{
-		ID:         "me.skip-users-playback-to-next-track",
-		Method:     "POST",
-		Path:       "/me/player/next",
-		Summary:    "Skips to next track in the user’s queue. This API only works for users who have Spotify Premium. The order of...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("me", "skip-users-playback-to-next-track", "Skips to next track in the user’s queue. This API only works for users who have Spotify Premium. The order of...", "/me/player/next"),
-	},
-	{
-		ID:         "me.skip-users-playback-to-previous-track",
-		Method:     "POST",
-		Path:       "/me/player/previous",
-		Summary:    "Skips to previous track in the user’s queue. This API only works for users who have Spotify Premium. The order of...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("me", "skip-users-playback-to-previous-track", "Skips to previous track in the user’s queue. This API only works for users who have Spotify Premium. The order of...", "/me/player/previous"),
-	},
-	{
-		ID:         "me.start-a-users-playback",
-		Method:     "PUT",
-		Path:       "/me/player/play",
-		Summary:    "Start a new context or resume current playback on the user's active device. This API only works for users who have...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("me", "start-a-users-playback", "Start a new context or resume current playback on the user's active device. This API only works for users who have...", "/me/player/play"),
-	},
-	{
-		ID:         "me.toggle-shuffle-for-users-playback",
-		Method:     "PUT",
-		Path:       "/me/player/shuffle",
-		Summary:    "Toggle shuffle on or off for user’s playback. This API only works for users who have Spotify Premium. The order of...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("me", "toggle-shuffle-for-users-playback", "Toggle shuffle on or off for user’s playback. This API only works for users who have Spotify Premium. The order of...", "/me/player/shuffle"),
-	},
-	{
-		ID:         "me.transfer-a-users-playback",
-		Method:     "PUT",
-		Path:       "/me/player",
-		Summary:    "Transfer playback to a new device and optionally begin playback. This API only works for users who have Spotify...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("me", "transfer-a-users-playback", "Transfer playback to a new device and optionally begin playback. This API only works for users who have Spotify...", "/me/player"),
-	},
-	{
-		ID:         "me.unfollow-artists-users",
-		Method:     "DELETE",
-		Path:       "/me/following",
-		Summary:    "Remove the current user as a follower of one or more artists or other Spotify users. **Note:** This endpoint is...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("me", "unfollow-artists-users", "Remove the current user as a follower of one or more artists or other Spotify users. **Note:** This endpoint is...", "/me/following"),
-	},
-	{
-		ID:         "playlists.change-details",
-		Method:     "PUT",
-		Path:       "/playlists/{playlist_id}",
-		Summary:    "Change a playlist's name and public/private state. (The user must, of course, own the playlist.)",
-		Positional: []string{"playlist_id"},
-		keywords:   codeOrchKeywords("playlists", "change-details", "Change a playlist's name and public/private state. (The user must, of course, own the playlist.)", "/playlists/{playlist_id}"),
-	},
-	{
-		ID:         "playlists.get",
-		Method:     "GET",
-		Path:       "/playlists/{playlist_id}",
-		Summary:    "Get a playlist owned by a Spotify user.",
-		Positional: []string{"playlist_id"},
-		keywords:   codeOrchKeywords("playlists", "get", "Get a playlist owned by a Spotify user.", "/playlists/{playlist_id}"),
-	},
-	{
-		ID:         "playlists.followers.check-if-user-follows-playlist",
-		Method:     "GET",
-		Path:       "/playlists/{playlist_id}/followers/contains",
-		Summary:    "Check to see if the current user is following a specified playlist. **Note:** This endpoint is deprecated. Use...",
-		Positional: []string{"playlist_id"},
-		keywords:   codeOrchKeywords("playlists", "check-if-user-follows-playlist", "Check to see if the current user is following a specified playlist. **Note:** This endpoint is deprecated. Use...", "/playlists/{playlist_id}/followers/contains"),
-	},
-	{
-		ID:         "playlists.followers.follow-playlist",
-		Method:     "PUT",
-		Path:       "/playlists/{playlist_id}/followers",
-		Summary:    "Add the current user as a follower of a playlist. **Note:** This endpoint is deprecated. Use [Save Items to...",
-		Positional: []string{"playlist_id"},
-		keywords:   codeOrchKeywords("playlists", "follow-playlist", "Add the current user as a follower of a playlist. **Note:** This endpoint is deprecated. Use [Save Items to...", "/playlists/{playlist_id}/followers"),
-	},
-	{
-		ID:         "playlists.followers.unfollow-playlist",
-		Method:     "DELETE",
-		Path:       "/playlists/{playlist_id}/followers",
-		Summary:    "Remove the current user as a follower of a playlist. **Note:** This endpoint is deprecated. Use [Remove Items from...",
-		Positional: []string{"playlist_id"},
-		keywords:   codeOrchKeywords("playlists", "unfollow-playlist", "Remove the current user as a follower of a playlist. **Note:** This endpoint is deprecated. Use [Remove Items from...", "/playlists/{playlist_id}/followers"),
-	},
-	{
-		ID:         "playlists.images.get-playlist-cover",
-		Method:     "GET",
-		Path:       "/playlists/{playlist_id}/images",
-		Summary:    "Get the current image associated with a specific playlist.",
-		Positional: []string{"playlist_id"},
-		keywords:   codeOrchKeywords("playlists", "get-playlist-cover", "Get the current image associated with a specific playlist.", "/playlists/{playlist_id}/images"),
-	},
-	{
-		ID:         "playlists.images.upload-custom-playlist-cover",
-		Method:     "PUT",
-		Path:       "/playlists/{playlist_id}/images",
-		Summary:    "Replace the image used to represent a specific playlist.",
-		Positional: []string{"playlist_id"},
-		keywords:   codeOrchKeywords("playlists", "upload-custom-playlist-cover", "Replace the image used to represent a specific playlist.", "/playlists/{playlist_id}/images"),
-	},
-	{
-		ID:         "playlists.items.add-to-playlist",
-		Method:     "POST",
-		Path:       "/playlists/{playlist_id}/items",
-		Summary:    "Add one or more items to a user's playlist.",
-		Positional: []string{"playlist_id"},
-		keywords:   codeOrchKeywords("playlists", "add-to-playlist", "Add one or more items to a user's playlist.", "/playlists/{playlist_id}/items"),
-	},
-	{
-		ID:         "playlists.items.get-playlists",
-		Method:     "GET",
-		Path:       "/playlists/{playlist_id}/items",
-		Summary:    "Get full details of the items of a playlist owned by a Spotify user. **Note**: This endpoint is only accessible for...",
-		Positional: []string{"playlist_id"},
-		keywords:   codeOrchKeywords("playlists", "get-playlists", "Get full details of the items of a playlist owned by a Spotify user. **Note**: This endpoint is only accessible for...", "/playlists/{playlist_id}/items"),
-	},
-	{
-		ID:         "playlists.items.remove-playlist",
-		Method:     "DELETE",
-		Path:       "/playlists/{playlist_id}/items",
-		Summary:    "Remove one or more items from a user's playlist.",
-		Positional: []string{"playlist_id"},
-		keywords:   codeOrchKeywords("playlists", "remove-playlist", "Remove one or more items from a user's playlist.", "/playlists/{playlist_id}/items"),
-	},
-	{
-		ID:         "playlists.items.reorder-or-replace-playlists",
-		Method:     "PUT",
-		Path:       "/playlists/{playlist_id}/items",
-		Summary:    "Either reorder or replace items in a playlist depending on the request's parameters. To reorder items, include...",
-		Positional: []string{"playlist_id"},
-		keywords:   codeOrchKeywords("playlists", "reorder-or-replace-playlists", "Either reorder or replace items in a playlist depending on the request's parameters. To reorder items, include...", "/playlists/{playlist_id}/items"),
-	},
-	{
-		ID:         "playlists.tracks.add-to-playlist",
-		Method:     "POST",
-		Path:       "/playlists/{playlist_id}/tracks",
-		Summary:    "**Deprecated:** Use [Add Items to Playlist](/documentation/web-api/reference/add-items-to-playlist) instead. Add one...",
-		Positional: []string{"playlist_id"},
-		keywords:   codeOrchKeywords("playlists", "add-to-playlist", "**Deprecated:** Use [Add Items to Playlist](/documentation/web-api/reference/add-items-to-playlist) instead. Add one...", "/playlists/{playlist_id}/tracks"),
-	},
-	{
-		ID:         "playlists.tracks.get-playlists",
-		Method:     "GET",
-		Path:       "/playlists/{playlist_id}/tracks",
-		Summary:    "**Deprecated:** Use [Get Playlist Items](/documentation/web-api/reference/get-playlists-items) instead. Get full...",
-		Positional: []string{"playlist_id"},
-		keywords:   codeOrchKeywords("playlists", "get-playlists", "**Deprecated:** Use [Get Playlist Items](/documentation/web-api/reference/get-playlists-items) instead. Get full...", "/playlists/{playlist_id}/tracks"),
-	},
-	{
-		ID:         "playlists.tracks.remove-playlist",
-		Method:     "DELETE",
-		Path:       "/playlists/{playlist_id}/tracks",
-		Summary:    "**Deprecated:** Use [Remove Playlist Items](/documentation/web-api/reference/remove-items-playlist) instead. Remove...",
-		Positional: []string{"playlist_id"},
-		keywords:   codeOrchKeywords("playlists", "remove-playlist", "**Deprecated:** Use [Remove Playlist Items](/documentation/web-api/reference/remove-items-playlist) instead. Remove...", "/playlists/{playlist_id}/tracks"),
-	},
-	{
-		ID:         "playlists.tracks.reorder-or-replace-playlists",
-		Method:     "PUT",
-		Path:       "/playlists/{playlist_id}/tracks",
-		Summary:    "**Deprecated:** Use [Update Playlist Items](/documentation/web-api/reference/reorder-or-replace-playlists-items)...",
-		Positional: []string{"playlist_id"},
-		keywords:   codeOrchKeywords("playlists", "reorder-or-replace-playlists", "**Deprecated:** Use [Update Playlist Items](/documentation/web-api/reference/reorder-or-replace-playlists-items)...", "/playlists/{playlist_id}/tracks"),
-	},
-	{
-		ID:         "recommendations.get",
-		Method:     "GET",
-		Path:       "/recommendations",
-		Summary:    "Recommendations are generated based on the available information for a given seed entity and matched against similar...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("recommendations", "get", "Recommendations are generated based on the available information for a given seed entity and matched against similar...", "/recommendations"),
-	},
-	{
-		ID:         "recommendations.get-genres",
-		Method:     "GET",
-		Path:       "/recommendations/available-genre-seeds",
-		Summary:    "Retrieve a list of available genres seed parameter values for...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("recommendations", "get-genres", "Retrieve a list of available genres seed parameter values for...", "/recommendations/available-genre-seeds"),
-	},
-	{
-		ID:         "shows.get-a",
-		Method:     "GET",
-		Path:       "/shows/{id}",
-		Summary:    "Get Spotify catalog information for a single show identified by its unique Spotify ID.",
-		Positional: []string{"id"},
-		keywords:   codeOrchKeywords("shows", "get-a", "Get Spotify catalog information for a single show identified by its unique Spotify ID.", "/shows/{id}"),
-	},
-	{
-		ID:         "shows.get-multiple",
-		Method:     "GET",
-		Path:       "/shows",
-		Summary:    "Get Spotify catalog information for several shows based on their Spotify IDs.",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("shows", "get-multiple", "Get Spotify catalog information for several shows based on their Spotify IDs.", "/shows"),
-	},
-	{
-		ID:         "shows.episodes.get-a-shows",
-		Method:     "GET",
-		Path:       "/shows/{id}/episodes",
-		Summary:    "Get Spotify catalog information about an show’s episodes. Optional parameters can be used to limit the number of...",
-		Positional: []string{"id"},
-		keywords:   codeOrchKeywords("shows", "get-a-shows", "Get Spotify catalog information about an show’s episodes. Optional parameters can be used to limit the number of...", "/shows/{id}/episodes"),
-	},
-	{
-		ID:         "spotify-search.search",
-		Method:     "GET",
-		Path:       "/search",
-		Summary:    "Get Spotify catalog information about albums, artists, playlists, tracks, shows, episodes or audiobooks that match a...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("spotify-search", "search", "Get Spotify catalog information about albums, artists, playlists, tracks, shows, episodes or audiobooks that match a...", "/search"),
-	},
-	{
-		ID:         "tracks.get",
-		Method:     "GET",
-		Path:       "/tracks/{id}",
-		Summary:    "Get Spotify catalog information for a single track identified by its unique Spotify ID.",
-		Positional: []string{"id"},
-		keywords:   codeOrchKeywords("tracks", "get", "Get Spotify catalog information for a single track identified by its unique Spotify ID.", "/tracks/{id}"),
-	},
-	{
-		ID:         "tracks.get-several",
-		Method:     "GET",
-		Path:       "/tracks",
-		Summary:    "Get Spotify catalog information for multiple tracks based on their Spotify IDs.",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("tracks", "get-several", "Get Spotify catalog information for multiple tracks based on their Spotify IDs.", "/tracks"),
-	},
-	{
-		ID:         "users.get-profile",
-		Method:     "GET",
-		Path:       "/users/{user_id}",
-		Summary:    "Get public profile information about a Spotify user.",
-		Positional: []string{"user_id"},
-		keywords:   codeOrchKeywords("users", "get-profile", "Get public profile information about a Spotify user.", "/users/{user_id}"),
-	},
-	{
-		ID:         "users.playlists.create-for-user",
-		Method:     "POST",
-		Path:       "/users/{user_id}/playlists",
-		Summary:    "**Deprecated**: Use [Create Playlist](/documentation/web-api/reference/create-playlist) instead. Create a playlist...",
-		Positional: []string{"user_id"},
-		keywords:   codeOrchKeywords("users", "create-for-user", "**Deprecated**: Use [Create Playlist](/documentation/web-api/reference/create-playlist) instead. Create a playlist...", "/users/{user_id}/playlists"),
-	},
-	{
-		ID:         "users.playlists.get-list-users",
-		Method:     "GET",
-		Path:       "/users/{user_id}/playlists",
-		Summary:    "Get a list of the playlists owned or followed by a Spotify user.",
-		Positional: []string{"user_id"},
-		keywords:   codeOrchKeywords("users", "get-list-users", "Get a list of the playlists owned or followed by a Spotify user.", "/users/{user_id}/playlists"),
+		ID:             "albums.get-an",
+		Method:         "GET",
+		Path:           "/albums/{id}",
+		Summary:        "Get Spotify catalog information for a single album.",
+		Positional:     []string{"id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "market", WireName: "market"}},
+		keywords:       codeOrchKeywords("albums", "get-an", "Get Spotify catalog information for a single album.", "/albums/{id}"),
+	},
+	{
+		ID:             "albums.get-multiple",
+		Method:         "GET",
+		Path:           "/albums",
+		Summary:        "Get Spotify catalog information for multiple albums identified by their Spotify IDs.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "ids", WireName: "ids"}, {PublicName: "market", WireName: "market"}},
+		keywords:       codeOrchKeywords("albums", "get-multiple", "Get Spotify catalog information for multiple albums identified by their Spotify IDs.", "/albums"),
+	},
+	{
+		ID:             "albums.tracks.get-an-albums",
+		Method:         "GET",
+		Path:           "/albums/{id}/tracks",
+		Summary:        "Get Spotify catalog information about an album’s tracks.",
+		Positional:     []string{"id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "market", WireName: "market"}, {PublicName: "limit", WireName: "limit"}},
+		keywords:       codeOrchKeywords("albums", "get-an-albums", "Get Spotify catalog information about an album’s tracks.", "/albums/{id}/tracks"),
+	},
+	{
+		ID:             "artists.get-an",
+		Method:         "GET",
+		Path:           "/artists/{id}",
+		Summary:        "Get Spotify catalog information for a single artist identified by their unique Spotify ID.",
+		Positional:     []string{"id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("artists", "get-an", "Get Spotify catalog information for a single artist identified by their unique Spotify ID.", "/artists/{id}"),
+	},
+	{
+		ID:             "artists.get-multiple",
+		Method:         "GET",
+		Path:           "/artists",
+		Summary:        "Get Spotify catalog information for several artists based on their Spotify IDs.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "ids", WireName: "ids"}},
+		keywords:       codeOrchKeywords("artists", "get-multiple", "Get Spotify catalog information for several artists based on their Spotify IDs.", "/artists"),
+	},
+	{
+		ID:             "artists.albums.get-an-artists",
+		Method:         "GET",
+		Path:           "/artists/{id}/albums",
+		Summary:        "Get Spotify catalog information about an artist's albums.",
+		Positional:     []string{"id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "include_groups", WireName: "include_groups"}, {PublicName: "market", WireName: "market"}, {PublicName: "limit", WireName: "limit"}},
+		keywords:       codeOrchKeywords("artists", "get-an-artists", "Get Spotify catalog information about an artist's albums.", "/artists/{id}/albums"),
+	},
+	{
+		ID:             "artists.related-artists.get-an-artists",
+		Method:         "GET",
+		Path:           "/artists/{id}/related-artists",
+		Summary:        "Get Spotify catalog information about artists similar to a given artist.",
+		Positional:     []string{"id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("artists", "get-an-artists", "Get Spotify catalog information about artists similar to a given artist.", "/artists/{id}/related-artists"),
+	},
+	{
+		ID:             "artists.top-tracks.get-an-artists",
+		Method:         "GET",
+		Path:           "/artists/{id}/top-tracks",
+		Summary:        "Get Spotify catalog information about an artist's top tracks by country.",
+		Positional:     []string{"id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "market", WireName: "market"}},
+		keywords:       codeOrchKeywords("artists", "get-an-artists", "Get Spotify catalog information about an artist's top tracks by country.", "/artists/{id}/top-tracks"),
+	},
+	{
+		ID:             "audio-analysis.get",
+		Method:         "GET",
+		Path:           "/audio-analysis/{id}",
+		Summary:        "Get a low-level audio analysis for a track in the Spotify catalog.",
+		Positional:     []string{"id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("audio-analysis", "get", "Get a low-level audio analysis for a track in the Spotify catalog.", "/audio-analysis/{id}"),
+	},
+	{
+		ID:             "audio-features.get",
+		Method:         "GET",
+		Path:           "/audio-features/{id}",
+		Summary:        "Get audio feature information for a single track identified by its unique Spotify ID.",
+		Positional:     []string{"id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("audio-features", "get", "Get audio feature information for a single track identified by its unique Spotify ID.", "/audio-features/{id}"),
+	},
+	{
+		ID:             "audio-features.get-several",
+		Method:         "GET",
+		Path:           "/audio-features",
+		Summary:        "Get audio features for multiple tracks based on their Spotify IDs.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "ids", WireName: "ids"}},
+		keywords:       codeOrchKeywords("audio-features", "get-several", "Get audio features for multiple tracks based on their Spotify IDs.", "/audio-features"),
+	},
+	{
+		ID:             "audiobooks.get-an",
+		Method:         "GET",
+		Path:           "/audiobooks/{id}",
+		Summary:        "Get Spotify catalog information for a single audiobook.",
+		Positional:     []string{"id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "market", WireName: "market"}},
+		keywords:       codeOrchKeywords("audiobooks", "get-an", "Get Spotify catalog information for a single audiobook.", "/audiobooks/{id}"),
+	},
+	{
+		ID:             "audiobooks.get-multiple",
+		Method:         "GET",
+		Path:           "/audiobooks",
+		Summary:        "Get Spotify catalog information for several audiobooks identified by their Spotify IDs.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "ids", WireName: "ids"}, {PublicName: "market", WireName: "market"}},
+		keywords:       codeOrchKeywords("audiobooks", "get-multiple", "Get Spotify catalog information for several audiobooks identified by their Spotify IDs.", "/audiobooks"),
+	},
+	{
+		ID:             "audiobooks.chapters.get-audiobook",
+		Method:         "GET",
+		Path:           "/audiobooks/{id}/chapters",
+		Summary:        "Get Spotify catalog information about an audiobook's chapters.",
+		Positional:     []string{"id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "market", WireName: "market"}, {PublicName: "limit", WireName: "limit"}},
+		keywords:       codeOrchKeywords("audiobooks", "get-audiobook", "Get Spotify catalog information about an audiobook's chapters.", "/audiobooks/{id}/chapters"),
+	},
+	{
+		ID:             "browse.get-a-categories-playlists",
+		Method:         "GET",
+		Path:           "/browse/categories/{category_id}/playlists",
+		Summary:        "Get a list of Spotify playlists tagged with a particular category.",
+		Positional:     []string{"category_id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "limit", WireName: "limit"}},
+		keywords:       codeOrchKeywords("browse", "get-a-categories-playlists", "Get a list of Spotify playlists tagged with a particular category.", "/browse/categories/{category_id}/playlists"),
+	},
+	{
+		ID:             "browse.get-a-category",
+		Method:         "GET",
+		Path:           "/browse/categories/{category_id}",
+		Summary:        "Get a single category used to tag items in Spotify (on, for example, the Spotify player’s “Browse” tab).",
+		Positional:     []string{"category_id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "locale", WireName: "locale"}},
+		keywords:       codeOrchKeywords("browse", "get-a-category", "Get a single category used to tag items in Spotify (on, for example, the Spotify player’s “Browse” tab).", "/browse/categories/{category_id}"),
+	},
+	{
+		ID:             "browse.get-categories",
+		Method:         "GET",
+		Path:           "/browse/categories",
+		Summary:        "Get a list of categories used to tag items in Spotify (on, for example, the Spotify player’s “Browse” tab).",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "locale", WireName: "locale"}, {PublicName: "limit", WireName: "limit"}},
+		keywords:       codeOrchKeywords("browse", "get-categories", "Get a list of categories used to tag items in Spotify (on, for example, the Spotify player’s “Browse” tab).", "/browse/categories"),
+	},
+	{
+		ID:             "browse.get-featured-playlists",
+		Method:         "GET",
+		Path:           "/browse/featured-playlists",
+		Summary:        "Get a list of Spotify featured playlists (shown, for example, on a Spotify player's 'Browse' tab).",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "locale", WireName: "locale"}, {PublicName: "limit", WireName: "limit"}},
+		keywords:       codeOrchKeywords("browse", "get-featured-playlists", "Get a list of Spotify featured playlists (shown, for example, on a Spotify player's 'Browse' tab).", "/browse/featured-playlists"),
+	},
+	{
+		ID:             "browse.get-new-releases",
+		Method:         "GET",
+		Path:           "/browse/new-releases",
+		Summary:        "Get a list of new album releases featured in Spotify (shown, for example, on a Spotify player’s “Browse” tab).",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "limit", WireName: "limit"}},
+		keywords:       codeOrchKeywords("browse", "get-new-releases", "Get a list of new album releases featured in Spotify (shown, for example, on a Spotify player’s “Browse” tab).", "/browse/new-releases"),
+	},
+	{
+		ID:             "chapters.get-a",
+		Method:         "GET",
+		Path:           "/chapters/{id}",
+		Summary:        "Get Spotify catalog information for a single audiobook chapter.",
+		Positional:     []string{"id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "market", WireName: "market"}},
+		keywords:       codeOrchKeywords("chapters", "get-a", "Get Spotify catalog information for a single audiobook chapter.", "/chapters/{id}"),
+	},
+	{
+		ID:             "chapters.get-several",
+		Method:         "GET",
+		Path:           "/chapters",
+		Summary:        "Get Spotify catalog information for several audiobook chapters identified by their Spotify IDs.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "ids", WireName: "ids"}, {PublicName: "market", WireName: "market"}},
+		keywords:       codeOrchKeywords("chapters", "get-several", "Get Spotify catalog information for several audiobook chapters identified by their Spotify IDs.", "/chapters"),
+	},
+	{
+		ID:             "episodes.get-an",
+		Method:         "GET",
+		Path:           "/episodes/{id}",
+		Summary:        "Get Spotify catalog information for a single episode identified by its unique Spotify ID.",
+		Positional:     []string{"id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "market", WireName: "market"}},
+		keywords:       codeOrchKeywords("episodes", "get-an", "Get Spotify catalog information for a single episode identified by its unique Spotify ID.", "/episodes/{id}"),
+	},
+	{
+		ID:             "episodes.get-multiple",
+		Method:         "GET",
+		Path:           "/episodes",
+		Summary:        "Get Spotify catalog information for several episodes based on their Spotify IDs.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "ids", WireName: "ids"}, {PublicName: "market", WireName: "market"}},
+		keywords:       codeOrchKeywords("episodes", "get-multiple", "Get Spotify catalog information for several episodes based on their Spotify IDs.", "/episodes"),
+	},
+	{
+		ID:             "markets.get-available",
+		Method:         "GET",
+		Path:           "/markets",
+		Summary:        "Get the list of markets where Spotify is available.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("markets", "get-available", "Get the list of markets where Spotify is available.", "/markets"),
+	},
+	{
+		ID:             "me.add-to-queue",
+		Method:         "POST",
+		Path:           "/me/player/queue",
+		Summary:        "Add an item to be played next in the user's current playback queue.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "uri", WireName: "uri"}, {PublicName: "device_id", WireName: "device_id"}},
+		keywords:       codeOrchKeywords("me", "add-to-queue", "Add an item to be played next in the user's current playback queue.", "/me/player/queue"),
+	},
+	{
+		ID:             "me.check-current-user-follows",
+		Method:         "GET",
+		Path:           "/me/following/contains",
+		Summary:        "Check to see if the current user is following one or more artists or other Spotify users.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "type", WireName: "type"}, {PublicName: "ids", WireName: "ids"}},
+		keywords:       codeOrchKeywords("me", "check-current-user-follows", "Check to see if the current user is following one or more artists or other Spotify users.", "/me/following/contains"),
+	},
+	{
+		ID:             "me.check-library-contains",
+		Method:         "GET",
+		Path:           "/me/library/contains",
+		Summary:        "Check if one or more items are already saved in the current user's library.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "uris", WireName: "uris"}},
+		keywords:       codeOrchKeywords("me", "check-library-contains", "Check if one or more items are already saved in the current user's library.", "/me/library/contains"),
+	},
+	{
+		ID:             "me.check-users-saved-albums",
+		Method:         "GET",
+		Path:           "/me/albums/contains",
+		Summary:        "Check if one or more albums is already saved in the current Spotify user's 'Your Music' library.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "ids", WireName: "ids"}},
+		keywords:       codeOrchKeywords("me", "check-users-saved-albums", "Check if one or more albums is already saved in the current Spotify user's 'Your Music' library.", "/me/albums/contains"),
+	},
+	{
+		ID:             "me.check-users-saved-audiobooks",
+		Method:         "GET",
+		Path:           "/me/audiobooks/contains",
+		Summary:        "Check if one or more audiobooks are already saved in the current Spotify user's library.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "ids", WireName: "ids"}},
+		keywords:       codeOrchKeywords("me", "check-users-saved-audiobooks", "Check if one or more audiobooks are already saved in the current Spotify user's library.", "/me/audiobooks/contains"),
+	},
+	{
+		ID:             "me.check-users-saved-episodes",
+		Method:         "GET",
+		Path:           "/me/episodes/contains",
+		Summary:        "Check if one or more episodes is already saved in the current Spotify user's 'Your Episodes' library.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "ids", WireName: "ids"}},
+		keywords:       codeOrchKeywords("me", "check-users-saved-episodes", "Check if one or more episodes is already saved in the current Spotify user's 'Your Episodes' library.", "/me/episodes/contains"),
+	},
+	{
+		ID:             "me.check-users-saved-shows",
+		Method:         "GET",
+		Path:           "/me/shows/contains",
+		Summary:        "Check if one or more shows is already saved in the current Spotify user's library.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "ids", WireName: "ids"}},
+		keywords:       codeOrchKeywords("me", "check-users-saved-shows", "Check if one or more shows is already saved in the current Spotify user's library.", "/me/shows/contains"),
+	},
+	{
+		ID:             "me.check-users-saved-tracks",
+		Method:         "GET",
+		Path:           "/me/tracks/contains",
+		Summary:        "Check if one or more tracks is already saved in the current Spotify user's 'Your Music' library.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "ids", WireName: "ids"}},
+		keywords:       codeOrchKeywords("me", "check-users-saved-tracks", "Check if one or more tracks is already saved in the current Spotify user's 'Your Music' library.", "/me/tracks/contains"),
+	},
+	{
+		ID:             "me.create-playlist",
+		Method:         "POST",
+		Path:           "/me/playlists",
+		Summary:        "Create a playlist for the current Spotify user.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("me", "create-playlist", "Create a playlist for the current Spotify user.", "/me/playlists"),
+	},
+	{
+		ID:             "me.follow-artists-users",
+		Method:         "PUT",
+		Path:           "/me/following",
+		Summary:        "Add the current user as a follower of one or more artists or other Spotify users. **Note:** This endpoint is deprecated.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "type", WireName: "type"}, {PublicName: "ids", WireName: "ids"}},
+		keywords:       codeOrchKeywords("me", "follow-artists-users", "Add the current user as a follower of one or more artists or other Spotify users. **Note:** This endpoint is deprecated.", "/me/following"),
+	},
+	{
+		ID:             "me.get-a-list-of-current-users-playlists",
+		Method:         "GET",
+		Path:           "/me/playlists",
+		Summary:        "Get a list of the playlists owned or followed by the current Spotify user.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "limit", WireName: "limit"}},
+		keywords:       codeOrchKeywords("me", "get-a-list-of-current-users-playlists", "Get a list of the playlists owned or followed by the current Spotify user.", "/me/playlists"),
+	},
+	{
+		ID:             "me.get-a-users-available-devices",
+		Method:         "GET",
+		Path:           "/me/player/devices",
+		Summary:        "Get information about a user’s available Spotify Connect devices.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("me", "get-a-users-available-devices", "Get information about a user’s available Spotify Connect devices.", "/me/player/devices"),
+	},
+	{
+		ID:             "me.get-current-users-profile",
+		Method:         "GET",
+		Path:           "/me",
+		Summary:        "Get detailed profile information about the current user (including the current user's username).",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("me", "get-current-users-profile", "Get detailed profile information about the current user (including the current user's username).", "/me"),
+	},
+	{
+		ID:             "me.get-followed",
+		Method:         "GET",
+		Path:           "/me/following",
+		Summary:        "Get the current user's followed artists.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "type", WireName: "type"}, {PublicName: "limit", WireName: "limit"}},
+		keywords:       codeOrchKeywords("me", "get-followed", "Get the current user's followed artists.", "/me/following"),
+	},
+	{
+		ID:             "me.get-information-about-the-users-current-playback",
+		Method:         "GET",
+		Path:           "/me/player",
+		Summary:        "Get information about the user’s current playback state, including track or episode, progress, and active device.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "market", WireName: "market"}, {PublicName: "additional_types", WireName: "additional_types"}},
+		keywords:       codeOrchKeywords("me", "get-information-about-the-users-current-playback", "Get information about the user’s current playback state, including track or episode, progress, and active device.", "/me/player"),
+	},
+	{
+		ID:             "me.get-queue",
+		Method:         "GET",
+		Path:           "/me/player/queue",
+		Summary:        "Get the list of objects that make up the user's queue.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("me", "get-queue", "Get the list of objects that make up the user's queue.", "/me/player/queue"),
+	},
+	{
+		ID:             "me.get-recently-played",
+		Method:         "GET",
+		Path:           "/me/player/recently-played",
+		Summary:        "Get tracks from the current user's recently played tracks. _**Note**: Currently doesn't support podcast episodes._",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "limit", WireName: "limit"}, {PublicName: "before", WireName: "before"}},
+		keywords:       codeOrchKeywords("me", "get-recently-played", "Get tracks from the current user's recently played tracks. _**Note**: Currently doesn't support podcast episodes._", "/me/player/recently-played"),
+	},
+	{
+		ID:             "me.get-the-users-currently-playing-track",
+		Method:         "GET",
+		Path:           "/me/player/currently-playing",
+		Summary:        "Get the object currently being played on the user's Spotify account.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "market", WireName: "market"}, {PublicName: "additional_types", WireName: "additional_types"}},
+		keywords:       codeOrchKeywords("me", "get-the-users-currently-playing-track", "Get the object currently being played on the user's Spotify account.", "/me/player/currently-playing"),
+	},
+	{
+		ID:             "me.get-users-saved-albums",
+		Method:         "GET",
+		Path:           "/me/albums",
+		Summary:        "Get a list of the albums saved in the current Spotify user's 'Your Music' library.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "limit", WireName: "limit"}, {PublicName: "market", WireName: "market"}},
+		keywords:       codeOrchKeywords("me", "get-users-saved-albums", "Get a list of the albums saved in the current Spotify user's 'Your Music' library.", "/me/albums"),
+	},
+	{
+		ID:             "me.get-users-saved-audiobooks",
+		Method:         "GET",
+		Path:           "/me/audiobooks",
+		Summary:        "Get a list of the audiobooks saved in the current Spotify user's 'Your Music' library.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "limit", WireName: "limit"}},
+		keywords:       codeOrchKeywords("me", "get-users-saved-audiobooks", "Get a list of the audiobooks saved in the current Spotify user's 'Your Music' library.", "/me/audiobooks"),
+	},
+	{
+		ID:             "me.get-users-saved-episodes",
+		Method:         "GET",
+		Path:           "/me/episodes",
+		Summary:        "Get a list of the episodes saved in the current Spotify user's library.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "market", WireName: "market"}, {PublicName: "limit", WireName: "limit"}},
+		keywords:       codeOrchKeywords("me", "get-users-saved-episodes", "Get a list of the episodes saved in the current Spotify user's library.", "/me/episodes"),
+	},
+	{
+		ID:             "me.get-users-saved-shows",
+		Method:         "GET",
+		Path:           "/me/shows",
+		Summary:        "Get a list of shows saved in the current Spotify user's library.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "limit", WireName: "limit"}},
+		keywords:       codeOrchKeywords("me", "get-users-saved-shows", "Get a list of shows saved in the current Spotify user's library.", "/me/shows"),
+	},
+	{
+		ID:             "me.get-users-saved-tracks",
+		Method:         "GET",
+		Path:           "/me/tracks",
+		Summary:        "Get a list of the songs saved in the current Spotify user's 'Your Music' library.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "market", WireName: "market"}, {PublicName: "limit", WireName: "limit"}},
+		keywords:       codeOrchKeywords("me", "get-users-saved-tracks", "Get a list of the songs saved in the current Spotify user's 'Your Music' library.", "/me/tracks"),
+	},
+	{
+		ID:             "me.get-users-top-artists",
+		Method:         "GET",
+		Path:           "/me/top/artists",
+		Summary:        "Get the current user's top artists based on calculated affinity.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "time_range", WireName: "time_range"}, {PublicName: "limit", WireName: "limit"}},
+		keywords:       codeOrchKeywords("me", "get-users-top-artists", "Get the current user's top artists based on calculated affinity.", "/me/top/artists"),
+	},
+	{
+		ID:             "me.get-users-top-tracks",
+		Method:         "GET",
+		Path:           "/me/top/tracks",
+		Summary:        "Get the current user's top tracks based on calculated affinity.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "time_range", WireName: "time_range"}, {PublicName: "limit", WireName: "limit"}},
+		keywords:       codeOrchKeywords("me", "get-users-top-tracks", "Get the current user's top tracks based on calculated affinity.", "/me/top/tracks"),
+	},
+	{
+		ID:             "me.pause-a-users-playback",
+		Method:         "PUT",
+		Path:           "/me/player/pause",
+		Summary:        "Pause playback on the user's account. This API only works for users who have Spotify Premium.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "device_id", WireName: "device_id"}},
+		keywords:       codeOrchKeywords("me", "pause-a-users-playback", "Pause playback on the user's account. This API only works for users who have Spotify Premium.", "/me/player/pause"),
+	},
+	{
+		ID:             "me.remove-albums-user",
+		Method:         "DELETE",
+		Path:           "/me/albums",
+		Summary:        "Remove one or more albums from the current user's 'Your Music' library. **Note:** This endpoint is deprecated.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "ids", WireName: "ids"}},
+		keywords:       codeOrchKeywords("me", "remove-albums-user", "Remove one or more albums from the current user's 'Your Music' library. **Note:** This endpoint is deprecated.", "/me/albums"),
+	},
+	{
+		ID:             "me.remove-audiobooks-user",
+		Method:         "DELETE",
+		Path:           "/me/audiobooks",
+		Summary:        "Remove one or more audiobooks from the Spotify user's library. **Note:** This endpoint is deprecated.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "ids", WireName: "ids"}},
+		keywords:       codeOrchKeywords("me", "remove-audiobooks-user", "Remove one or more audiobooks from the Spotify user's library. **Note:** This endpoint is deprecated.", "/me/audiobooks"),
+	},
+	{
+		ID:             "me.remove-episodes-user",
+		Method:         "DELETE",
+		Path:           "/me/episodes",
+		Summary:        "Remove one or more episodes from the current user's library. **Note:** This endpoint is deprecated.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "ids", WireName: "ids"}},
+		keywords:       codeOrchKeywords("me", "remove-episodes-user", "Remove one or more episodes from the current user's library. **Note:** This endpoint is deprecated.", "/me/episodes"),
+	},
+	{
+		ID:             "me.remove-library-items",
+		Method:         "DELETE",
+		Path:           "/me/library",
+		Summary:        "Remove one or more items from the current user's library.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "uris", WireName: "uris"}},
+		keywords:       codeOrchKeywords("me", "remove-library-items", "Remove one or more items from the current user's library.", "/me/library"),
+	},
+	{
+		ID:             "me.remove-shows-user",
+		Method:         "DELETE",
+		Path:           "/me/shows",
+		Summary:        "Delete one or more shows from current Spotify user's library. **Note:** This endpoint is deprecated.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "ids", WireName: "ids"}, {PublicName: "market", WireName: "market"}},
+		keywords:       codeOrchKeywords("me", "remove-shows-user", "Delete one or more shows from current Spotify user's library. **Note:** This endpoint is deprecated.", "/me/shows"),
+	},
+	{
+		ID:             "me.remove-tracks-user",
+		Method:         "DELETE",
+		Path:           "/me/tracks",
+		Summary:        "Remove one or more tracks from the current user's 'Your Music' library. **Note:** This endpoint is deprecated.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "ids", WireName: "ids"}},
+		keywords:       codeOrchKeywords("me", "remove-tracks-user", "Remove one or more tracks from the current user's 'Your Music' library. **Note:** This endpoint is deprecated.", "/me/tracks"),
+	},
+	{
+		ID:             "me.save-albums-user",
+		Method:         "PUT",
+		Path:           "/me/albums",
+		Summary:        "Save one or more albums to the current user's 'Your Music' library. **Note:** This endpoint is deprecated.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "ids", WireName: "ids"}},
+		keywords:       codeOrchKeywords("me", "save-albums-user", "Save one or more albums to the current user's 'Your Music' library. **Note:** This endpoint is deprecated.", "/me/albums"),
+	},
+	{
+		ID:             "me.save-audiobooks-user",
+		Method:         "PUT",
+		Path:           "/me/audiobooks",
+		Summary:        "Save one or more audiobooks to the current Spotify user's library. **Note:** This endpoint is deprecated.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "ids", WireName: "ids"}},
+		keywords:       codeOrchKeywords("me", "save-audiobooks-user", "Save one or more audiobooks to the current Spotify user's library. **Note:** This endpoint is deprecated.", "/me/audiobooks"),
+	},
+	{
+		ID:             "me.save-episodes-user",
+		Method:         "PUT",
+		Path:           "/me/episodes",
+		Summary:        "Save one or more episodes to the current user's library. **Note:** This endpoint is deprecated.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "ids", WireName: "ids"}},
+		keywords:       codeOrchKeywords("me", "save-episodes-user", "Save one or more episodes to the current user's library. **Note:** This endpoint is deprecated.", "/me/episodes"),
+	},
+	{
+		ID:             "me.save-library-items",
+		Method:         "PUT",
+		Path:           "/me/library",
+		Summary:        "Add one or more items to the current user's library.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "uris", WireName: "uris"}},
+		keywords:       codeOrchKeywords("me", "save-library-items", "Add one or more items to the current user's library.", "/me/library"),
+	},
+	{
+		ID:             "me.save-shows-user",
+		Method:         "PUT",
+		Path:           "/me/shows",
+		Summary:        "Save one or more shows to current Spotify user's library. **Note:** This endpoint is deprecated.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "ids", WireName: "ids"}},
+		keywords:       codeOrchKeywords("me", "save-shows-user", "Save one or more shows to current Spotify user's library. **Note:** This endpoint is deprecated.", "/me/shows"),
+	},
+	{
+		ID:             "me.save-tracks-user",
+		Method:         "PUT",
+		Path:           "/me/tracks",
+		Summary:        "Save one or more tracks to the current user's 'Your Music' library. **Note:** This endpoint is deprecated.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("me", "save-tracks-user", "Save one or more tracks to the current user's 'Your Music' library. **Note:** This endpoint is deprecated.", "/me/tracks"),
+	},
+	{
+		ID:             "me.seek-to-position-in-currently-playing-track",
+		Method:         "PUT",
+		Path:           "/me/player/seek",
+		Summary:        "Seeks to the given position in the user’s currently playing track.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "position_ms", WireName: "position_ms"}, {PublicName: "device_id", WireName: "device_id"}},
+		keywords:       codeOrchKeywords("me", "seek-to-position-in-currently-playing-track", "Seeks to the given position in the user’s currently playing track.", "/me/player/seek"),
+	},
+	{
+		ID:             "me.set-repeat-mode-on-users-playback",
+		Method:         "PUT",
+		Path:           "/me/player/repeat",
+		Summary:        "Set the repeat mode for the user's playback. This API only works for users who have Spotify Premium.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "state", WireName: "state"}, {PublicName: "device_id", WireName: "device_id"}},
+		keywords:       codeOrchKeywords("me", "set-repeat-mode-on-users-playback", "Set the repeat mode for the user's playback. This API only works for users who have Spotify Premium.", "/me/player/repeat"),
+	},
+	{
+		ID:             "me.set-volume-for-users-playback",
+		Method:         "PUT",
+		Path:           "/me/player/volume",
+		Summary:        "Set the volume for the user’s current playback device. This API only works for users who have Spotify Premium.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "volume_percent", WireName: "volume_percent"}, {PublicName: "device_id", WireName: "device_id"}},
+		keywords:       codeOrchKeywords("me", "set-volume-for-users-playback", "Set the volume for the user’s current playback device. This API only works for users who have Spotify Premium.", "/me/player/volume"),
+	},
+	{
+		ID:             "me.skip-users-playback-to-next-track",
+		Method:         "POST",
+		Path:           "/me/player/next",
+		Summary:        "Skips to next track in the user’s queue. This API only works for users who have Spotify Premium.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "device_id", WireName: "device_id"}},
+		keywords:       codeOrchKeywords("me", "skip-users-playback-to-next-track", "Skips to next track in the user’s queue. This API only works for users who have Spotify Premium.", "/me/player/next"),
+	},
+	{
+		ID:             "me.skip-users-playback-to-previous-track",
+		Method:         "POST",
+		Path:           "/me/player/previous",
+		Summary:        "Skips to previous track in the user’s queue. This API only works for users who have Spotify Premium.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "device_id", WireName: "device_id"}},
+		keywords:       codeOrchKeywords("me", "skip-users-playback-to-previous-track", "Skips to previous track in the user’s queue. This API only works for users who have Spotify Premium.", "/me/player/previous"),
+	},
+	{
+		ID:             "me.start-a-users-playback",
+		Method:         "PUT",
+		Path:           "/me/player/play",
+		Summary:        "Start a new context or resume current playback on the user's active device.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "device_id", WireName: "device_id"}},
+		keywords:       codeOrchKeywords("me", "start-a-users-playback", "Start a new context or resume current playback on the user's active device.", "/me/player/play"),
+	},
+	{
+		ID:             "me.toggle-shuffle-for-users-playback",
+		Method:         "PUT",
+		Path:           "/me/player/shuffle",
+		Summary:        "Toggle shuffle on or off for user’s playback. This API only works for users who have Spotify Premium.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "state", WireName: "state"}, {PublicName: "device_id", WireName: "device_id"}},
+		keywords:       codeOrchKeywords("me", "toggle-shuffle-for-users-playback", "Toggle shuffle on or off for user’s playback. This API only works for users who have Spotify Premium.", "/me/player/shuffle"),
+	},
+	{
+		ID:             "me.transfer-a-users-playback",
+		Method:         "PUT",
+		Path:           "/me/player",
+		Summary:        "Transfer playback to a new device and optionally begin playback. This API only works for users who have Spotify Premium.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("me", "transfer-a-users-playback", "Transfer playback to a new device and optionally begin playback. This API only works for users who have Spotify Premium.", "/me/player"),
+	},
+	{
+		ID:             "me.unfollow-artists-users",
+		Method:         "DELETE",
+		Path:           "/me/following",
+		Summary:        "Remove the current user as a follower of one or more artists or other Spotify users.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "type", WireName: "type"}, {PublicName: "ids", WireName: "ids"}},
+		keywords:       codeOrchKeywords("me", "unfollow-artists-users", "Remove the current user as a follower of one or more artists or other Spotify users.", "/me/following"),
+	},
+	{
+		ID:             "playlists.change-details",
+		Method:         "PUT",
+		Path:           "/playlists/{playlist_id}",
+		Summary:        "Change a playlist's name and public/private state. (The user must, of course, own the playlist.)",
+		Positional:     []string{"playlist_id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("playlists", "change-details", "Change a playlist's name and public/private state. (The user must, of course, own the playlist.)", "/playlists/{playlist_id}"),
+	},
+	{
+		ID:             "playlists.get",
+		Method:         "GET",
+		Path:           "/playlists/{playlist_id}",
+		Summary:        "Get a playlist owned by a Spotify user.",
+		Positional:     []string{"playlist_id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "market", WireName: "market"}, {PublicName: "fields", WireName: "fields"}, {PublicName: "additional_types", WireName: "additional_types"}},
+		keywords:       codeOrchKeywords("playlists", "get", "Get a playlist owned by a Spotify user.", "/playlists/{playlist_id}"),
+	},
+	{
+		ID:             "playlists.followers.check-if-user-follows-playlist",
+		Method:         "GET",
+		Path:           "/playlists/{playlist_id}/followers/contains",
+		Summary:        "Check to see if the current user is following a specified playlist. **Note:** This endpoint is deprecated.",
+		Positional:     []string{"playlist_id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "ids", WireName: "ids"}},
+		keywords:       codeOrchKeywords("playlists", "check-if-user-follows-playlist", "Check to see if the current user is following a specified playlist. **Note:** This endpoint is deprecated.", "/playlists/{playlist_id}/followers/contains"),
+	},
+	{
+		ID:             "playlists.followers.follow-playlist",
+		Method:         "PUT",
+		Path:           "/playlists/{playlist_id}/followers",
+		Summary:        "Add the current user as a follower of a playlist. **Note:** This endpoint is deprecated.",
+		Positional:     []string{"playlist_id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("playlists", "follow-playlist", "Add the current user as a follower of a playlist. **Note:** This endpoint is deprecated.", "/playlists/{playlist_id}/followers"),
+	},
+	{
+		ID:             "playlists.followers.unfollow-playlist",
+		Method:         "DELETE",
+		Path:           "/playlists/{playlist_id}/followers",
+		Summary:        "Remove the current user as a follower of a playlist. **Note:** This endpoint is deprecated.",
+		Positional:     []string{"playlist_id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("playlists", "unfollow-playlist", "Remove the current user as a follower of a playlist. **Note:** This endpoint is deprecated.", "/playlists/{playlist_id}/followers"),
+	},
+	{
+		ID:             "playlists.images.get-playlist-cover",
+		Method:         "GET",
+		Path:           "/playlists/{playlist_id}/images",
+		Summary:        "Get the current image associated with a specific playlist.",
+		Positional:     []string{"playlist_id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("playlists", "get-playlist-cover", "Get the current image associated with a specific playlist.", "/playlists/{playlist_id}/images"),
+	},
+	{
+		ID:             "playlists.images.upload-custom-playlist-cover",
+		Method:         "PUT",
+		Path:           "/playlists/{playlist_id}/images",
+		Summary:        "Replace the image used to represent a specific playlist.",
+		Positional:     []string{"playlist_id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("playlists", "upload-custom-playlist-cover", "Replace the image used to represent a specific playlist.", "/playlists/{playlist_id}/images"),
+	},
+	{
+		ID:             "playlists.items.add-to-playlist",
+		Method:         "POST",
+		Path:           "/playlists/{playlist_id}/items",
+		Summary:        "Add one or more items to a user's playlist.",
+		Positional:     []string{"playlist_id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "position", WireName: "position"}, {PublicName: "uris", WireName: "uris"}},
+		keywords:       codeOrchKeywords("playlists", "add-to-playlist", "Add one or more items to a user's playlist.", "/playlists/{playlist_id}/items"),
+	},
+	{
+		ID:             "playlists.items.get-playlists",
+		Method:         "GET",
+		Path:           "/playlists/{playlist_id}/items",
+		Summary:        "Get full details of the items of a playlist owned by a Spotify user.",
+		Positional:     []string{"playlist_id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "market", WireName: "market"}, {PublicName: "fields", WireName: "fields"}, {PublicName: "limit", WireName: "limit"}, {PublicName: "additional_types", WireName: "additional_types"}},
+		keywords:       codeOrchKeywords("playlists", "get-playlists", "Get full details of the items of a playlist owned by a Spotify user.", "/playlists/{playlist_id}/items"),
+	},
+	{
+		ID:             "playlists.items.remove-playlist",
+		Method:         "DELETE",
+		Path:           "/playlists/{playlist_id}/items",
+		Summary:        "Remove one or more items from a user's playlist.",
+		Positional:     []string{"playlist_id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("playlists", "remove-playlist", "Remove one or more items from a user's playlist.", "/playlists/{playlist_id}/items"),
+	},
+	{
+		ID:             "playlists.items.reorder-or-replace-playlists",
+		Method:         "PUT",
+		Path:           "/playlists/{playlist_id}/items",
+		Summary:        "Either reorder or replace items in a playlist depending on the request's parameters.",
+		Positional:     []string{"playlist_id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "uris", WireName: "uris"}},
+		keywords:       codeOrchKeywords("playlists", "reorder-or-replace-playlists", "Either reorder or replace items in a playlist depending on the request's parameters.", "/playlists/{playlist_id}/items"),
+	},
+	{
+		ID:             "playlists.tracks.add-to-playlist",
+		Method:         "POST",
+		Path:           "/playlists/{playlist_id}/tracks",
+		Summary:        "**Deprecated:** Use [Add Items to Playlist](/documentation/web-api/reference/add-items-to-playlist) instead.",
+		Positional:     []string{"playlist_id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "position", WireName: "position"}, {PublicName: "uris", WireName: "uris"}},
+		keywords:       codeOrchKeywords("playlists", "add-to-playlist", "**Deprecated:** Use [Add Items to Playlist](/documentation/web-api/reference/add-items-to-playlist) instead.", "/playlists/{playlist_id}/tracks"),
+	},
+	{
+		ID:             "playlists.tracks.get-playlists",
+		Method:         "GET",
+		Path:           "/playlists/{playlist_id}/tracks",
+		Summary:        "**Deprecated:** Use [Get Playlist Items](/documentation/web-api/reference/get-playlists-items) instead.",
+		Positional:     []string{"playlist_id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "market", WireName: "market"}, {PublicName: "fields", WireName: "fields"}, {PublicName: "limit", WireName: "limit"}, {PublicName: "additional_types", WireName: "additional_types"}},
+		keywords:       codeOrchKeywords("playlists", "get-playlists", "**Deprecated:** Use [Get Playlist Items](/documentation/web-api/reference/get-playlists-items) instead.", "/playlists/{playlist_id}/tracks"),
+	},
+	{
+		ID:             "playlists.tracks.remove-playlist",
+		Method:         "DELETE",
+		Path:           "/playlists/{playlist_id}/tracks",
+		Summary:        "**Deprecated:** Use [Remove Playlist Items](/documentation/web-api/reference/remove-items-playlist) instead.",
+		Positional:     []string{"playlist_id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("playlists", "remove-playlist", "**Deprecated:** Use [Remove Playlist Items](/documentation/web-api/reference/remove-items-playlist) instead.", "/playlists/{playlist_id}/tracks"),
+	},
+	{
+		ID:             "playlists.tracks.reorder-or-replace-playlists",
+		Method:         "PUT",
+		Path:           "/playlists/{playlist_id}/tracks",
+		Summary:        "**Deprecated:** Use [Update Playlist Items](/documentation/web-api/reference/reorder-or-replace-playlists-items)",
+		Positional:     []string{"playlist_id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "uris", WireName: "uris"}},
+		keywords:       codeOrchKeywords("playlists", "reorder-or-replace-playlists", "**Deprecated:** Use [Update Playlist Items](/documentation/web-api/reference/reorder-or-replace-playlists-items)", "/playlists/{playlist_id}/tracks"),
+	},
+	{
+		ID:             "recommendations.get",
+		Method:         "GET",
+		Path:           "/recommendations",
+		Summary:        "Recommendations are generated based on the available information for a given seed entity and matched against similar",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "limit", WireName: "limit"}, {PublicName: "market", WireName: "market"}, {PublicName: "seed_artists", WireName: "seed_artists"}, {PublicName: "seed_genres", WireName: "seed_genres"}, {PublicName: "seed_tracks", WireName: "seed_tracks"}, {PublicName: "min_acousticness", WireName: "min_acousticness"}, {PublicName: "max_acousticness", WireName: "max_acousticness"}, {PublicName: "target_acousticness", WireName: "target_acousticness"}, {PublicName: "min_danceability", WireName: "min_danceability"}, {PublicName: "max_danceability", WireName: "max_danceability"}, {PublicName: "target_danceability", WireName: "target_danceability"}, {PublicName: "min_duration_ms", WireName: "min_duration_ms"}, {PublicName: "max_duration_ms", WireName: "max_duration_ms"}, {PublicName: "target_duration_ms", WireName: "target_duration_ms"}, {PublicName: "min_energy", WireName: "min_energy"}, {PublicName: "max_energy", WireName: "max_energy"}, {PublicName: "target_energy", WireName: "target_energy"}, {PublicName: "min_instrumentalness", WireName: "min_instrumentalness"}, {PublicName: "max_instrumentalness", WireName: "max_instrumentalness"}, {PublicName: "target_instrumentalness", WireName: "target_instrumentalness"}, {PublicName: "min_key", WireName: "min_key"}, {PublicName: "max_key", WireName: "max_key"}, {PublicName: "target_key", WireName: "target_key"}, {PublicName: "min_liveness", WireName: "min_liveness"}, {PublicName: "max_liveness", WireName: "max_liveness"}, {PublicName: "target_liveness", WireName: "target_liveness"}, {PublicName: "min_loudness", WireName: "min_loudness"}, {PublicName: "max_loudness", WireName: "max_loudness"}, {PublicName: "target_loudness", WireName: "target_loudness"}, {PublicName: "min_mode", WireName: "min_mode"}, {PublicName: "max_mode", WireName: "max_mode"}, {PublicName: "target_mode", WireName: "target_mode"}, {PublicName: "min_popularity", WireName: "min_popularity"}, {PublicName: "max_popularity", WireName: "max_popularity"}, {PublicName: "target_popularity", WireName: "target_popularity"}, {PublicName: "min_speechiness", WireName: "min_speechiness"}, {PublicName: "max_speechiness", WireName: "max_speechiness"}, {PublicName: "target_speechiness", WireName: "target_speechiness"}, {PublicName: "min_tempo", WireName: "min_tempo"}, {PublicName: "max_tempo", WireName: "max_tempo"}, {PublicName: "target_tempo", WireName: "target_tempo"}, {PublicName: "min_time_signature", WireName: "min_time_signature"}, {PublicName: "max_time_signature", WireName: "max_time_signature"}, {PublicName: "target_time_signature", WireName: "target_time_signature"}, {PublicName: "min_valence", WireName: "min_valence"}, {PublicName: "max_valence", WireName: "max_valence"}, {PublicName: "target_valence", WireName: "target_valence"}},
+		keywords:       codeOrchKeywords("recommendations", "get", "Recommendations are generated based on the available information for a given seed entity and matched against similar", "/recommendations"),
+	},
+	{
+		ID:             "recommendations.get-genres",
+		Method:         "GET",
+		Path:           "/recommendations/available-genre-seeds",
+		Summary:        "Retrieve a list of available genres seed parameter values for",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("recommendations", "get-genres", "Retrieve a list of available genres seed parameter values for", "/recommendations/available-genre-seeds"),
+	},
+	{
+		ID:             "shows.get-a",
+		Method:         "GET",
+		Path:           "/shows/{id}",
+		Summary:        "Get Spotify catalog information for a single show identified by its unique Spotify ID.",
+		Positional:     []string{"id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "market", WireName: "market"}},
+		keywords:       codeOrchKeywords("shows", "get-a", "Get Spotify catalog information for a single show identified by its unique Spotify ID.", "/shows/{id}"),
+	},
+	{
+		ID:             "shows.get-multiple",
+		Method:         "GET",
+		Path:           "/shows",
+		Summary:        "Get Spotify catalog information for several shows based on their Spotify IDs.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "market", WireName: "market"}, {PublicName: "ids", WireName: "ids"}},
+		keywords:       codeOrchKeywords("shows", "get-multiple", "Get Spotify catalog information for several shows based on their Spotify IDs.", "/shows"),
+	},
+	{
+		ID:             "shows.episodes.get-a-shows",
+		Method:         "GET",
+		Path:           "/shows/{id}/episodes",
+		Summary:        "Get Spotify catalog information about an show’s episodes.",
+		Positional:     []string{"id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "market", WireName: "market"}, {PublicName: "limit", WireName: "limit"}},
+		keywords:       codeOrchKeywords("shows", "get-a-shows", "Get Spotify catalog information about an show’s episodes.", "/shows/{id}/episodes"),
+	},
+	{
+		ID:             "spotify_web_search.search",
+		Method:         "GET",
+		Path:           "/search",
+		Summary:        "Get Spotify catalog information about albums, artists, playlists, tracks, shows",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "q", WireName: "q"}, {PublicName: "type", WireName: "type"}, {PublicName: "market", WireName: "market"}, {PublicName: "limit", WireName: "limit"}, {PublicName: "include_external", WireName: "include_external"}},
+		keywords:       codeOrchKeywords("spotify_web_search", "search", "Get Spotify catalog information about albums, artists, playlists, tracks, shows", "/search"),
+	},
+	{
+		ID:             "tracks.get",
+		Method:         "GET",
+		Path:           "/tracks/{id}",
+		Summary:        "Get Spotify catalog information for a single track identified by its unique Spotify ID.",
+		Positional:     []string{"id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "market", WireName: "market"}},
+		keywords:       codeOrchKeywords("tracks", "get", "Get Spotify catalog information for a single track identified by its unique Spotify ID.", "/tracks/{id}"),
+	},
+	{
+		ID:             "tracks.get-several",
+		Method:         "GET",
+		Path:           "/tracks",
+		Summary:        "Get Spotify catalog information for multiple tracks based on their Spotify IDs.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "market", WireName: "market"}, {PublicName: "ids", WireName: "ids"}},
+		keywords:       codeOrchKeywords("tracks", "get-several", "Get Spotify catalog information for multiple tracks based on their Spotify IDs.", "/tracks"),
+	},
+	{
+		ID:             "users.get-profile",
+		Method:         "GET",
+		Path:           "/users/{user_id}",
+		Summary:        "Get public profile information about a Spotify user.",
+		Positional:     []string{"user_id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("users", "get-profile", "Get public profile information about a Spotify user.", "/users/{user_id}"),
+	},
+	{
+		ID:             "users.playlists.create-for-user",
+		Method:         "POST",
+		Path:           "/users/{user_id}/playlists",
+		Summary:        "**Deprecated**: Use [Create Playlist](/documentation/web-api/reference/create-playlist) instead.",
+		Positional:     []string{"user_id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("users", "create-for-user", "**Deprecated**: Use [Create Playlist](/documentation/web-api/reference/create-playlist) instead.", "/users/{user_id}/playlists"),
+	},
+	{
+		ID:             "users.playlists.get-list-users",
+		Method:         "GET",
+		Path:           "/users/{user_id}/playlists",
+		Summary:        "Get a list of the playlists owned or followed by a Spotify user.",
+		Positional:     []string{"user_id"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "limit", WireName: "limit"}},
+		keywords:       codeOrchKeywords("users", "get-list-users", "Get a list of the playlists owned or followed by a Spotify user.", "/users/{user_id}/playlists"),
 	},
 }
 
@@ -930,8 +1151,11 @@ func handleCodeOrchSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcp
 			"score":       r.score,
 		})
 	}
-	data, _ := json.Marshal(map[string]any{"count": len(out), "results": out})
-	return mcplib.NewToolResultText(string(data)), nil
+	text, err := bound.JSON(map[string]any{"count": len(out), "results": out})
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("encoding search results: %v", err)), nil
+	}
+	return mcplib.NewToolResultText(text), nil
 }
 
 func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
@@ -965,42 +1189,143 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 	path := ep.Path
 	for _, p := range ep.Positional {
 		if v, ok := params[p]; ok {
-			path = strings.ReplaceAll(path, "{"+p+"}", fmt.Sprintf("%v", v))
+			path = strings.ReplaceAll(path, "{"+p+"}", formatMCPParamValue(v))
 			delete(params, p)
 		}
 	}
 
+	// Route params to their runtime slots. GET/DELETE params are query
+	// strings; write methods split spec-declared query params from the
+	// remaining params used as the request body below.
 	query := map[string]string{}
 	if ep.Method == "GET" || ep.Method == "DELETE" {
 		for k, v := range params {
-			query[k] = fmt.Sprintf("%v", v)
+			query[codeOrchWireQueryName(ep.QueryParams, k)] = formatMCPParamValue(v)
+		}
+	} else {
+		// Route spec-declared in:query params to the query string for write
+		// methods too. Without this, a query param (e.g. sendToLedger on
+		// PUT /ledger/voucher/{id}) wrongly lands in the JSON body and the
+		// API silently ignores it or rejects the request. The remaining
+		// params stay in the map for codeOrchWriteBody (the JSON body).
+		if enc := codeOrchSplitQuery(ep.QueryParams, params); enc != "" {
+			sep := "?"
+			if strings.Contains(path, "?") {
+				sep = "&"
+			}
+			path += sep + enc
 		}
 	}
 
+	hdrs := ep.HeaderOverrides
+	writeBody := func() any {
+		if ep.BodyIsArray {
+			return codeOrchArrayBody(params)
+		}
+		return codeOrchWriteBody(params)
+	}
 	var data json.RawMessage
 	switch ep.Method {
 	case "GET":
-		data, err = c.Get(path, query)
+		if len(hdrs) > 0 {
+			data, err = c.GetWithHeaders(ctx, path, query, hdrs)
+		} else {
+			data, err = c.Get(ctx, path, query)
+		}
 	case "DELETE":
-		data, _, err = c.Delete(path)
+		if len(hdrs) > 0 {
+			data, _, err = c.DeleteWithParamsAndHeaders(ctx, path, query, hdrs)
+		} else {
+			data, _, err = c.DeleteWithParams(ctx, path, query)
+		}
+	case "POST":
+		body := writeBody()
+		if len(hdrs) > 0 {
+			data, _, err = c.PostWithHeaders(ctx, path, body, hdrs)
+		} else {
+			data, _, err = c.Post(ctx, path, body)
+		}
+	case "PUT":
+		body := writeBody()
+		if len(hdrs) > 0 {
+			data, _, err = c.PutWithHeaders(ctx, path, body, hdrs)
+		} else {
+			data, _, err = c.Put(ctx, path, body)
+		}
+	case "PATCH":
+		body := writeBody()
+		if len(hdrs) > 0 {
+			data, _, err = c.PatchWithHeaders(ctx, path, body, hdrs)
+		} else {
+			data, _, err = c.Patch(ctx, path, body)
+		}
 	default:
-		body, mErr := json.Marshal(params)
-		if mErr != nil {
-			return mcplib.NewToolResultError(fmt.Sprintf("marshaling body: %v", mErr)), nil
-		}
-		switch ep.Method {
-		case "POST":
-			data, _, err = c.Post(path, body)
-		case "PUT":
-			data, _, err = c.Put(path, body)
-		case "PATCH":
-			data, _, err = c.Patch(path, body)
-		default:
-			return mcplib.NewToolResultError(fmt.Sprintf("unsupported method %q", ep.Method)), nil
-		}
+		return mcplib.NewToolResultError(fmt.Sprintf("unsupported method %q", ep.Method)), nil
 	}
 	if err != nil {
 		return mcplib.NewToolResultError(err.Error()), nil
 	}
-	return mcplib.NewToolResultText(string(data)), nil
+	return mcplib.NewToolResultText(bound.EndpointResponse(ep.Method, data)), nil
+}
+
+// codeOrchWriteBody returns the value handed to the client layer as the
+// request body for write methods (POST/PUT/PATCH). It MUST be the structured
+// params map, never pre-marshaled bytes.
+//
+// client.do() marshals the body value exactly once. Handing it []byte makes
+// json.Marshal([]byte) emit a base64-encoded JSON *string*, so the API
+// receives "eyJ...==" where it expects the request object. Strict JSON APIs
+// reject that as the wrong type at the body root. GET/DELETE carry no body,
+// so this defect stays latent until the first write attempt.
+func codeOrchWriteBody(params map[string]any) any {
+	return params
+}
+
+// codeOrchArrayBody returns the request body for endpoints whose schema root
+// is a bare top-level JSON array (ep.BodyIsArray). Such a body cannot be
+// expressed as the params object, so the agent supplies the array under the
+// conventional params key "body" (these endpoints have no flattened named
+// params, so there is no collision risk). When present and array-shaped it is
+// sent as the top-level array the API expects. Otherwise params is returned
+// unchanged so a malformed call fails loudly at the API (HTTP 422) instead of
+// silently sending the wrong shape or a partial write — financial mutations
+// are never retried with body-variant guesses (broken-convenience guardrail).
+func codeOrchArrayBody(params map[string]any) any {
+	if v, ok := params["body"]; ok {
+		if arr, ok := v.([]any); ok {
+			return arr
+		}
+	}
+	return params
+}
+
+// codeOrchSplitQuery removes spec-declared in:query params from params and
+// returns them URL-encoded for appending to the request path. The remaining
+// entries stay in the map for codeOrchWriteBody (the JSON body), so a write
+// method's query parameters never get buried in the body. Mutates params by
+// design (deletes the consumed query keys).
+func codeOrchSplitQuery(queryParams []codeOrchParamBinding, params map[string]any) string {
+	uv := neturl.Values{}
+	for _, q := range queryParams {
+		for _, key := range []string{q.PublicName, q.WireName} {
+			if key == "" {
+				continue
+			}
+			if v, ok := params[key]; ok {
+				uv.Set(q.WireName, formatMCPParamValue(v))
+				delete(params, key)
+				break
+			}
+		}
+	}
+	return uv.Encode()
+}
+
+func codeOrchWireQueryName(queryParams []codeOrchParamBinding, name string) string {
+	for _, q := range queryParams {
+		if q.PublicName == name || q.WireName == name {
+			return q.WireName
+		}
+	}
+	return name
 }

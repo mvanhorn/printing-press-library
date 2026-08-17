@@ -1,0 +1,287 @@
+{
+  "api_name": "raindrop",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "kyoji2/raindrop-cli",
+      "url": "https://github.com/kyoji2/raindrop-cli",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 15,
+      "last_updated": "",
+      "command_count": 28,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "adeze/raindrop-mcp",
+      "url": "https://github.com/adeze/raindrop-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 15,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "hiromitsusasaki/raindrop-io-mcp-server",
+      "url": "https://github.com/hiromitsusasaki/raindrop-io-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 73,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [
+    "complete REST parity",
+    "SQLite mirror",
+    "safe mutation plans",
+    "CLI/MCP parity"
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-14T09:30:00Z",
+  "novel_features": [
+    {
+      "name": "Offline Library",
+      "command": "sync",
+      "description": "Mirror bookmarks, collections, tags and highlights for instant offline search.",
+      "rationale": "Requires durable checkpoints, snapshots and FTS5 indexes across paginated API resources.",
+      "example": "raindrop sync --agent --home /tmp/raindrop-pp",
+      "why_it_matters": "Use before local analysis or when repeated remote scans would waste rate limit.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Inbox Review",
+      "command": "inbox review",
+      "description": "Process Unsorted bookmarks in resumable, bounded review sessions.",
+      "rationale": "Requires durable item lifecycle and confirmed per-item writeback.",
+      "example": "raindrop inbox review --limit 10 --agent",
+      "why_it_matters": "Use for safe inbox-zero organization without repeated prompts.",
+      "group": "Safe organization"
+    },
+    {
+      "name": "Change History",
+      "command": "changes",
+      "description": "Show field-level bookmark changes between sync snapshots.",
+      "rationale": "Raindrop exposes current state but not durable before-and-after history.",
+      "example": "raindrop changes --since 7d --agent",
+      "why_it_matters": "Use to audit automation and discover recent library edits.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Tag Health",
+      "command": "tag health",
+      "description": "Discover case variants, near-duplicates, singleton tags and merge candidates.",
+      "rationale": "Requires whole-library joins, normalization and co-occurrence statistics.",
+      "example": "raindrop tag health --agent",
+      "why_it_matters": "Use before bulk tag cleanup instead of guessing merge targets.",
+      "group": "Safe organization"
+    },
+    {
+      "name": "Duplicate Plans",
+      "command": "duplicates plan",
+      "description": "Choose canonical bookmarks while preserving tags, notes and highlights.",
+      "rationale": "Requires normalized URL groups and persistent reviewable mutation plans.",
+      "example": "raindrop duplicates plan --canonical richest --agent",
+      "why_it_matters": "Use when duplicate cleanup must not discard richer metadata.",
+      "group": "Safe organization"
+    },
+    {
+      "name": "Revisit Queue",
+      "command": "revisit",
+      "description": "Resurface useful forgotten bookmarks without repeating recent suggestions.",
+      "rationale": "Requires local history, scoring and prior-resurfacing state.",
+      "example": "raindrop revisit --older-than 180d --limit 20 --agent",
+      "why_it_matters": "Use to turn a bookmark archive back into an active reading system.",
+      "group": "Knowledge workflows"
+    },
+    {
+      "name": "Related Bookmarks",
+      "command": "related",
+      "description": "Find explainable related bookmarks offline using text, tags and domains.",
+      "rationale": "Requires FTS5 BM25 plus local tag-overlap joins across the mirror.",
+      "example": "raindrop related --limit 10 --agent",
+      "why_it_matters": "Use for research synthesis without a hosted semantic-search dependency.",
+      "group": "Knowledge workflows"
+    },
+    {
+      "name": "Highlight Digests",
+      "command": "highlights digest",
+      "description": "Create deduplicated Markdown or JSONL study digests from highlights.",
+      "rationale": "Requires local joins and export cursors across bookmarks and highlights.",
+      "example": "raindrop highlights digest --since 30d --group-by tag --agent",
+      "why_it_matters": "Use to turn annotations into portable research output.",
+      "group": "Knowledge workflows"
+    },
+    {
+      "name": "Durable Triage",
+      "command": "workflow status",
+      "description": "Run crash-safe bounded triage queues with retry and manual-review states.",
+      "rationale": "Requires atomic claims, unique enqueue constraints and persistent lifecycle receipts.",
+      "example": "raindrop workflow status --agent --home /tmp/raindrop-pp",
+      "why_it_matters": "Use for unattended agents that must resume safely after failures.",
+      "group": "Automation safety"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Offline Library",
+      "command": "sync",
+      "description": "Mirror bookmarks, collections, tags and highlights for instant offline search.",
+      "rationale": "Requires durable checkpoints, snapshots and FTS5 indexes across paginated API resources.",
+      "example": "raindrop sync --agent --home /tmp/raindrop-pp",
+      "why_it_matters": "Use before local analysis or when repeated remote scans would waste rate limit.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Inbox Review",
+      "command": "inbox review",
+      "description": "Process Unsorted bookmarks in resumable, bounded review sessions.",
+      "rationale": "Requires durable item lifecycle and confirmed per-item writeback.",
+      "example": "raindrop inbox review --limit 10 --agent",
+      "why_it_matters": "Use for safe inbox-zero organization without repeated prompts.",
+      "group": "Safe organization"
+    },
+    {
+      "name": "Change History",
+      "command": "changes",
+      "description": "Show field-level bookmark changes between sync snapshots.",
+      "rationale": "Raindrop exposes current state but not durable before-and-after history.",
+      "example": "raindrop changes --since 7d --agent",
+      "why_it_matters": "Use to audit automation and discover recent library edits.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Tag Health",
+      "command": "tag health",
+      "description": "Discover case variants, near-duplicates, singleton tags and merge candidates.",
+      "rationale": "Requires whole-library joins, normalization and co-occurrence statistics.",
+      "example": "raindrop tag health --agent",
+      "why_it_matters": "Use before bulk tag cleanup instead of guessing merge targets.",
+      "group": "Safe organization"
+    },
+    {
+      "name": "Duplicate Plans",
+      "command": "duplicates plan",
+      "description": "Choose canonical bookmarks while preserving tags, notes and highlights.",
+      "rationale": "Requires normalized URL groups and persistent reviewable mutation plans.",
+      "example": "raindrop duplicates plan --canonical richest --agent",
+      "why_it_matters": "Use when duplicate cleanup must not discard richer metadata.",
+      "group": "Safe organization"
+    },
+    {
+      "name": "Revisit Queue",
+      "command": "revisit",
+      "description": "Resurface useful forgotten bookmarks without repeating recent suggestions.",
+      "rationale": "Requires local history, scoring and prior-resurfacing state.",
+      "example": "raindrop revisit --older-than 180d --limit 20 --agent",
+      "why_it_matters": "Use to turn a bookmark archive back into an active reading system.",
+      "group": "Knowledge workflows"
+    },
+    {
+      "name": "Related Bookmarks",
+      "command": "related",
+      "description": "Find explainable related bookmarks offline using text, tags and domains.",
+      "rationale": "Requires FTS5 BM25 plus local tag-overlap joins across the mirror.",
+      "example": "raindrop related --limit 10 --agent",
+      "why_it_matters": "Use for research synthesis without a hosted semantic-search dependency.",
+      "group": "Knowledge workflows"
+    },
+    {
+      "name": "Highlight Digests",
+      "command": "highlights digest",
+      "description": "Create deduplicated Markdown or JSONL study digests from highlights.",
+      "rationale": "Requires local joins and export cursors across bookmarks and highlights.",
+      "example": "raindrop highlights digest --since 30d --group-by tag --agent",
+      "why_it_matters": "Use to turn annotations into portable research output.",
+      "group": "Knowledge workflows"
+    },
+    {
+      "name": "Durable Triage",
+      "command": "workflow status",
+      "description": "Run crash-safe bounded triage queues with retry and manual-review states.",
+      "rationale": "Requires atomic claims, unique enqueue constraints and persistent lifecycle receipts.",
+      "example": "raindrop workflow status --agent --home /tmp/raindrop-pp",
+      "why_it_matters": "Use for unattended agents that must resume safely after failures.",
+      "group": "Automation safety"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "RAINDROP_TOKEN"
+  },
+  "narrative": {
+    "display_name": "Raindrop.io",
+    "headline": "Complete Raindrop.io control plus offline search, safe cleanup, and durable knowledge workflows.",
+    "value_prop": "Use every documented bookmark, collection, tag, highlight, file, import, export and backup operation from one Go CLI. SQLite sync powers historical diffs, resumable review, explainable related-bookmark search and crash-safe automation while the matching MCP server exposes the same command tree to agents.",
+    "auth_narrative": "Set RAINDROP_TOKEN, run `raindrop auth set-token`, or place a test token in `.raindrop-token`. Tokens are sent only as `Authorization: Bearer` to api.raindrop.io and are never written into output artifacts.",
+    "quickstart": [
+      {
+        "command": "raindrop doctor --dry-run",
+        "comment": "Check config, storage and command wiring without credentials."
+      },
+      {
+        "command": "raindrop sync status --agent",
+        "comment": "Inspect local mirror freshness before network access."
+      },
+      {
+        "command": "raindrop raindrops search --collection 0 --perpage 5 --dry-run",
+        "comment": "Preview generated API request safely."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized",
+        "fix": "Refresh test token at https://app.raindrop.io/settings/integrations and update RAINDROP_TOKEN."
+      },
+      {
+        "symptom": "429 Too Many Requests",
+        "fix": "Let built-in Retry-After backoff finish or reduce sync page concurrency."
+      },
+      {
+        "symptom": "Offline results look stale",
+        "fix": "Run `raindrop sync` and inspect `raindrop sync status`."
+      }
+    ],
+    "when_to_use": "Use for scripted or agent-driven Raindrop.io management, offline retrieval, safe bulk cleanup, highlight workflows, and resumable library organization. Prefer local commands when historical state or deterministic automation matters.",
+    "anti_triggers": [
+      "Do not use for browser-extension UI interactions.",
+      "Do not use destructive apply commands without reviewing their dry-run plans.",
+      "Do not use local search when current remote state is required and sync is stale."
+    ],
+    "recipes": [
+      {
+        "title": "Narrow remote search",
+        "command": "raindrop raindrops search --collection 0 --search 'site:github.com #go' --agent --select items._id,items.title,items.link,items.tags",
+        "explanation": "Return only fields an agent needs."
+      },
+      {
+        "title": "Refresh offline mirror",
+        "command": "raindrop sync --agent --home /tmp/raindrop-pp",
+        "explanation": "Incrementally fetch library resources into SQLite."
+      },
+      {
+        "title": "Audit tags",
+        "command": "raindrop tag health --agent",
+        "explanation": "Find deterministic cleanup candidates without mutation."
+      },
+      {
+        "title": "Build reading queue",
+        "command": "raindrop revisit --older-than 180d --limit 20 --agent",
+        "explanation": "Resurface forgotten high-value items."
+      }
+    ],
+    "trigger_phrases": [
+      "search my Raindrop bookmarks",
+      "save this to Raindrop",
+      "clean my bookmark tags",
+      "review my Raindrop inbox",
+      "use Raindrop",
+      "run Raindrop"
+    ]
+  }
+}

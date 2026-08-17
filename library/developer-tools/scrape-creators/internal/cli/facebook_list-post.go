@@ -13,40 +13,81 @@ import (
 
 func newFacebookListPostCmd(flags *rootFlags) *cobra.Command {
 	var flagUrl string
-	var flagFeedbackId string
-	var flagCursor string
-	var flagAll bool
+	var flagCacheMaxAge string
 
 	cmd := &cobra.Command{
 		Use:         "list-post",
-		Short:       "Fetches comments from a Facebook post or reel with cursor-based pagination. Each comment includes id, text,...",
-		Example:     "  scrape-creators-pp-cli facebook list-post",
-		Annotations: map[string]string{"pp:endpoint": "facebook.list-post", "mcp:read-only": "true"},
+		Short:       "Retrieves a single public Facebook post or reel by URL.",
+		Example:     "  scrape-creators-pp-cli facebook list-post --url https://www.facebook.com/reel/1535656380759655",
+		Annotations: map[string]string{"pp:endpoint": "facebook.list-post", "pp:method": "GET", "pp:path": "/v1/facebook/post", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Bare invocation of a command with required input prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only read commands fall through so a bare call still executes.
+			// Machine callers (--json/--agent, which sets asJSON) get a usage
+			// error + exit 2 instead of silent exit-0 help, so an incomplete
+			// invocation is never mistaken for success.
+			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "requires input",
+						"usage": cmd.CommandPath() + " --help",
+					}, flags); printErr != nil {
+						return printErr
+					}
+					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
+				}
+				return cmd.Help()
+			}
+			if !cmd.Flags().Changed("url") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "url")
+			}
+			if cmd.Flags().Changed("cache-max-age") {
+				allowedCacheMaxAge := []string{"1d", "3d", "7d", "14d", "30d"}
+				validCacheMaxAge := false
+				for _, v := range allowedCacheMaxAge {
+					if flagCacheMaxAge == v {
+						validCacheMaxAge = true
+						break
+					}
+				}
+				if !validCacheMaxAge {
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagCacheMaxAge, "cache-max-age", allowedCacheMaxAge)
+				}
+			}
+			path := "/v1/facebook/post"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/v1/facebook/post/comments"
-			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "facebook", path, map[string]string{
-				"url":         fmt.Sprintf("%v", flagUrl),
-				"feedback_id": fmt.Sprintf("%v", flagFeedbackId),
-				"cursor":      fmt.Sprintf("%v", flagCursor),
-			}, nil, flagAll, "cursor", "", "")
-			if err != nil {
-				return classifyAPIError(err)
+			params := map[string]string{}
+			if flagUrl != "" {
+				params["url"] = formatCLIParamValue(flagUrl)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			if flagCacheMaxAge != "" {
+				params["cache_max_age"] = formatCLIParamValue(flagCacheMaxAge)
+			}
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "facebook", false, path, params, nil, "", cmd.ErrOrStderr())
+			if err != nil {
+				return classifyAPIError(err, flags)
+			}
+			outputData := data
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
-				_ = json.Unmarshal(data, &countItems)
+				_ = json.Unmarshal(outputData, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
 			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
+			// --plain) opt out of the auto-JSON path so piped consumers that asked for
+			// a non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -57,12 +98,16 @@ func newFacebookListPostCmd(flags *rootFlags) *cobra.Command {
 				if wrapErr != nil {
 					return wrapErr
 				}
+				wrapped, wrapErr = wrapPlatformStructuredOutput(wrapped, flags, "results", true)
+				if wrapErr != nil {
+					return wrapErr
+				}
 				return printOutput(cmd.OutOrStdout(), wrapped, true)
 			}
 			// For all other output modes (table, csv, plain, quiet), use the standard pipeline
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var items []map[string]any
-				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
+				if json.Unmarshal(outputData, &items) == nil && len(items) > 0 {
 					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
 						return err
 					}
@@ -72,13 +117,15 @@ func newFacebookListPostCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			formatData := data
+			if flags.csv || flags.plain {
+				formatData = outputData
+			}
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"})
 		},
 	}
-	cmd.Flags().StringVar(&flagUrl, "url", "", "Facebook post URL (or reel URL)")
-	cmd.Flags().StringVar(&flagFeedbackId, "feedback-id", "", "Using feedback_id (instead of url) will *really* speed up the request. You can get the feedback_id when you make a...")
-	cmd.Flags().StringVar(&flagCursor, "cursor", "", "Cursor to get more comments. Get 'cursor' from previous response.")
-	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
+	cmd.Flags().StringVar(&flagUrl, "url", "", "The URL of the post to get")
+	cmd.Flags().StringVar(&flagCacheMaxAge, "cache-max-age", "", "If we have a response in the cache that is this many days old or newer, return the cached response (0 credits (one of: 1d, 3d, 7d, 14d, 30d)")
 
 	return cmd
 }

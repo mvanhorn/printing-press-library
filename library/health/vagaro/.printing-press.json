@@ -1,0 +1,66 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-07T05:00:20.098658Z",
+  "printing_press_version": "4.27.1",
+  "api_name": "vagaro",
+  "display_name": "Vagaro",
+  "cli_name": "vagaro-pp-cli",
+  "creator": {
+    "handle": "tmchow",
+    "name": "Trevin Chow"
+  },
+  "owner": "tmchow",
+  "printer": "tmchow",
+  "printer_name": "Trevin Chow",
+  "spec_path": "vagaro-spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:01e24a72d1e4e8fd6afee041becf8ea25f0e020d325a8d4eaf29009101add387",
+  "run_id": "20260701-143117-d22a0c47",
+  "category": "health",
+  "description": "Every Vagaro discovery feature, plus the marketplace-wide availability search, price comparison, and local database no Vagaro tool has.",
+  "mcp_binary": "vagaro-pp-mcp",
+  "mcp_tool_count": 6,
+  "mcp_public_tool_count": 5,
+  "mcp_ready": "partial",
+  "api_version": "0.1.0",
+  "auth_type": "composed",
+  "novel_features": [
+    {
+      "name": "Cross-business availability search",
+      "command": "find",
+      "description": "Find nearby businesses with a service open soonest, filtered by price, rating, and a date/time window."
+    },
+    {
+      "name": "Business comparison",
+      "command": "compare",
+      "description": "Compare named businesses side by side: rating, review count, price range, matching-service price, and next-available."
+    },
+    {
+      "name": "Service price distribution",
+      "command": "price-check",
+      "description": "Show the price spread (min/median/max) for a service across a metro and flag who's below median."
+    },
+    {
+      "name": "Market overview",
+      "command": "market",
+      "description": "One-shot landscape of a metro: business count, rating distribution, and price ranges by category."
+    },
+    {
+      "name": "History-driven rebook",
+      "command": "me rebook",
+      "description": "Re-run your usual: reads your past appointment (business + service + provider) and lists that provider's open slots in a window so you can pick and book."
+    },
+    {
+      "name": "Service-menu diff over time",
+      "command": "menu-diff",
+      "description": "Diff a business's service menu across synced snapshots to catch price changes and added/removed services."
+    },
+    {
+      "name": "Availability watch",
+      "command": "watch",
+      "description": "Check one business/provider's next-available against a stored baseline and report if a slot opened up sooner."
+    }
+  ],
+  "mcp_manifest": "manifest.json"
+}

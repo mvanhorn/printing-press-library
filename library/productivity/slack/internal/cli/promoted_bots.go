@@ -15,11 +15,31 @@ func newBotsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagBot string
 
 	cmd := &cobra.Command{
-		Use:     "bots",
-		Short:   "Get information about a bot user",
-		Long:    "Shortcut for 'bots info'. Get information about a bot user",
-		Example: "  slack-pp-cli bots",
+		Use:   "bots",
+		Short: "Get information about a bot user",
+		Long:  "Get information about a bot user",
+		// TODO: replace placeholder example values before relying on this for live dogfood.
+		Example:     "  slack-pp-cli bots --bot example-value",
+		Annotations: map[string]string{"pp:endpoint": "bots.get", "pp:method": "GET", "pp:path": "/bots.info", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Bare invocation of a command with a required flag/body prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only reads fall through so a bare call still executes; positional
+			// commands keep their existing usageErr (exit 2 + JSON envelope).
+			// Machine callers (--json/--agent, which sets asJSON) get a usage
+			// error + exit 2 instead of silent exit-0 help.
+			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "requires input",
+						"usage": cmd.CommandPath() + " --help",
+					}, flags); printErr != nil {
+						return printErr
+					}
+					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
+				}
+				return cmd.Help()
+			}
 			if !cmd.Flags().Changed("bot") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "bot")
 			}
@@ -31,18 +51,18 @@ func newBotsPromotedCmd(flags *rootFlags) *cobra.Command {
 			path := "/bots.info"
 			params := map[string]string{}
 			if flagBot != "" {
-				params["bot"] = fmt.Sprintf("%v", flagBot)
+				params["bot"] = formatCLIParamValue(flagBot)
 			}
-			data, prov, err := resolveRead(c, flags, "bots", false, path, params)
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "bots", false, path, params, nil, "", cmd.ErrOrStderr())
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
-			// Unwrap API response envelopes (e.g. {"status":"success","data":[...]})
-			// so output helpers see the inner data, not the wrapper.
-			data = extractResponseData(data)
-
-			// Print provenance to stderr
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_endpoint.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				if json.Unmarshal(data, &countItems) != nil {
 					// Single object, not an array
@@ -50,18 +70,17 @@ func newBotsPromotedCmd(flags *rootFlags) *cobra.Command {
 				}
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// CSV bypasses JSON pipe path so --csv works when piped
-			if flags.csv {
-				return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
-			}
-			// For JSON output, wrap with provenance envelope
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// For JSON output, wrap with provenance envelope. --select wins over
+			// --compact when both are set; --compact only runs when no explicit
+			// fields were requested. Explicit format flags (--csv, --quiet, --plain)
+			// opt out of the auto-JSON path so piped consumers that asked for a
+			// non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -81,7 +100,7 @@ func newBotsPromotedCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagBot, "bot", "", "Bot user ID")

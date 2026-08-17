@@ -17,7 +17,7 @@
   "spec_path": "catalog/specs/google-photos.yaml",
   "spec_format": "internal",
   "spec_checksum": "sha256:8fb7897ad3903197db1f21eeed123558804474e212cb1a928adc4e70761a0454",
-  "description": "Manage Google Photos app-created albums and media, upload files, and handle Picker sessions from terminal-friendly commands.",
+  "description": "Google Photos Library and Picker APIs for app-created media, albums, uploads, and user-selected media.",
   "mcp_binary": "google-photos-pp-mcp",
   "mcp_tool_count": 19,
   "mcp_ready": "full",

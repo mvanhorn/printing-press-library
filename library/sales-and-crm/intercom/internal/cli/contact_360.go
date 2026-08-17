@@ -23,7 +23,8 @@ type contact360 struct {
 	Tags                []string          `json:"tags"`
 }
 
-func newContact360Cmd(flags *rootFlags) *cobra.Command {
+// pp:data-source local
+func newNovelContact360Cmd(flags *rootFlags) *cobra.Command {
 	var by string
 	var dbPath string
 
@@ -54,6 +55,12 @@ func newContact360Cmd(flags *rootFlags) *cobra.Command {
 			case "email", "external_id", "id":
 			default:
 				return usageErr(fmt.Errorf("--by must be 'email', 'external_id', or 'id', got %q", by))
+			}
+
+			// Local-only command: reads the synced store, so reject
+			// --data-source live (auto/local pass through).
+			if err := validateDataSourceStrategy(flags, "local"); err != nil {
+				return err
 			}
 
 			if dbPath == "" {
@@ -331,38 +338,11 @@ func readContactTickets(db *store.Store, contactID string) []json.RawMessage {
 		if err := rows.Scan(&raw); err != nil {
 			continue
 		}
-		// The SQL filter already enforced membership; we keep this trivial
-		// loop as the cheap deserialize step. ticketHasContact() is no
-		// longer load-bearing for filtering but stays as a defensive
-		// double-check for callers that bypass this helper.
+		// The SQL filter already enforced membership; this loop is just the
+		// cheap deserialize step.
 		out = append(out, json.RawMessage(raw))
 	}
 	return out
-}
-
-func ticketHasContact(raw json.RawMessage, contactID string) bool {
-	var t struct {
-		Contacts struct {
-			Contacts []struct {
-				ID string `json:"id"`
-			} `json:"contacts"`
-		} `json:"contacts"`
-		ContactIDs []string `json:"contact_ids"`
-	}
-	if json.Unmarshal(raw, &t) != nil {
-		return false
-	}
-	for _, c := range t.Contacts.Contacts {
-		if c.ID == contactID {
-			return true
-		}
-	}
-	for _, id := range t.ContactIDs {
-		if id == contactID {
-			return true
-		}
-	}
-	return false
 }
 
 func readContactNotes(db *store.Store, contactID string) []json.RawMessage {

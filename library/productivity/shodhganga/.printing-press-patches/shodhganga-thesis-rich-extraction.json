@@ -1,0 +1,25 @@
+{
+  "schema_version": 2,
+  "id": "shodhganga-thesis-rich-extraction",
+  "applied_at": "2026-07-19",
+  "base_run_id": "20260719-022158-deedd460",
+  "base_printing_press_version": "4.29.0",
+  "summary": "thesis get/search, generic live search, and the corpus/analytics commands use a hand-authored internal/dspace HTML client for structured extraction.",
+  "reason": "Shodhganga exposes no OAI/REST/OpenSearch API; the generated JSON client silently discarded HTML search responses, and html_extract 'page' mode only captured item titles and nav links instead of DC.* metadata. internal/dspace parses those pages into typed search hits and thesis records; harvest pages respect the requested limit, and thesis freshness hints point back to harvest. The university 'list' endpoint (/community-list, a 900+-university mega-page that hangs) was removed from the spec.",
+  "files": [
+    "internal/dspace/dspace.go",
+    "internal/dspace/dspace_test.go",
+    "internal/cli/thesis_get.go",
+    "internal/cli/thesis_search.go",
+    "internal/cli/search.go",
+    "internal/cli/sync_hint.go",
+    "internal/cli/sync_hint_test.go",
+    "internal/cli/harvest.go",
+    "internal/cli/guide.go",
+    "internal/cli/similar.go",
+    "internal/cli/trends.go",
+    "internal/cli/university_stats.go",
+    "internal/cli/shodhganga_common.go"
+  ],
+  "validated_outcome": "shipcheck 7/7 PASS, scorecard 88/100 Grade A, full live dogfood 90/90 at 120s timeout; after review repair, 794 Go tests, go vet/build, govulncheck, skill verification, and publish-package verification pass."
+}

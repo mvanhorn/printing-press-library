@@ -1,0 +1,1076 @@
+{
+  "dir": "C:/Users/LACI/printing-press/library/nejm",
+  "binary": "C:\\Users\\LACI\\printing-press\\library\\nejm\\bin\\nejm-pp-cli.exe",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 68,
+  "passed": 68,
+  "failed": 0,
+  "skipped": 46,
+  "commands": [
+    "api",
+    "article cite",
+    "articles",
+    "current",
+    "digest",
+    "doctor",
+    "feedback list",
+    "import",
+    "open-access",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "reading-list add",
+    "reading-list ls",
+    "reading-list read",
+    "reading-list rm",
+    "recent",
+    "search",
+    "since",
+    "specialty",
+    "sql",
+    "sync",
+    "trends",
+    "which",
+    "workflow archive",
+    "workflow status"
+  ],
+  "tests": [
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  nejm-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  nejm-pp-cli api\n\n  # Show methods for a specific interface\n  nejm-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'nejm-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'nejm-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "article cite",
+      "kind": "help",
+      "args": [
+        "article",
+        "cite",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Emit a citation for an article from the local corpus\n\nUsage:\n  nejm-pp-cli article cite \u003cdoi\u003e [flags]\n\nExamples:\n  nejm-pp-cli article cite 10.1056/NEJMoa2506905\n  nejm-pp-cli article cite 10.1056/NEJMoa2506905 --format ris\n\nFlags:\n      --format string   Citation format: bibtex or ris (default \"bibtex\")\n  -h, --help            help for cite\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --db string            Path to local SQLite database (default: ~/.local/share/nejm-pp-cli/data.db)\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --enrich               Force live fetch of article detail even if cached locally\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'nejm-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "article cite",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"doi\" at depth 0"
+    },
+    {
+      "command": "article cite",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"doi\" at depth 0"
+    },
+    {
+      "command": "article cite",
+      "kind": "error_path",
+      "args": [
+        "article",
+        "cite",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: article __printing_press_invalid__ not found: fetching article __printing_press_invalid__: GET /doi/full/__printing_press_invalid__ returned HTTP 404: \n\n\n\n    \n\n\n\n\n\n\n\u003c!DOCTYPE html\u003e\n\n\n\n\n\n\n    \n\n\n\n\n\n\n\n\n\n\n\u003chtml lang=\"en\"\n      \n        \n      \n      \n        \n\n        \n\n        \n        \n            \n        \n        \n        \n        \n        \n\n      class=\"pb-page\"\n         data-request-id=\"a0fc3f29019b26f8-SJC\"  \n\n\u003e\n\n    \n        \u003chead data-pb-dropzone=\"head\"\u003e\n            \n\n\u003cmeta charset=\"UTF-8\"\u003e\n\n\n\n\n\n\n    \n        \n            \n        \n    \n        \n            \n        \n    \n        \n            \n        \n    \n        \n    \n        \n    \n        \n            \n                \n                \n\u003ctitle\u003e404 Page Not Found\u003c/title\u003e\n\n\n\n\n\n                \n            \n        \n    \n\n\n\n\n\n\n\n    \n        \n            \n        \n    \n        \n            \n                \n                \n\n\n\n                \n            \n        \n    \n        \n            \n        \n    \n        \n    \n        \n    \n        \n            \n        \n    \n\n\n\n\n\n\n\n\n\n\n    \n\n\n\n\n\n\n\n\n\n    \n\n    \n    \n\n    \n    \n    \n    \n        \n            \n            \n            \n                \n            \n        \n    \n\n    \n    \n        \n            \u003clink rel=\"icon\" href=\"/products/mms-nextgen/mms/releasedAssets/images/favicon/fav_nejm_1-994b0160d1eb33dc79517ef0295aab1b.ico\" type=\"image/x-icon\"/\u003e\n        \n        \n            \u003clink rel=\"icon\" href=\"/products/mms-nextgen/mms/releasedAssets/images/favicon/fav_16-4aa032aa775940f725817b7ff42f0e2c.png\" type=\"image/png\" sizes=\"16x16\"/\u003e\n        \n        \n            \u003clink rel=\"icon\" href=\"/products/mms-nextgen/mms/releasedAssets/images/favicon/fav_32-0a94fa44823476ffa0bb15bdb320fb34.png\" type=\"image/png\" sizes=\"32x32\"/\u003e\n        \n        \n            \u003clink rel=\"apple-touch-icon\" href=\"/products/mms-nextgen/mms/releasedAssets/images/favicon/fav_152-d6c3522864a8e483996b7e9c132c901a.png\" sizes=\"152x152\"/\u003e\n        \n        \n            \u003clink rel=\"apple-touch-icon\" href=\"/products/mms-nextgen/mms/releasedAssets/images/favicon/fav_180-f2538afc53a365d4cd3f10ab73c56aad.png\" sizes=\"180x180\"/\u003e\n        \n        \n            \u003clink rel=\"apple-touch-icon\" href=\"/products/mms-nextgen/mms/releasedAssets/images/favicon/fav_167-8e888012bbdd31a00c3e54bc5b8ca5b6.png\" sizes=\"167x167\"/\u003e\n        \n    \n\n    \n    \n            \u003clink rel=\"stylesheet\" href=\"/products/mms-nextgen/mms/releasedAssets/css/build-a8a96044f8b9522bcd31.css\" media=\"all\"\u003e\n        \u003clink rel=\"stylesheet\" href=\"/products/mms-nextgen/mms/releasedAssets/css/print-a8a96044f8b9522bcd31.css\"media=\"print\"\u003e\n    \n        \u003cscript nonce=\"a0fc3f29019b26f8-SJC\"\u003e\n        try {\n            document.documentElement.classList.add('js');\n        } catch (e) {\n        }\n    \u003c/script\u003e\n     \n    \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n    \n        \n            \n                \n                \n                \n                    \n                    \u003c!-- TrustArc Scripts --\u003e\n\u003cscript async=\"async\" src=\"https://consent.trustarc.com/notice?domain=nejm.com\u0026c=teconsent\u0026js=nj\u0026noticeType=bb\u0026gtm=1\u0026text=true\u0026pcookie\" crossorigin=\"\"\u003e\u003c/script\u003e\n\u003cscript src=\"https://consent.trustarc.com/autoblockasset/core.min.js?domain=nejm.com\"\u003e\u003c/script\u003e\n\u003cscript src=\"https://consent.trustarc.com/autoblockoptout?domain=nejm.com\"\u003e\u003c/script\u003e\n\u003c!-- /TrustArc Scripts --\u003e\n\n\u003c!-- WebComponent media player--\u003e\n\u003cscript type=\"module\" src=\"https://media-player.nejm.org/web-component.js\"\u003e\u003c/script\u003e\n    \u003c!-- /WebComponent media player--\u003e\n\n\u003c!-- BlueConic Scripts --\u003e\n\u003cscript src=\"https://bc.nejm.org/script.js\"\u003e\u003c/script\u003e\n    \u003c!-- /BlueConic Scripts --\u003e\n\u003cscript type=\"text/javascript\"\u003evar mmsData = {\"access\":{\"isFreeCountry\":\"n\"},\"ad\":{\"category\":\"article\"},\"imageChallenge\":{\"id\":null},\"article\":null,\"page\":{\"activity\":\"showFullText\",\"url\":\"www.nejm.org/doi/full/__printing_press_invalid__\",\"viewType\":\"desktop\",\"journal\":\"NEJM\"},\"user\":{\"ucid\":null,\"audienceSegment\":null,\"specialtyGroupCode\":null,\"meterCountRemaining\":null,\"totalMeterCount\":null},\"object\":null};\u003c/script\u003e\n    \u003cscript type=\"text/javascript\"\u003evar mmsDataAdd = {\"user\":{\"customerType\":\"null\",\"acces…[truncated]"
+    },
+    {
+      "command": "articles",
+      "kind": "help",
+      "args": [
+        "articles",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List NEJM articles from the local corpus with optional filters\n\nUsage:\n  nejm-pp-cli articles [flags]\n\nExamples:\n  nejm-pp-cli articles --specialty cardiology\n  nejm-pp-cli articles --type \"Original Article\" --free --json\n\nFlags:\n      --author string      Filter by author name (partial match)\n      --free               Show only open-access articles\n  -h, --help               help for articles\n      --limit int          Maximum number of articles (default 50)\n      --since string       Only articles published since this window (e.g. 7d, 48h, 2w)\n      --specialty string   Filter by specialty (partial match, e.g. cardiology)\n      --type string        Filter by article type (e.g. 'Original Article')\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'nejm-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "articles",
+      "kind": "happy_path",
+      "args": [
+        "articles",
+        "--specialty",
+        "cardiology"
+      ],
+      "status": "pass",
+      "output_sample": "hint: no articles found. Run 'nejm-pp-cli sync' to populate the corpus.\n"
+    },
+    {
+      "command": "articles",
+      "kind": "json_fidelity",
+      "args": [
+        "articles",
+        "--specialty",
+        "cardiology",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\nhint: no articles found. Run 'nejm-pp-cli sync' to populate the corpus.\n"
+    },
+    {
+      "command": "articles",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "current",
+      "kind": "help",
+      "args": [
+        "current",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List articles from the current issue (eTOC RSS feed). Run 'nejm-pp-cli sync' first to populate the corpus.\n\nUsage:\n  nejm-pp-cli current [flags]\n\nExamples:\n  nejm-pp-cli current\n  nejm-pp-cli current --free --json\n\nFlags:\n      --free        Show only open-access articles\n  -h, --help        help for current\n      --limit int   Maximum number of articles to return (0 = all)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'nejm-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "current",
+      "kind": "happy_path",
+      "args": [
+        "current"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"abstract\": \"\",\n    \"article_type\": \"\",\n    \"authors\": \"Michael Thomas Garcia and Alec Bijan Rezigh\",\n    \"date\": \"2026-06-20T11:30:00Z\",\n    \"doi\": \"10.1056/NEJMicm2600597\",\n    \"feed\": \"etoc\",\n    \"is_free\": false,\n    \"specialties\": \"\",\n    \"synced_at\": \"2026-06-22T15:22:05Z\",\n    \"title\": \"Unheralded Syncope from Ventricular Arrhythmia\",\n    \"url\": \"https://www.nejm.org/doi/full/10.1056/NEJMicm2600597?af=R\\u0026rss=currentIssue\"\n  },\n  {\n    \"abstract\": \"\",\n    \"article_type\": \"\",\n    \"authors\": \"Kathryn Taylor\",\n    \"date\": \"2026-06-20T11:30:00Z\",\n    \"doi\": \"10.1056/NEJMp2515486\",\n    \"feed\": \"etoc\",\n    \"is_free\": false,\n    \"specialties\": \"\",\n    \"synced_at\": \"2026-06-22T15:22:05Z\",\n    \"title\": \"The Before and The After\",\n    \"url\": \"https://www.nejm.org/doi/full/10.1056/NEJMp2515486?af=R\\u0026rss=currentIssue\"\n  },\n  {\n    \"abstract\": \"\",\n    \"article_type\": \"\",\n    \"authors\": \"Robert D. Brook and Sanjay Rajagopalan\",\n    \"date\": \"2026-06-20T11:30:00Z\",\n    \"doi\": \"10.1056/NEJMp2601256\",\n    \"feed\": \"etoc\",\n    \"is_free\": false,\n    \"specialties\": \"\",\n    \"synced_at\": \"2026-06-22T15:22:05Z\",\n    \"title\": \"Improving Global Air-Quality Indices — The WHO’s New Roadmap\",\n    \"url\": \"https://www.nejm.org/doi/full/10.1056/NEJMp2601256?af=R\\u0026rss=currentIssue\"\n  },\n  {\n    \"abstract\": \"\",\n    \"article_type\": \"\",\n    \"authors\": \"Arianne Teherani Rupa Basu and Sheri Weiser\",\n    \"date\": \"2026-06-20T11:30:00Z\",\n    \"doi\": \"10.1056/NEJMp2601300\",\n    \"feed\": \"etoc\",\n    \"is_free\": false,\n    \"specialties\": \"\",\n    \"synced_at\": \"2026-06-22T15:22:05Z\",\n    \"title\": \"When Health Costs No Longer Count — Air Pollution and EPA Rulemaking\",\n    \"url\": \"https://www.nejm.org/doi/full/10.1056/NEJMp2601300?af=R\\u0026rss=currentIssue\"\n  },\n  {\n    \"abstract\": \"\",\n    \"article_type\": \"\",\n    \"authors\": \"Stacie B. Dusetzina\",\n    \"date\": \"2026-06-20T11:30:00Z\",\n    \"doi\": \"10.1056/NEJMp2605694\",\n    \"feed\": \"etoc\",\n    \"is_free\": false,\n    \"specialties\": \"\",\n    \"synced_at\": \"2026-06-22T15:22:05Z\",\n    \"title\": \"Access to GLP-1s for Medicare Beneficiaries — A Bridge to Nowhere?\",\n    \"url\": \"https://www.nejm.org/doi/full/10.1056/NEJMp2605694?af=R\\u0026rss=currentIssue\"\n  },\n  {\n    \"abstract\": \"\",\n    \"article_type\": \"\",\n    \"authors\": \"\",\n    \"date\": \"2026-06-17T09:00:03Z\",\n    \"doi\": \"10.1056/NEJMoa2506905\",\n    \"feed\": \"etoc\",\n    \"is_free\": false,\n    \"specialties\": \"\",\n    \"synced_at\": \"2026-06-22T15:22:05Z\",\n    \"title\": \"Cefazolin for Methicillin-Susceptible Staphylococcus aureus Bacteremia\",\n    \"url\": \"https://www.nejm.org/doi/full/10.1056/NEJMoa2506905?af=R\\u0026rss=currentIssue\"\n  },\n  {\n    \"abstract\": \"\",\n    \"article_type\": \"\",\n    \"authors\": \"Richard S. Hotchkiss and John F. DiPersio\",\n    \"date\": \"2026-06-17T09:00:03Z\",\n    \"doi\": \"10.1056/NEJMcibr2601002\",\n    \"feed\": \"etoc\",\n    \"is_free\": false,\n    \"specialties\": \"\",\n    \"synced_at\": \"2026-06-22T15:22:05Z\",\n    \"title\": \"Stemness as the Engine of Checkpoint Durability\",\n    \"url\": \"https://www.nejm.org/doi/full/10.1056/NEJMcibr2601002?af=R\\u0026rss=currentIssue\"\n  },\n  {\n    \"abstract\": \"\",\n    \"article_type\": \"\",\n    \"authors\": \"Laszlo Hegedüs Lori J. Wirth and R. Michael Tuttle\",\n    \"date\": \"2026-06-17T09:00:03Z\",\n    \"doi\": \"10.1056/NEJMra2416814\",\n    \"feed\": \"etoc\",\n    \"is_free\": false,\n    \"specialties\": \"\",\n    \"synced_at\": \"2026-06-22T15:22:05Z\",\n    \"title\": \"Management of Differentiated Thyroid Cancer\",\n    \"url\": \"https://www.nejm.org/doi/full/10.1056/NEJMra2416814?af=R\\u0026rss=currentIssue\"\n  },\n  {\n    \"abstract\": \"\",\n    \"article_type\": \"\",\n    \"authors\": \"\",\n    \"date\": \"2026-06-17T09:00:03Z\",\n    \"doi\": \"10.1056/NEJMc2605256\",\n    \"feed\": \"etoc\",\n    \"is_free\": false,\n    \"specialties\": \"\",\n    \"synced_at\": \"2026-06-22T15:22:05Z\",\n    \"title\": \"Zorevunersen in Children and Adolescents with Dravet Syndrome\",\n    \"url\": \"https://www.nejm.org/doi/full/10.1056/NEJMc2605256?af=R\\u0026rss=currentIssue\"\n  },\n  {\n    \"abstract\": \"\",\n    \"article_type\": \"\",\n    \"authors\": \"\",\n    \"date\": \"2026-06-17T09:00:03Z\",\n    \"doi\": \"10.1056/NE…[truncated]"
+    },
+    {
+      "command": "current",
+      "kind": "json_fidelity",
+      "args": [
+        "current",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"abstract\": \"\",\n    \"article_type\": \"\",\n    \"authors\": \"Michael Thomas Garcia and Alec Bijan Rezigh\",\n    \"date\": \"2026-06-20T11:30:00Z\",\n    \"doi\": \"10.1056/NEJMicm2600597\",\n    \"feed\": \"etoc\",\n    \"is_free\": false,\n    \"specialties\": \"\",\n    \"synced_at\": \"2026-06-22T15:22:05Z\",\n    \"title\": \"Unheralded Syncope from Ventricular Arrhythmia\",\n    \"url\": \"https://www.nejm.org/doi/full/10.1056/NEJMicm2600597?af=R\\u0026rss=currentIssue\"\n  },\n  {\n    \"abstract\": \"\",\n    \"article_type\": \"\",\n    \"authors\": \"Kathryn Taylor\",\n    \"date\": \"2026-06-20T11:30:00Z\",\n    \"doi\": \"10.1056/NEJMp2515486\",\n    \"feed\": \"etoc\",\n    \"is_free\": false,\n    \"specialties\": \"\",\n    \"synced_at\": \"2026-06-22T15:22:05Z\",\n    \"title\": \"The Before and The After\",\n    \"url\": \"https://www.nejm.org/doi/full/10.1056/NEJMp2515486?af=R\\u0026rss=currentIssue\"\n  },\n  {\n    \"abstract\": \"\",\n    \"article_type\": \"\",\n    \"authors\": \"Robert D. Brook and Sanjay Rajagopalan\",\n    \"date\": \"2026-06-20T11:30:00Z\",\n    \"doi\": \"10.1056/NEJMp2601256\",\n    \"feed\": \"etoc\",\n    \"is_free\": false,\n    \"specialties\": \"\",\n    \"synced_at\": \"2026-06-22T15:22:05Z\",\n    \"title\": \"Improving Global Air-Quality Indices — The WHO’s New Roadmap\",\n    \"url\": \"https://www.nejm.org/doi/full/10.1056/NEJMp2601256?af=R\\u0026rss=currentIssue\"\n  },\n  {\n    \"abstract\": \"\",\n    \"article_type\": \"\",\n    \"authors\": \"Arianne Teherani Rupa Basu and Sheri Weiser\",\n    \"date\": \"2026-06-20T11:30:00Z\",\n    \"doi\": \"10.1056/NEJMp2601300\",\n    \"feed\": \"etoc\",\n    \"is_free\": false,\n    \"specialties\": \"\",\n    \"synced_at\": \"2026-06-22T15:22:05Z\",\n    \"title\": \"When Health Costs No Longer Count — Air Pollution and EPA Rulemaking\",\n    \"url\": \"https://www.nejm.org/doi/full/10.1056/NEJMp2601300?af=R\\u0026rss=currentIssue\"\n  },\n  {\n    \"abstract\": \"\",\n    \"article_type\": \"\",\n    \"authors\": \"Stacie B. Dusetzina\",\n    \"date\": \"2026-06-20T11:30:00Z\",\n    \"doi\": \"10.1056/NEJMp2605694\",\n    \"feed\": \"etoc\",\n    \"is_free\": false,\n    \"specialties\": \"\",\n    \"synced_at\": \"2026-06-22T15:22:05Z\",\n    \"title\": \"Access to GLP-1s for Medicare Beneficiaries — A Bridge to Nowhere?\",\n    \"url\": \"https://www.nejm.org/doi/full/10.1056/NEJMp2605694?af=R\\u0026rss=currentIssue\"\n  },\n  {\n    \"abstract\": \"\",\n    \"article_type\": \"\",\n    \"authors\": \"\",\n    \"date\": \"2026-06-17T09:00:03Z\",\n    \"doi\": \"10.1056/NEJMoa2506905\",\n    \"feed\": \"etoc\",\n    \"is_free\": false,\n    \"specialties\": \"\",\n    \"synced_at\": \"2026-06-22T15:22:05Z\",\n    \"title\": \"Cefazolin for Methicillin-Susceptible Staphylococcus aureus Bacteremia\",\n    \"url\": \"https://www.nejm.org/doi/full/10.1056/NEJMoa2506905?af=R\\u0026rss=currentIssue\"\n  },\n  {\n    \"abstract\": \"\",\n    \"article_type\": \"\",\n    \"authors\": \"Richard S. Hotchkiss and John F. DiPersio\",\n    \"date\": \"2026-06-17T09:00:03Z\",\n    \"doi\": \"10.1056/NEJMcibr2601002\",\n    \"feed\": \"etoc\",\n    \"is_free\": false,\n    \"specialties\": \"\",\n    \"synced_at\": \"2026-06-22T15:22:05Z\",\n    \"title\": \"Stemness as the Engine of Checkpoint Durability\",\n    \"url\": \"https://www.nejm.org/doi/full/10.1056/NEJMcibr2601002?af=R\\u0026rss=currentIssue\"\n  },\n  {\n    \"abstract\": \"\",\n    \"article_type\": \"\",\n    \"authors\": \"Laszlo Hegedüs Lori J. Wirth and R. Michael Tuttle\",\n    \"date\": \"2026-06-17T09:00:03Z\",\n    \"doi\": \"10.1056/NEJMra2416814\",\n    \"feed\": \"etoc\",\n    \"is_free\": false,\n    \"specialties\": \"\",\n    \"synced_at\": \"2026-06-22T15:22:05Z\",\n    \"title\": \"Management of Differentiated Thyroid Cancer\",\n    \"url\": \"https://www.nejm.org/doi/full/10.1056/NEJMra2416814?af=R\\u0026rss=currentIssue\"\n  },\n  {\n    \"abstract\": \"\",\n    \"article_type\": \"\",\n    \"authors\": \"\",\n    \"date\": \"2026-06-17T09:00:03Z\",\n    \"doi\": \"10.1056/NEJMc2605256\",\n    \"feed\": \"etoc\",\n    \"is_free\": false,\n    \"specialties\": \"\",\n    \"synced_at\": \"2026-06-22T15:22:05Z\",\n    \"title\": \"Zorevunersen in Children and Adolescents with Dravet Syndrome\",\n    \"url\": \"https://www.nejm.org/doi/full/10.1056/NEJMc2605256?af=R\\u0026rss=currentIssue\"\n  },\n  {\n    \"abstract\": \"\",\n    \"article_type\": \"\",\n    \"authors\": \"\",\n    \"date\": \"2026-06-17T09:00:03Z\",\n    \"doi\": \"10.1056/NE…[truncated]"
+    },
+    {
+      "command": "current",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "digest",
+      "kind": "help",
+      "args": [
+        "digest",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Groups current-issue articles by specialty (default) or article type, showing title, authors, abstract snippet, and free/paywalled flag. Requires synced data; enriched articles show richer grouping.\n\nUsage:\n  nejm-pp-cli digest [flags]\n\nExamples:\n  nejm-pp-cli digest\n  nejm-pp-cli digest --group type --json\n\nFlags:\n      --group string   Group by: specialty or type (default \"specialty\")\n  -h, --help           help for digest\n      --limit int      Maximum number of articles (0 = all)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'nejm-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "digest",
+      "kind": "happy_path",
+      "args": [
+        "digest"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"group\": \"(ungrouped)\",\n    \"count\": 17,\n    \"articles\": [\n      {\n        \"abstract\": \"\",\n        \"article_type\": \"\",\n        \"authors\": \"Michael Thomas Garcia and Alec Bijan Rezigh\",\n        \"date\": \"2026-06-20T11:30:00Z\",\n        \"doi\": \"10.1056/NEJMicm2600597\",\n        \"feed\": \"etoc\",\n        \"is_free\": false,\n        \"specialties\": \"\",\n        \"synced_at\": \"2026-06-22T15:22:05Z\",\n        \"title\": \"Unheralded Syncope from Ventricular Arrhythmia\",\n        \"url\": \"https://www.nejm.org/doi/full/10.1056/NEJMicm2600597?af=R\\u0026rss=currentIssue\"\n      },\n      {\n        \"abstract\": \"\",\n        \"article_type\": \"\",\n        \"authors\": \"Kathryn Taylor\",\n        \"date\": \"2026-06-20T11:30:00Z\",\n        \"doi\": \"10.1056/NEJMp2515486\",\n        \"feed\": \"etoc\",\n        \"is_free\": false,\n        \"specialties\": \"\",\n        \"synced_at\": \"2026-06-22T15:22:05Z\",\n        \"title\": \"The Before and The After\",\n        \"url\": \"https://www.nejm.org/doi/full/10.1056/NEJMp2515486?af=R\\u0026rss=currentIssue\"\n      },\n      {\n        \"abstract\": \"\",\n        \"article_type\": \"\",\n        \"authors\": \"Robert D. Brook and Sanjay Rajagopalan\",\n        \"date\": \"2026-06-20T11:30:00Z\",\n        \"doi\": \"10.1056/NEJMp2601256\",\n        \"feed\": \"etoc\",\n        \"is_free\": false,\n        \"specialties\": \"\",\n        \"synced_at\": \"2026-06-22T15:22:05Z\",\n        \"title\": \"Improving Global Air-Quality Indices — The WHO’s New Roadmap\",\n        \"url\": \"https://www.nejm.org/doi/full/10.1056/NEJMp2601256?af=R\\u0026rss=currentIssue\"\n      },\n      {\n        \"abstract\": \"\",\n        \"article_type\": \"\",\n        \"authors\": \"Arianne Teherani Rupa Basu and Sheri Weiser\",\n        \"date\": \"2026-06-20T11:30:00Z\",\n        \"doi\": \"10.1056/NEJMp2601300\",\n        \"feed\": \"etoc\",\n        \"is_free\": false,\n        \"specialties\": \"\",\n        \"synced_at\": \"2026-06-22T15:22:05Z\",\n        \"title\": \"When Health Costs No Longer Count — Air Pollution and EPA Rulemaking\",\n        \"url\": \"https://www.nejm.org/doi/full/10.1056/NEJMp2601300?af=R\\u0026rss=currentIssue\"\n      },\n      {\n        \"abstract\": \"\",\n        \"article_type\": \"\",\n        \"authors\": \"Stacie B. Dusetzina\",\n        \"date\": \"2026-06-20T11:30:00Z\",\n        \"doi\": \"10.1056/NEJMp2605694\",\n        \"feed\": \"etoc\",\n        \"is_free\": false,\n        \"specialties\": \"\",\n        \"synced_at\": \"2026-06-22T15:22:05Z\",\n        \"title\": \"Access to GLP-1s for Medicare Beneficiaries — A Bridge to Nowhere?\",\n        \"url\": \"https://www.nejm.org/doi/full/10.1056/NEJMp2605694?af=R\\u0026rss=currentIssue\"\n      },\n      {\n        \"abstract\": \"\",\n        \"article_type\": \"\",\n        \"authors\": \"\",\n        \"date\": \"2026-06-17T09:00:03Z\",\n        \"doi\": \"10.1056/NEJMoa2506905\",\n        \"feed\": \"etoc\",\n        \"is_free\": false,\n        \"specialties\": \"\",\n        \"synced_at\": \"2026-06-22T15:22:05Z\",\n        \"title\": \"Cefazolin for Methicillin-Susceptible Staphylococcus aureus Bacteremia\",\n        \"url\": \"https://www.nejm.org/doi/full/10.1056/NEJMoa2506905?af=R\\u0026rss=currentIssue\"\n      },\n      {\n        \"abstract\": \"\",\n        \"article_type\": \"\",\n        \"authors\": \"Richard S. Hotchkiss and John F. DiPersio\",\n        \"date\": \"2026-06-17T09:00:03Z\",\n        \"doi\": \"10.1056/NEJMcibr2601002\",\n        \"feed\": \"etoc\",\n        \"is_free\": false,\n        \"specialties\": \"\",\n        \"synced_at\": \"2026-06-22T15:22:05Z\",\n        \"title\": \"Stemness as the Engine of Checkpoint Durability\",\n        \"url\": \"https://www.nejm.org/doi/full/10.1056/NEJMcibr2601002?af=R\\u0026rss=currentIssue\"\n      },\n      {\n        \"abstract\": \"\",\n        \"article_type\": \"\",\n        \"authors\": \"Laszlo Hegedüs Lori J. Wirth and R. Michael Tuttle\",\n        \"date\": \"2026-06-17T09:00:03Z\",\n        \"doi\": \"10.1056/NEJMra2416814\",\n        \"feed\": \"etoc\",\n        \"is_free\": false,\n        \"specialties\": \"\",\n        \"synced_at\": \"2026-06-22T15:22:05Z\",\n        \"title\": \"Management of Differentiated Thyroid Cancer\",\n        \"url\": \"https://www.nejm.org/doi/full/10.1056/NEJMra2416814?af=R\\u0026rss=currentIssue\"\n      },\n      {\n        \"abstract\": \"\",\n        \"article_type\": \"\",\n…[truncated]"
+    },
+    {
+      "command": "digest",
+      "kind": "json_fidelity",
+      "args": [
+        "digest",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"group\": \"(ungrouped)\",\n    \"count\": 17,\n    \"articles\": [\n      {\n        \"abstract\": \"\",\n        \"article_type\": \"\",\n        \"authors\": \"Michael Thomas Garcia and Alec Bijan Rezigh\",\n        \"date\": \"2026-06-20T11:30:00Z\",\n        \"doi\": \"10.1056/NEJMicm2600597\",\n        \"feed\": \"etoc\",\n        \"is_free\": false,\n        \"specialties\": \"\",\n        \"synced_at\": \"2026-06-22T15:22:05Z\",\n        \"title\": \"Unheralded Syncope from Ventricular Arrhythmia\",\n        \"url\": \"https://www.nejm.org/doi/full/10.1056/NEJMicm2600597?af=R\\u0026rss=currentIssue\"\n      },\n      {\n        \"abstract\": \"\",\n        \"article_type\": \"\",\n        \"authors\": \"Kathryn Taylor\",\n        \"date\": \"2026-06-20T11:30:00Z\",\n        \"doi\": \"10.1056/NEJMp2515486\",\n        \"feed\": \"etoc\",\n        \"is_free\": false,\n        \"specialties\": \"\",\n        \"synced_at\": \"2026-06-22T15:22:05Z\",\n        \"title\": \"The Before and The After\",\n        \"url\": \"https://www.nejm.org/doi/full/10.1056/NEJMp2515486?af=R\\u0026rss=currentIssue\"\n      },\n      {\n        \"abstract\": \"\",\n        \"article_type\": \"\",\n        \"authors\": \"Robert D. Brook and Sanjay Rajagopalan\",\n        \"date\": \"2026-06-20T11:30:00Z\",\n        \"doi\": \"10.1056/NEJMp2601256\",\n        \"feed\": \"etoc\",\n        \"is_free\": false,\n        \"specialties\": \"\",\n        \"synced_at\": \"2026-06-22T15:22:05Z\",\n        \"title\": \"Improving Global Air-Quality Indices — The WHO’s New Roadmap\",\n        \"url\": \"https://www.nejm.org/doi/full/10.1056/NEJMp2601256?af=R\\u0026rss=currentIssue\"\n      },\n      {\n        \"abstract\": \"\",\n        \"article_type\": \"\",\n        \"authors\": \"Arianne Teherani Rupa Basu and Sheri Weiser\",\n        \"date\": \"2026-06-20T11:30:00Z\",\n        \"doi\": \"10.1056/NEJMp2601300\",\n        \"feed\": \"etoc\",\n        \"is_free\": false,\n        \"specialties\": \"\",\n        \"synced_at\": \"2026-06-22T15:22:05Z\",\n        \"title\": \"When Health Costs No Longer Count — Air Pollution and EPA Rulemaking\",\n        \"url\": \"https://www.nejm.org/doi/full/10.1056/NEJMp2601300?af=R\\u0026rss=currentIssue\"\n      },\n      {\n        \"abstract\": \"\",\n        \"article_type\": \"\",\n        \"authors\": \"Stacie B. Dusetzina\",\n        \"date\": \"2026-06-20T11:30:00Z\",\n        \"doi\": \"10.1056/NEJMp2605694\",\n        \"feed\": \"etoc\",\n        \"is_free\": false,\n        \"specialties\": \"\",\n        \"synced_at\": \"2026-06-22T15:22:05Z\",\n        \"title\": \"Access to GLP-1s for Medicare Beneficiaries — A Bridge to Nowhere?\",\n        \"url\": \"https://www.nejm.org/doi/full/10.1056/NEJMp2605694?af=R\\u0026rss=currentIssue\"\n      },\n      {\n        \"abstract\": \"\",\n        \"article_type\": \"\",\n        \"authors\": \"\",\n        \"date\": \"2026-06-17T09:00:03Z\",\n        \"doi\": \"10.1056/NEJMoa2506905\",\n        \"feed\": \"etoc\",\n        \"is_free\": false,\n        \"specialties\": \"\",\n        \"synced_at\": \"2026-06-22T15:22:05Z\",\n        \"title\": \"Cefazolin for Methicillin-Susceptible Staphylococcus aureus Bacteremia\",\n        \"url\": \"https://www.nejm.org/doi/full/10.1056/NEJMoa2506905?af=R\\u0026rss=currentIssue\"\n      },\n      {\n        \"abstract\": \"\",\n        \"article_type\": \"\",\n        \"authors\": \"Richard S. Hotchkiss and John F. DiPersio\",\n        \"date\": \"2026-06-17T09:00:03Z\",\n        \"doi\": \"10.1056/NEJMcibr2601002\",\n        \"feed\": \"etoc\",\n        \"is_free\": false,\n        \"specialties\": \"\",\n        \"synced_at\": \"2026-06-22T15:22:05Z\",\n        \"title\": \"Stemness as the Engine of Checkpoint Durability\",\n        \"url\": \"https://www.nejm.org/doi/full/10.1056/NEJMcibr2601002?af=R\\u0026rss=currentIssue\"\n      },\n      {\n        \"abstract\": \"\",\n        \"article_type\": \"\",\n        \"authors\": \"Laszlo Hegedüs Lori J. Wirth and R. Michael Tuttle\",\n        \"date\": \"2026-06-17T09:00:03Z\",\n        \"doi\": \"10.1056/NEJMra2416814\",\n        \"feed\": \"etoc\",\n        \"is_free\": false,\n        \"specialties\": \"\",\n        \"synced_at\": \"2026-06-22T15:22:05Z\",\n        \"title\": \"Management of Differentiated Thyroid Cancer\",\n        \"url\": \"https://www.nejm.org/doi/full/10.1056/NEJMra2416814?af=R\\u0026rss=currentIssue\"\n      },\n      {\n        \"abstract\": \"\",\n        \"article_type\": \"\",\n…[truncated]"
+    },
+    {
+      "command": "digest",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  nejm-pp-cli doctor [flags]\n\nExamples:\n  nejm-pp-cli doctor\n  nejm-pp-cli doctor --json\n  nejm-pp-cli doctor --fail-on warn\n\nFlags:\n      --fail-on string   Exit non-zero when a health level is reached: stale, error. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'nejm-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  OK Auth: not required\n  OK Verify Mode: normal operation\n  OK API: reachable\n  config_path: C:\\Users\\LACI\\AppData\\Local\\Temp\\printing-press-subprocess-1433789904\\.config\\nejm-pp-cli\\config.toml\n  base_url: https://www.nejm.org\n  version: 1.0.0\n  OK Cache: fresh\n    db_path: C:\\Users\\LACI\\AppData\\Local\\Temp\\printing-press-subprocess-1433789904\\.local\\share\\nejm-pp-cli\\data.db\n    schema_version: 4\n    db_bytes: 471040\n    stale_after: 6h0m0s\n    resources:\n      - article: 135 rows, 0s\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"api\": \"reachable\",\n  \"auth\": \"not required\",\n  \"base_url\": \"https://www.nejm.org\",\n  \"cache\": {\n    \"db_bytes\": 471040,\n    \"db_path\": \"C:\\\\Users\\\\LACI\\\\AppData\\\\Local\\\\Temp\\\\printing-press-subprocess-1433789904\\\\.local\\\\share\\\\nejm-pp-cli\\\\data.db\",\n    \"resources\": [\n      {\n        \"last_synced_at\": \"2026-06-22T15:22:05Z\",\n        \"rows\": 135,\n        \"staleness\": \"0s\",\n        \"type\": \"article\"\n      }\n    ],\n    \"schema_version\": 4,\n    \"stale_after\": \"6h0m0s\",\n    \"status\": \"fresh\"\n  },\n  \"config\": \"ok\",\n  \"config_path\": \"C:\\\\Users\\\\LACI\\\\AppData\\\\Local\\\\Temp\\\\printing-press-subprocess-1433789904\\\\.config\\\\nejm-pp-cli\\\\config.toml\",\n  \"verify_mode\": \"normal operation\",\n  \"version\": \"1.0.0\"\n}\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  nejm-pp-cli feedback list [flags]\n\nExamples:\n  nejm-pp-cli feedback list\n  nejm-pp-cli feedback list --limit 5\n  nejm-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'nejm-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "import",
+      "kind": "help",
+      "args": [
+        "import",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Import data from a JSONL file by issuing POST requests for each record.\nEach line must be a valid JSON object. Failed records are logged to stderr\nbut do not stop the import.\n\nUsage:\n  nejm-pp-cli import \u003cresource\u003e [flags]\n\nExamples:\n  # Import from a JSONL file\n  nejm-pp-cli import \u003cresource\u003e --input data.jsonl\n\n  # Dry-run to preview without sending\n  nejm-pp-cli import \u003cresource\u003e --input data.jsonl --dry-run\n\n  # Import from stdin\n  cat data.jsonl | nejm-pp-cli import \u003cresource\u003e --input -\n\nFlags:\n      --batch-size int   Records per batch (future: batch API support) (default 1)\n      --dry-run          Preview import without sending requests\n  -h, --help             help for import\n  -i, --input string     Input JSONL file path (use - for stdin)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'nejm-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "import",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "error_path",
+      "args": [
+        "import",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: required flag(s) \"input\" not set\n"
+    },
+    {
+      "command": "open-access",
+      "kind": "help",
+      "args": [
+        "open-access",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Lists NEJM articles marked is_free=true in the local corpus, newest first. Requires synced and enriched data (run 'nejm-pp-cli sync' to fetch articles, then 'nejm-pp-cli article \u003cdoi\u003e --enrich' to enrich individual articles).\n\nUsage:\n  nejm-pp-cli open-access [flags]\n\nExamples:\n  nejm-pp-cli open-access\n  nejm-pp-cli open-access --limit 20 --json\n\nFlags:\n  -h, --help           help for open-access\n      --limit int      Maximum number of results (0 = all)\n      --since string   Only articles published since (e.g. 30d, 6w)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'nejm-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "open-access",
+      "kind": "happy_path",
+      "args": [
+        "open-access"
+      ],
+      "status": "pass",
+      "output_sample": "hint: no open-access articles found. Run 'nejm-pp-cli sync' to fetch articles, then 'nejm-pp-cli article \u003cdoi\u003e --enrich' to enrich individual articles with free/paywalled flags.\n"
+    },
+    {
+      "command": "open-access",
+      "kind": "json_fidelity",
+      "args": [
+        "open-access",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\nhint: no open-access articles found. Run 'nejm-pp-cli sync' to fetch articles, then 'nejm-pp-cli article \u003cdoi\u003e --enrich' to enrich individual articles with free/paywalled flags.\n"
+    },
+    {
+      "command": "open-access",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  nejm-pp-cli profile delete \u003cname\u003e [flags]\n\nExamples:\n  nejm-pp-cli profile delete my-defaults --yes\n  nejm-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'nejm-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  nejm-pp-cli profile list [flags]\n\nExamples:\n  nejm-pp-cli profile list\n  nejm-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'nejm-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under \u003cname\u003e. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile and --config).\n\nUsage:\n  nejm-pp-cli profile save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...] [flags]\n\nExamples:\n  nejm-pp-cli profile save my-defaults --json --compact\n  nejm-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'nejm-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  nejm-pp-cli profile show \u003cname\u003e [flags]\n\nExamples:\n  nejm-pp-cli profile show my-defaults\n  nejm-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'nejm-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  nejm-pp-cli profile use \u003cname\u003e [flags]\n\nExamples:\n  nejm-pp-cli profile use my-defaults\n  nejm-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'nejm-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "reading-list add",
+      "kind": "help",
+      "args": [
+        "reading-list",
+        "add",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Add an article to the reading list\n\nUsage:\n  nejm-pp-cli reading-list add \u003cdoi\u003e [flags]\n\nExamples:\n  nejm-pp-cli reading-list add 10.1056/NEJMoa2506905\n\nFlags:\n  -h, --help   help for add\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'nejm-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "reading-list add",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"doi\" at depth 0"
+    },
+    {
+      "command": "reading-list add",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"doi\" at depth 0"
+    },
+    {
+      "command": "reading-list add",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "reading-list add",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"doi\" at depth 0"
+    },
+    {
+      "command": "reading-list ls",
+      "kind": "help",
+      "args": [
+        "reading-list",
+        "ls",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List articles in the reading list\n\nUsage:\n  nejm-pp-cli reading-list ls [flags]\n\nAliases:\n  ls, list\n\nExamples:\n  nejm-pp-cli reading-list ls\n  nejm-pp-cli reading-list ls --json\n\nFlags:\n  -h, --help   help for ls\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'nejm-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "reading-list ls",
+      "kind": "happy_path",
+      "args": [
+        "reading-list",
+        "ls"
+      ],
+      "status": "pass",
+      "output_sample": "Reading list is empty. Use 'nejm-pp-cli reading-list add \u003cdoi\u003e' to add articles.\n"
+    },
+    {
+      "command": "reading-list ls",
+      "kind": "json_fidelity",
+      "args": [
+        "reading-list",
+        "ls",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\nReading list is empty. Use 'nejm-pp-cli reading-list add \u003cdoi\u003e' to add articles.\n"
+    },
+    {
+      "command": "reading-list ls",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "reading-list read",
+      "kind": "help",
+      "args": [
+        "reading-list",
+        "read",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Mark an article as read\n\nUsage:\n  nejm-pp-cli reading-list read \u003cdoi\u003e [flags]\n\nExamples:\n  nejm-pp-cli reading-list read 10.1056/NEJMoa2506905\n\nFlags:\n  -h, --help   help for read\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'nejm-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "reading-list read",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"doi\" at depth 0"
+    },
+    {
+      "command": "reading-list read",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"doi\" at depth 0"
+    },
+    {
+      "command": "reading-list read",
+      "kind": "error_path",
+      "args": [
+        "reading-list",
+        "read",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: DOI __printing_press_invalid__ not in reading list; use 'reading-list add' first\n"
+    },
+    {
+      "command": "reading-list rm",
+      "kind": "help",
+      "args": [
+        "reading-list",
+        "rm",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove an article from the reading list\n\nUsage:\n  nejm-pp-cli reading-list rm \u003cdoi\u003e [flags]\n\nAliases:\n  rm, remove\n\nExamples:\n  nejm-pp-cli reading-list rm 10.1056/NEJMoa2506905\n\nFlags:\n  -h, --help   help for rm\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'nejm-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "reading-list rm",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"doi\" at depth 0"
+    },
+    {
+      "command": "reading-list rm",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"doi\" at depth 0"
+    },
+    {
+      "command": "reading-list rm",
+      "kind": "error_path",
+      "args": [
+        "reading-list",
+        "rm",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: __printing_press_invalid__ not found in reading list\n"
+    },
+    {
+      "command": "recent",
+      "kind": "help",
+      "args": [
+        "recent",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recently published NEJM articles from the local corpus\n\nUsage:\n  nejm-pp-cli recent [flags]\n\nExamples:\n  nejm-pp-cli recent\n  nejm-pp-cli recent --limit 20 --json\n\nFlags:\n      --free        Show only open-access articles\n  -h, --help        help for recent\n      --limit int   Maximum number of articles to return (default 25)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'nejm-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "recent",
+      "kind": "happy_path",
+      "args": [
+        "recent"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"abstract\": \"\",\n    \"article_type\": \"\",\n    \"authors\": \"\",\n    \"date\": \"2026-06-15T04:00:00Z\",\n    \"doi\": \"10.1056/NEJMe2608017\",\n    \"feed\": \"axatoc\",\n    \"is_free\": false,\n    \"specialties\": \"\",\n    \"synced_at\": \"2026-06-22T15:22:05Z\",\n    \"title\": \"The OMB and the Politicization of Science\",\n    \"url\": \"https://www.nejm.org/doi/full/10.1056/NEJMe2608017?af=R\"\n  },\n  {\n    \"abstract\": \"\",\n    \"article_type\": \"\",\n    \"authors\": \"Edward Robert Scheffer Cliff and Melita Kenealy\",\n    \"date\": \"2026-06-13T11:30:00Z\",\n    \"doi\": \"10.1056/NEJMicm2501877\",\n    \"feed\": \"axatoc\",\n    \"is_free\": false,\n    \"specialties\": \"\",\n    \"synced_at\": \"2026-06-22T15:22:05Z\",\n    \"title\": \"Immunosuppression-Associated Peripheral T-Cell Lymphoma\",\n    \"url\": \"https://www.nejm.org/doi/full/10.1056/NEJMicm2501877?af=R\"\n  },\n  {\n    \"abstract\": \"\",\n    \"article_type\": \"\",\n    \"authors\": \"James C. Wilson\",\n    \"date\": \"2026-06-13T11:30:00Z\",\n    \"doi\": \"10.1056/NEJMp2514748\",\n    \"feed\": \"axatoc\",\n    \"is_free\": false,\n    \"specialties\": \"\",\n    \"synced_at\": \"2026-06-22T15:22:05Z\",\n    \"title\": \"“In One Year, I Want You Alive”\",\n    \"url\": \"https://www.nejm.org/doi/full/10.1056/NEJMp2514748?af=R\"\n  },\n  {\n    \"abstract\": \"\",\n    \"article_type\": \"\",\n    \"authors\": \"Marcus Hughes\",\n    \"date\": \"2026-06-13T11:30:00Z\",\n    \"doi\": \"10.1056/NEJMp2518374\",\n    \"feed\": \"axatoc\",\n    \"is_free\": false,\n    \"specialties\": \"\",\n    \"synced_at\": \"2026-06-22T15:22:05Z\",\n    \"title\": \"Psychedelic Therapies in the United States — Balancing State and Federal Oversight\",\n    \"url\": \"https://www.nejm.org/doi/full/10.1056/NEJMp2518374?af=R\"\n  },\n  {\n    \"abstract\": \"\",\n    \"article_type\": \"\",\n    \"authors\": \"Michael S. Rafii\",\n    \"date\": \"2026-06-13T11:30:00Z\",\n    \"doi\": \"10.1056/NEJMp2602106\",\n    \"feed\": \"axatoc\",\n    \"is_free\": false,\n    \"specialties\": \"\",\n    \"synced_at\": \"2026-06-22T15:22:05Z\",\n    \"title\": \"The Convergence of Down Syndrome and Alzheimer’s Disease — Scientific and Ethical Imperatives\",\n    \"url\": \"https://www.nejm.org/doi/full/10.1056/NEJMp2602106?af=R\"\n  },\n  {\n    \"abstract\": \"\",\n    \"article_type\": \"\",\n    \"authors\": \"Yaara Zisman-Ilani and Rachel Yehuda\",\n    \"date\": \"2026-06-13T11:30:00Z\",\n    \"doi\": \"10.1056/NEJMp2605585\",\n    \"feed\": \"axatoc\",\n    \"is_free\": false,\n    \"specialties\": \"\",\n    \"synced_at\": \"2026-06-22T15:22:05Z\",\n    \"title\": \"Patient-Driven Care in Psychedelic Therapy\",\n    \"url\": \"https://www.nejm.org/doi/full/10.1056/NEJMp2605585?af=R\"\n  },\n  {\n    \"abstract\": \"\",\n    \"article_type\": \"\",\n    \"authors\": \"Roberto Mina Meral Beksac Paula Rodríguez-Otero Wenming Chen María-Victoria Mateos Jian Li Philippe Moreau Yael C. Cohen Chang-Ki Min Tomas Jelinek Jing Christine Ye Hila Magen Samuel M. Rubinstein Weijun Fu Vania Hungria Guldane Cengiz Seval Joao Samuel Farias Jakub Radocha Senem Maral Mehmet Turgut Youngil Koh Daniel O’Leary Jayr Schmidt Filho Raymond Thertulien Gang An Shang-Yi Huang Sebastian Grosicki Agata Tyczyńska Rahul Banerjee Matthew J. Pianko Joaquín Martínez-López Pawel Steckiewicz Dai Maruyama Kentaro Fukushima Albert Oriol Jordi Lopez Pardo Hartmut Goldschmidt Charlotte Pawlyn Aurore Perrot Elena Zamagni Meletios A. Dimopoulos Leo Rasche Jaszianne Tolbert William Terry Christelle Courtoux Xiao Liu Sandra Y. Vasey Kaitlyn Connors Mariacristina Festa Christoph Heuck Angélique Langlois Lisa O’Rourke Jiangxiu Zhou Xiang Qin Jiashen Lu Joy Gong Diego Vieyra and Peter M. Voorheesthe MonumenTAL-3 Investigators*\",\n    \"date\": \"2026-06-13T10:00:00Z\",\n    \"doi\": \"10.1056/NEJMoa2604657\",\n    \"feed\": \"axatoc\",\n    \"is_free\": false,\n    \"specialties\": \"\",\n    \"synced_at\": \"2026-06-22T15:22:05Z\",\n    \"title\": \"Talquetamab–Daratumumab in Relapsed or Refractory Myeloma\",\n    \"url\": \"https://www.nejm.org/doi/full/10.1056/NEJMoa2604657?af=R\"\n  },\n  {\n    \"abstract\": \"\",\n    \"article_type\": \"\",\n    \"authors\": \"Tessa J.J. de BitterBart van der SandenLydia SagathWolfram HöpsRadboud University Medical Center, Nijmegen, the NetherlandsPeer ArtsMaastricht University Medical Center+, Maastricht,…[truncated]"
+    },
+    {
+      "command": "recent",
+      "kind": "json_fidelity",
+      "args": [
+        "recent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"abstract\": \"\",\n    \"article_type\": \"\",\n    \"authors\": \"\",\n    \"date\": \"2026-06-15T04:00:00Z\",\n    \"doi\": \"10.1056/NEJMe2608017\",\n    \"feed\": \"axatoc\",\n    \"is_free\": false,\n    \"specialties\": \"\",\n    \"synced_at\": \"2026-06-22T15:22:05Z\",\n    \"title\": \"The OMB and the Politicization of Science\",\n    \"url\": \"https://www.nejm.org/doi/full/10.1056/NEJMe2608017?af=R\"\n  },\n  {\n    \"abstract\": \"\",\n    \"article_type\": \"\",\n    \"authors\": \"Edward Robert Scheffer Cliff and Melita Kenealy\",\n    \"date\": \"2026-06-13T11:30:00Z\",\n    \"doi\": \"10.1056/NEJMicm2501877\",\n    \"feed\": \"axatoc\",\n    \"is_free\": false,\n    \"specialties\": \"\",\n    \"synced_at\": \"2026-06-22T15:22:05Z\",\n    \"title\": \"Immunosuppression-Associated Peripheral T-Cell Lymphoma\",\n    \"url\": \"https://www.nejm.org/doi/full/10.1056/NEJMicm2501877?af=R\"\n  },\n  {\n    \"abstract\": \"\",\n    \"article_type\": \"\",\n    \"authors\": \"James C. Wilson\",\n    \"date\": \"2026-06-13T11:30:00Z\",\n    \"doi\": \"10.1056/NEJMp2514748\",\n    \"feed\": \"axatoc\",\n    \"is_free\": false,\n    \"specialties\": \"\",\n    \"synced_at\": \"2026-06-22T15:22:05Z\",\n    \"title\": \"“In One Year, I Want You Alive”\",\n    \"url\": \"https://www.nejm.org/doi/full/10.1056/NEJMp2514748?af=R\"\n  },\n  {\n    \"abstract\": \"\",\n    \"article_type\": \"\",\n    \"authors\": \"Marcus Hughes\",\n    \"date\": \"2026-06-13T11:30:00Z\",\n    \"doi\": \"10.1056/NEJMp2518374\",\n    \"feed\": \"axatoc\",\n    \"is_free\": false,\n    \"specialties\": \"\",\n    \"synced_at\": \"2026-06-22T15:22:05Z\",\n    \"title\": \"Psychedelic Therapies in the United States — Balancing State and Federal Oversight\",\n    \"url\": \"https://www.nejm.org/doi/full/10.1056/NEJMp2518374?af=R\"\n  },\n  {\n    \"abstract\": \"\",\n    \"article_type\": \"\",\n    \"authors\": \"Michael S. Rafii\",\n    \"date\": \"2026-06-13T11:30:00Z\",\n    \"doi\": \"10.1056/NEJMp2602106\",\n    \"feed\": \"axatoc\",\n    \"is_free\": false,\n    \"specialties\": \"\",\n    \"synced_at\": \"2026-06-22T15:22:05Z\",\n    \"title\": \"The Convergence of Down Syndrome and Alzheimer’s Disease — Scientific and Ethical Imperatives\",\n    \"url\": \"https://www.nejm.org/doi/full/10.1056/NEJMp2602106?af=R\"\n  },\n  {\n    \"abstract\": \"\",\n    \"article_type\": \"\",\n    \"authors\": \"Yaara Zisman-Ilani and Rachel Yehuda\",\n    \"date\": \"2026-06-13T11:30:00Z\",\n    \"doi\": \"10.1056/NEJMp2605585\",\n    \"feed\": \"axatoc\",\n    \"is_free\": false,\n    \"specialties\": \"\",\n    \"synced_at\": \"2026-06-22T15:22:05Z\",\n    \"title\": \"Patient-Driven Care in Psychedelic Therapy\",\n    \"url\": \"https://www.nejm.org/doi/full/10.1056/NEJMp2605585?af=R\"\n  },\n  {\n    \"abstract\": \"\",\n    \"article_type\": \"\",\n    \"authors\": \"Roberto Mina Meral Beksac Paula Rodríguez-Otero Wenming Chen María-Victoria Mateos Jian Li Philippe Moreau Yael C. Cohen Chang-Ki Min Tomas Jelinek Jing Christine Ye Hila Magen Samuel M. Rubinstein Weijun Fu Vania Hungria Guldane Cengiz Seval Joao Samuel Farias Jakub Radocha Senem Maral Mehmet Turgut Youngil Koh Daniel O’Leary Jayr Schmidt Filho Raymond Thertulien Gang An Shang-Yi Huang Sebastian Grosicki Agata Tyczyńska Rahul Banerjee Matthew J. Pianko Joaquín Martínez-López Pawel Steckiewicz Dai Maruyama Kentaro Fukushima Albert Oriol Jordi Lopez Pardo Hartmut Goldschmidt Charlotte Pawlyn Aurore Perrot Elena Zamagni Meletios A. Dimopoulos Leo Rasche Jaszianne Tolbert William Terry Christelle Courtoux Xiao Liu Sandra Y. Vasey Kaitlyn Connors Mariacristina Festa Christoph Heuck Angélique Langlois Lisa O’Rourke Jiangxiu Zhou Xiang Qin Jiashen Lu Joy Gong Diego Vieyra and Peter M. Voorheesthe MonumenTAL-3 Investigators*\",\n    \"date\": \"2026-06-13T10:00:00Z\",\n    \"doi\": \"10.1056/NEJMoa2604657\",\n    \"feed\": \"axatoc\",\n    \"is_free\": false,\n    \"specialties\": \"\",\n    \"synced_at\": \"2026-06-22T15:22:05Z\",\n    \"title\": \"Talquetamab–Daratumumab in Relapsed or Refractory Myeloma\",\n    \"url\": \"https://www.nejm.org/doi/full/10.1056/NEJMoa2604657?af=R\"\n  },\n  {\n    \"abstract\": \"\",\n    \"article_type\": \"\",\n    \"authors\": \"Tessa J.J. de BitterBart van der SandenLydia SagathWolfram HöpsRadboud University Medical Center, Nijmegen, the NetherlandsPeer ArtsMaastricht University Medical Center+, Maastricht,…[truncated]"
+    },
+    {
+      "command": "recent",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "search",
+      "kind": "help",
+      "args": [
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Searches article titles, authors, abstracts, and specialties in the locally synced SQLite corpus. Run 'nejm-pp-cli sync' first.\n\nUsage:\n  nejm-pp-cli search \u003cquery\u003e [flags]\n\nExamples:\n  nejm-pp-cli search sepsis\n  nejm-pp-cli search \"cardiac arrest\" --limit 10 --json\n\nFlags:\n  -h, --help           help for search\n      --limit int      Maximum number of results (default 25)\n      --type strings   Resource type to search (default: article)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'nejm-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "search",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "error_path",
+      "args": [
+        "search",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\nhint: no results for \"__printing_press_invalid__\". Try 'nejm-pp-cli sync' to index more articles.\n"
+    },
+    {
+      "command": "since",
+      "kind": "help",
+      "args": [
+        "since",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Lists articles added to the local corpus within the given time window (e.g. 48h, 7d, 2w). Uses the local synced_at timestamp — not the publication date — so it reliably shows what changed since your last sync.\n\nUsage:\n  nejm-pp-cli since \u003cwindow\u003e [flags]\n\nExamples:\n  nejm-pp-cli since 48h\n  nejm-pp-cli since 7d --free --json\n\nFlags:\n      --free        Show only open-access articles\n  -h, --help        help for since\n      --limit int   Maximum number of results (0 = all)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'nejm-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "since",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [since] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "since",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [since] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "since",
+      "kind": "error_path",
+      "args": [
+        "since",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: invalid time window \"__printing_press_invalid__\": use e.g. 48h, 7d, 2w\n"
+    },
+    {
+      "command": "specialty",
+      "kind": "help",
+      "args": [
+        "specialty",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List NEJM specialty sections\n\nUsage:\n  nejm-pp-cli specialty [flags]\n\nExamples:\n  nejm-pp-cli specialty\n\nFlags:\n  -h, --help   help for specialty\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'nejm-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "specialty",
+      "kind": "happy_path",
+      "args": [
+        "specialty"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":[{\"image\":\"https://www.nejm.org/browse/specialty\",\"name\":\"\u003credacted\u003e\",\"slug\":\"cardiology\",\"text\":\"Cardiology\",\"url\":\"https://www.nejm.org/browse/specialty/cardiology\"},{\"image\":\"https://www.nejm.org/browse/specialty\",\"name\":\"\u003credacted\u003e\",\"slug\":\"clinical-medicine\",\"text\":\"Clinical Medicine\",\"url\":\"https://www.nejm.org/browse/specialty/clinical-medicine\"},{\"image\":\"https://www.nejm.org/browse/specialty\",\"name\":\"\u003credacted\u003e\",\"slug\":\"endocrinology\",\"text\":\"Endocrinology\",\"url\":\"https://www.nejm.org/browse/specialty/endocrinology\"},{\"image\":\"https://www.nejm.org/browse/specialty\",\"name\":\"\u003credacted\u003e\",\"slug\":\"gastroenterology\",\"text\":\"Gastroenterology\",\"url\":\"https://www.nejm.org/browse/specialty/gastroenterology\"},{\"image\":\"https://www.nejm.org/browse/specialty\",\"name\":\"\u003credacted\u003e\",\"slug\":\"hematology-oncology\",\"text\":\"Hematology/Oncology\",\"url\":\"https://www.nejm.org/browse/specialty/hematology-oncology\"},{\"image\":\"https://www.nejm.org/browse/specialty\",\"name\":\"\u003credacted\u003e\",\"slug\":\"infectious-disease\",\"text\":\"Infectious Disease\",\"url\":\"https://www.nejm.org/browse/specialty/infectious-disease\"},{\"image\":\"https://www.nejm.org/browse/specialty\",\"name\":\"\u003credacted\u003e\",\"slug\":\"nephrology\",\"text\":\"Nephrology\",\"url\":\"https://www.nejm.org/browse/specialty/nephrology\"},{\"image\":\"https://www.nejm.org/browse/specialty\",\"name\":\"\u003credacted\u003e\",\"slug\":\"neurology-neurosurgery\",\"text\":\"Neurology/Neurosurgery\",\"url\":\"https://www.nejm.org/browse/specialty/neurology-neurosurgery\"},{\"image\":\"https://www.nejm.org/browse/specialty\",\"name\":\"\u003credacted\u003e\",\"slug\":\"obstetrics-gynecology\",\"text\":\"Obstetrics/Gynecology\",\"url\":\"https://www.nejm.org/browse/specialty/obstetrics-gynecology\"},{\"image\":\"https://www.nejm.org/browse/specialty\",\"name\":\"\u003credacted\u003e\",\"slug\":\"pediatrics\",\"text\":\"Pediatrics\",\"url\":\"https://www.nejm.org/browse/specialty/pediatrics\"},{\"image\":\"https://www.nejm.org/browse/specialty\",\"name\":\"\u003credacted\u003e\",\"slug\":\"pulmonary-critical-care\",\"text\":\"Pulmonary/Critical Care\",\"url\":\"https://www.nejm.org/browse/specialty/pulmonary-critical-care\"},{\"image\":\"https://www.nejm.org/browse/specialty\",\"name\":\"\u003credacted\u003e\",\"slug\":\"surgery\",\"text\":\"Surgery\",\"url\":\"https://www.nejm.org/browse/specialty/surgery\"},{\"image\":\"https://www.nejm.org/browse/specialty\",\"name\":\"\u003credacted\u003e\",\"slug\":\"climate-change\",\"text\":\"Climate Change\",\"url\":\"https://www.nejm.org/browse/specialty/climate-change\"},{\"image\":\"https://www.nejm.org/browse/specialty\",\"name\":\"\u003credacted\u003e\",\"slug\":\"health-policy\",\"text\":\"Health Policy\",\"url\":\"https://www.nejm.org/browse/specialty/health-policy\"}]}"
+    },
+    {
+      "command": "specialty",
+      "kind": "json_fidelity",
+      "args": [
+        "specialty",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":[{\"image\":\"https://www.nejm.org/browse/specialty\",\"name\":\"\u003credacted\u003e\",\"slug\":\"cardiology\",\"text\":\"Cardiology\",\"url\":\"https://www.nejm.org/browse/specialty/cardiology\"},{\"image\":\"https://www.nejm.org/browse/specialty\",\"name\":\"\u003credacted\u003e\",\"slug\":\"clinical-medicine\",\"text\":\"Clinical Medicine\",\"url\":\"https://www.nejm.org/browse/specialty/clinical-medicine\"},{\"image\":\"https://www.nejm.org/browse/specialty\",\"name\":\"\u003credacted\u003e\",\"slug\":\"endocrinology\",\"text\":\"Endocrinology\",\"url\":\"https://www.nejm.org/browse/specialty/endocrinology\"},{\"image\":\"https://www.nejm.org/browse/specialty\",\"name\":\"\u003credacted\u003e\",\"slug\":\"gastroenterology\",\"text\":\"Gastroenterology\",\"url\":\"https://www.nejm.org/browse/specialty/gastroenterology\"},{\"image\":\"https://www.nejm.org/browse/specialty\",\"name\":\"\u003credacted\u003e\",\"slug\":\"hematology-oncology\",\"text\":\"Hematology/Oncology\",\"url\":\"https://www.nejm.org/browse/specialty/hematology-oncology\"},{\"image\":\"https://www.nejm.org/browse/specialty\",\"name\":\"\u003credacted\u003e\",\"slug\":\"infectious-disease\",\"text\":\"Infectious Disease\",\"url\":\"https://www.nejm.org/browse/specialty/infectious-disease\"},{\"image\":\"https://www.nejm.org/browse/specialty\",\"name\":\"\u003credacted\u003e\",\"slug\":\"nephrology\",\"text\":\"Nephrology\",\"url\":\"https://www.nejm.org/browse/specialty/nephrology\"},{\"image\":\"https://www.nejm.org/browse/specialty\",\"name\":\"\u003credacted\u003e\",\"slug\":\"neurology-neurosurgery\",\"text\":\"Neurology/Neurosurgery\",\"url\":\"https://www.nejm.org/browse/specialty/neurology-neurosurgery\"},{\"image\":\"https://www.nejm.org/browse/specialty\",\"name\":\"\u003credacted\u003e\",\"slug\":\"obstetrics-gynecology\",\"text\":\"Obstetrics/Gynecology\",\"url\":\"https://www.nejm.org/browse/specialty/obstetrics-gynecology\"},{\"image\":\"https://www.nejm.org/browse/specialty\",\"name\":\"\u003credacted\u003e\",\"slug\":\"pediatrics\",\"text\":\"Pediatrics\",\"url\":\"https://www.nejm.org/browse/specialty/pediatrics\"},{\"image\":\"https://www.nejm.org/browse/specialty\",\"name\":\"\u003credacted\u003e\",\"slug\":\"pulmonary-critical-care\",\"text\":\"Pulmonary/Critical Care\",\"url\":\"https://www.nejm.org/browse/specialty/pulmonary-critical-care\"},{\"image\":\"https://www.nejm.org/browse/specialty\",\"name\":\"\u003credacted\u003e\",\"slug\":\"surgery\",\"text\":\"Surgery\",\"url\":\"https://www.nejm.org/browse/specialty/surgery\"},{\"image\":\"https://www.nejm.org/browse/specialty\",\"name\":\"\u003credacted\u003e\",\"slug\":\"climate-change\",\"text\":\"Climate Change\",\"url\":\"https://www.nejm.org/browse/specialty/climate-change\"},{\"image\":\"https://www.nejm.org/browse/specialty\",\"name\":\"\u003credacted\u003e\",\"slug\":\"health-policy\",\"text\":\"Health Policy\",\"url\":\"https://www.nejm.org/browse/specialty/health-policy\"}]}"
+    },
+    {
+      "command": "specialty",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "sql",
+      "kind": "help",
+      "args": [
+        "sql",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Runs a raw SQL SELECT query against the local SQLite database. Tables: article, specialty. Use 'SELECT *' or name specific columns.\n\nUsage:\n  nejm-pp-cli sql \u003cquery\u003e [flags]\n\nExamples:\n  nejm-pp-cli sql \"SELECT doi, title FROM article LIMIT 10\"\n  nejm-pp-cli sql \"SELECT article_type, COUNT(*) as n FROM article GROUP BY article_type ORDER BY n DESC\"\n\nFlags:\n      --db string   Path to SQLite database (default: ~/.local/share/nejm-pp-cli/data.db)\n  -h, --help        help for sql\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'nejm-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "sql",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [sql] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "sql",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [sql] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "sql",
+      "kind": "error_path",
+      "args": [
+        "sql",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: only SELECT statements are allowed\n"
+    },
+    {
+      "command": "sync",
+      "kind": "help",
+      "args": [
+        "sync",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Sync data from the API into a local SQLite database. Supports resumable\nincremental sync (only fetches new data since last sync) and full resync.\n\nExit codes \u0026 warnings:\n  Resources the API denies access to (HTTP 403, or HTTP 400 with an\n  access-policy body) are reported as warnings rather than failing the\n  run. In --json mode each is emitted as a {\"event\":\"sync_warning\",...}\n  line carrying status, reason, and message fields, and a final\n  {\"event\":\"sync_summary\",...} aggregates the run.\n\n  Exit 0 when at least one resource synced and no resource flagged in\n  the spec as critical (x-critical: true) failed; non-critical failures\n  emit {\"event\":\"sync_warning\",\"reason\":\"exit_policy_default_changed\",\n  ...} so callers can detect that a partial failure was tolerated. Pass\n  --strict to exit non-zero on any per-resource failure. Exit is always\n  non-zero when every selected resource failed, regardless of --strict.\n\nResource scoping:\n  --resources runs the named top-level resources, plus any parent-keyed\n  dependent whose own name is listed OR whose parent table is listed.\n  Naming a parent therefore cascades to its dependents (so \"sync this\n  parent and its children\" works without listing every nested resource\n  by hand). There is no flag today to suppress the cascade for a named\n  parent. To run a dependent without re-syncing its parent, list only\n  the dependent by name; the parent table must already be populated\n  from a prior sync.\n\nUsage:\n  nejm-pp-cli sync [flags]\n\nExamples:\n  # Sync all resources\n  nejm-pp-cli sync\n\n  # Sync specific resources only\n  nejm-pp-cli sync --resources channels,messages\n\n  # Full resync (ignore previous checkpoint)\n  nejm-pp-cli sync --full\n\n  # Incremental sync: only records from the last 7 days\n  nejm-pp-cli sync --since 7d\n\n  # Parallel sync with 8 workers\n  nejm-pp-cli sync --concurrency 8\n\n  # Latest-only: refresh head of each resource, no historical backfill\n  nejm-pp-cli sync --latest-only\n\nFlags:\n      --concurrency int              Number of parallel sync workers (default 4)\n      --db string                    Database path (default: ~/.local/share/nejm-pp-cli/data.db)\n      --full                         Full resync (ignore previous checkpoint)\n      --global-param stringArray     Extra query param to inject into every sync request including dependent path-scoped calls (repeatable, key=value). Use when an API requires a scope on every call regardless of path nesting.\n  -h, --help                         help for sync\n      --latest-only                  Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).\n      --max-pages int                Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)\n      --param stringArray            Extra query param to inject into flat-list sync requests (repeatable, key=value). Skipped on path-scoped dependent requests so a top-level scope like workspace=\u003cid\u003e does not double up on /parents/\u003cid\u003e/children calls. Use --global-param to inject everywhere. Avoid pagination keys (limit/since/cursor) — overriding them corrupts resume state.\n      --resource-param stringArray   Per-resource extra query param (repeatable, resource:key=value). Wins over --param and --global-param when keys conflict.\n      --resources strings            Comma-separated resource types to sync. Naming a parent also runs its parent-keyed dependents (see Long help for scoping).\n      --since string                 Incremental sync duration (e.g. 7d, 24h, 1w, 30m)\n      --strict                       Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-sourc…[truncated]"
+    },
+    {
+      "command": "sync",
+      "kind": "happy_path",
+      "args": [
+        "sync"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_progress\",\"resource\":\"article\",\"count\":135,\"source\":\"rss\"}\n{\"event\":\"sync_info\",\"reason\":\"rss_only\",\"detail\":\"article sync completed via RSS; use --resources specialty to sync specialty data\"}\n{\"event\":\"sync_summary\",\"total_records\":0,\"resources\":0,\"success\":0,\"warned\":0,\"errored\":0,\"duration_ms\":0}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "json_fidelity",
+      "args": [
+        "sync",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_progress\",\"resource\":\"article\",\"count\":135,\"source\":\"rss\"}\n{\"event\":\"sync_info\",\"reason\":\"rss_only\",\"detail\":\"article sync completed via RSS; use --resources specialty to sync specialty data\"}\n{\"event\":\"sync_summary\",\"total_records\":0,\"resources\":0,\"success\":0,\"warned\":0,\"errored\":0,\"duration_ms\":0}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "trends",
+      "kind": "help",
+      "args": [
+        "trends",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Aggregates the local NEJM corpus by specialty (default), article type, or issue/volume, showing counts. Useful for quantifying NEJM coverage patterns across repeated syncs.\n\nUsage:\n  nejm-pp-cli trends [flags]\n\nExamples:\n  nejm-pp-cli trends\n  nejm-pp-cli trends --group type --json\n\nFlags:\n      --group string   Group by: specialty, type, or issue (default \"specialty\")\n  -h, --help           help for trends\n      --limit int      Maximum number of groups (0 = all)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'nejm-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "trends",
+      "kind": "happy_path",
+      "args": [
+        "trends"
+      ],
+      "status": "pass",
+      "output_sample": "[]\nhint: no data. Run 'nejm-pp-cli sync' to fetch articles, then 'nejm-pp-cli article \u003cdoi\u003e --enrich' to enrich individual articles with specialties and types.\n"
+    },
+    {
+      "command": "trends",
+      "kind": "json_fidelity",
+      "args": [
+        "trends",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\nhint: no data. Run 'nejm-pp-cli sync' to fetch articles, then 'nejm-pp-cli article \u003cdoi\u003e --enrich' to enrich individual articles with specialties and types.\n"
+    },
+    {
+      "command": "trends",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  nejm-pp-cli which [query] [flags]\n\nExamples:\n  nejm-pp-cli which \"stale tickets\"\n  nejm-pp-cli which \"bottleneck\"\n  nejm-pp-cli which --limit 1 \"send message\"\n  nejm-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'nejm-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"matches\": []\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "archive",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Archive fetches all syncable resources from the API and stores them in a\nlocal SQLite database. Supports incremental sync (only new data since last run)\nand full resync. After archiving, use 'search' for instant full-text search.\n\nUsage:\n  nejm-pp-cli workflow archive [flags]\n\nExamples:\n  # Archive all resources\n  nejm-pp-cli workflow archive\n\n  # Full re-archive (ignore previous sync state)\n  nejm-pp-cli workflow archive --full\n\nFlags:\n      --db string   Database path (default: ~/.local/share/nejm-pp-cli/data.db)\n      --full        Full re-archive (ignore previous sync state)\n  -h, --help        help for archive\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'nejm-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "archive"
+      ],
+      "status": "pass",
+      "output_sample": "Archived 0 items across 0 resources to C:\\Users\\LACI\\AppData\\Local\\Temp\\printing-press-subprocess-1433789904\\.local\\share\\nejm-pp-cli\\data.db\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "archive",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"resources_synced\": 0,\n  \"store_path\": \"C:\\\\Users\\\\LACI\\\\AppData\\\\Local\\\\Temp\\\\printing-press-subprocess-1433789904\\\\.local\\\\share\\\\nejm-pp-cli\\\\data.db\",\n  \"timestamp\": \"2026-06-22T15:22:13Z\",\n  \"total_items\": 0\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show local archive status and sync state for all resources\n\nUsage:\n  nejm-pp-cli workflow status [flags]\n\nExamples:\n  # Show archive status\n  nejm-pp-cli workflow status\n\n  # Show status as JSON\n  nejm-pp-cli workflow status --json\n\nFlags:\n      --db string   Database path\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'nejm-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "Archive Status:\n  article                        76 items\n\n  Total: 76 items\n  Store: C:\\Users\\LACI\\AppData\\Local\\Temp\\printing-press-subprocess-1433789904\\.local\\share\\nejm-pp-cli\\data.db\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"article\": 76\n}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-06-22T15:22:04.9677351Z"
+}

@@ -9,6 +9,7 @@ import (
 	"io"
 	"os"
 
+	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/intercom/internal/cliutil"
 	"github.com/spf13/cobra"
 )
 
@@ -24,9 +25,27 @@ func newConversationsCreateCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "create",
 		Short:       "You can create a conversation that has been initiated by a contact (ie. user or lead).",
-		Example:     "  intercom-pp-cli conversations create --body example-value",
+		Example:     "  intercom-pp-cli conversations create --body Hello",
 		Annotations: map[string]string{"pp:endpoint": "conversations.create", "pp:method": "POST", "pp:path": "/conversations"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Bare invocation of a command with required input prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only read commands fall through so a bare call still executes.
+			// Machine callers (--json/--agent, which sets asJSON) get a usage
+			// error + exit 2 instead of silent exit-0 help, so an incomplete
+			// invocation is never mistaken for success.
+			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "requires input",
+						"usage": cmd.CommandPath() + " --help",
+					}, flags); printErr != nil {
+						return printErr
+					}
+					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
+				}
+				return cmd.Help()
+			}
 			if !stdinBody {
 				if !cmd.Flags().Changed("body") && !flags.dryRun {
 					return fmt.Errorf("required flag \"%s\" not set", "body")
@@ -38,14 +57,13 @@ func newConversationsCreateCmd(flags *rootFlags) *cobra.Command {
 					return fmt.Errorf("required flag \"%s\" not set", "from-type")
 				}
 			}
+			path := "/conversations"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/conversations"
 			params := map[string]string{}
-			var body map[string]any
+			var body any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
@@ -57,19 +75,20 @@ func newConversationsCreateCmd(flags *rootFlags) *cobra.Command {
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
-				if bodyAttachmentUrls != "" {
-					var parsedAttachmentUrls any
-					if err := json.Unmarshal([]byte(bodyAttachmentUrls), &parsedAttachmentUrls); err != nil {
-						return fmt.Errorf("parsing --attachment-urls JSON: %w", err)
+				bodyMap := map[string]any{}
+				body = bodyMap
+				if cmd.Flags().Changed("attachment-urls") {
+					parsedAttachmentUrls, parseErr := cliutil.ParseStringList(bodyAttachmentUrls)
+					if parseErr != nil {
+						return fmt.Errorf("parsing --attachment-urls list: %w", parseErr)
 					}
-					body["attachment_urls"] = parsedAttachmentUrls
+					bodyMap["attachment_urls"] = parsedAttachmentUrls
 				}
 				if bodyBody != "" {
-					body["body"] = bodyBody
+					bodyMap["body"] = bodyBody
 				}
 				if bodyCreatedAt != 0 {
-					body["created_at"] = bodyCreatedAt
+					bodyMap["created_at"] = bodyCreatedAt
 				}
 				{
 					nestedFrom := map[string]any{}
@@ -80,11 +99,11 @@ func newConversationsCreateCmd(flags *rootFlags) *cobra.Command {
 						nestedFrom["type"] = bodyFromType
 					}
 					if len(nestedFrom) > 0 {
-						body["from"] = nestedFrom
+						bodyMap["from"] = nestedFrom
 					}
 				}
 				if bodySubject != "" {
-					body["subject"] = bodySubject
+					bodyMap["subject"] = bodySubject
 				}
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
@@ -154,6 +173,9 @@ func newConversationsCreateCmd(flags *rootFlags) *cobra.Command {
 					"status":   statusCode,
 					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
 				}
+				if flags.agent {
+					envelope["meta"] = map[string]any{"source": "live"}
+				}
 				if partialFailure != nil {
 					envelope["partial_failure"] = partialFailure
 				}
@@ -192,7 +214,11 @@ func newConversationsCreateCmd(flags *rootFlags) *cobra.Command {
 				if len(filtered) > 0 {
 					var parsed any
 					if err := json.Unmarshal(filtered, &parsed); err == nil {
-						envelope["data"] = parsed
+						if flags.agent {
+							envelope["results"] = parsed
+						} else {
+							envelope["data"] = parsed
+						}
 					}
 				}
 				envelopeJSON, err := json.Marshal(envelope)

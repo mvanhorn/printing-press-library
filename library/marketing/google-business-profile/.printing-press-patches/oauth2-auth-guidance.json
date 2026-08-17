@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "oauth2-auth-guidance",
+  "applied_at": "2026-06-16",
+  "base_run_id": "20260616-220217",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Replaced stale token-setting guidance with OAuth login-first setup and clearer Google credential messaging.",
+  "reason": "The regenerated CLI still referenced a nonexistent `auth set-token` command and API-key wording even though this CLI authenticates through Google OAuth login or an optional short-lived access token env var.",
+  "files": [
+    "README.md",
+    "SKILL.md",
+    "internal/client/client.go",
+    "internal/cli/doctor.go",
+    "internal/cli/helpers.go",
+    "internal/mcp/tools.go"
+  ],
+  "validated_outcome": "`go build` succeeded; `auth setup` now prints the Google Cloud credentials URL and `doctor --json` reports login-based auth guidance with GOOGLE_BUSINESS_PROFILE_OAUTH2."
+}

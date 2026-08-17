@@ -1,0 +1,46 @@
+name: isitagentready
+description: "Scan any website for AI-agent readiness and get prioritized, copy-paste fix instructions"
+version: "0.1.0"
+category: developer-tools
+base_url: "https://isitagentready.com"
+health_check_path: "/"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/isitagentready-pp-cli/config.toml"
+
+resources:
+  scan:
+    description: "Scan a website for AI-agent readiness"
+    endpoints:
+      run:
+        method: POST
+        path: "/api/scan"
+        description: "Scan a URL; returns readiness level (0-5), per-check results across 5 categories, and prioritized fix advice for reaching the next level"
+        body:
+          - name: url
+            type: string
+            required: true
+            positional: false
+            description: "The website URL to scan, e.g. https://example.com"
+            format: uri
+        response:
+          type: object
+          item: ScanResult
+
+types:
+  ScanResult:
+    fields:
+      - name: url
+        type: string
+      - name: scannedAt
+        type: string
+      - name: level
+        type: int
+      - name: levelName
+        type: string
+      - name: isCommerce
+        type: bool

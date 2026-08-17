@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "novel-issue-sweep",
+  "applied_at": "2026-05-25",
+  "base_run_id": "20260524-172642",
+  "base_printing_press_version": "4.14.0",
+  "summary": "Add 'repos issues sweep' stale-issue sweeper with --dry-run, --label, --comment, --close.",
+  "reason": "Novel feature T6: agent-shaped read→confirm→write loop for stale issue triage.",
+  "files": [
+    "internal/cli/novel_issue.go",
+    "internal/cli/repos_issues.go"
+  ]
+}

@@ -68,8 +68,14 @@ func TestSyncProjectsUsesComplexitySafePageSize(t *testing.T) {
 	if err != nil {
 		t.Fatalf("syncProjects returned error: %v", err)
 	}
-	if got != 2 {
-		t.Fatalf("synced projects = %d, want 2", got)
+	if got.count != 2 {
+		t.Fatalf("synced projects = %d, want 2", got.count)
+	}
+	if !got.complete {
+		t.Fatalf("projects pass complete = false, want true")
+	}
+	if len(got.liveIDs) != 2 {
+		t.Fatalf("projects live ids = %d, want 2", len(got.liveIDs))
 	}
 	mu.Lock()
 	defer mu.Unlock()
@@ -116,8 +122,8 @@ func TestSyncLabelsStoresTeamOwnership(t *testing.T) {
 	if err != nil {
 		t.Fatalf("syncLabels returned error: %v", err)
 	}
-	if got != 1 {
-		t.Fatalf("synced labels = %d, want 1", got)
+	if got.count != 1 {
+		t.Fatalf("synced labels = %d, want 1", got.count)
 	}
 	raw, err := db.GetByID("issue_labels", "label-1")
 	if err != nil {

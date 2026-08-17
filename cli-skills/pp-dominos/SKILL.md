@@ -34,7 +34,7 @@ This skill drives the `dominos-pp-cli` binary. **You must verify the CLI is inst
 2. Verify: `dominos-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.6 or newer). This installs into `$GOPATH/bin` (default `$HOME/go/bin`), so add that directory to `$PATH` instead:
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/food-and-dining/dominos/cmd/dominos-pp-cli@latest
@@ -44,7 +44,7 @@ If `--version` reports "command not found" after install, the runtime cannot see
 
 ## When to Use This CLI
 
-Use this CLI when an agent or power user needs to interact with Domino's outside a browser — building, pricing, and placing orders, tracking deliveries, comparing prices across stores, optimizing deal selection, or replaying saved order templates. Excellent for automation: every command supports --json, --dry-run, --agent, --select, and structured exit codes. Local SQLite store enables features the public API cannot serve directly (deal optimization, multi-store wait-time comparison, named order templates). DO NOT use this CLI for: other pizza chains (Pizza Hut, Papa John's, etc.), generic food delivery (DoorDash, Uber Eats), restaurant search/aggregation, or non-US Domino's storefronts (only US endpoints are supported).
+Use this CLI when an agent or power user needs to interact with Domino's outside a browser — building, pricing, and placing US orders, inspecting Canadian checkout readiness, tracking deliveries, comparing prices across stores, optimizing deal selection, or replaying saved order templates. Excellent for automation: every command supports --json, --dry-run, --agent, --select, and structured exit codes. The US market remains the default; use `--market ca` for Canadian Power API calls. Canadian support includes stores, menus, account order history, validation, pricing, saved-card count, and a read-only checkout readiness preview. The US GraphQL loyalty/cart BFF and Canadian online-card tokenization are not supported on the Canadian path.
 
 ## Unique Capabilities
 
@@ -132,6 +132,8 @@ This CLI was generated with browser-observed traffic context.
 ## Command Reference
 
 **customer** — Customer profile, order history, and loyalty (requires `auth login`)
+
+**checkout** — Inspect checkout readiness without placing an order
 
 - `dominos-pp-cli customer loyalty` — Loyalty points balance, tier status, and pending points for the customer.
 - `dominos-pp-cli customer orders` — List the customer's recent orders. Returns full Order objects (Address, Products, Amounts, Coupons, Status, etc.)...
@@ -221,6 +223,22 @@ dominos-pp-cli customer orders --limit 5 --json
 # Loyalty points balance
 dominos-pp-cli customer loyalty --json
 ```
+
+### Canadian account history and checkout preview
+
+```bash
+# One-time interactive sign-in; market is persisted with the session.
+dominos-pp-cli auth login --market ca
+
+# Direct API calls after login; no browser navigation is required.
+dominos-pp-cli customer orders --market ca --limit 5 --json
+dominos-pp-cli customer cards --market ca --json
+dominos-pp-cli checkout preview --market ca --last --json
+```
+
+`checkout preview` strips prior payment and order identifiers, validates and reprices the latest order, returns only saved-card count plus allowlisted store capabilities, and has no code path to `/power/place-order`. `orders place --market ca` and confirmed quick/template placement fail closed until a Canadian payment and service-method contract is implemented; complete the transaction through Domino's Canada instead.
+
+Browser login harvests the customer ID automatically. With `DOMINOS_TOKEN`, `auth login --paste`, or `auth login --stdin`, pass the matching customer ID explicitly: `checkout preview <customerID> --market ca --last --json`.
 
 Customer ID is the long base64-style identifier from your sign-in. Once `auth login` completes, the bearer token persists in `~/.config/dominos-pp-cli/config.toml` until Dominos expires it (~1 hour).
 

@@ -1,0 +1,384 @@
+name: sensortower
+description: "Cross-platform app store rankings and app/publisher intelligence from the Sensor Tower dashboard"
+version: "0.1.0"
+category: marketing
+base_url: "https://app.sensortower.com"
+http_transport: standard
+health_check_path: "/api/ios/apps?app_ids=460177396"
+
+cli_description: "Track iOS and Android store rankings over time from your Sensor Tower session, with a local history no dashboard tab keeps."
+
+required_headers:
+  - name: Accept
+    value: "application/json"
+  - name: X-Requested-With
+    value: "XMLHttpRequest"
+
+auth:
+  type: cookie
+  cookie_domain: ".sensortower.com"
+  cookies:
+    - sensor_tower_session
+
+config:
+  format: toml
+  path: "~/.config/sensortower-pp-cli/config.toml"
+
+cache:
+  enabled: true
+  stale_after: 24h
+  refresh_timeout: 30s
+
+learn:
+  ticker_patterns:
+    - "^[0-9]{8,12}$"
+    - "^[a-z][a-z0-9_]*(\\.[a-z0-9_]+)+$"
+  synonyms:
+    "most recent": "latest"
+    "top free": "topfreeapplications"
+    "top paid": "toppaidapplications"
+    "top grossing": "topgrossingapplications"
+  entity_lookup_seeds:
+    chart_type:
+      - canonical: topfreeapplications
+        aliases: [free, top free, free apps]
+      - canonical: toppaidapplications
+        aliases: [paid, top paid, paid apps]
+      - canonical: topgrossingapplications
+        aliases: [grossing, top grossing, revenue]
+    platform:
+      - canonical: ios
+        aliases: [iphone, apple, itunes, app store]
+      - canonical: android
+        aliases: [google, play, google play]
+      - canonical: unified
+        aliases: [both, cross-platform, combined]
+
+resources:
+  find:
+    description: "Find apps and publishers by name in the live store catalog"
+    endpoints:
+      apps:
+        method: GET
+        path: "/api/autocomplete_search"
+        no_auth: true
+        description: "Search the store catalog by name; returns matching apps or publishers with download and revenue signals"
+        example: "  sensortower-pp-cli find apps twitch --os ios --json"
+        happy_args: "<term>=twitch;--os=ios"
+        params:
+          - name: term
+            type: string
+            required: true
+            positional: true
+            description: "Search text to match against app or publisher names"
+          - name: entity_type
+            flag_name: entity-type
+            type: string
+            required: false
+            default: app
+            enum: [app, publisher]
+            description: "Search for apps or for publishers"
+          - name: os
+            type: string
+            required: false
+            default: ios
+            enum: [ios, android, unified]
+            description: "Which store catalog to search"
+        response:
+          type: object
+        response_path: data.entities
+
+  categories:
+    description: "Reference data for category IDs and slugs"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/docs/static/category_ids.json"
+        no_auth: true
+        description: "Every valid iOS category ID and Android category slug, as published by Sensor Tower"
+        example: "  sensortower-pp-cli categories list --json"
+        response:
+          type: object
+        response_path: category_ids
+
+  apps:
+    description: "Look up app metadata by store ID across iOS, Android, and unified IDs"
+    endpoints:
+      get:
+        method: GET
+        path: "/api/ios/apps/{app_id}"
+        no_auth: true
+        description: "Full iOS app profile: exact category ranks, 400+ version history entries, in-app purchases, rating breakdown, related apps"
+        example: "  sensortower-pp-cli apps get 460177396 --json --select name,category_rankings"
+        happy_args: "<app_id>=460177396"
+        params:
+          - name: app_id
+            flag_name: app-id
+            type: string
+            required: true
+            positional: true
+            description: "iOS App Store ID (e.g. 460177396 for Twitch)"
+          - name: country
+            type: string
+            required: false
+            default: US
+            description: "Two-letter country code for country-specific fields"
+        response:
+          type: object
+      ios:
+        method: GET
+        path: "/api/ios/apps"
+        no_auth: true
+        description: "Look up several iOS apps at once by numeric App Store ID (leaner than 'apps get'; accepts multiple IDs)"
+        example: "  sensortower-pp-cli apps ios --app-ids 460177396,284882215 --json"
+        happy_args: "--app-ids=460177396"
+        params:
+          - name: app_ids
+            flag_name: app-ids
+            type: string
+            required: true
+            description: "Comma-separated iOS App Store IDs (e.g. 460177396 for Twitch)"
+        response:
+          type: object
+        response_path: apps
+      android:
+        method: GET
+        path: "/api/android/apps"
+        no_auth: true
+        description: "Look up one or more Android apps by package name"
+        example: "  sensortower-pp-cli apps android --app-ids com.spotify.music --json"
+        happy_args: "--app-ids=com.spotify.music"
+        params:
+          - name: app_ids
+            flag_name: app-ids
+            type: string
+            required: true
+            description: "Comma-separated Android package names (e.g. com.spotify.music)"
+        response:
+          type: object
+        response_path: apps
+      unified:
+        method: GET
+        path: "/api/unified/apps"
+        description: "Resolve an app to its unified cross-platform record, joining iOS and Android identities"
+        example: "  sensortower-pp-cli apps unified --app-id-type itunes --app-ids 460177396 --json"
+        happy_args: "--app-id-type=itunes;--app-ids=460177396"
+        params:
+          - name: app_id_type
+            flag_name: app-id-type
+            type: string
+            required: false
+            default: itunes
+            enum: [itunes, android, unified]
+            description: "Which ID namespace app-ids are expressed in"
+          - name: app_ids
+            flag_name: app-ids
+            type: string
+            required: true
+            description: "Comma-separated app IDs in the namespace given by --app-id-type"
+        response:
+          type: object
+        response_path: apps
+
+  rankings:
+    description: "Store top-chart rankings by category and country"
+    endpoints:
+      ios:
+        method: GET
+        path: "/api/ios/category_rankings"
+        no_auth: true
+        description: "Top iOS charts (free/paid/grossing) for a category and country on a given date"
+        example: "  sensortower-pp-cli rankings ios --category 0 --country US --date 2026-07-17 --limit 10 --json"
+        happy_args: "--category=0;--country=US;--limit=5;--date=2026-07-15"
+        params:
+          - name: category
+            type: string
+            required: true
+            default: "0"
+            description: "iOS category ID; 0 = Overall, 6014 = Games, 6016 = Entertainment"
+          - name: country
+            type: string
+            required: true
+            default: US
+            description: "Two-letter country code (e.g. US, GB, JP)"
+          - name: date
+            type: string
+            required: true
+            format: date
+            description: "Chart date as YYYY-MM-DD (required by the API; a blank date returns HTTP 422)"
+          - name: device
+            type: string
+            required: false
+            default: iphone
+            enum: [iphone, ipad]
+            description: "iOS device chart variant"
+          - name: limit
+            type: int
+            required: false
+            default: 25
+            description: "Rows to return per chart"
+          - name: offset
+            type: int
+            required: false
+            default: 0
+            description: "Row offset for paging deeper into the chart"
+        response:
+          type: object
+        response_path: data
+      android:
+        method: GET
+        path: "/api/android/category_rankings"
+        no_auth: true
+        description: "Top Google Play charts for a category and country on a given date"
+        example: "  sensortower-pp-cli rankings android --category application --country US --limit 10 --json"
+        happy_args: "--category=application;--country=US;--limit=5;--date=2026-07-15"
+        params:
+          - name: category
+            type: string
+            required: true
+            default: application
+            enum: [application, art_and_design, auto_and_vehicles, beauty, books_and_reference, business, comics, communication, dating, education, entertainment, events, finance, food_and_drink, game, health_and_fitness, house_and_home, libraries_and_demo, lifestyle, maps_and_navigation, medical, music_and_audio, news_and_magazines, parenting, personalization, photography, productivity, shopping, social, sports, tools, travel_and_local, video_players, weather, game_action, game_adventure, game_arcade, game_board, game_card, game_casino, game_casual, game_educational, game_music, game_puzzle, game_racing, game_role_playing, game_simulation, game_sports]
+            description: "Google Play category slug; 'application' = Overall apps, 'game' = Overall games"
+          - name: country
+            type: string
+            required: true
+            default: US
+            description: "Two-letter country code (e.g. US, GB, JP)"
+          - name: date
+            type: string
+            required: true
+            format: date
+            description: "Chart date as YYYY-MM-DD (required by the API; a blank date returns HTTP 422)"
+          - name: device
+            type: string
+            required: false
+            default: phone
+            enum: [phone, tablet]
+            description: "Google Play device chart variant"
+          - name: limit
+            type: int
+            required: false
+            default: 25
+            description: "Rows to return per chart"
+          - name: offset
+            type: int
+            required: false
+            default: 0
+            description: "Row offset for paging deeper into the chart"
+        response:
+          type: object
+        response_path: data
+
+  category:
+    description: "An app's rank history and per-category ranking summary"
+    endpoints:
+      history:
+        method: GET
+        path: "/api/ios/category/category_history"
+        no_auth: true
+        description: "Daily rank history for apps across chart types and countries over a date range"
+        example: "  sensortower-pp-cli category history --app-ids 460177396 --categories 0 --chart-type-ids topfreeapplications --countries US --start-date 2026-07-11 --end-date 2026-07-17 --json"
+        happy_args: "--app-ids=460177396;--categories=0;--chart-type-ids=topfreeapplications;--countries=US"
+        params:
+          - name: "app_ids[]"
+            flag_name: app-ids
+            type: string
+            required: true
+            description: "iOS App Store ID to pull rank history for"
+          - name: "categories[]"
+            flag_name: categories
+            type: string
+            required: true
+            default: "0"
+            description: "iOS category ID; 0 = Overall"
+          - name: "chart_type_ids[]"
+            flag_name: chart-type-ids
+            type: string
+            required: true
+            default: topfreeapplications
+            enum: [topfreeapplications, toppaidapplications, topgrossingapplications, topfreeipadapplications]
+            description: "Which store chart to read rank history from"
+          - name: "countries[]"
+            flag_name: countries
+            type: string
+            required: true
+            default: US
+            description: "Two-letter country code"
+          - name: start_date
+            flag_name: start-date
+            type: string
+            required: false
+            format: date
+            description: "Range start as YYYY-MM-DD"
+          - name: end_date
+            flag_name: end-date
+            type: string
+            required: false
+            format: date
+            description: "Range end as YYYY-MM-DD"
+        response:
+          type: object
+      summary:
+        method: GET
+        path: "/api/ios/category/app_category_ranking_summary"
+        no_auth: true
+        description: "Which categories and chart types an app currently ranks in"
+        example: "  sensortower-pp-cli category summary --app-ids 460177396 --json"
+        happy_args: "--app-ids=460177396"
+        params:
+          - name: "app_ids[]"
+            flag_name: app-ids
+            type: string
+            required: true
+            description: "iOS App Store ID to summarize rankings for"
+        response:
+          type: object
+
+  publishers:
+    description: "Publisher portfolios and unified publisher identity"
+    endpoints:
+      apps:
+        method: GET
+        path: "/api/ios/publishers/{publisher_id}/apps"
+        no_auth: true
+        description: "Every iOS app in a publisher's portfolio"
+        example: "  sensortower-pp-cli publishers apps 358612219 --sort-by downloads --json"
+        happy_args: "<publisher_id>=358612219;--sort-by=downloads"
+        params:
+          - name: publisher_id
+            flag_name: publisher-id
+            type: string
+            required: true
+            positional: true
+            description: "iOS publisher ID (e.g. 358612219 for Twitch Interactive)"
+          - name: sort_by
+            flag_name: sort-by
+            type: string
+            required: true
+            default: downloads
+            description: "Sort field for the portfolio listing (required by the API)"
+        response:
+          type: object
+        response_path: data
+      unified:
+        method: GET
+        path: "/api/unified/publishers"
+        description: "Resolve a publisher to its unified cross-platform record"
+        example: "  sensortower-pp-cli publishers unified --publisher-ids 358612219 --publisher-id-type itunes --json"
+        happy_args: "--publisher-ids=358612219;--publisher-id-type=itunes"
+        params:
+          - name: publisher_ids
+            flag_name: publisher-ids
+            type: string
+            required: true
+            description: "Comma-separated publisher IDs"
+          - name: publisher_id_type
+            flag_name: publisher-id-type
+            type: string
+            required: false
+            default: itunes
+            enum: [unified, android, itunes]
+            description: "Which ID namespace publisher-ids are expressed in"
+        response:
+          type: object
+        response_path: publishers

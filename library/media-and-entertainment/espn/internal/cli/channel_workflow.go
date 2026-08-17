@@ -76,7 +76,7 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 
 				count := 0
 				for {
-					data, fetchErr := c.Get("/"+resource, params)
+					data, fetchErr := c.Get(cmd.Context(), "/"+resource, params)
 					if fetchErr != nil {
 						fmt.Fprintf(cmd.ErrOrStderr(), "  warning: %s: %v\n", resource, fetchErr)
 						break

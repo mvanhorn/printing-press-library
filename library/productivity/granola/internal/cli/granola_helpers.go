@@ -9,6 +9,9 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
+	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -43,6 +46,912 @@ func openGranolaCache() (*granola.Cache, error) {
 	// store is unavailable.
 	_ = backfillDocumentsFromStore(c)
 	return c, nil
+}
+
+// PATCH(dual-path-store-read): granolaRead is the read seam every
+// cache-direct read command now goes through.
+//
+// openGranolaCache() hard-fails when the desktop cache cannot be decrypted,
+// which is now the permanent steady state: Granola's key migration made
+// cache-v6.json.enc unreadable and killed the WorkOS token path the internal
+// API used. Everything the read commands need is already hydrated into the
+// SQLite domain tables (meetings, attendees, transcript_segments,
+// folder_memberships) by the sync commands, so the read side must consult the
+// store first and treat the desktop cache as a fallback rather than a
+// precondition.
+//
+// Precedence is fixed and identical for every rerouted command:
+//
+//  1. the local SQLite store,
+//  2. the desktop cache, when the store has no row and a cache is readable.
+//
+// Neither step requires a network call or a GRANOLA_API_KEY - reading data
+// that is already local must never depend on credentials.
+type granolaRead struct {
+	ctx   context.Context
+	store *store.Store   // nil when the database does not exist yet
+	cache *granola.Cache // nil when the desktop cache is unreadable
+
+	docs   map[string]granola.Document // lazily built union, store-first
+	sorted []string
+}
+
+// openGranolaRead opens the read view. It fails only when neither data path
+// is available at all; a missing store or an unreadable cache on its own is
+// a normal, survivable state.
+func openGranolaRead(ctx context.Context) (*granolaRead, error) {
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	v := &granolaRead{ctx: ctx}
+	// A store that exists but fails to open is treated as absent; the cache
+	// fallback below is still worth trying.
+	if s, err := openGranolaStoreRead(ctx); err == nil {
+		v.store = s
+	}
+	// A cache that will not decrypt is the steady state on migrated
+	// installs; the decrypt error is deliberately dropped rather than
+	// surfaced, because "run sync" is the only actionable advice and
+	// doctor already reports the decrypt status in detail.
+	if c, err := granola.LoadCache(""); err == nil {
+		v.cache = c
+	}
+	if v.store == nil && v.cache == nil {
+		return nil, errNoLocalGranolaData()
+	}
+	return v, nil
+}
+
+// Close releases the store handle. Safe on a nil receiver so callers can
+// `defer v.Close()` immediately after the error check.
+func (v *granolaRead) Close() {
+	if v == nil || v.store == nil {
+		return
+	}
+	_ = v.store.Close()
+	v.store = nil
+}
+
+// hasCache reports whether a desktop cache was actually readable. Commands
+// use it to decide whether a cache-only fallback is still on the table.
+func (v *granolaRead) hasCache() bool { return v != nil && v.cache != nil }
+
+// Cache exposes the desktop cache for the state only it carries (panels,
+// recipes, chat threads, workspaces, document lists). Returns nil when the
+// cache is unreadable - callers must handle that.
+func (v *granolaRead) Cache() *granola.Cache {
+	if v == nil {
+		return nil
+	}
+	return v.cache
+}
+
+// errNoLocalGranolaData is the message a read command surfaces when neither
+// the store nor the cache can answer. Deliberately does not wrap the
+// safestorage decrypt failure: "refresh refused for encrypted source" tells
+// the user nothing actionable, whereas "run sync" does.
+func errNoLocalGranolaData() error {
+	return notFoundErr(fmt.Errorf("no local Granola data available - run `granola-pp-cli sync-api` (or `granola-pp-cli sync` for a desktop-cache install) first"))
+}
+
+// storeStaleness is the disclosure a command attaches when it is answering
+// from the store on an install whose desktop cache will not decrypt. Serving
+// that data is the right call - it is the only copy left - but handing it over
+// without saying how old it is would be a claim the CLI cannot back: the store
+// is only ever as current as the last sync that wrote it, and for chat there
+// is no sync that can advance it at all.
+type storeStaleness struct {
+	// Source is always "store". It exists so a consumer can branch on the
+	// field rather than infer the path from the block's mere presence.
+	Source string `json:"source"`
+	// LastCacheSyncAt is RFC3339 UTC, omitted when no successful cache sync
+	// has ever been recorded on this machine
+	// on this machine.
+	LastCacheSyncAt   string `json:"last_cache_sync_at,omitempty"`
+	LastCatalogSyncAt string `json:"last_catalog_sync_at,omitempty"`
+	// Refreshable is false when no code path can bring this data forward, so
+	// an agent can tell a frozen set from a merely stale one without parsing
+	// Notice.
+	Refreshable bool `json:"refreshable"`
+	// Notice is the human rendering of the fields above, printed to stderr.
+	Notice string `json:"notice"`
+}
+
+// staleness returns the disclosure to attach to store-served output, or nil
+// when a readable desktop cache means this view is not frozen and the command
+// should keep emitting exactly what it always did.
+//
+// frozenReason, when non-empty, states why the data set can never be brought
+// forward and flips Refreshable to false.
+func (v *granolaRead) staleness(frozenReason string) *storeStaleness {
+	if v == nil || v.hasCache() {
+		return nil
+	}
+	st := &storeStaleness{Source: "store", Refreshable: frozenReason == ""}
+	// Date these rows by the last successful CACHE decrypt, never by
+	// LastSyncAt. Auto-refresh runs an API sync on every invocation, so
+	// LastSyncAt always reads "just now" on a migrated install — reporting it
+	// here would tell the user that months-old cache rows are current, which is
+	// worse than disclosing nothing. A missing or malformed sync_state.json is
+	// "unknown", not an error: the data is still worth serving, just undatable.
+	// Which clock dates these rows depends on whether the surface can be
+	// refreshed. Recipes and panel templates come back from the API catalog
+	// refresh, so they are dated by that; chat threads have no endpoint at all
+	// and stay dated by the last successful cache decrypt. Using the cache
+	// clock for a refreshable surface would report rows fetched seconds ago as
+	// months stale, which is the same misreport in the other direction.
+	age := "the date of the last successful cache sync is not recorded on this machine"
+	s, err := granola.ReadSyncState()
+	switch {
+	case err != nil:
+	case frozenReason == "" && !s.LastCatalogSyncAt.IsZero():
+		st.LastCatalogSyncAt = s.LastCatalogSyncAt.UTC().Format(time.RFC3339)
+		age = "refreshed from the API on " + st.LastCatalogSyncAt
+	case !s.LastCacheSyncAt.IsZero():
+		st.LastCacheSyncAt = s.LastCacheSyncAt.UTC().Format(time.RFC3339)
+		age = "captured by the last successful cache sync on " + st.LastCacheSyncAt
+	}
+	st.Notice = "Served from the local store because the Granola desktop cache is unreadable; " + age + "."
+	if frozenReason != "" {
+		st.Notice += " " + frozenReason
+	}
+	return st
+}
+
+// writeStalenessNotice prints the human half of the disclosure to stderr,
+// where it cannot corrupt the JSON on stdout. Silent when there is nothing to
+// disclose or the caller asked for --quiet.
+func writeStalenessNotice(cmd *cobra.Command, flags *rootFlags, st *storeStaleness) {
+	if st == nil || cmd == nil || (flags != nil && flags.quiet) {
+		return
+	}
+	fmt.Fprintln(cmd.ErrOrStderr(), st.Notice)
+}
+
+// emitWithStaleness writes a list payload, wrapping it in a {key, staleness}
+// envelope only when there is a disclosure to carry. On a readable-cache
+// install st is nil and the bare list goes out unchanged, which is what keeps
+// legacy output byte-identical.
+func emitWithStaleness(cmd *cobra.Command, flags *rootFlags, key string, rows any, st *storeStaleness) error {
+	if st == nil {
+		return emitJSON(cmd, flags, rows)
+	}
+	writeStalenessNotice(cmd, flags, st)
+	return emitJSON(cmd, flags, map[string]any{key: rows, "staleness": st})
+}
+
+// Documents returns the union of store meetings and cache documents, keyed
+// by id. Store rows win field-by-field for the columns the store owns; the
+// cache supplies the fields it alone carries (TipTap notes, people, calendar
+// event) so legacy installs do not regress.
+func (v *granolaRead) Documents() map[string]granola.Document {
+	if v == nil {
+		return nil
+	}
+	if v.docs != nil {
+		return v.docs
+	}
+	docs := map[string]granola.Document{}
+	if v.cache != nil {
+		for id, d := range v.cache.Documents {
+			docs[id] = d
+		}
+	}
+	for id, sd := range v.storeDocuments() {
+		docs[id] = mergeStoreDocument(docs[id], sd)
+	}
+	v.docs = docs
+	return docs
+}
+
+// DocumentByID returns the merged document for id, or nil.
+func (v *granolaRead) DocumentByID(id string) *granola.Document {
+	d, ok := v.Documents()[id]
+	if !ok {
+		return nil
+	}
+	return &d
+}
+
+// SortedDocumentIDs mirrors Cache.SortedDocumentIDs (descending created_at)
+// over the merged document set.
+func (v *granolaRead) SortedDocumentIDs() []string {
+	if v == nil {
+		return nil
+	}
+	if v.sorted != nil {
+		return v.sorted
+	}
+	docs := v.Documents()
+	ids := make([]string, 0, len(docs))
+	for id := range docs {
+		ids = append(ids, id)
+	}
+	sort.Slice(ids, func(i, j int) bool {
+		return docs[ids[i]].CreatedAt > docs[ids[j]].CreatedAt
+	})
+	v.sorted = ids
+	return ids
+}
+
+// storeDocuments reads the meetings table into Document structs. Best-effort:
+// a query failure yields an empty map so the cache fallback still serves.
+func (v *granolaRead) storeDocuments() map[string]granola.Document {
+	out := map[string]granola.Document{}
+	if v == nil || v.store == nil {
+		return out
+	}
+	rows, err := v.store.DB().QueryContext(v.ctx, `
+		SELECT id, title, created_at, updated_at,
+		       workspace_id, deleted_at, notes_markdown, notes_plain,
+		       creation_source, valid_meeting
+		FROM meetings
+	`)
+	if err != nil {
+		return out
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var d granola.Document
+		var deletedAt string
+		var validMeeting int
+		if err := rows.Scan(
+			&d.ID, &d.Title, &d.CreatedAt, &d.UpdatedAt,
+			&d.WorkspaceID, &deletedAt,
+			&d.NotesMarkdown, &d.NotesPlain,
+			&d.CreationSource, &validMeeting,
+		); err != nil {
+			return out
+		}
+		if deletedAt != "" {
+			da := deletedAt
+			d.DeletedAt = &da
+		}
+		d.ValidMeeting = validMeeting != 0
+		out[d.ID] = d
+	}
+	return out
+}
+
+// mergeStoreDocument overlays the store's columns onto a (possibly zero)
+// cache document. Empty store values never blank out a richer cache value -
+// "store first" means the store wins where it has an answer, not that it
+// erases what only the cache knows.
+func mergeStoreDocument(base, sd granola.Document) granola.Document {
+	out := base
+	out.ID = sd.ID
+	if sd.Title != "" {
+		out.Title = sd.Title
+	}
+	if sd.CreatedAt != "" {
+		out.CreatedAt = sd.CreatedAt
+	}
+	if sd.UpdatedAt != "" {
+		out.UpdatedAt = sd.UpdatedAt
+	}
+	if sd.WorkspaceID != "" {
+		out.WorkspaceID = sd.WorkspaceID
+	}
+	if sd.NotesMarkdown != "" {
+		out.NotesMarkdown = sd.NotesMarkdown
+	}
+	if sd.NotesPlain != "" {
+		out.NotesPlain = sd.NotesPlain
+	}
+	if sd.CreationSource != "" {
+		out.CreationSource = sd.CreationSource
+	}
+	if sd.DeletedAt != nil {
+		out.DeletedAt = sd.DeletedAt
+	}
+	if sd.ValidMeeting {
+		out.ValidMeeting = true
+	}
+	return out
+}
+
+// TranscriptByID returns the transcript segments for id, store first.
+func (v *granolaRead) TranscriptByID(id string) []granola.TranscriptSegment {
+	segs, _ := v.transcriptWithSource(id)
+	return segs
+}
+
+// transcriptWithSource returns the segments plus which path served them
+// ("store" or "cache"); the string is empty when there are none.
+//
+// The store query is deliberately source-agnostic: rows written by the cache
+// sync and rows written by the public API sync are the same shape, so
+// row_source is never filtered on here.
+func (v *granolaRead) transcriptWithSource(id string) ([]granola.TranscriptSegment, string) {
+	if v == nil {
+		return nil, ""
+	}
+	if segs := v.storeTranscript(id); len(segs) > 0 {
+		return segs, "store"
+	}
+	if v.cache != nil {
+		if segs := v.cache.TranscriptByID(id); len(segs) > 0 {
+			return segs, "cache"
+		}
+	}
+	return nil, ""
+}
+
+// storeTranscript reads transcript_segments in idx order and rebuilds the
+// cache-shaped TranscriptSegment the whole CLI already speaks.
+func (v *granolaRead) storeTranscript(id string) []granola.TranscriptSegment {
+	if v == nil || v.store == nil {
+		return nil
+	}
+	rows, err := v.store.DB().QueryContext(v.ctx, `
+		SELECT source, text, start_ts_ms, end_ts_ms, confidence
+		FROM transcript_segments
+		WHERE meeting_id = ?
+		ORDER BY idx ASC
+	`, id)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+	var out []granola.TranscriptSegment
+	for rows.Next() {
+		var (
+			source, text   sql.NullString
+			startMs, endMs sql.NullInt64
+			confidence     sql.NullFloat64
+			seg            granola.TranscriptSegment
+		)
+		if err := rows.Scan(&source, &text, &startMs, &endMs, &confidence); err != nil {
+			return out
+		}
+		seg.DocumentID = id
+		seg.Source = source.String
+		seg.Text = text.String
+		seg.Confidence = confidence.Float64
+		seg.IsFinal = true
+		if startMs.Valid && startMs.Int64 > 0 {
+			seg.StartTimestamp = millisToISO(startMs.Int64)
+		}
+		if endMs.Valid && endMs.Int64 > 0 {
+			seg.EndTimestamp = millisToISO(endMs.Int64)
+		}
+		out = append(out, seg)
+	}
+	return out
+}
+
+// millisToISO renders a stored epoch-millis timestamp in the same layout the
+// cache uses, so granola.ParseISO round-trips it exactly.
+func millisToISO(ms int64) string {
+	return time.UnixMilli(ms).UTC().Format("2006-01-02T15:04:05.000Z")
+}
+
+// MeetingMetadataByID returns attendee metadata for a meeting, store first.
+// The store has no creator column, so store-sourced metadata carries
+// Attendees only; commands that key off Creator degrade to their
+// no-creator branch rather than misattributing.
+func (v *granolaRead) MeetingMetadataByID(id string) *granola.MeetingMetadata {
+	if v == nil {
+		return nil
+	}
+	if md := v.storeMeetingMetadata(id); md != nil {
+		return md
+	}
+	if v.cache != nil {
+		return v.cache.MeetingMetadataByID(id)
+	}
+	return nil
+}
+
+func (v *granolaRead) storeMeetingMetadata(id string) *granola.MeetingMetadata {
+	if v == nil || v.store == nil {
+		return nil
+	}
+	rows, err := v.store.DB().QueryContext(v.ctx,
+		`SELECT email, name, response_status FROM attendees WHERE meeting_id = ? ORDER BY email ASC`, id)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+	var md granola.MeetingMetadata
+	for rows.Next() {
+		var email, name, status sql.NullString
+		if err := rows.Scan(&email, &name, &status); err != nil {
+			return nil
+		}
+		md.Attendees = append(md.Attendees, granola.CalendarInvitee{
+			Name:           name.String,
+			Email:          email.String,
+			ResponseStatus: status.String,
+		})
+	}
+	if len(md.Attendees) == 0 {
+		return nil
+	}
+	return &md
+}
+
+// Folders returns the folder list, store first. Store rows carry only
+// id/title/parent_id/workspace_id/preset; description, is_favourited,
+// members and rules exist solely in the cache's documentListsMetadata and
+// are merged in when a cache is readable.
+func (v *granolaRead) Folders() []granola.DocumentListMetadata {
+	if v == nil {
+		return nil
+	}
+	byID := map[string]granola.DocumentListMetadata{}
+	var order []string
+	if v.cache != nil {
+		for fid, md := range v.cache.DocumentListsMetadata {
+			md.ID = fid
+			byID[fid] = md
+			order = append(order, fid)
+		}
+	}
+	for _, sf := range v.storeFolders() {
+		existing, ok := byID[sf.ID]
+		if !ok {
+			byID[sf.ID] = sf
+			order = append(order, sf.ID)
+			continue
+		}
+		if sf.Title != "" {
+			existing.Title = sf.Title
+		}
+		if sf.ParentDocumentListID != "" {
+			existing.ParentDocumentListID = sf.ParentDocumentListID
+		}
+		if sf.WorkspaceID != "" {
+			existing.WorkspaceID = sf.WorkspaceID
+		}
+		if sf.Preset != "" {
+			existing.Preset = sf.Preset
+		}
+		byID[sf.ID] = existing
+	}
+	sort.Strings(order)
+	out := make([]granola.DocumentListMetadata, 0, len(order))
+	for _, fid := range order {
+		out = append(out, byID[fid])
+	}
+	return out
+}
+
+func (v *granolaRead) storeFolders() []granola.DocumentListMetadata {
+	if v == nil || v.store == nil {
+		return nil
+	}
+	rows, err := v.store.DB().QueryContext(v.ctx,
+		// PATCH(catalog-provenance-and-merge): description and is_favourited
+		// are selected here because the write path now persists them. Without
+		// this, a store-only install keeps reporting an empty description and a
+		// false favourite flag for folders that have both.
+		`SELECT id, title, parent_id, workspace_id, preset, description, is_favourited FROM folders ORDER BY id ASC`)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+	var out []granola.DocumentListMetadata
+	for rows.Next() {
+		var f granola.DocumentListMetadata
+		var parent, workspace, preset, description sql.NullString
+		var favourited sql.NullBool
+		if err := rows.Scan(&f.ID, &f.Title, &parent, &workspace, &preset, &description, &favourited); err != nil {
+			return out
+		}
+		f.ParentDocumentListID = parent.String
+		f.WorkspaceID = workspace.String
+		f.Preset = preset.String
+		f.Description = description.String
+		f.IsFavourited = favourited.Bool
+		out = append(out, f)
+	}
+	return out
+}
+
+// FolderByName resolves a folder by id or case-insensitive title, using the
+// merged folder set.
+func (v *granolaRead) FolderByName(name string) *granola.DocumentListMetadata {
+	if v == nil {
+		return nil
+	}
+	for _, f := range v.Folders() {
+		if f.ID == name || strings.EqualFold(f.Title, name) {
+			res := f
+			return &res
+		}
+	}
+	return nil
+}
+
+// FolderMeetings returns the meeting ids in a folder, store first.
+//
+// Memberships are filtered to meetings the view can actually resolve.
+// folder_memberships outlives the meetings it points at - a cache-sourced
+// membership row survives a cache-sourced meeting being replaced by an
+// API-sourced one - and streaming an id no data path knows about only
+// produces a per-meeting error line downstream.
+func (v *granolaRead) FolderMeetings(folderID string) []string {
+	if v == nil {
+		return nil
+	}
+	ids := v.storeFolderMeetings(folderID)
+	if len(ids) == 0 && v.cache != nil {
+		ids = v.cache.FolderMeetings(folderID)
+	}
+	docs := v.Documents()
+	out := make([]string, 0, len(ids))
+	for _, id := range ids {
+		if _, ok := docs[id]; ok {
+			out = append(out, id)
+		}
+	}
+	return out
+}
+
+func (v *granolaRead) storeFolderMeetings(folderID string) []string {
+	if v == nil || v.store == nil {
+		return nil
+	}
+	rows, err := v.store.DB().QueryContext(v.ctx,
+		`SELECT meeting_id FROM folder_memberships WHERE folder_id = ? ORDER BY meeting_id ASC`, folderID)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+	var out []string
+	for rows.Next() {
+		var mid string
+		if err := rows.Scan(&mid); err != nil {
+			return out
+		}
+		out = append(out, mid)
+	}
+	return out
+}
+
+// Recipes returns the recipe list, store first. The merge is field-level
+// like Folders(): the store's recipes table carries only
+// id/slug/name/description/category/source, while config.instructions,
+// visibility, timestamps and creator_info exist solely in the cache, so a
+// store row overwrites the columns it owns and leaves the rest alone.
+//
+// Order is the cache's (public, then user, then shared) with store-only
+// recipes appended in id order. Folders() has to sort its whole output
+// because its cache side is a map with no meaningful order; RecipesAll() is
+// already a deterministic slice, and preserving it keeps `recipes list`
+// output identical on installs where the cache still decrypts.
+func (v *granolaRead) Recipes() []granola.Recipe {
+	if v == nil {
+		return nil
+	}
+	byKey := map[string]granola.Recipe{}
+	var order []string
+	if v.cache != nil {
+		for _, r := range v.cache.RecipesAll() {
+			k := recipeKey(r)
+			if _, ok := byKey[k]; !ok {
+				order = append(order, k)
+			}
+			byKey[k] = r
+		}
+	}
+	for _, sr := range v.storeRecipes() {
+		k := recipeKey(sr)
+		existing, ok := byKey[k]
+		if !ok {
+			byKey[k] = sr
+			order = append(order, k)
+			continue
+		}
+		if sr.ID != "" {
+			existing.ID = sr.ID
+		}
+		if sr.Slug != "" {
+			existing.Slug = sr.Slug
+		}
+		if sr.Name != "" {
+			existing.Name = sr.Name
+		}
+		if sr.Config.Description != "" {
+			existing.Config.Description = sr.Config.Description
+		}
+		if sr.Category != "" {
+			existing.Category = sr.Category
+		}
+		if sr.Source != "" {
+			existing.Source = sr.Source
+		}
+		byKey[k] = existing
+	}
+	out := make([]granola.Recipe, 0, len(order))
+	for _, k := range order {
+		r := byKey[k]
+		// LoadCache defaults Name to Slug for every recipe it parses; the
+		// store's name column can be empty for the same rows, so the default
+		// is reapplied here rather than trusted from either side. Source
+		// round-trips through the store's source column, which the cache sync
+		// writes from the already-stamped Recipe.Source.
+		if r.Name == "" {
+			r.Name = r.Slug
+		}
+		out = append(out, r)
+	}
+	return out
+}
+
+// recipeKey is the identity a recipe merges on. Recipes normally carry an
+// id, but public recipes can ship with the slug as their only identifier -
+// keying those on the empty string would collapse them into one entry.
+func recipeKey(r granola.Recipe) string {
+	if r.ID != "" {
+		return r.ID
+	}
+	return r.Slug
+}
+
+func (v *granolaRead) storeRecipes() []granola.Recipe {
+	if v == nil || v.store == nil {
+		return nil
+	}
+	rows, err := v.store.DB().QueryContext(v.ctx,
+		`SELECT id, slug, name, description, category, source FROM recipes ORDER BY id ASC`)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+	var out []granola.Recipe
+	for rows.Next() {
+		var id, slug, name, description, category, source sql.NullString
+		if err := rows.Scan(&id, &slug, &name, &description, &category, &source); err != nil {
+			return out
+		}
+		var r granola.Recipe
+		r.ID = id.String
+		r.Slug = slug.String
+		r.Name = name.String
+		// The sync writes Config.Description into the description column;
+		// flattening it back onto Config keeps the typed surface consistent.
+		r.Config.Description = description.String
+		r.Category = category.String
+		r.Source = source.String
+		out = append(out, r)
+	}
+	return out
+}
+
+// RecipesUsage returns per-recipe usage keyed by recipe id, store first.
+// Field-level like Recipes(): a zero total_count or an empty last_used_at is
+// "the store has no answer", not an instruction to blank the cache's value.
+func (v *granolaRead) RecipesUsage() map[string]granola.RecipeUsage {
+	if v == nil {
+		return nil
+	}
+	out := map[string]granola.RecipeUsage{}
+	if v.cache != nil {
+		for id, u := range v.cache.RecipesUsage {
+			// The cache keys usage by recipe id and does not always repeat it
+			// inside the value; filling it in matches the store path.
+			if u.RecipeID == "" {
+				u.RecipeID = id
+			}
+			out[id] = u
+		}
+	}
+	for id, su := range v.storeRecipesUsage() {
+		existing, ok := out[id]
+		if !ok {
+			out[id] = su
+			continue
+		}
+		if su.TotalCount != "" && su.TotalCount != "0" {
+			existing.TotalCount = su.TotalCount
+		}
+		if su.LastUsedAt != "" {
+			existing.LastUsedAt = su.LastUsedAt
+		}
+		out[id] = existing
+	}
+	return out
+}
+
+func (v *granolaRead) storeRecipesUsage() map[string]granola.RecipeUsage {
+	out := map[string]granola.RecipeUsage{}
+	if v == nil || v.store == nil {
+		return out
+	}
+	rows, err := v.store.DB().QueryContext(v.ctx,
+		`SELECT recipe_id, total_count, last_used_at FROM recipes_usage ORDER BY recipe_id ASC`)
+	if err != nil {
+		return out
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var id, lastUsed sql.NullString
+		var total sql.NullInt64
+		if err := rows.Scan(&id, &total, &lastUsed); err != nil {
+			return out
+		}
+		if id.String == "" {
+			continue
+		}
+		out[id.String] = granola.RecipeUsage{
+			RecipeID: id.String,
+			// total_count is an INTEGER column but RecipeUsage.TotalCount is
+			// the cache's string, and every consumer Sscanf's it - handing
+			// back anything but decimal digits reads as zero.
+			TotalCount: strconv.FormatInt(total.Int64, 10),
+			LastUsedAt: lastUsed.String,
+		}
+	}
+	return out
+}
+
+// ChatThreads returns the chat threads keyed by thread id, store first.
+//
+// Unlike Folders(), this is FolderMeetings()-shaped: an all-or-nothing
+// fallback. chat_threads carries every field the typed ChatThread exposes
+// except the entity type tag, so there is no field-level merge to do and an
+// empty store result simply defers to the cache.
+func (v *granolaRead) ChatThreads() map[string]granola.ChatThread {
+	if v == nil {
+		return nil
+	}
+	threads := v.storeChatThreads()
+	if len(threads) == 0 && v.cache != nil {
+		threads = v.cache.ChatThreads
+	}
+	out := make(map[string]granola.ChatThread, len(threads))
+	for id, t := range threads {
+		if t.ID == "" {
+			t.ID = id
+		}
+		out[id] = t
+	}
+	return out
+}
+
+func (v *granolaRead) storeChatThreads() map[string]granola.ChatThread {
+	out := map[string]granola.ChatThread{}
+	if v == nil || v.store == nil {
+		return out
+	}
+	rows, err := v.store.DB().QueryContext(v.ctx,
+		`SELECT id, meeting_id, workspace_id, title, created_at, updated_at FROM chat_threads ORDER BY id ASC`)
+	if err != nil {
+		return out
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var id, meetingID, workspaceID, title, createdAt, updatedAt sql.NullString
+		if err := rows.Scan(&id, &meetingID, &workspaceID, &title, &createdAt, &updatedAt); err != nil {
+			return out
+		}
+		if id.String == "" {
+			continue
+		}
+		out[id.String] = granola.ChatThread{
+			ID:          id.String,
+			WorkspaceID: workspaceID.String,
+			CreatedAt:   createdAt.String,
+			UpdatedAt:   updatedAt.String,
+			Data: granola.ChatThreadData{
+				Title:      title.String,
+				DocumentID: meetingID.String,
+			},
+		}
+	}
+	return out
+}
+
+// ChatMessages returns every chat message keyed by message id, store first,
+// with the same all-or-nothing fallback ChatThreads() uses. Callers that
+// want one thread's messages in order should use ChatThreadMessages.
+func (v *granolaRead) ChatMessages() map[string]granola.ChatMessage {
+	if v == nil {
+		return nil
+	}
+	out := map[string]granola.ChatMessage{}
+	if msgs := v.storeChatMessages(); len(msgs) > 0 {
+		for _, m := range msgs {
+			out[m.ID] = m
+		}
+		return out
+	}
+	if v.cache != nil {
+		for id, m := range v.cache.ChatMessages {
+			if m.ID == "" {
+				m.ID = id
+			}
+			out[id] = m
+		}
+	}
+	return out
+}
+
+// ChatThreadMessages returns one thread's messages in turn order, store
+// first. A thread whose messages neither path knows about yields an empty
+// slice rather than an error - an unanswered thread is an answer.
+func (v *granolaRead) ChatThreadMessages(threadID string) []granola.ChatMessage {
+	if v == nil {
+		return nil
+	}
+	msgs := v.storeChatMessagesForThread(threadID)
+	if len(msgs) == 0 && v.cache != nil {
+		for id, m := range v.cache.ChatMessages {
+			if m.Data.ThreadID != threadID {
+				continue
+			}
+			if m.ID == "" {
+				m.ID = id
+			}
+			msgs = append(msgs, m)
+		}
+	}
+	out := make([]granola.ChatMessage, 0, len(msgs))
+	out = append(out, msgs...)
+	// The store query already orders by turn_index; the cache branch iterates
+	// a map, so the sort is what makes both paths agree.
+	sort.SliceStable(out, func(i, j int) bool {
+		return out[i].Data.TurnIndex < out[j].Data.TurnIndex
+	})
+	return out
+}
+
+func (v *granolaRead) storeChatMessages() []granola.ChatMessage {
+	if v == nil || v.store == nil {
+		return nil
+	}
+	rows, err := v.store.DB().QueryContext(v.ctx, `
+		SELECT id, thread_id, role, turn_index, content, created_at
+		FROM chat_messages
+		ORDER BY thread_id ASC, turn_index ASC
+	`)
+	if err != nil {
+		return nil
+	}
+	return scanChatMessages(rows)
+}
+
+func (v *granolaRead) storeChatMessagesForThread(threadID string) []granola.ChatMessage {
+	if v == nil || v.store == nil {
+		return nil
+	}
+	rows, err := v.store.DB().QueryContext(v.ctx, `
+		SELECT id, thread_id, role, turn_index, content, created_at
+		FROM chat_messages
+		WHERE thread_id = ?
+		ORDER BY turn_index ASC
+	`, threadID)
+	if err != nil {
+		return nil
+	}
+	return scanChatMessages(rows)
+}
+
+// scanChatMessages rebuilds the cache-shaped ChatMessage the CLI already
+// speaks from a chat_messages row set, and closes rows.
+func scanChatMessages(rows *sql.Rows) []granola.ChatMessage {
+	defer rows.Close()
+	var out []granola.ChatMessage
+	for rows.Next() {
+		var id, threadID, role, content, createdAt sql.NullString
+		var turnIndex sql.NullInt64
+		if err := rows.Scan(&id, &threadID, &role, &turnIndex, &content, &createdAt); err != nil {
+			return out
+		}
+		out = append(out, granola.ChatMessage{
+			ID:        id.String,
+			CreatedAt: createdAt.String,
+			Data: granola.ChatMessageData{
+				ThreadID:  threadID.String,
+				Role:      role.String,
+				TurnIndex: int(turnIndex.Int64),
+				RawText:   content.String,
+			},
+		})
+	}
+	return out
 }
 
 // backfillDocumentsFromStore reads rows from the meetings table that
@@ -108,8 +1017,23 @@ func backfillDocumentsFromStore(c *granola.Cache) error {
 // openGranolaStore opens (or creates) the SQLite store and ensures the
 // granola-specific schema is in place.
 func openGranolaStore(ctx context.Context) (*store.Store, error) {
-	dbPath := defaultDBPath("granola-pp-cli")
-	if err := os.MkdirAll(strings.TrimSuffix(dbPath, "/data.db"), 0o755); err != nil {
+	return openGranolaStoreAt(ctx, "")
+}
+
+// openGranolaStoreAt opens the Granola domain store at an explicit path,
+// falling back to the default location when dbPath is empty.
+//
+// PATCH(api-list-stage-matches-live-contract): the sync commands expose a
+// --db flag, but it previously reached only the generated generic store, so a
+// caller pointing --db at a scratch database still had the domain tables
+// (meetings, attendees, transcript_segments, folder_memberships) written to
+// the default store. Honoring the override here keeps --db meaningful for the
+// tables the read commands actually consume.
+func openGranolaStoreAt(ctx context.Context, dbPath string) (*store.Store, error) {
+	if dbPath == "" {
+		dbPath = defaultDBPath("granola-pp-cli")
+	}
+	if err := os.MkdirAll(filepath.Dir(dbPath), 0o755); err != nil {
 		return nil, fmt.Errorf("creating data dir: %w", err)
 	}
 	s, err := store.OpenWithContext(ctx, dbPath)

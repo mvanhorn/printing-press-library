@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "api_name": "amplitude",
+  "run_id": "20260622-071511",
+  "source": "local-openapi-spec",
+  "spec_path": "spec.yaml",
+  "summary": "Read-first Amplitude API CLI generated from the saved local OpenAPI spec.",
+  "narrative": {
+    "quickstart": [
+      {
+        "command": "amplitude-pp-cli which --help",
+        "description": "Inspect the agent command-discovery surface."
+      },
+      {
+        "command": "amplitude-pp-cli agent-context --help",
+        "description": "Inspect the structured agent metadata command."
+      }
+    ],
+    "recipes": [
+      {
+        "command": "amplitude-pp-cli sync --help",
+        "description": "Inspect the local SQLite sync framework."
+      },
+      {
+        "command": "amplitude-pp-cli analytics --help",
+        "description": "Inspect the read-only SQL analytics surface."
+      }
+    ]
+  }
+}

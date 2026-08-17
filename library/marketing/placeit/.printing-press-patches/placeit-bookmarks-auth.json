@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "placeit-bookmarks-auth",
+  "applied_at": "2026-06-16",
+  "base_run_id": "20260616-010520-922cfd05",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Replaced the generated promoted bookmarks command with a hand-built one that auto-resolves user_id from the account endpoint and degrades gracefully when not signed in.",
+  "reason": "The bookmarked_stages_from_user endpoint requires the caller's own user_id (an int) plus a logged-in cookie session; the generated promoted command required a UUID-shaped --user-id flag and errored (exit 5) without a session, failing the live dogfood matrix.",
+  "files": ["internal/cli/placeit_bookmarks.go", "internal/cli/root.go"],
+  "validated_outcome": "bookmarks now resolves user_id from account; returns a clear hint + [] + exit 0 when anonymous; live dogfood passes."
+}

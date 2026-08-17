@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-17T21:37:29.070978Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "airhint",
+  "display_name": "Airhint",
+  "cli_name": "airhint-pp-cli",
+  "creator": {
+    "handle": "jvm",
+    "name": "jvm"
+  },
+  "owner": "jvm",
+  "printer": "jvm",
+  "printer_name": "jvm",
+  "spec_path": "airhint-browser-sniff-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:83193780333b6c1c9d99d00067c04579b26bbffb96d800f8c02776464ad78cc1",
+  "run_id": "20260617-221742-db6c3453",
+  "category": "travel",
+  "description": "AirHint flight price prediction API — buy/wait recommendations for airline tickets",
+  "mcp_binary": "airhint-pp-mcp",
+  "mcp_tool_count": 7,
+  "mcp_public_tool_count": 7,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Multi-date Prediction Sweep",
+      "command": "workflow predict-sweep",
+      "description": "Sweep buy/wait predictions across a date range for a route, fetching live prices for each date"
+    },
+    {
+      "name": "Multi-route Comparison",
+      "command": "workflow compare-routes",
+      "description": "Compare buy/wait predictions across multiple origin-destination pairs on the same date"
+    },
+    {
+      "name": "Cheapest Window Finder",
+      "command": "workflow cheapest-window",
+      "description": "Find the cheapest departure date in a given month using the cheapest-deal-month and cheapest-airline-deal-month endpoints"
+    }
+  ]
+}

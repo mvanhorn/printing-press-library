@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "ticketdata-pp-mcp",
+  "display_name": "TicketData",
+  "version": "0.1.0",
+  "description": "Every TicketData price signal for any event, performer, or venue, plus a local price-history store for trend math, drift alerts, and cross-event comparisons no ticket tool ships.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/ticketdata-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/ticketdata-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

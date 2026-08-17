@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "placeit-watch-stable-stage-id",
+  "applied_at": "2026-07-20",
+  "base_run_id": "20260616-010520-922cfd05",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Deduplicate watched Placeit templates with the same stable objectID-first identity used by catalog sync.",
+  "reason": "Algolia hits commonly expose objectID without id; stringifying a missing id collapsed distinct templates to <nil>, causing incorrect duplicate suppression and repeated new-template events.",
+  "files": [
+    "internal/cli/watch.go",
+    "internal/cli/watch_test.go"
+  ],
+  "validated_outcome": "Focused watch tests cover objectID, numeric id fallback, and missing identifiers."
+}

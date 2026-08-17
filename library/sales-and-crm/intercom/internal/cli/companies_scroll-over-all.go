@@ -20,17 +20,16 @@ func newCompaniesScrollOverAllCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  intercom-pp-cli companies scroll-over-all",
 		Annotations: map[string]string{"pp:endpoint": "companies.scroll-over-all", "pp:method": "GET", "pp:path": "/companies/scroll", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			path := "/companies/scroll"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/companies/scroll"
 			params := map[string]string{}
 			if flagScrollParam != "" {
-				params["scroll_param"] = fmt.Sprintf("%v", flagScrollParam)
+				params["scroll_param"] = formatCLIParamValue(flagScrollParam)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "companies", false, path, params, nil, cmd.ErrOrStderr())
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "companies", false, path, params, nil, "data", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -75,7 +74,7 @@ func newCompaniesScrollOverAllCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagScrollParam, "scroll-param", "", "Scroll param")

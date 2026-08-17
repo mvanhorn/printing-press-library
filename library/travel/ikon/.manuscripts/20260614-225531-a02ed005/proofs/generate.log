@@ -1,0 +1,12 @@
+PASS go mod tidy
+PASS ensure safe golang.org/x/net
+PASS govulncheck ./...
+PASS go vet ./...
+PASS go build ./...
+PASS build runnable binary
+PASS ikon-pp-cli --help
+PASS ikon-pp-cli version
+PASS ikon-pp-cli doctor
+agentcookie: skipping ikon (cookie-only or no env-var auth)
+Generated ikon at /Users/pbl-dev/printing-press/.runstate/pbl-415c512c/runs/20260614-225531-a02ed005/working/ikon-pp-cli
+Bundled /Users/pbl-dev/printing-press/.runstate/pbl-415c512c/runs/20260614-225531-a02ed005/working/ikon-pp-cli/build/ikon-pp-mcp-darwin-arm64.mcpb

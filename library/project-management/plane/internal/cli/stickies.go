@@ -12,7 +12,7 @@ func newStickiesCmd(flags *rootFlags) *cobra.Command {
 		Use:         "stickies",
 		Short:       "List, get, create, update, and delete stickies",
 		Hidden:      true,
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
 		RunE:        parentNoSubcommandRunE(flags),
 	}
 

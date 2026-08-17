@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-08-13T22:00:00-03:00",
+  "requested_items": [
+    {"term": "alcool em gel", "quantity": 1},
+    {"term": "guardanapo", "quantity": 1},
+    {"term": "papel toalha", "quantity": 1},
+    {"term": "garrafa grande para beber agua", "quantity": 1},
+    {"term": "esponja", "quantity": 1},
+    {"term": "extensao eletrica ou filtro de linha", "quantity": 1}
+  ],
+  "markets": [
+    {
+      "id": "market-a",
+      "name": "Mercado A",
+      "rating": 4.9,
+      "delivery_fee_brl": 0,
+      "items": [
+        {"term": "alcool em gel", "product_id": "a-1", "product_name": "Álcool em Gel A", "unit_price_brl": 8, "available": true},
+        {"term": "guardanapo", "product_id": "a-2", "product_name": "Guardanapo A", "unit_price_brl": 4, "available": true},
+        {"term": "papel toalha", "product_id": "a-3", "product_name": "Papel Toalha A", "unit_price_brl": 10, "available": true},
+        {"term": "garrafa grande para beber agua", "product_id": "a-4", "product_name": "Garrafa 2 L A", "unit_price_brl": 35, "available": true},
+        {"term": "esponja", "product_id": "a-5", "product_name": "Esponja A", "unit_price_brl": 3, "available": true},
+        {"term": "extensao eletrica ou filtro de linha", "product_id": "a-6", "product_name": "Filtro de Linha A", "unit_price_brl": 25, "available": true}
+      ]
+    },
+    {
+      "id": "market-b",
+      "name": "Mercado B",
+      "rating": 4.8,
+      "delivery_fee_brl": 12,
+      "items": [
+        {"term": "alcool em gel", "product_id": "b-1", "product_name": "Álcool em Gel B", "unit_price_brl": 7, "available": true},
+        {"term": "guardanapo", "product_id": "b-2", "product_name": "Guardanapo B", "unit_price_brl": 3, "available": true},
+        {"term": "papel toalha", "product_id": "b-3", "product_name": "Papel Toalha B", "unit_price_brl": 9, "available": true},
+        {"term": "garrafa grande para beber agua", "product_id": "b-4", "product_name": "Garrafa 2 L B", "unit_price_brl": 30, "available": true},
+        {"term": "esponja", "product_id": "b-5", "product_name": "Esponja B", "unit_price_brl": 2.5, "available": true},
+        {"term": "extensao eletrica ou filtro de linha", "product_id": "b-6", "product_name": "Filtro de Linha B", "unit_price_brl": 22, "available": true}
+      ]
+    },
+    {
+      "id": "market-c",
+      "name": "Mercado C",
+      "rating": 4.7,
+      "delivery_fee_brl": 5,
+      "items": [
+        {"term": "alcool em gel", "product_id": "c-1", "product_name": "Álcool em Gel C", "unit_price_brl": 9, "available": true},
+        {"term": "guardanapo", "product_id": "c-2", "product_name": "Guardanapo C", "unit_price_brl": 3.5, "available": true},
+        {"term": "papel toalha", "product_id": "c-3", "product_name": "Papel Toalha C", "unit_price_brl": 8, "available": true},
+        {"term": "garrafa grande para beber agua", "product_id": "c-4", "product_name": "Garrafa 2 L C", "unit_price_brl": 28, "available": true},
+        {"term": "esponja", "product_id": "c-5", "product_name": "Esponja C", "unit_price_brl": 3, "available": true},
+        {"term": "extensao eletrica ou filtro de linha", "product_id": "c-6", "product_name": "Filtro de Linha C", "unit_price_brl": 20, "available": true}
+      ]
+    }
+  ]
+}

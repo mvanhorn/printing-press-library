@@ -37,6 +37,21 @@ def load_pp(cli_dir: Path) -> dict | None:
         return None
 
 
+def command_dir(cli_dir: Path, binary_name: str) -> Path | None:
+    direct = cli_dir / "cmd" / binary_name
+    if direct.is_dir():
+        return direct
+
+    nested = sorted(
+        path
+        for path in cli_dir.glob(f"*/cmd/{binary_name}")
+        if path.is_dir()
+    )
+    if len(nested) == 1:
+        return nested[0]
+    return None
+
+
 def validate(cli_dir: Path) -> list[str]:
     """Return a list of human-readable problems (empty list = pass)."""
     problems: list[str] = []
@@ -92,7 +107,7 @@ def validate(cli_dir: Path) -> list[str]:
             problems.append(
                 f"server.mcp_config.command {cmd!r} mismatches expected {expected_cmd!r}"
             )
-        if not (cli_dir / "cmd" / expected_mcp).is_dir():
+        if command_dir(cli_dir, expected_mcp) is None:
             problems.append(f"cmd/{expected_mcp} directory is missing")
 
     # user_config keys must match declared auth env vars (when both present).

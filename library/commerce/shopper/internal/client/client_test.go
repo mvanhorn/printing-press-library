@@ -5,9 +5,19 @@ package client
 
 import (
 	"bytes"
+	"context"
+	"encoding/json"
+	"net/http"
+	"net/http/httptest"
+	"net/url"
+	"os"
 	"strings"
 	"testing"
+	"time"
 	"unicode/utf8"
+
+	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/platform"
 )
 
 func TestTruncateBody(t *testing.T) {
@@ -68,5 +78,135 @@ func TestTruncateBody_UTF8RuneAtBoundary(t *testing.T) {
 	// Partial rune must be dropped, not replaced: 4094 valid bytes + "...".
 	if want := 4094 + 3; len(got) != want {
 		t.Fatalf("len = %d, want %d (partial rune should be dropped, not replaced)", len(got), want)
+	}
+}
+
+func TestCacheKeyDelimitsSortedQueryParams(t *testing.T) {
+	t.Parallel()
+
+	c := &Client{BaseURL: "https://api.example.test"}
+	collidingTwoParams := c.cacheKey("/titles", map[string]string{
+		"country": "USAformat",
+		"year":    "bluray",
+	})
+	collidingThreeParams := c.cacheKey("/titles", map[string]string{
+		"country": "USA",
+		"format":  "bluray",
+		"year":    "",
+	})
+	if collidingTwoParams == collidingThreeParams {
+		t.Fatalf("cache keys collided for adjacent query params: %q", collidingTwoParams)
+	}
+
+	first := c.cacheKey("/titles", map[string]string{"format": "4k", "country": "USA"})
+	second := c.cacheKey("/titles", map[string]string{"country": "USA", "format": "4k"})
+	if first != second {
+		t.Fatalf("cache key should be deterministic regardless of map order: %q != %q", first, second)
+	}
+}
+
+func TestPlatformCacheKeyContract(t *testing.T) {
+	newClient := func() *Client {
+		c := &Client{BaseURL: "https://api.example.test"}
+		err := c.BindPlatformSession(&platform.Session{
+			Profile: &platform.Profile{Name: "tenant-a"}, ProfileName: "tenant-a", CLI: "sample", Source: "sample",
+			CredentialFingerprint: "machine-keyed-fingerprint-a",
+			ExpectedIdentity:      map[string]string{"account_id": "a"}, ObservedIdentity: map[string]string{"account_id": "a"},
+			Paths: platform.Paths{CacheDir: t.TempDir()}, GateOutcome: platform.GateVerified,
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		return c
+	}
+	baseClient := newClient()
+	base := baseClient.cacheKeyFor(http.MethodPost, "/v1/items", map[string]string{"page": "1"}, map[string]string{"Revision": "2026-07"}, []byte(`{"query":"a"}`))
+	cases := map[string]func(*Client) string{
+		"profile": func(c *Client) string {
+			c.platformSession.ProfileName = "tenant-b"
+			return c.cacheKeyFor(http.MethodPost, "/v1/items", map[string]string{"page": "1"}, map[string]string{"Revision": "2026-07"}, []byte(`{"query":"a"}`))
+		},
+		"expected identity": func(c *Client) string {
+			c.platformSession.ExpectedIdentity = map[string]string{"account_id": "b"}
+			return c.cacheKeyFor(http.MethodPost, "/v1/items", map[string]string{"page": "1"}, map[string]string{"Revision": "2026-07"}, []byte(`{"query":"a"}`))
+		},
+		"observed identity": func(c *Client) string {
+			c.platformSession.ObservedIdentity = map[string]string{"account_id": "b"}
+			return c.cacheKeyFor(http.MethodPost, "/v1/items", map[string]string{"page": "1"}, map[string]string{"Revision": "2026-07"}, []byte(`{"query":"a"}`))
+		},
+		"credential": func(c *Client) string {
+			c.platformSession.CredentialFingerprint = "machine-keyed-fingerprint-b"
+			return c.cacheKeyFor(http.MethodPost, "/v1/items", map[string]string{"page": "1"}, map[string]string{"Revision": "2026-07"}, []byte(`{"query":"a"}`))
+		},
+		"method": func(c *Client) string {
+			return c.cacheKeyFor(http.MethodGet, "/v1/items", map[string]string{"page": "1"}, map[string]string{"Revision": "2026-07"}, []byte(`{"query":"a"}`))
+		},
+		"endpoint": func(c *Client) string {
+			return c.cacheKeyFor(http.MethodPost, "/v1/orders", map[string]string{"page": "1"}, map[string]string{"Revision": "2026-07"}, []byte(`{"query":"a"}`))
+		},
+		"query": func(c *Client) string {
+			return c.cacheKeyFor(http.MethodPost, "/v1/items", map[string]string{"page": "2"}, map[string]string{"Revision": "2026-07"}, []byte(`{"query":"a"}`))
+		},
+		"body": func(c *Client) string {
+			return c.cacheKeyFor(http.MethodPost, "/v1/items", map[string]string{"page": "1"}, map[string]string{"Revision": "2026-07"}, []byte(`{"query":"b"}`))
+		},
+		"API version header": func(c *Client) string {
+			return c.cacheKeyFor(http.MethodPost, "/v1/items", map[string]string{"page": "1"}, map[string]string{"Revision": "2027-01"}, []byte(`{"query":"a"}`))
+		},
+	}
+	for name, change := range cases {
+		if got := change(newClient()); got == base {
+			t.Errorf("%s did not alter platform cache key", name)
+		}
+	}
+}
+
+func TestMutationInvalidatesOnlyItsResourceTag(t *testing.T) {
+	c := &Client{BaseURL: "https://api.example.test", cacheDir: t.TempDir()}
+	c.writeCache("/v1/orders", nil, json.RawMessage(`{"resource":"orders"}`))
+	c.writeCache("/v1/customers", nil, json.RawMessage(`{"resource":"customers"}`))
+	c.invalidateCacheResource("/v1/orders/123")
+	if _, err := os.Stat(c.cacheResourceDir("/v1/orders")); !os.IsNotExist(err) {
+		t.Fatalf("orders resource cache still exists after invalidation: %v", err)
+	}
+	if _, err := os.Stat(c.cacheResourceDir("/v1/customers")); err != nil {
+		t.Fatalf("unrelated customers resource cache was removed: %v", err)
+	}
+	c.writeCache("/v1/orders", nil, json.RawMessage(`{"resource":"orders"}`))
+	c.invalidateCacheAfterMutation("/v1/orders/123")
+	if _, err := os.Stat(c.cacheResourceDir("/v1/orders")); !os.IsNotExist(err) {
+		t.Fatalf("mutation left the directly affected cache: %v", err)
+	}
+	if _, err := os.Stat(c.cacheResourceDir("/v1/customers")); !os.IsNotExist(err) {
+		t.Fatalf("mutation left a potentially related projection cache: %v", err)
+	}
+}
+
+func TestGetWithHeadersValuesPreservesRepeatedQueryParams(t *testing.T) {
+	t.Parallel()
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		got := r.URL.Query()["format"]
+		if len(got) != 2 || got[0] != "blu-ray" || got[1] != "4k" {
+			t.Fatalf("format query values = %#v, want [blu-ray 4k]", got)
+		}
+		if got := r.URL.Query().Get("country"); got != "US" {
+			t.Fatalf("country = %q, want US", got)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"ok":true}`))
+	}))
+	t.Cleanup(server.Close)
+
+	c := New(&config.Config{BaseURL: server.URL}, time.Second, 0)
+	c.HTTPClient = server.Client()
+	c.NoCache = true
+
+	params := url.Values{
+		"format":  []string{"blu-ray", "4k"},
+		"country": []string{"US"},
+	}
+	if _, err := c.GetWithHeadersValues(context.Background(), "/titles", params, nil); err != nil {
+		t.Fatalf("GetWithHeadersValues returned error: %v", err)
 	}
 }

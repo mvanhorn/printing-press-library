@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "dnsmadeeasy-soa-endpoint-path",
+  "applied_at": "2026-07-10",
+  "base_run_id": "20260709-145756-391a5493",
+  "base_printing_press_version": "4.27.1",
+  "summary": "Corrected the custom SOA endpoint path from /dns/soaRecord to /dns/soa.",
+  "reason": "The authored spec guessed /dns/soaRecord, which returns HTTP 404. Confirmed via signed probe that /dns/soa returns 200. Spec + generated CLI/MCP/sync surfaces corrected; a future regen from the corrected spec reproduces this.",
+  "files": ["spec.yaml", "internal/cli/soa_list.go", "internal/cli/soa_get.go", "internal/cli/soa_create.go", "internal/cli/soa_delete.go", "internal/cli/sync.go", "internal/mcp/tools.go", "tools-manifest.json"],
+  "validated_outcome": "Live: 'soa list' returns HTTP 200 (empty data) instead of 404."
+}

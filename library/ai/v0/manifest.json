@@ -1,0 +1,38 @@
+{
+  "manifest_version": "0.3",
+  "name": "v0-pp-mcp",
+  "display_name": "v0",
+  "version": "0.1.0",
+  "description": "Generate and iterate on web apps with v0 from the terminal: create chats from prompts, stream agent output, sync history to a local SQLite mirror, and track credit spend across models.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/v0-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/v0-pp-mcp",
+      "args": [],
+      "env": {
+        "PRINTING_PRESS_CLIENT_PROFILE": "${user_config.printing_press_client_profile}"
+      }
+    }
+  },
+  "user_config": {
+    "printing_press_client_profile": {
+      "type": "string",
+      "title": "Client profile",
+      "description": "Binds the MCP server to an existing tenant-gated Printing Press client profile.",
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

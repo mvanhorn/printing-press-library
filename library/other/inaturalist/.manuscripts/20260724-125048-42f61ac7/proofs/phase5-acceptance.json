@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "inaturalist",
+  "run_id": "20260724-125048-42f61ac7",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 324,
+  "tests_passed": 324,
+  "tests_skipped": 304,
+  "auth_context": {
+    "type": "api_key"
+  }
+}

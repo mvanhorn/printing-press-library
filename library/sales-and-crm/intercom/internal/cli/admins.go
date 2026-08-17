@@ -9,10 +9,11 @@ import (
 
 func newAdminsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:    "admins",
-		Short:  "Everything about your Admins",
-		Hidden: true,
-		RunE:   parentNoSubcommandRunE(flags),
+		Use:         "admins",
+		Short:       "Everything about your Admins",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newAdminsListCmd(flags))

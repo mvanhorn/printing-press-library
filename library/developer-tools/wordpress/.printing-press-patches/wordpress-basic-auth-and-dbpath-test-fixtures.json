@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "date": "2026-07-28",
+  "base_run_id": "20260720-234423-04493e9c",
+  "base_printing_press_version": "4.29.0",
+  "files": [
+    "internal/cliutil/credentials_test.go",
+    "internal/cli/wordpress_dbpath_test.go"
+  ],
+  "reason": "Generated credential fixtures supplied only the username half of WordPress Basic auth and asserted against undecoded Base64. The database-path test also inherited host data and did not create the per-site mirror required by the production resolution contract.",
+  "validated_outcome": "Basic-auth precedence tests now use a complete username/application-password pair and validate the decoded payload. Database-path resolution runs in an isolated data directory and verifies an existing per-site mirror."
+}

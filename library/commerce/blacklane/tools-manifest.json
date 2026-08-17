@@ -1,7 +1,7 @@
 {
   "api_name": "blacklane",
   "base_url": "https://pricing-bff-api.blacklane.com",
-  "description": "Blacklane chauffeur quotes \u0026 service catalog — upfront fixed-price quotes (transfer \u0026 hourly) and vehicle-class catalog over Blacklane's public pricing BFF.",
+  "description": "Upfront chauffeur quotes from the terminal — transfer and hourly, with a local price history no other tool has.",
   "mcp_ready": "full",
   "http_transport": "standard",
   "auth": {

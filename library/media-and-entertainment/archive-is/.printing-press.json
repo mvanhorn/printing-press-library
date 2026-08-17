@@ -5,6 +5,12 @@
     "handle": "mvanhorn",
     "name": "Matt Van Horn"
   },
+  "contributors": [
+    {
+      "handle": "tmchow",
+      "name": "Trevin Chow"
+    }
+  ],
   "printer": "mvanhorn",
   "printer_name": "Matt Van Horn",
   "printing_press_version": "1.2.1",
@@ -13,5 +19,6 @@
   "spec_source": "internal-yaml",
   "scorecard_total": 82,
   "verify_pass_rate": null,
-  "novel_features_built": 6
+  "novel_features_built": 6,
+  "description": "Bypass paywalls and look up web archives via archive.today. Hero command: find or create an archive for any URL with lookup-before-submit, Wayback Machine fallback, and agent-hints on stderr when called non-interactively."
 }

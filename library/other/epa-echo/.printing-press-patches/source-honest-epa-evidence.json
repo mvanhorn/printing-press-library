@@ -1,0 +1,30 @@
+{
+  "schema_version": 2,
+  "id": "source-honest-epa-evidence",
+  "applied_at": "2026-07-18",
+  "base_run_id": "20260717-002908-3fd3b078",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Keep ECHO timelines, portfolio baselines, examples, and descriptions aligned with the source evidence the CLI actually returns.",
+  "reason": "ECHO ProgramDates are reporting-window metadata rather than enforcement events, new portfolio members have no comparable prior snapshot, coordinate searches require both coordinates, and the DFR endpoint expects a facility identifier rather than a UUID.",
+  "files": [
+    ".printing-press.json",
+    "README.md",
+    "SKILL.md",
+    "examples/facilities.csv",
+    "internal/cli/dossier_diff.go",
+	"internal/cli/agent_context.go",
+    "internal/cli/echo_novel_support.go",
+	"internal/cli/echo_novel_support_test.go",
+	"internal/cli/effluent_trend.go",
+    "internal/cli/enforcement_timeline.go",
+    "internal/cli/enforcement_timeline_test.go",
+    "internal/cli/nearby_explain.go",
+    "internal/cli/promoted_dfr-rest-services-get-dfr.go",
+	"internal/cli/promoted_echo-rest-services-get-qid.go",
+    "internal/cli/root.go",
+	"internal/cli/resolve_facility.go",
+    "internal/cli/watch.go",
+    "internal/cli/watch_test.go"
+  ],
+  "validated_outcome": "Unit tests, go vet, go build, and a live DFR timeline check pass; reporting-window dates no longer appear as enforcement events."
+}

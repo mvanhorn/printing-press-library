@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "lever-loopback-mcp-http-addr",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260807-044310",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Defaulted the streamable-HTTP MCP bind address to 127.0.0.1:7777 instead of :7777.",
+  "reason": "Binding all interfaces triggers Windows firewall prompts and exposes the MCP server to the LAN; loopback is the safe default for a local tool. Mirrors the identical fix already staged in the greenhouse package; multi-CLI template bug.",
+  "files": [
+    "cmd/lever-pp-mcp/main.go"
+  ],
+  "validated_outcome": "go build ./... and go vet ./... pass; .mcpb bundle rebuilt with the fixed binary.",
+  "upstream_issue": null
+}

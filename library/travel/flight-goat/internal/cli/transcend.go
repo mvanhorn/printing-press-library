@@ -8,6 +8,7 @@ package cli
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -247,7 +248,7 @@ Pair with --json and pipe to jq for custom filtering.`,
 
 			departures, err := fetchScheduledDepartures(c, airport, start, end, maxPages)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 
 			minMinutes := int(minHours * 60)
@@ -347,7 +348,7 @@ frequency. Answers "where can I fly nonstop from here, and how long does it take
 			end := time.Now().UTC().Add(48 * time.Hour).Format(time.RFC3339)
 			departures, err := fetchScheduledDepartures(c, airport, start, end, maxPages)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 
 			type destAgg struct {
@@ -465,7 +466,7 @@ command lists the long routes and exits with a helpful message.`,
 			}
 			departures, err := fetchScheduledDepartures(c, airport, start, end, 5)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 
 			seen := map[string]int{}
@@ -491,10 +492,19 @@ command lists the long routes and exits with a helpful message.`,
 				Source        string `json:"price_source,omitempty"`
 			}
 			results := make([]row, 0, len(seen))
+			rateLimited := false
 			for dest, dur := range seen {
 				r := row{
 					Destination:   dest,
 					DurationHours: fmt.Sprintf("%dh%02dm", dur/60, dur%60),
+				}
+				// PATCH(review-2026-08-01): once Google rate-limits, skip the
+				// remaining price lookups (each would re-run the ~19s retry
+				// ladder against the same blocked IP) — mirror the batch
+				// runner's stop-on-429. Route rows still render, priceless.
+				if rateLimited {
+					results = append(results, r)
+					continue
 				}
 				// Best-effort native Google Flights dates query. Time-boxed
 				// per destination so a slow Google response can't tank the
@@ -508,6 +518,10 @@ command lists the long routes and exits with a helpful message.`,
 					Currency:    currencyCode,
 				})
 				cancel()
+				if err != nil && errors.Is(err, gflights.ErrRateLimited) {
+					rateLimited = true
+					fmt.Fprintln(cmd.ErrOrStderr(), "google flights rate limited (HTTP 429); skipping price lookups for the remaining destinations")
+				}
 				if err == nil && dr != nil && len(dr.Dates) > 0 {
 					cheapest := dr.Dates[0]
 					for _, dp := range dr.Dates[1:] {
@@ -566,9 +580,9 @@ func newOntimeNowCmd(flags *rootFlags) *cobra.Command {
 
 			// /airports/{id}/flights/departures gives us live + past for today
 			path := fmt.Sprintf("/airports/%s/flights/departures", airport)
-			raw, err := c.Get(path, map[string]string{"start": start, "end": end, "max_pages": "3"})
+			raw, err := c.Get(cmd.Context(), path, map[string]string{"start": start, "end": end, "max_pages": "3"})
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			var page scheduledDeparturesPage
 			_ = json.Unmarshal(raw, &page)
@@ -656,9 +670,9 @@ computes an on-time percentage. On-time is defined as departure delay <= 15 minu
 				return err
 			}
 
-			raw, err := c.Get(path, map[string]string{"start": start, "end": end, "max_pages": "5"})
+			raw, err := c.Get(cmd.Context(), path, map[string]string{"start": start, "end": end, "max_pages": "5"})
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			var page scheduledDeparturesPage
 			_ = json.Unmarshal(raw, &page)
@@ -773,7 +787,10 @@ Requires 'fli' (pipx install flights) for pricing.`,
 				Currency:      currencyCode,
 			})
 			if err != nil {
-				return fmt.Errorf("google flights search failed: %w", err)
+				// PATCH(review-2026-07-31): route through the shared Google
+				// classifier so a 429 here exits 7 with the pacing hint,
+				// matching the flights/dates contract.
+				return classifyGoogleFlightsErr(fmt.Errorf("google flights search failed: %w", err))
 			}
 
 			c, err := flags.newClient()
@@ -783,7 +800,7 @@ Requires 'fli' (pipx install flights) for pricing.`,
 			start := time.Now().UTC().AddDate(0, 0, -30).Format(time.RFC3339)
 			endDate := time.Now().UTC().Format(time.RFC3339)
 			path := fmt.Sprintf("/airports/%s/flights/to/%s", origin, dest)
-			raw, relErr := c.Get(path, map[string]string{"start": start, "end": endDate, "max_pages": "3"})
+			raw, relErr := c.Get(cmd.Context(), path, map[string]string{"start": start, "end": endDate, "max_pages": "3"})
 			reliabilityByAirline := map[string]float64{}
 			if relErr == nil {
 				var page scheduledDeparturesPage
@@ -885,7 +902,7 @@ When --until-arrival is set (default), it exits when the flight lands.`,
 			checks := 0
 			for {
 				checks++
-				raw, err := c.Get(path, nil)
+				raw, err := c.Get(cmd.Context(), path, nil)
 				if err != nil {
 					fmt.Fprintf(cmd.ErrOrStderr(), "check %d: %v\n", checks, err)
 				} else {
@@ -938,9 +955,9 @@ anyone deciding whether to reroute.`,
 			if err != nil {
 				return err
 			}
-			raw, err := c.Get("/airports/delays", nil)
+			raw, err := c.Get(cmd.Context(), "/airports/delays", nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			var env struct {
 				Delays []map[string]any `json:"delays"`
@@ -990,9 +1007,9 @@ func newResolveCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			raw, err := c.Get(fmt.Sprintf("/flights/%s/canonical", ident), nil)
+			raw, err := c.Get(cmd.Context(), fmt.Sprintf("/flights/%s/canonical", ident), nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			return emitRaw(cmd.OutOrStdout(), flags, raw)
 		},
@@ -1022,13 +1039,13 @@ func newAircraftBioCmd(flags *rootFlags) *cobra.Command {
 				Blocked      json.RawMessage `json:"blocked,omitempty"`
 			}
 			b := bio{Registration: reg}
-			if data, err := c.Get(fmt.Sprintf("/history/aircraft/%s/last_flight", reg), nil); err == nil {
+			if data, err := c.Get(cmd.Context(), fmt.Sprintf("/history/aircraft/%s/last_flight", reg), nil); err == nil {
 				b.LastFlight = data
 			}
-			if data, err := c.Get(fmt.Sprintf("/aircraft/%s/owner", reg), nil); err == nil {
+			if data, err := c.Get(cmd.Context(), fmt.Sprintf("/aircraft/%s/owner", reg), nil); err == nil {
 				b.Owner = data
 			}
-			if data, err := c.Get(fmt.Sprintf("/aircraft/%s/blocked", reg), nil); err == nil {
+			if data, err := c.Get(cmd.Context(), fmt.Sprintf("/aircraft/%s/blocked", reg), nil); err == nil {
 				b.Blocked = data
 			}
 			bts, _ := json.MarshalIndent(b, "", "  ")
@@ -1062,9 +1079,9 @@ func newEtaCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			fRaw, err := c.Get(fmt.Sprintf("/foresight/flights/%s", ident), nil)
+			fRaw, err := c.Get(cmd.Context(), fmt.Sprintf("/foresight/flights/%s", ident), nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			var env struct {
 				Flights []scheduledDeparture `json:"flights"`
@@ -1083,7 +1100,7 @@ func newEtaCmd(flags *rootFlags) *cobra.Command {
 			}
 			r := result{Ident: ident, Destination: destCode, ETA: d.ScheduledOn}
 			if destCode != "" {
-				if wRaw, err := c.Get(fmt.Sprintf("/airports/%s/weather/forecast", destCode), nil); err == nil {
+				if wRaw, err := c.Get(cmd.Context(), fmt.Sprintf("/airports/%s/weather/forecast", destCode), nil); err == nil {
 					r.Weather = wRaw
 				}
 			}
@@ -1138,7 +1155,10 @@ price is below the threshold.`,
 				Currency:      currencyCode,
 			})
 			if err != nil {
-				return fmt.Errorf("google flights search failed: %w", err)
+				// PATCH(review-2026-07-31): route through the shared Google
+				// classifier so a 429 here exits 7 with the pacing hint,
+				// matching the flights/dates contract.
+				return classifyGoogleFlightsErr(fmt.Errorf("google flights search failed: %w", err))
 			}
 			out, err := json.MarshalIndent(result, "", "  ")
 			if err != nil {
@@ -1166,7 +1186,7 @@ price is below the threshold.`,
 
 func fetchScheduledDepartures(c *client.Client, airport, start, end string, maxPages int) ([]scheduledDeparture, error) {
 	path := fmt.Sprintf("/airports/%s/flights/scheduled_departures", airport)
-	raw, err := c.Get(path, map[string]string{
+	raw, err := c.Get(context.Background(), path, map[string]string{
 		"start":     start,
 		"end":       end,
 		"max_pages": strconv.Itoa(maxPages),

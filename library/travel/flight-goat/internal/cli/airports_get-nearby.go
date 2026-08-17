@@ -23,9 +23,15 @@ func newAirportsGetNearbyCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "get-nearby",
 		Short:       "Returns a list of airports located within a given distance from the given location.",
-		Example:     "  flight-goat-pp-cli airports get-nearby",
-		Annotations: map[string]string{"pp:endpoint": "airports.get-nearby", "mcp:read-only": "true"},
+		Example:     "  flight-goat-pp-cli airports get-nearby --latitude 42 --longitude 42 --radius 42",
+		Annotations: map[string]string{"pp:endpoint": "airports.get-nearby", "pp:method": "GET", "pp:path": "/airports/nearby", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Bare invocation of a command with required input prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only read commands fall through so a bare call still executes.
+			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
+				return cmd.Help()
+			}
 			if !cmd.Flags().Changed("latitude") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "latitude")
 			}
@@ -35,33 +41,38 @@ func newAirportsGetNearbyCmd(flags *rootFlags) *cobra.Command {
 			if !cmd.Flags().Changed("radius") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "radius")
 			}
+			path := "/airports/nearby"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/airports/nearby"
-			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "airports", path, map[string]string{
-				"latitude":  fmt.Sprintf("%v", flagLatitude),
-				"longitude": fmt.Sprintf("%v", flagLongitude),
-				"radius":    fmt.Sprintf("%v", flagRadius),
-				"only_iap":  fmt.Sprintf("%v", flagOnlyIap),
-				"max_pages": fmt.Sprintf("%v", flagMaxPages),
-				"cursor":    fmt.Sprintf("%v", flagCursor),
-			}, nil, flagAll, "cursor", "", "")
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "airports", path, map[string]string{
+				"latitude":  formatCLIParamValue(flagLatitude),
+				"longitude": formatCLIParamValue(flagLongitude),
+				"radius":    formatCLIParamValue(flagRadius),
+				"only_iap":  formatCLIParamValue(flagOnlyIap),
+				"max_pages": formatCLIParamValue(flagMaxPages),
+				"cursor":    formatCLIParamValue(flagCursor),
+			}, nil, flagAll, "cursor", "cursor", "", 100, "", "", cmd.ErrOrStderr())
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
 			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
+			// --plain) opt out of the auto-JSON path so piped consumers that asked for
+			// a non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -87,7 +98,7 @@ func newAirportsGetNearbyCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().Float64Var(&flagLatitude, "latitude", 0.0, "The latitude of the point used to search for nearby airports")

@@ -57,6 +57,45 @@ func TestKey_OverrideRejectsWrongLength(t *testing.T) {
 	}
 }
 
+// PATCH(dek-migration): the override has to stay ahead of the scheme
+// classification. It is not only a test seam - the upstream migration
+// imports the existing DEK rather than generating a new one, so a
+// pre-migration storage.dek recovered from a backup still decrypts
+// today's files when supplied this way.
+func TestKey_OverrideWinsWhenStorageDEKAbsent(t *testing.T) {
+	t.Setenv("GRANOLA_SUPPORT_DIR", t.TempDir())
+	withDEKOverride(t)
+	got, err := Key()
+	if err != nil {
+		t.Fatalf("Key() error with override and no storage.dek: %v", err)
+	}
+	if len(got) != dekLen {
+		t.Fatalf("Key() length %d, expected %d", len(got), dekLen)
+	}
+}
+
+// TestSchemeMigratedError_AlsoReportsKeyUnavailable pins a deliberate
+// relationship: the migrated-scheme error is a refinement of "key
+// unavailable", not a replacement for it. Callers that only know the older
+// sentinel (workos.go's plaintext supabase.json fallback) must keep
+// matching, or adding the classification would silently remove a working
+// path.
+func TestSchemeMigratedError_AlsoReportsKeyUnavailable(t *testing.T) {
+	err := newMigratedSchemeError("synthetic state")
+	if !errors.Is(err, ErrSchemeMigrated) {
+		t.Error("migrated-scheme error should match ErrSchemeMigrated")
+	}
+	if !errors.Is(err, ErrKeyUnavailable) {
+		t.Error("migrated-scheme error should also match ErrKeyUnavailable")
+	}
+	if errors.Is(err, ErrDecryptFailed) {
+		t.Error("migrated-scheme error should not match ErrDecryptFailed")
+	}
+	if strings.Contains(err.Error(), "\n") {
+		t.Errorf("error message should be a single line, got: %q", err.Error())
+	}
+}
+
 func TestDecrypt_FixtureSupabase(t *testing.T) {
 	withDEKOverride(t)
 	cipher := readFixture(t, "fixture-supabase.enc")

@@ -1,0 +1,306 @@
+{
+  "api_name": "metacritic",
+  "base_url": "https://backend.metacritic.com",
+  "description": "Undocumented internal JSON API powering metacritic.com (a Fandom property).\nReverse-engineered from the site's public web client. Every request carries a\nshared public `apiKey` that the site embeds in its own JavaScript bundle, so no\nuser credentials are required for read access.\n\nOne backend (`backend.metacritic.com`) serves every media type. The `mcoTypeId`\nquery parameter selects the medium on the browse endpoint: 1 = TV shows,\n2 = movies, 13 = games. The `{mediaType}` path segment (`games`, `movies`,\n`shows`) selects the medium on the title-detail, filters, and review endpoints.\n\nThe non-obvious insight: Metacritic is not just a review aggregator, it is a\ncross-media taste graph. Every gap between a title's Metascore (critics) and\nuser score is a signal about critic-audience divergence.\n\nScope: this spec covers games, movies, and TV shows plus search, filters, title\ndetail, and critic/user reviews. Music (albums) is served through a separate\nquery shape and is intentionally left as a follow-up.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "apiKey",
+    "in": "query",
+    "env_vars": [
+      "METACRITIC_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "METACRITIC_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "composer_get-title",
+      "description": "Returns the full composed detail payload for a title, including Metascore, user score, summary, release data, and platform/genre metadata. Required: mediaType (default: games), slug, apiKey.",
+      "method": "GET",
+      "path": "/composer/metacritic/pages/{mediaType}/{slug}/web",
+      "params": [
+        {
+          "name": "mediaType",
+          "type": "string",
+          "location": "path",
+          "description": "Medium: games, movies, or shows",
+          "required": true
+        },
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "URL slug of the title (e.g. the-legend-of-zelda-ocarina-of-time-1998)",
+          "required": true
+        },
+        {
+          "name": "apiKey",
+          "type": "string",
+          "location": "query",
+          "description": "Shared public web key embedded in the metacritic.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "finder_browse-titles",
+      "description": "Paginated, sortable list of titles for one medium. `mcoTypeId` selects the medium (1 = TV shows, 2 = movies, 13 = games). Powers the /browse/ pages. Required: apiKey, mcoTypeId (default: 13). Optional: offset (default: 0), limit (default: 24), sortBy (default: -metaScore) (plus 4 more). Returns the TitleListResponse.",
+      "method": "GET",
+      "path": "/finder/metacritic/web",
+      "params": [
+        {
+          "name": "apiKey",
+          "type": "string",
+          "location": "query",
+          "description": "Shared public web key embedded in the metacritic.",
+          "required": true
+        },
+        {
+          "name": "mcoTypeId",
+          "type": "int",
+          "location": "query",
+          "description": "Media type: 1 = TV shows, 2 = movies, 13 = games",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset (0-based)"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page"
+        },
+        {
+          "name": "sortBy",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix with '-' for descending (e.g. -metaScore)"
+        },
+        {
+          "name": "releaseYearMin",
+          "type": "int",
+          "location": "query",
+          "description": "Earliest release year to include"
+        },
+        {
+          "name": "releaseYearMax",
+          "type": "int",
+          "location": "query",
+          "description": "Latest release year to include"
+        },
+        {
+          "name": "componentName",
+          "type": "string",
+          "location": "query",
+          "description": "Fixed component identifier required by the backend"
+        },
+        {
+          "name": "componentType",
+          "type": "string",
+          "location": "query",
+          "description": "Fixed component type required by the backend"
+        }
+      ]
+    },
+    {
+      "name": "finder_list-filters",
+      "description": "Returns the filter facets (genres, platforms, streaming networks, product types) valid for the given medium. Required: mediaType (default: games), apiKey. Optional: componentName (default: finder-filters), componentType (default: FilterList).",
+      "method": "GET",
+      "path": "/finder/metacritic/filters/{mediaType}/web",
+      "params": [
+        {
+          "name": "mediaType",
+          "type": "string",
+          "location": "path",
+          "description": "Medium: games, movies, or shows",
+          "required": true
+        },
+        {
+          "name": "apiKey",
+          "type": "string",
+          "location": "query",
+          "description": "Shared public web key embedded in the metacritic.",
+          "required": true
+        },
+        {
+          "name": "componentName",
+          "type": "string",
+          "location": "query",
+          "description": "Component name"
+        },
+        {
+          "name": "componentType",
+          "type": "string",
+          "location": "query",
+          "description": "Component type"
+        }
+      ]
+    },
+    {
+      "name": "finder_search-titles",
+      "description": "Full-text search spanning games, movies, TV, and people. Required: query, apiKey. Optional: offset (default: 0), limit (default: 24), componentName (default: search) (plus 1 more). Returns the TitleListResponse.",
+      "method": "GET",
+      "path": "/finder/metacritic/search/{query}/web",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "path",
+          "description": "Search text",
+          "required": true
+        },
+        {
+          "name": "apiKey",
+          "type": "string",
+          "location": "query",
+          "description": "Shared public web key embedded in the metacritic.",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "componentName",
+          "type": "string",
+          "location": "query",
+          "description": "Component name"
+        },
+        {
+          "name": "componentType",
+          "type": "string",
+          "location": "query",
+          "description": "Component type"
+        }
+      ]
+    },
+    {
+      "name": "reviews_list-critic",
+      "description": "List critic reviews for a title. Required: mediaType (default: games), slug, apiKey. Optional: offset (default: 0), limit (default: 50), componentName (default: critic-reviews) (plus 1 more). Returns the ReviewListResponse.",
+      "method": "GET",
+      "path": "/reviews/metacritic/critic/{mediaType}/{slug}/web",
+      "params": [
+        {
+          "name": "mediaType",
+          "type": "string",
+          "location": "path",
+          "description": "Medium: games, movies, or shows",
+          "required": true
+        },
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "URL slug of the title (e.g. the-legend-of-zelda-ocarina-of-time-1998)",
+          "required": true
+        },
+        {
+          "name": "apiKey",
+          "type": "string",
+          "location": "query",
+          "description": "Shared public web key embedded in the metacritic.",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "componentName",
+          "type": "string",
+          "location": "query",
+          "description": "Component name"
+        },
+        {
+          "name": "componentType",
+          "type": "string",
+          "location": "query",
+          "description": "Component type"
+        }
+      ]
+    },
+    {
+      "name": "reviews_list-user",
+      "description": "List user reviews for a title. Required: mediaType (default: games), slug, apiKey. Optional: offset (default: 0), limit (default: 50), componentName (default: user-reviews) (plus 1 more). Returns the ReviewListResponse.",
+      "method": "GET",
+      "path": "/reviews/metacritic/user/{mediaType}/{slug}/web",
+      "params": [
+        {
+          "name": "mediaType",
+          "type": "string",
+          "location": "path",
+          "description": "Medium: games, movies, or shows",
+          "required": true
+        },
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "URL slug of the title (e.g. the-legend-of-zelda-ocarina-of-time-1998)",
+          "required": true
+        },
+        {
+          "name": "apiKey",
+          "type": "string",
+          "location": "query",
+          "description": "Shared public web key embedded in the metacritic.",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "componentName",
+          "type": "string",
+          "location": "query",
+          "description": "Component name"
+        },
+        {
+          "name": "componentType",
+          "type": "string",
+          "location": "query",
+          "description": "Component type"
+        }
+      ]
+    }
+  ]
+}

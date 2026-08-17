@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "soccer-goat-go-directive-security",
+  "applied_at": "2026-07-12",
+  "base_run_id": "20260712-074136",
+  "base_printing_press_version": "4.27.1",
+  "summary": "Bump the go.mod go directive from 1.26.4 to 1.26.5.",
+  "reason": "The 1.26.4 directive made GOTOOLCHAIN=auto build with crypto/tls@go1.26.4, which govulncheck flags for GO-2026-5856 (fixed in 1.26.5); the MCP server reaches tls.HandshakeContext so the finding is reachable.",
+  "files": ["go.mod"],
+  "validated_outcome": "govulncheck ./... reports No vulnerabilities found.",
+  "upstream_issue": ""
+}

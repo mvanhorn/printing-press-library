@@ -25,7 +25,7 @@ import (
 func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("companies_search",
-			mcplib.WithDescription("Search for companies matching a name; returns identifyingName domains usable with reviews fetch. Required: search_build_id, query."),
+			mcplib.WithDescription("Search for companies matching a name; returns identifyingName domains usable with reviews-fetch. Required: search_build_id, query."),
 			mcplib.WithString("search_build_id", mcplib.Required(), mcplib.Description("Next.js search-pages build id")),
 			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Company name or fragment")),
 			mcplib.WithReadOnlyHintAnnotation(true),
@@ -36,7 +36,7 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("reviews_list",
-			mcplib.WithDescription("Fetch a page of reviews for a company by domain (use 'reviews fetch <domain>' from the CLI). Authenticated via aws-waf-token cookie harvested with auth login. Required: review_build_id, domain, businessUnit. Optional: page (default: 1), stars, languages (plus 3 more). Returns the ReviewPage."),
+			mcplib.WithDescription("Fetch a page of reviews for a company by domain (use 'reviews-fetch <domain>' from the CLI). Authenticated via aws-waf-token cookie harvested with auth login. Required: review_build_id, domain, businessUnit. Optional: page (default: 1), stars, languages (plus 3 more). Returns the ReviewPage."),
 			mcplib.WithString("review_build_id", mcplib.Required(), mcplib.Description("Next.js review-pages build id (harvested at session start)")),
 			mcplib.WithString("domain", mcplib.Required(), mcplib.Description("Trustpilot company domain (e.g. www.thriftbooks.com)")),
 			mcplib.WithString("businessUnit", mcplib.Required(), mcplib.Description("Same as domain; Trustpilot wire param")),

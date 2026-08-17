@@ -78,5 +78,6 @@
       "command": "play-trend",
       "description": "Show concurrent-player count over time for one app as a sparkline plus min/max/last over a rolling window — value scales with how often you sample."
     }
-  ]
+  ],
+  "description": "Look up Steam players, games, achievements, friends, and stats from the command line"
 }

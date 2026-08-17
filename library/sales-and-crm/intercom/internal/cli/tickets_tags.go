@@ -9,9 +9,10 @@ import (
 
 func newTicketsTagsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "tags",
-		Short: "Create and delete tags for tickets",
-		RunE:  parentNoSubcommandRunE(flags),
+		Use:         "tags",
+		Short:       "Create and delete tags for tickets",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newTicketsTagsAttachToTicketCmd(flags))

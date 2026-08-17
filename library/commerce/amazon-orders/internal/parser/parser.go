@@ -31,8 +31,10 @@ var asinRegex = regexp.MustCompile(`/dp/([A-Z0-9]{10})`)
 // "$1,234.56", "-₹1,234.56", "Rs. 999.00", "INR 2,500.00").
 var moneyRegex = regexp.MustCompile(`(?i)(-?)\s*(₹|rs\.?|inr|\$|£|€)\s*([0-9][0-9,]*(?:\.\d{2})?)`)
 
-// dateLikeRegex tolerates "May 5, 2026", "May 5", "Jan 1, 2026".
-var dateLikeRegex = regexp.MustCompile(`\b(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+\d{1,2}(?:,\s*\d{4})?\b`)
+// dateLikeRegex tolerates both US month-first ("May 5, 2026", "May 5") and
+// non-US day-first ("5 May 2026", "16 June") layouts. amazon.in and other
+// international marketplaces render the day-first form.
+var dateLikeRegex = regexp.MustCompile(`\b(?:\d{1,2}\s+(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)(?:\s+\d{4})?|(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+\d{1,2}(?:,\s*\d{4})?)\b`)
 
 // last4Regex matches "ending in 1234" or "****1234" payment hints.
 var last4Regex = regexp.MustCompile(`(?:ending in|ending|\*+)\s*(\d{4})`)
@@ -126,13 +128,21 @@ func Attr(n *html.Node, key string) string {
 }
 
 // Text returns the concatenated text content of n with whitespace collapsed.
-// Wraps cliutil.CleanText for HTML entity unescaping.
+// Wraps cliutil.CleanText for HTML entity unescaping. <script>/<style>/<noscript>
+// subtrees are skipped: Amazon inlines JSON and JS (containing tokens like "$0"
+// and "total") inside order cards, which otherwise pollute label/money scans.
 func Text(n *html.Node) string {
 	if n == nil {
 		return ""
 	}
 	var sb strings.Builder
 	Walk(n, func(x *html.Node) bool {
+		if x.Type == html.ElementNode {
+			switch x.Data {
+			case "script", "style", "noscript":
+				return false // skip this subtree entirely
+			}
+		}
 		if x.Type == html.TextNode {
 			sb.WriteString(x.Data)
 			sb.WriteString(" ")
@@ -205,7 +215,10 @@ func currencyForMoneyToken(token string) string {
 	case "₹", "RS", "RS.", "INR":
 		return "INR"
 	case "$":
-		return "USD"
+		// "$" is ambiguous: USD (amazon.com), CAD (amazon.ca), AUD (amazon.com.au),
+		// MXN (amazon.com.mx). Return "" so callers fall back to MarketplaceCurrency
+		// instead of pinning to USD.
+		return ""
 	case "£":
 		return "GBP"
 	case "€":
@@ -227,7 +240,14 @@ func ParseDate(s string) time.Time {
 	if i := strings.Index(s, " - "); i >= 0 {
 		s = strings.TrimSpace(s[i+3:])
 	}
-	formats := []string{"January 2, 2006", "Jan 2, 2006", "January 2", "Jan 2"}
+	formats := []string{
+		// ISO (the form OrderSummary.PlacedDate is normalized to).
+		"2006-01-02",
+		// US month-first
+		"January 2, 2006", "Jan 2, 2006", "January 2", "Jan 2",
+		// Non-US day-first (amazon.in et al.): "16 June 2026", "5 May"
+		"2 January 2006", "2 Jan 2006", "2 January", "2 Jan",
+	}
 	for _, f := range formats {
 		if t, err := time.Parse(f, s); err == nil {
 			// If year is missing, assume current year.

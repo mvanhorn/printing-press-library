@@ -8,7 +8,9 @@ package store
 
 import (
 	"context"
+	"crypto/sha256"
 	"database/sql"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -628,6 +630,22 @@ func extractObjectID(obj map[string]any) string {
 	return ""
 }
 
+// PATCH(hacktivity-synthetic-id): YesWeHack hacktivity rows currently have no
+// stable upstream primary key. Without a deterministic synthetic key, sync and
+// write-through caching drop every row before the local analysis commands can
+// use them.
+func syntheticObjectID(resourceType string, obj map[string]any) string {
+	if resourceType != "hacktivity" {
+		return ""
+	}
+	encoded, err := json.Marshal(obj)
+	if err != nil || len(encoded) == 0 || string(encoded) == "{}" {
+		return ""
+	}
+	sum := sha256.Sum256(append([]byte(resourceType+"\x00"), encoded...))
+	return "hacktivity:" + hex.EncodeToString(sum[:12])
+}
+
 // ftsRowID derives a deterministic rowid from a string ID for use with FTS5.
 // modernc.org/sqlite's FTS5 implementation may not support DELETE WHERE column=?
 // on virtual tables, so we use explicit rowids and DELETE WHERE rowid=? instead.
@@ -748,6 +766,9 @@ func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, 
 					}
 				}
 			}
+		}
+		if id == "" {
+			id = syntheticObjectID(resourceType, obj)
 		}
 		if id == "" {
 			skippedCount++

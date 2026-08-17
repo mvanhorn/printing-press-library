@@ -1,0 +1,21 @@
+# Compiled binary
+/productive-pp-cli
+/productive-cli
+# goreleaser staging + MCPB bundle
+/build/
+# Local data / caches
+*.db
+*.sqlite
+# Live-data exports (never commit client data)
+*.jsonl
+*.csv
+# Build / verification reports.
+# dogfood-results.json and workflow-verify-report.json are publish evidence and
+# are committed on purpose — PR triage requires them, and they are the only
+# record of what the structural gates said about the tree that shipped. The
+# generated template ignored them, which is why this CLI first arrived without
+# either file. apify-actor-audit-report.json stays ignored: this CLI is not
+# actor-backed, so its report carries no signal.
+/apify-actor-audit-report.json
+# Archived run manuscripts (may contain client data)
+/.manuscripts/

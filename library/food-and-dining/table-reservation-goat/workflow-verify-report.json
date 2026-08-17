@@ -1,8 +1,0 @@
-{
-  "dir": "/Users/pejman/printing-press/library/table-reservation-goat",
-  "workflows": null,
-  "verdict": "workflow-pass",
-  "issues": [
-    "no workflow manifest found, skipping"
-  ]
-}

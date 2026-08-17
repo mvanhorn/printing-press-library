@@ -1,0 +1,73 @@
+{
+  "api_name": "authentik",
+  "novelty_score": 0,
+  "alternatives": null,
+  "gaps": null,
+  "patterns": null,
+  "recommendation": "",
+  "researched_at": "0001-01-01T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "Operator health snapshot",
+      "command": "health",
+      "description": "Joins admin/system + tasks + workers + version into a single agent-readable summary",
+      "rationale": "No single authentik endpoint returns this; we aggregate locally"
+    },
+    {
+      "name": "Stale token audit",
+      "command": "tokens stale",
+      "description": "Find API tokens whose owners have not used them in N days",
+      "rationale": "Requires local join of tokens table + login events not available in any single endpoint"
+    },
+    {
+      "name": "Unused application audit",
+      "command": "apps unused",
+      "description": "List applications with no successful login in N days",
+      "rationale": "Requires local join of applications + filtered events table"
+    },
+    {
+      "name": "User group flattener",
+      "command": "users groups",
+      "description": "Recursively expand a user's group memberships including inherited roles",
+      "rationale": "authentik API returns direct groups only; we walk parents locally"
+    },
+    {
+      "name": "Flow stage map",
+      "command": "flows map",
+      "description": "Render a flow with its ordered stage bindings as a tree",
+      "rationale": "Local join of flow_stage_bindings + stages tables"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Operator health snapshot",
+      "command": "health",
+      "description": "Joins admin/system + tasks + workers + version into a single agent-readable summary",
+      "rationale": "No single authentik endpoint returns this; we aggregate locally"
+    },
+    {
+      "name": "Stale token audit",
+      "command": "tokens stale",
+      "description": "Find API tokens whose owners have not used them in N days",
+      "rationale": "Requires local join of tokens table + login events not available in any single endpoint"
+    },
+    {
+      "name": "Unused application audit",
+      "command": "apps unused",
+      "description": "List applications with no successful login in N days",
+      "rationale": "Requires local join of applications + filtered events table"
+    },
+    {
+      "name": "User group flattener",
+      "command": "users groups",
+      "description": "Recursively expand a user's group memberships including inherited roles",
+      "rationale": "authentik API returns direct groups only; we walk parents locally"
+    },
+    {
+      "name": "Flow stage map",
+      "command": "flows map",
+      "description": "Render a flow with its ordered stage bindings as a tree",
+      "rationale": "Local join of flow_stage_bindings + stages tables"
+    }
+  ]
+}

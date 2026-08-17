@@ -9,9 +9,10 @@ import (
 
 func newConversationsReplyCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "reply",
-		Short: "Create reply for conversations",
-		RunE:  parentNoSubcommandRunE(flags),
+		Use:         "reply",
+		Short:       "Create reply for conversations",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newConversationsReplyConversationCmd(flags))

@@ -1,0 +1,266 @@
+{
+  "api_name": "parallel",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "parallel-cli",
+      "url": "https://github.com/parallel-web/parallel-web-tools",
+      "language": "Python",
+      "install_method": "",
+      "stars": 42,
+      "last_updated": "",
+      "command_count": 20,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "@rikalabs/parallel",
+      "url": "https://github.com/Rika-Labs/parallel",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "parallel-agent-skills",
+      "url": "https://github.com/parallel-web/parallel-agent-skills",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 59,
+      "last_updated": "",
+      "command_count": 10,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "parallel-sdk-python",
+      "url": "https://github.com/parallel-web/parallel-sdk-python",
+      "language": "Python",
+      "install_method": "",
+      "stars": 26,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-20T14:59:23Z",
+  "novel_features": [
+    {
+      "name": "Research session stitch",
+      "command": "session stitch",
+      "description": "Bind search, extract, and task/findall runs into one local session chain for agent resume.",
+      "rationale": "Only possible with a local multi-entity session graph joining Product call IDs.",
+      "example": "parallel-pp-cli session stitch --search-id search_demo --json --agent",
+      "why_it_matters": "Use when an agent needs to resume a multi-step Parallel research loop without re-fetching.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Balance-aware run cost guard",
+      "command": "tasks guard",
+      "description": "Refuse Task creates when prepaid balance is below a threshold.",
+      "rationale": "Requires joining Account OAuth balance with Product task intent in one CLI.",
+      "example": "parallel-pp-cli tasks guard --min-balance 500 --dry-run --json --agent",
+      "why_it_matters": "Use before expensive Task Groups when you must avoid surprise credit burn.",
+      "group": "Spend control"
+    },
+    {
+      "name": "Stale monitor event digest",
+      "command": "monitors digest",
+      "description": "Mechanical per-monitor event counts and top titles since a duration window.",
+      "rationale": "Needs local monitor_events aggregation no single list-events call returns.",
+      "example": "parallel-pp-cli monitors digest --since 7d --json --agent",
+      "why_it_matters": "Use for Monday triage of which monitors fired or went quiet.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cross-run research recall",
+      "command": "research recall",
+      "description": "FTS across local searches, extracts, and task summaries with typed hit IDs.",
+      "rationale": "Requires multi-table FTS over a local research store.",
+      "example": "parallel-pp-cli research recall --query \"Anthropic funding\" --json --agent --select hits.source,hits.id,hits.title",
+      "why_it_matters": "Use before paying for a live search when prior local research may already answer.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "FindAll to Task Group promote",
+      "command": "findall promote",
+      "description": "Turn FindAll candidates into a Task Group enrichment job.",
+      "rationale": "Composes local FindAll cache with Product Task Group create in one command.",
+      "example": "parallel-pp-cli findall promote --findall-id findall_demo --limit 10 --json --agent",
+      "why_it_matters": "Use when entity discovery should immediately become batch enrichment.",
+      "group": "Research pipelines"
+    },
+    {
+      "name": "Prepaid burn vs runs",
+      "command": "balance burn",
+      "description": "Diff local balance snapshots against local run volume over a window.",
+      "rationale": "Needs historical balance_snapshots joined to local run tables.",
+      "example": "parallel-pp-cli balance burn --since 7d --json --agent",
+      "why_it_matters": "Use when explaining weekly credit burn without opening the dashboard.",
+      "group": "Spend control"
+    },
+    {
+      "name": "Task interaction lineage",
+      "command": "tasks lineage",
+      "description": "Print the offline previous_interaction_id follow-up chain for a run.",
+      "rationale": "Requires a local interaction graph accumulated across Task creates.",
+      "example": "parallel-pp-cli tasks lineage trun_demo --json --agent",
+      "why_it_matters": "Use when debugging multi-turn deep research context chains offline.",
+      "group": "Research pipelines"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Research session stitch",
+      "command": "session stitch",
+      "description": "Bind search, extract, and task/findall runs into one local session chain for agent resume.",
+      "rationale": "Only possible with a local multi-entity session graph joining Product call IDs.",
+      "example": "parallel-pp-cli session stitch --search-id search_demo --json --agent",
+      "why_it_matters": "Use when an agent needs to resume a multi-step Parallel research loop without re-fetching.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Balance-aware run cost guard",
+      "command": "tasks guard",
+      "description": "Refuse Task creates when prepaid balance is below a threshold.",
+      "rationale": "Requires joining Account OAuth balance with Product task intent in one CLI.",
+      "example": "parallel-pp-cli tasks guard --min-balance 500 --dry-run --json --agent",
+      "why_it_matters": "Use before expensive Task Groups when you must avoid surprise credit burn.",
+      "group": "Spend control"
+    },
+    {
+      "name": "Stale monitor event digest",
+      "command": "monitors digest",
+      "description": "Mechanical per-monitor event counts and top titles since a duration window.",
+      "rationale": "Needs local monitor_events aggregation no single list-events call returns.",
+      "example": "parallel-pp-cli monitors digest --since 7d --json --agent",
+      "why_it_matters": "Use for Monday triage of which monitors fired or went quiet.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cross-run research recall",
+      "command": "research recall",
+      "description": "FTS across local searches, extracts, and task summaries with typed hit IDs.",
+      "rationale": "Requires multi-table FTS over a local research store.",
+      "example": "parallel-pp-cli research recall --query \"Anthropic funding\" --json --agent --select hits.source,hits.id,hits.title",
+      "why_it_matters": "Use before paying for a live search when prior local research may already answer.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "FindAll to Task Group promote",
+      "command": "findall promote",
+      "description": "Turn FindAll candidates into a Task Group enrichment job.",
+      "rationale": "Composes local FindAll cache with Product Task Group create in one command.",
+      "example": "parallel-pp-cli findall promote --findall-id findall_demo --limit 10 --json --agent",
+      "why_it_matters": "Use when entity discovery should immediately become batch enrichment.",
+      "group": "Research pipelines"
+    },
+    {
+      "name": "Prepaid burn vs runs",
+      "command": "balance burn",
+      "description": "Diff local balance snapshots against local run volume over a window.",
+      "rationale": "Needs historical balance_snapshots joined to local run tables.",
+      "example": "parallel-pp-cli balance burn --since 7d --json --agent",
+      "why_it_matters": "Use when explaining weekly credit burn without opening the dashboard.",
+      "group": "Spend control"
+    },
+    {
+      "name": "Task interaction lineage",
+      "command": "tasks lineage",
+      "description": "Print the offline previous_interaction_id follow-up chain for a run.",
+      "rationale": "Requires a local interaction graph accumulated across Task creates.",
+      "example": "parallel-pp-cli tasks lineage trun_demo --json --agent",
+      "why_it_matters": "Use when debugging multi-turn deep research context chains offline.",
+      "group": "Research pipelines"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "PARALLEL_API_KEY"
+  },
+  "narrative": {
+    "display_name": "Parallel",
+    "headline": "Agent-native Parallel web research with a local SQLite memory no other Parallel CLI keeps.",
+    "value_prop": "Search, extract, deep research, FindAll, monitors, and Account balance/apps/keys in one Go binary. Session stitch, research recall, and monitor digests compound every run into offline memory. Product API key auth stays separate from Account OAuth so headline search never requires a dashboard login.",
+    "auth_narrative": "Product commands use PARALLEL_API_KEY via the x-api-key header. Account commands (balance, apps, keys) need an OAuth device-flow Bearer JWT (see docs.parallel.ai/integrations/account-api); a Product API key alone cannot call Account endpoints. Never commit API key values.",
+    "quickstart": [
+      {
+        "command": "parallel-pp-cli doctor --dry-run",
+        "comment": "Verify binary health without spending credits"
+      },
+      {
+        "command": "parallel-pp-cli research recall \"Parallel Web Systems\" --json --agent --select hits.source,hits.id,hits.title",
+        "comment": "Recall prior local research before another paid call"
+      },
+      {
+        "command": "parallel-pp-cli session stitch --help",
+        "comment": "Learn how to bind search/extract/task IDs into one session"
+      },
+      {
+        "command": "parallel-pp-cli monitors digest --since 7d --json --agent",
+        "comment": "Weekly mechanical monitor triage"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Account balance returns 401 with API key",
+        "fix": "Obtain an OAuth device-flow Bearer JWT for Account API; Product PARALLEL_API_KEY cannot call balance"
+      },
+      {
+        "symptom": "Search 401/403",
+        "fix": "Obtain an OAuth device-flow Bearer JWT for Account API; Product PARALLEL_API_KEY cannot call balance"
+      },
+      {
+        "symptom": "Rate limited on Search",
+        "fix": "Back off; Search defaults to 600 POST/min — prefer turbo mode and local research recall"
+      }
+    ],
+    "when_to_use": "Use this CLI for agent-native Parallel web research loops, offline recall of past searches/runs, FindAll-to-enrichment pipelines, monitor digests, and dual-auth Account admin. Prefer official parallel-cli when you need its YAML enrich planner or DuckDB/BigQuery deploy integrations.",
+    "anti_triggers": [
+      "Do not use this CLI as a general web browser or scraper outside Parallel APIs",
+      "Do not use Account balance add for large unattended spends without reviewing idempotency keys",
+      "Do not prefer this over Parallel Search MCP for one-off free anonymous search experiments"
+    ],
+    "recipes": [
+      {
+        "title": "Doctor before spend",
+        "command": "parallel-pp-cli doctor --dry-run",
+        "explanation": "Confirm auth wiring without calling paid endpoints"
+      },
+      {
+        "title": "Recall then decide",
+        "command": "parallel-pp-cli research recall \"Anthropic\" --json --agent --select hits.source,hits.id,hits.title",
+        "explanation": "Check local memory before paying for live Search"
+      },
+      {
+        "title": "Monitor weekly digest",
+        "command": "parallel-pp-cli monitors digest --since 7d --json --agent",
+        "explanation": "Mechanical triage of monitor events"
+      },
+      {
+        "title": "Promote FindAll to enrichment",
+        "command": "parallel-pp-cli findall promote --findall-id findall_demo --limit 5 --json --agent",
+        "explanation": "Entity discovery into Task Group"
+      },
+      {
+        "title": "Balance burn check",
+        "command": "parallel-pp-cli balance burn --since 7d --json --agent",
+        "explanation": "Explain weekly credit burn from local snapshots"
+      }
+    ],
+    "trigger_phrases": [
+      "search the web with Parallel",
+      "Parallel deep research",
+      "FindAll companies with Parallel",
+      "check Parallel balance",
+      "use parallel",
+      "run parallel-pp-cli"
+    ]
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/discogs-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260711-092456-c0435d15",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

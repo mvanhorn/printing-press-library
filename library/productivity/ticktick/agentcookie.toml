@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "ticktick-pp-cli"
+display_name = "TickTick"
+description = "Every TickTick surface — tasks, habits, focus, daily notes — with a corruption-proof daily-note contract and offline analytics no other TickTick tool has."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/ticktick-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+TICKTICK_SESSION_TOKEN = true

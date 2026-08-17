@@ -29,10 +29,12 @@ func newPlansGetPlanCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/v1/plans/{plan}"
-			if len(args) < 2 {
+
+			// PATCH: Bind path placeholders from Cobra positional args in Use order.
+			if len(args) < 1 {
 				return usageErr(fmt.Errorf("plan is required\nUsage: %s <%s>", cmd.CommandPath(), "plan"))
 			}
-			path = replacePathParam(path, "plan", args[1])
+			path = replacePathParam(path, "plan", args[0])
 			params := map[string]string{}
 			if flagExpand != "" {
 				params["expand"] = fmt.Sprintf("%v", flagExpand)

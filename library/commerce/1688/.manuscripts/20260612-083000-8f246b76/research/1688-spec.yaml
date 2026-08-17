@@ -1,0 +1,60 @@
+name: 1688
+description: "1688.com wholesale sourcing CLI: search offers, track suppliers, surface factory and reorder signals"
+version: "0.1.0"
+base_url: "https://h5api.m.1688.com"
+http_transport: standard
+health_check_path: "/h5/mtop.relationrecommend.wirelessrecommend.recommend/2.0/"
+category: commerce
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/1688-pp-cli/config.toml"
+
+resources:
+  offers:
+    description: "Inspect 1688 wholesale offer detail pages"
+    endpoints:
+      detail:
+        method: GET
+        path: "/offer/{offer_id}.html"
+        base_url: "https://detail.1688.com"
+        description: "Fetch a 1688 offer's public detail page by offer ID"
+        params:
+          - name: offer_id
+            type: string
+            required: true
+            positional: true
+            description: "1688 offer ID (e.g. 927875250705)"
+        response_format: html
+        html_extract:
+          mode: page
+        response:
+          type: object
+          item: Offer
+
+types:
+  Offer:
+    fields:
+      - name: offer_id
+        type: string
+      - name: title
+        type: string
+      - name: price_cny
+        type: string
+      - name: moq
+        type: string
+      - name: supplier_name
+        type: string
+      - name: supplier_location
+        type: string
+      - name: transaction_count
+        type: int
+      - name: repurchase_rate
+        type: string
+      - name: is_verified_factory
+        type: bool
+      - name: url
+        type: string

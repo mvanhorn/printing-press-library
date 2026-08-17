@@ -1,0 +1,324 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Aircraft Inquiry</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link href="https://code.jquery.com/ui/1.10.4/themes/ui-lightness/jquery-ui.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.0/themes/prism.min.css">
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js"></script>
+    <script type="text/javascript" src="/aircraftinquiry/javascript/utils.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/themes/prism.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+    <link rel="shortcut icon" type="image/x-icon" href="/aircraftinquiry/images/favicon.ico">
+    <link rel="stylesheet" href="/aircraftinquiry/css/devkitAll.css" type="text/css">
+    <link rel="stylesheet" href="/aircraftinquiry/css/pagination.css" type="text/css" />
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css" integrity="sha384-5sAR7xN1Nv6T6+dT2mhtzEpVJvfS3NScPQTrOxhwjIuvcA67KV2R5Jz6kr4abQsz" crossorigin="anonymous">
+    <link rel="stylesheet" href="/aircraftinquiry/css/Print.css" type="text/css" media="print" />
+
+    
+    <script type="text/javascript">
+    function ExcelClick() {
+            $.getJSON('/aircraftinquiry/BusinessLogic/CreateSerialNumberExcelFile?FileName=SerialNumber&serial=17280005' , function (result)
+            {
+                var data = result.data;
+                var server = result.server;
+                if (data != "" && server !="")
+                {
+                    window.location.href = server + data;
+                }
+            })
+        }
+
+        function CSVClick() {
+            $.getJSON('/aircraftinquiry/BusinessLogic/CreateSerialNumberCSVFile?FileName=SerialNumber&serial=17280005' , function (result)
+            {
+                var data = result.data;
+                var server = result.server;
+                if (data != "" && server !="")
+                {
+                    window.location.href = server + data;
+                }
+            })
+        }
+        function NewSearchClick() {
+            window.location.href =  '/aircraftinquiry/Search/SerialNumberInquiry';
+
+        }
+        function PrintClick() {
+            window.print();
+        }
+    </script>
+
+</head>
+
+<body class="newBody">
+    <script>
+        if (window.devicePixelRatio > 1.0 && navigator.userAgent.search("Chrome") > -1) {
+            $("body").addClass("zoomout");
+        }
+
+        function Search() {
+            var query = document.getElementById("searchField").value;
+            window.location.href = "https://www.faa.gov/search/?omni=MainSearch&q=" + query;
+        }
+
+        function HandleKeyEvent(e) {
+            if (e.keyCode == 13) {
+                Search();
+            }
+        }
+    </script>
+    <div class="devkit-dot-microbar-wrapper">
+        <div class="devkit-dot-microbar">
+            <div class="dot-logo-wrapper"><a href="https://www.transportation.gov/"><img class="logo-dot" src="/aircraftinquiry/images/DOT-name-logo.svg" alt="DOT logo" aria-describedby="dot-logo-title"> <span class="dot-logo-title" id="dot-logo-title">United States Department of Transportation</span></a>            </div>
+            <div class="dot-links-wrapper">
+                <ul class="dot-links">
+                    <li class="dot-link"><a href="https://www.transportation.gov/about">About DOT</a></li>
+                    <li class="dot-link"><a href="https://www.transportation.gov/our-activities">Our Activities</a></li>
+                    <li class="dot-link"><a href="https://www.transportation.gov/areas-of-focus">Areas of Focus</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="ext-header-wrapper">
+        <header class="ext-header">
+            <div class="devkit-mobile-menu" tabindex="0">
+                <div class="devkit-icon-wrapper"><i class="fa fa-bars" aria-hidden="true" title="Menu"></i><span class="devkit-menu-text"></span></div>
+            </div>
+            <div class="devkit-menu-overlay">
+                <nav class="devkit-mobile-menu-items">
+                    <ul class="devkit-nav-links" role="menubar">
+                        <li class="devkit-nav-link" role="none">
+                            <a class="devkit-main-menu-link" role="menuitem" aria-haspopup="true" aria-expanded="false" tabindex="0">Lookup Aircraft By...</a>
+                            <ul class="submenu-nav" role="menu" aria-label="Navigation link">
+                                <li class="devkit-inner-nav-link" role="none"><a class="devkit-submenu-link" role="menuitem" href="/aircraftinquiry/Search/NNumberInquiry">N-Number</a></li>
+                                <li class="devkit-inner-nav-link" role="none"><a class="devkit-submenu-link" role="menuitem" href="/aircraftinquiry/Search/SerialNumberInquiry">Serial Number</a></li>
+                                <li class="devkit-inner-nav-link" role="none"><a class="devkit-submenu-link" role="menuitem" href="/aircraftinquiry/Search/NameInquiry">Name</a></li>
+                                <li class="devkit-inner-nav-link" role="none"><a class="devkit-submenu-link" role="menuitem" href="/aircraftinquiry/Search/MakeModelInquiry">Make / Model</a></li>
+                                <li class="devkit-inner-nav-link" role="none"><a class="devkit-submenu-link" role="menuitem" href="/aircraftinquiry/Search/EngineReferenceInquiry">Engine</a></li>
+                                <li class="devkit-inner-nav-link" role="none"><a class="devkit-submenu-link" role="menuitem" href="/aircraftinquiry/Search/DealerInquiry">Dealer</a></li>
+                                <li class="devkit-inner-nav-link" role="none"><a class="devkit-submenu-link" role="menuitem" href="/aircraftinquiry/Search/DocumentIndexInquiry">Document Index</a></li>
+                                <li class="devkit-inner-nav-link" role="none"><a class="devkit-submenu-link" role="menuitem" href="/aircraftinquiry/Search/StateCountyInquiry">State and County</a></li>
+                                <li class="devkit-inner-nav-link" role="none"><a class="devkit-submenu-link" role="menuitem" href="/aircraftinquiry/Search/CountryInquiry">Territory and Country</a></li>
+                            </ul>
+                        </li>
+                        
+                        <li class="devkit-nav-link" role="none">
+                            <a class="devkit-main-menu-link" role="menuitem" aria-haspopup="true" aria-expanded="false" tabindex="0">N-Numbers</a>
+                            <ul class="submenu-nav" role="menu" aria-label="Navigation link">
+                                <li class="devkit-inner-nav-link" role="none"><a class="devkit-submenu-link" role="menuitem" href="/aircraftinquiry/Search/NNumberAvailabilityInquiry">N-Number Availability</a></li>
+                                <li class="devkit-inner-nav-link" role="none"><a class="devkit-submenu-link" role="menuitem" href="http://aircraft.faa.gov/e.gov/NN/reserve.aspx">Request Special N-Number Online</a></li>
+                                <li class="devkit-inner-nav-link" role="none"><a class="devkit-submenu-link" role="menuitem" href="https://www.faa.gov/licenses_certificates/aircraft_certification/aircraft_registry/special_registration_numbers/">Request Special N-Number In Writing</a></li>
+                                <li class="devkit-inner-nav-link" role="none"><a class="devkit-submenu-link" role="menuitem" href="https://aircraft.faa.gov/e.gov/nr/">Request Special N-Number Online Renewal</a></li>
+                                <li class="devkit-inner-nav-link" role="none"><a class="devkit-submenu-link" role="menuitem" href="https://aircraft.faa.gov/e.gov/nd/">Request For Aircraft Records</a></li>
+                                <li class="devkit-inner-nav-link" role="none"><a class="devkit-submenu-link" role="menuitem" href="https://www.faa.gov/licenses_certificates/aircraft_certification/aircraft_registry/special_nnumbers/">N-Number Format</a></li>
+                            </ul>
+                        </li>
+                        <li class="devkit-nav-link" role="none">
+                            <a class="devkit-main-menu-link" role="menuitem" aria-haspopup="true" aria-expanded="false" tabindex="0">Other Aircraft Resources</a>
+                            <ul class="submenu-nav" role="menu" aria-label="Navigation link">
+                                <li class="devkit-inner-nav-link" role="none"><a class="devkit-submenu-link" role="menuitem" href="https://www.faa.gov/licenses_certificates/aircraft_certification/aircraft_registry/">Aircraft Registration</a></li>
+                                <li class="devkit-inner-nav-link" role="none"><a class="devkit-submenu-link" role="menuitem" href="https://www.faa.gov/licenses_certificates/aircraft_certification/aircraft_registry/releasable_aircraft_download/">Downloadable Aircraft Database</a></li>
+                                <li class="devkit-inner-nav-link" role="none"><a class="devkit-submenu-link" role="menuitem" href="/aircraftinquiry/Search/Definitions">Definitions</a></li>
+                            </ul>
+                        </li>
+
+                    </ul>
+                </nav>
+                <div class="devkit-close-menu"><i class="fa fa-times" aria-hidden="true" title="Close" aria-label="Close" tabindex="0"></i></div>
+                <div class="devkit-close-menu"><i class="fa fa-times" aria-hidden="true" title="Close" aria-label="Close" tabindex="0"></i></div>
+            </div>
+            <div class="devkit-ext-site-logo">
+                <img class="devkit-logo-faa" src="/aircraftinquiry/images/FAA-logo.svg" alt="FAA logo" aria-describedby="devkit-logo-title">
+                <div class="devkit-logo-title" id="devkit-logo-title">FAA</div>
+            </div>
+            <div class="devkit-ext-app-title" style="grid-column:8/ span 9"<a><a href="/aircraftinquiry" style="align-self:center">Aircraft Inquiry</a></a></div>
+            <div class="devkit-search-wrapper" id="devkit-search-wrapper">
+                <input class="devkit-header-search-input" type="text" placeholder="Search" aria-label="Search" role="search" id="searchField" onkeypress="return HandleKeyEvent(event)">
+                <button class="devkit-btn-search" type="submit" aria-label="Search" onclick="Search()">Search</button>
+                <button class="devkit-search-icon" title="Search"><i class="fa fa-search" title="Search icon" aria-label="Search Icon"></i></button>
+                <button class="devkit-close-search" aria-label="close" title="Close"><i class="fa fa-times" title="Close" aria-label="Close"></i></button>
+            </div>
+            <div class="devkit-ext-toolbar-wrapper" id="devkit-toolbar-wrapper">
+                <div class="devkit-toolbar-icon" id="devkit-search-icon-wrapper"><i class="fa fa-search" title="Search" aria-label="Search" aria-haspopup="true" aria-controls="devkit-search-wrapper" tabindex="0"></i><span class="devkit-tool-bar-text devkit-search-text" aria-label="Search">Search</span></div>
+                <div class="devkit-toolbar-icon" id="devkit-help-icon-wrapper" aria-haspopup="true" aria-controls="devkit-help-content-wrapper" tabindex="0">
+                    <i class="far fa-question-circle" aria-hidden="true" title="Contact" aria-label="Contact"></i><span class="devkit-tool-bar-text" aria-label="Contact">Contact</span>
+                    <div class="devkit-ext-help-content-wrapper" id="devkit-help-content-wrapper">
+                        <div class="devkit-help-item-wrapper">
+                            <span class="item-content"><a href="http://www.faa.gov/licenses_certificates/aircraft_certification/aircraft_registry/contact_aircraft_certification/">Aircraft Registration Branch</a></span><br />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+    </div>
+    <nav class="devkit-ext-nav-wrapper" role="navigation">
+        <ul class="devkit-nav-links" role="menubar">
+            <li class="devkit-nav-link" role="none">
+                <a class="devkit-main-menu-link" role="menuitem" aria-haspopup="true" aria-expanded="false" tabindex="0">Lookup Aircraft By...</a>
+                <ul class="submenu-nav" role="menu" aria-label="Navigation link">
+                    <li class="devkit-inner-nav-link" role="none"><a class="devkit-submenu-link" role="menuitem" href="/aircraftinquiry/Search/NNumberInquiry">N-Number</a></li>
+                    <li class="devkit-inner-nav-link" role="none"><a class="devkit-submenu-link" role="menuitem" href="/aircraftinquiry/Search/SerialNumberInquiry">Serial Number</a></li>
+                    <li class="devkit-inner-nav-link" role="none"><a class="devkit-submenu-link" role="menuitem" href="/aircraftinquiry/Search/NameInquiry">Name</a></li>
+                    <li class="devkit-inner-nav-link" role="none"><a class="devkit-submenu-link" role="menuitem" href="/aircraftinquiry/Search/MakeModelInquiry">Make / Model</a></li>
+                    <li class="devkit-inner-nav-link" role="none"><a class="devkit-submenu-link" role="menuitem" href="/aircraftinquiry/Search/EngineReferenceInquiry">Engine</a></li>
+                    <li class="devkit-inner-nav-link" role="none"><a class="devkit-submenu-link" role="menuitem" href="/aircraftinquiry/Search/DealerInquiry">Dealer</a></li>
+                    <li class="devkit-inner-nav-link" role="none"><a class="devkit-submenu-link" role="menuitem" href="/aircraftinquiry/Search/DocumentIndexInquiry">Document Index</a></li>
+                    <li class="devkit-inner-nav-link" role="none"><a class="devkit-submenu-link" role="menuitem" href="/aircraftinquiry/Search/StateCountyInquiry">State and County</a></li>
+                    <li class="devkit-inner-nav-link" role="none"><a class="devkit-submenu-link" role="menuitem" href="/aircraftinquiry/Search/CountryInquiry">Territory and Country</a></li>
+                </ul>
+            </li>
+           
+            <li class="devkit-nav-link" role="none">
+                <a class="devkit-main-menu-link" role="menuitem" aria-haspopup="true" aria-expanded="false" tabindex="0">N-Numbers</a>
+                <ul class="submenu-nav" role="menu" aria-label="Navigation link">
+                    <li class="devkit-inner-nav-link" role="none"><a class="devkit-submenu-link" role="menuitem" href="/aircraftinquiry/Search/NNumberAvailabilityInquiry">N-Number Availability</a></li>
+                    <li class="devkit-inner-nav-link" role="none"><a class="devkit-submenu-link" role="menuitem" href="http://aircraft.faa.gov/e.gov/NN/reserve.aspx">Request Special N-Number Online</a></li>
+                    <li class="devkit-inner-nav-link" role="none"><a class="devkit-submenu-link" role="menuitem" href="https://www.faa.gov/licenses_certificates/aircraft_certification/aircraft_registry/special_registration_numbers/">Request Special N-Number In Writing</a></li>
+                    <li class="devkit-inner-nav-link" role="none"><a class="devkit-submenu-link" role="menuitem" href="https://aircraft.faa.gov/e.gov/nr/">Request Special N-Number Online Renewal</a></li>
+                    <li class="devkit-inner-nav-link" role="none"><a class="devkit-submenu-link" role="menuitem" href="https://aircraft.faa.gov/e.gov/nd/">Request For Aircraft Records</a></li>
+                    <li class="devkit-inner-nav-link" role="none"><a class="devkit-submenu-link" role="menuitem" href="https://www.faa.gov/licenses_certificates/aircraft_certification/aircraft_registry/special_nnumbers/">N-Number Format</a></li>
+                </ul>
+            </li>
+            <li class="devkit-nav-link" role="none">
+                <a class="devkit-main-menu-link" role="menuitem" aria-haspopup="true" aria-expanded="false" tabindex="0">Other Aircraft Resources</a>
+                <ul class="submenu-nav" role="menu" aria-label="Navigation link">
+                    <li class="devkit-inner-nav-link" role="none"><a class="devkit-submenu-link" role="menuitem" href="https://www.faa.gov/licenses_certificates/aircraft_certification/aircraft_registry/">Aircraft Registration</a></li>
+                    <li class="devkit-inner-nav-link" role="none"><a class="devkit-submenu-link" role="menuitem" href="https://www.faa.gov/licenses_certificates/aircraft_certification/aircraft_registry/releasable_aircraft_download/">Downloadable Aircraft Database</a></li>
+                    <li class="devkit-inner-nav-link" role="none"><a class="devkit-submenu-link" role="menuitem" href="/aircraftinquiry/Home/Definitions">Definitions</a></li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+
+    <main class="devkit-main-wrapper devkit-no-border" id="main-content">
+        <div class="devkit-main-content-wrapper" style="grid-column: 1/ span 100">
+
+
+<hr />
+<div style="text-align:center">
+    <h1>FAA REGISTRY</h1>
+    <h3><b>Serial Inquiry Results</b></h3>
+</div>
+<hr />
+<div class="noprint" style="text-align:center">
+    <p><b>Serial Number: </b>17280005</p>
+    <p>
+        <b>Sorted By: </b> NNumber
+    </p>
+
+    <p>Data Updated Each Federal Working Day At Midnight</p>
+    <a onclick="PrintClick();" style="margin:25px;" data-toggle="tooltip" data-placement="bottom" title="Print Page"><i class="fas fa-print" style="font-size:32px; cursor:pointer;"></i></a>
+
+    <a onclick="ExcelClick();" style="margin:25px;" data-toggle="tooltip" data-placement="bottom" title="Create Excel File"><i class="fas fa-file-excel" style="font-size:32px; cursor:pointer;"></i></a>
+
+    <a onclick="CSVClick();" style="margin:25px;" data-toggle="tooltip" data-placement="bottom" title="Create CSV File"><i class="fas fa-file-csv" style="font-size:32px; cursor:pointer;"></i></a>
+    <a onclick="NewSearchClick();" style="margin:25px;" data-toggle="tooltip" data-placement="bottom" title="New Serial Number Search"><i class="fas fa-search" style="font-size:32px; cursor:pointer;"></i></a>
+
+</div>
+<div class="pagination2center">
+    <br />
+    <p>
+        Showing 1 - 1 of 1 (Page 1 of 1)
+    </p>
+    <div class="pagination2"><ul class="pagination"><li class=" active"><span class="page-link">1</span></li></ul></div>
+</div>
+
+<div class="devkit-simple-table-wrapper">
+    <table class="devkit-table">
+        <caption class="devkit-table-title">Serial Number Entered: 17280005</caption>
+        <thead>
+            <tr class="devkit-table-row" scope="row">
+                <th scope="col">N-Number</th>
+                <th scope="col">Manufacturer Name</th>
+                <th scope="col">Model</th>
+                <th scope="col">Name <br />Address</th>
+            </tr>
+        </thead>
+        <tbody>
+                    <tr class="devkit-table-row" scope="row">
+                        <td data-label="N-Number"><a href="/aircraftinquiry/Search/NNumberResult?NNumberTxt=355ES">355ES</a></td>
+                        <td data-label="Manufacturer Name">CESSNA                        </td>
+                        <td data-label="Model">172R                </td>
+                        <td data-label="Name / Address">&nbsp;</td>
+                    </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="pagination2center">
+    <div class="pagination2"><ul class="pagination"><li class=" active"><span class="page-link">1</span></li></ul></div>
+</div>
+
+        </div>
+    </main>
+
+    <table border="1">
+        <tr>
+            <td>
+                <div style=" font-weight: bold; padding: 3em; border: thin ">
+                    <div class="devkit-modal-body" id="devkit-modal-body" style="font-style:italic; font-weight:bold">
+                        <p>
+                            You are accessing a U.S. Government authorized information system, which includes (1) this computer, (2) this computer network,
+                            (3) all computers connected to this network, (4) all devices and storage media attached to this network or to a computer on this network, and
+                            (5) all cloud services and hosting environments supporting this information system.
+                            This information system is provided for U.S. Government-authorized use only.
+                        </p>
+
+                        <p>Unauthorized or improper use of this system may result in disciplinary action, as well as civil and criminal penalties.
+                        <p>
+                            By logging in and using this information system, you understand and consent to the following:
+                        </p>
+                        <ul>
+                            <li>You have no reasonable expectation of privacy regarding communications or data transiting or stored on this information system.</li>
+                            <li>At any time, and for any lawful Government purpose, communication between the user and this information system, data transiting to/from the system, or stored on this system is subject to monitoring, interception, and search.</li>
+                            <li>Any communications or data transiting or stored on this information system may be disclosed or used for any lawful Government purpose.</li>
+                        </ul>
+
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    
+
+    <br />
+    <br />
+
+
+    <div class="devkit-ext-no-footer-wrapper"></div>
+
+    <div class="devkit-ext-btmbar-wrapper">
+        <div class="devkit-ext-btmbar">
+            <div class="btmbar-content">
+                <div class="logo-addr-wrapper">
+                    <img src="/aircraftinquiry/images/DOT-logo.svg" alt="D O T Triskelion">
+                    <div class="faa-addr">
+                        <p>U.S. Department of Transportation</p>
+                        <p>Federal Aviation Administration</p>
+                        <p>800 Independence Avenue, SW</p>
+                        <p>Washington, DC 20591</p>
+                        <p>(866) TELL-FAA | (866) 835-5322</p>
+                    </div>
+                </div>
+                <div class="btmbar-col">
+                    <ul>
+                        <li><a href="https://www.faa.gov/privacy/">Privacy Policy</a></li>
+                        <li><a href="https://www.faa.gov/accessibility/">Accessibility</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+            <script type="text/javascript" src="https://www.faa.gov/script/omniture/appMeasurement.js"></script>
+
+</body>
+</html>

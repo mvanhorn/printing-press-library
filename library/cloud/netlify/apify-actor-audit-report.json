@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/netlify-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/netlify-session",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

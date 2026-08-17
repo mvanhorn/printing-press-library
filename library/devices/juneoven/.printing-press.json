@@ -1,0 +1,49 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-09T13:52:19.108674Z",
+  "printing_press_version": "4.27.1",
+  "api_name": "juneoven",
+  "display_name": "June Oven",
+  "cli_name": "juneoven-pp-cli",
+  "printer": "mvanhorn",
+  "printer_name": "Matt Van Horn",
+  "run_id": "20260708-juneoven",
+  "category": "devices",
+  "novel_features": [
+    {
+      "name": "Block until preheated",
+      "command": "ready",
+      "description": "Wait for the oven to reach its target temperature, then exit 0 (non-zero on timeout)."
+    },
+    {
+      "name": "Record a cook to local history",
+      "command": "record",
+      "description": "Capture the current cook (session + telemetry/camera activity) into local SQLite."
+    },
+    {
+      "name": "Cook history log",
+      "command": "log",
+      "description": "List past cooks (mode, target, duration, outcome) from local history."
+    },
+    {
+      "name": "Temperature-curve export",
+      "command": "curve",
+      "description": "Export one recorded cook's temperature/progress samples as JSON or CSV."
+    },
+    {
+      "name": "Preheat performance stats",
+      "command": "preheat-stats",
+      "description": "Median/fastest/slowest time-to-target per mode over recorded cooks."
+    },
+    {
+      "name": "Predicted time-to-ready",
+      "command": "eta",
+      "description": "Non-blocking estimate of time until the oven reaches target, from the live climb rate."
+    },
+    {
+      "name": "Named repeatable cooks",
+      "command": "repeat",
+      "description": "Save a named mode+temp(+timer) preset in local SQLite and replay it with one word."
+    }
+  ]
+}

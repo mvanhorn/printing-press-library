@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "google-trends-greptile-review-fixes-round2",
+  "applied_at": "2026-07-14",
+  "base_run_id": "20260713-105453-29114a9d",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Fixed 2 follow-up findings from Greptile's re-review of the round-1 fix commit: the interest and related-term cache keys still omitted category/property/compare-set, which are also request dimensions that change the returned data.",
+  "reason": "Round 1 added timeframe (and geo, for related) to the cache IDs but missed that Google Trends normalizes interest values relative to the full comparison set (--compare), and that --category and --property (interest) / --category (related) independently change what data the API returns for the same keyword/geo/timeframe. A later sync with a different category, property, or compare set was still silently overwriting a differently-scoped series under the same ID. Fixed by adding category+property+a sorted, order-independent compare-set key to gt_interest_point/gt_keyword_query IDs, and category to gt_related_term IDs (threaded through collectRelatedTerms's signature).",
+  "files": [
+    "internal/cli/trends_interest.go",
+    "internal/cli/trends_related.go"
+  ],
+  "validated_outcome": "Live dogfood full matrix: 65/65 pass. Manually confirmed live: trends interest coffee --geo US --category 71 vs --category 0 return genuinely different values (87 vs 65) for the same date, and both now persist as separate local-store rows instead of one overwriting the other.",
+  "upstream_issue": null
+}

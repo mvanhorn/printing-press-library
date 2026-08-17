@@ -3,6 +3,7 @@
 package cli
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"time"
@@ -52,7 +53,7 @@ M:SS mark.`,
 				return nil
 			}
 			id := args[0]
-			segs, source, err := loadTranscript(id, flags.dataSource)
+			segs, source, err := loadTranscript(cmd.Context(), id, flags.dataSource)
 			if err != nil {
 				return err
 			}
@@ -109,19 +110,31 @@ M:SS mark.`,
 }
 
 // loadTranscript returns segments + a string describing the source
-// ("cache" or "live"). Honors flags.dataSource.
-func loadTranscript(id, dataSource string) ([]granola.TranscriptSegment, string, error) {
+// ("store", "cache", or "live"). Honors dataSource.
+//
+// PATCH(dual-path-store-read): the local read now goes through granolaRead,
+// so segments the API sync hydrated into transcript_segments are reachable
+// without a decryptable desktop cache and without an API key.
+//
+// The live fallback is skipped when the desktop cache proved unreadable: the
+// internal API authenticates with the same desktop-owned credential the key
+// migration invalidated, so attempting it there can only produce a
+// safestorage refusal that tells the user nothing actionable. A readable
+// cache means a legacy install where the internal API may still work, so the
+// fallback is preserved there.
+func loadTranscript(ctx context.Context, id, dataSource string) ([]granola.TranscriptSegment, string, error) {
 	if dataSource != "live" {
-		c, err := openGranolaCache()
-		if err == nil {
-			segs := c.TranscriptByID(id)
-			if len(segs) > 0 {
-				return segs, "cache", nil
-			}
+		v, err := openGranolaRead(ctx)
+		if err != nil {
+			return nil, "", err
 		}
-	}
-	if dataSource == "local" {
-		return nil, "", notFoundErr(fmt.Errorf("transcript for %s not in cache; rerun Granola or use --data-source live", id))
+		defer v.Close()
+		if segs, src := v.transcriptWithSource(id); len(segs) > 0 {
+			return segs, src, nil
+		}
+		if dataSource == "local" || !v.hasCache() {
+			return nil, "", notFoundErr(fmt.Errorf("no transcript for %s in the local store; run `granola-pp-cli sync-api` (or `granola-pp-cli sync` for a desktop-cache install) first", id))
+		}
 	}
 	ic, err := granola.NewInternalClient()
 	if err != nil {

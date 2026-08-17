@@ -1,10 +1,9 @@
-# Table Reservation GOAT CLI
+# Table Reservation Goat CLI
 
-**One reservation CLI for OpenTable, Tock, and Resy — search each network at once, watch for cancellations, book, and track changes from a local store agents can query.**
-
-OpenTable, Tock, and Resy split the US fine-dining world between them and share zero data. This CLI unifies them: `goat` searches all three at once, `watch` polls each network for cancellations, `earliest` composes availability across all three, and `drift` surfaces what changed at a venue since your last look. Auth is `auth login --chrome` (for OT + Tock cookies) plus `auth login --resy --email <you@example.com>` (for the Resy API token) — no partner keys.
+One reservation CLI for OpenTable, Tock, and Resy — search all three networks at once, watch for cancellations, book + cancel end-to-end, and track changes from a local store agents can query.
 
 Created by [@pejmanjohn](https://github.com/pejmanjohn) (Pejman Pour-Moezzi).
+Contributors: [@ganes-j](https://github.com/ganes-j) (Jesse Ganes), [@teebs4140](https://github.com/teebs4140) (Dylan Thibault), [@wbell2000](https://github.com/wbell2000) (William Bell).
 
 ## Install
 
@@ -35,7 +34,7 @@ npx -y @mvanhorn/printing-press-library install table-reservation-goat --agent c
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.6 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/cmd/table-reservation-goat-pp-cli@latest
@@ -73,7 +72,6 @@ Inside a Hermes chat session:
 Restart the Hermes session or gateway if the newly installed skill is not visible immediately.
 
 ## Install for OpenClaw
-
 Install both the CLI binary and the focused OpenClaw skill. The installer defaults binaries to a per-user bin directory (`$HOME/.local/bin` on macOS/Linux, `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows):
 
 ```bash
@@ -99,7 +97,9 @@ Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple S
 If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
 
 
-Install the MCP binary from this CLI's published public-library entry or pre-built release.
+```bash
+go install github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/cmd/table-reservation-goat-pp-mcp@latest
+```
 
 Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
 
@@ -115,106 +115,77 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 </details>
 
-## Authentication
-
-Two distinct credentials, both managed by `auth login`:
-
-- **OpenTable + Tock** are cookie-session networks. Anonymous reads (search, restaurant detail, availability) work out of the box via Surf with a Chrome TLS fingerprint that clears Akamai (OpenTable) and Cloudflare (Tock). For richer data — anything that requires being signed in — run `auth login --chrome` once to import your already-logged-in cookies from your local Chrome profile.
-- **Resy** uses a long-lived API token. Run `auth login --resy --email <you@example.com>` once; you'll be prompted for your password with echo disabled, the CLI exchanges it for a JWT, and only the token persists in `~/.config/table-reservation-goat-pp-cli/session.json`. The password is never stored. The shared public ResyAPI key (the same value every browser uses on resy.com) is hardcoded — there is nothing to register.
-
-`auth status` shows the per-network state for all three. `auth logout` without arguments clears everything; `auth logout --network resy` clears just one network so the other two stay signed in.
-
 ## Quick Start
 
+### 1. Install
+
+See [Install](#install) above.
+
+### 2. Verify Setup
+
 ```bash
-# import Chrome cookies for OpenTable + Tock
-table-reservation-goat-pp-cli auth login --chrome
-
-# exchange email + password for a Resy API token (interactive password prompt)
-table-reservation-goat-pp-cli auth login --resy --email you@example.com
-
-# populate the local SQLite store from each network (restaurants, availability)
-table-reservation-goat-pp-cli sync --full
-
-# headline command — single ranked list across all three networks
-table-reservation-goat-pp-cli goat 'omakase manhattan' --party 2 --when 'fri 7-9pm' --agent
-
-# set up a cancellation watch and let the printer poll each network adaptively
-table-reservation-goat-pp-cli watch add 'alinea' --party 2 --window 'sat 7-9pm' --notify local
-
-# Resy watch — addressed by numeric venue id from `goat <name> --network resy`
-table-reservation-goat-pp-cli watch add 'resy:1387' --party 2 --window 'fri 7-9pm' --notify local
-
-# soonest open slot per venue. Bare slugs auto-resolve on OpenTable + Tock;
-# Resy venues must be addressed explicitly by numeric id from `goat --network resy`
-# because Resy uses numeric venue IDs that don't share slug-space with OT/Tock names.
-table-reservation-goat-pp-cli earliest 'le-bernardin,atomix,smyth,alinea,resy:1387' --party 2 --within 14d --agent
-
-# book on Resy (numeric venue id from search)
-TRG_ALLOW_BOOK=1 table-reservation-goat-pp-cli book resy:1387 --date 2026-05-15 --time 19:30 --party 2 --agent
-
-# cancel a Resy reservation (resy_token from book output)
-table-reservation-goat-pp-cli cancel resy:<resy-token> --agent
-
+table-reservation-goat-pp-cli doctor
 ```
 
-## Unique Features
+This checks your configuration.
 
-These capabilities aren't available in any other tool for this API.
+### 3. Try Your First Command
 
-### Cross-network ground truth
-- **`goat`** — One query across OpenTable, Tock, and Resy simultaneously, ranked by relevance, earliest availability, and price band.
-
-  _When a user asks an agent to find a table, this is the single command that searches both reservation networks and returns structured ranked results — agents do not need to know which network covers which restaurant._
-
-  ```bash
-  table-reservation-goat-pp-cli goat 'tasting menu chicago' --party 2 --when 'this weekend' --agent --select results.name,results.network,results.earliest_slot,results.price_band
-  ```
-- **`earliest`** — Across a list of restaurants from either network, return the earliest open slot per venue within a time horizon.
-
-  _When a user gives an agent a shortlist of venues and wants the soonest opportunity, this is the right shape — one structured response with one row per venue across all three networks._
-
-  ```bash
-  table-reservation-goat-pp-cli earliest 'alinea,le-bernardin,smyth,atomix' --party 4 --within 21d --agent --select earliest.venue,earliest.network,earliest.slot_at,earliest.attributes
-  ```
-
-### Local state that compounds
-- **`watch`** — Persistent local watcher that polls each network for openings on your target venues and party size, with notifications and optional auto-book.
-
-  _Resy's Notify covers Resy only; tockstalk covers Tock only; restaurant-mcp's snipe covers Resy+OT only. None covers each network; none persists state. Use this when an agent or user needs a hot reservation that isn't currently available._
-
-  ```bash
-  table-reservation-goat-pp-cli watch add 'le-bernardin' --party 2 --window 'Fri 7-9pm' --notify slack
-  ```
-- **`drift`** — Show what changed at a specific venue since the last sync — new experiences, slot price moves, hours changes.
-
-  _Hot-target deep-watch: when an agent or user is hunting one venue, drift surfaces every meaningful change since the last look._
-
-  ```bash
-  table-reservation-goat-pp-cli drift alinea --since '2026-04-01' --agent
-  ```
-
-- **`book`** — Place a reservation on OpenTable or Tock (v0.2). Free reservations only; payment-required venues return a typed `payment_required` error pointing at v0.3. Two safety layers: `PRINTING_PRESS_VERIFY=1` short-circuits to dry-run regardless (verifier mock-mode floor), and live commit fires only when `TRG_ALLOW_BOOK=1` is set. Without the env var, returns a dry-run envelope with a hint. Idempotency pre-flight via `ListUpcomingReservations` + normalized matching prevents double-book on retry; filesystem advisory lock keyed on `(network, slug, date, time, party)` prevents concurrent double-book across processes.
-
-  ```bash
-  TRG_ALLOW_BOOK=1 table-reservation-goat-pp-cli book opentable:water-grill-bellevue --date 2026-05-13 --time 19:00 --party 2 --agent
-  ```
-
-  Tock book uses chromedp-attach (drives a real Chrome session) since Tock's book flow uses traditional form-submit + Braintree CSRF. Card-required venues (most non-prepay Tock restaurants) prompt for CVC on stderr; the value flows through to the browser at confirm time. Free venues skip the CVC prompt. Requires Chrome running with `--remote-debugging-port=9222`, OR the CLI spawns a stealth headless Chrome as fallback. CVC can also be set via `TRG_TOCK_CVC` env var for non-interactive usage (MCP tool calls).
-
-- **`cancel`** — Cancel a reservation. NOT gated by `TRG_ALLOW_BOOK` (recovery action) but still respects the `PRINTING_PRESS_VERIFY` floor. Compound argument shape:
-  - OpenTable: `cancel opentable:<restaurantId>:<confirmationNumber>:<securityToken>`
-  - Tock:      `cancel tock:<venueSlug>:<purchaseId>`
-
-  All compound parts are returned by the corresponding `book` command's JSON output.
-
-  ```bash
-  table-reservation-goat-pp-cli cancel opentable:1255093:114309:01Ozsdas9H1Yx --agent
-  ```
+```bash
+```
 
 ## Usage
 
 Run `table-reservation-goat-pp-cli --help` for the full command reference and flag list.
+
+## Paths & environment variables
+
+This CLI separates local files into four path kinds:
+
+| Kind | Contents |
+|------|----------|
+| `config` | User-editable settings such as `config.toml` and saved profiles |
+| `data` | Durable local data such as `data.db` |
+| `state` | Runtime state such as persisted queries, jobs, and `teach.log` |
+| `cache` | Regenerable HTTP/cache files |
+
+Each kind resolves independently. The ladder is:
+
+1. Per-kind env var: `TABLE_RESERVATION_GOAT_CONFIG_DIR`, `TABLE_RESERVATION_GOAT_DATA_DIR`, `TABLE_RESERVATION_GOAT_STATE_DIR`, or `TABLE_RESERVATION_GOAT_CACHE_DIR`
+2. `--home <dir>` for this invocation
+3. `TABLE_RESERVATION_GOAT_HOME` for a flat relocated root
+4. XDG env vars: `XDG_CONFIG_HOME`, `XDG_DATA_HOME`, `XDG_STATE_HOME`, `XDG_CACHE_HOME`
+5. Platform defaults matching existing installs
+
+For containers and agent sandboxes, prefer a single relocated root:
+
+```bash
+export TABLE_RESERVATION_GOAT_HOME=/srv/table-reservation-goat
+table-reservation-goat-pp-cli doctor
+```
+
+Under `TABLE_RESERVATION_GOAT_HOME=/srv/table-reservation-goat`, the four dirs resolve to `/srv/table-reservation-goat/config`, `/srv/table-reservation-goat/data`, `/srv/table-reservation-goat/state`, and `/srv/table-reservation-goat/cache`.
+
+MCP servers do not receive CLI flags from the host. Put relocation in the host `env` block:
+
+```json
+{
+  "mcpServers": {
+    "table-reservation-goat": {
+      "command": "table-reservation-goat-pp-mcp",
+      "env": {
+        "TABLE_RESERVATION_GOAT_HOME": "/srv/table-reservation-goat"
+      }
+    }
+  }
+}
+```
+
+Precedence matters in fleets: an ambient per-kind variable such as `TABLE_RESERVATION_GOAT_DATA_DIR` overrides an explicit `--home` for that kind. Use `TABLE_RESERVATION_GOAT_HOME` or the per-kind variables for durable fleet relocation; treat `--home` as the weaker per-invocation lever.
+
+Relocation is one-way. Unsetting `TABLE_RESERVATION_GOAT_HOME` does not move files back to platform defaults, and `doctor` cannot find files left under a former root. Move the files manually before unsetting relocation variables.
+
+Existing installs keep working because the platform-default rung matches the legacy layout. Run `table-reservation-goat-pp-cli doctor --fail-on warn` to check path warnings in automation.
 
 ## Commands
 
@@ -225,6 +196,34 @@ Check open reservation slots across OpenTable, Tock, and Resy
 - **`table-reservation-goat-pp-cli availability check`** - Check open slots for a restaurant on a specific date and party size
 - **`table-reservation-goat-pp-cli availability multi-day`** - Multi-day availability for a single restaurant — Mon-Sun matrix
 
+### experiences
+
+List prepaid and tasting-menu experiences (Tock-style)
+
+
+### me
+
+Read your authenticated user profile from both networks
+
+
+### reservations
+
+List, book, modify, and cancel reservations (requires auth login)
+
+OpenTable booking prefers attach mode when `TABLE_RESERVATION_GOAT_OT_CHROME_DEBUG_URL` is explicitly set. The attached Chrome profile must already be signed in to opentable.com. `TRG_ALLOW_BOOK=prepare` drives the exact date/time/party flow through an enabled final confirmation control without clicking it; only `TRG_ALLOW_BOOK=1` permits that final click.
+
+```bash
+export TABLE_RESERVATION_GOAT_OT_CHROME_DEBUG_URL=http://127.0.0.1:9223
+TRG_ALLOW_BOOK=prepare table-reservation-goat-pp-cli book opentable:3688 --date 2026-07-20 --time 17:00 --party 2 --agent
+```
+
+Attach failures are machine-readable: `attach_unreachable`, `not_signed_in`, `selector_drift`, `form_validation`, `slot_taken`, and `incomplete_confirmation`. A committed booking whose restaurant ID cannot be recovered remains a `source: "book"` success and carries the `restaurant_id_unresolved` warning alongside its human-readable hint. Diagnostics expose only a sanitized page path and allowlisted control labels. When the debug endpoint is absent, OpenTable retains the existing HTTP booking path.
+
+Tock booking uses the signed-in Chrome session at `TABLE_RESERVATION_GOAT_TOCK_CHROME_DEBUG_URL` (default `http://localhost:9222`) when reachable, with the existing stealth-headless session fallback otherwise. It preserves legacy time-slot buttons, then tries the exact-time `/search` row and the modern time-combobox/experience-card flow. The attached profile must already be signed in to exploretock.com.
+
+Agent and `--no-input` runs never prompt for payment data. Set `TRG_TOCK_CVC` to a 3- or 4-digit CVC only when the venue requires per-booking verification; an omitted required CVC returns typed `cvc_required`. Layout failures return typed `selector_drift` with diagnostics limited to a query-free page path, booleans, time labels, and allowlisted control categories.
+
+
 ### restaurants
 
 Search and inspect restaurants across OpenTable, Tock, and Resy
@@ -232,32 +231,41 @@ Search and inspect restaurants across OpenTable, Tock, and Resy
 - **`table-reservation-goat-pp-cli restaurants get`** - Get a restaurant's full detail — hours, address, cuisine, price band, photos, accolades
 - **`table-reservation-goat-pp-cli restaurants list`** - List restaurants across OpenTable, Tock, and Resy; filter by location, cuisine, price band, accolades, and party size
 
-### watch
+### wishlist
 
-Persistent local cancellation watcher across all three networks
+Read your saved/wishlisted restaurants from both networks
 
-- **`table-reservation-goat-pp-cli watch add`** - Register a watch for a venue, party size, and time window
-- **`table-reservation-goat-pp-cli watch list`** - List active watches
-- **`table-reservation-goat-pp-cli watch cancel`** - Cancel a watch by id
-- **`table-reservation-goat-pp-cli watch tick`** - Run one polling tick across all active watches (for cron / agents)
+
+
+### Self-learning loop
+
+This CLI caches per-question discovery so repeat queries skip the walk and structurally similar queries get answered via entity substitution. The loop also self-captures: every invocation is journaled locally, and failed-flag corrections plus fresh teaches surface as candidates on the next `recall` for confirm/reject judgment. Agents call `recall` before discovery and fire `teach &` after answering. See the `## Automatic learning` section in `SKILL.md` for the full protocol.
+
+- **`table-reservation-goat-pp-cli recall <query>`** - Look up cached resources for a query before running discovery
+- **`table-reservation-goat-pp-cli teach`** - Record a query -> resource mapping (silent on success, safe to background with `&`)
+- **`table-reservation-goat-pp-cli learnings list`** - Inspect taught rows
+- **`table-reservation-goat-pp-cli learnings forget <query>`** - Undo a teach
+- **`table-reservation-goat-pp-cli learnings candidates`** - List auto-captured candidates awaiting confirm/reject
+- **`table-reservation-goat-pp-cli learnings stats`** - Local loop metrics: recall hit rate, teach-to-reuse, playbook resolution, candidate counts
+- **`table-reservation-goat-pp-cli teach-pattern`** - Install a query/resource template up front
+- **`table-reservation-goat-pp-cli teach-lookup`** - Add an entity mapping (e.g. country code, team alias) for pattern substitution
+
+Pass `--no-learn` or set `TABLE_RESERVATION_GOAT_NO_LEARN=true` to disable the loop for deterministic flows.
+
+The local store's schema version stamp is one-way: once this version of `table-reservation-goat-pp-cli` opens the database, older binaries refuse it with a version error — upgrade the binary rather than downgrading.
 
 ## Output Formats
 
 ```bash
 # Human-readable table (default in terminal, JSON when piped)
-table-reservation-goat-pp-cli restaurants list
 
 # JSON for scripting and agents
-table-reservation-goat-pp-cli restaurants list --json
 
 # Filter to specific fields
-table-reservation-goat-pp-cli restaurants list --json --select id,name,neighborhood
 
 # Dry run — show the request without sending
-table-reservation-goat-pp-cli restaurants list --dry-run
 
 # Agent mode — JSON + compact + no prompts in one flag
-table-reservation-goat-pp-cli restaurants list --agent
 ```
 
 ## Agent Usage
@@ -268,7 +276,7 @@ This CLI is designed for AI agent consumption:
 - **Pipeable** - `--json` output to stdout, errors to stderr
 - **Filterable** - `--select id,name` returns only fields you need
 - **Previewable** - `--dry-run` shows the request without sending
-- **Explicit retries** - add `--idempotent` to create retries and `--ignore-missing` to delete retries when a no-op success is acceptable
+- **Explicit retries** - add `--idempotent` to create retries and add `--ignore-missing` to delete retries when a no-op success is acceptable
 - **Confirmable** - `--yes` for explicit confirmation of destructive actions
 - **Piped input** - write commands can accept structured input when their help lists `--stdin`
 - **Offline-friendly** - sync/search commands can use the local SQLite store when available
@@ -286,51 +294,15 @@ Verifies configuration and connectivity to the API.
 
 ## Configuration
 
-Config file: `~/.config/table-reservation-goat-pp-cli/config.toml`
+Run `table-reservation-goat-pp-cli doctor` to see the resolved config, data, state, and cache directories. The platform-default config path is `~/.config/table-reservation-goat-pp-cli/config.toml`; `--home`, `TABLE_RESERVATION_GOAT_HOME`, and per-kind env vars can relocate it.
 
 Static request headers can be configured under `headers`; per-command header overrides take precedence.
-
-### Power-user knobs (env vars)
-
-OpenTable's WAF can rate-limit aggressive scans. The CLI ships with a disk cache, singleflight dedupe, and an AdaptiveLimiter so typical use never hits the limit. These env vars override the defaults:
-
-| Env var | Default | Effect |
-|---|---|---|
-| `TRG_OT_CACHE_TTL` | `3m` | How long a cached availability response stays fresh. Range `[1m, 24h]`; out-of-range falls back to default with a stderr warning. |
-| `TRG_OT_THROTTLE_RATE` | `0.5` | Initial calls/second for the OT AdaptiveLimiter. Lower values pace harder (`0.1` = 10s spacing); higher values are appropriate when routing through a personal proxy. Range `[0.01, 5.0]`. |
-| `TRG_OT_NO_CACHE` | unset | Set to `1` to bypass the cache by default. The `--no-cache` flag on `earliest` and `watch tick` does the same per-call. |
-| `TRG_ALLOW_BOOK` | unset | Live commit gate for `book`. Without it, `book` returns a dry-run envelope. `cancel` is NOT gated by this — it's a recovery action. |
-| `PRINTING_PRESS_VERIFY` | unset | Verifier-mode floor. When `=1`, both `book` and `cancel` short-circuit to dry-run regardless of `TRG_ALLOW_BOOK`. Set automatically by `printing-press verify` mock-mode subprocesses. |
-| `TRG_TOCK_CVC` | unset | When set, used as the CVC for Tock card-required bookings instead of prompting on stderr. Useful for MCP tool calls and other non-interactive contexts. |
-| `TABLE_RESERVATION_GOAT_TOCK_CHROME_DEBUG_URL` | `http://localhost:9222` | Override for the Chrome DevTools endpoint used by the Tock chromedp-attach book flow. |
-| `HTTPS_PROXY` / `HTTP_PROXY` | unset | Standard Go-honored proxy URLs. Useful for routing OT traffic through a personal proxy or Tor SOCKS5 (`socks5://localhost:9050`). |
 
 ## Troubleshooting
 **Not found errors (exit code 3)**
 - Check the resource ID is correct
 - Run the `list` command to see available items
 
-### API-specific
-
-- **`PersistedQueryNotFound` 400 from OpenTable on first run** — the persisted-query hash drifted; run `table-reservation-goat-pp-cli doctor --refresh-hashes` to bootstrap the current hash from a fresh homepage fetch
-- **Cloudflare challenge from exploretock.com** — Surf transport with Chrome TLS clears this automatically; if you see a 403, run `table-reservation-goat-pp-cli doctor` to verify the Surf fingerprint is loaded
-- **`Authentication required` on a venue or detail call that needs sign-in** — run `table-reservation-goat-pp-cli auth login --chrome` to import cookies, then `auth status` to confirm each network are signed in
-- **Empty availability results for a venue you know has openings** — check `--party` and `--time` (Tock returns empty when no slot matches the seating area filter); also try `goat <venue> --debug` to see the per-network response
-- **Watch never fires even though slots opened on the website** — verify `watch list --json` shows your watch `state: active` and `last_polled_at` recent; if the limiter is throttled the typed `RateLimitError` will be in the recent log — increase `--cadence` to back off
-
 ---
-
-## Sources & Inspiration
-
-This CLI was built by studying these projects and resources:
-
-- [**azoff/tockstalk**](https://github.com/azoff/tockstalk) — TypeScript (43 stars)
-- [**jrklein343-svg/restaurant-mcp**](https://github.com/jrklein343-svg/restaurant-mcp) — TypeScript
-- [**21Bruce/resolved-bot**](https://github.com/21Bruce/resolved-bot) — Go
-- [**duaragha/opentable-mcp**](https://github.com/duaragha/opentable-mcp) — TypeScript
-- [**bedheadprogrammer/reservationserver**](https://github.com/bedheadprogrammer/reservationserver) — TypeScript
-- [**singlepatient/tablehog**](https://github.com/singlepatient/tablehog) — Rust
-- [**spudtrooper/opentable**](https://github.com/spudtrooper/opentable) — Go
-- [**Henrymarks1/Open-Table-Bot**](https://github.com/Henrymarks1/Open-Table-Bot) — Python
 
 Generated by [CLI Printing Press](https://github.com/mvanhorn/cli-printing-press)

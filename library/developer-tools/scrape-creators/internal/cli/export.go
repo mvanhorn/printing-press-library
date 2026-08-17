@@ -8,7 +8,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strconv"
+	"strings"
 
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/cliutil"
 	"github.com/spf13/cobra"
 )
 
@@ -32,8 +35,75 @@ large datasets as it has no memory pressure.`,
 
   # Pipe to another tool
   scrape-creators-pp-cli export <resource> --format jsonl | jq '.id'`,
-		Args: cobra.MinimumNArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
+		Args: cobra.RangeArgs(1, 2),
+		RunE: func(cmd *cobra.Command, args []string) (err error) {
+			validResources := map[string]bool{
+				"account":           true,
+				"amazon":            true,
+				"apple-music":       true,
+				"bluesky":           true,
+				"detect-age-gender": true,
+				"facebook":          true,
+				"github":            true,
+				"google":            true,
+				"instagram":         true,
+				"kick":              true,
+				"komi":              true,
+				"kwai":              true,
+				"linkbio":           true,
+				"linkedin":          true,
+				"linkme":            true,
+				"linktree":          true,
+				"pillar":            true,
+				"pinterest":         true,
+				"reddit":            true,
+				"rumble":            true,
+				"snapchat":          true,
+				"soundcloud":        true,
+				"spotify":           true,
+				"threads":           true,
+				"tiktok":            true,
+				"truthsocial":       true,
+				"twitch":            true,
+				"twitter":           true,
+				"youtube":           true,
+			}
+			validResourceList := []string{
+				"account",
+				"amazon",
+				"apple-music",
+				"bluesky",
+				"detect-age-gender",
+				"facebook",
+				"github",
+				"google",
+				"instagram",
+				"kick",
+				"komi",
+				"kwai",
+				"linkbio",
+				"linkedin",
+				"linkme",
+				"linktree",
+				"pillar",
+				"pinterest",
+				"reddit",
+				"rumble",
+				"snapchat",
+				"soundcloud",
+				"spotify",
+				"threads",
+				"tiktok",
+				"truthsocial",
+				"twitch",
+				"twitter",
+				"youtube",
+			}
+			resource := args[0]
+			if !validResources[resource] {
+				return usageErr(fmt.Errorf("unknown resource %q; valid: %s", resource, strings.Join(validResourceList, ", ")))
+			}
+
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -42,57 +112,137 @@ large datasets as it has no memory pressure.`,
 				c.NoCache = true
 			}
 
-			resource := args[0]
-			path := "/" + resource
+			path, err := resourceReadPath(resource)
+			if err != nil {
+				return usageErr(err)
+			}
+			singleItem := len(args) > 1
 			if len(args) > 1 {
-				path += "/" + args[1]
+				path, err = resourceDetailPath(resource, cliutil.EscapePathParam(args[1]))
+				if err != nil {
+					return usageErr(err)
+				}
 			}
 
 			var writer *bufio.Writer
+			var outFile *os.File
 			if outputFile != "" {
 				f, err := os.Create(outputFile)
 				if err != nil {
 					return fmt.Errorf("creating output file: %w", err)
 				}
-				defer f.Close()
+				outFile = f
 				writer = bufio.NewWriter(f)
-				defer writer.Flush()
+				defer func() {
+					if err != nil && outFile != nil {
+						_ = outFile.Close()
+					}
+				}()
 			} else {
 				writer = bufio.NewWriter(os.Stdout)
-				defer writer.Flush()
 			}
-
-			data, err := c.Get(path, nil)
-			if err != nil {
-				return classifyAPIError(err)
-			}
-
-			switch format {
-			case "jsonl":
-				var items []json.RawMessage
-				if err := json.Unmarshal(data, &items); err != nil {
-					fmt.Fprintln(writer, string(data))
-					return nil
+			finishExport := func() error {
+				if err := writer.Flush(); err != nil {
+					return fmt.Errorf("flushing export: %w", err)
 				}
-				count := 0
+				if outFile != nil {
+					if err := outFile.Close(); err != nil {
+						return fmt.Errorf("closing export file: %w", err)
+					}
+					outFile = nil
+				}
+				return nil
+			}
+
+			config := resourceReadConfigFor(resource)
+			allItems := []json.RawMessage{}
+			var singlePayload json.RawMessage
+			count, page, cursor := 0, 0, ""
+			for {
+				remaining := 0
+				if limit > 0 {
+					remaining = limit - count
+				}
+				params := map[string]string(nil)
+				if !singleItem && config.paginationType != "" {
+					params = resourcePageParams(config, cursor, page, remaining)
+				}
+				data, err := c.Get(cmd.Context(), path, params)
+				if err != nil {
+					return classifyAPIError(err, flags)
+				}
+				if singleItem {
+					count = 1
+					if format == "jsonl" {
+						if _, err := fmt.Fprintln(writer, string(data)); err != nil {
+							return fmt.Errorf("writing export: %w", err)
+						}
+					} else {
+						singlePayload = data
+					}
+					break
+				}
+				items, nextCursor, hasMore := extractResourcePage(data, config)
+				if items == nil {
+					items = []json.RawMessage{data}
+				}
 				for _, item := range items {
 					if limit > 0 && count >= limit {
 						break
 					}
-					fmt.Fprintln(writer, string(item))
+					if format == "jsonl" {
+						if _, err := fmt.Fprintln(writer, string(item)); err != nil {
+							return fmt.Errorf("writing export: %w", err)
+						}
+					} else {
+						allItems = append(allItems, item)
+					}
 					count++
 				}
-				if outputFile != "" {
-					fmt.Fprintf(os.Stderr, "Exported %d records to %s\n", count, outputFile)
+
+				if config.paginationType == "" || len(items) == 0 || (limit > 0 && count >= limit) {
+					break
 				}
-			default:
+				page++
+				var stop bool
+				cursor, stop, err = resourceNextCursor(config, cursor, nextCursor, hasMore)
+				if err != nil {
+					return fmt.Errorf("export pagination for %q: %w", resource, err)
+				}
+				if stop {
+					break
+				}
+				if config.limitParam != "" && !hasMore {
+					requested, _ := strconv.Atoi(params[config.limitParam])
+					if requested > 0 && len(items) < requested {
+						break
+					}
+				}
+				if page > 100000 {
+					return fmt.Errorf("export pagination exceeded 100000 pages for %q", resource)
+				}
+			}
+
+			if format != "jsonl" {
 				enc := json.NewEncoder(writer)
 				enc.SetIndent("", "  ")
-				var parsed any
-				if err := json.Unmarshal(data, &parsed); err != nil {
+				output := any(allItems)
+				if singleItem {
+					var value any
+					if err := json.Unmarshal(singlePayload, &value); err != nil {
+						return fmt.Errorf("decoding exported resource: %w", err)
+					}
+					output = value
+				}
+				if err := enc.Encode(output); err != nil {
 					return err
 				}
-				return enc.Encode(parsed)
+			}
+			if err := finishExport(); err != nil {
+				return err
+			}
+			if outputFile != "" {
+				fmt.Fprintf(os.Stderr, "Exported %d records to %s\n", count, outputFile)
 			}
 			return nil
 		},

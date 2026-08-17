@@ -10,9 +10,8 @@ import (
 func newCartCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "cart",
-		Short:       "List, add, and remove cart",
-		Hidden:      true,
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Short:       "Cart: view summary, add products, remove products",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:api-resource": "true", "pp:typed-exit-codes": "0,2"},
 		RunE:        parentNoSubcommandRunE(flags),
 	}
 

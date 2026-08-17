@@ -1,0 +1,253 @@
+{
+  "api_name": "shopper",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "MayconCoutinho/Api-Shopper",
+      "url": "https://github.com/MayconCoutinho/Api-Shopper",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-03T11:20:00Z",
+  "novel_features": [
+    {
+      "name": "Charge \u0026 Edit Calendar",
+      "command": "charge-calendar",
+      "description": "Every upcoming cycle's charge date, edit-lock deadline, and delivery date in one timeline so you never miss an edit window or get surprised by a charge.",
+      "rationale": "Requires combining /delivery/summary (deliveryDate) and /delivery/v2/calendar (reschedule config) and computing charge=−7d, lock=−5d offsets. No single API endpoint returns this compound view.",
+      "example": "shopper-pp-cli charge-calendar --store programada --agent",
+      "why_it_matters": "Use when an agent needs to know whether the edit window is still open before modifying a recurring basket.",
+      "group": "Subscription intelligence"
+    },
+    {
+      "name": "Basket Diff",
+      "command": "basket diff",
+      "description": "Compares your current recurring basket against a previous cycle's snapshot to show exactly what was added, dropped, or re-quantified before the template locks.",
+      "rationale": "Requires snapshotting basket state to local SQLite and diffing against a prior snapshot — no API tracks basket-over-time history.",
+      "example": "shopper-pp-cli basket diff --store programada --agent",
+      "why_it_matters": "Use when an agent needs to verify what changed in the basket since the last confirmed delivery cycle.",
+      "group": "Subscription intelligence"
+    },
+    {
+      "name": "Price Watch",
+      "command": "price-watch",
+      "description": "Tracks the price history of the SKUs you actually buy and alerts when one rises or drops meaningfully versus your own purchase baseline.",
+      "rationale": "Requires correlating synced catalog prices across multiple sync runs — no API endpoint exposes historical price data.",
+      "example": "shopper-pp-cli price-watch --store programada --agent",
+      "why_it_matters": "Use when an agent needs to know if a subscribed product has changed price significantly since the last order.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Restock Predictor",
+      "command": "restock predict",
+      "description": "Predicts when you'll run out of each staple from your historical buying cadence and suggests what to add to the upcoming basket.",
+      "rationale": "Requires analysing order history cadence across synced orders data — no API endpoint answers 'when will you run out'.",
+      "example": "shopper-pp-cli restock predict --store programada --agent",
+      "why_it_matters": "Use when an agent needs to pre-populate a recurring basket with items likely running low before the next cycle.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Catalog Drift Detector",
+      "command": "catalog drift",
+      "description": "Flags products you buy that were discontinued, silently swapped, or kept their price while shrinking the pack, surfacing the real R$/kg or R$/L change.",
+      "rationale": "Requires comparing catalog snapshots across sync runs to detect substitution, discontinuation, and pack-size changes — invisible from any single API call.",
+      "example": "shopper-pp-cli catalog drift --store programada --agent",
+      "why_it_matters": "Use when an agent needs to audit whether the recurring basket still contains the same products as originally added.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cashback Threshold Optimizer",
+      "command": "cashback optimize",
+      "description": "Computes the cheapest set of items to add (or whether to wait) to cross the next cashback tier, favoring things you'll need anyway.",
+      "rationale": "Requires combining live cart/summary cashback fields with local catalog data to compute the cheapest tier-crossing additions.",
+      "example": "shopper-pp-cli cashback optimize --tier 2399 --store programada --agent",
+      "why_it_matters": "Use when an agent is finalising a basket and wants to maximise cashback return before the edit window closes.",
+      "group": "Subscription intelligence"
+    },
+    {
+      "name": "Cross-Store Checkout Preview",
+      "command": "checkout preview",
+      "description": "Aggregates cart totals, next delivery date, charge date, minimum-order status, and accepted payment types into one pre-checkout view before you open the browser.",
+      "rationale": "Combines siteapi cart/summary + delivery/summary + features/stores payment params and computes charge-date offset — no single endpoint returns a checkout summary.",
+      "example": "shopper-pp-cli checkout preview --store programada --agent",
+      "why_it_matters": "Use when an agent needs to confirm basket readiness and charge schedule before directing the user to open the browser for final payment.",
+      "group": "Customer journey plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Charge \u0026 Edit Calendar",
+      "command": "charge-calendar",
+      "description": "Every upcoming cycle's charge date, edit-lock deadline, and delivery date in one timeline so you never miss an edit window or get surprised by a charge.",
+      "rationale": "Requires combining /delivery/summary (deliveryDate) and /delivery/v2/calendar (reschedule config) and computing charge=−7d, lock=−5d offsets. No single API endpoint returns this compound view.",
+      "example": "shopper-pp-cli charge-calendar --store programada --agent",
+      "why_it_matters": "Use when an agent needs to know whether the edit window is still open before modifying a recurring basket.",
+      "group": "Subscription intelligence"
+    },
+    {
+      "name": "Basket Diff",
+      "command": "basket diff",
+      "description": "Compares your current recurring basket against a previous cycle's snapshot to show exactly what was added, dropped, or re-quantified before the template locks.",
+      "rationale": "Requires snapshotting basket state to local SQLite and diffing against a prior snapshot — no API tracks basket-over-time history.",
+      "example": "shopper-pp-cli basket diff --store programada --agent",
+      "why_it_matters": "Use when an agent needs to verify what changed in the basket since the last confirmed delivery cycle.",
+      "group": "Subscription intelligence"
+    },
+    {
+      "name": "Price Watch",
+      "command": "price-watch",
+      "description": "Tracks the price history of the SKUs you actually buy and alerts when one rises or drops meaningfully versus your own purchase baseline.",
+      "rationale": "Requires correlating synced catalog prices across multiple sync runs — no API endpoint exposes historical price data.",
+      "example": "shopper-pp-cli price-watch --store programada --agent",
+      "why_it_matters": "Use when an agent needs to know if a subscribed product has changed price significantly since the last order.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Restock Predictor",
+      "command": "restock predict",
+      "description": "Predicts when you'll run out of each staple from your historical buying cadence and suggests what to add to the upcoming basket.",
+      "rationale": "Requires analysing order history cadence across synced orders data — no API endpoint answers 'when will you run out'.",
+      "example": "shopper-pp-cli restock predict --store programada --agent",
+      "why_it_matters": "Use when an agent needs to pre-populate a recurring basket with items likely running low before the next cycle.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Catalog Drift Detector",
+      "command": "catalog drift",
+      "description": "Flags products you buy that were discontinued, silently swapped, or kept their price while shrinking the pack, surfacing the real R$/kg or R$/L change.",
+      "rationale": "Requires comparing catalog snapshots across sync runs to detect substitution, discontinuation, and pack-size changes — invisible from any single API call.",
+      "example": "shopper-pp-cli catalog drift --store programada --agent",
+      "why_it_matters": "Use when an agent needs to audit whether the recurring basket still contains the same products as originally added.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cashback Threshold Optimizer",
+      "command": "cashback optimize",
+      "description": "Computes the cheapest set of items to add (or whether to wait) to cross the next cashback tier, favoring things you'll need anyway.",
+      "rationale": "Requires combining live cart/summary cashback fields with local catalog data to compute the cheapest tier-crossing additions.",
+      "example": "shopper-pp-cli cashback optimize --tier 2399 --store programada --agent",
+      "why_it_matters": "Use when an agent is finalising a basket and wants to maximise cashback return before the edit window closes.",
+      "group": "Subscription intelligence"
+    },
+    {
+      "name": "Cross-Store Checkout Preview",
+      "command": "checkout preview",
+      "description": "Aggregates cart totals, next delivery date, charge date, minimum-order status, and accepted payment types into one pre-checkout view before you open the browser.",
+      "rationale": "Combines siteapi cart/summary + delivery/summary + features/stores payment params and computes charge-date offset — no single endpoint returns a checkout summary.",
+      "example": "shopper-pp-cli checkout preview --store programada --agent",
+      "why_it_matters": "Use when an agent needs to confirm basket readiness and charge schedule before directing the user to open the browser for final payment.",
+      "group": "Customer journey plumbing"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "SHOPPER_TOKEN"
+  },
+  "narrative": {
+    "display_name": "Shopper",
+    "headline": "Every Shopper storefront in one CLI — catalog, cart, delivery schedule, charge calendar, and spend analytics no web UI surfaces.",
+    "value_prop": "shopper-pp-cli covers all six Shopper storefronts (Compra Programada, Fresh, Pet, Compra Única, Now, Now Bebidas) with correct store/cluster scoping, full siteapi REST surface, browser-deep-link helpers for subscription mutations, and a local SQLite layer for offline product search, basket diffs, price tracking, and cross-store spend rollup.",
+    "auth_narrative": "Set SHOPPER_TOKEN to your Shopper JWT (from the siteapi Authorization header in browser DevTools). Run 'shopper-pp-cli doctor' to verify. The token is long-lived for the subscription cycle. Never store raw card numbers or CPF in config; card management always opens the browser.",
+    "quickstart": [
+      {
+        "command": "shopper-pp-cli doctor --dry-run",
+        "comment": "Verify CLI is installed and config path is set before auth"
+      },
+      {
+        "command": "shopper-pp-cli stores",
+        "comment": "Discover all six storefronts with IDs and payment parameters"
+      },
+      {
+        "command": "shopper-pp-cli cart list-summary --store programada",
+        "comment": "See current basket total, cashback tier, and minimum-order status"
+      },
+      {
+        "command": "shopper-pp-cli charge-calendar --store programada",
+        "comment": "See charge date, edit-lock deadline, and delivery date for the next cycle"
+      },
+      {
+        "command": "shopper-pp-cli orders spend",
+        "comment": "Month-over-month actual spend rolled up across all storefronts"
+      },
+      {
+        "command": "shopper-pp-cli checkout preview --store programada",
+        "comment": "Full pre-checkout summary before opening browser to confirm payment"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on any command",
+        "fix": "Run 'shopper-pp-cli auth set-token \u003ctoken\u003e' with a fresh JWT from browser DevTools → Network → Authorization header"
+      },
+      {
+        "symptom": "cart list-summary returns wrong store data",
+        "fix": "Pass --store explicitly: programada, fresh, unica, pet, now, or now-bebidas. The default is programada."
+      },
+      {
+        "symptom": "unica/pet orders missing from 'orders spend'",
+        "fix": "orders spend queries all stores by default; if a store shows no data, your account has no orders there"
+      },
+      {
+        "symptom": "delivery calendar shows no available dates",
+        "fix": "Run --store with a subscription store (programada/fresh/pet). now/now-bebidas use a different ultra-fast delivery flow."
+      },
+      {
+        "symptom": "checkout open or delivery reschedule shows wrong store URL",
+        "fix": "Pass --store explicitly to get the correct storefront URL (e.g. --store fresh opens fresh.shopper.com.br)"
+      }
+    ],
+    "when_to_use": "Use shopper-pp-cli when automating Shopper basket management, monitoring charge schedules, analyzing spend patterns across storefronts, or building agent workflows around the Shopper subscription cycle. Ideal for recurring-basket optimization, pre-cycle audit, and delivery-schedule awareness.",
+    "anti_triggers": [
+      "Do not use for placing orders or confirming checkout — use checkout open to hand off to the browser",
+      "Do not use for adding or removing saved credit cards — card management requires browser session",
+      "Do not use for ultra-fast delivery slot selection on now/now-bebidas — delivery slots for these stores require the browser checkout flow",
+      "Do not use for cancelling orders — cancellation is not available via siteapi REST"
+    ],
+    "recipes": [
+      {
+        "title": "Check if the edit window is still open",
+        "command": "shopper-pp-cli charge-calendar --store programada --agent --select next_delivery_date,edit_lock_date,charge_date",
+        "explanation": "Returns the key dates for the next cycle; compare edit_lock_date to today to know if the basket can still be changed."
+      },
+      {
+        "title": "Find items to add for next cashback tier",
+        "command": "shopper-pp-cli cashback optimize --store programada --agent",
+        "explanation": "Computes the cheapest catalog additions to cross the next cashback threshold using your live cart and synced product data."
+      },
+      {
+        "title": "Cross-store spend rollup for last 6 months",
+        "command": "shopper-pp-cli orders spend --months 6 --agent --select store,month,total",
+        "explanation": "Queries all 6 storefronts and returns a month-by-store spend matrix for budgeting analysis."
+      },
+      {
+        "title": "Detect if a subscribed product changed price",
+        "command": "shopper-pp-cli price-watch --store programada --agent --select product_id,name,price_now,price_baseline,change_pct",
+        "explanation": "Scans synced price history for products in your basket and flags meaningful price movements."
+      },
+      {
+        "title": "Pre-checkout summary with charge date",
+        "command": "shopper-pp-cli checkout preview --store programada --agent --select total_amount,delivery_date,charge_date,min_order_met,payment_methods",
+        "explanation": "Aggregates cart/delivery/payment data so an agent can confirm basket readiness before directing the user to open the checkout browser."
+      }
+    ],
+    "trigger_phrases": [
+      "check my Shopper basket",
+      "when is my next Shopper delivery",
+      "when will Shopper charge me",
+      "show my Shopper spend",
+      "use shopper-pp-cli",
+      "search Shopper catalog",
+      "add item to Shopper cart",
+      "Shopper charge calendar",
+      "Shopper cashback tier"
+    ]
+  }
+}

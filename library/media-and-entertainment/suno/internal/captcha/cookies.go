@@ -1,8 +1,11 @@
 // Copyright 2026 horknfbr. Licensed under Apache-2.0. See LICENSE.
 //
-// First-use seeding: map the user's Suno cookies (read once from their main
-// browser) into CDP Network.setCookies params. After seeding, the session
-// persists in the dedicated profile and this path is not exercised again.
+// Per-solve seeding: map the user's full Suno cookie jar (read live from their
+// main browser on every solve) into CDP Network.setCookies params. Re-seeding
+// each call — rather than trusting the dedicated profile to persist the session
+// — keeps the Clerk/Google-SSO session fresh and avoids paperfoot/suno-cli#3's
+// per-generation "Continue as <user>" OAuth popup (a stale dedicated-profile
+// session that can no longer re-auth silently).
 
 package captcha
 

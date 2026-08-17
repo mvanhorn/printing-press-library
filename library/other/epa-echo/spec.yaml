@@ -1,0 +1,42 @@
+openapi: 3.0.3
+info:
+  title: EPA ECHO API
+  version: 1.0.0
+  description: Query-only EPA ECHO facility search and detailed facility reports.
+  x-cli-name: epa-echo
+servers: [{url: https://echodata.epa.gov/echo}]
+paths:
+  /echo_rest_services.get_facilities:
+    get:
+      operationId: searchFacilities
+      summary: Start an all-media facility search
+      parameters:
+        - {name: output, in: query, schema: {type: string, default: JSON}}
+        - {name: p_fn, in: query, schema: {type: string}}
+        - {name: p_fntype, in: query, schema: {type: string, default: CONTAINS}}
+        - {name: p_frs, in: query, schema: {type: string}}
+        - {name: p_st, in: query, schema: {type: string}}
+        - {name: p_ct, in: query, schema: {type: string}}
+        - {name: p_zip, in: query, schema: {type: string}}
+        - {name: p_lat, in: query, schema: {type: number}}
+        - {name: p_long, in: query, schema: {type: number}}
+        - {name: p_radius, in: query, schema: {type: number, maximum: 100}}
+        - {name: responseset, in: query, schema: {type: integer, maximum: 1000, default: 25}}
+      responses: {'200': {description: Search summary with query ID, content: {application/json: {schema: {type: object, additionalProperties: true}}}}}
+  /echo_rest_services.get_qid:
+    get:
+      operationId: getFacilitySearchResults
+      summary: Retrieve a page of facility results by query ID
+      parameters:
+        - {name: output, in: query, schema: {type: string, default: JSON}}
+        - {name: qid, in: query, required: true, schema: {type: string}}
+        - {name: pageno, in: query, schema: {type: integer, default: 1}}
+      responses: {'200': {description: Facility result page, content: {application/json: {schema: {type: object, additionalProperties: true}}}}}
+  /dfr_rest_services.get_dfr:
+    get:
+      operationId: getDetailedFacilityReport
+      summary: Get a detailed multi-program facility report
+      parameters:
+        - {name: output, in: query, schema: {type: string, default: JSON}}
+        - {name: p_id, in: query, required: true, schema: {type: string}}
+      responses: {'200': {description: Detailed facility report, content: {application/json: {schema: {type: object, additionalProperties: true}}}}}

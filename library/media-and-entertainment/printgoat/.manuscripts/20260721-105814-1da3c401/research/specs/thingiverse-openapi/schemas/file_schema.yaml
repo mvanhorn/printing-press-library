@@ -1,0 +1,53 @@
+type: object
+properties:
+  id:
+    type: integer
+    format: int
+    example: 1223854
+  name:
+    type: string
+    example: 3DBenchy.stl
+  size:
+    type: integer
+    format: int
+    example: 11285384
+  url:
+    type: string
+    example: https://api.thingiverse.com/files/1223854
+  public_url:
+    type: string
+    example: https://www.thingiverse.com/download:1223854
+  download_url:
+    type: string
+    example: https://api.thingiverse.com/files/1223854/download
+  threejs_url:
+    type: string
+    example: https://cdn.thingiverse.com/threejs_json/07/ad/ba/fc/87/3DBenchy.js
+  thumbnail:
+    type: string
+    example: https://cdn.thingiverse.com/renders/40/37/dc/8d/31/3DBenchy_thumb_medium.jpg
+  default_image:
+    $ref: './image_summary_schema.yaml'
+    nullable: true
+  date:
+    type: string
+    pattern: \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}
+    example: "2015-04-09 12:55:22"
+  formatted_size:
+    description: a formatted string of a filesize
+    type: string
+    example: 10 mb
+  meta_data:
+    type: array
+  download_count:
+    type: integer
+    format: int
+    example: 451301
+  direct_url:
+    type: string
+    example: https://cdn.thingiverse.com/assets/7d/fc/6e/33/fe/3DBenchy.stl
+    nullable: true
+    description: This will return null if it's not in the 'printable' file list (eg a pdf)
+  hash: 
+    type: string
+    description: The hash of the file

@@ -13,14 +13,14 @@ import (
 )
 
 func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
-	var bodyAuthorId int
+	var bodyAuthorId string
 	var bodyBody string
 	var bodyDescription string
 	var bodyParentId string
 	var bodyParentType string
 	var bodyState string
 	var bodyTitle string
-	var bodyTranslatedContentArAuthorId int
+	var bodyTranslatedContentArAuthorId string
 	var bodyTranslatedContentArBody string
 	var bodyTranslatedContentArCreatedAt int
 	var bodyTranslatedContentArDescription string
@@ -29,7 +29,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	var bodyTranslatedContentArType string
 	var bodyTranslatedContentArUpdatedAt int
 	var bodyTranslatedContentArUrl string
-	var bodyTranslatedContentBgAuthorId int
+	var bodyTranslatedContentBgAuthorId string
 	var bodyTranslatedContentBgBody string
 	var bodyTranslatedContentBgCreatedAt int
 	var bodyTranslatedContentBgDescription string
@@ -38,7 +38,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	var bodyTranslatedContentBgType string
 	var bodyTranslatedContentBgUpdatedAt int
 	var bodyTranslatedContentBgUrl string
-	var bodyTranslatedContentBsAuthorId int
+	var bodyTranslatedContentBsAuthorId string
 	var bodyTranslatedContentBsBody string
 	var bodyTranslatedContentBsCreatedAt int
 	var bodyTranslatedContentBsDescription string
@@ -47,7 +47,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	var bodyTranslatedContentBsType string
 	var bodyTranslatedContentBsUpdatedAt int
 	var bodyTranslatedContentBsUrl string
-	var bodyTranslatedContentCaAuthorId int
+	var bodyTranslatedContentCaAuthorId string
 	var bodyTranslatedContentCaBody string
 	var bodyTranslatedContentCaCreatedAt int
 	var bodyTranslatedContentCaDescription string
@@ -56,7 +56,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	var bodyTranslatedContentCaType string
 	var bodyTranslatedContentCaUpdatedAt int
 	var bodyTranslatedContentCaUrl string
-	var bodyTranslatedContentCsAuthorId int
+	var bodyTranslatedContentCsAuthorId string
 	var bodyTranslatedContentCsBody string
 	var bodyTranslatedContentCsCreatedAt int
 	var bodyTranslatedContentCsDescription string
@@ -65,7 +65,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	var bodyTranslatedContentCsType string
 	var bodyTranslatedContentCsUpdatedAt int
 	var bodyTranslatedContentCsUrl string
-	var bodyTranslatedContentDaAuthorId int
+	var bodyTranslatedContentDaAuthorId string
 	var bodyTranslatedContentDaBody string
 	var bodyTranslatedContentDaCreatedAt int
 	var bodyTranslatedContentDaDescription string
@@ -74,7 +74,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	var bodyTranslatedContentDaType string
 	var bodyTranslatedContentDaUpdatedAt int
 	var bodyTranslatedContentDaUrl string
-	var bodyTranslatedContentDeAuthorId int
+	var bodyTranslatedContentDeAuthorId string
 	var bodyTranslatedContentDeBody string
 	var bodyTranslatedContentDeCreatedAt int
 	var bodyTranslatedContentDeDescription string
@@ -83,7 +83,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	var bodyTranslatedContentDeType string
 	var bodyTranslatedContentDeUpdatedAt int
 	var bodyTranslatedContentDeUrl string
-	var bodyTranslatedContentElAuthorId int
+	var bodyTranslatedContentElAuthorId string
 	var bodyTranslatedContentElBody string
 	var bodyTranslatedContentElCreatedAt int
 	var bodyTranslatedContentElDescription string
@@ -92,7 +92,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	var bodyTranslatedContentElType string
 	var bodyTranslatedContentElUpdatedAt int
 	var bodyTranslatedContentElUrl string
-	var bodyTranslatedContentEnAuthorId int
+	var bodyTranslatedContentEnAuthorId string
 	var bodyTranslatedContentEnBody string
 	var bodyTranslatedContentEnCreatedAt int
 	var bodyTranslatedContentEnDescription string
@@ -101,7 +101,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	var bodyTranslatedContentEnType string
 	var bodyTranslatedContentEnUpdatedAt int
 	var bodyTranslatedContentEnUrl string
-	var bodyTranslatedContentEsAuthorId int
+	var bodyTranslatedContentEsAuthorId string
 	var bodyTranslatedContentEsBody string
 	var bodyTranslatedContentEsCreatedAt int
 	var bodyTranslatedContentEsDescription string
@@ -110,7 +110,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	var bodyTranslatedContentEsType string
 	var bodyTranslatedContentEsUpdatedAt int
 	var bodyTranslatedContentEsUrl string
-	var bodyTranslatedContentEtAuthorId int
+	var bodyTranslatedContentEtAuthorId string
 	var bodyTranslatedContentEtBody string
 	var bodyTranslatedContentEtCreatedAt int
 	var bodyTranslatedContentEtDescription string
@@ -119,7 +119,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	var bodyTranslatedContentEtType string
 	var bodyTranslatedContentEtUpdatedAt int
 	var bodyTranslatedContentEtUrl string
-	var bodyTranslatedContentFiAuthorId int
+	var bodyTranslatedContentFiAuthorId string
 	var bodyTranslatedContentFiBody string
 	var bodyTranslatedContentFiCreatedAt int
 	var bodyTranslatedContentFiDescription string
@@ -128,7 +128,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	var bodyTranslatedContentFiType string
 	var bodyTranslatedContentFiUpdatedAt int
 	var bodyTranslatedContentFiUrl string
-	var bodyTranslatedContentFrAuthorId int
+	var bodyTranslatedContentFrAuthorId string
 	var bodyTranslatedContentFrBody string
 	var bodyTranslatedContentFrCreatedAt int
 	var bodyTranslatedContentFrDescription string
@@ -137,7 +137,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	var bodyTranslatedContentFrType string
 	var bodyTranslatedContentFrUpdatedAt int
 	var bodyTranslatedContentFrUrl string
-	var bodyTranslatedContentHeAuthorId int
+	var bodyTranslatedContentHeAuthorId string
 	var bodyTranslatedContentHeBody string
 	var bodyTranslatedContentHeCreatedAt int
 	var bodyTranslatedContentHeDescription string
@@ -146,7 +146,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	var bodyTranslatedContentHeType string
 	var bodyTranslatedContentHeUpdatedAt int
 	var bodyTranslatedContentHeUrl string
-	var bodyTranslatedContentHrAuthorId int
+	var bodyTranslatedContentHrAuthorId string
 	var bodyTranslatedContentHrBody string
 	var bodyTranslatedContentHrCreatedAt int
 	var bodyTranslatedContentHrDescription string
@@ -155,7 +155,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	var bodyTranslatedContentHrType string
 	var bodyTranslatedContentHrUpdatedAt int
 	var bodyTranslatedContentHrUrl string
-	var bodyTranslatedContentHuAuthorId int
+	var bodyTranslatedContentHuAuthorId string
 	var bodyTranslatedContentHuBody string
 	var bodyTranslatedContentHuCreatedAt int
 	var bodyTranslatedContentHuDescription string
@@ -164,7 +164,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	var bodyTranslatedContentHuType string
 	var bodyTranslatedContentHuUpdatedAt int
 	var bodyTranslatedContentHuUrl string
-	var bodyTranslatedContentIdAuthorId int
+	var bodyTranslatedContentIdAuthorId string
 	var bodyTranslatedContentIdBody string
 	var bodyTranslatedContentIdCreatedAt int
 	var bodyTranslatedContentIdDescription string
@@ -173,7 +173,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	var bodyTranslatedContentIdType string
 	var bodyTranslatedContentIdUpdatedAt int
 	var bodyTranslatedContentIdUrl string
-	var bodyTranslatedContentItAuthorId int
+	var bodyTranslatedContentItAuthorId string
 	var bodyTranslatedContentItBody string
 	var bodyTranslatedContentItCreatedAt int
 	var bodyTranslatedContentItDescription string
@@ -182,7 +182,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	var bodyTranslatedContentItType string
 	var bodyTranslatedContentItUpdatedAt int
 	var bodyTranslatedContentItUrl string
-	var bodyTranslatedContentJaAuthorId int
+	var bodyTranslatedContentJaAuthorId string
 	var bodyTranslatedContentJaBody string
 	var bodyTranslatedContentJaCreatedAt int
 	var bodyTranslatedContentJaDescription string
@@ -191,7 +191,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	var bodyTranslatedContentJaType string
 	var bodyTranslatedContentJaUpdatedAt int
 	var bodyTranslatedContentJaUrl string
-	var bodyTranslatedContentKoAuthorId int
+	var bodyTranslatedContentKoAuthorId string
 	var bodyTranslatedContentKoBody string
 	var bodyTranslatedContentKoCreatedAt int
 	var bodyTranslatedContentKoDescription string
@@ -200,7 +200,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	var bodyTranslatedContentKoType string
 	var bodyTranslatedContentKoUpdatedAt int
 	var bodyTranslatedContentKoUrl string
-	var bodyTranslatedContentLtAuthorId int
+	var bodyTranslatedContentLtAuthorId string
 	var bodyTranslatedContentLtBody string
 	var bodyTranslatedContentLtCreatedAt int
 	var bodyTranslatedContentLtDescription string
@@ -209,7 +209,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	var bodyTranslatedContentLtType string
 	var bodyTranslatedContentLtUpdatedAt int
 	var bodyTranslatedContentLtUrl string
-	var bodyTranslatedContentLvAuthorId int
+	var bodyTranslatedContentLvAuthorId string
 	var bodyTranslatedContentLvBody string
 	var bodyTranslatedContentLvCreatedAt int
 	var bodyTranslatedContentLvDescription string
@@ -218,7 +218,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	var bodyTranslatedContentLvType string
 	var bodyTranslatedContentLvUpdatedAt int
 	var bodyTranslatedContentLvUrl string
-	var bodyTranslatedContentMnAuthorId int
+	var bodyTranslatedContentMnAuthorId string
 	var bodyTranslatedContentMnBody string
 	var bodyTranslatedContentMnCreatedAt int
 	var bodyTranslatedContentMnDescription string
@@ -227,7 +227,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	var bodyTranslatedContentMnType string
 	var bodyTranslatedContentMnUpdatedAt int
 	var bodyTranslatedContentMnUrl string
-	var bodyTranslatedContentNbAuthorId int
+	var bodyTranslatedContentNbAuthorId string
 	var bodyTranslatedContentNbBody string
 	var bodyTranslatedContentNbCreatedAt int
 	var bodyTranslatedContentNbDescription string
@@ -236,7 +236,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	var bodyTranslatedContentNbType string
 	var bodyTranslatedContentNbUpdatedAt int
 	var bodyTranslatedContentNbUrl string
-	var bodyTranslatedContentNlAuthorId int
+	var bodyTranslatedContentNlAuthorId string
 	var bodyTranslatedContentNlBody string
 	var bodyTranslatedContentNlCreatedAt int
 	var bodyTranslatedContentNlDescription string
@@ -245,7 +245,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	var bodyTranslatedContentNlType string
 	var bodyTranslatedContentNlUpdatedAt int
 	var bodyTranslatedContentNlUrl string
-	var bodyTranslatedContentPlAuthorId int
+	var bodyTranslatedContentPlAuthorId string
 	var bodyTranslatedContentPlBody string
 	var bodyTranslatedContentPlCreatedAt int
 	var bodyTranslatedContentPlDescription string
@@ -254,7 +254,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	var bodyTranslatedContentPlType string
 	var bodyTranslatedContentPlUpdatedAt int
 	var bodyTranslatedContentPlUrl string
-	var bodyTranslatedContentPtAuthorId int
+	var bodyTranslatedContentPtAuthorId string
 	var bodyTranslatedContentPtBody string
 	var bodyTranslatedContentPtCreatedAt int
 	var bodyTranslatedContentPtDescription string
@@ -263,7 +263,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	var bodyTranslatedContentPtType string
 	var bodyTranslatedContentPtUpdatedAt int
 	var bodyTranslatedContentPtUrl string
-	var bodyTranslatedContentPtBRAuthorId int
+	var bodyTranslatedContentPtBRAuthorId string
 	var bodyTranslatedContentPtBRBody string
 	var bodyTranslatedContentPtBRCreatedAt int
 	var bodyTranslatedContentPtBRDescription string
@@ -272,7 +272,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	var bodyTranslatedContentPtBRType string
 	var bodyTranslatedContentPtBRUpdatedAt int
 	var bodyTranslatedContentPtBRUrl string
-	var bodyTranslatedContentRoAuthorId int
+	var bodyTranslatedContentRoAuthorId string
 	var bodyTranslatedContentRoBody string
 	var bodyTranslatedContentRoCreatedAt int
 	var bodyTranslatedContentRoDescription string
@@ -281,7 +281,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	var bodyTranslatedContentRoType string
 	var bodyTranslatedContentRoUpdatedAt int
 	var bodyTranslatedContentRoUrl string
-	var bodyTranslatedContentRuAuthorId int
+	var bodyTranslatedContentRuAuthorId string
 	var bodyTranslatedContentRuBody string
 	var bodyTranslatedContentRuCreatedAt int
 	var bodyTranslatedContentRuDescription string
@@ -290,7 +290,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	var bodyTranslatedContentRuType string
 	var bodyTranslatedContentRuUpdatedAt int
 	var bodyTranslatedContentRuUrl string
-	var bodyTranslatedContentSlAuthorId int
+	var bodyTranslatedContentSlAuthorId string
 	var bodyTranslatedContentSlBody string
 	var bodyTranslatedContentSlCreatedAt int
 	var bodyTranslatedContentSlDescription string
@@ -299,7 +299,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	var bodyTranslatedContentSlType string
 	var bodyTranslatedContentSlUpdatedAt int
 	var bodyTranslatedContentSlUrl string
-	var bodyTranslatedContentSrAuthorId int
+	var bodyTranslatedContentSrAuthorId string
 	var bodyTranslatedContentSrBody string
 	var bodyTranslatedContentSrCreatedAt int
 	var bodyTranslatedContentSrDescription string
@@ -308,7 +308,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	var bodyTranslatedContentSrType string
 	var bodyTranslatedContentSrUpdatedAt int
 	var bodyTranslatedContentSrUrl string
-	var bodyTranslatedContentSvAuthorId int
+	var bodyTranslatedContentSvAuthorId string
 	var bodyTranslatedContentSvBody string
 	var bodyTranslatedContentSvCreatedAt int
 	var bodyTranslatedContentSvDescription string
@@ -317,7 +317,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	var bodyTranslatedContentSvType string
 	var bodyTranslatedContentSvUpdatedAt int
 	var bodyTranslatedContentSvUrl string
-	var bodyTranslatedContentTrAuthorId int
+	var bodyTranslatedContentTrAuthorId string
 	var bodyTranslatedContentTrBody string
 	var bodyTranslatedContentTrCreatedAt int
 	var bodyTranslatedContentTrDescription string
@@ -327,7 +327,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	var bodyTranslatedContentTrUpdatedAt int
 	var bodyTranslatedContentTrUrl string
 	var bodyTranslatedContentType string
-	var bodyTranslatedContentViAuthorId int
+	var bodyTranslatedContentViAuthorId string
 	var bodyTranslatedContentViBody string
 	var bodyTranslatedContentViCreatedAt int
 	var bodyTranslatedContentViDescription string
@@ -336,7 +336,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	var bodyTranslatedContentViType string
 	var bodyTranslatedContentViUpdatedAt int
 	var bodyTranslatedContentViUrl string
-	var bodyTranslatedContentZhCNAuthorId int
+	var bodyTranslatedContentZhCNAuthorId string
 	var bodyTranslatedContentZhCNBody string
 	var bodyTranslatedContentZhCNCreatedAt int
 	var bodyTranslatedContentZhCNDescription string
@@ -345,7 +345,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	var bodyTranslatedContentZhCNType string
 	var bodyTranslatedContentZhCNUpdatedAt int
 	var bodyTranslatedContentZhCNUrl string
-	var bodyTranslatedContentZhTWAuthorId int
+	var bodyTranslatedContentZhTWAuthorId string
 	var bodyTranslatedContentZhTWBody string
 	var bodyTranslatedContentZhTWCreatedAt int
 	var bodyTranslatedContentZhTWDescription string
@@ -359,23 +359,37 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "update <id>",
 		Short:       "You can update the details of a single article by making a PUT request to `https://api.intercom.io/articles/<id>`.",
-		Example:     "  intercom-pp-cli articles update 550e8400-e29b-41d4-a716-446655440000",
+		Example:     "  intercom-pp-cli articles update 123",
 		Annotations: map[string]string{"pp:endpoint": "articles.update", "pp:method": "PUT", "pp:path": "/articles/{id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
-				return cmd.Help()
+				// A missing required positional is a usage error in every output
+				// mode (matches command_promoted.go.tmpl). Machine callers
+				// (--json/--agent) also get a JSON error envelope on stdout;
+				// usageErr sets exit 2.
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "missing required argument",
+						"usage": fmt.Sprintf("%s%s", cmd.CommandPath(), " <id>"),
+					}, flags); printErr != nil {
+						return printErr
+					}
+				}
+				return usageErr(fmt.Errorf("missing required argument\nUsage: %s%s", cmd.CommandPath(), " <id>"))
 			}
 			if !stdinBody {
 			}
+			path := "/articles/{id}"
+			if len(args) < 1 || args[0] == "" {
+				return usageErr(fmt.Errorf("id is required\nUsage: %s <%s>", cmd.CommandPath(), "id"))
+			}
+			path = replacePathParam(path, "id", args[0])
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/articles/{id}"
-			path = replacePathParam(path, "id", args[0])
 			params := map[string]string{}
-			var body map[string]any
+			var body any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
@@ -387,33 +401,34 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
-				if bodyAuthorId != 0 {
-					body["author_id"] = bodyAuthorId
+				bodyMap := map[string]any{}
+				body = bodyMap
+				if bodyAuthorId != "" {
+					bodyMap["author_id"] = bodyAuthorId
 				}
 				if bodyBody != "" {
-					body["body"] = bodyBody
+					bodyMap["body"] = bodyBody
 				}
 				if bodyDescription != "" {
-					body["description"] = bodyDescription
+					bodyMap["description"] = bodyDescription
 				}
 				if bodyParentId != "" {
-					body["parent_id"] = bodyParentId
+					bodyMap["parent_id"] = bodyParentId
 				}
 				if bodyParentType != "" {
-					body["parent_type"] = bodyParentType
+					bodyMap["parent_type"] = bodyParentType
 				}
 				if bodyState != "" {
-					body["state"] = bodyState
+					bodyMap["state"] = bodyState
 				}
 				if bodyTitle != "" {
-					body["title"] = bodyTitle
+					bodyMap["title"] = bodyTitle
 				}
 				{
 					nestedTranslatedContent := map[string]any{}
 					{
 						nestedTranslatedContentAr := map[string]any{}
-						if bodyTranslatedContentArAuthorId != 0 {
+						if bodyTranslatedContentArAuthorId != "" {
 							nestedTranslatedContentAr["author_id"] = bodyTranslatedContentArAuthorId
 						}
 						if bodyTranslatedContentArBody != "" {
@@ -446,7 +461,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 					}
 					{
 						nestedTranslatedContentBg := map[string]any{}
-						if bodyTranslatedContentBgAuthorId != 0 {
+						if bodyTranslatedContentBgAuthorId != "" {
 							nestedTranslatedContentBg["author_id"] = bodyTranslatedContentBgAuthorId
 						}
 						if bodyTranslatedContentBgBody != "" {
@@ -479,7 +494,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 					}
 					{
 						nestedTranslatedContentBs := map[string]any{}
-						if bodyTranslatedContentBsAuthorId != 0 {
+						if bodyTranslatedContentBsAuthorId != "" {
 							nestedTranslatedContentBs["author_id"] = bodyTranslatedContentBsAuthorId
 						}
 						if bodyTranslatedContentBsBody != "" {
@@ -512,7 +527,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 					}
 					{
 						nestedTranslatedContentCa := map[string]any{}
-						if bodyTranslatedContentCaAuthorId != 0 {
+						if bodyTranslatedContentCaAuthorId != "" {
 							nestedTranslatedContentCa["author_id"] = bodyTranslatedContentCaAuthorId
 						}
 						if bodyTranslatedContentCaBody != "" {
@@ -545,7 +560,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 					}
 					{
 						nestedTranslatedContentCs := map[string]any{}
-						if bodyTranslatedContentCsAuthorId != 0 {
+						if bodyTranslatedContentCsAuthorId != "" {
 							nestedTranslatedContentCs["author_id"] = bodyTranslatedContentCsAuthorId
 						}
 						if bodyTranslatedContentCsBody != "" {
@@ -578,7 +593,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 					}
 					{
 						nestedTranslatedContentDa := map[string]any{}
-						if bodyTranslatedContentDaAuthorId != 0 {
+						if bodyTranslatedContentDaAuthorId != "" {
 							nestedTranslatedContentDa["author_id"] = bodyTranslatedContentDaAuthorId
 						}
 						if bodyTranslatedContentDaBody != "" {
@@ -611,7 +626,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 					}
 					{
 						nestedTranslatedContentDe := map[string]any{}
-						if bodyTranslatedContentDeAuthorId != 0 {
+						if bodyTranslatedContentDeAuthorId != "" {
 							nestedTranslatedContentDe["author_id"] = bodyTranslatedContentDeAuthorId
 						}
 						if bodyTranslatedContentDeBody != "" {
@@ -644,7 +659,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 					}
 					{
 						nestedTranslatedContentEl := map[string]any{}
-						if bodyTranslatedContentElAuthorId != 0 {
+						if bodyTranslatedContentElAuthorId != "" {
 							nestedTranslatedContentEl["author_id"] = bodyTranslatedContentElAuthorId
 						}
 						if bodyTranslatedContentElBody != "" {
@@ -677,7 +692,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 					}
 					{
 						nestedTranslatedContentEn := map[string]any{}
-						if bodyTranslatedContentEnAuthorId != 0 {
+						if bodyTranslatedContentEnAuthorId != "" {
 							nestedTranslatedContentEn["author_id"] = bodyTranslatedContentEnAuthorId
 						}
 						if bodyTranslatedContentEnBody != "" {
@@ -710,7 +725,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 					}
 					{
 						nestedTranslatedContentEs := map[string]any{}
-						if bodyTranslatedContentEsAuthorId != 0 {
+						if bodyTranslatedContentEsAuthorId != "" {
 							nestedTranslatedContentEs["author_id"] = bodyTranslatedContentEsAuthorId
 						}
 						if bodyTranslatedContentEsBody != "" {
@@ -743,7 +758,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 					}
 					{
 						nestedTranslatedContentEt := map[string]any{}
-						if bodyTranslatedContentEtAuthorId != 0 {
+						if bodyTranslatedContentEtAuthorId != "" {
 							nestedTranslatedContentEt["author_id"] = bodyTranslatedContentEtAuthorId
 						}
 						if bodyTranslatedContentEtBody != "" {
@@ -776,7 +791,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 					}
 					{
 						nestedTranslatedContentFi := map[string]any{}
-						if bodyTranslatedContentFiAuthorId != 0 {
+						if bodyTranslatedContentFiAuthorId != "" {
 							nestedTranslatedContentFi["author_id"] = bodyTranslatedContentFiAuthorId
 						}
 						if bodyTranslatedContentFiBody != "" {
@@ -809,7 +824,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 					}
 					{
 						nestedTranslatedContentFr := map[string]any{}
-						if bodyTranslatedContentFrAuthorId != 0 {
+						if bodyTranslatedContentFrAuthorId != "" {
 							nestedTranslatedContentFr["author_id"] = bodyTranslatedContentFrAuthorId
 						}
 						if bodyTranslatedContentFrBody != "" {
@@ -842,7 +857,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 					}
 					{
 						nestedTranslatedContentHe := map[string]any{}
-						if bodyTranslatedContentHeAuthorId != 0 {
+						if bodyTranslatedContentHeAuthorId != "" {
 							nestedTranslatedContentHe["author_id"] = bodyTranslatedContentHeAuthorId
 						}
 						if bodyTranslatedContentHeBody != "" {
@@ -875,7 +890,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 					}
 					{
 						nestedTranslatedContentHr := map[string]any{}
-						if bodyTranslatedContentHrAuthorId != 0 {
+						if bodyTranslatedContentHrAuthorId != "" {
 							nestedTranslatedContentHr["author_id"] = bodyTranslatedContentHrAuthorId
 						}
 						if bodyTranslatedContentHrBody != "" {
@@ -908,7 +923,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 					}
 					{
 						nestedTranslatedContentHu := map[string]any{}
-						if bodyTranslatedContentHuAuthorId != 0 {
+						if bodyTranslatedContentHuAuthorId != "" {
 							nestedTranslatedContentHu["author_id"] = bodyTranslatedContentHuAuthorId
 						}
 						if bodyTranslatedContentHuBody != "" {
@@ -941,7 +956,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 					}
 					{
 						nestedTranslatedContentId := map[string]any{}
-						if bodyTranslatedContentIdAuthorId != 0 {
+						if bodyTranslatedContentIdAuthorId != "" {
 							nestedTranslatedContentId["author_id"] = bodyTranslatedContentIdAuthorId
 						}
 						if bodyTranslatedContentIdBody != "" {
@@ -974,7 +989,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 					}
 					{
 						nestedTranslatedContentIt := map[string]any{}
-						if bodyTranslatedContentItAuthorId != 0 {
+						if bodyTranslatedContentItAuthorId != "" {
 							nestedTranslatedContentIt["author_id"] = bodyTranslatedContentItAuthorId
 						}
 						if bodyTranslatedContentItBody != "" {
@@ -1007,7 +1022,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 					}
 					{
 						nestedTranslatedContentJa := map[string]any{}
-						if bodyTranslatedContentJaAuthorId != 0 {
+						if bodyTranslatedContentJaAuthorId != "" {
 							nestedTranslatedContentJa["author_id"] = bodyTranslatedContentJaAuthorId
 						}
 						if bodyTranslatedContentJaBody != "" {
@@ -1040,7 +1055,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 					}
 					{
 						nestedTranslatedContentKo := map[string]any{}
-						if bodyTranslatedContentKoAuthorId != 0 {
+						if bodyTranslatedContentKoAuthorId != "" {
 							nestedTranslatedContentKo["author_id"] = bodyTranslatedContentKoAuthorId
 						}
 						if bodyTranslatedContentKoBody != "" {
@@ -1073,7 +1088,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 					}
 					{
 						nestedTranslatedContentLt := map[string]any{}
-						if bodyTranslatedContentLtAuthorId != 0 {
+						if bodyTranslatedContentLtAuthorId != "" {
 							nestedTranslatedContentLt["author_id"] = bodyTranslatedContentLtAuthorId
 						}
 						if bodyTranslatedContentLtBody != "" {
@@ -1106,7 +1121,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 					}
 					{
 						nestedTranslatedContentLv := map[string]any{}
-						if bodyTranslatedContentLvAuthorId != 0 {
+						if bodyTranslatedContentLvAuthorId != "" {
 							nestedTranslatedContentLv["author_id"] = bodyTranslatedContentLvAuthorId
 						}
 						if bodyTranslatedContentLvBody != "" {
@@ -1139,7 +1154,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 					}
 					{
 						nestedTranslatedContentMn := map[string]any{}
-						if bodyTranslatedContentMnAuthorId != 0 {
+						if bodyTranslatedContentMnAuthorId != "" {
 							nestedTranslatedContentMn["author_id"] = bodyTranslatedContentMnAuthorId
 						}
 						if bodyTranslatedContentMnBody != "" {
@@ -1172,7 +1187,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 					}
 					{
 						nestedTranslatedContentNb := map[string]any{}
-						if bodyTranslatedContentNbAuthorId != 0 {
+						if bodyTranslatedContentNbAuthorId != "" {
 							nestedTranslatedContentNb["author_id"] = bodyTranslatedContentNbAuthorId
 						}
 						if bodyTranslatedContentNbBody != "" {
@@ -1205,7 +1220,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 					}
 					{
 						nestedTranslatedContentNl := map[string]any{}
-						if bodyTranslatedContentNlAuthorId != 0 {
+						if bodyTranslatedContentNlAuthorId != "" {
 							nestedTranslatedContentNl["author_id"] = bodyTranslatedContentNlAuthorId
 						}
 						if bodyTranslatedContentNlBody != "" {
@@ -1238,7 +1253,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 					}
 					{
 						nestedTranslatedContentPl := map[string]any{}
-						if bodyTranslatedContentPlAuthorId != 0 {
+						if bodyTranslatedContentPlAuthorId != "" {
 							nestedTranslatedContentPl["author_id"] = bodyTranslatedContentPlAuthorId
 						}
 						if bodyTranslatedContentPlBody != "" {
@@ -1271,7 +1286,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 					}
 					{
 						nestedTranslatedContentPt := map[string]any{}
-						if bodyTranslatedContentPtAuthorId != 0 {
+						if bodyTranslatedContentPtAuthorId != "" {
 							nestedTranslatedContentPt["author_id"] = bodyTranslatedContentPtAuthorId
 						}
 						if bodyTranslatedContentPtBody != "" {
@@ -1304,7 +1319,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 					}
 					{
 						nestedTranslatedContentPtBR := map[string]any{}
-						if bodyTranslatedContentPtBRAuthorId != 0 {
+						if bodyTranslatedContentPtBRAuthorId != "" {
 							nestedTranslatedContentPtBR["author_id"] = bodyTranslatedContentPtBRAuthorId
 						}
 						if bodyTranslatedContentPtBRBody != "" {
@@ -1337,7 +1352,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 					}
 					{
 						nestedTranslatedContentRo := map[string]any{}
-						if bodyTranslatedContentRoAuthorId != 0 {
+						if bodyTranslatedContentRoAuthorId != "" {
 							nestedTranslatedContentRo["author_id"] = bodyTranslatedContentRoAuthorId
 						}
 						if bodyTranslatedContentRoBody != "" {
@@ -1370,7 +1385,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 					}
 					{
 						nestedTranslatedContentRu := map[string]any{}
-						if bodyTranslatedContentRuAuthorId != 0 {
+						if bodyTranslatedContentRuAuthorId != "" {
 							nestedTranslatedContentRu["author_id"] = bodyTranslatedContentRuAuthorId
 						}
 						if bodyTranslatedContentRuBody != "" {
@@ -1403,7 +1418,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 					}
 					{
 						nestedTranslatedContentSl := map[string]any{}
-						if bodyTranslatedContentSlAuthorId != 0 {
+						if bodyTranslatedContentSlAuthorId != "" {
 							nestedTranslatedContentSl["author_id"] = bodyTranslatedContentSlAuthorId
 						}
 						if bodyTranslatedContentSlBody != "" {
@@ -1436,7 +1451,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 					}
 					{
 						nestedTranslatedContentSr := map[string]any{}
-						if bodyTranslatedContentSrAuthorId != 0 {
+						if bodyTranslatedContentSrAuthorId != "" {
 							nestedTranslatedContentSr["author_id"] = bodyTranslatedContentSrAuthorId
 						}
 						if bodyTranslatedContentSrBody != "" {
@@ -1469,7 +1484,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 					}
 					{
 						nestedTranslatedContentSv := map[string]any{}
-						if bodyTranslatedContentSvAuthorId != 0 {
+						if bodyTranslatedContentSvAuthorId != "" {
 							nestedTranslatedContentSv["author_id"] = bodyTranslatedContentSvAuthorId
 						}
 						if bodyTranslatedContentSvBody != "" {
@@ -1502,7 +1517,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 					}
 					{
 						nestedTranslatedContentTr := map[string]any{}
-						if bodyTranslatedContentTrAuthorId != 0 {
+						if bodyTranslatedContentTrAuthorId != "" {
 							nestedTranslatedContentTr["author_id"] = bodyTranslatedContentTrAuthorId
 						}
 						if bodyTranslatedContentTrBody != "" {
@@ -1538,7 +1553,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 					}
 					{
 						nestedTranslatedContentVi := map[string]any{}
-						if bodyTranslatedContentViAuthorId != 0 {
+						if bodyTranslatedContentViAuthorId != "" {
 							nestedTranslatedContentVi["author_id"] = bodyTranslatedContentViAuthorId
 						}
 						if bodyTranslatedContentViBody != "" {
@@ -1571,7 +1586,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 					}
 					{
 						nestedTranslatedContentZhCN := map[string]any{}
-						if bodyTranslatedContentZhCNAuthorId != 0 {
+						if bodyTranslatedContentZhCNAuthorId != "" {
 							nestedTranslatedContentZhCN["author_id"] = bodyTranslatedContentZhCNAuthorId
 						}
 						if bodyTranslatedContentZhCNBody != "" {
@@ -1604,7 +1619,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 					}
 					{
 						nestedTranslatedContentZhTW := map[string]any{}
-						if bodyTranslatedContentZhTWAuthorId != 0 {
+						if bodyTranslatedContentZhTWAuthorId != "" {
 							nestedTranslatedContentZhTW["author_id"] = bodyTranslatedContentZhTWAuthorId
 						}
 						if bodyTranslatedContentZhTWBody != "" {
@@ -1636,7 +1651,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 						}
 					}
 					if len(nestedTranslatedContent) > 0 {
-						body["translated_content"] = nestedTranslatedContent
+						bodyMap["translated_content"] = nestedTranslatedContent
 					}
 				}
 			}
@@ -1707,6 +1722,9 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 					"status":   statusCode,
 					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
 				}
+				if flags.agent {
+					envelope["meta"] = map[string]any{"source": "live"}
+				}
 				if partialFailure != nil {
 					envelope["partial_failure"] = partialFailure
 				}
@@ -1745,7 +1763,11 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 				if len(filtered) > 0 {
 					var parsed any
 					if err := json.Unmarshal(filtered, &parsed); err == nil {
-						envelope["data"] = parsed
+						if flags.agent {
+							envelope["results"] = parsed
+						} else {
+							envelope["data"] = parsed
+						}
 					}
 				}
 				envelopeJSON, err := json.Marshal(envelope)
@@ -1776,14 +1798,14 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 			return nil
 		},
 	}
-	cmd.Flags().IntVar(&bodyAuthorId, "author-id", 0, "The id of the author of the article.")
+	cmd.Flags().StringVar(&bodyAuthorId, "author-id", "", "The id of the author of the article.")
 	cmd.Flags().StringVar(&bodyBody, "body", "", "The content of the article. For multilingual articles, this will be the body of the default language's content.")
 	cmd.Flags().StringVar(&bodyDescription, "description", "", "The description of the article.")
 	cmd.Flags().StringVar(&bodyParentId, "parent-id", "", "The id of the article's parent collection or section. An article without this field stands alone.")
 	cmd.Flags().StringVar(&bodyParentType, "parent-type", "", "The type of parent, which can either be a `collection` or `section`.")
 	cmd.Flags().StringVar(&bodyState, "state", "", "Whether the article will be `published` or will be a `draft`. Defaults to draft.")
 	cmd.Flags().StringVar(&bodyTitle, "title", "", "The title of the article.For multilingual articles, this will be the title of the default language's content.")
-	cmd.Flags().IntVar(&bodyTranslatedContentArAuthorId, "translated-content-ar-author-id", 0, "The ID of the author of the article.")
+	cmd.Flags().StringVar(&bodyTranslatedContentArAuthorId, "translated-content-ar-author-id", "", "The ID of the author of the article.")
 	cmd.Flags().StringVar(&bodyTranslatedContentArBody, "translated-content-ar-body", "", "The body of the article.")
 	cmd.Flags().IntVar(&bodyTranslatedContentArCreatedAt, "translated-content-ar-created-at", 0, "The time when the article was created (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentArDescription, "translated-content-ar-description", "", "The description of the article.")
@@ -1792,7 +1814,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyTranslatedContentArType, "translated-content-ar-type", "", "The type of object - `article_content` .")
 	cmd.Flags().IntVar(&bodyTranslatedContentArUpdatedAt, "translated-content-ar-updated-at", 0, "The time when the article was last updated (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentArUrl, "translated-content-ar-url", "", "The URL of the article.")
-	cmd.Flags().IntVar(&bodyTranslatedContentBgAuthorId, "translated-content-bg-author-id", 0, "The ID of the author of the article.")
+	cmd.Flags().StringVar(&bodyTranslatedContentBgAuthorId, "translated-content-bg-author-id", "", "The ID of the author of the article.")
 	cmd.Flags().StringVar(&bodyTranslatedContentBgBody, "translated-content-bg-body", "", "The body of the article.")
 	cmd.Flags().IntVar(&bodyTranslatedContentBgCreatedAt, "translated-content-bg-created-at", 0, "The time when the article was created (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentBgDescription, "translated-content-bg-description", "", "The description of the article.")
@@ -1801,7 +1823,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyTranslatedContentBgType, "translated-content-bg-type", "", "The type of object - `article_content` .")
 	cmd.Flags().IntVar(&bodyTranslatedContentBgUpdatedAt, "translated-content-bg-updated-at", 0, "The time when the article was last updated (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentBgUrl, "translated-content-bg-url", "", "The URL of the article.")
-	cmd.Flags().IntVar(&bodyTranslatedContentBsAuthorId, "translated-content-bs-author-id", 0, "The ID of the author of the article.")
+	cmd.Flags().StringVar(&bodyTranslatedContentBsAuthorId, "translated-content-bs-author-id", "", "The ID of the author of the article.")
 	cmd.Flags().StringVar(&bodyTranslatedContentBsBody, "translated-content-bs-body", "", "The body of the article.")
 	cmd.Flags().IntVar(&bodyTranslatedContentBsCreatedAt, "translated-content-bs-created-at", 0, "The time when the article was created (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentBsDescription, "translated-content-bs-description", "", "The description of the article.")
@@ -1810,7 +1832,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyTranslatedContentBsType, "translated-content-bs-type", "", "The type of object - `article_content` .")
 	cmd.Flags().IntVar(&bodyTranslatedContentBsUpdatedAt, "translated-content-bs-updated-at", 0, "The time when the article was last updated (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentBsUrl, "translated-content-bs-url", "", "The URL of the article.")
-	cmd.Flags().IntVar(&bodyTranslatedContentCaAuthorId, "translated-content-ca-author-id", 0, "The ID of the author of the article.")
+	cmd.Flags().StringVar(&bodyTranslatedContentCaAuthorId, "translated-content-ca-author-id", "", "The ID of the author of the article.")
 	cmd.Flags().StringVar(&bodyTranslatedContentCaBody, "translated-content-ca-body", "", "The body of the article.")
 	cmd.Flags().IntVar(&bodyTranslatedContentCaCreatedAt, "translated-content-ca-created-at", 0, "The time when the article was created (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentCaDescription, "translated-content-ca-description", "", "The description of the article.")
@@ -1819,7 +1841,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyTranslatedContentCaType, "translated-content-ca-type", "", "The type of object - `article_content` .")
 	cmd.Flags().IntVar(&bodyTranslatedContentCaUpdatedAt, "translated-content-ca-updated-at", 0, "The time when the article was last updated (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentCaUrl, "translated-content-ca-url", "", "The URL of the article.")
-	cmd.Flags().IntVar(&bodyTranslatedContentCsAuthorId, "translated-content-cs-author-id", 0, "The ID of the author of the article.")
+	cmd.Flags().StringVar(&bodyTranslatedContentCsAuthorId, "translated-content-cs-author-id", "", "The ID of the author of the article.")
 	cmd.Flags().StringVar(&bodyTranslatedContentCsBody, "translated-content-cs-body", "", "The body of the article.")
 	cmd.Flags().IntVar(&bodyTranslatedContentCsCreatedAt, "translated-content-cs-created-at", 0, "The time when the article was created (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentCsDescription, "translated-content-cs-description", "", "The description of the article.")
@@ -1828,7 +1850,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyTranslatedContentCsType, "translated-content-cs-type", "", "The type of object - `article_content` .")
 	cmd.Flags().IntVar(&bodyTranslatedContentCsUpdatedAt, "translated-content-cs-updated-at", 0, "The time when the article was last updated (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentCsUrl, "translated-content-cs-url", "", "The URL of the article.")
-	cmd.Flags().IntVar(&bodyTranslatedContentDaAuthorId, "translated-content-da-author-id", 0, "The ID of the author of the article.")
+	cmd.Flags().StringVar(&bodyTranslatedContentDaAuthorId, "translated-content-da-author-id", "", "The ID of the author of the article.")
 	cmd.Flags().StringVar(&bodyTranslatedContentDaBody, "translated-content-da-body", "", "The body of the article.")
 	cmd.Flags().IntVar(&bodyTranslatedContentDaCreatedAt, "translated-content-da-created-at", 0, "The time when the article was created (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentDaDescription, "translated-content-da-description", "", "The description of the article.")
@@ -1837,7 +1859,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyTranslatedContentDaType, "translated-content-da-type", "", "The type of object - `article_content` .")
 	cmd.Flags().IntVar(&bodyTranslatedContentDaUpdatedAt, "translated-content-da-updated-at", 0, "The time when the article was last updated (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentDaUrl, "translated-content-da-url", "", "The URL of the article.")
-	cmd.Flags().IntVar(&bodyTranslatedContentDeAuthorId, "translated-content-de-author-id", 0, "The ID of the author of the article.")
+	cmd.Flags().StringVar(&bodyTranslatedContentDeAuthorId, "translated-content-de-author-id", "", "The ID of the author of the article.")
 	cmd.Flags().StringVar(&bodyTranslatedContentDeBody, "translated-content-de-body", "", "The body of the article.")
 	cmd.Flags().IntVar(&bodyTranslatedContentDeCreatedAt, "translated-content-de-created-at", 0, "The time when the article was created (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentDeDescription, "translated-content-de-description", "", "The description of the article.")
@@ -1846,7 +1868,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyTranslatedContentDeType, "translated-content-de-type", "", "The type of object - `article_content` .")
 	cmd.Flags().IntVar(&bodyTranslatedContentDeUpdatedAt, "translated-content-de-updated-at", 0, "The time when the article was last updated (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentDeUrl, "translated-content-de-url", "", "The URL of the article.")
-	cmd.Flags().IntVar(&bodyTranslatedContentElAuthorId, "translated-content-el-author-id", 0, "The ID of the author of the article.")
+	cmd.Flags().StringVar(&bodyTranslatedContentElAuthorId, "translated-content-el-author-id", "", "The ID of the author of the article.")
 	cmd.Flags().StringVar(&bodyTranslatedContentElBody, "translated-content-el-body", "", "The body of the article.")
 	cmd.Flags().IntVar(&bodyTranslatedContentElCreatedAt, "translated-content-el-created-at", 0, "The time when the article was created (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentElDescription, "translated-content-el-description", "", "The description of the article.")
@@ -1855,7 +1877,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyTranslatedContentElType, "translated-content-el-type", "", "The type of object - `article_content` .")
 	cmd.Flags().IntVar(&bodyTranslatedContentElUpdatedAt, "translated-content-el-updated-at", 0, "The time when the article was last updated (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentElUrl, "translated-content-el-url", "", "The URL of the article.")
-	cmd.Flags().IntVar(&bodyTranslatedContentEnAuthorId, "translated-content-en-author-id", 0, "The ID of the author of the article.")
+	cmd.Flags().StringVar(&bodyTranslatedContentEnAuthorId, "translated-content-en-author-id", "", "The ID of the author of the article.")
 	cmd.Flags().StringVar(&bodyTranslatedContentEnBody, "translated-content-en-body", "", "The body of the article.")
 	cmd.Flags().IntVar(&bodyTranslatedContentEnCreatedAt, "translated-content-en-created-at", 0, "The time when the article was created (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentEnDescription, "translated-content-en-description", "", "The description of the article.")
@@ -1864,7 +1886,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyTranslatedContentEnType, "translated-content-en-type", "", "The type of object - `article_content` .")
 	cmd.Flags().IntVar(&bodyTranslatedContentEnUpdatedAt, "translated-content-en-updated-at", 0, "The time when the article was last updated (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentEnUrl, "translated-content-en-url", "", "The URL of the article.")
-	cmd.Flags().IntVar(&bodyTranslatedContentEsAuthorId, "translated-content-es-author-id", 0, "The ID of the author of the article.")
+	cmd.Flags().StringVar(&bodyTranslatedContentEsAuthorId, "translated-content-es-author-id", "", "The ID of the author of the article.")
 	cmd.Flags().StringVar(&bodyTranslatedContentEsBody, "translated-content-es-body", "", "The body of the article.")
 	cmd.Flags().IntVar(&bodyTranslatedContentEsCreatedAt, "translated-content-es-created-at", 0, "The time when the article was created (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentEsDescription, "translated-content-es-description", "", "The description of the article.")
@@ -1873,7 +1895,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyTranslatedContentEsType, "translated-content-es-type", "", "The type of object - `article_content` .")
 	cmd.Flags().IntVar(&bodyTranslatedContentEsUpdatedAt, "translated-content-es-updated-at", 0, "The time when the article was last updated (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentEsUrl, "translated-content-es-url", "", "The URL of the article.")
-	cmd.Flags().IntVar(&bodyTranslatedContentEtAuthorId, "translated-content-et-author-id", 0, "The ID of the author of the article.")
+	cmd.Flags().StringVar(&bodyTranslatedContentEtAuthorId, "translated-content-et-author-id", "", "The ID of the author of the article.")
 	cmd.Flags().StringVar(&bodyTranslatedContentEtBody, "translated-content-et-body", "", "The body of the article.")
 	cmd.Flags().IntVar(&bodyTranslatedContentEtCreatedAt, "translated-content-et-created-at", 0, "The time when the article was created (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentEtDescription, "translated-content-et-description", "", "The description of the article.")
@@ -1882,7 +1904,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyTranslatedContentEtType, "translated-content-et-type", "", "The type of object - `article_content` .")
 	cmd.Flags().IntVar(&bodyTranslatedContentEtUpdatedAt, "translated-content-et-updated-at", 0, "The time when the article was last updated (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentEtUrl, "translated-content-et-url", "", "The URL of the article.")
-	cmd.Flags().IntVar(&bodyTranslatedContentFiAuthorId, "translated-content-fi-author-id", 0, "The ID of the author of the article.")
+	cmd.Flags().StringVar(&bodyTranslatedContentFiAuthorId, "translated-content-fi-author-id", "", "The ID of the author of the article.")
 	cmd.Flags().StringVar(&bodyTranslatedContentFiBody, "translated-content-fi-body", "", "The body of the article.")
 	cmd.Flags().IntVar(&bodyTranslatedContentFiCreatedAt, "translated-content-fi-created-at", 0, "The time when the article was created (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentFiDescription, "translated-content-fi-description", "", "The description of the article.")
@@ -1891,7 +1913,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyTranslatedContentFiType, "translated-content-fi-type", "", "The type of object - `article_content` .")
 	cmd.Flags().IntVar(&bodyTranslatedContentFiUpdatedAt, "translated-content-fi-updated-at", 0, "The time when the article was last updated (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentFiUrl, "translated-content-fi-url", "", "The URL of the article.")
-	cmd.Flags().IntVar(&bodyTranslatedContentFrAuthorId, "translated-content-fr-author-id", 0, "The ID of the author of the article.")
+	cmd.Flags().StringVar(&bodyTranslatedContentFrAuthorId, "translated-content-fr-author-id", "", "The ID of the author of the article.")
 	cmd.Flags().StringVar(&bodyTranslatedContentFrBody, "translated-content-fr-body", "", "The body of the article.")
 	cmd.Flags().IntVar(&bodyTranslatedContentFrCreatedAt, "translated-content-fr-created-at", 0, "The time when the article was created (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentFrDescription, "translated-content-fr-description", "", "The description of the article.")
@@ -1900,7 +1922,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyTranslatedContentFrType, "translated-content-fr-type", "", "The type of object - `article_content` .")
 	cmd.Flags().IntVar(&bodyTranslatedContentFrUpdatedAt, "translated-content-fr-updated-at", 0, "The time when the article was last updated (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentFrUrl, "translated-content-fr-url", "", "The URL of the article.")
-	cmd.Flags().IntVar(&bodyTranslatedContentHeAuthorId, "translated-content-he-author-id", 0, "The ID of the author of the article.")
+	cmd.Flags().StringVar(&bodyTranslatedContentHeAuthorId, "translated-content-he-author-id", "", "The ID of the author of the article.")
 	cmd.Flags().StringVar(&bodyTranslatedContentHeBody, "translated-content-he-body", "", "The body of the article.")
 	cmd.Flags().IntVar(&bodyTranslatedContentHeCreatedAt, "translated-content-he-created-at", 0, "The time when the article was created (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentHeDescription, "translated-content-he-description", "", "The description of the article.")
@@ -1909,7 +1931,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyTranslatedContentHeType, "translated-content-he-type", "", "The type of object - `article_content` .")
 	cmd.Flags().IntVar(&bodyTranslatedContentHeUpdatedAt, "translated-content-he-updated-at", 0, "The time when the article was last updated (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentHeUrl, "translated-content-he-url", "", "The URL of the article.")
-	cmd.Flags().IntVar(&bodyTranslatedContentHrAuthorId, "translated-content-hr-author-id", 0, "The ID of the author of the article.")
+	cmd.Flags().StringVar(&bodyTranslatedContentHrAuthorId, "translated-content-hr-author-id", "", "The ID of the author of the article.")
 	cmd.Flags().StringVar(&bodyTranslatedContentHrBody, "translated-content-hr-body", "", "The body of the article.")
 	cmd.Flags().IntVar(&bodyTranslatedContentHrCreatedAt, "translated-content-hr-created-at", 0, "The time when the article was created (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentHrDescription, "translated-content-hr-description", "", "The description of the article.")
@@ -1918,7 +1940,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyTranslatedContentHrType, "translated-content-hr-type", "", "The type of object - `article_content` .")
 	cmd.Flags().IntVar(&bodyTranslatedContentHrUpdatedAt, "translated-content-hr-updated-at", 0, "The time when the article was last updated (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentHrUrl, "translated-content-hr-url", "", "The URL of the article.")
-	cmd.Flags().IntVar(&bodyTranslatedContentHuAuthorId, "translated-content-hu-author-id", 0, "The ID of the author of the article.")
+	cmd.Flags().StringVar(&bodyTranslatedContentHuAuthorId, "translated-content-hu-author-id", "", "The ID of the author of the article.")
 	cmd.Flags().StringVar(&bodyTranslatedContentHuBody, "translated-content-hu-body", "", "The body of the article.")
 	cmd.Flags().IntVar(&bodyTranslatedContentHuCreatedAt, "translated-content-hu-created-at", 0, "The time when the article was created (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentHuDescription, "translated-content-hu-description", "", "The description of the article.")
@@ -1927,7 +1949,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyTranslatedContentHuType, "translated-content-hu-type", "", "The type of object - `article_content` .")
 	cmd.Flags().IntVar(&bodyTranslatedContentHuUpdatedAt, "translated-content-hu-updated-at", 0, "The time when the article was last updated (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentHuUrl, "translated-content-hu-url", "", "The URL of the article.")
-	cmd.Flags().IntVar(&bodyTranslatedContentIdAuthorId, "translated-content-id-author-id", 0, "The ID of the author of the article.")
+	cmd.Flags().StringVar(&bodyTranslatedContentIdAuthorId, "translated-content-id-author-id", "", "The ID of the author of the article.")
 	cmd.Flags().StringVar(&bodyTranslatedContentIdBody, "translated-content-id-body", "", "The body of the article.")
 	cmd.Flags().IntVar(&bodyTranslatedContentIdCreatedAt, "translated-content-id-created-at", 0, "The time when the article was created (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentIdDescription, "translated-content-id-description", "", "The description of the article.")
@@ -1936,7 +1958,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyTranslatedContentIdType, "translated-content-id-type", "", "The type of object - `article_content` .")
 	cmd.Flags().IntVar(&bodyTranslatedContentIdUpdatedAt, "translated-content-id-updated-at", 0, "The time when the article was last updated (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentIdUrl, "translated-content-id-url", "", "The URL of the article.")
-	cmd.Flags().IntVar(&bodyTranslatedContentItAuthorId, "translated-content-it-author-id", 0, "The ID of the author of the article.")
+	cmd.Flags().StringVar(&bodyTranslatedContentItAuthorId, "translated-content-it-author-id", "", "The ID of the author of the article.")
 	cmd.Flags().StringVar(&bodyTranslatedContentItBody, "translated-content-it-body", "", "The body of the article.")
 	cmd.Flags().IntVar(&bodyTranslatedContentItCreatedAt, "translated-content-it-created-at", 0, "The time when the article was created (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentItDescription, "translated-content-it-description", "", "The description of the article.")
@@ -1945,7 +1967,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyTranslatedContentItType, "translated-content-it-type", "", "The type of object - `article_content` .")
 	cmd.Flags().IntVar(&bodyTranslatedContentItUpdatedAt, "translated-content-it-updated-at", 0, "The time when the article was last updated (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentItUrl, "translated-content-it-url", "", "The URL of the article.")
-	cmd.Flags().IntVar(&bodyTranslatedContentJaAuthorId, "translated-content-ja-author-id", 0, "The ID of the author of the article.")
+	cmd.Flags().StringVar(&bodyTranslatedContentJaAuthorId, "translated-content-ja-author-id", "", "The ID of the author of the article.")
 	cmd.Flags().StringVar(&bodyTranslatedContentJaBody, "translated-content-ja-body", "", "The body of the article.")
 	cmd.Flags().IntVar(&bodyTranslatedContentJaCreatedAt, "translated-content-ja-created-at", 0, "The time when the article was created (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentJaDescription, "translated-content-ja-description", "", "The description of the article.")
@@ -1954,7 +1976,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyTranslatedContentJaType, "translated-content-ja-type", "", "The type of object - `article_content` .")
 	cmd.Flags().IntVar(&bodyTranslatedContentJaUpdatedAt, "translated-content-ja-updated-at", 0, "The time when the article was last updated (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentJaUrl, "translated-content-ja-url", "", "The URL of the article.")
-	cmd.Flags().IntVar(&bodyTranslatedContentKoAuthorId, "translated-content-ko-author-id", 0, "The ID of the author of the article.")
+	cmd.Flags().StringVar(&bodyTranslatedContentKoAuthorId, "translated-content-ko-author-id", "", "The ID of the author of the article.")
 	cmd.Flags().StringVar(&bodyTranslatedContentKoBody, "translated-content-ko-body", "", "The body of the article.")
 	cmd.Flags().IntVar(&bodyTranslatedContentKoCreatedAt, "translated-content-ko-created-at", 0, "The time when the article was created (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentKoDescription, "translated-content-ko-description", "", "The description of the article.")
@@ -1963,7 +1985,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyTranslatedContentKoType, "translated-content-ko-type", "", "The type of object - `article_content` .")
 	cmd.Flags().IntVar(&bodyTranslatedContentKoUpdatedAt, "translated-content-ko-updated-at", 0, "The time when the article was last updated (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentKoUrl, "translated-content-ko-url", "", "The URL of the article.")
-	cmd.Flags().IntVar(&bodyTranslatedContentLtAuthorId, "translated-content-lt-author-id", 0, "The ID of the author of the article.")
+	cmd.Flags().StringVar(&bodyTranslatedContentLtAuthorId, "translated-content-lt-author-id", "", "The ID of the author of the article.")
 	cmd.Flags().StringVar(&bodyTranslatedContentLtBody, "translated-content-lt-body", "", "The body of the article.")
 	cmd.Flags().IntVar(&bodyTranslatedContentLtCreatedAt, "translated-content-lt-created-at", 0, "The time when the article was created (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentLtDescription, "translated-content-lt-description", "", "The description of the article.")
@@ -1972,7 +1994,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyTranslatedContentLtType, "translated-content-lt-type", "", "The type of object - `article_content` .")
 	cmd.Flags().IntVar(&bodyTranslatedContentLtUpdatedAt, "translated-content-lt-updated-at", 0, "The time when the article was last updated (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentLtUrl, "translated-content-lt-url", "", "The URL of the article.")
-	cmd.Flags().IntVar(&bodyTranslatedContentLvAuthorId, "translated-content-lv-author-id", 0, "The ID of the author of the article.")
+	cmd.Flags().StringVar(&bodyTranslatedContentLvAuthorId, "translated-content-lv-author-id", "", "The ID of the author of the article.")
 	cmd.Flags().StringVar(&bodyTranslatedContentLvBody, "translated-content-lv-body", "", "The body of the article.")
 	cmd.Flags().IntVar(&bodyTranslatedContentLvCreatedAt, "translated-content-lv-created-at", 0, "The time when the article was created (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentLvDescription, "translated-content-lv-description", "", "The description of the article.")
@@ -1981,7 +2003,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyTranslatedContentLvType, "translated-content-lv-type", "", "The type of object - `article_content` .")
 	cmd.Flags().IntVar(&bodyTranslatedContentLvUpdatedAt, "translated-content-lv-updated-at", 0, "The time when the article was last updated (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentLvUrl, "translated-content-lv-url", "", "The URL of the article.")
-	cmd.Flags().IntVar(&bodyTranslatedContentMnAuthorId, "translated-content-mn-author-id", 0, "The ID of the author of the article.")
+	cmd.Flags().StringVar(&bodyTranslatedContentMnAuthorId, "translated-content-mn-author-id", "", "The ID of the author of the article.")
 	cmd.Flags().StringVar(&bodyTranslatedContentMnBody, "translated-content-mn-body", "", "The body of the article.")
 	cmd.Flags().IntVar(&bodyTranslatedContentMnCreatedAt, "translated-content-mn-created-at", 0, "The time when the article was created (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentMnDescription, "translated-content-mn-description", "", "The description of the article.")
@@ -1990,7 +2012,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyTranslatedContentMnType, "translated-content-mn-type", "", "The type of object - `article_content` .")
 	cmd.Flags().IntVar(&bodyTranslatedContentMnUpdatedAt, "translated-content-mn-updated-at", 0, "The time when the article was last updated (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentMnUrl, "translated-content-mn-url", "", "The URL of the article.")
-	cmd.Flags().IntVar(&bodyTranslatedContentNbAuthorId, "translated-content-nb-author-id", 0, "The ID of the author of the article.")
+	cmd.Flags().StringVar(&bodyTranslatedContentNbAuthorId, "translated-content-nb-author-id", "", "The ID of the author of the article.")
 	cmd.Flags().StringVar(&bodyTranslatedContentNbBody, "translated-content-nb-body", "", "The body of the article.")
 	cmd.Flags().IntVar(&bodyTranslatedContentNbCreatedAt, "translated-content-nb-created-at", 0, "The time when the article was created (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentNbDescription, "translated-content-nb-description", "", "The description of the article.")
@@ -1999,7 +2021,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyTranslatedContentNbType, "translated-content-nb-type", "", "The type of object - `article_content` .")
 	cmd.Flags().IntVar(&bodyTranslatedContentNbUpdatedAt, "translated-content-nb-updated-at", 0, "The time when the article was last updated (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentNbUrl, "translated-content-nb-url", "", "The URL of the article.")
-	cmd.Flags().IntVar(&bodyTranslatedContentNlAuthorId, "translated-content-nl-author-id", 0, "The ID of the author of the article.")
+	cmd.Flags().StringVar(&bodyTranslatedContentNlAuthorId, "translated-content-nl-author-id", "", "The ID of the author of the article.")
 	cmd.Flags().StringVar(&bodyTranslatedContentNlBody, "translated-content-nl-body", "", "The body of the article.")
 	cmd.Flags().IntVar(&bodyTranslatedContentNlCreatedAt, "translated-content-nl-created-at", 0, "The time when the article was created (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentNlDescription, "translated-content-nl-description", "", "The description of the article.")
@@ -2008,7 +2030,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyTranslatedContentNlType, "translated-content-nl-type", "", "The type of object - `article_content` .")
 	cmd.Flags().IntVar(&bodyTranslatedContentNlUpdatedAt, "translated-content-nl-updated-at", 0, "The time when the article was last updated (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentNlUrl, "translated-content-nl-url", "", "The URL of the article.")
-	cmd.Flags().IntVar(&bodyTranslatedContentPlAuthorId, "translated-content-pl-author-id", 0, "The ID of the author of the article.")
+	cmd.Flags().StringVar(&bodyTranslatedContentPlAuthorId, "translated-content-pl-author-id", "", "The ID of the author of the article.")
 	cmd.Flags().StringVar(&bodyTranslatedContentPlBody, "translated-content-pl-body", "", "The body of the article.")
 	cmd.Flags().IntVar(&bodyTranslatedContentPlCreatedAt, "translated-content-pl-created-at", 0, "The time when the article was created (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentPlDescription, "translated-content-pl-description", "", "The description of the article.")
@@ -2017,7 +2039,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyTranslatedContentPlType, "translated-content-pl-type", "", "The type of object - `article_content` .")
 	cmd.Flags().IntVar(&bodyTranslatedContentPlUpdatedAt, "translated-content-pl-updated-at", 0, "The time when the article was last updated (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentPlUrl, "translated-content-pl-url", "", "The URL of the article.")
-	cmd.Flags().IntVar(&bodyTranslatedContentPtAuthorId, "translated-content-pt-author-id", 0, "The ID of the author of the article.")
+	cmd.Flags().StringVar(&bodyTranslatedContentPtAuthorId, "translated-content-pt-author-id", "", "The ID of the author of the article.")
 	cmd.Flags().StringVar(&bodyTranslatedContentPtBody, "translated-content-pt-body", "", "The body of the article.")
 	cmd.Flags().IntVar(&bodyTranslatedContentPtCreatedAt, "translated-content-pt-created-at", 0, "The time when the article was created (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentPtDescription, "translated-content-pt-description", "", "The description of the article.")
@@ -2026,7 +2048,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyTranslatedContentPtType, "translated-content-pt-type", "", "The type of object - `article_content` .")
 	cmd.Flags().IntVar(&bodyTranslatedContentPtUpdatedAt, "translated-content-pt-updated-at", 0, "The time when the article was last updated (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentPtUrl, "translated-content-pt-url", "", "The URL of the article.")
-	cmd.Flags().IntVar(&bodyTranslatedContentPtBRAuthorId, "translated-content-pt-br-author-id", 0, "The ID of the author of the article.")
+	cmd.Flags().StringVar(&bodyTranslatedContentPtBRAuthorId, "translated-content-pt-br-author-id", "", "The ID of the author of the article.")
 	cmd.Flags().StringVar(&bodyTranslatedContentPtBRBody, "translated-content-pt-br-body", "", "The body of the article.")
 	cmd.Flags().IntVar(&bodyTranslatedContentPtBRCreatedAt, "translated-content-pt-br-created-at", 0, "The time when the article was created (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentPtBRDescription, "translated-content-pt-br-description", "", "The description of the article.")
@@ -2035,7 +2057,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyTranslatedContentPtBRType, "translated-content-pt-br-type", "", "The type of object - `article_content` .")
 	cmd.Flags().IntVar(&bodyTranslatedContentPtBRUpdatedAt, "translated-content-pt-br-updated-at", 0, "The time when the article was last updated (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentPtBRUrl, "translated-content-pt-br-url", "", "The URL of the article.")
-	cmd.Flags().IntVar(&bodyTranslatedContentRoAuthorId, "translated-content-ro-author-id", 0, "The ID of the author of the article.")
+	cmd.Flags().StringVar(&bodyTranslatedContentRoAuthorId, "translated-content-ro-author-id", "", "The ID of the author of the article.")
 	cmd.Flags().StringVar(&bodyTranslatedContentRoBody, "translated-content-ro-body", "", "The body of the article.")
 	cmd.Flags().IntVar(&bodyTranslatedContentRoCreatedAt, "translated-content-ro-created-at", 0, "The time when the article was created (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentRoDescription, "translated-content-ro-description", "", "The description of the article.")
@@ -2044,7 +2066,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyTranslatedContentRoType, "translated-content-ro-type", "", "The type of object - `article_content` .")
 	cmd.Flags().IntVar(&bodyTranslatedContentRoUpdatedAt, "translated-content-ro-updated-at", 0, "The time when the article was last updated (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentRoUrl, "translated-content-ro-url", "", "The URL of the article.")
-	cmd.Flags().IntVar(&bodyTranslatedContentRuAuthorId, "translated-content-ru-author-id", 0, "The ID of the author of the article.")
+	cmd.Flags().StringVar(&bodyTranslatedContentRuAuthorId, "translated-content-ru-author-id", "", "The ID of the author of the article.")
 	cmd.Flags().StringVar(&bodyTranslatedContentRuBody, "translated-content-ru-body", "", "The body of the article.")
 	cmd.Flags().IntVar(&bodyTranslatedContentRuCreatedAt, "translated-content-ru-created-at", 0, "The time when the article was created (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentRuDescription, "translated-content-ru-description", "", "The description of the article.")
@@ -2053,7 +2075,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyTranslatedContentRuType, "translated-content-ru-type", "", "The type of object - `article_content` .")
 	cmd.Flags().IntVar(&bodyTranslatedContentRuUpdatedAt, "translated-content-ru-updated-at", 0, "The time when the article was last updated (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentRuUrl, "translated-content-ru-url", "", "The URL of the article.")
-	cmd.Flags().IntVar(&bodyTranslatedContentSlAuthorId, "translated-content-sl-author-id", 0, "The ID of the author of the article.")
+	cmd.Flags().StringVar(&bodyTranslatedContentSlAuthorId, "translated-content-sl-author-id", "", "The ID of the author of the article.")
 	cmd.Flags().StringVar(&bodyTranslatedContentSlBody, "translated-content-sl-body", "", "The body of the article.")
 	cmd.Flags().IntVar(&bodyTranslatedContentSlCreatedAt, "translated-content-sl-created-at", 0, "The time when the article was created (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentSlDescription, "translated-content-sl-description", "", "The description of the article.")
@@ -2062,7 +2084,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyTranslatedContentSlType, "translated-content-sl-type", "", "The type of object - `article_content` .")
 	cmd.Flags().IntVar(&bodyTranslatedContentSlUpdatedAt, "translated-content-sl-updated-at", 0, "The time when the article was last updated (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentSlUrl, "translated-content-sl-url", "", "The URL of the article.")
-	cmd.Flags().IntVar(&bodyTranslatedContentSrAuthorId, "translated-content-sr-author-id", 0, "The ID of the author of the article.")
+	cmd.Flags().StringVar(&bodyTranslatedContentSrAuthorId, "translated-content-sr-author-id", "", "The ID of the author of the article.")
 	cmd.Flags().StringVar(&bodyTranslatedContentSrBody, "translated-content-sr-body", "", "The body of the article.")
 	cmd.Flags().IntVar(&bodyTranslatedContentSrCreatedAt, "translated-content-sr-created-at", 0, "The time when the article was created (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentSrDescription, "translated-content-sr-description", "", "The description of the article.")
@@ -2071,7 +2093,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyTranslatedContentSrType, "translated-content-sr-type", "", "The type of object - `article_content` .")
 	cmd.Flags().IntVar(&bodyTranslatedContentSrUpdatedAt, "translated-content-sr-updated-at", 0, "The time when the article was last updated (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentSrUrl, "translated-content-sr-url", "", "The URL of the article.")
-	cmd.Flags().IntVar(&bodyTranslatedContentSvAuthorId, "translated-content-sv-author-id", 0, "The ID of the author of the article.")
+	cmd.Flags().StringVar(&bodyTranslatedContentSvAuthorId, "translated-content-sv-author-id", "", "The ID of the author of the article.")
 	cmd.Flags().StringVar(&bodyTranslatedContentSvBody, "translated-content-sv-body", "", "The body of the article.")
 	cmd.Flags().IntVar(&bodyTranslatedContentSvCreatedAt, "translated-content-sv-created-at", 0, "The time when the article was created (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentSvDescription, "translated-content-sv-description", "", "The description of the article.")
@@ -2080,7 +2102,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyTranslatedContentSvType, "translated-content-sv-type", "", "The type of object - `article_content` .")
 	cmd.Flags().IntVar(&bodyTranslatedContentSvUpdatedAt, "translated-content-sv-updated-at", 0, "The time when the article was last updated (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentSvUrl, "translated-content-sv-url", "", "The URL of the article.")
-	cmd.Flags().IntVar(&bodyTranslatedContentTrAuthorId, "translated-content-tr-author-id", 0, "The ID of the author of the article.")
+	cmd.Flags().StringVar(&bodyTranslatedContentTrAuthorId, "translated-content-tr-author-id", "", "The ID of the author of the article.")
 	cmd.Flags().StringVar(&bodyTranslatedContentTrBody, "translated-content-tr-body", "", "The body of the article.")
 	cmd.Flags().IntVar(&bodyTranslatedContentTrCreatedAt, "translated-content-tr-created-at", 0, "The time when the article was created (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentTrDescription, "translated-content-tr-description", "", "The description of the article.")
@@ -2090,7 +2112,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().IntVar(&bodyTranslatedContentTrUpdatedAt, "translated-content-tr-updated-at", 0, "The time when the article was last updated (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentTrUrl, "translated-content-tr-url", "", "The URL of the article.")
 	cmd.Flags().StringVar(&bodyTranslatedContentType, "translated-content-type", "", "The type of object - article_translated_content.")
-	cmd.Flags().IntVar(&bodyTranslatedContentViAuthorId, "translated-content-vi-author-id", 0, "The ID of the author of the article.")
+	cmd.Flags().StringVar(&bodyTranslatedContentViAuthorId, "translated-content-vi-author-id", "", "The ID of the author of the article.")
 	cmd.Flags().StringVar(&bodyTranslatedContentViBody, "translated-content-vi-body", "", "The body of the article.")
 	cmd.Flags().IntVar(&bodyTranslatedContentViCreatedAt, "translated-content-vi-created-at", 0, "The time when the article was created (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentViDescription, "translated-content-vi-description", "", "The description of the article.")
@@ -2099,7 +2121,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyTranslatedContentViType, "translated-content-vi-type", "", "The type of object - `article_content` .")
 	cmd.Flags().IntVar(&bodyTranslatedContentViUpdatedAt, "translated-content-vi-updated-at", 0, "The time when the article was last updated (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentViUrl, "translated-content-vi-url", "", "The URL of the article.")
-	cmd.Flags().IntVar(&bodyTranslatedContentZhCNAuthorId, "translated-content-zh-cn-author-id", 0, "The ID of the author of the article.")
+	cmd.Flags().StringVar(&bodyTranslatedContentZhCNAuthorId, "translated-content-zh-cn-author-id", "", "The ID of the author of the article.")
 	cmd.Flags().StringVar(&bodyTranslatedContentZhCNBody, "translated-content-zh-cn-body", "", "The body of the article.")
 	cmd.Flags().IntVar(&bodyTranslatedContentZhCNCreatedAt, "translated-content-zh-cn-created-at", 0, "The time when the article was created (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentZhCNDescription, "translated-content-zh-cn-description", "", "The description of the article.")
@@ -2108,7 +2130,7 @@ func newArticlesUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyTranslatedContentZhCNType, "translated-content-zh-cn-type", "", "The type of object - `article_content` .")
 	cmd.Flags().IntVar(&bodyTranslatedContentZhCNUpdatedAt, "translated-content-zh-cn-updated-at", 0, "The time when the article was last updated (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentZhCNUrl, "translated-content-zh-cn-url", "", "The URL of the article.")
-	cmd.Flags().IntVar(&bodyTranslatedContentZhTWAuthorId, "translated-content-zh-tw-author-id", 0, "The ID of the author of the article.")
+	cmd.Flags().StringVar(&bodyTranslatedContentZhTWAuthorId, "translated-content-zh-tw-author-id", "", "The ID of the author of the article.")
 	cmd.Flags().StringVar(&bodyTranslatedContentZhTWBody, "translated-content-zh-tw-body", "", "The body of the article.")
 	cmd.Flags().IntVar(&bodyTranslatedContentZhTWCreatedAt, "translated-content-zh-tw-created-at", 0, "The time when the article was created (seconds).")
 	cmd.Flags().StringVar(&bodyTranslatedContentZhTWDescription, "translated-content-zh-tw-description", "", "The description of the article.")

@@ -1,0 +1,37 @@
+{
+  "endpoint": "GET /v1/env/web/en-US",
+  "method": "GET",
+  "raw_url": "https://www.peerspace.com/v1/env/web/en-US",
+  "status": 304,
+  "request_headers": {
+    ":authority": "www.peerspace.com",
+    ":method": "GET",
+    ":path": "/v1/env/web/en-US",
+    ":scheme": "https",
+    "accept": "*/*",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9,fr-FR;q=0.8,fr;q=0.7,ko;q=0.6,es;q=0.5",
+    "if-none-match": "W/\"1e41c-av2s/Ilxlv/iuqh3HvQf1kO3RTc\"",
+    "priority": "u=1, i",
+    "referer": "https://www.peerspace.com/plan/event",
+    "sec-ch-ua": "\"Not;A=Brand\";v=\"8\", \"Chromium\";v=\"150\", \"Google Chrome\";v=\"150\"",
+    "sec-ch-ua-mobile": "?1",
+    "sec-ch-ua-platform": "\"Android\"",
+    "sec-fetch-dest": "empty",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-site": "same-origin",
+    "user-agent": "Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"
+  },
+  "request_body": null,
+  "response_headers": {
+    "cf-cache-status": "DYNAMIC",
+    "cf-ray": "a1c042d89d2099b5-CDG",
+    "date": "Thu, 16 Jul 2026 10:18:08 GMT",
+    "etag": "W/\"1e41c-av2s/Ilxlv/iuqh3HvQf1kO3RTc\"",
+    "server": "cloudflare",
+    "via": "1.1 google",
+    "x-powered-by": "Express"
+  },
+  "response_body": null,
+  "response_body_known": false
+}

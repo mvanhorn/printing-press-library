@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "drug-enforcement-pp-mcp",
+  "display_name": "Drug Enforcement",
+  "version": "0.0.0",
+  "description": "Search FDA drug recall enforcement records — keyless, offline-cacheable, agent-native. Reports FDA facts only; never says a drug is safe.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/drug-enforcement-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/drug-enforcement-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "ars-sicilia-dossier-commissione-resolve",
+  "applied_at": "2026-07-29",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.18.0",
+  "summary": "commissione dossier traduce l'argomento nelle due forme che gli archivi capiscono, invece di inoltrare lo stesso termine a tutti. resolveDossierCommissione: codice numerico -> codcom per /bd/ (229/230) + ordinale a lettere per l'ISIS pareri (226); ordinale -> codcom via commissioneCodice (inversa di commissioneOrdinale) + ordinale; denominazione libera -> invariata su entrambi, unica via per le commissioni speciali che non hanno codice 1-6. La sezione ddl cerca isisName e non l'argomento grezzo (con '6' cercava la cifra in tutti i ddl). Nuovo guard di non corrispondenza: contava tutte le sezioni, ma la sezione ddl e' un match testuale che produce righe anche per un nome inesistente, quindi ora contano solo le tre sezioni che filtrano per commissione. Nuovo Client.CommissioniDisponibili(ctx, legisl) in icaroclient: enumera le denominazioni dal <select> di /bd/convocazioni per la legislatura, usato dal messaggio d'errore.",
+  "reason": "Il dossier non era completo per NESSUNA commissione, comprese le permanenti: /bd/ risolve per codice o per frammento della denominazione ('VI - Salute, Servizi Sociali e Sanitari'), l'ISIS dei pareri vuole l'ordinale ('SESTA'), e nessuna traduzione esisteva. Con 'SESTA' (l'esempio in SKILL.md) uscivano 0 convocazioni e 0 sommari; con '6' (l'esempio nell'help) 0 pareri. Sulle speciali il danno era peggiore: 'Antimafia' non compare in nessuna denominazione d'archivio (l'Antimafia e' 'Commissione d'inchiesta e vigilanza sul fenomeno della mafia e della corruzione in Sicilia'), e il guard total==0 non scattava perche' la sezione ddl restituiva comunque 30 righe di match testuale. Il risultato erano tre sezioni a zero senza alcun segnale, letto da una gap analysis come 'la CLI non copre le commissioni speciali' mentre l'archivio le contiene tutte. Gli alias d'uso corrente non sono hardcodati: le denominazioni cambiano per legislatura, quindi vengono enumerate al volo nel messaggio d'errore.",
+  "files": [
+    "internal/cli/commissione_dossier.go",
+    "internal/cli/commissione_dossier_test.go",
+    "internal/icaroclient/bd.go",
+    "SKILL.md",
+    "README.md"
+  ],
+  "validated_outcome": "leg 18: dossier 'SESTA' e dossier '6' ora convergono su {convocazioni:30, sommari:30, pareri:15, ddl:30} con liste ddl identiche (prima: 0/0/15/30 e 30/30/0/assente); dossier 'Servizi Sociali e Sanitari' invariato e completo; dossier 'inchiesta e vigilanza' -> {30, 30, 4, 8}; dossier 'Unione Europea' -> {30, 30, 17, 30}; dossier 'Antimafia' -> exit 1 con l'elenco delle 9 denominazioni della legislatura; dossier 'Commissione Fuffa' -> stesso errore. Una commissione esistente ma senza attivita' resta un report vuoto, non un errore."
+}

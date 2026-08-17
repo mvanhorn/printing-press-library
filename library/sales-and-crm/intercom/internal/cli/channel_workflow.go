@@ -14,9 +14,10 @@ import (
 
 func newWorkflowCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "workflow",
-		Short: "Compound workflows that combine multiple API operations",
-		RunE:  parentNoSubcommandRunE(flags),
+		Use:         "workflow",
+		Short:       "Compound workflows that combine multiple API operations",
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 	cmd.AddCommand(newWorkflowArchiveCmd(flags))
 	cmd.AddCommand(newWorkflowStatusCmd(flags))
@@ -54,7 +55,7 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			}
 			defer s.Close()
 
-			resources := []string{"admins", "ai", "ai-content-import-sources", "articles", "companies", "companies-scroll", "contacts", "conversations", "data-attributes", "help-center", "help-center-help-centers", "internal-articles", "news", "news-news-items", "segments", "subscription-types", "tags", "teams", "ticket-states", "ticket-types"}
+			resources := []string{"admins", "ai", "ai-content-import-sources", "articles", "companies", "companies-scroll", "contacts", "conversations", "data-attributes", "help-center", "help-center-help-centers", "internal-articles", "me", "news", "news-news-items", "segments", "subscription-types", "tags", "teams", "ticket-states", "ticket-types"}
 			totalSynced := 0
 			syncEventWriter := cmd.OutOrStdout()
 			if flags.asJSON {
@@ -71,7 +72,7 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			}
 
 			for _, resource := range resources {
-				res := syncResource(cmd.Context(), c, s, resource, "", full, 100, false, nil, syncEventWriter)
+				res := syncResource(cmd.Context(), c, s, resource, "", full, 100, false, false, nil, syncEventWriter)
 				if res.Err != nil {
 					fmt.Fprintf(cmd.ErrOrStderr(), "  %s: error: %v\n", resource, res.Err)
 					continue
@@ -100,7 +101,7 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 		},
 	}
 
-	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/intercom-pp-cli/data.db)")
+	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite database file path (default: resolved data directory data.db)")
 	cmd.Flags().BoolVar(&full, "full", false, "Full re-archive (ignore previous sync state)")
 
 	return cmd
@@ -156,7 +157,7 @@ func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
+	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite database file path (default: resolved data directory data.db)")
 
 	return cmd
 }

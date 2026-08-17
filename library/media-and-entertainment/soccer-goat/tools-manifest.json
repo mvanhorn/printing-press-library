@@ -1,0 +1,257 @@
+{
+  "api_name": "soccer-goat",
+  "base_url": "https://transfermarkt-api.fly.dev",
+  "description": "Type any player or club and get market value, EA FC rating, potential, and stats in one report, joined across sources that live in separate walled silos.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "clubs_search",
+      "description": "Search Clubs. Required: club_name. Optional: page_number (default: 1). Returns array of ClubSearchResult.",
+      "method": "GET",
+      "path": "/clubs/search/{club_name}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "club_name",
+          "type": "string",
+          "location": "path",
+          "description": "Club name",
+          "required": true
+        },
+        {
+          "name": "page_number",
+          "type": "string",
+          "location": "query",
+          "description": "Page number"
+        }
+      ]
+    },
+    {
+      "name": "clubs_players_get-club",
+      "description": "Get Club Players. Required: club_id. Optional: season_id. Returns array of ClubPlayer.",
+      "method": "GET",
+      "path": "/clubs/{club_id}/players",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "club_id",
+          "type": "string",
+          "location": "path",
+          "description": "Club id",
+          "required": true
+        },
+        {
+          "name": "season_id",
+          "type": "string",
+          "location": "query",
+          "description": "Season id"
+        }
+      ]
+    },
+    {
+      "name": "clubs_profile_get-club",
+      "description": "Get Club Profile. Required: club_id. Returns the ClubProfile.",
+      "method": "GET",
+      "path": "/clubs/{club_id}/profile",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "club_id",
+          "type": "string",
+          "location": "path",
+          "description": "Club id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "competitions_search",
+      "description": "Search Competitions. Required: competition_name. Optional: page_number (default: 1). Returns array of CompetitionSearchResult.",
+      "method": "GET",
+      "path": "/competitions/search/{competition_name}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "competition_name",
+          "type": "string",
+          "location": "path",
+          "description": "Competition name",
+          "required": true
+        },
+        {
+          "name": "page_number",
+          "type": "string",
+          "location": "query",
+          "description": "Page number"
+        }
+      ]
+    },
+    {
+      "name": "competitions_clubs_get-competition",
+      "description": "Get Competition Clubs. Required: competition_id. Optional: season_id. Returns array of CompetitionClub.",
+      "method": "GET",
+      "path": "/competitions/{competition_id}/clubs",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "competition_id",
+          "type": "string",
+          "location": "path",
+          "description": "Competition id",
+          "required": true
+        },
+        {
+          "name": "season_id",
+          "type": "string",
+          "location": "query",
+          "description": "Season id"
+        }
+      ]
+    },
+    {
+      "name": "players_search",
+      "description": "Search Players. Required: player_name. Optional: page_number (default: 1). Returns array of PlayerSearchResult.",
+      "method": "GET",
+      "path": "/players/search/{player_name}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "player_name",
+          "type": "string",
+          "location": "path",
+          "description": "Player name",
+          "required": true
+        },
+        {
+          "name": "page_number",
+          "type": "string",
+          "location": "query",
+          "description": "Page number"
+        }
+      ]
+    },
+    {
+      "name": "players_achievements_get-player",
+      "description": "Get Player Achievements. Required: player_id. Returns array of PlayerAchievement.",
+      "method": "GET",
+      "path": "/players/{player_id}/achievements",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "player_id",
+          "type": "string",
+          "location": "path",
+          "description": "Player id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "players_injuries_get-player",
+      "description": "Get Player Injuries. Required: player_id. Optional: page_number (default: 1). Returns array of Injury.",
+      "method": "GET",
+      "path": "/players/{player_id}/injuries",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "player_id",
+          "type": "string",
+          "location": "path",
+          "description": "Player id",
+          "required": true
+        },
+        {
+          "name": "page_number",
+          "type": "string",
+          "location": "query",
+          "description": "Page number"
+        }
+      ]
+    },
+    {
+      "name": "players_jersey-numbers_get-player",
+      "description": "Get Player Jersey Numbers. Required: player_id. Returns array of JerseyNumber.",
+      "method": "GET",
+      "path": "/players/{player_id}/jersey_numbers",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "player_id",
+          "type": "string",
+          "location": "path",
+          "description": "Player id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "players_market-value_get-player",
+      "description": "Get Player Market Value. Required: player_id. Returns array of MarketValueHistory.",
+      "method": "GET",
+      "path": "/players/{player_id}/market_value",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "player_id",
+          "type": "string",
+          "location": "path",
+          "description": "Player id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "players_profile_get-player",
+      "description": "Get Player Profile. Required: player_id. Returns array of string.",
+      "method": "GET",
+      "path": "/players/{player_id}/profile",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "player_id",
+          "type": "string",
+          "location": "path",
+          "description": "Player id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "players_stats_get-player",
+      "description": "Get Player Stats. Required: player_id. Returns array of PlayerStat.",
+      "method": "GET",
+      "path": "/players/{player_id}/stats",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "player_id",
+          "type": "string",
+          "location": "path",
+          "description": "Player id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "players_transfers_get-player",
+      "description": "Get Player Transfers. Required: player_id. Returns array of PlayerTransfer.",
+      "method": "GET",
+      "path": "/players/{player_id}/transfers",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "player_id",
+          "type": "string",
+          "location": "path",
+          "description": "Player id",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

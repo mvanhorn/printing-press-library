@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "partial-failure-must-not-discard-the-run",
+  "applied_at": "2026-07-25",
+  "base_run_id": "20260511-211333",
+  "base_printing_press_version": "4.4.0",
+  "files": [
+    "internal/cli/sync_api_hydrate.go",
+    "internal/cli/sync_api_hydrate_test.go",
+    "internal/cli/sync_cache.go",
+    "internal/granola/api_notes.go",
+    "internal/granola/api_notes_test.go",
+    "internal/granola/store_sync.go"
+  ],
+  "summary": "Three sync-wide contracts, each guarding a failure that is contained to one item but was being escalated or hidden. A write into a row the other data path owns must MERGE, never REPLACE: SQLite's REPLACE is delete-then-insert, so it silently transfers the row_source marker and blanks every column only the other path carries, which is invisible to any test whose two paths use disjoint ids. An authorization refusal must be read against what was requested: on a collection endpoint it means the credential cannot be used at all, but on a single-resource fetch it is a verdict about that resource, so the id is skipped rather than aborting a run and discarding everything already fetched. And a discarded parse error on a stored timestamp becomes a zero that the read path renders as no timestamp at all, so the sync counts and reports what it could not parse instead of degrading silently when the upstream format moves.",
+  "reason": "Each of the three failed by looking healthy. The REPLACE path returned success and left the right row count while destroying the row's contents; the per-note 403 aborted a whole hydrate run over one inaccessible note; the swallowed timestamp error produced transcripts with blank times and no signal in any summary, log, or exit code. This CLI writes two data paths into one store, so silent wrong answers are the failure class that matters most here.",
+  "validated_outcome": "Reverting any one of the three cache-sync upserts to INSERT OR REPLACE fails the shared-meeting regression tests on row_source, on the API-only meeting columns, and on the attendee name respectively; a per-note 403 now skips with a recorded warning while a list-stage 403 and any 401 still abort with the auth exit code."
+}

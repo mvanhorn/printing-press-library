@@ -1,0 +1,27 @@
+{
+  "schema_version": 2,
+  "id": "captcha-always-reseed-and-interactive-recovery",
+  "applied_at": "2026-06-21",
+  "base_run_id": "20260528-222057",
+  "base_printing_press_version": "4.14.0",
+  "summary": "Harden the piloted-Chrome hCaptcha solver: re-seed the full Suno cookie jar on every solve (avoids paperfoot/suno-cli#3's per-generation OAuth popup), remove the vestigial Seeded flag that tempted a regression back into that bug, and repair the broken interactive recovery so the solver window actually comes on-screen (CDP setWindowBounds) with a rendered-challenge probe and three distinct, actionable timeout/error messages.",
+  "reason": "Follow-up correctness fixes to the piloted-Chrome captcha subsystem shipped in PR #1076. Three findings, all live-verified (captcha-gated `generate describe --wait` produced 2 complete clips, exit 0, no orphaned Chrome): (1) ALWAYS-RESEED — the solver and ReadSunoCookies doc comments claimed the dedicated profile was seeded once and persisted thereafter, but a persisted profile session can outlive the actual Clerk/Google-SSO login; that stale session is exactly what triggers paperfoot/suno-cli#3's per-generation \"Continue as <user>\" OAuth popup. Solve() already re-seeds the full cookie jar (incl. Clerk __client/__session) every call and never calls clearBrowserCookies; the two stale doc comments were corrected and a regression test (TestSolve_AlwaysSeeds) locks the always-reseed invariant in. (2) REMOVE SEEDED FLAG — Options.Seeded, config CaptchaProfile.Seeded (toml `seeded`), the persistSeeded callback, and the `seeded=%v` status output were written, persisted, and displayed but gated nothing — a latent trap inviting a regression back into #3. Removed; go-toml/v2 ignores the now-unknown key so existing configs still load. (3) INTERACTIVE RECOVERY — showOnScreen used window.moveTo(), a no-op on a top-level browser window, so on the rare interactive captcha the challenge stayed parked offscreen (x=-32000) and the user had to kill Chrome by hand. It now repositions via CDP Browser.setWindowBounds; the re-render-every-2s loop (which spawned a new widget each tick) was replaced with a single non-blocking execute + token poll; a challenge-visibility probe (challengeVisibleJS) verifies the captcha is genuinely presented and fails fast if it never renders; and three distinct messages distinguish window-couldn't-show / challenge-never-rendered / shown-but-not-solved. Interactive timing knobs were made vars so tests can shrink them, with tests added for all three paths. Verified: go build ./..., go vet ./... clean, gofmt clean, full test suite passes (captcha/auth/config/cli green; new tests TestSolve_AlwaysSeeds, TestSolve_InteractiveFallback_ShowsVerifiesAndSolves, TestSolve_InteractiveChallengeNeverRenders_Errors, TestSolve_InteractiveShownButUnsolved_TimesOut all pass).",
+  "files": [
+    "internal/captcha/solver.go",
+    "internal/captcha/execute.go",
+    "internal/captcha/chrome.go",
+    "internal/captcha/cookies.go",
+    "internal/captcha/config.go",
+    "internal/captcha/solver_test.go",
+    "internal/auth/chrome.go",
+    "internal/cli/suno_auth_captcha.go",
+    "internal/cli/suno_captcha_solver.go",
+    "internal/config/suno_captcha.go"
+  ],
+  "validated_outcome": "go build ./... && go vet ./... && gofmt -l (clean) && go test ./internal/captcha/ ./internal/auth/ ./internal/config/ ./internal/cli/ (all pass, incl. 4 new captcha interactive/always-seeds tests)",
+  "findings_addressed": [
+    "F1-always-reseed-avoids-oauth-popup",
+    "F2-remove-vestigial-seeded-flag",
+    "F3-interactive-window-show-and-render-probe"
+  ]
+}

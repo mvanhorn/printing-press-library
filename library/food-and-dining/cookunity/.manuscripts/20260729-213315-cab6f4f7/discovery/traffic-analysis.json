@@ -1,0 +1,34 @@
+{
+  "version": "1",
+  "summary": {
+    "target_url": "https://subscription.cookunity.com/",
+    "entry_count": 24,
+    "api_entry_count": 12,
+    "noise_entry_count": 12,
+    "host_distribution": {"subscription.cookunity.com": 12}
+  },
+  "reachability": {
+    "mode": "standard_http",
+    "confidence": 0.9,
+    "reasons": ["marketing origin returns 200 over stdlib HTTP; app API replays over standard HTTP with an Authorization token header"]
+  },
+  "protocols": [
+    {"label": "rest_json", "confidence": 0.9},
+    {"label": "graphql", "confidence": 0.8},
+    {"label": "sdui", "confidence": 0.95}
+  ],
+  "auth": {
+    "candidates": [
+      {"type": "bearer_token", "location": "header", "name": "Authorization", "confidence": 0.95}
+    ],
+    "captcha_preflight": false
+  },
+  "endpoint_clusters": [
+    {"method": "GET", "path_pattern": "/sdui-service/web/view/menu/{date}/clustered-results", "count": 1},
+    {"method": "GET", "path_pattern": "/sdui-service/web/view/menu/components/clustered-result", "count": 4},
+    {"method": "GET", "path_pattern": "/sdui-service/view/v1/cart/{date}", "count": 1},
+    {"method": "POST", "path_pattern": "/subscription-back/graphql/user", "count": 8},
+    {"method": "POST", "path_pattern": "/subscription-back/graphql/public", "count": 1}
+  ],
+  "generation_hints": ["auth_token_no_bearer_prefix", "requires_platform_header", "sdui_wrapped_responses", "meal_data_in_MEAL_properties"]
+}

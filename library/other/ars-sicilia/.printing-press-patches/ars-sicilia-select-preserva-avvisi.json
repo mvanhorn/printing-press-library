@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "ars-sicilia-select-preserva-avvisi",
+  "applied_at": "2026-08-14",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.18.0",
+  "summary": "--select non puo' piu' togliere dalla radice i campi che qualificano la risposta: troncato, conteggio, nota, hint, meta. Nuovo helper preservaAvvisi, invocato in printOutputWithFlags subito dopo filterFields; agisce solo in radice, dentro le righe di un array quei nomi restano campi come gli altri.",
+  "reason": "I campi di avviso non sono dati fra cui scegliere: dicono se i dati sono tutti. Su `deputato profilo \"Chinnici Valentina\" --legisl 18 --data 2026-06-01:2026-08-14 --select tipo,data` il payload perdeva `troncato: [\"interrogazioni\"]` e `conteggio`, cioe' l'unico segnale che la risposta copriva 46 atti su 84 (il default e' --limit 30 per archivio). E --select e' il flag che SKILL.md raccomanda agli agenti per risparmiare contesto, quindi l'avviso spariva esattamente nel modo d'uso in cui serve di piu'. La causa e' in filterFieldsRec (helpers.go:547): risolto `data` in radice matchedAny diventa true e il ramo di recupero riammette solo gli array che rispondono ai nomi rimasti irrisolti, quindi `conteggio` (oggetto) e `troncato` (array di stringhe nude, non supera yieldsFields) cadono entrambi. La riga di SKILL.md «Il campo `nota` non va messo in `--select`» e' stata corretta di conseguenza: resta vero che non va *chiesto* (dove non c'e' fa comparire l'avviso «nota non esiste in questi record»), ma non serve chiederlo, perche' ora sopravvive da se'.",
+  "files": [
+    "internal/cli/avvisi.go",
+    "internal/cli/avvisi_test.go",
+    "internal/cli/helpers.go",
+    "SKILL.md"
+  ],
+  "validated_outcome": "`deputato profilo \"Chinnici Valentina\" --legisl 18 --data 2026-06-01:2026-08-14 --agent --select tipo,data`: prima le chiavi di radice erano {data}, ora {data, conteggio, troncato:[interrogazioni]}. `interrogazioni cerca --agent --envelope --select numero,data`: prima {risultati}, ora {risultati, troncato:true, hint}. Non-regressione su `legge cronologia 18 1 --anno 2026 --agent --select data,fase,titolo`: 33 eventi prima e dopo, chiavi di radice invariate {eventi, titolo}. Nessuna duplicazione a livelli diversi. go test ./... verde."
+}

@@ -19,16 +19,22 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// signInURL is the dominos.com homepage. Deep-linking to a hash-route like
-// /pages/customer/#!/customer/signIn/ does NOT reliably open the sign-in
-// modal in the SPA — the homepage with its "SIGN IN & EARN REWARDS" button
-// is the path that always works.
-const signInURL = "https://www.dominos.com/"
+const (
+	usSignInURL     = "https://www.dominos.com/"
+	canadaSignInURL = "https://order.dominos.ca/en/pages/customer/#!/customer/login/"
+)
+
+func signInURLForMarket(market string) string {
+	if market == config.MarketCanada {
+		return canadaSignInURL
+	}
+	return usSignInURL
+}
 
 // harvestExpr reads sessionStorage.accessTokens['customer-oauth'] AND
 // sessionStorage.Customer.{CustomerID,Email,FirstName,LastName} from the
-// dominos.com page context. Returns a JSON envelope so the caller never has
-// to know their opaque CustomerID — it's harvested alongside the bearer.
+// selected market's page context. Returns a JSON envelope so the caller never
+// has to know their opaque CustomerID — it's harvested alongside the bearer.
 const harvestExpr = `(function(){var out={token:'',customer_id:'',email:'',first_name:'',last_name:''};try{var at=JSON.parse(sessionStorage.getItem('accessTokens')||'{}');out.token=at['customer-oauth']||''}catch(e){}try{var c=JSON.parse(sessionStorage.getItem('Customer')||'{}');out.customer_id=c.CustomerID||'';out.email=c.Email||'';out.first_name=c.FirstName||'';out.last_name=c.LastName||''}catch(e){}return JSON.stringify(out)})()`
 
 // harvestEnvelope is the shape harvestExpr returns. Use it to decode the JS
@@ -56,9 +62,9 @@ func newAuthLoginCmd(flags *rootFlags) *cobra.Command {
 		Use:   "login",
 		Short: "Open Chrome, sign in, and harvest a bearer token automatically",
 		Long: strings.Trim(`
-Spawns a dedicated Chrome window pointed at dominos.com sign-in, waits for
-you to complete the login (handles captcha, 2FA, anything Domino's gates
-with), then reads the bearer JWT from sessionStorage and saves it to
+Spawns a dedicated Chrome window pointed at the selected Domino's market and
+waits for you to complete the login (handles captcha, 2FA, anything Domino's
+gates with), then reads the bearer JWT from sessionStorage and saves it to
 ~/.config/dominos-pp-cli/config.toml. No copy-paste required.
 
 The window uses an isolated profile directory under
@@ -71,13 +77,17 @@ Alternative flows:
   --paste     Skip the browser, prompt for a token you harvested elsewhere
   --stdin     Read the token from stdin (e.g. pbpaste | auth login --stdin)
 `, "\n"),
-		Example:     "  dominos-pp-cli auth login\n  dominos-pp-cli auth login --paste\n  pbpaste | dominos-pp-cli auth login --stdin",
+		Example:     "  dominos-pp-cli auth login\n  dominos-pp-cli auth login --market ca\n  dominos-pp-cli auth login --paste\n  pbpaste | dominos-pp-cli auth login --stdin",
 		Annotations: map[string]string{"mcp:read-only": "false"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
 				return nil
 			}
 			w := cmd.OutOrStdout()
+			cfg, err := flags.loadConfig()
+			if err != nil {
+				return configErr(err)
+			}
 
 			if stdinToken {
 				return saveTokenFromReader(w, flags, os.Stdin, "stdin")
@@ -87,10 +97,11 @@ Alternative flows:
 			}
 
 			// chromedp path: spawn Chrome, wait for sign-in, harvest token + customer.
-			env, err := harvestTokenViaChrome(cmd.Context(), w, headless, timeout)
+			marketSignInURL := signInURLForMarket(cfg.Market)
+			env, err := harvestTokenViaChrome(cmd.Context(), w, marketSignInURL, headless, timeout)
 			if err != nil {
 				fmt.Fprintf(w, "\nChrome harvest failed: %v\n", err)
-				fmt.Fprintln(w, "Falling back to manual paste. Open dominos.com, sign in, then in DevTools Console run:")
+				fmt.Fprintf(w, "Falling back to manual paste. Open %s, sign in, then in DevTools Console run:\n", marketSignInURL)
 				fmt.Fprintln(w, "  copy(JSON.parse(sessionStorage.getItem('accessTokens'))['customer-oauth'])")
 				fmt.Fprint(w, "Token: ")
 				return saveTokenFromReader(w, flags, bufio.NewReader(os.Stdin), "manual fallback")
@@ -111,7 +122,7 @@ Alternative flows:
 // name) so callers default to the saved CustomerID instead of asking the
 // user to paste an opaque identifier. Profile persists between runs at
 // ~/.config/dominos-pp-cli/chrome/ so re-logins are faster.
-func harvestTokenViaChrome(parent context.Context, w io.Writer, headless bool, timeout time.Duration) (harvestEnvelope, error) {
+func harvestTokenViaChrome(parent context.Context, w io.Writer, signInURL string, headless bool, timeout time.Duration) (harvestEnvelope, error) {
 	var empty harvestEnvelope
 	if timeout <= 0 {
 		timeout = 5 * time.Minute
@@ -179,16 +190,11 @@ func saveHarvestedAuth(w io.Writer, flags *rootFlags, env harvestEnvelope, sourc
 	if len(env.Token) < 20 {
 		return fmt.Errorf("token from %s is suspiciously short (%d chars); aborting", source, len(env.Token))
 	}
-	cfg, err := config.Load(flags.configPath)
+	cfg, err := flags.loadConfig()
 	if err != nil {
 		return configErr(err)
 	}
-	cfg.AuthHeaderVal = ""
-	cfg.DominosCustomerID = env.CustomerID
-	if env.Email != "" {
-		cfg.DominosUsername = env.Email
-	}
-	if err := cfg.SaveTokens("", "", env.Token, "", time.Time{}); err != nil {
+	if err := cfg.SaveHarvestedCredentials(env.Token, env.CustomerID, env.Email); err != nil {
 		return configErr(fmt.Errorf("saving harvested token: %w", err))
 	}
 	if flags.asJSON {
@@ -196,6 +202,7 @@ func saveHarvestedAuth(w io.Writer, flags *rootFlags, env harvestEnvelope, sourc
 			"saved":       true,
 			"config_path": cfg.Path,
 			"source":      source,
+			"market":      cfg.Market,
 			"customer_id": env.CustomerID,
 			"email":       env.Email,
 			"token_chars": len(env.Token),
@@ -230,14 +237,11 @@ func saveTokenFromReader(w io.Writer, flags *rootFlags, r io.Reader, source stri
 		return fmt.Errorf("token from %s is suspiciously short (%d chars); aborting", source, len(token))
 	}
 
-	cfg, err := config.Load(flags.configPath)
+	cfg, err := flags.loadConfig()
 	if err != nil {
 		return configErr(err)
 	}
-	cfg.AuthHeaderVal = ""
-	emptyClient := ""
-	emptyRefresh := ""
-	if err := cfg.SaveTokens(emptyClient, emptyClient, token, emptyRefresh, time.Time{}); err != nil {
+	if err := cfg.SaveManualToken(token); err != nil {
 		return configErr(fmt.Errorf("saving harvested token: %w", err))
 	}
 	if flags.asJSON {
@@ -245,6 +249,7 @@ func saveTokenFromReader(w io.Writer, flags *rootFlags, r io.Reader, source stri
 			"saved":       true,
 			"config_path": cfg.Path,
 			"source":      source,
+			"market":      cfg.Market,
 			"token_chars": len(token),
 		}, flags)
 	}

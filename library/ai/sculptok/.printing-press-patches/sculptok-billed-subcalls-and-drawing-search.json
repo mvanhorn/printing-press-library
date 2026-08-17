@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "sculptok-billed-subcalls-and-drawing-search",
+  "applied_at": "2026-07-29",
+  "base_run_id": "20260622-164426-352dd01a",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Every credit-spending sub-call gets its own persisted job row, and every offline search --type filters by the query term.",
+  "reason": "reconcile joins credit-event remarks against stored prompt IDs, so a billed draw the workflow makes on the user's behalf (the --restore-first pre-pass) reads as an unmatched charge unless it is stored under its own promptId; and a search type that ignores the term returns the whole table while looking like a filtered result.",
+  "files": ["internal/cli/sculptok_shared.go", "internal/cli/search.go", "internal/store/store.go"],
+  "validated_outcome": "Fake-server test asserts the --restore-first pre-pass lands in the jobs table as kind=restore/completed alongside the main draw."
+}

@@ -23,7 +23,7 @@ builds:
     env:
       - CGO_ENABLED=0
     ldflags:
-      - -s -w
+      - -s -w -X main.version={{ .Version }}
     targets:
       - darwin_amd64
       - darwin_arm64
@@ -45,7 +45,7 @@ brews:
       owner: educrvz
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "The first CLI for Shopper — every catalog, cart"
+    description: "Every Shopper storefront in one CLI — catalog, cart, delivery schedule, charge calendar, and spend analytics no web UI surfaces."
     install: |
       bin.install "shopper-pp-cli"
       bin.install "shopper-pp-mcp"

@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "lever-escape-mcp-path-params",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260807-044310",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Escaped MCP path-param substitutions with url.PathEscape via a dedicated formatMCPPathParamValue helper (2 call sites).",
+  "reason": "Path-segment values were substituted unescaped, so a value could smuggle slashes, dots, or query characters into the request path (template-level injection). Mirrors the identical fix already staged in the greenhouse package; multi-CLI template bug.",
+  "files": [
+    "internal/mcp/tools.go"
+  ],
+  "validated_outcome": "go build ./... and go vet ./... pass; full test suite matches the pristine-print baseline failure set exactly (no new failures).",
+  "upstream_issue": null
+}

@@ -9,9 +9,10 @@ import (
 
 func newContactsTagsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "tags",
-		Short: "List, create, and delete tags for contacts",
-		RunE:  parentNoSubcommandRunE(flags),
+		Use:         "tags",
+		Short:       "List, create, and delete tags for contacts",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newContactsTagsAttachToContactCmd(flags))

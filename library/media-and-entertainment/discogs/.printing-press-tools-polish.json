@@ -1,0 +1,15 @@
+{
+  "timestamp": "2026-07-11T15:32:33.548954Z",
+  "cli_dir": "\u003ccli-dir\u003e/discogs-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 692,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "Brief-but-precise Short for the learn-loop 'learnings list' command; lives in DO-NOT-EDIT generated teach.go, so any richer default is a generator-template fix, not a hand-edit."
+    }
+  ]
+}

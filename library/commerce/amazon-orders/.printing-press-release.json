@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "amazon-orders",
   "cli_name": "amazon-orders-pp-cli",
-  "version": "2026.6.2",
-  "released_at": "2026-06-16T15:55:56Z",
-  "source_commit": "b81e193768bb279e838a3651ab9caa26a8f33b9f",
+  "version": "2026.8.2",
+  "released_at": "2026-08-17T09:32:36Z",
+  "source_commit": "4ca9b8c2abbfaaa227fd484232a5fb927eee6745",
   "printing_press_version": "4.2.2",
   "run_id": "20260510-105710",
   "changes": [
     {
-      "title": "fix(amazon-orders): support marketplace cookie domains",
-      "pr": 1212,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1212",
-      "commit": "b81e193768bb279e838a3651ab9caa26a8f33b9f"
+      "title": "fix(amazon-orders): rebase amazon.in parser fix",
+      "pr": 1741,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1741",
+      "commit": "4ca9b8c2abbfaaa227fd484232a5fb927eee6745"
     }
   ]
 }

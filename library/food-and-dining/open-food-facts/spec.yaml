@@ -1,0 +1,18 @@
+openapi: 3.1.0
+info:
+  title: Open Food Facts Read-Only Product Plan
+  version: 0.1.0
+  description: >
+    Plan-driven first print for read-only Open Food Facts product lookup,
+    structured search, nutrition summaries, ingredient and allergen inspection,
+    small product comparison, and category sampling workflows.
+servers:
+  - url: https://world.openfoodfacts.org
+    description: Open Food Facts production API
+paths:
+  /api/v3/product/{barcode}.json:
+    get:
+      summary: Fetch one Open Food Facts product by barcode
+  /api/v2/search:
+    get:
+      summary: Run bounded structured Open Food Facts search

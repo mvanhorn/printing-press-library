@@ -477,6 +477,14 @@ func compactListFields(items []map[string]any) json.RawMessage {
 		"status": true, "state": true, "type": true, "priority": true,
 		"url": true, "email": true, "key": true,
 		"created_at": true, "updated_at": true, "createdAt": true, "updatedAt": true,
+		// Techmeme's primary records (headlines, river items, trending topics)
+		// key their content off these fields rather than the generic
+		// id/name/title set. Without them, --compact -- and therefore --agent,
+		// which implies --compact -- strips every field and emits `{}`, so
+		// `techmeme-pp-cli search <topic> --agent` returns empty objects.
+		"headline": true, "link": true, "source": true, "sources": true,
+		"num": true, "topic": true, "rank": true, "date": true,
+		"time": true, "count": true, "velocity": true, "permalink": true,
 	}
 
 	filtered := make([]map[string]any, 0, len(items))
@@ -484,6 +492,16 @@ func compactListFields(items []map[string]any) json.RawMessage {
 		compact := map[string]any{}
 		for k, v := range item {
 			if keepFields[k] {
+				compact[k] = v
+			}
+		}
+		// Defense in depth: never let compaction blank a record. If no
+		// allow-listed field matched but the record carried data, keep the
+		// original rather than emitting an empty object an agent can't use.
+		// Copy the entries rather than aliasing item so compact stays
+		// independently owned, matching the rest of the loop.
+		if len(compact) == 0 && len(item) > 0 {
+			for k, v := range item {
 				compact[k] = v
 			}
 		}

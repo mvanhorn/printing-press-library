@@ -71,6 +71,37 @@ func TestDraftCreateDryRunJSONReportsGlobalWriterURL(t *testing.T) {
 	}
 }
 
+func TestDraftListDryRunJSONReportsGlobalWriterURL(t *testing.T) {
+	t.Setenv("SUBSTACK_CONFIG", filepath.Join(t.TempDir(), "missing.toml"))
+
+	restoreStderr := captureProcessStderr(t)
+
+	root := RootCmd()
+	var stdout, cmdStderr bytes.Buffer
+	root.SetOut(&stdout)
+	root.SetErr(&cmdStderr)
+	root.SetArgs([]string{
+		"--subdomain", "trevinsays",
+		"--publication-id", "7019888",
+		"drafts", "list",
+		"--data-source", "live",
+		"--dry-run",
+		"--agent",
+	})
+
+	if err := root.Execute(); err != nil {
+		got := restoreStderr()
+		t.Fatalf("execute dry-run: %v; cmd stderr=%s; process stderr=%s", err, cmdStderr.String(), got)
+	}
+	got := restoreStderr()
+	if !strings.Contains(got, "GET https://substack.com/api/v1/drafts") || !strings.Contains(got, "?publication_id=7019888") {
+		t.Fatalf("stderr = %q, want global drafts endpoint with publication_id", got)
+	}
+	if strings.Contains(got, "trevinsays.substack.com") || strings.Contains(got, "{publication}") {
+		t.Fatalf("stderr = %q, should not use publication-host drafts endpoint", got)
+	}
+}
+
 func TestImagesDryRunUsesGlobalUploadEndpoint(t *testing.T) {
 	t.Setenv("SUBSTACK_CONFIG", filepath.Join(t.TempDir(), "missing.toml"))
 
@@ -186,7 +217,7 @@ func captureProcessStderr(t *testing.T) func() string {
 func TestSyncResourcePathPublicationScopedResourcesUsePublicationHost(t *testing.T) {
 	t.Parallel()
 
-	for _, resource := range []string{"drafts", "posts", "posts-published", "posts-ranked", "sections", "subs", "tags"} {
+	for _, resource := range []string{"posts", "posts-published", "posts-ranked", "sections", "subs", "tags"} {
 		resource := resource
 		t.Run(resource, func(t *testing.T) {
 			t.Parallel()

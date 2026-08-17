@@ -21,8 +21,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
-	"net/http"
 	"net/url"
 	"strings"
 	"time"
@@ -55,6 +53,28 @@ type BagsFilter struct {
 type LayoverRestrictions struct {
 	Airports    []string // IATA codes
 	MaxDuration int      // minutes; 0 = no constraint
+}
+
+// ValidateSearchBase checks the query-independent knobs (currency, cabin
+// class, max stops, sort) with the same mappers the live search path uses.
+// PATCH(review-2026-08-01): batch callers run this once before the paced
+// loop — without it an invalid --currency or --stops fails identically on
+// every trip, sleeping --pace between failures, and exits 5 instead of
+// surfacing a usage error before any network call.
+func ValidateSearchBase(opts SearchOptions) error {
+	if _, _, err := normalizeCurrency(opts.Currency); err != nil {
+		return err
+	}
+	if _, err := mapSeatType(opts.CabinClass); err != nil {
+		return err
+	}
+	if _, err := mapMaxStops(opts.MaxStops); err != nil {
+		return err
+	}
+	if _, err := mapSortBy(opts.SortBy); err != nil {
+		return err
+	}
+	return nil
 }
 
 // searchNativeDirect is the post-krisukox native backend.
@@ -107,7 +127,7 @@ func searchNativeDirect(ctx context.Context, opts SearchOptions) (*SearchResult,
 	// multi-city search the user/agent can run interactively, which is
 	// the same UX Google's own "track price" links use.
 	if tripType == tripTypeMultiCity {
-		searchURL, urlErr := MultiCityBookingURL(opts.Segments)
+		searchURL, urlErr := MultiCityBookingURL(opts.Segments, opts.Currency)
 		if urlErr != nil {
 			return nil, fmt.Errorf("multi-city: %w", urlErr)
 		}
@@ -146,43 +166,29 @@ func searchNativeDirect(ctx context.Context, opts SearchOptions) (*SearchResult,
 	}
 	body := "f.req=" + payload
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, offersEndpoint, strings.NewReader(body))
-	if err != nil {
-		return nil, fmt.Errorf("building request: %w", err)
-	}
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8")
-	req.Header.Set("User-Agent", chromeUserAgent)
-	req.Header.Set("Accept", "*/*")
-	req.Header.Set("Accept-Language", "en-US,en;q=0.9")
-	req.Header.Set("x-goog-ext-259736195-jspb", googleFlightsCurrencyHeader(currencyCode))
-
-	resp, err := utlsClient().Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("calling shopping endpoint: %w", err)
-	}
-	defer func() { _ = resp.Body.Close() }()
-
-	respBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("reading response: %w", err)
-	}
-	if resp.StatusCode != http.StatusOK {
-		snippet := string(respBody)
-		if len(snippet) > 200 {
-			snippet = snippet[:200] + "..."
-		}
-		return nil, fmt.Errorf("shopping endpoint returned HTTP %d: %s", resp.StatusCode, snippet)
-	}
-
 	note := ""
-	flights, err := parseOffersResponse(respBody, currencyCode)
+	var flights []Flight
+	err = retryBlockedRPC(ctx, func() error {
+		respBody, err := postFlightsFrontendRPC(ctx, offersEndpoint, "shopping", body, currencyCode)
+		if err != nil {
+			return err
+		}
+		flights, err = parseOffersResponse(respBody, currencyCode)
+		return err
+	})
 	switch {
+	case errors.Is(err, ErrRateLimited):
+		// PATCH(amend-2026-07-31): HTTP 429 is an IP-level budget, not a
+		// BotGuard gate — the HTML fallback hits the same host and would
+		// spend more of the exhausted budget. Fail fast; the CLI layer
+		// classifies this to exit 7 with pacing/alternate-source hints.
+		return nil, err
 	case errors.Is(err, errShoppingBlocked):
-		// PATCH(amend-2026-06-11): Google gates the RPC for non-interactive
-		// clients (ErrorResponse code 13). Serve the search from the
-		// server-rendered HTML page instead — same inner schema, parsed by
-		// the same row parser. Page prices are per-person already, so the
-		// group-total divide below is intentionally skipped on this path.
+		// PATCH(amend-2026-06-26): Google can intermittently return HTTP 200
+		// with a wrb.fr gRPC code-13 envelope. retryBlockedRPC gives the native
+		// RPC a few chances first; if the BotGuard gate persists, serve the
+		// search from the server-rendered HTML page. Page prices are per-person
+		// already, so the group-total divide below is skipped on this path.
 		flights, note, err = searchViaHTML(ctx, opts, currencyCode)
 		if err != nil {
 			return nil, fmt.Errorf("google flights RPC is blocked and the HTML fallback failed: %w", err)

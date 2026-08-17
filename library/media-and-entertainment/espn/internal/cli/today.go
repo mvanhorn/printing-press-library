@@ -59,7 +59,7 @@ func newTodayCmd(flags *rootFlags) *cobra.Command {
 				go func(idx int, sl sportLeague) {
 					defer wg.Done()
 					path := fmt.Sprintf("/%s/%s/scoreboard", sl.Sport, sl.League)
-					data, fetchErr := c.Get(path, nil)
+					data, fetchErr := c.Get(cmd.Context(), path, nil)
 					if fetchErr != nil {
 						results[idx] = result{SL: sl, Err: fetchErr}
 						return

@@ -1,0 +1,8 @@
+{
+  "dir": "\u003ccli-dir\u003e/google-trends-pp-cli",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

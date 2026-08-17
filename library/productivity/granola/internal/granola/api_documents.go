@@ -61,7 +61,12 @@ func HydrateDocumentsFromAPI(cache *Cache, client *InternalClient) (int, error) 
 		env, err := client.GetDocumentsPage(DefaultDocumentsPageSize, offset, false)
 		if err != nil {
 			if errors.Is(err, ErrRefreshRefused) {
-				return added, fmt.Errorf("hydrate documents: access token expired and refresh blocked for encrypted source - open Granola desktop briefly to refresh, then retry: %w", err)
+				// PATCH(cli-owned-workos-session): the old remedy here told the
+				// user to open Granola desktop so it would refresh the token
+				// the CLI was reading. That stopped working when Granola went
+				// encrypted-only: the desktop now refreshes a file the CLI
+				// cannot read, so waking it changes nothing the CLI can see.
+				return added, fmt.Errorf("hydrate documents: the token this CLI can reach is expired, and refreshing it would sign Granola desktop out. Run `granola-pp-cli auth login` to give the CLI its own session: %w", err)
 			}
 			return added, fmt.Errorf("hydrate documents page %d: %w", page, err)
 		}

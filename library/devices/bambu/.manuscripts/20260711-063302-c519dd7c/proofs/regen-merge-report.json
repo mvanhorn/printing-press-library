@@ -1,0 +1,1227 @@
+{
+  "cli_dir": "<home>/printing-press/library/bambu",
+  "fresh_dir": "<home>/printing-press/.runstate/ppbambu-9615f3f1/runs/20260711-063302-c519dd7c/working/bambu-pp-cli",
+  "applied": true,
+  "files": [
+    {
+      "path": "cmd/bambu-pp-cli/main.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "cmd/bambu-pp-mcp/main.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "cmd/bambu-pp-mcp/main_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "go.mod",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "go.sum",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/bambu/bambu_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/bambu/discovery.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "Discover": [
+            "MatchString"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/bambu/ftps.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "(*FTPS).JobMetadata": {
+            "published": "func (f *FTPS) JobMetadata(snapshot Snapshot) (Metadata, error) {\n\tcandidates := ArchiveCandidates(snapshot)\n\tmetadata :...",
+            "fresh": "func (f *FTPS) JobMetadata(snapshot Snapshot) (Metadata, error) {\n\tcandidates := ArchiveCandidates(snapshot)\n\tmetadata :..."
+          },
+          "Extract3MF": {
+            "published": "func Extract3MF(payload []byte, wantedPlate *int) (Metadata, error) {\n\tif err := preflightZIPDirectory(payload); err != ...",
+            "fresh": "func Extract3MF(payload []byte, wantedPlate *int) (Metadata, error) {\n\tif err := preflightZIPDirectory(payload); err != ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/bambu/history.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/bambu/history_growth_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/bambu/mqtt.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/bambu/tls.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/bambu/tls_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/bambu/types.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "mergeSnapshot": {
+            "published": "func mergeSnapshot(previous Snapshot, report map[string]any) Snapshot {\n\tcurrent := previous\n\tcurrent.ObservedAt = time....",
+            "fresh": "func mergeSnapshot(previous Snapshot, report map[string]any) Snapshot {\n\tcurrent := previous\n\tcurrent.ObservedAt = time...."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cache/cache.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/agent_context.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "buildAgentContext": {
+            "published": "func buildAgentContext(rootCmd *cobra.Command) agentContext {\n\tenvVars := []agentContextAuthEnvVar{\n\t\t{\n\t\t\tName:        ...",
+            "fresh": "func buildAgentContext(rootCmd *cobra.Command) agentContext {\n\tenvVars := []agentContextAuthEnvVar{\n\t\t{\n\t\t\tName:        ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ams.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/ams_runway.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/ams_runway_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/analytics.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAnalyticsCmd": {
+            "published": "func newAnalyticsCmd(flags *rootFlags) *cobra.Command {\n\tvar resourceType string\n\tvar groupBy string\n\tvar dbPath string\n...",
+            "fresh": "func newAnalyticsCmd(flags *rootFlags) *cobra.Command {\n\tvar resourceType string\n\tvar groupBy string\n\tvar dbPath string\n..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/api_discovery.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/auth.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAuthSetupCmd": {
+            "published": "func newAuthSetupCmd(_ *rootFlags) *cobra.Command {\n\tvar launch bool\n\tcmd := \u0026cobra.Command{\n\t\tUse:     \"setup\",\n\t\tShort...",
+            "fresh": "func newAuthSetupCmd(_ *rootFlags) *cobra.Command {\n\tvar launch bool\n\tcmd := \u0026cobra.Command{\n\t\tUse:     \"setup\",\n\t\tShort..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/bambu_commands.go",
+      "verdict": "TEMPLATED-WITH-ADDITIONS",
+      "applied": false,
+      "decl_set_delta": {
+        "in_published_not_fresh": [
+          "newBambuCameraCmd",
+          "newBambuStubParent",
+          "restrictedCmd"
+        ]
+      }
+    },
+    {
+      "path": "internal/cli/bambu_doctor.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/bambu_events.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newBambuEventsWatchCmd": [
+            "Error",
+            "persistEvent"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/bambu_events_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/bambu_maintenance_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/bambu_novel.go",
+      "verdict": "TEMPLATED-WITH-ADDITIONS",
+      "applied": false,
+      "decl_set_delta": {
+        "in_published_not_fresh": [
+          "fleetAttentionRow",
+          "runBambuFleetAttention"
+        ]
+      }
+    },
+    {
+      "path": "internal/cli/bambu_profiles.go",
+      "verdict": "TEMPLATED-WITH-ADDITIONS",
+      "applied": false,
+      "decl_set_delta": {
+        "in_published_not_fresh": [
+          "fetchConfiguredFleet",
+          "fleetCertificateIdentityPattern",
+          "fleetSnapshot",
+          "fleetTarget",
+          "newBambuFleetStatusCmd",
+          "pollFleetTargets",
+          "sanitizeFleetError"
+        ],
+        "in_fresh_not_published": [
+          "printerCertificateIdentityPattern",
+          "sanitizePrinterError"
+        ]
+      }
+    },
+    {
+      "path": "internal/cli/bambu_review_regressions_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/bambu_review_round1_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/bambu_sql.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/bambu_store.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newSyncCmd": [
+            "sanitizeFleetError"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/channel_workflow.go",
+      "verdict": "TEMPLATED-WITH-ADDITIONS",
+      "applied": false,
+      "decl_set_delta": {
+        "in_published_not_fresh": [
+          "newWorkflowArchiveCmd"
+        ]
+      }
+    },
+    {
+      "path": "internal/cli/data_source.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/deliver.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "deliverFile": [
+            "WriteFile"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/deliver_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/doctor.go",
+      "verdict": "PUBLISHED-ONLY-TEMPLATED",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/export.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newExportCmd": [
+            "BoolVar",
+            "Create",
+            "Encode",
+            "Flush",
+            "Fprintf",
+            "Fprintln",
+            "Join",
+            "MinimumNArgs",
+            "NewEncoder",
+            "NewWriter",
+            "SetIndent",
+            "Unmarshal",
+            "classifyAPIError",
+            "newClient",
+            "string"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/feedback.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/fleet.go",
+      "verdict": "NOVEL",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/fleet_attention.go",
+      "verdict": "NOVEL",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/fleet_attention_test.go",
+      "verdict": "NOVEL",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/helpers.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "printJSONFiltered": [
+            "printOutputWithFlagsMeta"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/history.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/history_failure_correlations.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/history_failure_correlations_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/job.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newNovelJobCmd": [
+            "restrictedCmd"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/job_eta.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/job_eta_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/job_repeats.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/job_repeats_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/job_timeline.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/job_timeline_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/learn_init.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/learn_init_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/learnings_candidates.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/learnings_candidates_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/learnings_stats.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/learnings_stats_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/playbook_init.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/playbook_init_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/playbooks/embed.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/printer.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/printer_field_diff.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/printer_field_diff_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/printer_selection_test.go",
+      "verdict": "TEMPLATED-WITH-ADDITIONS",
+      "applied": false,
+      "decl_set_delta": {
+        "in_published_not_fresh": [
+          "TestPrinterSelectionRejectedOnUnfilterableAutoCommand"
+        ],
+        "in_fresh_not_published": [
+          "TestPrinterSelectionAcceptedOnObservations"
+        ]
+      }
+    },
+    {
+      "path": "internal/cli/profile.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/promoted_observations.go",
+      "verdict": "PUBLISHED-ONLY-TEMPLATED",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/root.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "(*rootFlags).newClient": {
+            "published": "func (f *rootFlags) newClient() (*client.Client, error) {\n\tcfg, err := config.Load(f.configPath)\n\tif err != nil {\n\t\tretu...",
+            "fresh": "func (f *rootFlags) newClient() (*client.Client, error) {\n\tcfg, err := config.Load(f.configPath)\n\tif err != nil {\n\t\tretu..."
+          },
+          "newRootCmd": {
+            "published": "func newRootCmd(flags *rootFlags) *cobra.Command {\n\trootCmd := \u0026cobra.Command{\n\t\tUse:   \"bambu-pp-cli\",\n\t\tShort: `Secure...",
+            "fresh": "func newRootCmd(flags *rootFlags) *cobra.Command {\n\trootCmd := \u0026cobra.Command{\n\t\tUse:   \"bambu-pp-cli\",\n\t\tShort: `Agent-..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/root_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/search.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/sync.go",
+      "verdict": "TEMPLATED-WITH-ADDITIONS",
+      "applied": false,
+      "decl_set_delta": {
+        "in_published_not_fresh": [
+          "criticalResources",
+          "cursorFromNextURL",
+          "dataEnvelopeKeys",
+          "defaultSyncResources",
+          "depluralizeResourceStem",
+          "describeCriticalFailedResources",
+          "describeFailedResources",
+          "describeResourceFailure",
+          "determinePaginationDefaults",
+          "discriminatorDispatch",
+          "discriminatorDispatchers",
+          "emitSyncMissingPaginationCursorWarning",
+          "envelopeExplicitHasMore",
+          "envelopeReportsFailure",
+          "extractID",
+          "extractItemsByKnownKeys",
+          "extractItemsFromEnvelope",
+          "extractJSONItemsArray",
+          "extractObjectArray",
+          "extractPageItems",
+          "extractPaginationFromEnvelope",
+          "extractSingleObjectArraySibling",
+          "findCursorInMap",
+          "flatReconcileDef",
+          "flatReconcileDefT",
+          "flatReconcileDefs",
+          "flatReconcileModes",
+          "formatSyncSinceValue",
+          "generatedSyncCommand",
+          "genericIDFieldFallbacks",
+          "hasExactlyOneEmptyArray",
+          "hasExactlyOneNullArrayWithZeroCount",
+          "hydrateScalarItems",
+          "hydratedItemPath",
+          "isDryRunResponse",
+          "isEmptyPageEnvelope",
+          "isEmptyPageResponse",
+          "isFollowableNextURL",
+          "isJSONNull",
+          "isJSONResponse",
+          "isNullOrEmptyJSON",
+          "isNullPageItemCandidateKey",
+          "isZeroCountField",
+          "itemHydrationConfig",
+          "itemHydrationPaths",
+          "knownSyncResourceNames",
+          "lookupRefreshEntityFields",
+          "lowerCamelResourceIDBase",
+          "nextCursorFromLinks",
+          "nextCursorFromTopLevelURL",
+          "pageAllowsPageIntFallback",
+          "pageEnvelopeMetadataKeys",
+          "pageExplicitHasMore",
+          "pageItemKeys",
+          "pageMayHaveMore",
+          "pageMetadataArrayKeys",
+          "paginationDefaults",
+          "paginationLinkURL",
+          "parentTenantScopeColumns",
+          "parseSinceDuration",
+          "partitionOutcome",
+          "refreshLookupsFromSyncedStore",
+          "resolveDiscriminatedResource",
+          "resolveTenantID",
+          "resourceIDBaseNames",
+          "resourceIDFieldOverrides",
+          "resourceReconcileMode",
+          "resourceSupportsPagination",
+          "responsePathForResource",
+          "scalarIDString",
+          "scalarItemID",
+          "stripLeadingResourceVerb",
+          "suffixIDFieldFallback",
+          "syncResource",
+          "syncResourcePath",
+          "syncResourceSinceParam",
+          "syncResourceSinceParamFormat",
+          "syncResult",
+          "unresolvedPathKeyRE",
+          "upsertResourceBatch",
+          "upsertSingleObject"
+        ]
+      }
+    },
+    {
+      "path": "internal/cli/sync_hint.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/sync_hint_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/sync_numeric_id_test.go",
+      "verdict": "PUBLISHED-ONLY-TEMPLATED",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/tail.go",
+      "verdict": "PUBLISHED-ONLY-TEMPLATED",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/teach.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/teach_playbook.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/teach_playbook_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/teach_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/version.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cli/which.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "var:whichIndex": {
+            "published": "var whichIndex = []whichEntry{\n\t{Command: \"job eta\", Description: \"Correct the printer's finish estimate using the error...",
+            "fresh": "var whichIndex = []whichEntry{\n\t{Command: \"job eta\", Description: \"Correct the printer's finish estimate using the error..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/which_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/client/client.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "(*Client).doInternal": [
+            "ReadAll"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/client/client_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/client/client_verify_short_circuit_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cliutil/cliutil_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cliutil/credentials.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cliutil/credentials_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cliutil/duration.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cliutil/duration_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cliutil/extractnumber.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cliutil/extractnumber_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cliutil/fanout.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cliutil/jwtshape.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cliutil/jwtshape_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cliutil/odata_date.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cliutil/odata_date_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cliutil/paths.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cliutil/paths_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cliutil/probe.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cliutil/ratelimit.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cliutil/text.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/cliutil/verifyenv.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/config/bambu_auth_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": true
+    },
+    {
+      "path": "internal/config/config.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/derive.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/derive_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/doc.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/entities/config.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/entities/config_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/entities/extract.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/entities/extract_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/journal.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/journal_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/lookups/seeds.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/lookups/seeds_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/lookups/store.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/lookups/store_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/match.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/match_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/normalize.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/normalize_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/patterns/apply.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/patterns/apply_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/patterns/doc.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/patterns/extract.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/patterns/extract_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/patterns/store.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/patterns/store_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/playbooks.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/playbooks_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/preseed.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/preseed_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/promote.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/promote_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/protocol.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/recall.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/recall_canonical_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/recall_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/synthesize.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/synthesize_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/teach.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/teach_log.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/teach_log_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/learn/teach_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/mcp/bambu_auth_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": true
+    },
+    {
+      "path": "internal/mcp/bound/bound.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/mcp/bound/bound_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/mcp/cobratree/classify.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/mcp/cobratree/cli_path.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/mcp/cobratree/names.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/mcp/cobratree/shellout.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/mcp/cobratree/shellout_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/mcp/cobratree/typemap.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/mcp/cobratree/walker.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/mcp/intents.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/mcp/recipe_intents_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/mcp/tools.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "handleSQL": [
+            "BoundedReadOnlyQuery",
+            "int",
+            "min"
+          ],
+          "handleSearch": [
+            "Search"
+          ],
+          "hasTrailingSQLStatement": [
+            "HasTrailingSQLStatement"
+          ],
+          "stripLeadingSQLNoise": [
+            "StripLeadingSQLNoise"
+          ],
+          "validateReadOnlyQuery": [
+            "ValidateReadOnlyQuery"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/mcp/tools_test.go",
+      "verdict": "TEMPLATED-WITH-ADDITIONS",
+      "applied": false,
+      "decl_set_delta": {
+        "in_published_not_fresh": [
+          "TestMCPSQLRejectsOversizedComputedCell",
+          "TestMCPSQLRejectsOversizedQueryBeforeStoreAccess"
+        ],
+        "in_fresh_not_published": [
+          "TestMCPSearchRejectsUnboundedInputsBeforeOpeningStore"
+        ]
+      }
+    },
+    {
+      "path": "internal/store/candidates.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/store/candidates_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/store/events.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/store/events_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/store/extras.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/store/learnings.go",
+      "verdict": "TEMPLATED-WITH-ADDITIONS",
+      "applied": false,
+      "decl_set_delta": {
+        "in_published_not_fresh": [
+          "querySynonymMu"
+        ]
+      }
+    },
+    {
+      "path": "internal/store/learnings_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/store/playbooks.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/store/playbooks_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/store/read_only_sql.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/store/read_only_sql_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/store/schema_version_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/store/store.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "(*Store).Search": [
+            "Close",
+            "Err",
+            "Next",
+            "Query",
+            "RawMessage",
+            "Scan",
+            "TrimSpace",
+            "append",
+            "ftsMatchQuery",
+            "len"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/store/upsert_batch_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "internal/types/types.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    },
+    {
+      "path": "spec.yaml",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": true
+    }
+  ],
+  "lost_registrations": [
+    {
+      "host_file": "internal/cli/ams.go",
+      "enclosing_func": "newNovelAmsCmd",
+      "calls": [
+        "cmd.AddCommand(restrictedCmd(flags, \"ams\", \"control\", \"Unavailable through normal local access; AMS writes require Developer Mode, LAN Only Mode, or an authorized Bambu application.\"))"
+      ],
+      "applied": true
+    },
+    {
+      "host_file": "internal/cli/printer.go",
+      "enclosing_func": "newNovelPrinterCmd",
+      "calls": [
+        "cmd.AddCommand(restrictedCmd(flags, \"printer\", \"set\", \"Unavailable through normal local access; device settings require Developer Mode, LAN Only Mode, or an authorized Bambu application.\"))",
+        "cmd.AddCommand(restrictedCmd(flags, \"printer\", \"control\", \"Unavailable through normal local access; calibration, movement, reboot, and G-code require Developer Mode, LAN Only Mode, or an authorized path.\"))"
+      ],
+      "applied": true
+    }
+  ],
+  "go_mod": {
+    "merged": true,
+    "preserved_module_path": "bambu-pp-cli"
+  }
+}

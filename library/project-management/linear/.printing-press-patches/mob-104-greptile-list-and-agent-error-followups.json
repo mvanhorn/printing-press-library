@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "mob-104-greptile-list-and-agent-error-followups",
+  "applied_at": "2026-06-19",
+  "base_run_id": "20260518-232543",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Agent-facing list filters, state-type selectors, and parent command errors must fail or filter in the same human-key-friendly way documented in the skill.",
+  "reason": "Greptile found that `documents list --team SYMPH` could silently return an empty result because it used an ID-only team filter, `--state-type in-progress` failed as an opaque not-found instead of a local usage error, and parent commands could emit two JSON envelopes in agent mode. These are all agent ergonomics regressions: a fresh agent should get either the intended key-based result or one precise machine-parseable error.",
+  "files": [
+    "internal/cli/documents.go",
+    "internal/cli/helpers.go",
+    "internal/cli/issues_create.go",
+    "internal/cli/issues_edit.go",
+    "internal/cli/workflow_states.go",
+    "internal/cli/linear_agent_test.go",
+    "internal/cli/mob104_ergonomics_test.go"
+  ],
+  "validated_outcome": "`documents list --team <key>` uses a case-insensitive team-key GraphQL filter; invalid `--state-type` values return code-2 usage with the valid Linear state-type set before any live request, including Linear's documented `duplicate` state type; parent commands invoked with `--agent` emit exactly one JSON error envelope with `code: 2` and `type: usage`."
+}

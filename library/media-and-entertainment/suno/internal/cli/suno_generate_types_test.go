@@ -47,6 +47,19 @@ func TestBuildGenerateBody_Custom(t *testing.T) {
 	}
 }
 
+func TestBuildGenerateBody_NegativeTags(t *testing.T) {
+	body := buildGenerateBody(generateInput{
+		createMode:   "custom",
+		mv:           "chirp-fenix",
+		tags:         "synthwave",
+		negativeTags: "country, banjo",
+		prompt:       "la la la",
+	})
+	if body.NegativeTags != "country, banjo" {
+		t.Errorf("negative_tags = %q, want %q", body.NegativeTags, "country, banjo")
+	}
+}
+
 func TestBuildGenerateBody_WebSchemaPlaceholders(t *testing.T) {
 	body := buildGenerateBody(generateInput{
 		createMode: "custom",

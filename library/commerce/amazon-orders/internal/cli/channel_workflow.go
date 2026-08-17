@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/commerce/amazon-orders/internal/parser"
 	"github.com/mvanhorn/printing-press-library/library/commerce/amazon-orders/internal/store"
 	"github.com/spf13/cobra"
 )
@@ -80,6 +81,9 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 					if fetchErr != nil {
 						fmt.Fprintf(cmd.ErrOrStderr(), "  warning: %s: %v\n", resource, fetchErr)
 						break
+					}
+					if err := parser.AuthInterstitialError(data); err != nil {
+						return classifyAPIError(err, flags)
 					}
 					var items []json.RawMessage
 					if err := json.Unmarshal(data, &items); err != nil {

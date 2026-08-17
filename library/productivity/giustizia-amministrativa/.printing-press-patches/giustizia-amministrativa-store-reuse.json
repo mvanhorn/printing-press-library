@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "giustizia-amministrativa-store-reuse",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260621-094103",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Nuovo helper storedFullText(st, p) in ga_core.go: recupera dallo store il Markdown gia' salvato per un provvedimento. Usato da massime e dal percorso di ricerca di corpus build, che prima chiamavano FullText per ogni risultato anche quando il testo era gia' locale.",
+  "reason": "Il riuso introdotto in corpus build scattava solo sul percorso --ids, dove resolveProvvedimento restituisce il provvedimento completo di FullText. Una ricerca invece restituisce soli metadati, quindi ogni comando che cammina sui risultati (massime, corpus build da query) riscaricava tutto ogni volta. Il testo di un provvedimento pubblicato non cambia: era una richiesta al portale per byte gia' posseduti, ripetuta per documento. Osservato dal vivo: nel test da Claude Desktop del 2026-08-07 la chiamata a massime e' rimasta appesa oltre un minuto.",
+  "files": [
+    "internal/cli/ga_core.go",
+    "internal/cli/massime.go",
+    "internal/cli/corpus_build.go"
+  ],
+  "validated_outcome": "massime --phrase 'soccorso istruttorio' --limit 8, stessi 3 risultati: 11,2s prima del fix, 1,4s dopo (8x). go build/vet/test verdi."
+}

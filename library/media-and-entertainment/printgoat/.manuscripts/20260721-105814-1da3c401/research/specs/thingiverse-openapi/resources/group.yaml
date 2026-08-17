@@ -1,0 +1,582 @@
+Root:
+  get:
+    tags: 
+      - Group
+    summary: List of groups
+    security:
+      - BearerAuth: []
+    responses:
+      '200':
+        description: The list of groups.
+        content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../schemas/group_schema.yaml'   
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+  post:
+    tags:
+      - Group
+    summary: Create a new group
+    security:
+      - BearerAuth: []
+    requestBody:
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            required:
+              - name
+              - slug
+              - description
+            properties:
+              name:
+                description: Set the name of the group
+                type: string
+              slug:
+                description: Set the slug of the group
+                type: string
+              description:
+                description: Set the description.
+                type: string
+              filename:
+                description: Set the file name.
+                type: string
+              file:
+                description: Set the image. Available formats are jpeg, jpg, gif, png
+                type: string
+                format: binary
+    responses:
+      '200':
+        description: The newly created group.
+        content:
+            application/json:
+              schema:
+                $ref: '../schemas/group_schema.yaml'
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+ById:
+  get:
+    tags:
+      - Group
+    summary: Get group by id
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/groupIdPathParam"
+    responses:
+      '200':
+        description: An object representing the group requested
+        content:
+            application/json:
+              schema:
+                $ref: '../schemas/group_schema.yaml'  
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+  patch:
+    tags:
+      - Group
+    summary: Update an existing group
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/groupIdPathParam"
+    requestBody:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                description: Replace the name of the group
+                type: string
+              description:
+                description: Replace the description of the group
+                type: string
+              featuredThings:
+                description: Replace the featured things of the group
+                type: array
+                items:
+                  example: {id: 28271, rank: 1}
+    responses:
+      '200':
+        description: The updated group data
+        content:
+            application/json:
+              schema:
+                $ref: '../schemas/group_schema.yaml'
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+  delete:
+    tags:
+      - Group
+    summary: Delete a group
+    description: This cannot be undone.
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/groupIdPathParam"
+    responses:
+      '200':
+        $ref : "../responses/ok.yaml"
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+UploadImage:
+  post:
+    tags:
+      - Group
+    summary: Upload a new image of group
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/groupIdPathParam"
+    requestBody:
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            required:
+              - filename
+              - file
+            properties:
+              filename:
+                description: Set the file name.
+                type: string
+              file:
+                description: Set the image. Available formats are jpeg, jpg, gif, png
+                type: string
+                format: binary
+    responses:
+      '200':
+        $ref : "../responses/ok.yaml"
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+Members:
+  get:
+    tags: 
+      - Group
+    summary: List of group members
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/groupIdPathParam"
+      - $ref: "../parameters.yaml#/pageParam"
+      - $ref: "../parameters.yaml#/perPageParam"
+    responses:
+      '200':
+        description: The list of group members.
+        content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../schemas/group_schemas/member_schema.yaml'   
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+  post:
+    tags: 
+      - Group
+    summary: Join to group
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/groupIdPathParam"
+    responses:
+      '200':
+        $ref : "../responses/ok.yaml"
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+  delete:
+    tags: 
+      - Group
+    summary: Leave group
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/groupIdPathParam"
+    responses:
+      '200':
+        $ref : "../responses/ok.yaml"
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+Forums:
+  get:
+    tags: 
+      - Group
+    summary: List of group forums
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/groupIdPathParam"
+    responses:
+      '200':
+        description: The list of group forums.
+        content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../schemas/group_schemas/forum_schema.yaml'   
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+  post:
+    tags: 
+      - Group
+    summary: Create a new forum
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/groupIdPathParam"
+    requestBody:
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            required:
+              - name
+              - description
+            properties:
+              name:
+                description: Set the name of the forum
+                type: string
+              description:
+                description: Set the description.
+                type: string
+              filename:
+                description: Set the file name.
+                type: string
+              file:
+                description: Set the image. Available formats are jpeg, jpg, gif, png
+                type: string
+                format: binary
+    responses:
+      '200':
+        description: The newly created forum.
+        content:
+            application/json:
+              schema:
+                $ref: '../schemas/group_schemas/forum_schema.yaml'
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+Forum:
+  delete:
+    tags: 
+      - Group
+    summary: Delete group forum
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/groupIdPathParam"
+      - $ref: "../parameters.yaml#/forumIdPathParam"
+    responses:
+      '200':
+        description: id of the deleted Forum
+        content:
+            application/json:
+              schema:
+                type: integer
+                minimum: 0
+                example: 50
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+ForumTopics:
+  get:
+    tags: 
+      - Group
+    summary: Get all topics for the group forum
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/groupIdPathParam"
+      - $ref: "../parameters.yaml#/forumIdPathParam"
+      - $ref: "../parameters.yaml#/pageParam"
+      - $ref: "../parameters.yaml#/perPageParam"
+    responses:
+      '200':
+        description: The list of group forum topics.
+        content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../schemas/group_schemas/topic_schema.yaml'
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+ForumSlug:
+  get:
+    tags: 
+      - Group
+    summary: Get group forum by slug
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/groupIdPathParam"
+      - $ref: "../parameters.yaml#/forumSlugPathParam"
+    responses:
+      '200':
+        description: Forum object with top tags
+        content:
+            application/json:
+              schema:
+                type: object
+                example: { "id": 50, "name": "General", "tags": [ "Help", "filament", "prusa i3" ] }
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+Topics:
+  get:
+    tags: 
+      - Group
+    summary: List of group topics
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/groupIdPathParam"
+      - in: path
+        name: filter
+        required: false
+        description: Optional filter. Supports my-started-topics, my-topics, pinned. Default is all
+        schema:
+          type: string
+          example: pinned
+      - in: path
+        name: sort
+        required: false
+        description: Supports popular, date (date is by last modified). Returns in DESC order. Default is date
+        schema:
+          type: string
+          example: popular
+      - $ref: "../parameters.yaml#/pageParam"
+      - $ref: "../parameters.yaml#/perPageParam"
+    responses:
+      '200':
+        description: The list of group topics.
+        content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../schemas/group_schemas/topic_schema.yaml'
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+TopicsPost:
+  post:
+    tags: 
+      - Group
+    summary: Create a new Group Topic
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/groupIdPathParam"
+      - $ref: "../parameters.yaml#/forumSlugPathParam"
+    requestBody:
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            required:
+              - name
+              - body
+            properties:
+              name:
+                description: Name of Topic
+                type: string
+              body:
+                description: Body text of Topic
+                type: string
+              tags:
+                description: Array of tags
+                type: array
+                items:
+                  example: 'tag1'
+              filenames:
+                description: Array of filenames to be uploaded
+                type: array
+                items:
+                  example: 'Filename1'
+              files:
+                description: Array of files to be uploaded
+                type: array
+                format: binary
+    responses:
+      '200':
+        description: The newly created topic
+        content:
+            application/json:
+              schema:
+                $ref: '../schemas/group_schemas/topic_schema.yaml'
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+Things:
+  get:
+    tags: 
+      - Group
+    summary: List of group things
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/groupIdPathParam"
+      - $ref: "../parameters.yaml#/pageParam"
+      - $ref: "../parameters.yaml#/perPageParam"
+    responses:
+      '200':
+        description: The list of group things.
+        content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../schemas/thing_schema.yaml'   
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+ThingsActions:
+  post:
+    tags: 
+      - Group
+    summary: Add thing to group
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/groupIdPathParam"
+      - $ref: "../parameters.yaml#/thingIdPathParam"
+    responses:
+      '200':
+        $ref : "../responses/ok.yaml"
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+  delete:
+    tags: 
+      - Group
+    summary: Delete thing from group
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/groupIdPathParam"
+      - $ref: "../parameters.yaml#/thingIdPathParam"
+    responses:
+      '200':
+        $ref : "../responses/ok.yaml"
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+ForumUpdate:
+  post:
+    tags:
+      - Group
+    summary: Update a certain forum of group
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/groupIdPathParam"
+      - $ref: "../parameters.yaml#/forumIdPathParam"
+    requestBody:
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            required:
+              - name
+              - description
+            properties:
+              name:
+                description: Set the name of the forum
+                type: string
+              description:
+                description: Set the description of the forum
+                type: string
+              filename:
+                description: Set the file name
+                type: string
+              file:
+                description: Set the image. Available formats are jpeg, jpg, gif, png
+                type: string
+                format: binary
+    responses:
+      '200':
+        description: Updated forum
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/groupforum_schema.yaml'
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"

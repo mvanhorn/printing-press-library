@@ -1,0 +1,4449 @@
+{
+  "name": "parallel",
+  "description": "Combined CLI for multiple API services",
+  "version": "0.1.2",
+  "base_url": "https://api.parallel.ai",
+  "creator": {
+    "handle": "SomSamantray",
+    "name": "Som Samantray"
+  },
+  "owner": "somsamantray",
+  "owner_name": "Som Samantray",
+  "printer": "SomSamantray",
+  "printer_name": "Som Samantray",
+  "spec_source": "official",
+  "category": "ai",
+  "auth": {
+    "type": "api_key",
+    "header": "x-api-key",
+    "format": "",
+    "env_vars": [
+      "PARALLEL_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "PARALLEL_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "scheme": "ApiKeyAuth",
+    "in": "header"
+  },
+  "config": {
+    "format": "toml",
+    "path": "~/.config/parallel-pp-cli/config.toml"
+  },
+  "resources": {
+    "chat": {
+      "description": "Manage chat",
+      "endpoints": {
+        "completions": {
+          "method": "POST",
+          "path": "/v1beta/chat/completions",
+          "description": "Chat completions.\n\nThis endpoint can be used to get realtime chat completions. It can also be used\nwith the Task API processors to get structured, research outputs via a chat\ninterface.",
+          "params": [],
+          "body": [
+            {
+              "default": null,
+              "description": "The frequency penalty to use for chat completions. Unsupported.",
+              "fields": null,
+              "name": "frequency_penalty",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "The maximum number of tokens to generate. Unsupported.",
+              "fields": null,
+              "name": "max_tokens",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "The messages to use for chat completions.",
+              "fields": null,
+              "name": "messages",
+              "positional": false,
+              "required": true,
+              "type": "array"
+            },
+            {
+              "default": null,
+              "description": "The model to use for chat completions.",
+              "fields": null,
+              "name": "model",
+              "positional": false,
+              "required": true,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "The number of chat completions to generate. Unsupported.",
+              "fields": null,
+              "name": "n",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "The presence penalty to use for chat completions. Unsupported.",
+              "fields": null,
+              "name": "presence_penalty",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "Interaction ID from a previous chat completion to use as context.",
+              "fields": null,
+              "name": "previous_interaction_id",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "The response format to use for chat completions. OpenAI compatible.",
+              "fields": null,
+              "format": "json_or_scalar",
+              "name": "response_format",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "Whether to stream the chat completions.",
+              "fields": null,
+              "name": "stream",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "The temperature to use for chat completions. Unsupported.",
+              "fields": null,
+              "name": "temperature",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "The top p to use for chat completions. Unsupported.",
+              "fields": null,
+              "name": "top_p",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            }
+          ],
+          "body_required": true,
+          "request_content_type": "application/json",
+          "response": {
+            "type": "object",
+            "item": "ChatCompletion"
+          },
+          "tags": [
+            "Chat API (Beta)"
+          ],
+          "pagination": null,
+          "id_field": "id"
+        }
+      }
+    },
+    "extract": {
+      "description": "Extract returns excerpts or full content from one or more URLs. Inputs are a list of URLs and an optional search objective and keyword queries. The returned excerpts or full content is formatted as markdown and suitable for LLM consumption.\n- Result: excerpts or full content from the URL formatted as markdown",
+      "endpoints": {
+        "extract": {
+          "method": "POST",
+          "path": "/v1/extract",
+          "description": "Extracts relevant content from specific web URLs.\n\nThe legacy Extract API reference (`/v1beta/extract` endpoint) is available\n[here](https://docs.parallel.ai/api-reference/legacy/extract-beta/extract), and\nmigration guide is [here](https://docs.parallel.ai/extract/extract-migration-guide).",
+          "params": [],
+          "body": [
+            {
+              "default": null,
+              "description": "Advanced configuration for fetch policy, excerpt settings, and full content settings. May impact result quality and latency unless used carefully. When omitted, excerpts are enabled and full content is disabled by default.",
+              "fields": null,
+              "format": "json_or_scalar",
+              "name": "advanced_settings",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "The model generating this request and consuming the results. Enables optimizations and tailors default settings for the model's capabilities.",
+              "example": "claude-opus-4-7",
+              "fields": null,
+              "name": "client_model",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "Upper bound on total characters across excerpts from all extracted results.",
+              "fields": null,
+              "name": "max_chars_total",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "As in SearchRequest, a natural-language description of the underlying question or goal driving the request. Used together with search_queries to focus excerpts on the most relevant content.",
+              "fields": null,
+              "name": "objective",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "Optional keyword search queries, as in SearchRequest. Used together with objective to focus excerpts on the most relevant content.",
+              "fields": null,
+              "format": "json_or_scalar",
+              "name": "search_queries",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "Session identifier to track calls across separate search and extract calls, to be used as part of a larger task. Specifying it may give better contextual results for subsequent API calls.",
+              "fields": null,
+              "name": "session_id",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "URLs to extract content from. Up to 20 URLs.",
+              "fields": null,
+              "item_type": "string",
+              "name": "urls",
+              "positional": false,
+              "required": true,
+              "type": "string_csv_array"
+            }
+          ],
+          "body_required": true,
+          "request_content_type": "application/json",
+          "response": {
+            "type": "object",
+            "item": "V1ExtractResponse"
+          },
+          "tags": [
+            "Extract"
+          ],
+          "pagination": null,
+          "id_field": "extract_id"
+        }
+      }
+    },
+    "findall": {
+      "description": "The FindAll API discovers and evaluates entities that match complex criteria from natural language objectives. Submit a high-level goal and the service automatically generates structured match conditions, discovers relevant candidates, and evaluates each against the criteria. Returns comprehensive results with detailed reasoning, citations, and confidence scores for each match decision. Streaming events and webhooks are supported.",
+      "endpoints": {
+        "cancel-run": {
+          "method": "POST",
+          "path": "/v1beta/findall/runs/{findall_id}/cancel",
+          "description": "Cancel a FindAll run.",
+          "params": [
+            {
+              "default": null,
+              "description": "Findall id",
+              "fields": null,
+              "name": "findall_id",
+              "path_param": true,
+              "positional": true,
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "",
+            "item": ""
+          },
+          "tags": [
+            "FindAll"
+          ],
+          "pagination": null
+        },
+        "enrich-run": {
+          "method": "POST",
+          "path": "/v1beta/findall/runs/{findall_id}/enrich",
+          "description": "Add an enrichment to a FindAll run.",
+          "params": [
+            {
+              "default": null,
+              "description": "Findall id",
+              "fields": null,
+              "name": "findall_id",
+              "path_param": true,
+              "positional": true,
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "body": [
+            {
+              "default": null,
+              "description": "List of MCP servers to use for the task.",
+              "fields": null,
+              "format": "json_or_scalar",
+              "name": "mcp_servers",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "JSON schema for the enrichment output schema for the FindAll run.",
+              "fields": [
+                {
+                  "default": null,
+                  "description": "A JSON Schema object. Only a subset of JSON Schema is supported.",
+                  "fields": null,
+                  "name": "json_schema",
+                  "positional": false,
+                  "required": true,
+                  "type": "object"
+                },
+                {
+                  "default": null,
+                  "description": "The type of schema being defined. Always `json`.",
+                  "fields": null,
+                  "name": "type",
+                  "positional": false,
+                  "required": false,
+                  "type": "string"
+                }
+              ],
+              "name": "output_schema",
+              "positional": false,
+              "required": true,
+              "type": "object"
+            },
+            {
+              "default": "core",
+              "description": "Processor to use for the task.",
+              "fields": null,
+              "name": "processor",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            }
+          ],
+          "body_required": true,
+          "request_content_type": "application/json",
+          "response": {
+            "type": "array",
+            "item": "MatchCondition"
+          },
+          "tags": [
+            "FindAll"
+          ],
+          "pagination": null,
+          "response_path": "match_conditions",
+          "id_field": "name"
+        },
+        "entity-search": {
+          "method": "POST",
+          "path": "/v1beta/findall/entity-search",
+          "description": "Return ranked entities matching a natural language objective.\n\nThis endpoint performs a best-effort search optimized for low latency. To keep\nresponses fast, it returns a fixed set of attributes and supports queries of\nlimited complexity.\n\nFor comprehensive match evaluation and enrichment, use the\n[FindAll API](https://docs.parallel.ai/findall-api/findall-quickstart).",
+          "params": [],
+          "body": [
+            {
+              "default": null,
+              "description": "Type of entity to search for.",
+              "enum": [
+                "people",
+                "companies"
+              ],
+              "fields": null,
+              "name": "entity_type",
+              "positional": false,
+              "required": true,
+              "type": "string"
+            },
+            {
+              "default": 100,
+              "description": "Maximum number of entities to return. Must be between 5 and 1000 (inclusive). May return fewer results. Defaults to 100.",
+              "fields": null,
+              "maximum": 1000,
+              "name": "match_limit",
+              "positional": false,
+              "required": false,
+              "type": "int"
+            },
+            {
+              "default": null,
+              "description": "Natural language description of target entities.",
+              "fields": null,
+              "name": "objective",
+              "positional": false,
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "body_required": true,
+          "request_content_type": "application/json",
+          "response": {
+            "type": "array",
+            "item": "EntityItem"
+          },
+          "tags": [
+            "FindAll"
+          ],
+          "pagination": null,
+          "response_path": "entities",
+          "id_field": "name"
+        },
+        "extend-run": {
+          "method": "POST",
+          "path": "/v1beta/findall/runs/{findall_id}/extend",
+          "description": "Extend a FindAll run by adding additional matches to the current match limit.",
+          "params": [
+            {
+              "default": null,
+              "description": "Findall id",
+              "fields": null,
+              "name": "findall_id",
+              "path_param": true,
+              "positional": true,
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "body": [
+            {
+              "default": null,
+              "description": "Additional number of matches to find for this FindAll run. This value will be added to the current match limit to determine the new total match limit. Must be greater than 0.",
+              "fields": null,
+              "name": "additional_match_limit",
+              "positional": false,
+              "required": true,
+              "type": "int"
+            }
+          ],
+          "body_required": true,
+          "request_content_type": "application/json",
+          "response": {
+            "type": "array",
+            "item": "MatchCondition"
+          },
+          "tags": [
+            "FindAll"
+          ],
+          "pagination": null,
+          "response_path": "match_conditions",
+          "id_field": "name"
+        },
+        "get-events": {
+          "method": "GET",
+          "path": "/v1beta/findall/runs/{findall_id}/events",
+          "description": "Stream events from a FindAll run.\n\nArgs:\n    request: The Shapi request\n    findall_id: The FindAll run ID\n    last_event_id: Optional event ID to resume from.\n    timeout: Optional timeout in seconds. If None, keep connection alive\n    as long as the run is going. If set, stop after specified duration.",
+          "params": [
+            {
+              "default": null,
+              "description": "Findall id",
+              "fields": null,
+              "name": "findall_id",
+              "path_param": true,
+              "positional": true,
+              "required": true,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "Last event id",
+              "fields": null,
+              "name": "last_event_id",
+              "positional": false,
+              "query_explode": true,
+              "query_style": "form",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "Timeout",
+              "fields": null,
+              "name": "timeout",
+              "positional": false,
+              "query_explode": true,
+              "query_style": "form",
+              "required": false,
+              "type": "string"
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "",
+            "item": ""
+          },
+          "tags": [
+            "FindAll"
+          ],
+          "pagination": null,
+          "live_dogfood_requires_tier": "streaming"
+        },
+        "get-result": {
+          "method": "GET",
+          "path": "/v1beta/findall/runs/{findall_id}/result",
+          "description": "Retrieve the FindAll run result at the time of the request.",
+          "params": [
+            {
+              "default": null,
+              "description": "Findall id",
+              "fields": null,
+              "name": "findall_id",
+              "path_param": true,
+              "positional": true,
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "array",
+            "item": "FindAllCandidate"
+          },
+          "tags": [
+            "FindAll"
+          ],
+          "pagination": null,
+          "response_path": "candidates",
+          "id_field": "name"
+        },
+        "get-schema": {
+          "method": "GET",
+          "path": "/v1beta/findall/runs/{findall_id}/schema",
+          "description": "Get FindAll Run Schema",
+          "params": [
+            {
+              "default": null,
+              "description": "Findall id",
+              "fields": null,
+              "name": "findall_id",
+              "path_param": true,
+              "positional": true,
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "array",
+            "item": "MatchCondition"
+          },
+          "tags": [
+            "FindAll"
+          ],
+          "pagination": null,
+          "response_path": "match_conditions",
+          "id_field": "name"
+        },
+        "ingest-run": {
+          "method": "POST",
+          "path": "/v1beta/findall/ingest",
+          "description": "Transforms a natural language search objective into a structured FindAll spec.\n\nThe generated specification serves as a suggested starting point and can be further\ncustomized by the user.",
+          "params": [],
+          "body": [
+            {
+              "default": null,
+              "description": "Natural language objective to create a FindAll run spec.",
+              "example": "Find all AI companies that raised Series A funding in 2024",
+              "fields": null,
+              "name": "objective",
+              "positional": false,
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "body_required": true,
+          "request_content_type": "application/json",
+          "response": {
+            "type": "array",
+            "item": "MatchCondition"
+          },
+          "tags": [
+            "FindAll"
+          ],
+          "pagination": null,
+          "response_path": "match_conditions",
+          "id_field": "name"
+        },
+        "runs-v1": {
+          "method": "POST",
+          "path": "/v1beta/findall/runs",
+          "description": "Starts a FindAll run.\n\nThis endpoint immediately returns a FindAll run object with status set to 'queued'.\nYou can get the run result snapshot using the GET /v1beta/findall/runs/{findall_id}/result endpoint.\nYou can track the progress of the run by:\n- Polling the status using the GET /v1beta/findall/runs/{findall_id} endpoint,\n- Subscribing to real-time updates via the /v1beta/findall/runs/{findall_id}/events\nendpoint,\n- Or specifying a webhook with relevant event types during run creation to receive\nnotifications.",
+          "params": [],
+          "body": [
+            {
+              "default": null,
+              "description": "Type of the entity for the FindAll run.",
+              "fields": null,
+              "name": "entity_type",
+              "positional": false,
+              "required": true,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "List of entity names/IDs to exclude from results. At most 10,000 entries are allowed.",
+              "fields": null,
+              "format": "json_or_scalar",
+              "name": "exclude_list",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "Generator for the FindAll run. One of base, core, pro, preview.",
+              "enum": [
+                "base",
+                "core",
+                "pro",
+                "preview"
+              ],
+              "fields": null,
+              "name": "generator",
+              "positional": false,
+              "required": true,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "List of match conditions for the FindAll run.",
+              "fields": null,
+              "name": "match_conditions",
+              "positional": false,
+              "required": true,
+              "type": "array"
+            },
+            {
+              "default": null,
+              "description": "Maximum number of matches to find for this FindAll run. Must be between 5 and 1000 (inclusive). May return fewer results.",
+              "fields": null,
+              "name": "match_limit",
+              "positional": false,
+              "required": true,
+              "type": "int"
+            },
+            {
+              "default": null,
+              "description": "Metadata for the FindAll run.",
+              "fields": null,
+              "format": "json_or_scalar",
+              "name": "metadata",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "Natural language objective of the FindAll run.",
+              "fields": null,
+              "name": "objective",
+              "positional": false,
+              "required": true,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "Webhook for the FindAll run.",
+              "fields": null,
+              "format": "json_or_scalar",
+              "name": "webhook",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            }
+          ],
+          "body_required": true,
+          "request_content_type": "application/json",
+          "response": {
+            "type": "object",
+            "item": "FindAllRun"
+          },
+          "tags": [
+            "FindAll"
+          ],
+          "pagination": null,
+          "id_field": "findall_id"
+        },
+        "runs-v1-get": {
+          "method": "GET",
+          "path": "/v1beta/findall/runs/{findall_id}",
+          "description": "Retrieve FindAll Run Status",
+          "params": [
+            {
+              "default": null,
+              "description": "Findall id",
+              "fields": null,
+              "name": "findall_id",
+              "path_param": true,
+              "positional": true,
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "FindAllRun"
+          },
+          "tags": [
+            "FindAll"
+          ],
+          "pagination": null,
+          "id_field": "findall_id"
+        }
+      }
+    },
+    "monitors": {
+      "description": "The Monitor API watches the web for material changes on a fixed frequency. Each monitor runs once on creation and then on its configured schedule, emitting events when meaningful changes are detected.\n- `event_stream` monitors track a search query and emit an event for each new material change.\n- `snapshot` monitors track a specific task run's output and emit an event when the output changes.\n\nResults can be polled via the events endpoint or delivered via webhooks.",
+      "endpoints": {
+        "create": {
+          "method": "POST",
+          "path": "/v1/monitors",
+          "description": "Create a monitor.\n\nMonitors run on a fixed frequency to detect material changes in web content.\nSet `type=event_stream` to monitor a search query, or `type=snapshot` to\nmonitor a specific task run's output. The monitor runs once immediately at\ncreation, then continues on the configured schedule.",
+          "params": [],
+          "body": [
+            {
+              "default": null,
+              "description": "Frequency of the monitor. Format: '\u003cnumber\u003e\u003cunit\u003e' where unit is 'h' (hours), 'd' (days), or 'w' (weeks). Must be between 1h and 30d (inclusive).",
+              "example": "1h",
+              "fields": null,
+              "name": "frequency",
+              "positional": false,
+              "required": true,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "User-provided metadata stored with the monitor and echoed back in webhook notifications and GET responses, so you can map events to objects in your application. Keys: max 16 chars; values: max 512 chars.",
+              "example": {
+                "slack_thread_id": "1234567890.123456",
+                "user_id": "U123ABC"
+              },
+              "fields": null,
+              "format": "json_or_scalar",
+              "name": "metadata",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": "lite",
+              "description": "Processor to use for the monitor. `lite` is faster and cheaper; `base` performs more thorough analysis at higher cost and latency. Defaults to `lite`.",
+              "enum": [
+                "lite",
+                "base"
+              ],
+              "fields": null,
+              "name": "processor",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "Type-specific settings for the monitor. The expected shape is determined by the root `type` field: pass `MonitorEventStreamSettings` when `type` is `event_stream`, and `MonitorSnapshotSettings` when `type` is `snapshot`.",
+              "fields": null,
+              "format": "json_or_scalar",
+              "name": "settings",
+              "positional": false,
+              "required": true,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "Type of monitor to create. `event_stream` monitors a search query for material changes; `snapshot` monitors a specific task run's output. Determines the expected shape of `settings`.",
+              "enum": [
+                "event_stream",
+                "snapshot"
+              ],
+              "example": "event_stream",
+              "fields": null,
+              "name": "type",
+              "positional": false,
+              "required": true,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "Webhook to receive notifications about the monitor's execution.",
+              "fields": null,
+              "format": "json_or_scalar",
+              "name": "webhook",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            }
+          ],
+          "body_required": true,
+          "request_content_type": "application/json",
+          "response": {
+            "type": "object",
+            "item": "MonitorResponse"
+          },
+          "tags": [
+            "Monitor"
+          ],
+          "pagination": null,
+          "id_field": "monitor_id"
+        },
+        "list": {
+          "method": "GET",
+          "path": "/v1/monitors",
+          "description": "List monitors ordered by creation time, newest first.\n\nMonitors are sorted by `created_at` descending. `limit` defaults to 100.\nUse `next_cursor` from the response and pass it as `cursor` to fetch the\nnext page. Pagination ends when `next_cursor` is absent.\n\nBy default only `active` monitors are returned. Pass `status=cancelled`\nor both values to include cancelled monitors.\n\nThe legacy Monitor API (`/v1alpha/monitors` endpoints) is documented under\nthe `Monitor (Alpha)` tag.",
+          "params": [
+            {
+              "default": null,
+              "description": "Pagination token from `next_cursor` in a previous response. Omit to start from the most recently created monitor.",
+              "fields": null,
+              "name": "cursor",
+              "positional": false,
+              "query_explode": true,
+              "query_style": "form",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "Maximum number of monitors to return. Defaults to 100. Between 1 and 10000.",
+              "fields": null,
+              "name": "limit",
+              "positional": false,
+              "query_explode": true,
+              "query_style": "form",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "Filter by monitor type. Pass multiple times to filter by multiple values. Omit to return all types.",
+              "fields": null,
+              "name": "type",
+              "positional": false,
+              "query_explode": true,
+              "query_style": "form",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "Filter by monitor status. Pass multiple times to filter by multiple values. Defaults to `active` only.",
+              "fields": null,
+              "name": "status",
+              "positional": false,
+              "query_explode": true,
+              "query_style": "form",
+              "required": false,
+              "type": "string"
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "array",
+            "item": "MonitorResponse"
+          },
+          "tags": [
+            "Monitor"
+          ],
+          "pagination": {
+            "type": "cursor",
+            "limit_param": "limit",
+            "cursor_param": "cursor",
+            "next_cursor_path": "next_cursor",
+            "has_more_field": ""
+          },
+          "response_path": "monitors",
+          "id_field": "monitor_id"
+        },
+        "retrieve": {
+          "method": "GET",
+          "path": "/v1/monitors/{monitor_id}",
+          "description": "Retrieve a monitor.\n\nRetrieves a specific monitor by `monitor_id`. Returns the monitor\nconfiguration including status, frequency, query, and webhook settings.",
+          "params": [
+            {
+              "default": null,
+              "description": "Monitor id",
+              "fields": null,
+              "name": "monitor_id",
+              "path_param": true,
+              "positional": true,
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "MonitorResponse"
+          },
+          "tags": [
+            "Monitor"
+          ],
+          "pagination": null,
+          "id_field": "monitor_id"
+        }
+      },
+      "sub_resources": {
+        "cancel": {
+          "description": "Manage cancel",
+          "endpoints": {
+            "monitor": {
+              "method": "POST",
+              "path": "/v1/monitors/{monitor_id}/cancel",
+              "description": "Cancel a monitor.\n\nPermanently stops the monitor from running. Cancellation is irreversible —\ncreate a new monitor to resume monitoring. Cancelling an already-cancelled\nmonitor is a no-op.",
+              "params": [
+                {
+                  "default": null,
+                  "description": "Monitor id",
+                  "fields": null,
+                  "name": "monitor_id",
+                  "path_param": true,
+                  "positional": true,
+                  "required": true,
+                  "type": "string"
+                }
+              ],
+              "body": [],
+              "response": {
+                "type": "object",
+                "item": "MonitorResponse"
+              },
+              "tags": [
+                "Monitor"
+              ],
+              "pagination": null,
+              "id_field": "monitor_id"
+            }
+          }
+        },
+        "events": {
+          "description": "Manage events",
+          "endpoints": {
+            "list-monitor": {
+              "method": "GET",
+              "path": "/v1/monitors/{monitor_id}/events",
+              "description": "List events for a monitor, newest first.\n\nPass `event_group_id` to narrow results to a single execution. Otherwise\nreturns all executions newest-first; use `next_cursor` to paginate.\nSet `include_completions=true` to also include no-change executions.",
+              "params": [
+                {
+                  "default": null,
+                  "description": "Monitor id",
+                  "fields": null,
+                  "name": "monitor_id",
+                  "path_param": true,
+                  "positional": true,
+                  "required": true,
+                  "type": "string"
+                },
+                {
+                  "default": null,
+                  "description": "Filter to a single execution. Values come from `event_group_id` in webhook events and listed events. Pagination params are ignored when set.",
+                  "fields": null,
+                  "name": "event_group_id",
+                  "positional": false,
+                  "query_explode": true,
+                  "query_style": "form",
+                  "required": false,
+                  "type": "string"
+                },
+                {
+                  "default": null,
+                  "description": "Pass `next_cursor` from a previous response to retrieve more events.",
+                  "fields": null,
+                  "name": "cursor",
+                  "positional": false,
+                  "query_explode": true,
+                  "query_style": "form",
+                  "required": false,
+                  "type": "string"
+                },
+                {
+                  "default": null,
+                  "description": "Maximum number of events to return. Defaults to 20. Between 1 and 100.",
+                  "fields": null,
+                  "name": "limit",
+                  "positional": false,
+                  "query_explode": true,
+                  "query_style": "form",
+                  "required": false,
+                  "type": "string"
+                },
+                {
+                  "default": false,
+                  "description": "When true, include completion events for executions that ran but detected no material changes. Useful for auditing execution history.",
+                  "fields": null,
+                  "name": "include_completions",
+                  "positional": false,
+                  "query_explode": true,
+                  "query_style": "form",
+                  "required": false,
+                  "type": "bool"
+                }
+              ],
+              "body": [],
+              "response": {
+                "type": "array",
+                "item": "EventsListMonitorItem",
+                "discriminator": {
+                  "field": "event_type",
+                  "mapping": {
+                    "completion": "MonitorCompletionEvent",
+                    "error": "MonitorErrorEvent",
+                    "event_stream": "MonitorEventStreamEvent",
+                    "snapshot": "MonitorSnapshotEvent"
+                  }
+                }
+              },
+              "tags": [
+                "Monitor"
+              ],
+              "pagination": {
+                "type": "cursor",
+                "limit_param": "limit",
+                "cursor_param": "cursor",
+                "next_cursor_path": "next_cursor",
+                "has_more_field": ""
+              },
+              "response_path": "events",
+              "id_field": "event_id"
+            }
+          }
+        },
+        "trigger": {
+          "description": "Manage trigger",
+          "endpoints": {
+            "monitor-run": {
+              "method": "POST",
+              "path": "/v1/monitors/{monitor_id}/trigger",
+              "description": "Trigger an immediate monitor run.\n\nEnqueues a one-off execution of the monitor outside its normal schedule.\nThe monitor's regular schedule is not affected. An event is only emitted\nif the execution detects a material change. Cancelled monitors cannot be\ntriggered.",
+              "params": [
+                {
+                  "default": null,
+                  "description": "Monitor id",
+                  "fields": null,
+                  "name": "monitor_id",
+                  "path_param": true,
+                  "positional": true,
+                  "required": true,
+                  "type": "string"
+                }
+              ],
+              "body": [],
+              "response": {
+                "type": "",
+                "item": ""
+              },
+              "tags": [
+                "Monitor"
+              ],
+              "pagination": null
+            }
+          }
+        },
+        "update": {
+          "description": "Manage update",
+          "endpoints": {
+            "monitor": {
+              "method": "POST",
+              "path": "/v1/monitors/{monitor_id}/update",
+              "description": "Update a monitor.\n\nOnly fields explicitly included in the request body are changed. Pass\n`null` for `webhook` or `metadata` to clear those fields. Pass `type` and\n`settings` to update type-specific settings on an `event_stream` monitor.\nAt least one field must be provided. Cancelled monitors cannot be updated.",
+              "params": [
+                {
+                  "default": null,
+                  "description": "Monitor id",
+                  "fields": null,
+                  "name": "monitor_id",
+                  "path_param": true,
+                  "positional": true,
+                  "required": true,
+                  "type": "string"
+                }
+              ],
+              "body": [
+                {
+                  "default": null,
+                  "description": "Frequency of the monitor. Format: '\u003cnumber\u003e\u003cunit\u003e' where unit is 'h' (hours), 'd' (days), or 'w' (weeks). Must be between 1h and 30d (inclusive).",
+                  "example": "1h",
+                  "fields": null,
+                  "name": "frequency",
+                  "positional": false,
+                  "required": false,
+                  "type": "string"
+                },
+                {
+                  "default": null,
+                  "description": "User-provided metadata stored with the monitor and echoed back in webhook notifications and GET responses, so you can map events to objects in your application. Keys: max 16 chars; values: max 512 chars.",
+                  "example": {
+                    "slack_thread_id": "1234567890.123456",
+                    "user_id": "U123ABC"
+                  },
+                  "fields": null,
+                  "format": "json_or_scalar",
+                  "name": "metadata",
+                  "positional": false,
+                  "required": false,
+                  "type": "string"
+                },
+                {
+                  "default": null,
+                  "description": "Type-specific settings to update. Only valid when `type` is `event_stream`. Pass `settings.query` to update the prompt, or `null` for `settings.advanced_settings` to clear it.",
+                  "fields": null,
+                  "format": "json_or_scalar",
+                  "name": "settings",
+                  "positional": false,
+                  "required": false,
+                  "type": "string"
+                },
+                {
+                  "default": null,
+                  "description": "Type of the monitor being updated. Required when `settings` is provided; must be `event_stream` (snapshot monitors have no updatable type-specific settings).",
+                  "example": "event_stream",
+                  "fields": null,
+                  "name": "type",
+                  "positional": false,
+                  "required": false,
+                  "type": "string"
+                },
+                {
+                  "default": null,
+                  "description": "Webhook to receive notifications about the monitor's execution.",
+                  "fields": null,
+                  "format": "json_or_scalar",
+                  "name": "webhook",
+                  "positional": false,
+                  "required": false,
+                  "type": "string"
+                }
+              ],
+              "body_required": true,
+              "request_content_type": "application/json",
+              "response": {
+                "type": "object",
+                "item": "MonitorResponse"
+              },
+              "tags": [
+                "Monitor"
+              ],
+              "pagination": null,
+              "id_field": "monitor_id"
+            }
+          }
+        }
+      }
+    },
+    "service": {
+      "description": "Service utility endpoints",
+      "endpoints": {
+        "account-add-balance": {
+          "method": "POST",
+          "path": "/account/service/v1/balance/add",
+          "description": "Charge the organization's default payment method and add the amount to the prepaid credit balance. The default payment method configured on the org's Stripe customer is always used; no payment method id is accepted from the client.",
+          "params": [],
+          "body": [
+            {
+              "default": null,
+              "description": "Amount in cents to charge and add to the balance. Must be between 1 and 10000 cents ($100.00).",
+              "fields": null,
+              "maximum": 10000,
+              "name": "amount_cents",
+              "positional": false,
+              "required": true,
+              "type": "int"
+            },
+            {
+              "default": null,
+              "description": "Required idempotency key. Stripe dedupes the charge server-side for at least 24h when the same key is submitted again for the same org (see https://docs.stripe.com/api/idempotent_requests). Pick a high-entropy value (e.g. a UUID) so distinct agent attempts do not collide.",
+              "fields": null,
+              "name": "idempotency_key",
+              "positional": false,
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "body_required": true,
+          "request_content_type": "application/json",
+          "response": {
+            "type": "object",
+            "item": "BalanceResponse"
+          },
+          "tags": [
+            "account-Balance"
+          ],
+          "pagination": null,
+          "id_field": "org_id"
+        },
+        "account-create-app": {
+          "method": "POST",
+          "path": "/account/service/v1/apps",
+          "description": "Create a new app for the authenticated organization",
+          "params": [],
+          "body": [
+            {
+              "default": false,
+              "description": "Mark OAuth reserved app-name prefixes ('OAuth client at ...', 'Device auth for ...') as expected. Set only by the platform's OAuth key-share flows; ignored on the service API path.",
+              "fields": null,
+              "name": "allow_oauth_app_names",
+              "positional": false,
+              "required": false,
+              "type": "bool"
+            },
+            {
+              "default": null,
+              "description": "App name",
+              "fields": null,
+              "name": "app_name",
+              "positional": false,
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "body_required": true,
+          "request_content_type": "application/json",
+          "response": {
+            "type": "object",
+            "item": "CreateAppResponseModel"
+          },
+          "tags": [
+            "account-Apps"
+          ],
+          "pagination": null,
+          "id_field": "app_id"
+        },
+        "account-create-key": {
+          "method": "POST",
+          "path": "/account/service/v1/apps/{app_id}/keys",
+          "description": "Create a new API key for an app",
+          "params": [
+            {
+              "default": null,
+              "description": "App id",
+              "fields": null,
+              "format": "uuid",
+              "name": "app_id",
+              "path_param": true,
+              "positional": true,
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "body": [
+            {
+              "default": null,
+              "description": "API Key Name",
+              "fields": null,
+              "name": "api_key_name",
+              "positional": false,
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "body_required": true,
+          "request_content_type": "application/json",
+          "response": {
+            "type": "object",
+            "item": "CreateKeyResponse"
+          },
+          "tags": [
+            "account-Keys"
+          ],
+          "pagination": null,
+          "id_field": "api_key_id"
+        },
+        "account-delete-app": {
+          "method": "DELETE",
+          "path": "/account/service/v1/apps/{app_id}",
+          "description": "Delete an app from the authenticated organization",
+          "params": [
+            {
+              "default": null,
+              "description": "App id",
+              "fields": null,
+              "format": "uuid",
+              "name": "app_id",
+              "path_param": true,
+              "positional": true,
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "",
+            "item": ""
+          },
+          "tags": [
+            "account-Apps"
+          ],
+          "pagination": null
+        },
+        "account-delete-key": {
+          "method": "DELETE",
+          "path": "/account/service/v1/apps/{app_id}/keys/{api_key_id}",
+          "description": "Delete an API key from an app",
+          "params": [
+            {
+              "default": null,
+              "description": "App id",
+              "fields": null,
+              "format": "uuid",
+              "name": "app_id",
+              "path_param": true,
+              "positional": true,
+              "required": true,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "Api key id",
+              "fields": null,
+              "name": "api_key_id",
+              "path_param": true,
+              "positional": true,
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "",
+            "item": ""
+          },
+          "tags": [
+            "account-Keys"
+          ],
+          "pagination": null
+        },
+        "account-get-balance": {
+          "method": "GET",
+          "path": "/account/service/v1/balance",
+          "description": "Get the authenticated organization's prepaid credit balance",
+          "params": [],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "BalanceResponse"
+          },
+          "tags": [
+            "account-Balance"
+          ],
+          "pagination": null,
+          "id_field": "org_id"
+        },
+        "account-list-apps": {
+          "method": "GET",
+          "path": "/account/service/v1/apps",
+          "description": "List all apps for the authenticated organization",
+          "params": [],
+          "body": [],
+          "response": {
+            "type": "array",
+            "item": "AppItem"
+          },
+          "tags": [
+            "account-Apps"
+          ],
+          "pagination": null,
+          "response_path": "apps",
+          "id_field": "app_name"
+        }
+      }
+    },
+    "tasks": {
+      "description": "The Task API executes web research and extraction tasks. Clients submit a natural-language objective with an optional input schema; the service plans retrieval, fetches relevant URLs, and returns outputs that conform to a provided or inferred JSON schema. Supports deep research style queries and can return rich structured JSON outputs. Processors trade-off between cost, latency, and quality. Each processor supports calibrated confidences.\n- Output metadata: citations, excerpts, reasoning, and confidence per field\n\nTask Groups enable batch execution of many independent Task runs with group-level monitoring and failure handling.\n- Submit hundreds or thousands of Tasks as a single group\n- Observe group progress and receive results as they complete\n- Real-time updates via Server-Sent Events (SSE)\n- Add tasks to an existing group while it is running\n- Group-level retry and error aggregation",
+      "endpoints": {
+        "runs-events-get": {
+          "method": "GET",
+          "path": "/v1/tasks/runs/{run_id}/events",
+          "description": "Streams events for a task run.\n\nReturns a stream of events showing progress updates and state changes for the task\nrun.\n\nFor task runs that did not have enable_events set to true during creation, the\nfrequency of events will be reduced.",
+          "params": [
+            {
+              "default": null,
+              "description": "Run id",
+              "fields": null,
+              "name": "run_id",
+              "path_param": true,
+              "positional": true,
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "",
+            "item": ""
+          },
+          "tags": [
+            "Tasks"
+          ],
+          "pagination": null,
+          "live_dogfood_requires_tier": "streaming"
+        },
+        "runs-events-get-runs": {
+          "method": "GET",
+          "path": "/v1beta/tasks/runs/{run_id}/events",
+          "description": "Streams events for a task run.\n\nReturns a stream of events showing progress updates and state changes for the task\nrun.\n\nFor task runs that did not have enable_events set to true during creation, the\nfrequency of events will be reduced.",
+          "params": [
+            {
+              "default": null,
+              "description": "Run id",
+              "fields": null,
+              "name": "run_id",
+              "path_param": true,
+              "positional": true,
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "",
+            "item": ""
+          },
+          "tags": [
+            "Tasks"
+          ],
+          "pagination": null,
+          "live_dogfood_requires_tier": "streaming"
+        },
+        "runs-get": {
+          "method": "GET",
+          "path": "/v1/tasks/runs/{run_id}",
+          "description": "Retrieves run status by run_id.\n\nThe run result is available from the `/result` endpoint.",
+          "params": [
+            {
+              "default": null,
+              "description": "Run id",
+              "fields": null,
+              "name": "run_id",
+              "path_param": true,
+              "positional": true,
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "TaskRun"
+          },
+          "tags": [
+            "Tasks"
+          ],
+          "pagination": null,
+          "id_field": "run_id"
+        },
+        "runs-input-get": {
+          "method": "GET",
+          "path": "/v1/tasks/runs/{run_id}/input",
+          "description": "Retrieves the input of a run by run_id.",
+          "params": [
+            {
+              "default": null,
+              "description": "Run id",
+              "fields": null,
+              "name": "run_id",
+              "path_param": true,
+              "positional": true,
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "TaskRunInput"
+          },
+          "tags": [
+            "Tasks"
+          ],
+          "pagination": null,
+          "id_field": "processor"
+        },
+        "runs-post": {
+          "method": "POST",
+          "path": "/v1/tasks/runs",
+          "description": "Initiates a task run.\n\nReturns immediately with a run object in status 'queued'.\n\nBeta features can be enabled by setting the 'parallel-beta' header.",
+          "params": [],
+          "body": [
+            {
+              "default": null,
+              "description": "Advanced search configuration for the task run.",
+              "fields": null,
+              "format": "json_or_scalar",
+              "name": "advanced_settings",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "Controls tracking of task run execution progress. When set to true, progress events are recorded and can be accessed via the [Task Run events](https://docs.parallel.ai/api-reference) endpoint. When false, no progress events are tracked. Note that progress tracking cannot be enabled after a run has been created. The flag is set to true by default for premium processors (pro and above).",
+              "fields": null,
+              "name": "enable_events",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "Input to the task, either text or a JSON object.",
+              "example": "What was the GDP of France in 2023?",
+              "fields": null,
+              "format": "json_or_scalar",
+              "name": "input",
+              "positional": false,
+              "required": true,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "Optional list of MCP servers to use for the run.",
+              "fields": null,
+              "format": "json_or_scalar",
+              "name": "mcp_servers",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "User-provided metadata stored with the run. Keys and values must be strings with a maximum length of 16 and 512 characters respectively.",
+              "fields": null,
+              "format": "json_or_scalar",
+              "name": "metadata",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "Interaction ID to use as context for this request.",
+              "fields": null,
+              "name": "previous_interaction_id",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "Processor to use for the task.",
+              "example": "base",
+              "fields": null,
+              "name": "processor",
+              "positional": false,
+              "required": true,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "Optional source policy governing preferred and disallowed domains in web search results.",
+              "fields": null,
+              "format": "json_or_scalar",
+              "name": "source_policy",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "Task specification. If unspecified, defaults to auto output schema.",
+              "fields": null,
+              "format": "json_or_scalar",
+              "name": "task_spec",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "Callback URL (webhook endpoint) that will receive an HTTP POST when the run completes. \nThis feature is not available via the Python SDK.",
+              "fields": null,
+              "format": "json_or_scalar",
+              "name": "webhook",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            }
+          ],
+          "body_required": true,
+          "request_content_type": "application/json",
+          "response": {
+            "type": "object",
+            "item": "TaskRun"
+          },
+          "tags": [
+            "Tasks"
+          ],
+          "pagination": null,
+          "id_field": "run_id"
+        },
+        "runs-result-get": {
+          "method": "GET",
+          "path": "/v1/tasks/runs/{run_id}/result",
+          "description": "Retrieves a run result by run_id, blocking until the run is completed.",
+          "params": [
+            {
+              "default": null,
+              "description": "Run id",
+              "fields": null,
+              "name": "run_id",
+              "path_param": true,
+              "positional": true,
+              "required": true,
+              "type": "string"
+            },
+            {
+              "default": 600,
+              "description": "Timeout",
+              "fields": null,
+              "name": "timeout",
+              "positional": false,
+              "query_explode": true,
+              "query_style": "form",
+              "required": false,
+              "type": "int"
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "TaskRunResult"
+          },
+          "tags": [
+            "Tasks"
+          ],
+          "pagination": null
+        },
+        "sessions-events-get": {
+          "method": "GET",
+          "path": "/v1/tasks/groups/{taskgroup_id}/events",
+          "description": "Streams events from a TaskGroup: status updates and run completions.\n\nThe connection will remain open for up to an hour as long as at least one run in the\ngroup is still active.",
+          "params": [
+            {
+              "default": null,
+              "description": "Taskgroup id",
+              "fields": null,
+              "name": "taskgroup_id",
+              "path_param": true,
+              "positional": true,
+              "required": true,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "Last event id",
+              "fields": null,
+              "name": "last_event_id",
+              "positional": false,
+              "query_explode": true,
+              "query_style": "form",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "Timeout",
+              "fields": null,
+              "name": "timeout",
+              "positional": false,
+              "query_explode": true,
+              "query_style": "form",
+              "required": false,
+              "type": "string"
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "",
+            "item": ""
+          },
+          "tags": [
+            "Tasks"
+          ],
+          "pagination": null,
+          "live_dogfood_requires_tier": "streaming"
+        },
+        "taskgroups-get": {
+          "method": "GET",
+          "path": "/v1/tasks/groups/{taskgroup_id}",
+          "description": "Retrieves aggregated status across runs in a TaskGroup.",
+          "params": [
+            {
+              "default": null,
+              "description": "Taskgroup id",
+              "fields": null,
+              "name": "taskgroup_id",
+              "path_param": true,
+              "positional": true,
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "TaskGroupResponse"
+          },
+          "tags": [
+            "Tasks"
+          ],
+          "pagination": null,
+          "id_field": "taskgroup_id"
+        },
+        "taskgroups-post": {
+          "method": "POST",
+          "path": "/v1/tasks/groups",
+          "description": "Initiates a TaskGroup to group and track multiple runs.",
+          "params": [],
+          "body": [
+            {
+              "default": null,
+              "description": "User-provided metadata stored with the task group.",
+              "fields": null,
+              "format": "json_or_scalar",
+              "name": "metadata",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            }
+          ],
+          "body_required": true,
+          "request_content_type": "application/json",
+          "response": {
+            "type": "object",
+            "item": "TaskGroupResponse"
+          },
+          "tags": [
+            "Tasks"
+          ],
+          "pagination": null,
+          "id_field": "taskgroup_id"
+        },
+        "taskgroups-runs-get": {
+          "method": "GET",
+          "path": "/v1/tasks/groups/{taskgroup_id}/runs",
+          "description": "Retrieves task runs in a TaskGroup and optionally their inputs and outputs.\n\nAll runs within a TaskGroup are returned as a stream. To get the inputs and/or\noutputs back in the stream, set the corresponding `include_input` and\n`include_output` parameters to `true`.\n\nThe stream is resumable using the `event_id` as the cursor. To resume a stream,\nspecify the `last_event_id` parameter with the `event_id` of the last event in the\nstream. The stream will resume from the next event after the `last_event_id`.",
+          "params": [
+            {
+              "default": null,
+              "description": "Taskgroup id",
+              "fields": null,
+              "name": "taskgroup_id",
+              "path_param": true,
+              "positional": true,
+              "required": true,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "Last event id",
+              "fields": null,
+              "name": "last_event_id",
+              "positional": false,
+              "query_explode": true,
+              "query_style": "form",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "Status",
+              "fields": null,
+              "name": "status",
+              "positional": false,
+              "query_explode": true,
+              "query_style": "form",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": false,
+              "description": "Include input",
+              "fields": null,
+              "name": "include_input",
+              "positional": false,
+              "query_explode": true,
+              "query_style": "form",
+              "required": false,
+              "type": "bool"
+            },
+            {
+              "default": false,
+              "description": "Include output",
+              "fields": null,
+              "name": "include_output",
+              "positional": false,
+              "query_explode": true,
+              "query_style": "form",
+              "required": false,
+              "type": "bool"
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "",
+            "item": ""
+          },
+          "tags": [
+            "Tasks"
+          ],
+          "pagination": null,
+          "live_dogfood_requires_tier": "streaming"
+        },
+        "taskgroups-runs-id-get": {
+          "method": "GET",
+          "path": "/v1/tasks/groups/{taskgroup_id}/runs/{run_id}",
+          "description": "Retrieves run status by run_id.\n\nThis endpoint is equivalent to fetching run status directly using the\n`retrieve()` method or the `tasks/runs` GET endpoint.\n\nThe run result is available from the `/result` endpoint.",
+          "params": [
+            {
+              "default": null,
+              "description": "Taskgroup id",
+              "fields": null,
+              "name": "taskgroup_id",
+              "path_param": true,
+              "positional": true,
+              "required": true,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "Run id",
+              "fields": null,
+              "name": "run_id",
+              "path_param": true,
+              "positional": true,
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "TaskRun"
+          },
+          "tags": [
+            "Tasks"
+          ],
+          "pagination": null,
+          "id_field": "run_id"
+        },
+        "taskgroups-runs-post": {
+          "method": "POST",
+          "path": "/v1/tasks/groups/{taskgroup_id}/runs",
+          "description": "Initiates multiple task runs within a TaskGroup.",
+          "params": [
+            {
+              "default": null,
+              "description": "Taskgroup id",
+              "fields": null,
+              "name": "taskgroup_id",
+              "path_param": true,
+              "positional": true,
+              "required": true,
+              "type": "string"
+            },
+            {
+              "default": true,
+              "description": "Refresh status",
+              "fields": null,
+              "name": "refresh_status",
+              "positional": false,
+              "query_explode": true,
+              "query_style": "form",
+              "required": false,
+              "type": "bool"
+            }
+          ],
+          "body": [
+            {
+              "default": null,
+              "description": "Default task spec to use for the runs. If task_spec is specified in a run, it overrides this default.",
+              "fields": null,
+              "format": "json_or_scalar",
+              "name": "default_task_spec",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "List of task runs to execute. Up to 1,000 runs can be specified per request. If you'd like to add more runs, split them across multiple TaskGroup POST requests.",
+              "fields": null,
+              "name": "inputs",
+              "positional": false,
+              "required": true,
+              "type": "array"
+            }
+          ],
+          "body_required": true,
+          "request_content_type": "application/json",
+          "response": {
+            "type": "array",
+            "item": "string"
+          },
+          "tags": [
+            "Tasks"
+          ],
+          "pagination": null,
+          "response_path": "run_ids"
+        }
+      }
+    },
+    "websearch": {
+      "description": "Manage websearch",
+      "endpoints": {
+        "search": {
+          "method": "POST",
+          "path": "/v1/search",
+          "description": "Searches the web.\n\nThe legacy Search API reference (`/v1beta/search` endpoint) is available\n[here](https://docs.parallel.ai/api-reference/legacy/search-beta/search), and\nmigration guide is [here](https://docs.parallel.ai/search/search-migration-guide).",
+          "params": [],
+          "body": [
+            {
+              "default": null,
+              "description": "Advanced configuration for source policy, fetch policy, and excerpt settings. May impact result quality and latency unless used carefully. When omitted, excerpts are enabled by default.",
+              "fields": null,
+              "format": "json_or_scalar",
+              "name": "advanced_settings",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "The model generating this request and consuming the results. Enables optimizations and tailors default settings for the model's capabilities.",
+              "example": "claude-opus-4-7",
+              "fields": null,
+              "name": "client_model",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "Upper bound on total characters across excerpts from all results.",
+              "fields": null,
+              "name": "max_chars_total",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "Search mode preset: supported values are `turbo`, `basic`, and `advanced`. Turbo mode is optimized for the fastest responses. Basic mode offers low latency and works best with 2-3 high-quality search_queries. Advanced mode provides higher quality with more advanced retrieval and compression. Defaults to `advanced` when omitted.",
+              "fields": null,
+              "name": "mode",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "Natural-language description of the underlying question or goal driving the search. Used together with search_queries to focus results on the most relevant content. Should be self-contained with enough context to understand the intent of the search.",
+              "fields": null,
+              "name": "objective",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            },
+            {
+              "default": null,
+              "description": "Concise keyword search queries, 3-6 words each. At least one query is required, provide 2-3 for best results. Used together with objective to focus results on the most relevant content.",
+              "fields": null,
+              "item_type": "string",
+              "name": "search_queries",
+              "positional": false,
+              "required": true,
+              "type": "string_csv_array"
+            },
+            {
+              "default": null,
+              "description": "Session identifier to track calls across separate search and extract calls, to be used as part of a larger task. Specifying it may give better contextual results for subsequent API calls.",
+              "fields": null,
+              "name": "session_id",
+              "positional": false,
+              "required": false,
+              "type": "string"
+            }
+          ],
+          "body_required": true,
+          "request_content_type": "application/json",
+          "response": {
+            "type": "array",
+            "item": "V1WebSearchResult"
+          },
+          "tags": [
+            "Websearch"
+          ],
+          "pagination": null,
+          "response_path": "results",
+          "id_field": "url"
+        }
+      }
+    }
+  },
+  "types": {
+    "AddBalanceRequest": {
+      "fields": [
+        {
+          "name": "amount_cents",
+          "type": "int"
+        },
+        {
+          "name": "idempotency_key",
+          "type": "string"
+        }
+      ]
+    },
+    "AdvancedExtractSettings": {
+      "fields": [
+        {
+          "name": "excerpt_settings",
+          "type": "string"
+        },
+        {
+          "name": "fetch_policy",
+          "type": "string"
+        },
+        {
+          "name": "full_content",
+          "type": "string"
+        }
+      ]
+    },
+    "AdvancedMonitorSettings": {
+      "fields": [
+        {
+          "name": "location",
+          "type": "string"
+        },
+        {
+          "name": "source_policy",
+          "type": "string"
+        }
+      ]
+    },
+    "AdvancedSearchSettings": {
+      "fields": [
+        {
+          "name": "excerpt_settings",
+          "type": "string"
+        },
+        {
+          "name": "fetch_policy",
+          "type": "string"
+        },
+        {
+          "name": "location",
+          "type": "string"
+        },
+        {
+          "name": "max_results",
+          "type": "string"
+        },
+        {
+          "name": "source_policy",
+          "type": "string"
+        }
+      ]
+    },
+    "AppItem": {
+      "fields": [
+        {
+          "name": "app_id",
+          "type": "string"
+        },
+        {
+          "name": "app_name",
+          "type": "string"
+        },
+        {
+          "name": "org_id",
+          "type": "string"
+        },
+        {
+          "name": "org_name",
+          "type": "string"
+        }
+      ]
+    },
+    "AutoSchema": {
+      "fields": [
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "BalanceResponse": {
+      "fields": [
+        {
+          "name": "credit_balance_cents",
+          "type": "float"
+        },
+        {
+          "name": "org_id",
+          "type": "string"
+        },
+        {
+          "name": "pending_debit_balance_cents",
+          "type": "float"
+        },
+        {
+          "name": "will_invoice",
+          "type": "bool"
+        }
+      ]
+    },
+    "ChatCompletion": {
+      "fields": [
+        {
+          "name": "basis",
+          "type": "array"
+        },
+        {
+          "name": "choices",
+          "type": "array"
+        },
+        {
+          "name": "created",
+          "type": "int"
+        },
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "interaction_id",
+          "type": "string"
+        },
+        {
+          "name": "model",
+          "type": "string"
+        },
+        {
+          "name": "moderation",
+          "type": "string"
+        },
+        {
+          "name": "object",
+          "type": "string"
+        },
+        {
+          "name": "service_tier",
+          "type": "string"
+        },
+        {
+          "name": "system_fingerprint",
+          "type": "string"
+        },
+        {
+          "name": "usage",
+          "type": "string"
+        }
+      ]
+    },
+    "ChatCompletionRequest": {
+      "fields": [
+        {
+          "name": "frequency_penalty",
+          "type": "string"
+        },
+        {
+          "name": "max_tokens",
+          "type": "string"
+        },
+        {
+          "name": "messages",
+          "type": "array"
+        },
+        {
+          "name": "model",
+          "type": "string"
+        },
+        {
+          "name": "n",
+          "type": "string"
+        },
+        {
+          "name": "presence_penalty",
+          "type": "string"
+        },
+        {
+          "name": "previous_interaction_id",
+          "type": "string"
+        },
+        {
+          "name": "response_format",
+          "type": "string"
+        },
+        {
+          "name": "stream",
+          "type": "string"
+        },
+        {
+          "name": "temperature",
+          "type": "string"
+        },
+        {
+          "name": "top_p",
+          "type": "string"
+        }
+      ]
+    },
+    "ChatCompletionResponseChunk": {
+      "fields": [
+        {
+          "name": "basis",
+          "type": "array"
+        },
+        {
+          "name": "choices",
+          "type": "array"
+        },
+        {
+          "name": "created",
+          "type": "int"
+        },
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "interaction_id",
+          "type": "string"
+        },
+        {
+          "name": "model",
+          "type": "string"
+        },
+        {
+          "name": "moderation",
+          "type": "string"
+        },
+        {
+          "name": "object",
+          "type": "string"
+        },
+        {
+          "name": "service_tier",
+          "type": "string"
+        },
+        {
+          "name": "system_fingerprint",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        },
+        {
+          "name": "usage",
+          "type": "string"
+        }
+      ]
+    },
+    "ChatCompletionTokenLogprob": {
+      "fields": [
+        {
+          "name": "bytes",
+          "type": "string"
+        },
+        {
+          "name": "logprob",
+          "type": "float"
+        },
+        {
+          "name": "token",
+          "type": "string"
+        },
+        {
+          "name": "top_logprobs",
+          "type": "array"
+        }
+      ]
+    },
+    "ChatMessage": {
+      "fields": [
+        {
+          "name": "content",
+          "type": "string"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "role",
+          "type": "string",
+          "enum": [
+            "system",
+            "user",
+            "assistant"
+          ]
+        }
+      ]
+    },
+    "Choice": {
+      "fields": [
+        {
+          "name": "delta",
+          "type": "object"
+        },
+        {
+          "name": "finish_reason",
+          "type": "string"
+        },
+        {
+          "name": "index",
+          "type": "int"
+        },
+        {
+          "name": "logprobs",
+          "type": "string"
+        }
+      ]
+    },
+    "ChoiceDelta": {
+      "fields": [
+        {
+          "name": "content",
+          "type": "string"
+        },
+        {
+          "name": "function_call",
+          "type": "string"
+        },
+        {
+          "name": "refusal",
+          "type": "string"
+        },
+        {
+          "name": "role",
+          "type": "string"
+        },
+        {
+          "name": "tool_calls",
+          "type": "string"
+        }
+      ]
+    },
+    "ChoiceDeltaFunctionCall": {
+      "fields": [
+        {
+          "name": "arguments",
+          "type": "string"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        }
+      ]
+    },
+    "ChoiceDeltaToolCall": {
+      "fields": [
+        {
+          "name": "function",
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "index",
+          "type": "int"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "ChoiceDeltaToolCallFunction": {
+      "fields": [
+        {
+          "name": "arguments",
+          "type": "string"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        }
+      ]
+    },
+    "ChoiceLogprobs": {
+      "fields": [
+        {
+          "name": "content",
+          "type": "string"
+        },
+        {
+          "name": "refusal",
+          "type": "string"
+        }
+      ]
+    },
+    "Citation": {
+      "fields": [
+        {
+          "name": "excerpts",
+          "type": "string"
+        },
+        {
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "name": "url",
+          "type": "string"
+        }
+      ]
+    },
+    "CompletionTokensDetails": {
+      "fields": [
+        {
+          "name": "accepted_prediction_tokens",
+          "type": "string"
+        },
+        {
+          "name": "audio_tokens",
+          "type": "string"
+        },
+        {
+          "name": "reasoning_tokens",
+          "type": "string"
+        },
+        {
+          "name": "rejected_prediction_tokens",
+          "type": "string"
+        }
+      ]
+    },
+    "CompletionUsage": {
+      "fields": [
+        {
+          "name": "completion_tokens",
+          "type": "int"
+        },
+        {
+          "name": "completion_tokens_details",
+          "type": "string"
+        },
+        {
+          "name": "prompt_tokens",
+          "type": "int"
+        },
+        {
+          "name": "prompt_tokens_details",
+          "type": "string"
+        },
+        {
+          "name": "total_tokens",
+          "type": "int"
+        }
+      ]
+    },
+    "CreateApiKeyRequestModel": {
+      "fields": [
+        {
+          "name": "api_key_name",
+          "type": "string"
+        }
+      ]
+    },
+    "CreateAppRequestModel": {
+      "fields": [
+        {
+          "name": "allow_oauth_app_names",
+          "type": "bool"
+        },
+        {
+          "name": "app_name",
+          "type": "string"
+        }
+      ]
+    },
+    "CreateAppResponseModel": {
+      "fields": [
+        {
+          "name": "app_id",
+          "type": "string"
+        }
+      ]
+    },
+    "CreateKeyResponse": {
+      "fields": [
+        {
+          "name": "api_key_id",
+          "type": "string"
+        },
+        {
+          "name": "api_key_name",
+          "type": "string"
+        },
+        {
+          "name": "app_id",
+          "type": "string"
+        },
+        {
+          "name": "app_name",
+          "type": "string"
+        },
+        {
+          "name": "created_at",
+          "type": "int"
+        },
+        {
+          "name": "created_by_user_email",
+          "type": "string"
+        },
+        {
+          "name": "created_by_user_id",
+          "type": "string"
+        },
+        {
+          "name": "display_value",
+          "type": "string"
+        },
+        {
+          "name": "raw_api_key",
+          "type": "string",
+          "format": "password"
+        }
+      ]
+    },
+    "CreateMonitorRequest": {
+      "fields": [
+        {
+          "name": "frequency",
+          "type": "string"
+        },
+        {
+          "name": "metadata",
+          "type": "string"
+        },
+        {
+          "name": "processor",
+          "type": "string",
+          "enum": [
+            "lite",
+            "base"
+          ]
+        },
+        {
+          "name": "settings",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "enum": [
+            "event_stream",
+            "snapshot"
+          ]
+        },
+        {
+          "name": "webhook",
+          "type": "string"
+        }
+      ]
+    },
+    "CreateTaskGroupRequest": {
+      "fields": [
+        {
+          "name": "metadata",
+          "type": "string"
+        }
+      ]
+    },
+    "EntityItem": {
+      "fields": [
+        {
+          "name": "description",
+          "type": "string"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "url",
+          "type": "string"
+        }
+      ]
+    },
+    "Error": {
+      "fields": [
+        {
+          "name": "detail",
+          "type": "string"
+        },
+        {
+          "name": "message",
+          "type": "string"
+        },
+        {
+          "name": "ref_id",
+          "type": "string"
+        }
+      ]
+    },
+    "ErrorEvent": {
+      "fields": [
+        {
+          "name": "error",
+          "type": "object"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "ErrorResponse": {
+      "fields": [
+        {
+          "name": "error",
+          "type": "object"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "EventsListMonitorItem": {
+      "fields": [
+        {
+          "name": "changed_output",
+          "type": "string"
+        },
+        {
+          "name": "error_message",
+          "type": "string"
+        },
+        {
+          "name": "event_date",
+          "type": "string"
+        },
+        {
+          "name": "event_group_id",
+          "type": "string"
+        },
+        {
+          "name": "event_id",
+          "type": "string"
+        },
+        {
+          "name": "event_type",
+          "type": "string",
+          "enum": [
+            "error"
+          ]
+        },
+        {
+          "name": "output",
+          "type": "string"
+        },
+        {
+          "name": "previous_output",
+          "type": "string"
+        },
+        {
+          "name": "timestamp",
+          "type": "string",
+          "format": "date-time"
+        }
+      ]
+    },
+    "ExcludeCandidate": {
+      "fields": [
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "url",
+          "type": "string"
+        }
+      ]
+    },
+    "ExtractError": {
+      "fields": [
+        {
+          "name": "content",
+          "type": "string"
+        },
+        {
+          "name": "error_type",
+          "type": "string"
+        },
+        {
+          "name": "http_status_code",
+          "type": "string"
+        },
+        {
+          "name": "url",
+          "type": "string"
+        }
+      ]
+    },
+    "FetchPolicy": {
+      "fields": [
+        {
+          "name": "disable_cache_fallback",
+          "type": "bool"
+        },
+        {
+          "name": "max_age_seconds",
+          "type": "string"
+        },
+        {
+          "name": "timeout_seconds",
+          "type": "string"
+        }
+      ]
+    },
+    "FieldBasis": {
+      "fields": [
+        {
+          "name": "citations",
+          "type": "array"
+        },
+        {
+          "name": "confidence",
+          "type": "string"
+        },
+        {
+          "name": "field",
+          "type": "string"
+        },
+        {
+          "name": "reasoning",
+          "type": "string"
+        }
+      ]
+    },
+    "FindAllCandidate": {
+      "fields": [
+        {
+          "name": "basis",
+          "type": "string"
+        },
+        {
+          "name": "candidate_id",
+          "type": "string"
+        },
+        {
+          "name": "description",
+          "type": "string"
+        },
+        {
+          "name": "match_status",
+          "type": "string",
+          "enum": [
+            "generated",
+            "matched",
+            "unmatched",
+            "discarded"
+          ]
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "output",
+          "type": "string"
+        },
+        {
+          "name": "url",
+          "type": "string"
+        }
+      ]
+    },
+    "FindAllCandidateMatchStatusEvent": {
+      "fields": [
+        {
+          "name": "data",
+          "type": "object"
+        },
+        {
+          "name": "event_id",
+          "type": "string"
+        },
+        {
+          "name": "timestamp",
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "enum": [
+            "findall.candidate.generated",
+            "findall.candidate.matched",
+            "findall.candidate.unmatched",
+            "findall.candidate.discarded",
+            "findall.candidate.enriched"
+          ]
+        }
+      ]
+    },
+    "FindAllCandidateMetrics": {
+      "fields": [
+        {
+          "name": "generated_candidates_count",
+          "type": "int"
+        },
+        {
+          "name": "matched_candidates_count",
+          "type": "int"
+        }
+      ]
+    },
+    "FindAllEnrichInput": {
+      "fields": [
+        {
+          "name": "mcp_servers",
+          "type": "string"
+        },
+        {
+          "name": "output_schema",
+          "type": "object"
+        },
+        {
+          "name": "processor",
+          "type": "string"
+        }
+      ]
+    },
+    "FindAllEntitySearchRequest": {
+      "fields": [
+        {
+          "name": "entity_type",
+          "type": "string",
+          "enum": [
+            "people",
+            "companies"
+          ]
+        },
+        {
+          "name": "match_limit",
+          "type": "int"
+        },
+        {
+          "name": "objective",
+          "type": "string"
+        }
+      ]
+    },
+    "FindAllEntitySearchResponse": {
+      "fields": [
+        {
+          "name": "entities",
+          "type": "array"
+        },
+        {
+          "name": "entity_set_id",
+          "type": "string"
+        }
+      ]
+    },
+    "FindAllExtendInput": {
+      "fields": [
+        {
+          "name": "additional_match_limit",
+          "type": "int"
+        }
+      ]
+    },
+    "FindAllRun": {
+      "fields": [
+        {
+          "name": "created_at",
+          "type": "string"
+        },
+        {
+          "name": "findall_id",
+          "type": "string"
+        },
+        {
+          "name": "generator",
+          "type": "string",
+          "enum": [
+            "base",
+            "core",
+            "pro",
+            "preview"
+          ]
+        },
+        {
+          "name": "metadata",
+          "type": "string"
+        },
+        {
+          "name": "modified_at",
+          "type": "string"
+        },
+        {
+          "name": "status",
+          "type": "object"
+        }
+      ]
+    },
+    "FindAllRunInput": {
+      "fields": [
+        {
+          "name": "entity_type",
+          "type": "string"
+        },
+        {
+          "name": "exclude_list",
+          "type": "string"
+        },
+        {
+          "name": "generator",
+          "type": "string",
+          "enum": [
+            "base",
+            "core",
+            "pro",
+            "preview"
+          ]
+        },
+        {
+          "name": "match_conditions",
+          "type": "array"
+        },
+        {
+          "name": "match_limit",
+          "type": "int"
+        },
+        {
+          "name": "metadata",
+          "type": "string"
+        },
+        {
+          "name": "objective",
+          "type": "string"
+        },
+        {
+          "name": "webhook",
+          "type": "string"
+        }
+      ]
+    },
+    "FindAllRunResult": {
+      "fields": [
+        {
+          "name": "candidates",
+          "type": "array"
+        },
+        {
+          "name": "last_event_id",
+          "type": "string"
+        },
+        {
+          "name": "run",
+          "type": "object"
+        }
+      ]
+    },
+    "FindAllRunStatus": {
+      "fields": [
+        {
+          "name": "is_active",
+          "type": "bool"
+        },
+        {
+          "name": "metrics",
+          "type": "object"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "enum": [
+            "queued",
+            "action_required",
+            "running",
+            "completed",
+            "failed",
+            "cancelling",
+            "cancelled"
+          ]
+        },
+        {
+          "name": "termination_reason",
+          "type": "string"
+        }
+      ]
+    },
+    "FindAllRunStatusEvent": {
+      "fields": [
+        {
+          "name": "data",
+          "type": "object"
+        },
+        {
+          "name": "event_id",
+          "type": "string"
+        },
+        {
+          "name": "timestamp",
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "enum": [
+            "findall.status"
+          ]
+        }
+      ]
+    },
+    "FindAllSchema": {
+      "fields": [
+        {
+          "name": "enrichments",
+          "type": "string"
+        },
+        {
+          "name": "entity_type",
+          "type": "string"
+        },
+        {
+          "name": "generator",
+          "type": "string",
+          "enum": [
+            "base",
+            "core",
+            "pro",
+            "preview"
+          ]
+        },
+        {
+          "name": "match_conditions",
+          "type": "array"
+        },
+        {
+          "name": "match_limit",
+          "type": "string"
+        },
+        {
+          "name": "objective",
+          "type": "string"
+        }
+      ]
+    },
+    "FindAllSchemaUpdatedEvent": {
+      "fields": [
+        {
+          "name": "data",
+          "type": "object"
+        },
+        {
+          "name": "event_id",
+          "type": "string"
+        },
+        {
+          "name": "timestamp",
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "enum": [
+            "findall.schema.updated"
+          ]
+        }
+      ]
+    },
+    "FullContentSettings": {
+      "fields": [
+        {
+          "name": "max_chars_per_result",
+          "type": "string"
+        }
+      ]
+    },
+    "GetAppsForOrgResponseModel": {
+      "fields": [
+        {
+          "name": "apps",
+          "type": "array"
+        }
+      ]
+    },
+    "HTTPValidationError": {
+      "fields": [
+        {
+          "name": "detail",
+          "type": "array"
+        }
+      ]
+    },
+    "IngestInput": {
+      "fields": [
+        {
+          "name": "objective",
+          "type": "string"
+        }
+      ]
+    },
+    "JSONSchema": {
+      "fields": [
+        {
+          "name": "description",
+          "type": "string"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "schema",
+          "type": "object"
+        },
+        {
+          "name": "strict",
+          "type": "string"
+        }
+      ]
+    },
+    "JsonSchema": {
+      "fields": [
+        {
+          "name": "json_schema",
+          "type": "object"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "MatchCondition": {
+      "fields": [
+        {
+          "name": "description",
+          "type": "string"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        }
+      ]
+    },
+    "McpServer": {
+      "fields": [
+        {
+          "name": "allowed_tools",
+          "type": "string"
+        },
+        {
+          "name": "headers",
+          "type": "string"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        },
+        {
+          "name": "url",
+          "type": "string"
+        }
+      ]
+    },
+    "McpToolCall": {
+      "fields": [
+        {
+          "name": "arguments",
+          "type": "string"
+        },
+        {
+          "name": "content",
+          "type": "string"
+        },
+        {
+          "name": "error",
+          "type": "string"
+        },
+        {
+          "name": "server_name",
+          "type": "string"
+        },
+        {
+          "name": "tool_call_id",
+          "type": "string"
+        },
+        {
+          "name": "tool_name",
+          "type": "string"
+        }
+      ]
+    },
+    "Moderation": {
+      "fields": [
+        {
+          "name": "input",
+          "type": "string"
+        },
+        {
+          "name": "output",
+          "type": "string"
+        }
+      ]
+    },
+    "ModerationInputError": {
+      "fields": [
+        {
+          "name": "code",
+          "type": "string"
+        },
+        {
+          "name": "message",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "ModerationInputModerationResult": {
+      "fields": [
+        {
+          "name": "categories",
+          "type": "object"
+        },
+        {
+          "name": "category_applied_input_types",
+          "type": "object"
+        },
+        {
+          "name": "category_scores",
+          "type": "object"
+        },
+        {
+          "name": "flagged",
+          "type": "bool"
+        },
+        {
+          "name": "model",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "ModerationInputModerationResults": {
+      "fields": [
+        {
+          "name": "model",
+          "type": "string"
+        },
+        {
+          "name": "results",
+          "type": "array"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "ModerationInputModerationResultsResult": {
+      "fields": [
+        {
+          "name": "categories",
+          "type": "object"
+        },
+        {
+          "name": "category_applied_input_types",
+          "type": "object"
+        },
+        {
+          "name": "category_scores",
+          "type": "object"
+        },
+        {
+          "name": "flagged",
+          "type": "bool"
+        },
+        {
+          "name": "model",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "ModerationOutputError": {
+      "fields": [
+        {
+          "name": "code",
+          "type": "string"
+        },
+        {
+          "name": "message",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "ModerationOutputModerationResult": {
+      "fields": [
+        {
+          "name": "categories",
+          "type": "object"
+        },
+        {
+          "name": "category_applied_input_types",
+          "type": "object"
+        },
+        {
+          "name": "category_scores",
+          "type": "object"
+        },
+        {
+          "name": "flagged",
+          "type": "bool"
+        },
+        {
+          "name": "model",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "ModerationOutputModerationResults": {
+      "fields": [
+        {
+          "name": "model",
+          "type": "string"
+        },
+        {
+          "name": "results",
+          "type": "array"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "ModerationOutputModerationResultsResult": {
+      "fields": [
+        {
+          "name": "categories",
+          "type": "object"
+        },
+        {
+          "name": "category_applied_input_types",
+          "type": "object"
+        },
+        {
+          "name": "category_scores",
+          "type": "object"
+        },
+        {
+          "name": "flagged",
+          "type": "bool"
+        },
+        {
+          "name": "model",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "MonitorCompletionEvent": {
+      "fields": [
+        {
+          "name": "event_type",
+          "type": "string",
+          "enum": [
+            "completion"
+          ]
+        },
+        {
+          "name": "timestamp",
+          "type": "string",
+          "format": "date-time"
+        }
+      ]
+    },
+    "MonitorErrorEvent": {
+      "fields": [
+        {
+          "name": "error_message",
+          "type": "string"
+        },
+        {
+          "name": "event_type",
+          "type": "string",
+          "enum": [
+            "error"
+          ]
+        },
+        {
+          "name": "timestamp",
+          "type": "string",
+          "format": "date-time"
+        }
+      ]
+    },
+    "MonitorEventStreamEvent": {
+      "fields": [
+        {
+          "name": "event_date",
+          "type": "string"
+        },
+        {
+          "name": "event_group_id",
+          "type": "string"
+        },
+        {
+          "name": "event_id",
+          "type": "string"
+        },
+        {
+          "name": "event_type",
+          "type": "string",
+          "enum": [
+            "event_stream"
+          ]
+        },
+        {
+          "name": "output",
+          "type": "string"
+        }
+      ]
+    },
+    "MonitorEventStreamResponseSettings": {
+      "fields": [
+        {
+          "name": "advanced_settings",
+          "type": "string"
+        },
+        {
+          "name": "include_backfill",
+          "type": "string"
+        },
+        {
+          "name": "output_schema",
+          "type": "string"
+        },
+        {
+          "name": "query",
+          "type": "string"
+        }
+      ]
+    },
+    "MonitorEventStreamSettings": {
+      "fields": [
+        {
+          "name": "advanced_settings",
+          "type": "string"
+        },
+        {
+          "name": "include_backfill",
+          "type": "string"
+        },
+        {
+          "name": "output_schema",
+          "type": "string"
+        },
+        {
+          "name": "query",
+          "type": "string"
+        }
+      ]
+    },
+    "MonitorResponse": {
+      "fields": [
+        {
+          "name": "created_at",
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "name": "frequency",
+          "type": "string"
+        },
+        {
+          "name": "last_run_at",
+          "type": "string"
+        },
+        {
+          "name": "metadata",
+          "type": "string"
+        },
+        {
+          "name": "monitor_id",
+          "type": "string"
+        },
+        {
+          "name": "output",
+          "type": "string"
+        },
+        {
+          "name": "processor",
+          "type": "string",
+          "enum": [
+            "lite",
+            "base"
+          ]
+        },
+        {
+          "name": "settings",
+          "type": "string"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "enum": [
+            "active",
+            "cancelled"
+          ]
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "enum": [
+            "event_stream",
+            "snapshot"
+          ]
+        },
+        {
+          "name": "webhook",
+          "type": "string"
+        }
+      ]
+    },
+    "MonitorSnapshotEvent": {
+      "fields": [
+        {
+          "name": "changed_output",
+          "type": "string"
+        },
+        {
+          "name": "event_date",
+          "type": "string"
+        },
+        {
+          "name": "event_group_id",
+          "type": "string"
+        },
+        {
+          "name": "event_id",
+          "type": "string"
+        },
+        {
+          "name": "event_type",
+          "type": "string",
+          "enum": [
+            "snapshot"
+          ]
+        },
+        {
+          "name": "previous_output",
+          "type": "string"
+        }
+      ]
+    },
+    "MonitorSnapshotOutput": {
+      "fields": [
+        {
+          "name": "latest_snapshot",
+          "type": "string"
+        }
+      ]
+    },
+    "MonitorSnapshotResponseSettings": {
+      "fields": [
+        {
+          "name": "output_schema",
+          "type": "string"
+        },
+        {
+          "name": "query",
+          "type": "string"
+        },
+        {
+          "name": "task_run_id",
+          "type": "string"
+        }
+      ]
+    },
+    "MonitorSnapshotSettings": {
+      "fields": [
+        {
+          "name": "task_run_id",
+          "type": "string"
+        }
+      ]
+    },
+    "MonitorWebhook": {
+      "fields": [
+        {
+          "name": "event_types",
+          "type": "array"
+        },
+        {
+          "name": "url",
+          "type": "string"
+        }
+      ]
+    },
+    "PaginatedMonitorEvents": {
+      "fields": [
+        {
+          "name": "events",
+          "type": "array"
+        },
+        {
+          "name": "next_cursor",
+          "type": "string"
+        },
+        {
+          "name": "warnings",
+          "type": "string"
+        }
+      ]
+    },
+    "PaginatedMonitorResponse": {
+      "fields": [
+        {
+          "name": "monitors",
+          "type": "array"
+        },
+        {
+          "name": "next_cursor",
+          "type": "string"
+        }
+      ]
+    },
+    "PromptTokensDetails": {
+      "fields": [
+        {
+          "name": "audio_tokens",
+          "type": "string"
+        },
+        {
+          "name": "cached_tokens",
+          "type": "string"
+        }
+      ]
+    },
+    "ResponseFormatJSONSchema": {
+      "fields": [
+        {
+          "name": "json_schema",
+          "type": "object"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "SourcePolicy": {
+      "fields": [
+        {
+          "name": "after_date",
+          "type": "string"
+        },
+        {
+          "name": "exclude_domains",
+          "type": "array"
+        },
+        {
+          "name": "include_domains",
+          "type": "array"
+        }
+      ]
+    },
+    "TaskAdvancedSettings": {
+      "fields": [
+        {
+          "name": "location",
+          "type": "string"
+        }
+      ]
+    },
+    "TaskGroupResponse": {
+      "fields": [
+        {
+          "name": "created_at",
+          "type": "string"
+        },
+        {
+          "name": "metadata",
+          "type": "string"
+        },
+        {
+          "name": "status",
+          "type": "object"
+        },
+        {
+          "name": "taskgroup_id",
+          "type": "string"
+        }
+      ]
+    },
+    "TaskGroupRunRequest": {
+      "fields": [
+        {
+          "name": "default_task_spec",
+          "type": "string"
+        },
+        {
+          "name": "inputs",
+          "type": "array"
+        }
+      ]
+    },
+    "TaskGroupRunResponse": {
+      "fields": [
+        {
+          "name": "event_cursor",
+          "type": "string"
+        },
+        {
+          "name": "run_cursor",
+          "type": "string"
+        },
+        {
+          "name": "run_ids",
+          "type": "array"
+        },
+        {
+          "name": "status",
+          "type": "object"
+        }
+      ]
+    },
+    "TaskGroupStatus": {
+      "fields": [
+        {
+          "name": "is_active",
+          "type": "bool"
+        },
+        {
+          "name": "modified_at",
+          "type": "string"
+        },
+        {
+          "name": "num_task_runs",
+          "type": "int"
+        },
+        {
+          "name": "status_message",
+          "type": "string"
+        },
+        {
+          "name": "task_run_status_counts",
+          "type": "object"
+        }
+      ]
+    },
+    "TaskGroupStatusEvent": {
+      "fields": [
+        {
+          "name": "event_id",
+          "type": "string"
+        },
+        {
+          "name": "status",
+          "type": "object"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "TaskRun": {
+      "fields": [
+        {
+          "name": "created_at",
+          "type": "string"
+        },
+        {
+          "name": "error",
+          "type": "string"
+        },
+        {
+          "name": "interaction_id",
+          "type": "string"
+        },
+        {
+          "name": "is_active",
+          "type": "bool"
+        },
+        {
+          "name": "metadata",
+          "type": "string"
+        },
+        {
+          "name": "modified_at",
+          "type": "string"
+        },
+        {
+          "name": "processor",
+          "type": "string"
+        },
+        {
+          "name": "run_id",
+          "type": "string"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "enum": [
+            "queued",
+            "action_required",
+            "running",
+            "completed",
+            "failed",
+            "cancelling",
+            "cancelled"
+          ]
+        },
+        {
+          "name": "taskgroup_id",
+          "type": "string"
+        },
+        {
+          "name": "warnings",
+          "type": "string"
+        }
+      ]
+    },
+    "TaskRunEvent": {
+      "fields": [
+        {
+          "name": "event_id",
+          "type": "string"
+        },
+        {
+          "name": "input",
+          "type": "string"
+        },
+        {
+          "name": "output",
+          "type": "string"
+        },
+        {
+          "name": "run",
+          "type": "object"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "TaskRunInput": {
+      "fields": [
+        {
+          "name": "advanced_settings",
+          "type": "string"
+        },
+        {
+          "name": "enable_events",
+          "type": "string"
+        },
+        {
+          "name": "input",
+          "type": "string"
+        },
+        {
+          "name": "mcp_servers",
+          "type": "string"
+        },
+        {
+          "name": "metadata",
+          "type": "string"
+        },
+        {
+          "name": "previous_interaction_id",
+          "type": "string"
+        },
+        {
+          "name": "processor",
+          "type": "string"
+        },
+        {
+          "name": "source_policy",
+          "type": "string"
+        },
+        {
+          "name": "task_spec",
+          "type": "string"
+        },
+        {
+          "name": "webhook",
+          "type": "string"
+        }
+      ]
+    },
+    "TaskRunJsonOutput": {
+      "fields": [
+        {
+          "name": "basis",
+          "type": "array"
+        },
+        {
+          "name": "beta_fields",
+          "type": "string"
+        },
+        {
+          "name": "content",
+          "type": "object"
+        },
+        {
+          "name": "mcp_tool_calls",
+          "type": "string"
+        },
+        {
+          "name": "output_schema",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "TaskRunProgressMessageEvent": {
+      "fields": [
+        {
+          "name": "message",
+          "type": "string"
+        },
+        {
+          "name": "timestamp",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "enum": [
+            "task_run.progress_msg.plan",
+            "task_run.progress_msg.search",
+            "task_run.progress_msg.result",
+            "task_run.progress_msg.tool_call",
+            "task_run.progress_msg.exec_status"
+          ]
+        }
+      ]
+    },
+    "TaskRunProgressStatsEvent": {
+      "fields": [
+        {
+          "name": "progress_meter",
+          "type": "float"
+        },
+        {
+          "name": "source_stats",
+          "type": "object"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "TaskRunResult": {
+      "fields": [
+        {
+          "name": "output",
+          "type": "string"
+        },
+        {
+          "name": "run",
+          "type": "object"
+        }
+      ]
+    },
+    "TaskRunSourceStats": {
+      "fields": [
+        {
+          "name": "num_sources_considered",
+          "type": "string"
+        },
+        {
+          "name": "num_sources_read",
+          "type": "string"
+        },
+        {
+          "name": "sources_read_sample",
+          "type": "string"
+        }
+      ]
+    },
+    "TaskRunTextOutput": {
+      "fields": [
+        {
+          "name": "basis",
+          "type": "array"
+        },
+        {
+          "name": "beta_fields",
+          "type": "string"
+        },
+        {
+          "name": "content",
+          "type": "string"
+        },
+        {
+          "name": "mcp_tool_calls",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "TaskSpec": {
+      "fields": [
+        {
+          "name": "input_schema",
+          "type": "string"
+        },
+        {
+          "name": "output_schema",
+          "type": "string"
+        }
+      ]
+    },
+    "TextSchema": {
+      "fields": [
+        {
+          "name": "description",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "TopLogprob": {
+      "fields": [
+        {
+          "name": "bytes",
+          "type": "string"
+        },
+        {
+          "name": "logprob",
+          "type": "float"
+        },
+        {
+          "name": "token",
+          "type": "string"
+        }
+      ]
+    },
+    "UpdateMonitorEventStreamSettings": {
+      "fields": [
+        {
+          "name": "advanced_settings",
+          "type": "string"
+        },
+        {
+          "name": "query",
+          "type": "string"
+        }
+      ]
+    },
+    "UpdateMonitorRequest": {
+      "fields": [
+        {
+          "name": "frequency",
+          "type": "string"
+        },
+        {
+          "name": "metadata",
+          "type": "string"
+        },
+        {
+          "name": "settings",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        },
+        {
+          "name": "webhook",
+          "type": "string"
+        }
+      ]
+    },
+    "UsageItem": {
+      "fields": [
+        {
+          "name": "count",
+          "type": "int"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        }
+      ]
+    },
+    "V1ExcerptSettings": {
+      "fields": [
+        {
+          "name": "max_chars_per_result",
+          "type": "string"
+        }
+      ]
+    },
+    "V1ExtractRequest": {
+      "fields": [
+        {
+          "name": "advanced_settings",
+          "type": "string"
+        },
+        {
+          "name": "client_model",
+          "type": "string"
+        },
+        {
+          "name": "max_chars_total",
+          "type": "string"
+        },
+        {
+          "name": "objective",
+          "type": "string"
+        },
+        {
+          "name": "search_queries",
+          "type": "string"
+        },
+        {
+          "name": "session_id",
+          "type": "string"
+        },
+        {
+          "name": "urls",
+          "type": "array"
+        }
+      ]
+    },
+    "V1ExtractResponse": {
+      "fields": [
+        {
+          "name": "errors",
+          "type": "array"
+        },
+        {
+          "name": "extract_id",
+          "type": "string"
+        },
+        {
+          "name": "results",
+          "type": "array"
+        },
+        {
+          "name": "session_id",
+          "type": "string"
+        },
+        {
+          "name": "usage",
+          "type": "string"
+        },
+        {
+          "name": "warnings",
+          "type": "string"
+        }
+      ]
+    },
+    "V1ExtractResult": {
+      "fields": [
+        {
+          "name": "excerpts",
+          "type": "array"
+        },
+        {
+          "name": "full_content",
+          "type": "string"
+        },
+        {
+          "name": "publish_date",
+          "type": "string"
+        },
+        {
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "name": "url",
+          "type": "string"
+        }
+      ]
+    },
+    "V1SearchRequest": {
+      "fields": [
+        {
+          "name": "advanced_settings",
+          "type": "string"
+        },
+        {
+          "name": "client_model",
+          "type": "string"
+        },
+        {
+          "name": "max_chars_total",
+          "type": "string"
+        },
+        {
+          "name": "mode",
+          "type": "string"
+        },
+        {
+          "name": "objective",
+          "type": "string"
+        },
+        {
+          "name": "search_queries",
+          "type": "array"
+        },
+        {
+          "name": "session_id",
+          "type": "string"
+        }
+      ]
+    },
+    "V1SearchResponse": {
+      "fields": [
+        {
+          "name": "results",
+          "type": "array"
+        },
+        {
+          "name": "search_id",
+          "type": "string"
+        },
+        {
+          "name": "session_id",
+          "type": "string"
+        },
+        {
+          "name": "usage",
+          "type": "string"
+        },
+        {
+          "name": "warnings",
+          "type": "string"
+        }
+      ]
+    },
+    "V1WebSearchResult": {
+      "fields": [
+        {
+          "name": "excerpts",
+          "type": "array"
+        },
+        {
+          "name": "publish_date",
+          "type": "string"
+        },
+        {
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "name": "url",
+          "type": "string"
+        }
+      ]
+    },
+    "ValidationError": {
+      "fields": [
+        {
+          "name": "loc",
+          "type": "array"
+        },
+        {
+          "name": "msg",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "Warning": {
+      "fields": [
+        {
+          "name": "detail",
+          "type": "string"
+        },
+        {
+          "name": "message",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "enum": [
+            "spec_validation_warning",
+            "input_validation_warning",
+            "warning"
+          ]
+        }
+      ]
+    },
+    "Webhook": {
+      "fields": [
+        {
+          "name": "event_types",
+          "type": "array"
+        },
+        {
+          "name": "url",
+          "type": "string"
+        }
+      ]
+    },
+    "fastapi-HTTPValidationError": {
+      "fields": [
+        {
+          "name": "detail",
+          "type": "array"
+        }
+      ]
+    },
+    "fastapi-ValidationError": {
+      "fields": [
+        {
+          "name": "loc",
+          "type": "array"
+        },
+        {
+          "name": "msg",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "openai__types__chat__chat_completion__Moderation": {
+      "fields": [
+        {
+          "name": "input",
+          "type": "string"
+        },
+        {
+          "name": "output",
+          "type": "string"
+        }
+      ]
+    },
+    "openai__types__chat__chat_completion__ModerationInputError": {
+      "fields": [
+        {
+          "name": "code",
+          "type": "string"
+        },
+        {
+          "name": "message",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "openai__types__chat__chat_completion__ModerationOutputError": {
+      "fields": [
+        {
+          "name": "code",
+          "type": "string"
+        },
+        {
+          "name": "message",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "openai__types__shared_params__response_format_json_object__ResponseFormatJSONObject": {
+      "fields": [
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    },
+    "openai__types__shared_params__response_format_text__ResponseFormatText": {
+      "fields": [
+        {
+          "name": "type",
+          "type": "string"
+        }
+      ]
+    }
+  },
+  "cache": {},
+  "share": {},
+  "learn": {
+    "enabled": true
+  },
+  "mcp": {},
+  "throttling": {},
+  "streaming": {}
+}

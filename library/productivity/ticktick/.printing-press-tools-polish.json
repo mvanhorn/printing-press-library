@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-07-08T02:06:37.336215Z",
+  "cli_dir": "\u003ccli-dir\u003e\\ticktick-pp-cli",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-07-08T02:04:01.4304984Z"
+  }
+}

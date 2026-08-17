@@ -9,6 +9,12 @@
     "handle": "mvanhorn",
     "name": "Matt Van Horn"
   },
+  "contributors": [
+    {
+      "handle": "noahlevin",
+      "name": "Noah Levin"
+    }
+  ],
   "owner": "mvanhorn",
   "printer": "mvanhorn",
   "printer_name": "Matt Van Horn",

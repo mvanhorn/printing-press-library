@@ -34,6 +34,7 @@ func TestStaticRegistry_Lookup(t *testing.T) {
 		// order in lookupIn means the dedicated entry wins.
 		{"manhattan", "manhattan"},
 		{"la", "los-angeles"},
+		{"charlotte", "charlotte"},
 		{"bellevue-wa", "bellevue-wa"},
 		{"bellevue-ne", "bellevue-ne"},
 	}
@@ -87,6 +88,17 @@ func TestStaticRegistry_LookupEmpty(t *testing.T) {
 		if _, ok := r.Lookup(in); ok {
 			t.Errorf("Lookup(%q) returned ok=true", in)
 		}
+	}
+}
+
+func TestStaticRegistry_LookupByName_Charlotte(t *testing.T) {
+	r := staticPlaceRegistry{}
+	hits, ok := r.LookupByName("Charlotte")
+	if !ok || len(hits) != 1 {
+		t.Fatalf("LookupByName(Charlotte) = (%v, %v); want one match", hits, ok)
+	}
+	if hits[0].Slug != "charlotte" || hits[0].State != "NC" {
+		t.Fatalf("LookupByName(Charlotte)[0] = %#v; want Charlotte, NC", hits[0])
 	}
 }
 

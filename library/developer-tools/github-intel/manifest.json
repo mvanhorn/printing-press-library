@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "github-intel-pp-mcp",
+  "display_name": "Github Current Intelligence",
+  "version": "0.0.0",
+  "description": "Public GitHub repository, release, search, and security advisory signals for agent research.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/github-intel-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/github-intel-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

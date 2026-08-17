@@ -7,7 +7,6 @@ package cli
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"sort"
 	"time"
@@ -36,7 +35,7 @@ func newNovelDdlDriftCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagSince, "since", "7d", "Finestra temporale del confronto (es. 24h, 7d, 30d).")
-	cmd.Flags().StringVar(&flagDB, "db", "", "Percorso del database SQLite (default: ~/.local/share/ars-sicilia-pp-cli/store.db).")
+	cmd.Flags().StringVar(&flagDB, "db", "", "Percorso del database SQLite (default: ~/.local/share/ars-sicilia-pp-cli/data.db).")
 	return cmd
 }
 
@@ -71,6 +70,8 @@ func runDdlDrift(cmd *cobra.Command, flags *rootFlags, since, dbPath string) err
 	report := driftReport{
 		Window:      since,
 		GeneratedAt: time.Now().UTC().Format(time.RFC3339),
+		Mossi:       []driftItem{},
+		Nuovi:       []driftItem{},
 	}
 
 	db, err := store.OpenReadOnly(dbPath)
@@ -139,15 +140,27 @@ func runDdlDrift(cmd *cobra.Command, flags *rootFlags, since, dbPath string) err
 	sort.SliceStable(report.Mossi, func(i, j int) bool {
 		return parseICaroDate(report.Mossi[i].DataA) > parseICaroDate(report.Mossi[j].DataA)
 	})
+
+	// Empty result: distinguish "no iter data at all" (needs a deep sync — the
+	// iter field drift compares is populated only by `sync --deep`) from "iter
+	// data present but nothing changed in the window".
+	if len(report.Mossi) == 0 && len(report.Nuovi) == 0 {
+		var withIter int
+		_ = db.DB().QueryRowContext(ctx,
+			`SELECT COUNT(*) FROM resources WHERE resource_type = 'ddl' AND json_extract(data, '$.iter') IS NOT NULL`).Scan(&withIter)
+		if withIter == 0 {
+			report.Note = "Nessuno stato iter nello store: `ddl drift` confronta il campo iter, popolato solo da `ars-sicilia-pp-cli sync --resources ddl --deep`. Esegui due deep-sync a distanza di tempo per rilevare i movimenti."
+		} else {
+			report.Note = "Nessun ddl mosso nella finestra indicata (lo store contiene stati iter ma nessuna variazione rispetto allo snapshot precedente)."
+		}
+	}
 	return emitDriftReport(cmd, flags, report)
 }
 
 func emitDriftReport(cmd *cobra.Command, flags *rootFlags, r driftReport) error {
 	out := cmd.OutOrStdout()
 	if flags.asJSON || !isTerminal(out) {
-		enc := json.NewEncoder(out)
-		enc.SetIndent("", "  ")
-		return enc.Encode(r)
+		return printJSONFiltered(out, r, flags)
 	}
 	fmt.Fprintf(out, "Window: %s   Snapshot: %s\n\n", r.Window, r.GeneratedAt)
 	if r.Note != "" {

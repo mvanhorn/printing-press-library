@@ -1,0 +1,5 @@
+{
+  "descriptions": {
+    "inspect-external-video_inspect_external_video": "Resolve a YouTube URL into Dreaming's external-video metadata for external-time logging. Required: videoUrl (full YouTube URL). Returns the resolved video object as Dreaming reports it (the spec leaves the shape untyped). Use this before external-time_add to identify a YouTube video you watched outside the platform."
+  }
+}

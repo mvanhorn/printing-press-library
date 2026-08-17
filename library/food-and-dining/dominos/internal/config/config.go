@@ -13,19 +13,29 @@ import (
 	"github.com/pelletier/go-toml/v2"
 )
 
+const (
+	MarketUS     = "us"
+	MarketCanada = "ca"
+
+	USBaseURL     = "https://www.dominos.com/api"
+	CanadaBaseURL = "https://order.dominos.ca"
+)
+
 type Config struct {
-	BaseURL         string    `toml:"base_url"`
-	AuthHeaderVal   string    `toml:"auth_header"`
-	AuthSource      string    `toml:"-"`
-	AccessToken     string    `toml:"access_token"`
-	RefreshToken    string    `toml:"refresh_token"`
-	TokenExpiry     time.Time `toml:"token_expiry"`
-	ClientID        string    `toml:"client_id"`
-	ClientSecret    string    `toml:"client_secret"`
-	Path            string    `toml:"-"`
-	DominosUsername string    `toml:"username"`
-	DominosPassword string    `toml:"password"`
-	DominosToken    string    `toml:"token"`
+	BaseURL          string    `toml:"base_url"`
+	Market           string    `toml:"market"`
+	CredentialMarket string    `toml:"credential_market"`
+	AuthHeaderVal    string    `toml:"auth_header"`
+	AuthSource       string    `toml:"-"`
+	AccessToken      string    `toml:"access_token"`
+	RefreshToken     string    `toml:"refresh_token"`
+	TokenExpiry      time.Time `toml:"token_expiry"`
+	ClientID         string    `toml:"client_id"`
+	ClientSecret     string    `toml:"client_secret"`
+	Path             string    `toml:"-"`
+	DominosUsername  string    `toml:"username"`
+	DominosPassword  string    `toml:"password"`
+	DominosToken     string    `toml:"token"`
 	// DominosCustomerID is the long base64-style identifier harvested from
 	// sessionStorage.Customer.CustomerID during `auth login`. It defaults
 	// to the customer-id-bearing commands (customer orders, customer loyalty)
@@ -35,7 +45,7 @@ type Config struct {
 
 func Load(configPath string) (*Config, error) {
 	cfg := &Config{
-		BaseURL: "https://www.dominos.com/api",
+		BaseURL: USBaseURL,
 	}
 
 	// Resolve config path
@@ -56,6 +66,18 @@ func Load(configPath string) (*Config, error) {
 			return nil, fmt.Errorf("parsing config %s: %w", path, err)
 		}
 	}
+	// Before market support, Canadian users selected the storefront with only
+	// base_url. Preserve that configuration on upgrade instead of treating the
+	// missing market field as an explicit US selection.
+	if strings.TrimSpace(cfg.Market) == "" && strings.TrimRight(cfg.BaseURL, "/") == CanadaBaseURL {
+		cfg.Market = MarketCanada
+	}
+	if err := cfg.SetMarket(cfg.Market); err != nil {
+		return nil, fmt.Errorf("parsing config %s: %w", path, err)
+	}
+	if cfg.CredentialMarket == "" && (cfg.AuthHeaderVal != "" || cfg.AccessToken != "" || cfg.DominosToken != "" || cfg.DominosCustomerID != "") {
+		cfg.CredentialMarket = cfg.Market
+	}
 
 	// Env var overrides
 	if v := os.Getenv("DOMINOS_USERNAME"); v != "" {
@@ -70,6 +92,11 @@ func Load(configPath string) (*Config, error) {
 		cfg.DominosToken = v
 		cfg.AuthSource = "env:DOMINOS_TOKEN"
 	}
+	if v := os.Getenv("DOMINOS_MARKET"); v != "" {
+		if err := cfg.SetMarket(v); err != nil {
+			return nil, fmt.Errorf("DOMINOS_MARKET: %w", err)
+		}
+	}
 
 	// Base URL override (used by printing-press verify to point at mock/test servers)
 	if v := os.Getenv("DOMINOS_BASE_URL"); v != "" {
@@ -78,18 +105,74 @@ func Load(configPath string) (*Config, error) {
 	return cfg, nil
 }
 
-func (c *Config) AuthHeader() string {
-	if c.AuthHeaderVal != "" {
-		return c.AuthHeaderVal
+// NormalizeMarket converts accepted user-facing market names to the stable
+// values persisted in config. Keeping the stored values short makes them easy
+// to use from flags while still accepting the country names people type.
+func NormalizeMarket(value string) (string, error) {
+	switch strings.ToLower(strings.TrimSpace(value)) {
+	case "", MarketUS, "usa", "united-states", "united_states":
+		return MarketUS, nil
+	case MarketCanada, "can", "canada":
+		return MarketCanada, nil
+	default:
+		return "", fmt.Errorf("unsupported market %q (use us or ca)", value)
 	}
+}
+
+// SetMarket applies a market selection and updates a known Domino's default
+// base URL. Explicit custom base URLs are preserved for verification and
+// private-compatible deployments.
+func (c *Config) SetMarket(value string) error {
+	market, err := NormalizeMarket(value)
+	if err != nil {
+		return err
+	}
+	previousBaseURL := strings.TrimRight(c.BaseURL, "/")
+	c.Market = market
+	if previousBaseURL == "" || previousBaseURL == USBaseURL || previousBaseURL == CanadaBaseURL {
+		c.BaseURL = BaseURLForMarket(market)
+	}
+	return nil
+}
+
+func BaseURLForMarket(market string) string {
+	if market == MarketCanada {
+		return CanadaBaseURL
+	}
+	return USBaseURL
+}
+
+// DefaultHeaders returns the market headers required by the Canadian Power
+// API. The US client keeps its historical header behavior for compatibility.
+func (c *Config) DefaultHeaders() map[string]string {
+	if c.Market != MarketCanada {
+		return nil
+	}
+	return map[string]string{
+		"DPZ-Market":   "CANADA",
+		"Market":       "CANADA",
+		"DPZ-Language": "en",
+	}
+}
+
+func (c *Config) AuthHeader() string {
 	// Precedence: legacy AuthHeaderVal -> DominosToken (per_call env var,
 	// matches the spec's canonical env_vars list) -> AccessToken (harvested
 	// by `auth login`). DominosUsername is the user's email, NOT a credential
 	// — it's the auth_flow_input for `auth login`, never sent as a Bearer
 	// value. Treating it as a token produced `Authorization: Bearer
 	// user@example.com` and silent 401s on every authenticated call.
+	if c.DominosToken != "" && c.AuthSource == "env:DOMINOS_TOKEN" {
+		return "Bearer " + c.DominosToken
+	}
+	if c.CredentialMarketMismatch() {
+		return ""
+	}
+	if c.AuthHeaderVal != "" {
+		return c.AuthHeaderVal
+	}
 	if c.DominosToken != "" {
-		c.AuthSource = "env:DOMINOS_TOKEN"
+		c.AuthSource = "config:token"
 		return "Bearer " + c.DominosToken
 	}
 	if c.AccessToken != "" {
@@ -97,6 +180,11 @@ func (c *Config) AuthHeader() string {
 		return "Bearer " + c.AccessToken
 	}
 	return ""
+}
+
+func (c *Config) CredentialMarketMismatch() bool {
+	return c.CredentialMarket != "" && c.CredentialMarket != c.Market &&
+		(c.AuthHeaderVal != "" || c.AccessToken != "" || c.DominosToken != "" || c.DominosCustomerID != "")
 }
 
 func applyAuthFormat(format string, replacements map[string]string) string {
@@ -113,18 +201,64 @@ func applyAuthFormat(format string, replacements map[string]string) string {
 }
 
 func (c *Config) SaveTokens(clientID, clientSecret, accessToken, refreshToken string, expiry time.Time) error {
+	if c.CredentialMarket != "" && c.CredentialMarket != c.Market {
+		c.DominosCustomerID = ""
+	}
+	c.AuthHeaderVal = ""
+	c.DominosToken = ""
 	c.ClientID = clientID
 	c.ClientSecret = clientSecret
 	c.AccessToken = accessToken
+	c.CredentialMarket = c.Market
 	c.RefreshToken = refreshToken
 	c.TokenExpiry = expiry
 	return c.save()
 }
 
+func (c *Config) SaveHarvestedCredentials(accessToken, customerID, email string) error {
+	if c.CredentialMarket != "" && c.CredentialMarket != c.Market {
+		c.DominosCustomerID = ""
+	}
+	c.AuthHeaderVal = ""
+	c.DominosToken = ""
+	c.ClientID = ""
+	c.ClientSecret = ""
+	c.AccessToken = accessToken
+	c.RefreshToken = ""
+	c.TokenExpiry = time.Time{}
+	c.CredentialMarket = c.Market
+	c.DominosCustomerID = customerID
+	if email != "" {
+		c.DominosUsername = email
+	}
+	return c.save()
+}
+
+func (c *Config) SaveManualToken(accessToken string) error {
+	c.AuthHeaderVal = ""
+	c.DominosToken = ""
+	c.ClientID = ""
+	c.ClientSecret = ""
+	c.AccessToken = accessToken
+	c.RefreshToken = ""
+	c.TokenExpiry = time.Time{}
+	c.CredentialMarket = c.Market
+	// A pasted token has no verified customer profile attached. Keeping an old
+	// customer ID could query a different account even within the same market.
+	c.DominosCustomerID = ""
+	return c.save()
+}
+
 func (c *Config) ClearTokens() error {
+	c.AuthHeaderVal = ""
+	c.DominosToken = ""
 	c.AccessToken = ""
 	c.RefreshToken = ""
 	c.TokenExpiry = time.Time{}
+	c.ClientID = ""
+	c.ClientSecret = ""
+	c.DominosCustomerID = ""
+	c.CredentialMarket = ""
 	return c.save()
 }
 

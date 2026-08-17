@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "ars-sicilia-bd-titolo-alias",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.18.0",
+  "summary": "Il campo `titolo` (alias di `title`, usato da tutti gli altri archivi) è ora presente anche su `resoconti`, `sommari` e `convocazioni`, sia in JSON (`--json`/`--envelope`) sia in CSV (`--csv`).",
+  "reason": "Sugli archivi Icaro (ddl, mozioni, interrogazioni, leggi, ...) l'output aveva sia `title` (da Record.Title) sia `titolo` (dal campo ISIS `Titolo` dentro Fields, che vale sempre lo stesso testo) — ma solo per coincidenza: `titolo` esisteva perché quell'archivio aveva per caso un campo ISIS con quel nome, non per un alias esplicito. I tre archivi serviti dal backend /bd/ (resoconti, sommari, convocazioni) non hanno un campo Fields['Titolo'] nel parsing, quindi restavano con il solo `title`: `resoconti cerca --select data,numero,titolo` avvisava 'titolo non esiste in questi record. Campi disponibili: ..., title, ...', e la colonna 'titolo' in CSV usciva vuota mentre 'title' era popolato. Trovato riverificando il report news-agent del 2026-08-07: una pipeline che usa `--select titolo` in modo uniforme su tutti i 12 archivi falliva silenziosamente solo su questi tre.",
+  "files": ["internal/cli/icaro_helpers.go", "internal/cli/icaro_helpers_test.go"],
+  "validated_outcome": "`resoconti cerca --legisl 18 --data 2026-07-29 --select data,numero,titolo` -> nessun hint, `titolo` valorizzato (prima: hint 'titolo non esiste'). `resoconti cerca --legisl 18 --limit 1 --csv` -> colonna `titolo` valorizzata con lo stesso testo di `title` (prima: colonna vuota). Sugli archivi Icaro (`ddl cerca`) nessun cambiamento visibile: `titolo` restava già uguale a `title`. `TestTitoloAlias`/`TestFlatRecordsTitoloSempreValorizzato` coprono entrambi i casi (Fields['Titolo'] presente e assente)."
+}

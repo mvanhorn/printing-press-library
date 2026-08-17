@@ -18,7 +18,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var version = "2026.6.1"
+var version = "2026.8.2"
 
 type rootFlags struct {
 	asJSON        bool
@@ -39,6 +39,12 @@ type rootFlags struct {
 	rateLimit     float64
 	dataSource    string
 	freshnessMeta any
+
+	// PATCH(title-resolution-must-signal-ambiguity)
+	// ambiguities records every title/name lookup in this invocation that had
+	// more than one plausible match. Machine-owned, like freshnessMeta: the
+	// resolvers append, and the output layer serializes it as meta.ambiguous.
+	ambiguities []ambiguityMeta
 
 	// deliverBuf captures command output when --deliver is set to a
 	// non-stdout sink. Flushed to the sink after Execute returns.
@@ -228,6 +234,23 @@ func (f *rootFlags) newClient() (*client.Client, error) {
 	c.DryRun = f.dryRun
 	c.NoCache = f.noCache
 	return c, nil
+}
+
+// omdbAPIKey resolves the optional OMDb credential for the enrichment paths in
+// ratings, versus, and career. It returns "" when none is configured, which
+// every caller treats as "skip enrichment" — this must never surface an error.
+//
+// PATCH(omdb-key-in-config-like-tmdb: single resolution point for the second
+// credential) — the call sites previously read os.Getenv("OMDB_API_KEY")
+// directly, which is why config.toml could never hold this key. A config-load
+// failure falls back to the environment so enrichment survives a broken or
+// unreadable config file exactly as it did before.
+func (f *rootFlags) omdbAPIKey() string {
+	cfg, err := config.Load(f.configPath)
+	if err != nil {
+		return strings.TrimSpace(os.Getenv("OMDB_API_KEY"))
+	}
+	return cfg.OmdbKey()
 }
 
 func (f *rootFlags) printJSON(w *cobra.Command, v any) error {

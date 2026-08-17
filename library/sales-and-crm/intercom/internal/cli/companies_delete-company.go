@@ -17,19 +17,33 @@ func newCompaniesDeleteCompanyCmd(flags *rootFlags) *cobra.Command {
 		Use:         "delete-company <id>",
 		Aliases:     []string{"delete"},
 		Short:       "Delete a single company. This endpoint does not permanently remove the company.",
-		Example:     "  intercom-pp-cli companies delete-company 550e8400-e29b-41d4-a716-446655440000",
+		Example:     "  intercom-pp-cli companies delete-company 5f4d3c1c-7b1b-4d7d-a97e-6095715c6632",
 		Annotations: map[string]string{"pp:endpoint": "companies.delete-company", "pp:method": "DELETE", "pp:path": "/companies/{id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
-				return cmd.Help()
+				// A missing required positional is a usage error in every output
+				// mode (matches command_promoted.go.tmpl). Machine callers
+				// (--json/--agent) also get a JSON error envelope on stdout;
+				// usageErr sets exit 2.
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "missing required argument",
+						"usage": fmt.Sprintf("%s%s", cmd.CommandPath(), " <id>"),
+					}, flags); printErr != nil {
+						return printErr
+					}
+				}
+				return usageErr(fmt.Errorf("missing required argument\nUsage: %s%s", cmd.CommandPath(), " <id>"))
 			}
+			path := "/companies/{id}"
+			if len(args) < 1 || args[0] == "" {
+				return usageErr(fmt.Errorf("id is required\nUsage: %s <%s>", cmd.CommandPath(), "id"))
+			}
+			path = replacePathParam(path, "id", args[0])
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/companies/{id}"
-			path = replacePathParam(path, "id", args[0])
 			params := map[string]string{}
 			data, statusCode, err := c.DeleteWithParams(cmd.Context(), path, params)
 			if err != nil {
@@ -95,6 +109,9 @@ func newCompaniesDeleteCompanyCmd(flags *rootFlags) *cobra.Command {
 					"status":   statusCode,
 					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
 				}
+				if flags.agent {
+					envelope["meta"] = map[string]any{"source": "live"}
+				}
 				if partialFailure != nil {
 					envelope["partial_failure"] = partialFailure
 				}
@@ -133,7 +150,11 @@ func newCompaniesDeleteCompanyCmd(flags *rootFlags) *cobra.Command {
 				if len(filtered) > 0 {
 					var parsed any
 					if err := json.Unmarshal(filtered, &parsed); err == nil {
-						envelope["data"] = parsed
+						if flags.agent {
+							envelope["results"] = parsed
+						} else {
+							envelope["data"] = parsed
+						}
 					}
 				}
 				envelopeJSON, err := json.Marshal(envelope)

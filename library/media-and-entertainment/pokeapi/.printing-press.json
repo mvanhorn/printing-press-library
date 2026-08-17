@@ -25,27 +25,27 @@
     {
       "name": "Reverse ability search",
       "command": "pokemon by-ability",
-      "description": "Find every Pok\u00e9mon with a given ability. Live API has no reverse index \u2014 this is a single SQL query against the local store."
+      "description": "Find every Pokémon with a given ability. Live API has no reverse index — this is a single SQL query against the local store."
     },
     {
       "name": "Reverse move-effect search",
       "command": "move find",
-      "description": "Find moves by status effect, damage class, type, or target \u2014 e.g. all moves that paralyze a Steel-type."
+      "description": "Find moves by status effect, damage class, type, or target — e.g. all moves that paralyze a Steel-type."
     },
     {
       "name": "Team partner suggester",
       "command": "team suggest",
-      "description": "Given an in-progress team, score every remaining Pok\u00e9mon by how well it covers the team's typing gaps. Returns top candidates."
+      "description": "Given an in-progress team, score every remaining Pokémon by how well it covers the team's typing gaps. Returns top candidates."
     },
     {
       "name": "Move-learnset diff between forms",
       "command": "pokemon diff-learnset",
-      "description": "Compare the move learnsets of two Pok\u00e9mon (often regional forms or megas) and surface what each can learn that the other cannot."
+      "description": "Compare the move learnsets of two Pokémon (often regional forms or megas) and surface what each can learn that the other cannot."
     },
     {
-      "name": "Cross-generation Pok\u00e9mon timeline",
+      "name": "Cross-generation Pokémon timeline",
       "command": "pokemon history",
-      "description": "Show how a Pok\u00e9mon has changed over generations: type changes, stat changes, ability changes, and which generation it was introduced in."
+      "description": "Show how a Pokémon has changed over generations: type changes, stat changes, ability changes, and which generation it was introduced in."
     },
     {
       "name": "Regional-form comparator",
@@ -55,7 +55,7 @@
     {
       "name": "Evolution-requirement reverse lookup",
       "command": "evolve into",
-      "description": "Given a target Pok\u00e9mon, surface the species you would need to evolve and the conditions (item, level, friendship, time of day) to get there."
+      "description": "Given a target Pokémon, surface the species you would need to evolve and the conditions (item, level, friendship, time of day) to get there."
     },
     {
       "name": "Coverage-gap finder",
@@ -65,7 +65,7 @@
     {
       "name": "Local FTS search",
       "command": "search",
-      "description": "Full-text search across Pok\u00e9mon, moves, abilities, items, and locations \u2014 names plus flavor text \u2014 with relevance ranking."
+      "description": "Full-text search across Pokémon, moves, abilities, items, and locations — names plus flavor text — with relevance ranking."
     },
     {
       "name": "SQL passthrough",
@@ -75,18 +75,19 @@
     {
       "name": "Region encounter map",
       "command": "encounters by-region",
-      "description": "Render a region-level encounter table joining locations, areas, encounters, and species \u2014 every Pok\u00e9mon you can find in (e.g.) Kanto."
+      "description": "Render a region-level encounter table joining locations, areas, encounters, and species — every Pokémon you can find in (e.g.) Kanto."
     },
     {
       "name": "Damage calculator",
       "command": "damage",
-      "description": "Compute expected damage range for a move from one Pok\u00e9mon to another, factoring in STAB, type effectiveness, level, and base stats."
+      "description": "Compute expected damage range for a move from one Pokémon to another, factoring in STAB, type effectiveness, level, and base stats."
     },
     {
       "name": "Stat ranker",
       "command": "pokemon top",
-      "description": "Rank Pok\u00e9mon by a base stat (attack, special-attack, speed, hp, etc.), optionally filtered by type. Returns the top N."
+      "description": "Rank Pokémon by a base stat (attack, special-attack, speed, hp, etc.), optionally filtered by type. Returns the top N."
     }
   ],
-  "category": "media-and-entertainment"
+  "category": "media-and-entertainment",
+  "description": "Fully offline Pokédex with SQL, full-text search, type math, and a damage calculator no other Pokémon tool ships as a CLI."
 }

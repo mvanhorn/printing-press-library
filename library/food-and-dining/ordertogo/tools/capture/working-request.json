@@ -1,0 +1,169 @@
+{
+  "_comment": "Redacted golden capture of a WORKING postmicmeshorder request (order #29, 2026-06-24, HTTP 200). Source of truth for the CLI request shape. PII/token scrubbed.",
+  "method": "POST",
+  "headers": {
+    "Content-Type": "application/json",
+    "Accept": "*/*",
+    "Authorization": "<FIREBASE_ID_TOKEN>",
+    "__requestid": "1782343972960_7398",
+    "X-Requested-With": "XMLHttpRequest"
+  },
+  "body": {
+    "param": {
+      "customerphone": "<PHONE>",
+      "customername": "Example",
+      "addtionalIns": "",
+      "restname": "mixsushibarlin",
+      "orderdetails": {
+        "items": [
+          {
+            "item_id": 19108,
+            "optionsstr": "No Bag",
+            "optionsstr_2nd": "",
+            "optionitemids": [],
+            "optionItemIdsAndPrices": [],
+            "price": 0,
+            "taxrate": null,
+            "togo": "1"
+          },
+          {
+            "item_id": 19019,
+            "optionsstr": null,
+            "optionsstr_2nd": "",
+            "optionitemids": [],
+            "optionItemIdsAndPrices": [],
+            "price": 2.99,
+            "taxrate": null,
+            "togo": "1"
+          }
+        ],
+        "subtotal": 2.99
+      },
+      "restid": 72,
+      "paymentCard": {
+        "cardType": "StripeElement",
+        "st_cus_id": "<REDACTED>",
+        "tip": 0.15,
+        "defaultCardMap": {
+          "key": "<CARD_KEY>"
+        },
+        "lastname": "User",
+        "firstname": "Example",
+        "phonenum": "<REDACTED>",
+        "billingAddress1": "<REDACTED>",
+        "billingAddress2": "<REDACTED>",
+        "billingCity": "<REDACTED>",
+        "billingState": "<REDACTED>"
+      },
+      "groupname": "mixsushibarlin",
+      "enableGroupRewardpoints": false,
+      "enableRewardpoints": true,
+      "tax": 0.31,
+      "context": {
+        "rewards": {
+          "availablePoints": 58,
+          "originalPoints": 58,
+          "currentRestPoint": 58,
+          "eligible4Redeem": true,
+          "earnPts": {
+            "earnPtsVal": 1,
+            "earnPtsUnit": "dollar",
+            "earnCountVal": 1,
+            "earnItemIds": []
+          },
+          "redeemPts": {
+            "redeemPtsVal": 50,
+            "redeemPtsUnit": "dollar",
+            "redeemCountVal": 5
+          },
+          "rwdptsList": [],
+          "totalPtsRedeemed": 0
+        },
+        "meshuser": {
+          "id": 123456,
+          "phonenum": "<REDACTED>",
+          "email": "<REDACTED>",
+          "displayName": "Example User",
+          "firstname": "Example",
+          "lastname": "User",
+          "points": "<REDACTED>",
+          "fromType": null,
+          "fromRestName": null,
+          "uid": "<REDACTED>",
+          "uidfrom": "mesh",
+          "uidfrom_rest": "mixsushibarlin",
+          "photoURL": null,
+          "address": null,
+          "cardInfo": "<REDACTED>",
+          "st_cus_id": "<REDACTED>",
+          "points_5_31_2020": null,
+          "createdTime": 1685232816564,
+          "properties": "{\"navigatorUserAgent\":[\"ExampleBrowser/1.0\"],\"mobileId\":[\"mobile-example\"],\"onlineRejectedTimes\":0}",
+          "groupRestlist": "mixsushibarlin",
+          "default_address": {
+            "street": "No Default Address",
+            "street2": "",
+            "city": "",
+            "state": "",
+            "zip": ""
+          },
+          "default_card": "VISA ending in 4242 (12/30)"
+        },
+        "sortedItems": [
+          {
+            "id": 19019,
+            "item_id": "Drinks01",
+            "name": "Bottled Water",
+            "price": 2.99,
+            "optionsstr": "",
+            "optionitemids": [],
+            "optionitemobjects": [],
+            "specialIns": "",
+            "taxrate": null,
+            "itemIndex": "68",
+            "optionPriceList": {},
+            "togo": "0",
+            "qty": 1,
+            "index": 0,
+            "cartIndex": [
+              0
+            ]
+          },
+          {
+            "id": 19108,
+            "item_id": "hide",
+            "name": "Reuseable Plastic Bag Option",
+            "price": 0,
+            "optionsstr": "No Bag",
+            "optionitemids": [],
+            "optionitemobjects": [],
+            "specialIns": "",
+            "taxrate": null,
+            "itemIndex": "9",
+            "optionPriceList": {
+              "reuseable plastic bag option:": {
+                "name": "radio0",
+                "price": "0",
+                "value": "No Bag"
+              }
+            },
+            "togo": "0",
+            "qty": 1,
+            "index": 1,
+            "cartIndex": [
+              1
+            ]
+          }
+        ],
+        "restfullname": "Mix Sushi Bar Lincoln Square",
+        "dishnamestr": "Bottled Water, Reuseable P... 2 items",
+        "imageURL": "https://s3.us-west-2.amazonaws.com/dishimg.ordertogo.com/mixsushibarlin/1740437861451_square.jpg",
+        "nth2doWithPts": false
+      },
+      "isSelfcheckoutOnly": false,
+      "deviceId": "device-example",
+      "mobileId": "mobile-example",
+      "orderType": "1"
+    }
+  }
+}

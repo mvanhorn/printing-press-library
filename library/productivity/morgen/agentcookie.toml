@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "morgen-pp-cli"
+display_name = "Morgen"
+description = "Morgen calendar & tasks API CLI — unified access to calendars, events, tasks, and tags across connected providers"
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/morgen-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+MORGEN_API_KEY = true

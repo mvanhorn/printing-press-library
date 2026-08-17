@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "productive-report-aging-pagination-robust",
+  "applied_at": "2026-07-11",
+  "base_run_id": "20260704-155923-ab89631d",
+  "base_printing_press_version": "4.27.1",
+  "summary": "financial report fetcher and aging now fall back to a full-page heuristic when the API omits meta.total_pages, instead of stopping after page 1.",
+  "reason": "Both loops continued only while meta.total_pages was present. If Productive omits total_pages on these endpoints, recognized-revenue/invoiced/reconcile understated totals and aging under-reported unpaid buckets past the first 200-row page. Now: use total_pages when present, else stop only on a short (<page[size]) page.",
+  "files": ["internal/cli/productive_reports.go", "internal/cli/aging.go"],
+  "validated_outcome": "recognized-revenue and aging return correct live data after the change; unit tests pass."
+}

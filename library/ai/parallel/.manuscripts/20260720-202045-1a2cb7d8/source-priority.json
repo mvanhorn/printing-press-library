@@ -1,0 +1,9 @@
+{
+  "sources": ["parallel-product-api", "parallel-account-api"],
+  "confirmed_at": "2026-07-20T14:54:59Z",
+  "raw_user_phrasing": "Search API reference URL first, then Service/Balance Account API URL",
+  "auth_scoping": {
+    "decision": "option-1-primary-free-or-api-key-scoped",
+    "detail": "Product commands use PARALLEL_API_KEY (x-api-key). Account commands require OAuth Bearer JWT via device flow; do not require OAuth for product headline commands."
+  }
+}

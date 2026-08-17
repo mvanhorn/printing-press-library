@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "cpsc-recalls-pp-mcp",
+  "display_name": "Cpsc Recall Retrieval",
+  "version": "1.0.0",
+  "description": "Query US Consumer Product Safety Commission recall records.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/cpsc-recalls-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/cpsc-recalls-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

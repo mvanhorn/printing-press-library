@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "api_name": "paperclip",
+  "run_id": "pp-pp-local-2026-07-11",
+  "status": "fail",
+  "level": "full",
+  "matrix_size": 801,
+  "tests_passed": 791,
+  "tests_skipped": 1306,
+  "tests_failed": 10,
+  "auth_context": {
+    "type": "none"
+  },
+  "failure_summary": {
+    "exit_nonzero": 4,
+    "other": 6,
+    "commands": [
+      "admin get",
+      "companies environments get",
+      "companies environments get-companies",
+      "companies search get",
+      "companies secret-providers get",
+      "companies secret-providers get-companies",
+      "llms list",
+      "llms list-agenticonstxt"
+    ]
+  }
+}

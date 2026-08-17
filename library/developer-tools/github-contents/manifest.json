@@ -1,0 +1,47 @@
+{
+  "manifest_version": "0.3",
+  "name": "github-contents-pp-mcp",
+  "display_name": "GitHub Contents",
+  "version": "0.1.0",
+  "description": "Download any GitHub folder without cloning — plan it first, verify it after, re-sync only what changed.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/github-contents-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/github-contents-pp-mcp",
+      "args": [],
+      "env": {
+        "GH_TOKEN": "${user_config.gh_token}",
+        "GITHUB_TOKEN": "${user_config.github_token}"
+      }
+    }
+  },
+  "user_config": {
+    "gh_token": {
+      "type": "string",
+      "title": "GH_TOKEN",
+      "description": "Sets GH_TOKEN for the GitHub Contents MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "github_token": {
+      "type": "string",
+      "title": "GITHUB_TOKEN",
+      "description": "Sets GITHUB_TOKEN for the GitHub Contents MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "ars-sicilia-escludi",
+  "applied_at": "2026-06-28",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.18.0",
+  "summary": "Nuovo flag --escludi (operatore ISIS NOT) su tutti i comandi di ricerca, applicato in BuildQuery e letto centralmente in runCerca.",
+  "reason": "Permette inchieste con esclusione di termini senza ricorrere all'escape hatch --isis-query.",
+  "files": ["internal/icaroclient/query.go", "internal/cli/icaro_helpers.go", "internal/cli/ddl_cerca.go", "internal/cli/interrogazioni_cerca.go", "internal/cli/interpellanze_cerca.go", "internal/cli/mozioni_cerca.go", "internal/cli/odg_cerca.go", "internal/cli/risoluzioni_cerca.go", "internal/cli/resoconti_cerca.go", "internal/cli/leggi_cerca.go", "internal/cli/pareri_cerca.go", "internal/cli/biblioteca_cerca.go", "internal/cli/biblioteca_multimediali.go"],
+  "validated_outcome": "interrogazioni sanità 267 -> 197 con --escludi ospedale."
+}

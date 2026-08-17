@@ -1,0 +1,51 @@
+version: 2
+project_name: morgen-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: morgen-pp-cli
+    main: ./cmd/morgen-pp-cli
+    binary: morgen-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/productivity/morgen/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: morgen-pp-mcp
+    main: ./cmd/morgen-pp-mcp
+    binary: morgen-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: morgen-pp-cli
+    repository:
+      owner: nickscarabosio
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Morgen calendar & tasks API CLI — unified access to calendars, events, tasks, and tags across connected providers"
+    install: |
+      bin.install "morgen-pp-cli"
+      bin.install "morgen-pp-mcp"

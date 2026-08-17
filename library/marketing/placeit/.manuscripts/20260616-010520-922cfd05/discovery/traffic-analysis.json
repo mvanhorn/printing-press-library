@@ -1,0 +1,24 @@
+{
+  "source": "authenticated browser-use capture (logged-in Envato session)",
+  "reachability": {
+    "mode": "browser_clearance_http",
+    "notes": "placeit.net HTML + /api/v1,/api/v2 are Cloudflare-fronted (managed challenge in headless; cleared in headed). Algolia host KSLVR81FGG-dsn.algolia.net is NOT Cloudflare-fronted and answers raw POST with the public search key. Account/bookmarks endpoints require placeit.net session cookies (HttpOnly) + likely Surf TLS fingerprint."
+  },
+  "auth": {
+    "type": "cookie",
+    "cookie_domain": "placeit.net",
+    "httponly_session": true,
+    "verified": "GET /api/v1/get_user_type_banner returned 200 with valid subscription payload using browser session cookies"
+  },
+  "endpoint_clusters": [
+    {"host": "KSLVR81FGG-dsn.algolia.net", "method": "POST", "path": "/1/indexes/Stage_production/query", "auth": "public-search-key", "observed_auth": [], "purpose": "catalog search (164580 records)"},
+    {"host": "KSLVR81FGG-dsn.algolia.net", "method": "POST", "path": "/1/indexes/*/queries", "auth": "public-search-key", "observed_auth": [], "purpose": "multi-index search"},
+    {"host": "placeit.net", "method": "GET", "path": "/api/v1/get_user_type_banner", "auth": "cookie", "observed_auth": ["cookie"], "purpose": "account + subscription status", "pii": ["email","username","user_id","envato_id","unsubscribe_code"]},
+    {"host": "placeit.net", "method": "GET", "path": "/api/v2/bookmarked_stages_from_user", "auth": "cookie", "observed_auth": ["cookie"], "required_params": ["user_id"], "purpose": "saved/bookmarked templates"},
+    {"host": "placeit.net", "method": "GET", "path": "/api/v2/get_active_campaigns", "auth": "none", "observed_auth": [], "purpose": "active marketing campaigns"},
+    {"host": "placeit.net", "method": "GET", "path": "/api/v2/get_pricing_plans", "auth": "none", "observed_auth": [], "purpose": "pricing (currency)"}
+  ],
+  "not_captured": {
+    "download_render": "Editor render/download flow deliberately not triggered (async blender render job, upload-dependent, Cloudflare-protected). Not cleanly replayable -> CLI ships 'open <stage>' deep-link resolver instead of a raw render command."
+  }
+}

@@ -1,0 +1,51 @@
+version: 2
+project_name: prediction-goat-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: prediction-goat-pp-cli
+    main: ./cmd/prediction-goat-pp-cli
+    binary: prediction-goat-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/payments/prediction-goat/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: prediction-goat-pp-mcp
+    main: ./cmd/prediction-goat-pp-mcp
+    binary: prediction-goat-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: prediction-goat-pp-cli
+    repository:
+      owner: mvanhorn
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every Polymarket and Kalshi market in one slim agent-native CLI, with cross-venue topic search and screens no other..."
+    install: |
+      bin.install "prediction-goat-pp-cli"
+      bin.install "prediction-goat-pp-mcp"

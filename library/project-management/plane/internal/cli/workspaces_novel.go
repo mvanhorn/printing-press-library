@@ -41,8 +41,8 @@ func baseURLHasLiteralSlug(base string) bool {
 // following the precedence flag --workspace > env PLANE_SLUG > config
 // default_workspace > "" (none). cfg may be nil.
 func resolveWorkspace(flags *rootFlags, cfg *config.Config) (slug, source string) {
-	if flags != nil && flags.workspace != "" {
-		return flags.workspace, "flag:--workspace"
+	if flags != nil && novelWorkspace != "" {
+		return novelWorkspace, "flag:--workspace"
 	}
 	if v := strings.TrimSpace(os.Getenv(envWorkspaceSlug)); v != "" {
 		return v, "env:" + envWorkspaceSlug
@@ -114,10 +114,26 @@ func upsertWorkspace(cfg *config.Config, slug, id string) {
 // with the active credentials and the candidate slug. Returns the workspace
 // UUID (best-effort, from a project payload) when reachable, or an error
 // classified for exit codes. A 200 (even empty) means access is granted.
-func probeWorkspace(ctx context.Context, flags *rootFlags, slug string) (string, error) {
+// A non-empty baseURL or apiKey overrides the on-disk value for this probe
+// only, letting init validate a host and key without persisting either first.
+func probeWorkspace(ctx context.Context, flags *rootFlags, slug, baseURL, apiKey string) (string, error) {
 	c, err := flags.newClient()
 	if err != nil {
 		return "", err
+	}
+	if baseURL != "" {
+		c.BaseURL = strings.TrimRight(baseURL, "/")
+		if c.Config != nil {
+			c.Config.BaseURL = baseURL
+		}
+	}
+	if apiKey != "" && c.Config != nil {
+		// Mirror SaveCredential's field routing, in memory only: zero the
+		// higher-precedence credential slots so AuthHeader() serves the
+		// candidate key.
+		c.Config.AuthHeaderVal = ""
+		c.Config.AccessToken = ""
+		c.Config.PlaneApiKeyAuthentication = apiKey
 	}
 	applyClientSlug(c, slug)
 	if _, err := c.Get(ctx, "/members/", nil); err != nil {
@@ -216,7 +232,7 @@ func newWorkspacesAddCmd(flags *rootFlags) *cobra.Command {
 			}
 			added := []map[string]any{}
 			for _, slug := range normSlugs {
-				id, perr := probeWorkspace(cmd.Context(), flags, slug)
+				id, perr := probeWorkspace(cmd.Context(), flags, slug, "", "")
 				if perr != nil {
 					return fmt.Errorf("workspace %q is not reachable with the current credentials: %w", slug, perr)
 				}
@@ -262,7 +278,7 @@ func newWorkspacesUseCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return configErr(err)
 			}
-			id, perr := probeWorkspace(cmd.Context(), flags, slug)
+			id, perr := probeWorkspace(cmd.Context(), flags, slug, "", "")
 			if perr != nil {
 				return fmt.Errorf("workspace %q is not reachable with the current credentials: %w", slug, perr)
 			}
@@ -383,11 +399,6 @@ each is access-probed before being saved. Use flags/args for non-interactive set
 				fmt.Fprint(out, "API key (X-API-Key): ")
 				apiKey = readLine(r)
 			}
-			if apiKey != "" {
-				if err := cfg.SaveCredential(apiKey); err != nil {
-					return configErr(fmt.Errorf("saving api key: %w", err))
-				}
-			}
 			if host == "" && interactive {
 				fmt.Fprint(out, "Host [https://api.plane.so]: ")
 				host = readLine(r)
@@ -395,7 +406,6 @@ each is access-probed before being saved. Use flags/args for non-interactive set
 			if host == "" {
 				host = "https://api.plane.so"
 			}
-			cfg.BaseURL = normalizeHost(host) + "/api/v1/workspaces/{slug}"
 
 			// Slugs come from positional args and/or the persistent
 			// --workspace/-w flag; init registers no local --workspace flag of
@@ -404,8 +414,8 @@ each is access-probed before being saved. Use flags/args for non-interactive set
 			// persistent shorthand and break `init -w <slug>`).
 			var rawSlugs []string
 			rawSlugs = append(rawSlugs, args...)
-			if flags.workspace != "" {
-				rawSlugs = append(rawSlugs, flags.workspace)
+			if novelWorkspace != "" {
+				rawSlugs = append(rawSlugs, novelWorkspace)
 			}
 			if len(rawSlugs) == 0 && interactive {
 				fmt.Fprint(out, "Workspace slug(s), comma-separated (from app URL, e.g. app.plane.so/<slug>/): ")
@@ -415,21 +425,15 @@ each is access-probed before being saved. Use flags/args for non-interactive set
 			if len(slugs) == 0 {
 				return usageErr(fmt.Errorf("no workspace slug provided (pass a slug argument or --workspace, or run interactively)"))
 			}
-			// Reload so the saved api key + base_url are in the client config.
-			cfg, err = config.Load(flags.configPath)
-			if err != nil {
-				return configErr(err)
-			}
-			cfg.BaseURL = normalizeHost(host) + "/api/v1/workspaces/{slug}"
-			// Persist base_url (and the already-saved key) BEFORE probing: probeWorkspace
-			// builds its client via newClient()->config.Load(), which reads from disk, so
-			// the custom --host must be on disk or probes hit the default endpoint.
-			if err := cfg.Save(); err != nil {
-				return configErr(err)
-			}
+			// Probe against the in-memory base URL and candidate API key
+			// (probeWorkspace overrides the on-disk values with them), so a
+			// failed init leaves the config and credential files byte-for-byte
+			// untouched; the key, base_url, the workspace registry, and the
+			// default are persisted together only after a successful enrollment.
+			baseURL := normalizeHost(host) + "/api/v1/workspaces/{slug}"
 			var enrolled []string
 			for _, slug := range slugs {
-				id, perr := probeWorkspace(cmd.Context(), flags, slug)
+				id, perr := probeWorkspace(cmd.Context(), flags, slug, baseURL, apiKey)
 				if perr != nil {
 					fmt.Fprintf(cmd.ErrOrStderr(), "✗ %s: %v\n", slug, perr)
 					continue
@@ -448,8 +452,16 @@ each is access-probed before being saved. Use flags/args for non-interactive set
 				// every later command 403/404. Fell back to the first reachable.
 				fmt.Fprintf(cmd.ErrOrStderr(), "warning: --default is not among the reachable workspaces; using %q instead.\n", defaultWS)
 			}
+			cfg.BaseURL = baseURL
 			cfg.DefaultWorkspace = defaultWS
-			if err := cfg.Save(); err != nil {
+			if apiKey != "" {
+				// SaveCredential persists the whole config (registry, base_url,
+				// default) along with the credential, so this stays the single
+				// post-enrollment write.
+				if err := cfg.SaveCredential(apiKey); err != nil {
+					return configErr(fmt.Errorf("saving api key: %w", err))
+				}
+			} else if err := cfg.Save(); err != nil {
 				return configErr(err)
 			}
 			warnEnvShadow(cmd.ErrOrStderr(), defaultWS)

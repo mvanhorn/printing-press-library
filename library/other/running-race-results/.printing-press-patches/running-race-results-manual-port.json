@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "running-race-results-manual-port",
+  "applied_at": "2026-06-20",
+  "base_run_id": "20260620-093412-manual-port",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Ported the existing running-race-results Go CLI into a Printing Press publishable package.",
+  "reason": "The source project was already a working multi-provider race-results CLI, while Printing Press has no direct import command for arbitrary existing Go repos.",
+  "files": [
+    "cmd/running-race-results-pp-cli/main.go",
+    "internal/cli/lookup.go",
+    "internal/cli/athlete.go",
+    "internal/provider"
+  ],
+  "validated_outcome": "go test ./..., go vet ./..., and a built binary --help/--version check passed after porting."
+}

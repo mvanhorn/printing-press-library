@@ -1,7 +1,9 @@
 .PHONY: build test lint install clean
 
+BIN_EXT := $(if $(filter windows,$(shell go env GOOS)),.exe,)
+
 build:
-	go build -o bin/blacklane-pp-cli ./cmd/blacklane-pp-cli
+	go build -o bin/blacklane-pp-cli$(BIN_EXT) ./cmd/blacklane-pp-cli
 
 test:
 	go test ./...
@@ -16,7 +18,7 @@ clean:
 	rm -rf bin/
 
 build-mcp:
-	go build -o bin/blacklane-pp-mcp ./cmd/blacklane-pp-mcp
+	go build -o bin/blacklane-pp-mcp$(BIN_EXT) ./cmd/blacklane-pp-mcp
 
 install-mcp:
 	go install ./cmd/blacklane-pp-mcp

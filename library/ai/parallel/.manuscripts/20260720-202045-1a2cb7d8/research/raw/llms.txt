@@ -1,0 +1,156 @@
+# Parallel
+
+> Parallel's web APIs (Search, Extract, Task/Deep Research, FindAll, Chat, and Monitor) give AI agents and developers high-quality, low-latency access to the web for research, content extraction, entity discovery, and continuous monitoring.
+
+## Docs
+
+- [Chat Completions](https://docs.parallel.ai/api-reference/chat-api-beta/chat-completions.md): Chat completions.
+- [Extract](https://docs.parallel.ai/api-reference/extract/extract.md): Extracts relevant content from specific web URLs.
+- [Add Enrichment to FindAll Run](https://docs.parallel.ai/api-reference/findall/add-enrichment-to-findall-run.md): Add an enrichment to a FindAll run.
+- [Cancel FindAll Run](https://docs.parallel.ai/api-reference/findall/cancel-findall-run.md): Cancel a FindAll run.
+- [Create FindAll Run](https://docs.parallel.ai/api-reference/findall/create-findall-run.md): Starts a FindAll run.
+- [Extend FindAll Run](https://docs.parallel.ai/api-reference/findall/extend-findall-run.md): Extend a FindAll run by adding additional matches to the current match limit.
+- [Fast Entity Search](https://docs.parallel.ai/api-reference/findall/fast-entity-search.md): Return ranked entities matching a natural language objective.
+- [FindAll Run Result](https://docs.parallel.ai/api-reference/findall/findall-run-result.md): Retrieve the FindAll run result at the time of the request.
+- [Get FindAll Run Schema](https://docs.parallel.ai/api-reference/findall/get-findall-run-schema.md)
+- [Ingest FindAll Run](https://docs.parallel.ai/api-reference/findall/ingest-findall-run.md): Transforms a natural language search objective into a structured FindAll spec.
+- [Retrieve FindAll Run Status](https://docs.parallel.ai/api-reference/findall/retrieve-findall-run-status.md): Retrieve a FindAll run.
+- [Stream FindAll Events](https://docs.parallel.ai/api-reference/findall/stream-findall-events.md): Stream events from a FindAll run.
+- [Cancel Monitor](https://docs.parallel.ai/api-reference/monitor/cancel-monitor.md): Cancel a monitor.
+- [Create Monitor](https://docs.parallel.ai/api-reference/monitor/create-monitor.md): Create a monitor.
+- [List Monitor Events](https://docs.parallel.ai/api-reference/monitor/list-monitor-events.md): List events for a monitor, newest first.
+- [List Monitors](https://docs.parallel.ai/api-reference/monitor/list-monitors.md): List monitors ordered by creation time, newest first.
+- [Retrieve Monitor](https://docs.parallel.ai/api-reference/monitor/retrieve-monitor.md): Retrieve a monitor.
+- [Trigger Monitor Run](https://docs.parallel.ai/api-reference/monitor/trigger-monitor-run.md): Trigger an immediate monitor run.
+- [Update Monitor](https://docs.parallel.ai/api-reference/monitor/update-monitor.md): Update a monitor.
+- [Search](https://docs.parallel.ai/api-reference/search/search.md): Searches the web.
+- [Add Runs to Task Group](https://docs.parallel.ai/api-reference/tasks/add-runs-to-task-group.md): Initiates multiple task runs within a TaskGroup.
+- [Create Task Group](https://docs.parallel.ai/api-reference/tasks/create-task-group.md): Initiates a TaskGroup to group and track multiple runs.
+- [Create Task Run](https://docs.parallel.ai/api-reference/tasks/create-task-run.md): Initiates a task run.
+- [Fetch Task Group Runs](https://docs.parallel.ai/api-reference/tasks/fetch-task-group-runs.md): Retrieves task runs in a TaskGroup and optionally their inputs and outputs.
+- [Retrieve Task Group](https://docs.parallel.ai/api-reference/tasks/retrieve-task-group.md): Retrieves aggregated status across runs in a TaskGroup.
+- [Retrieve Task Group Run](https://docs.parallel.ai/api-reference/tasks/retrieve-task-group-run.md): Retrieves run status by run_id.
+- [Retrieve Task Run](https://docs.parallel.ai/api-reference/tasks/retrieve-task-run.md): Retrieves run status by run_id.
+- [Retrieve Task Run Input](https://docs.parallel.ai/api-reference/tasks/retrieve-task-run-input.md): Retrieves the input of a run by run_id.
+- [Retrieve Task Run Result](https://docs.parallel.ai/api-reference/tasks/retrieve-task-run-result.md): Retrieves a run result by run_id, blocking until the run is completed.
+- [Stream Task Group Events](https://docs.parallel.ai/api-reference/tasks/stream-task-group-events.md): Streams events from a TaskGroup: status updates and run completions.
+- [Stream Task Run Events](https://docs.parallel.ai/api-reference/tasks/stream-task-run-events.md): Streams events for a task run.
+- [Stream Task Run Events](https://docs.parallel.ai/api-reference/tasks/stream-task-run-events-1.md): Streams events for a task run.
+- [OpenAI ChatCompletions Compatibility](https://docs.parallel.ai/chat-api/chat-quickstart.md): Build low-latency web research applications with OpenAI-compatible streaming chat completions
+- [Google BigQuery](https://docs.parallel.ai/data-integrations/bigquery.md): Enrich data at scale using Parallel's SQL-native remote functions for BigQuery
+- [DuckDB](https://docs.parallel.ai/data-integrations/duckdb.md): Enrich data at scale using Parallel's native DuckDB integration with batch processing
+- [Data Integrations](https://docs.parallel.ai/data-integrations/overview.md): Enrich your data with web intelligence directly in your favorite data tools
+- [Polars](https://docs.parallel.ai/data-integrations/polars.md): Enrich data at scale using Parallel's native Polars integration for DataFrames
+- [Snowflake](https://docs.parallel.ai/data-integrations/snowflake.md): Enrich data at scale using Parallel's SQL-native UDTF for Snowflake
+- [Apache Spark](https://docs.parallel.ai/data-integrations/spark.md): Enrich data at scale using Parallel's SQL-native UDFs for Apache Spark
+- [Supabase](https://docs.parallel.ai/data-integrations/supabase.md): Enrich your Supabase data with live web intelligence using Edge Functions and Parallel
+- [Advanced Extract Settings](https://docs.parallel.ai/extract/advanced-extract-settings.md): Advanced configuration for fetch policy, excerpt settings, and full content extraction
+- [Extract API Best Practices](https://docs.parallel.ai/extract/best-practices.md): Learn how to optimize web content extraction with objectives, search queries, and fetch policies for LLM-ready markdown output
+- [Extract Migration Guide: Beta to GA](https://docs.parallel.ai/extract/extract-migration-guide.md): Migrate from Beta to GA (V1) Extract API
+- [Extract API Quickstart](https://docs.parallel.ai/extract/extract-quickstart.md): Convert any public URL into clean, LLM-optimized markdown with the Parallel Extract API
+- [Candidates](https://docs.parallel.ai/findall-api/core-concepts/findall-candidates.md): Understanding FindAll candidates, their structure, states, and how to exclude specific entities
+- [Generators](https://docs.parallel.ai/findall-api/core-concepts/findall-generator-pricing.md): Choose the right FindAll generator (preview, base, core, pro) based on query complexity and expected match volume
+- [Run Lifecycle](https://docs.parallel.ai/findall-api/core-concepts/findall-lifecycle.md): Understand FindAll run statuses, termination reasons, and how to cancel runs
+- [Entity Search](https://docs.parallel.ai/findall-api/entity-search.md): Fast, synchronous people and company search, the real-time counterpart to FindAll — describe what you need in natural language and receive a set of matching results in seconds
+- [Cancel](https://docs.parallel.ai/findall-api/features/findall-cancel.md): Stop FindAll runs early to control costs
+- [Enrichments](https://docs.parallel.ai/findall-api/features/findall-enrich.md): Add non-boolean enrichment data to FindAll candidates without affecting match conditions
+- [Extend](https://docs.parallel.ai/findall-api/features/findall-extend.md): Increase the match limit of existing FindAll runs to get more results without changing query criteria
+- [Preview](https://docs.parallel.ai/findall-api/features/findall-preview.md): Test FindAll queries with a small sample of candidates before committing to full runs
+- [Refresh Runs](https://docs.parallel.ai/findall-api/features/findall-refresh.md): Rerun the same FindAll query with exclude_list to discover net new entities over time
+- [Streaming Events](https://docs.parallel.ai/findall-api/features/findall-sse.md): Receive real-time updates on FindAll runs using Server-Sent Events (SSE)
+- [Webhooks](https://docs.parallel.ai/findall-api/features/findall-webhook.md): Receive real-time notifications on FindAll runs and candidates using webhooks
+- [FindAll Migration Guide](https://docs.parallel.ai/findall-api/findall-migration-guide.md): Guide for migrating from V0 to V1 FindAll API
+- [FindAll API Quickstart](https://docs.parallel.ai/findall-api/findall-quickstart.md): Discover and enrich entities from the web using natural language queries with the FindAll API
+- [Glossary](https://docs.parallel.ai/getting-started/glossary.md): Key terms and concepts used throughout Parallel's documentation
+- [Overview](https://docs.parallel.ai/getting-started/overview.md): Explore Parallel's web API products for building intelligent applications.
+- [Pricing](https://docs.parallel.ai/getting-started/pricing.md)
+- [Rate limits](https://docs.parallel.ai/getting-started/rate-limits.md): Default API rate limits for Search, Extract, Tasks, Chat, FindAll, and Monitor endpoints
+- [Account API](https://docs.parallel.ai/integrations/account-api.md): Authenticate with the Parallel Account API using device-based OAuth 2.0
+- [Agent Skills](https://docs.parallel.ai/integrations/agent-skills.md): Add Parallel web search, extraction, deep research, and data enrichment to any AI coding agent
+- [Agentic Payments (MPP & x402)](https://docs.parallel.ai/integrations/agentic-payments.md): Enable AI agents to make autonomous payments using Parallel and the Machine Payments Protocol via Stripe or Tempo stablecoins
+- [Anthropic Tool Calling](https://docs.parallel.ai/integrations/anthropic-tool-calling.md): Use Parallel Search as a tool with Anthropic's Claude models for real-time web access
+- [AWS Marketplace](https://docs.parallel.ai/integrations/aws-marketplace.md): Access Parallel's API through the AWS Marketplace
+- [Browser Use](https://docs.parallel.ai/integrations/browseruse.md): Access private web data in Tasks using Browser Use MCP
+- [Claude Code Plugin](https://docs.parallel.ai/integrations/claude-code-marketplace.md): Add Parallel web search, extraction, deep research, and data enrichment to Claude Code
+- [ClawHub](https://docs.parallel.ai/integrations/clawhub.md): Install Parallel skills for OpenClaw from ClawHub — the skill registry for AI agents
+- [Parallel CLI](https://docs.parallel.ai/integrations/cli.md): Command-line tool for web search, content extraction, data enrichment, deep research, entity discovery, and web monitoring
+- [Cursor Plugin](https://docs.parallel.ai/integrations/cursor-marketplace.md): Add Parallel web search, extraction, deep research, and data enrichment to Cursor
+- [Developer Tools Overview](https://docs.parallel.ai/integrations/developer-quickstart.md): Choose the right way to integrate Parallel into your AI workflow — CLI, MCP, or SDK
+- [Google Cloud Marketplace](https://docs.parallel.ai/integrations/google-cloud-marketplace.md): Subscribe to Parallel via Google Cloud Marketplace
+- [Google Gemini Enterprise](https://docs.parallel.ai/integrations/google-gemini-enterprise.md): Use Parallel as a grounding provider in Google Gemini Enterprise Agent Platform (formerly Vertex AI)
+- [Google Sheets](https://docs.parallel.ai/integrations/gsuite.md): Use Parallel directly in Google Sheets with the PARALLEL_QUERY function
+- [LangChain](https://docs.parallel.ai/integrations/langchain.md): LangChain integrations for Parallel, enabling real-time web research and AI capabilities
+- [Programmatic Use](https://docs.parallel.ai/integrations/mcp/programmatic-use.md): How to use the MCP servers Programmatically
+- [Quickstart](https://docs.parallel.ai/integrations/mcp/quickstart.md): Install and configure Parallel MCP servers for AI assistants like Cursor, VS Code, and Claude Desktop
+- [Search MCP](https://docs.parallel.ai/integrations/mcp/search-mcp.md): Add real-time web search and content extraction to AI agents with the Parallel Search MCP Server
+- [Task MCP](https://docs.parallel.ai/integrations/mcp/task-mcp.md): Enable deep research and data enrichment workflows in AI assistants with the Parallel Task MCP Server
+- [n8n](https://docs.parallel.ai/integrations/n8n.md): Use Parallel in n8n Automations
+- [OAuth Provider](https://docs.parallel.ai/integrations/oauth-provider.md): Integrate with the Parallel OAuth Provider to get a Parallel API key on behalf of your users
+- [Ollama Tool Calling](https://docs.parallel.ai/integrations/ollama-tool-calling.md): Use Parallel Search as a tool with local Ollama models for real-time web access
+- [OpenAI Tool Calling](https://docs.parallel.ai/integrations/openai-tool-calling.md): Use Parallel Search as a tool with OpenAI's function calling to give GPT models real-time web access
+- [OpenCode Plugin](https://docs.parallel.ai/integrations/opencode-plugin.md): Add Parallel web search and content extraction to OpenCode
+- [OpenRouter](https://docs.parallel.ai/integrations/openrouter.md): Use Parallel as a web search engine on OpenRouter
+- [Pi Extension](https://docs.parallel.ai/integrations/pi-extension.md): Add Parallel web search and content extraction to Pi
+- [Superhuman](https://docs.parallel.ai/integrations/superhuman.md): Use Parallel with Superhuman
+- [Vercel](https://docs.parallel.ai/integrations/vercel.md): Use Parallel with Vercel
+- [Zapier](https://docs.parallel.ai/integrations/zapier.md): Use Parallel in Zapier workflows
+- [Events](https://docs.parallel.ai/monitor-api/monitor-events.md): Understand monitor event types and how to retrieve them
+- [Monitor Migration Guide: Alpha to GA](https://docs.parallel.ai/monitor-api/monitor-migration-guide.md): Migrate from the Alpha Monitor API (/v1alpha) to the GA version (/v1)
+- [Monitor API Quickstart](https://docs.parallel.ai/monitor-api/monitor-quickstart.md): Continuously track web changes with scheduled queries and webhook notifications using the Monitor API
+- [Slack Integration](https://docs.parallel.ai/monitor-api/monitor-slack.md): Set up Monitor in Slack to receive real-time web updates directly in your channels
+- [Follow-up Tasks](https://docs.parallel.ai/monitor-api/monitor-task.md): Trigger Task API enrichment or deep research from a monitor event
+- [Webhooks](https://docs.parallel.ai/monitor-api/monitor-webhooks.md): Receive real-time notifications for Monitor executions and detected events using webhooks
+- [Create a Snapshot Monitor](https://docs.parallel.ai/monitor-api/quickstart-snapshot.md): Monitor any task output for material changes on a schedule
+- [Changelog](https://docs.parallel.ai/resources/changelog.md): Product updates from the Parallel team
+- [Crawler](https://docs.parallel.ai/resources/crawler.md): This documentation provides guidance for webmasters on managing their website's interaction with our crawling system
+- [FAQs](https://docs.parallel.ai/resources/faqs.md): Frequently asked questions about Parallel APIs, billing, security, and platform features
+- [Source Policy](https://docs.parallel.ai/resources/source-policy.md): Control which sources are used in web research, including domain allow/deny lists and a freshness start date.
+- [Status Page](https://docs.parallel.ai/resources/status.md)
+- [Warnings and Errors](https://docs.parallel.ai/resources/warnings-and-errors.md): Breakdown of warnings and errors
+- [Webhook Setup](https://docs.parallel.ai/resources/webhook-setup.md): Guide to configuring and verifying webhooks for Parallel APIs
+- [Advanced Search Settings](https://docs.parallel.ai/search/advanced-search-settings.md): Advanced configuration for source policy, fetch policy, excerpt settings, location, and result count
+- [Search API Best Practices](https://docs.parallel.ai/search/best-practices.md): Craft effective objectives and search queries for the Parallel Search API, including tool-calling agents and evals
+- [Migrate to Parallel Search](https://docs.parallel.ai/search/migrate-to-parallel.md): Move from Exa, Tavily, SERP APIs, or built-in model search to the Parallel Search API
+- [Search Modes](https://docs.parallel.ai/search/modes.md): Configure the Search API mode for your use case
+- [Search MCP](https://docs.parallel.ai/search/search-mcp.md)
+- [Upgrade from Beta to GA](https://docs.parallel.ai/search/search-migration-guide.md): Migrate from Beta to GA (V1) Search API
+- [Search API Quickstart](https://docs.parallel.ai/search/search-quickstart.md): Execute natural language web searches and retrieve LLM-optimized excerpts with the Parallel Search API
+- [Source Policy](https://docs.parallel.ai/search/source-policy.md)
+- [Create App](https://docs.parallel.ai/service-api/apps/create-app.md): Create a new app for the authenticated organization
+- [Delete App](https://docs.parallel.ai/service-api/apps/delete-app.md): Delete an app from the authenticated organization
+- [List Apps](https://docs.parallel.ai/service-api/apps/list-apps.md): List all apps for the authenticated organization
+- [Add to Balance](https://docs.parallel.ai/service-api/balance/add-to-balance.md): Charge the organization's default payment method and add the amount to the prepaid credit balance. The default payment method configured on the org's Stripe customer is always used; no payment method id is accepted from the client.
+- [Get Balance](https://docs.parallel.ai/service-api/balance/get-balance.md): Get the authenticated organization's prepaid credit balance
+- [Create Key](https://docs.parallel.ai/service-api/keys/create-key.md): Create a new API key for an app
+- [Delete Key](https://docs.parallel.ai/service-api/keys/delete-key.md): Delete an API key from an app
+- [Task API Best Practices](https://docs.parallel.ai/task-api/best-practices.md): Best practices for writing Task Specs and caching outputs when using Parallel's agent products
+- [Interactive Research](https://docs.parallel.ai/task-api/examples/interactive-research.md): Build an interactive research app with multi-turn context chaining
+- [Task API Deep Research Quickstart](https://docs.parallel.ai/task-api/examples/task-deep-research.md): Transform natural language queries into comprehensive intelligence reports
+- [Task API Enrichment Quickstart](https://docs.parallel.ai/task-api/examples/task-enrichment.md): Enrich your structured data with web intelligence using the Task API
+- [Task Group](https://docs.parallel.ai/task-api/group-api.md): Batch process Tasks at scale with the Parallel Task Group API
+- [Research Basis](https://docs.parallel.ai/task-api/guides/access-research-basis.md): Understand how to access citations, reasoning, and confidence levels for your Task Run outputs
+- [Processors](https://docs.parallel.ai/task-api/guides/choose-a-processor.md): Select the right Task API processor (lite, base, core, pro, ultra) based on task complexity and latency requirements
+- [Task Runs Lifecycle](https://docs.parallel.ai/task-api/guides/execute-task-run.md): Understanding how Tasks Runs are created, processed, and returned
+- [Interactions](https://docs.parallel.ai/task-api/guides/interactions.md): Chain context across multiple API calls using interaction IDs
+- [Task Spec](https://docs.parallel.ai/task-api/guides/specify-a-task.md): Define structured research tasks with customizable input and output schemas.
+- [Ingest API](https://docs.parallel.ai/task-api/ingest-api.md): API reference for creating awesome tasks
+- [MCP Tool Calling](https://docs.parallel.ai/task-api/mcp-tool-call.md): Using MCP servers for tool calls in Tasks
+- [Source Policy](https://docs.parallel.ai/task-api/source-policy.md)
+- [Task MCP](https://docs.parallel.ai/task-api/task-mcp.md)
+- [Task API Quickstart](https://docs.parallel.ai/task-api/task-quickstart.md): Transform complex knowledge work into programmable, repeatable operations powered by AI web research
+- [Streaming Events](https://docs.parallel.ai/task-api/task-sse.md): SSE for Task Runs
+- [Webhooks](https://docs.parallel.ai/task-api/webhooks.md): Webhook events for task run completions
+
+## OpenAPI Specs
+
+- [openapi](https://api.parallel.ai/account/service/openapi.json)
+- [public-openapi](https://docs.parallel.ai/public-openapi.json)
+- [docs-legacy-openapi](https://docs.parallel.ai/docs-legacy-openapi.json)
+- [docs-latest-openapi](https://docs.parallel.ai/docs-latest-openapi.json)
+
+## Optional
+
+- [Get API Key](https://platform.parallel.ai)
+- [OpenAPI Spec](https://docs.parallel.ai/public-openapi.json)
+- [Python SDK](https://pypi.org/project/parallel-web/)
+- [TypeScript SDK](https://www.npmjs.com/package/parallel-web)

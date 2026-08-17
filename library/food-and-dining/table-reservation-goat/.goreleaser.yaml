@@ -23,7 +23,7 @@ builds:
     env:
       - CGO_ENABLED=0
     ldflags:
-      - -s -w
+      - -s -w -X main.version={{ .Version }}
     targets:
       - darwin_amd64
       - darwin_arm64
@@ -42,10 +42,10 @@ checksum:
 brews:
   - name: table-reservation-goat-pp-cli
     repository:
-      owner: pejman-pour-moezzi
+      owner: omarshahine
       name: homebrew-tap
-    homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "One reservation CLI for OpenTable and Tock — search both networks at once, watch for cancellations, book, and..."
+    homepage: "https://github.com/omarshahine/table-reservation-goat-pp-cli"
+    description: "One reservation CLI for OpenTable, Tock, and Resy — search all three networks at once, watch for cancellations"
     install: |
       bin.install "table-reservation-goat-pp-cli"
       bin.install "table-reservation-goat-pp-mcp"

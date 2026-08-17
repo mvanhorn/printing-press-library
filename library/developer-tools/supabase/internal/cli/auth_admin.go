@@ -4,8 +4,10 @@ package cli
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 
@@ -40,10 +42,11 @@ func newAuthAdminLookupCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "lookup <email>",
 		Short: "Look up an Auth user by email; optionally join their row from a PostgREST context table",
-		Long: `Calls Auth Admin GET /auth/v1/admin/users?email=<email> to find a single user,
-then (if --context-table is given) calls PostgREST GET /rest/v1/<table>?<key>=eq.<user_id>
-and joins the row. Requires service_role key. Both surfaces are missing from the
-official supabase CLI and from supabase-community MCP — this is the differentiator.`,
+		Long: `Traverses Auth Admin GET /auth/v1/admin/users with the documented page and
+per_page parameters, then requires exactly one normalized email match before returning
+any user record. Zero, duplicate, malformed, repeated, truncated, provider-error, and
+page-limit states fail closed without printing unrelated users. If --context-table is
+given, the exact matched user's row is joined through PostgREST. Requires service_role.`,
 		Example: strings.Trim(`
   # Just the Auth user
   supabase-pp-cli auth-admin lookup user@example.com --json
@@ -73,40 +76,19 @@ official supabase CLI and from supabase-community MCP — this is the differenti
 
 			ctx, cancel := context.WithTimeout(cmd.Context(), 30*time.Second)
 			defer cancel()
-			authPath := "/auth/v1/admin/users?email=" + url.QueryEscape(email)
-			body, status, err := ps.do(ctx, "GET", authPath, nil, true)
+			matchedUser, err := lookupAuthAdminUser(ctx, ps, email, authAdminLookupOptions{
+				PerPage:  authAdminLookupPerPage,
+				MaxPages: authAdminLookupMaxPages,
+			})
 			if err != nil {
-				return apiErr(fmt.Errorf("looking up Auth user: %w", err))
-			}
-			_ = status
-
-			// Parse the user response. Supabase Auth Admin returns {users: [...]}
-			// for the search endpoint.
-			var authResp struct {
-				Users []json.RawMessage `json:"users"`
-			}
-			if err := json.Unmarshal(body, &authResp); err != nil {
-				// Some Auth versions return the user object directly.
-				var single map[string]any
-				if uerr := json.Unmarshal(body, &single); uerr == nil {
-					authResp.Users = []json.RawMessage{body}
-				} else {
-					return fmt.Errorf("parsing Auth Admin response: %w", err)
+				if errors.Is(err, errAuthAdminUserNotFound) {
+					return notFoundErr(err)
 				}
-			}
-			if len(authResp.Users) == 0 {
-				if flags.asJSON {
-					return printJSONFiltered(out, map[string]any{
-						"email": email,
-						"found": false,
-					}, flags)
-				}
-				fmt.Fprintf(out, "No Auth user found with email %q.\n", email)
-				return notFoundErr(fmt.Errorf("user not found"))
+				return apiErr(err)
 			}
 
 			var user map[string]any
-			if err := json.Unmarshal(authResp.Users[0], &user); err != nil {
+			if err := json.Unmarshal(matchedUser, &user); err != nil {
 				return fmt.Errorf("decoding user record: %w", err)
 			}
 			userID, _ := user["id"].(string)
@@ -181,6 +163,106 @@ official supabase CLI and from supabase-community MCP — this is the differenti
 	cmd.Flags().StringVar(&contextKey, "context-key", "", "Column in --context-table to match user.id against (default: user_id)")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (unused for live lookups)")
 	return cmd
+}
+
+const (
+	authAdminLookupPerPage  = 1000
+	authAdminLookupMaxPages = 100
+)
+
+var errAuthAdminUserNotFound = errors.New("Auth user not found")
+
+type authAdminLookupOptions struct {
+	PerPage  int
+	MaxPages int
+}
+
+// lookupAuthAdminUser traverses the documented Auth Admin list-users surface.
+// It retains only the exact matching raw record and never includes unrelated
+// records or provider response bodies in returned errors.
+func lookupAuthAdminUser(ctx context.Context, ps *projectSurface, email string, options authAdminLookupOptions) (json.RawMessage, error) {
+	normalizedEmail := strings.ToLower(strings.TrimSpace(email))
+	if normalizedEmail == "" || options.PerPage < 1 || options.MaxPages < 1 {
+		return nil, fmt.Errorf("invalid Auth Admin lookup configuration")
+	}
+
+	var expectedTotal int
+	totalInitialized := false
+	seenIDs := make(map[string]struct{})
+	var matched json.RawMessage
+	scanned := 0
+
+	for page := 1; page <= options.MaxPages; page++ {
+		authPath := fmt.Sprintf("/auth/v1/admin/users?page=%d&per_page=%d", page, options.PerPage)
+		body, status, headers, err := ps.doWithHeaders(ctx, "GET", authPath, nil, true)
+		if err != nil {
+			return nil, fmt.Errorf("Auth Admin list-users request failed on page %d (HTTP %d)", page, status)
+		}
+
+		totalText := strings.TrimSpace(headers.Get("x-total-count"))
+		total, parseErr := strconv.Atoi(totalText)
+		if parseErr != nil || total < 0 {
+			return nil, fmt.Errorf("Auth Admin list-users returned invalid pagination metadata on page %d", page)
+		}
+		if !totalInitialized {
+			expectedTotal = total
+			totalInitialized = true
+			if expectedTotal > options.PerPage*options.MaxPages {
+				return nil, fmt.Errorf("Auth Admin list-users traversal exceeds the %d-page safety limit", options.MaxPages)
+			}
+		} else if total != expectedTotal {
+			return nil, fmt.Errorf("Auth Admin list-users pagination total changed during traversal")
+		}
+
+		var envelope map[string]json.RawMessage
+		if err := json.Unmarshal(body, &envelope); err != nil {
+			return nil, fmt.Errorf("Auth Admin list-users returned a malformed page %d", page)
+		}
+		usersRaw, ok := envelope["users"]
+		if !ok || string(usersRaw) == "null" {
+			return nil, fmt.Errorf("Auth Admin list-users returned a malformed page %d", page)
+		}
+		var users []json.RawMessage
+		if err := json.Unmarshal(usersRaw, &users); err != nil || len(users) > options.PerPage {
+			return nil, fmt.Errorf("Auth Admin list-users returned a malformed page %d", page)
+		}
+		if len(users) == 0 && scanned < expectedTotal {
+			return nil, fmt.Errorf("Auth Admin list-users traversal ended before all users were scanned")
+		}
+
+		for _, rawUser := range users {
+			var identity struct {
+				ID    string `json:"id"`
+				Email string `json:"email"`
+			}
+			if err := json.Unmarshal(rawUser, &identity); err != nil || strings.TrimSpace(identity.ID) == "" || strings.TrimSpace(identity.Email) == "" {
+				return nil, fmt.Errorf("Auth Admin list-users returned a malformed user record on page %d", page)
+			}
+			if _, duplicate := seenIDs[identity.ID]; duplicate {
+				return nil, fmt.Errorf("Auth Admin list-users repeated a user during pagination")
+			}
+			seenIDs[identity.ID] = struct{}{}
+			scanned++
+			if scanned > expectedTotal {
+				return nil, fmt.Errorf("Auth Admin list-users returned more users than its pagination total")
+			}
+			if strings.ToLower(strings.TrimSpace(identity.Email)) == normalizedEmail {
+				if len(matched) != 0 {
+					return nil, fmt.Errorf("Auth Admin lookup found multiple users with the requested email")
+				}
+				matched = append(json.RawMessage(nil), rawUser...)
+			}
+		}
+
+		if scanned == expectedTotal {
+			if len(matched) == 0 {
+				return nil, errAuthAdminUserNotFound
+			}
+			return matched, nil
+		}
+	}
+
+	return nil, fmt.Errorf("Auth Admin list-users traversal did not complete within the page limit")
 }
 
 func newAuthAdminRecentCmd(flags *rootFlags) *cobra.Command {

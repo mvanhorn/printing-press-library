@@ -32,5 +32,6 @@
       "command": "feed",
       "description": "Explore on-this-day events as a ready-made discovery workflow."
     }
-  ]
+  ],
+  "description": "Wikipedia REST API. Get article summaries, search, browse related topics, and access on-this-day events. No authentication required. Uses a polite User-Agent header."
 }

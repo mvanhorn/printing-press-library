@@ -4,10 +4,13 @@
 package cli
 
 import (
+	"errors"
 	"fmt"
-	"github.com/mvanhorn/printing-press-library/library/productivity/granola/internal/config"
-	"github.com/spf13/cobra"
 	"os"
+
+	"github.com/mvanhorn/printing-press-library/library/productivity/granola/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/productivity/granola/internal/granola"
+	"github.com/spf13/cobra"
 )
 
 func newAuthCmd(flags *rootFlags) *cobra.Command {
@@ -16,6 +19,7 @@ func newAuthCmd(flags *rootFlags) *cobra.Command {
 		Short: "Manage authentication for Granola",
 	}
 
+	cmd.AddCommand(newAuthLoginCmd(flags))
 	cmd.AddCommand(newAuthSetupCmd(flags))
 	cmd.AddCommand(newAuthStatusCmd(flags))
 	cmd.AddCommand(newAuthSetTokenCmd(flags))
@@ -64,7 +68,14 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 
 			w := cmd.OutOrStdout()
 			header := cfg.AuthHeader()
-			authed := header != ""
+			// PATCH(cli-owned-workos-session): a CLI-owned session counts as
+			// authenticated. It is reported separately from the public-API key
+			// because they authorize different surfaces, and because a user who
+			// just ran `auth login` should not be told they have no credentials.
+			session, sessionErr := granola.LoadCLISession()
+			hasSession := sessionErr == nil
+			authed := header != "" || hasSession
+			envOverride := os.Getenv("GRANOLA_WORKOS_TOKEN") != ""
 			// JSON envelope: {authenticated, verified, source, config}. When not
 			// authenticated, write the envelope first then return authErr
 			// so exit code carries the auth-failure signal.
@@ -74,6 +85,16 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 					"verified":      false,
 					"source":        cfg.AuthSource,
 					"config":        cfg.Path,
+					"cli_session":   hasSession,
+				}
+				if hasSession {
+					out["cli_session_account"] = session.AccountEmail
+					out["cli_session_path"] = granola.CLISessionPath()
+				} else if sessionErr != nil && !errors.Is(sessionErr, granola.ErrNoCLISession) {
+					out["cli_session_error"] = sessionErr.Error()
+				}
+				if envOverride {
+					out["env_override_active"] = true
 				}
 				if printErr := printJSONFiltered(w, out, flags); printErr != nil {
 					return printErr
@@ -86,10 +107,37 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 			if !authed {
 				fmt.Fprintln(w, red("Not authenticated"))
 				fmt.Fprintln(w, "")
-				fmt.Fprintln(w, "Set your token:")
+				if sessionErr != nil && !errors.Is(sessionErr, granola.ErrNoCLISession) {
+					// A broken session is a different problem from an absent
+					// one, and "run auth login" is the wrong advice for, say, a
+					// permissions failure the user needs to see and fix.
+					fmt.Fprintf(w, "  CLI session unusable: %v\n\n", sessionErr)
+				}
+				fmt.Fprintln(w, "Sign this CLI in to Granola (recommended):")
+				fmt.Fprintln(w, "  granola-pp-cli auth login")
+				fmt.Fprintln(w, "")
+				fmt.Fprintln(w, "Or use a Business/Enterprise API key:")
 				fmt.Fprintln(w, "  export GRANOLA_API_KEY=\"your-token-here\"")
 				fmt.Fprintf(w, "  granola-pp-cli auth set-token <token>\n")
 				return authErr(fmt.Errorf("no credentials configured"))
+			}
+			if hasSession {
+				if session.AccountEmail != "" {
+					fmt.Fprintf(w, "CLI session: signed in as %s\n", session.AccountEmail)
+				} else {
+					fmt.Fprintln(w, "CLI session: signed in")
+				}
+				fmt.Fprintf(w, "  stored at %s\n", granola.CLISessionPath())
+				if envOverride {
+					fmt.Fprintln(w, red("  warning: GRANOLA_WORKOS_TOKEN is set and outranks this session; unset it to use the session"))
+				}
+			}
+			if header == "" {
+				// The session covers the internal API; the public REST surface
+				// still needs its own key. Saying so here avoids a confusing
+				// 401 later from sync-api.
+				fmt.Fprintln(w, "No GRANOLA_API_KEY set: public-API commands (sync-api, folders) remain unavailable.")
+				return nil
 			}
 
 			fmt.Fprintln(w, green("Credentials present (not verified)"))
@@ -150,6 +198,14 @@ func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 			if err := cfg.ClearTokens(); err != nil {
 				return configErr(fmt.Errorf("clearing tokens: %w", err))
 			}
+			// PATCH(cli-owned-workos-session): the CLI-owned session is a
+			// separate credential from the config API key, and logout must
+			// remove both. Clearing only the key left a live access and refresh
+			// token on disk while reporting "credentials cleared".
+			if err := granola.ClearCLISession(); err != nil {
+				return fmt.Errorf("clearing CLI session: %w", err)
+			}
+			granola.ResetTokenCache()
 
 			// Identify which (if any) auth env var is still exported so the
 			// JSON envelope and the human prose can both surface it.

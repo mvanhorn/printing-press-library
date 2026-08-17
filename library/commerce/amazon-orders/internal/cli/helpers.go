@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"github.com/mvanhorn/printing-press-library/library/commerce/amazon-orders/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/commerce/amazon-orders/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/commerce/amazon-orders/internal/parser"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"io"
@@ -221,6 +222,9 @@ func writeAPIErrorEnvelope(flags *rootFlags, err error, code int) {
 func classifyAPIError(err error, flags *rootFlags) error {
 	msg := err.Error()
 	switch {
+	case parser.IsAuthInterstitialError(err):
+		return authErr(fmt.Errorf("%w\nhint: the saved browser session is missing, expired, or pointed at the wrong Amazon marketplace."+
+			"\n      Run 'amazon-orders-pp-cli auth login --chrome' and then 'amazon-orders-pp-cli doctor' to validate it.", err))
 	case strings.Contains(msg, "HTTP 409"):
 		if flags != nil && flags.idempotent {
 			return writeNoop(flags, "already_exists", "already exists (no-op)")

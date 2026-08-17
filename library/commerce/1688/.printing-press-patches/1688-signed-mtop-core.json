@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "1688-signed-mtop-core",
+  "applied_at": "2026-06-12",
+  "base_run_id": "20260612-083000-8f246b76",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Hand-built signed mtop client + search/find/sync + 7 transcendence commands; the generated stub sync was replaced and offers is store-backed.",
+  "reason": "1688's offer search is an md5-signed mtop request the generated HTTP client cannot produce, so the data layer and commands are hand-authored around internal/mtop.",
+  "files": ["internal/mtop/client.go","internal/store/store_1688.go","internal/cli/search.go","internal/cli/find.go","internal/cli/sync.go","internal/cli/source_1688.go","internal/cli/root.go","internal/cli/helpers.go"],
+  "validated_outcome": "shipcheck 6/6 green; 40/40 full live dogfood against h5api.m.1688.com"
+}

@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "webhook-typing-subscription-ops",
+  "applied_at": "2026-06-23",
+  "base_run_id": "20260617-193043",
+  "base_printing_press_version": "4.24.0",
+  "summary": "The published Linq CLI must expose safe first-class webhook subscription event management, channel capability routing, and captured inbound typing-event inspection.",
+  "reason": "Inbound typing awareness is controlled by webhook subscription state, not by the CLI receiving events. Operators need typo-validated read-modify-write helpers for subscribed_events, a doctor check for missing typing events, masked channel capability checks before using iMessage-only behavior, and a push-only typing watch over captured debug streams.",
+  "files": [
+    "internal/cli/webhooks_capability_typing.go",
+    "internal/cli/webhooks_capability_typing_test.go",
+    "internal/cli/capability.go",
+    "internal/cli/message_experience.go",
+    "internal/cli/agent_context.go",
+    "internal/cli/root.go",
+    "internal/cli/which.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "go test ./internal/cli"
+}

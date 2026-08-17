@@ -13,6 +13,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// pp:data-source computed
 // newSlippedCmd shows what carried over from the previous cycle into the
 // current cycle. Defined as: issues that were in the prior cycle, did not
 // complete, and are now in the active cycle (or unscheduled). Maya's
@@ -20,6 +21,7 @@ import (
 func newSlippedCmd(flags *rootFlags) *cobra.Command {
 	var dbPath string
 	var teamFilter string
+	var stateFlag string
 	cmd := &cobra.Command{
 		Use:   "slipped",
 		Short: "Show issues that slipped from the previous cycle into the current cycle",
@@ -82,6 +84,15 @@ into the active cycle for the team). Groups by reason heuristic:
 				previousIssues = filterIssuesByTeam(previousIssues, teamID)
 			}
 
+			// What counts as "did not land" is the resolved state group,
+			// not a hardcoded completed-or-canceled pair, so a workspace
+			// that treats duplicate or a custom column as closed can say so
+			// once in groups.toml instead of nine times in this binary.
+			set, err := resolveStateSet(flags, teamKeyForGroups(db, teamFilter), stateFlag)
+			if err != nil {
+				return err
+			}
+
 			// "Slipped" = in current cycle but state is not completed AND issue
 			// also appeared in the previous cycle. We approximate the second
 			// condition by intersecting on identifier (which is stable across
@@ -125,7 +136,7 @@ into the active cycle for the team). Groups by reason heuristic:
 				if !parsePrev[s.ID] {
 					continue
 				}
-				if s.State.Type == "completed" || s.State.Type == "canceled" {
+				if !set.Matches(s.State.Type, s.State.Name) {
 					continue
 				}
 				reason := "carried"
@@ -188,6 +199,7 @@ into the active cycle for the team). Groups by reason heuristic:
 	}
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
 	cmd.Flags().StringVar(&teamFilter, "team", "", "Filter to a team key (ENG) or UUID")
+	cmd.Flags().StringVar(&stateFlag, "state", "active", stateGroupFlagUsage)
 	_ = strings.Join // keep imports lean
 	return cmd
 }

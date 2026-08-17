@@ -37,5 +37,6 @@
       "command": "workflow archive",
       "description": "Archive vulnerability data locally for repeatable security research and offline analysis."
     }
-  ]
+  ],
+  "description": "The NVD is the U.S. government repository of standards-based vulnerability management data. Search CVEs by keyword, product (CPE name), CVE ID, or date range. Get CVSS scores, affected versions, references, and severity ratings. No API key required (optional for higher rate limits)."
 }

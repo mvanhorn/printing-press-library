@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "google-trends-explore-request-shape",
+  "applied_at": "2026-07-13",
+  "base_run_id": "20260713-105453-29114a9d",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Fixed Explore() to send req/hl/tz as query-string params with an empty POST body, matching the real browser request, instead of req in a form-urlencoded body.",
+  "reason": "The hand-written explore() request builder sent hl/tz as query params but req as an application/x-www-form-urlencoded body field. A real browser HAR capture showed the working request puts hl, tz, and req all in the query string with an empty POST body. Every live call using the old shape returned HTTP 500. Confirmed live: identical anonymous request via curl with the corrected shape returns the documented 429 (not 500), proving the shape was the actual defect, not a cookie/auth requirement.",
+  "files": ["internal/gtrends/explore.go"],
+  "validated_outcome": "Live: trends interest coffee returns real interest-over-time data end-to-end after this fix (previously 500'd on every call).",
+  "upstream_issue": null
+}

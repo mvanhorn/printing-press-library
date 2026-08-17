@@ -5,11 +5,15 @@ package cli
 import (
 	"bytes"
 	"encoding/json"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/x-twitter/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/x-twitter/internal/config"
 )
 
@@ -372,5 +376,94 @@ func TestAuthImportOAuth2PreservesStoredClientID(t *testing.T) {
 	}
 	if cfg.ClientID != "existing-client" || cfg.ClientSecret != "existing-secret" {
 		t.Fatalf("client credentials not preserved: %+v", cfg)
+	}
+}
+
+func TestAuthRefreshPersistsRotatedOAuth2Token(t *testing.T) {
+	t.Setenv("X_BEARER_TOKEN", "")
+	t.Setenv("X_OAUTH2_USER_TOKEN", "")
+	configPath := filepath.Join(t.TempDir(), "config.toml")
+	if err := os.WriteFile(configPath, []byte("oauth2_user_token = \"old-access\"\nrefresh_token = \"old-refresh\"\nclient_id = \"client-id\"\ntoken_expiry = 2026-06-08T12:00:00Z\n"), 0o600); err != nil {
+		t.Fatalf("seed config: %v", err)
+	}
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/2/oauth2/token" {
+			http.NotFound(w, r)
+			return
+		}
+		if err := r.ParseForm(); err != nil {
+			t.Fatalf("ParseForm: %v", err)
+		}
+		if r.Form.Get("grant_type") != "refresh_token" || r.Form.Get("refresh_token") != "old-refresh" || r.Form.Get("client_id") != "client-id" {
+			t.Fatalf("unexpected refresh form: %#v", r.Form)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"access_token":"new-access","refresh_token":"new-refresh","expires_in":3600,"scope":"tweet.read users.read offline.access"}`))
+	}))
+	defer server.Close()
+	oldEndpoint := client.OAuth2TokenEndpoint
+	client.OAuth2TokenEndpoint = server.URL + "/2/oauth2/token"
+	defer func() { client.OAuth2TokenEndpoint = oldEndpoint }()
+
+	var flags rootFlags
+	cmd := newRootCmd(&flags)
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&bytes.Buffer{})
+	cmd.SetArgs([]string{"--config", configPath, "auth", "refresh", "--json"})
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("auth refresh failed: %v\noutput: %s", err, out.String())
+	}
+	var payload map[string]any
+	if err := json.Unmarshal(out.Bytes(), &payload); err != nil {
+		t.Fatalf("output is not JSON: %v\n%s", err, out.String())
+	}
+	if payload["auth_lane"] != "oauth2_user_context" || payload["refreshed"] != true || payload["refresh_token_rotated"] != true {
+		t.Fatalf("payload = %#v", payload)
+	}
+	cfg, err := config.Load(configPath)
+	if err != nil {
+		t.Fatalf("load config: %v", err)
+	}
+	if cfg.XOauth2UserToken != "new-access" || cfg.RefreshToken != "new-refresh" || cfg.AccessToken != "" {
+		t.Fatalf("refreshed token tuple not persisted: %+v", cfg)
+	}
+	if cfg.TokenExpiry.IsZero() || time.Until(cfg.TokenExpiry) < 30*time.Minute {
+		t.Fatalf("TokenExpiry = %s, want refreshed future expiry", cfg.TokenExpiry)
+	}
+}
+
+func TestAuthRefreshReportsRejectedRefreshToken(t *testing.T) {
+	t.Setenv("X_BEARER_TOKEN", "")
+	t.Setenv("X_OAUTH2_USER_TOKEN", "")
+	configPath := filepath.Join(t.TempDir(), "config.toml")
+	if err := os.WriteFile(configPath, []byte("oauth2_user_token = \"old-access\"\nrefresh_token = \"dead-refresh\"\nclient_id = \"client-id\"\n"), 0o600); err != nil {
+		t.Fatalf("seed config: %v", err)
+	}
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusUnauthorized)
+		_, _ = w.Write([]byte(`{"error":"invalid_grant","error_description":"refresh token expired"}`))
+	}))
+	defer server.Close()
+	oldEndpoint := client.OAuth2TokenEndpoint
+	client.OAuth2TokenEndpoint = server.URL + "/2/oauth2/token"
+	defer func() { client.OAuth2TokenEndpoint = oldEndpoint }()
+
+	var flags rootFlags
+	cmd := newRootCmd(&flags)
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&bytes.Buffer{})
+	cmd.SetArgs([]string{"--config", configPath, "auth", "refresh", "--json"})
+	err := cmd.Execute()
+	if err == nil {
+		t.Fatalf("expected auth refresh to fail\noutput: %s", out.String())
+	}
+	if !strings.Contains(err.Error(), "OAuth2 user-context refresh failed") || !strings.Contains(err.Error(), "oauth2-login") {
+		t.Fatalf("refresh error should explain re-login path, got: %v", err)
+	}
+	if strings.Contains(err.Error(), "dead-refresh") {
+		t.Fatalf("refresh error leaked refresh token: %v", err)
 	}
 }

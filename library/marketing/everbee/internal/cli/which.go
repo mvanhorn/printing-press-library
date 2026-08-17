@@ -11,10 +11,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// whichEntry is one row of the curated capability index. The index is
-// seeded at generation time from the same NovelFeature list that drives
-// the SKILL.md feature section, so the command a `which` query returns
-// is guaranteed to exist and to match what the skill advertises.
+// whichEntry is one row of the curated capability index. The index is seeded
+// at generation time from the verified NovelFeature list that drives the
+// SKILL.md feature section, so the command a `which` query returns is
+// guaranteed to exist and to match what the skill advertises.
 type whichEntry struct {
 	Command      string `json:"command"`
 	Description  string `json:"description"`
@@ -27,14 +27,13 @@ type whichEntry struct {
 // `--help`; `which` exists to resolve a natural-language capability
 // query to one of the commands the skill says matter most.
 var whichIndex = []whichEntry{
-	{Command: "opportunity shortlist", Description: "Rank Etsy product opportunities by combining product analytics, keyword demand, competition, and local trend history.", Group: "Cross-workflow opportunity scoring", WhyItMatters: "Use this when an agent needs a short list of products worth researching or creating next."},
-	{Command: "niche score", Description: "Score a niche by weighing search demand, competition, product saturation, pricing, and trend movement.", Group: "Cross-workflow opportunity scoring", WhyItMatters: "Use this before committing to a product niche or SEO direction."},
-	{Command: "shop gaps", Description: "Find competitor shop openings from product mix, pricing bands, tags, and keyword coverage.", Group: "Competitor intelligence", WhyItMatters: "Use this when comparing a target Etsy shop against market demand."},
-	{Command: "tags gap", Description: "Compare winning listing tags against a target shop or keyword set to reveal missing SEO coverage.", Group: "SEO and tag strategy", WhyItMatters: "Use this when optimizing tags from competitor evidence instead of guessing."},
-	{Command: "keywords cluster", Description: "Group related keyword suggestions by term overlap, demand, competition, and opportunity score.", Group: "SEO and tag strategy", WhyItMatters: "Use this to turn raw keyword suggestions into listing-title and tag themes."},
-	{Command: "trends diff", Description: "Compare saved research snapshots to show which products, shops, or keywords moved over time.", Group: "Local history that compounds", WhyItMatters: "Use this when deciding whether a niche is growing, fading, or seasonally spiking."},
-	{Command: "competitors watch", Description: "Detect competitor changes in top products, price bands, and tags across saved shop snapshots.", Group: "Competitor intelligence", WhyItMatters: "Use this to monitor shops without manually reopening EverBee dashboards."},
-	{Command: "listing audit", Description: "Audit a listing's keyword and tag fit using EverBee-derived product and keyword context.", Group: "SEO and tag strategy", WhyItMatters: "Use this when checking whether a listing matches the market signals behind a niche."},
+	{Command: "research niche", Description: "Score an Etsy niche from a seed keyword and get the evidence behind the score, not just the number.", Group: "Evidence-aware research", WhyItMatters: "Reach for this instead of a raw keyword call when you need to defend a low-competition claim: every verdict carries its evidence count, provenance, and an honest confidence."},
+	{Command: "research subniches", Description: "Expand a parent niche into child niches and rank them on comparable, normalized scores.", Group: "Evidence-aware research", WhyItMatters: "Use this when the task is 'find me the least-crowded corner of X' rather than 'tell me about X'."},
+	{Command: "research competitors", Description: "Get the market shape of a niche: result count, median price, review and sales density, listing-age quartiles.", Group: "Evidence-aware research", WhyItMatters: "Answers 'who would I be competing against, and how entrenched are they' before any design work starts."},
+	{Command: "research tags", Description: "See which tags and title tokens the winning listings in a niche agree on, and whether demand is seasonal or evergreen when EverBee supplies trend data.", Group: "Evidence-aware research", WhyItMatters: "Use before writing a listing: it gives you the consensus vocabulary of the niche. The seasonality verdict is reported as 'unknown' when EverBee returns no trend data, which is common — it never guesses."},
+	{Command: "research drift", Description: "Compare a niche against a saved baseline to see what actually moved since last time.", Group: "Local state that compounds", WhyItMatters: "Turns repeated research into a trend instead of a series of disconnected screenshots."},
+	{Command: "research listing", Description: "Resolve an Etsy listing URL or ID to what we actually know about it, and say so plainly when we know nothing.", Group: "Local state that compounds", WhyItMatters: "Distinguishes 'this listing does not exist' from 'we have no data on it yet' — the two failures an agent must never conflate."},
+	{Command: "selftest", Description: "Check that the research path is not just reachable but actually returning relevant data.", Group: "Agent-native plumbing", WhyItMatters: "Run this first in any automated session: it is the difference between 'the API answered' and 'the answer means something'."},
 }
 
 // whichMatch pairs an index entry with its ranking score for a query.
@@ -138,6 +137,7 @@ func newWhichCmd(flags *rootFlags) *cobra.Command {
 		Use:   "which [query]",
 		Short: "Find the command that implements a capability",
 		Annotations: map[string]string{
+			"mcp:read-only":       "true",
 			"pp:typed-exit-codes": "0,2",
 		},
 		Long: `which resolves a natural-language capability query (for example, "search messages" or "stale tickets") to the best matching command from this CLI's curated feature index.

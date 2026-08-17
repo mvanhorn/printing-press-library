@@ -9,8 +9,10 @@ import (
 
 func newShowsEpisodesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "episodes",
-		Short: "Manage episodes",
+		Use:         "episodes",
+		Short:       "Get episodes for shows",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newShowsEpisodesGetAShowsCmd(flags))

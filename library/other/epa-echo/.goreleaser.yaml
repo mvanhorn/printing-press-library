@@ -1,0 +1,51 @@
+version: 2
+project_name: epa-echo-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: epa-echo-pp-cli
+    main: ./cmd/epa-echo-pp-cli
+    binary: epa-echo-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/other/epa-echo/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: epa-echo-pp-mcp
+    main: ./cmd/epa-echo-pp-mcp
+    binary: epa-echo-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: epa-echo-pp-cli
+    repository:
+      owner: avanderheyde
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Query-only EPA ECHO facility search and detailed facility reports."
+    install: |
+      bin.install "epa-echo-pp-cli"
+      bin.install "epa-echo-pp-mcp"

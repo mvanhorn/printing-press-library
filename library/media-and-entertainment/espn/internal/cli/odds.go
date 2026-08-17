@@ -33,9 +33,9 @@ func newOddsCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := fmt.Sprintf("/%s/%s/scoreboard", sport, league)
-			data, err := c.Get(path, nil)
+			data, err := c.Get(cmd.Context(), path, nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 
 			lines := extractOdds(data)

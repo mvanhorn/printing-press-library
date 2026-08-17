@@ -30,6 +30,7 @@ var whichIndex = []whichEntry{
 	{Command: "draft", Description: "Draft a Marketplace title, description, and price suggestion from photos and notes.", Group: "Seller workflow", WhyItMatters: "Use this when preparing a seller listing before opening a write-gated post flow."},
 	{Command: "watch add", Description: "Persist a Marketplace search watch with deterministic keyword, price, and distance filters.", Group: "Buy-side workflow", WhyItMatters: "Use this when the agent needs to monitor Marketplace without deciding relevance on every raw result."},
 	{Command: "matches", Description: "Show new watch matches after deterministic filtering.", Group: "Buy-side workflow", WhyItMatters: "Use this when an agent needs the shortlist worth showing a human buyer."},
+	{Command: "inbox thread", Description: "Fetch a direct Marketplace buyer conversation by thread id, including parsed message text.", Group: "Buy-side workflow", WhyItMatters: "Use this when listing detail or a sent opener gives you a thread id and you need the real seller reply instead of the generic inbox stub."},
 	{Command: "stale", Description: "Find local seller listings older than seven days with no engagement.", Group: "Local mirror", WhyItMatters: "Use this when deciding which seller listings need price changes or renewal."},
 	{Command: "reply", Description: "Prepare and send a seller inbox reply only when `--write` and doctor gating both pass.", Group: "Seller workflow", WhyItMatters: "Use this only for human-approved sell-side messaging."},
 }

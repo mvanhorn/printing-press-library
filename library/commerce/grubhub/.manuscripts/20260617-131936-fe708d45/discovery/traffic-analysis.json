@@ -1,0 +1,20 @@
+{
+  "reachability": {
+    "mode": "standard_http",
+    "evidence": "All endpoints returned clean JSON 200 over plain curl from a datacenter host on 2026-06-17; no 403/PerimeterX/challenge.",
+    "checked_at": "2026-06-17T18:36:21Z"
+  },
+  "base_url": "https://api-gtm.grubhub.com",
+  "auth": {
+    "type": "anonymous_bearer",
+    "client_id_source": "GET https://www.grubhub.com/eat/static-content-unauth?contentOnly=1 regex beta_[A-Za-z0-9]+",
+    "token_endpoint": "POST /auth"
+  },
+  "endpoint_clusters": [
+    {"path": "/auth", "method": "POST", "observed_auth": []},
+    {"path": "/geocode", "method": "GET", "observed_auth": ["authorization"]},
+    {"path": "/restaurants/search", "method": "GET", "observed_auth": ["authorization"]},
+    {"path": "/restaurants/{id}", "method": "GET", "observed_auth": ["authorization"]},
+    {"path": "/restaurants/{id}/menu_items/{itemId}", "method": "GET", "observed_auth": ["authorization"]}
+  ]
+}

@@ -8,8 +8,10 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"math"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -19,219 +21,28 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/mcp/bound"
 	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/mcp/cobratree"
+	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/platform"
 	"github.com/mvanhorn/printing-press-library/library/commerce/shopper/internal/store"
+)
+
+const (
+	// MCP hosts can fan out tool calls faster than a human CLI session.
+	// Keep them on the same polite-client limiter path instead of disabling
+	// pacing with rate=0; users can still tune human CLI calls with --rate-limit.
+	defaultMCPRateLimit = 2
 )
 
 // RegisterTools registers all API operations as MCP tools.
 func RegisterTools(s *server.MCPServer) {
-	s.AddTool(
-		mcplib.NewTool("address_list_address",
-			mcplib.WithDescription("GET /address/. Returns the address."),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/address/", true, false, nil, []mcpParamBinding{}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("cart_add",
-			mcplib.WithDescription("Add a product to the cart or increase its quantity. Required: id, quantity. Optional: engine. Returns the new cart."),
-			mcplib.WithNumber("id", mcplib.Required(), mcplib.Description("Product ID to add")),
-			mcplib.WithNumber("quantity", mcplib.Required(), mcplib.Description("Quantity to add (increments existing)")),
-			mcplib.WithString("engine", mcplib.Description("Catalog engine (default SHOPPER)")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/cart/add", false, false, nil, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "body"}, {PublicName: "quantity", WireName: "quantity", Location: "body"}, {PublicName: "engine", WireName: "engine", Location: "body"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("cart_list_summary",
-			mcplib.WithDescription("GET /cart/summary. Returns the summary."),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/cart/summary", true, false, nil, []mcpParamBinding{}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("cart_remove",
-			mcplib.WithDescription("Remove a product from the cart or decrease its quantity. Required: id, quantity. Returns the new cart."),
-			mcplib.WithNumber("id", mcplib.Required(), mcplib.Description("Product ID to remove")),
-			mcplib.WithNumber("quantity", mcplib.Required(), mcplib.Description("Quantity to remove (decrements; full qty removes the line)")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/cart/remove", false, false, nil, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "body"}, {PublicName: "quantity", WireName: "quantity", Location: "body"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("catalog_create_count",
-			mcplib.WithDescription("POST /catalog/search/count. Required: brands, metadata, types. Optional: query. Returns the new count."),
-			mcplib.WithString("query", mcplib.Description("")),
-			mcplib.WithString("brands", mcplib.Required(), mcplib.Description("")),
-			mcplib.WithString("metadata", mcplib.Required(), mcplib.Description("")),
-			mcplib.WithString("types", mcplib.Required(), mcplib.Description("")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/catalog/search/count", false, false, nil, []mcpParamBinding{{PublicName: "query", WireName: "query", Location: "query"}, {PublicName: "brands", WireName: "brands", Location: "body"}, {PublicName: "metadata", WireName: "metadata", Location: "body"}, {PublicName: "types", WireName: "types", Location: "body"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("catalog_create_filters",
-			mcplib.WithDescription("POST /catalog/search/filters. Required: brands, metadata, types. Optional: query. Returns the new filters."),
-			mcplib.WithString("query", mcplib.Description("")),
-			mcplib.WithString("brands", mcplib.Required(), mcplib.Description("")),
-			mcplib.WithString("metadata", mcplib.Required(), mcplib.Description("")),
-			mcplib.WithString("types", mcplib.Required(), mcplib.Description("")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/catalog/search/filters", false, false, nil, []mcpParamBinding{{PublicName: "query", WireName: "query", Location: "query"}, {PublicName: "brands", WireName: "brands", Location: "body"}, {PublicName: "metadata", WireName: "metadata", Location: "body"}, {PublicName: "types", WireName: "types", Location: "body"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("catalog_create_search",
-			mcplib.WithDescription("POST /catalog/search. Required: brands, metadata, types. Optional: page, query, size. Returns the new search."),
-			mcplib.WithNumber("page", mcplib.Description("")),
-			mcplib.WithString("query", mcplib.Description("")),
-			mcplib.WithNumber("size", mcplib.Description("")),
-			mcplib.WithString("brands", mcplib.Required(), mcplib.Description("")),
-			mcplib.WithString("metadata", mcplib.Required(), mcplib.Description("")),
-			mcplib.WithString("types", mcplib.Required(), mcplib.Description("")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/catalog/search", false, false, nil, []mcpParamBinding{{PublicName: "page", WireName: "page", Location: "query"}, {PublicName: "query", WireName: "query", Location: "query"}, {PublicName: "size", WireName: "size", Location: "query"}, {PublicName: "brands", WireName: "brands", Location: "body"}, {PublicName: "metadata", WireName: "metadata", Location: "body"}, {PublicName: "types", WireName: "types", Location: "body"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("catalog_get_view",
-			mcplib.WithDescription("GET /catalog/banners/{banner_id}/view. Required: banner_id. Returns the view."),
-			mcplib.WithString("banner_id", mcplib.Required(), mcplib.Description("The banner_id path segment")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/catalog/banners/{banner_id}/view", true, false, nil, []mcpParamBinding{{PublicName: "banner_id", WireName: "banner_id", Location: "path"}}, []string{"banner_id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("catalog_list_banners",
-			mcplib.WithDescription("GET /catalog/banners. Optional: imageSize. Returns the banners."),
-			mcplib.WithString("imageSize", mcplib.Description("")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/catalog/banners", true, false, nil, []mcpParamBinding{{PublicName: "imageSize", WireName: "imageSize", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("catalog_list_departments",
-			mcplib.WithDescription("GET /catalog/departments. Returns the departments."),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/catalog/departments", true, false, nil, []mcpParamBinding{}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("catalog_list_news",
-			mcplib.WithDescription("GET /catalog/products/news. Returns the news."),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/catalog/products/news", true, false, nil, []mcpParamBinding{}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("catalog_list_suggest",
-			mcplib.WithDescription("GET /catalog/search/suggest. Optional: query. Returns the suggest."),
-			mcplib.WithString("query", mcplib.Description("")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/catalog/search/suggest", true, false, nil, []mcpParamBinding{{PublicName: "query", WireName: "query", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("delivery_list_calendar",
-			mcplib.WithDescription("GET /delivery/v2/calendar. Returns the calendar."),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/delivery/v2/calendar", true, false, nil, []mcpParamBinding{}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("delivery_list_summary",
-			mcplib.WithDescription("GET /delivery/summary. Returns the summary."),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/delivery/summary", true, false, nil, []mcpParamBinding{}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("features_create_select",
-			mcplib.WithDescription("POST /features/stores/select. Required: store_id. Returns the new select."),
-			mcplib.WithNumber("store_id", mcplib.Required(), mcplib.Description("")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/features/stores/select", false, false, nil, []mcpParamBinding{{PublicName: "store_id", WireName: "store_id", Location: "body"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("features_create_start",
-			mcplib.WithDescription("POST /features/timer/start. Required: name. Returns the new start."),
-			mcplib.WithString("name", mcplib.Required(), mcplib.Description("")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/features/timer/start", false, false, nil, []mcpParamBinding{{PublicName: "name", WireName: "name", Location: "body"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("features_create_view",
-			mcplib.WithDescription("POST /features/toggle/view. Required: toggle. Returns the new view."),
-			mcplib.WithString("toggle", mcplib.Required(), mcplib.Description("")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/features/toggle/view", false, false, nil, []mcpParamBinding{{PublicName: "toggle", WireName: "toggle", Location: "body"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("features_list_stores",
-			mcplib.WithDescription("GET /features/stores. Optional: toggles. Returns the stores."),
-			mcplib.WithString("toggles", mcplib.Description("")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/features/stores", true, false, nil, []mcpParamBinding{{PublicName: "toggles", WireName: "toggles", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("features_list_tick",
-			mcplib.WithDescription("GET /features/timer/tick. Returns the tick."),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/features/timer/tick", true, false, nil, []mcpParamBinding{}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("features_list_toggle",
-			mcplib.WithDescription("GET /features/toggle. Returns the toggle."),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/features/toggle", true, false, nil, []mcpParamBinding{}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("session_list_social",
-			mcplib.WithDescription("GET /auth/validation/social. Returns the social."),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/auth/validation/social", true, false, nil, []mcpParamBinding{}, []string{}),
-	)
+	installFreshTenantGate(s)
+	// Code-orchestration mode — the full surface is covered by registry tools
+	// (<api>_search, <api>_get, and <api>_execute). Endpoint-mirror tools are suppressed.
+	RegisterCodeOrchestrationTools(s)
+	// Intent tools — higher-level compositions declared in the spec or lifted from recipes.
+	RegisterIntents(s)
 	// Search tool — faster than iterating list endpoints for finding specific items
 	s.AddTool(
 		mcplib.NewTool("search",
@@ -247,7 +58,7 @@ func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("sql",
 			mcplib.WithDescription("Run read-only SQL against local database. Use for ad-hoc analysis, aggregations, and joins across synced resources. Requires sync first."),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT or WITH...SELECT). Tables match resource names.")),
+			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT or WITH...SELECT). Synced records live in resources(resource_type, id, data); filter by resource_type and use json_extract on data, e.g. SELECT json_extract(data,'$.name') FROM resources WHERE resource_type='address'.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 		),
@@ -276,18 +87,69 @@ type mcpParamBinding struct {
 	Location   string
 }
 
+type mcpPageConfig struct {
+	CursorParam    string
+	NextCursorPath string
+}
+
+func formatMCPParamValue(v any) string {
+	switch tv := v.(type) {
+	case string:
+		return tv
+	case bool:
+		return strconv.FormatBool(tv)
+	case float64:
+		if math.IsNaN(tv) || math.IsInf(tv, 0) {
+			return strconv.FormatFloat(tv, 'f', -1, 64)
+		}
+		if math.Trunc(tv) == tv && math.Abs(tv) < 1e15 {
+			return strconv.FormatInt(int64(tv), 10)
+		}
+		return strconv.FormatFloat(tv, 'f', -1, 64)
+	case float32:
+		f := float64(tv)
+		if math.IsNaN(f) || math.IsInf(f, 0) {
+			return strconv.FormatFloat(f, 'f', -1, 32)
+		}
+		if math.Trunc(f) == f && math.Abs(f) < 1e15 {
+			return strconv.FormatInt(int64(f), 10)
+		}
+		return strconv.FormatFloat(f, 'f', -1, 32)
+	default:
+		// Composite values (a native []any / map[string]any from an array or
+		// object param) reach this path when bound to a query or path slot;
+		// JSON-encode them so the wire value is valid JSON rather than Go's
+		// "[a b c]" / "map[...]" rendering. Body params never come through
+		// here — they are stored natively in bodyArgs and marshalled there.
+		if b, err := json.Marshal(v); err == nil {
+			return string(b)
+		}
+		return fmt.Sprintf("%v", v)
+	}
+}
+
+func mcpPathValue(v any) string {
+	return cliutil.EscapePathParam(formatMCPParamValue(v))
+}
+
 // makeAPIHandler creates a generic MCP tool handler for an API endpoint.
-func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse bool, headerOverrides map[string]string, bindings []mcpParamBinding, positionalParams []string) server.ToolHandlerFunc {
+func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse bool, headerOverrides map[string]string, pageConfig mcpPageConfig, bindings []mcpParamBinding, positionalParams []string) server.ToolHandlerFunc {
 	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-		c, err := newMCPClient()
+		c, platformSession, err := newMCPClient(ctx)
 		if err != nil {
-			return mcplib.NewToolResultError(err.Error()), nil
+			return mcpToolError(err.Error()), nil
+		}
+		if platformSession != nil {
+			defer platformSession.ZeroCredentials()
 		}
 
 		// mcp-go v0.47+ made CallToolParams.Arguments an `any` to support
 		// non-map payloads; GetArguments() returns the map[string]any shape
 		// we rely on here (or an empty map when the payload is something else).
 		args := req.GetArguments()
+		if err := cli.AdoptMCPOutputSemantics(platformSession, args); err != nil {
+			return mcpToolError(err.Error()), nil
+		}
 
 		// positionalParams mixes real URL path params with CLI positional
 		// args that map to query params (e.g. `search <query>` -> ?query=);
@@ -297,6 +159,24 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 		pathParams := make(map[string]bool, len(positionalParams))
 		params := make(map[string]string)
 		bodyArgs := make(map[string]any)
+		mcpCursor := ""
+		if pageConfig.CursorParam != "" {
+			knownArgs["cursor"] = true
+			if v, ok := args["cursor"]; ok {
+				s, ok := v.(string)
+				if !ok {
+					return mcpToolError("cursor must be an opaque string returned by a previous MCP response"), nil
+				}
+				mcpCursor = s
+				upstreamCursor, err := bound.UpstreamCursor(s)
+				if err != nil {
+					return mcpToolError(err.Error()), nil
+				}
+				if upstreamCursor != "" {
+					params[pageConfig.CursorParam] = upstreamCursor
+				}
+			}
+		}
 		var headers map[string]string
 		if len(headerOverrides) > 0 {
 			headers = make(map[string]string, len(headerOverrides)+1)
@@ -320,11 +200,16 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 			case "path":
 				placeholder := "{" + binding.WireName + "}"
 				pathParams[binding.PublicName] = true
-				path = strings.Replace(path, placeholder, fmt.Sprintf("%v", v), 1)
+				path = strings.Replace(path, placeholder, mcpPathValue(v), 1)
+			case "header":
+				if headers == nil {
+					headers = map[string]string{}
+				}
+				headers[binding.WireName] = formatMCPParamValue(v)
 			case "body":
 				bodyArgs[binding.WireName] = v
 			default:
-				params[binding.WireName] = fmt.Sprintf("%v", v)
+				params[binding.WireName] = formatMCPParamValue(v)
 			}
 		}
 		for _, p := range positionalParams {
@@ -334,7 +219,7 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 			}
 			pathParams[p] = true
 			if v, ok := args[p]; ok {
-				path = strings.Replace(path, placeholder, fmt.Sprintf("%v", v), 1)
+				path = strings.Replace(path, placeholder, mcpPathValue(v), 1)
 			}
 		}
 
@@ -346,7 +231,7 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 			case "POST", "PUT", "PATCH":
 				bodyArgs[k] = v
 			default:
-				params[k] = fmt.Sprintf("%v", v)
+				params[k] = formatMCPParamValue(v)
 			}
 		}
 
@@ -354,10 +239,18 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 		switch method {
 		case "GET":
 			if len(headers) > 0 {
-				data, err = c.GetWithHeaders(ctx, path, params, headers)
+				if readOnly {
+					data, err = c.GetWithHeaders(ctx, path, params, headers)
+				} else {
+					data, err = c.GetMutatingWithHeaders(ctx, path, params, headers)
+				}
 				break
 			}
-			data, err = c.Get(ctx, path, params)
+			if readOnly {
+				data, err = c.Get(ctx, path, params)
+			} else {
+				data, err = c.GetMutating(ctx, path, params)
+			}
 		case "POST":
 			if len(headers) > 0 {
 				if readOnly {
@@ -374,16 +267,32 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 			}
 		case "PUT":
 			if len(headers) > 0 {
-				data, _, err = c.PutWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				if readOnly {
+					data, _, err = c.PutQueryWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				} else {
+					data, _, err = c.PutWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				}
 				break
 			}
-			data, _, err = c.PutWithParams(ctx, path, params, bodyArgs)
+			if readOnly {
+				data, _, err = c.PutQueryWithParams(ctx, path, params, bodyArgs)
+			} else {
+				data, _, err = c.PutWithParams(ctx, path, params, bodyArgs)
+			}
 		case "PATCH":
 			if len(headers) > 0 {
-				data, _, err = c.PatchWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				if readOnly {
+					data, _, err = c.PatchQueryWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				} else {
+					data, _, err = c.PatchWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				}
 				break
 			}
-			data, _, err = c.PatchWithParams(ctx, path, params, bodyArgs)
+			if readOnly {
+				data, _, err = c.PatchQueryWithParams(ctx, path, params, bodyArgs)
+			} else {
+				data, _, err = c.PatchWithParams(ctx, path, params, bodyArgs)
+			}
 		case "DELETE":
 			if len(headers) > 0 {
 				data, _, err = c.DeleteWithParamsAndHeaders(ctx, path, params, headers)
@@ -391,95 +300,187 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 			}
 			data, _, err = c.DeleteWithParams(ctx, path, params)
 		default:
-			return mcplib.NewToolResultError("unsupported method: " + method), nil
+			return mcpToolError("unsupported method: " + method), nil
 		}
 
 		if err != nil {
 			msg := err.Error()
 			switch {
 			case strings.Contains(msg, "HTTP 409"):
-				return mcplib.NewToolResultText("already exists (no-op)"), nil
+				return mcpToolTextWithPlatform("already exists (no-op)", platformSession), nil
 			case strings.Contains(msg, "HTTP 400") && cliutil.LooksLikeAuthError(msg):
-				return mcplib.NewToolResultError("authentication error: " + cliutil.SanitizeErrorBody(msg) +
+				return mcpToolError("authentication error: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: the API rejected the request — this usually means auth is missing or invalid." +
-					"\n      Set your API key: export SHOPPER_TOKEN=<your-key>" +
+					"\n      Set it with: shopper-pp-cli auth set-token <token> or export SHOPPER_TOKEN=\"your-token-here\"" +
 					"\n      See API docs: https://siteapi.shopper.com.br" +
 					"\n      Run 'shopper-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 401"):
-				return mcplib.NewToolResultError("authentication failed: " + cliutil.SanitizeErrorBody(msg) +
+				return mcpToolError("authentication failed: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: check your token." +
-					"\n      Set it with: export SHOPPER_TOKEN=<your-key>" +
+					"\n      Set it with: shopper-pp-cli auth set-token <token> or export SHOPPER_TOKEN=\"your-token-here\"" +
 					"\n      See API docs: https://siteapi.shopper.com.br" +
 					"\n      Run 'shopper-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 403"):
-				return mcplib.NewToolResultError("permission denied: " + cliutil.SanitizeErrorBody(msg) +
-					"\nhint: your credentials are valid but lack access to this resource." +
-					"\n      Set it with: export SHOPPER_TOKEN=<your-key>" +
+				return mcpToolError("permission denied: " + cliutil.SanitizeErrorBody(msg) +
+					"\nhint: your credentials are valid but lack access to this resource. Check that they have the required permissions and match the API's expected auth scheme." +
+					"\n      Set it with: shopper-pp-cli auth set-token <token> or export SHOPPER_TOKEN=\"your-token-here\"" +
 					"\n      See API docs: https://siteapi.shopper.com.br" +
 					"\n      Run 'shopper-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 404"):
 				if method == "DELETE" {
-					return mcplib.NewToolResultText("already deleted (no-op)"), nil
+					return mcpToolTextWithPlatform("already deleted (no-op)", platformSession), nil
 				}
-				return mcplib.NewToolResultError("not found: " + msg), nil
+				return mcpToolError("not found: " + msg), nil
 			case strings.Contains(msg, "HTTP 429"):
-				return mcplib.NewToolResultError("rate limited: " + msg), nil
+				return mcpToolError("rate limited: " + msg), nil
 			default:
-				return mcplib.NewToolResultError(msg), nil
+				return mcpToolError(msg), nil
 			}
 		}
 
-		// For GET responses, wrap bare arrays with count metadata
-		if method == "GET" {
-			trimmed := strings.TrimSpace(string(data))
-			if len(trimmed) > 0 && trimmed[0] == '[' {
-				var items []json.RawMessage
-				if json.Unmarshal(data, &items) == nil {
-					wrapped := map[string]any{
-						"count": len(items),
-						"items": items,
-					}
-					out, _ := json.Marshal(wrapped)
-					return mcplib.NewToolResultText(string(out)), nil
-				}
-			}
-		}
 		if binaryResponse {
-			out, _ := json.Marshal(map[string]any{
+			encoded := base64.StdEncoding.EncodeToString(data)
+			out, err := json.Marshal(map[string]any{
 				"content_encoding": "base64",
-				"data_base64":      base64.StdEncoding.EncodeToString(data),
+				"data_base64":      encoded,
 				"byte_count":       len(data),
 			})
-			return mcplib.NewToolResultText(string(out)), nil
+			if err != nil {
+				return mcpToolError(fmt.Sprintf("encoding binary result: %v", err)), nil
+			}
+			if len(out) > bound.MaxBytes {
+				return mcpToolError(fmt.Sprintf("binary response is too large for MCP text output: %d response bytes encode to %d base64 bytes and %d MCP result bytes, exceeding the %d byte budget. Use the companion CLI command with --output <file> to save the payload locally.", len(data), len(encoded), len(out), bound.MaxBytes)), nil
+			}
+			result := string(out)
+			if platformSession != nil {
+				result = bound.WithMetadata(result, platformSession.OutputMetadata())
+			}
+			return mcplib.NewToolResultText(result), nil
 		}
-		return mcplib.NewToolResultText(string(data)), nil
+		if pageConfig.CursorParam != "" {
+			return mcpToolPageResultTextWithPlatform(method, data, pageConfig, mcpCursor, platformSession), nil
+		}
+		return mcpToolResultTextWithPlatform(method, data, platformSession), nil
 	}
 }
 
-func newMCPClient() (*client.Client, error) {
-	home, _ := os.UserHomeDir()
-	cfgPath := filepath.Join(home, ".config", "shopper-pp-cli", "config.toml")
-	cfg, err := config.Load(cfgPath)
+func mcpToolResultText(method string, data json.RawMessage) *mcplib.CallToolResult {
+	return mcpToolResultTextWithPlatform(method, data, nil)
+}
+
+func mcpToolTextWithPlatform(result string, platformSession *platform.Session) *mcplib.CallToolResult {
+	if platformSession != nil {
+		result = bound.WithMetadata(result, platformSession.OutputMetadata())
+	}
+	return mcplib.NewToolResultText(result)
+}
+
+func mcpToolResultTextWithPlatform(method string, data json.RawMessage, platformSession *platform.Session) *mcplib.CallToolResult {
+	result := bound.EndpointResponse(method, data)
+	return mcpToolTextWithPlatform(result, platformSession)
+}
+
+// mcpToolError keeps provider-controlled typed endpoint errors within the MCP
+// text-result budget just like successful endpoint results.
+func mcpToolError(message string) *mcplib.CallToolResult {
+	return mcplib.NewToolResultError(bound.Text(message))
+}
+
+func mcpToolPageResultText(method string, data json.RawMessage, pageConfig mcpPageConfig, cursor string) *mcplib.CallToolResult {
+	return mcpToolPageResultTextWithPlatform(method, data, pageConfig, cursor, nil)
+}
+
+func mcpToolPageResultTextWithPlatform(method string, data json.RawMessage, pageConfig mcpPageConfig, cursor string, platformSession *platform.Session) *mcplib.CallToolResult {
+	result := bound.EndpointPageResponse(method, data, bound.PageOptions{
+		Cursor:         cursor,
+		CursorParam:    pageConfig.CursorParam,
+		NextCursorPath: pageConfig.NextCursorPath,
+	})
+	if platformSession != nil {
+		result = bound.WithMetadata(result, platformSession.OutputMetadata())
+	}
+	return mcplib.NewToolResultText(result)
+}
+
+func newMCPClient(ctx context.Context) (*client.Client, *platform.Session, error) {
+	cfg, err := newMCPConfig()
+	if err != nil {
+		return nil, nil, err
+	}
+	c := newMCPClientFromConfig(cfg)
+	session, err := cli.BindMCPClient(ctx, c)
+	if err != nil {
+		return nil, nil, err
+	}
+	return c, session, nil
+}
+
+func newMCPConfig() (*config.Config, error) {
+	cfg, err := config.Load("")
 	if err != nil {
 		return nil, fmt.Errorf("loading config: %w", err)
 	}
-	c := client.New(cfg, 60*time.Second, 2)
+	return cfg, nil
+}
+
+func newMCPClientFromConfig(cfg *config.Config) *client.Client {
+	c := client.New(cfg, 60*time.Second, defaultMCPRateLimit)
 	// Agents calling through MCP need fresh data every call. The on-disk
 	// response cache survives across MCP server invocations, so a
 	// DELETE/PATCH followed by a GET would otherwise return the
 	// pre-mutation snapshot for up to the cache TTL. The interactive CLI
 	// constructs its own client and is unaffected.
 	c.NoCache = true
-	return c, nil
+	return c
 }
 
-func dbPath() string {
-	home, _ := os.UserHomeDir()
-	return filepath.Join(home, ".local", "share", "shopper-pp-cli", "data.db")
+func mcpDBPath() (string, error) {
+	dir, err := cliutil.DataDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(dir, "data.db"), nil
 }
 
-// Note: MCP tools use their own dbPath() because they are in a separate package (main, not cli).
-// The CLI's defaultDBPath() in the cli package uses the same canonical path.
+type mcpStoreStatusKind string
+
+const (
+	mcpStoreStatusEmpty mcpStoreStatusKind = "empty"
+	mcpStoreStatusReady mcpStoreStatusKind = "ready"
+)
+
+func openMCPReadOnlyStore(path string) (*store.Store, *mcplib.CallToolResult) {
+	if _, err := os.Stat(path); err != nil {
+		if os.IsNotExist(err) {
+			return nil, mcplib.NewToolResultError(mcpMissingStoreMessage(path))
+		}
+		return nil, mcplib.NewToolResultError(fmt.Sprintf("checking local data store %s: %v", path, err))
+	}
+	db, err := store.OpenReadOnly(path)
+	if err != nil {
+		return nil, mcplib.NewToolResultError(fmt.Sprintf("opening local data store %s: %v. Run shopper-pp-cli sync to refresh the store, or use live endpoint MCP tools for unsynced data.", path, err))
+	}
+	return db, nil
+}
+
+func mcpMissingStoreMessage(path string) string {
+	return fmt.Sprintf("No local data store found at %s. Run shopper-pp-cli sync before using MCP search/sql, or use live endpoint MCP tools for unsynced data.", path)
+}
+
+func mcpStoreStatus(db *store.Store) (mcpStoreStatusKind, error) {
+	status, err := db.Status()
+	if err != nil {
+		return "", err
+	}
+	if len(status) == 0 {
+		return mcpStoreStatusEmpty, nil
+	}
+	return mcpStoreStatusReady, nil
+}
+
+func mcpEmptyStoreNextStep() string {
+	return "Run shopper-pp-cli sync to populate the local SQLite store before using MCP search/sql."
+}
 
 func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	args := req.GetArguments()
@@ -493,9 +494,13 @@ func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.Call
 		limit = int(v)
 	}
 
-	db, err := store.OpenReadOnly(dbPath())
+	path, err := mcpDBPath()
 	if err != nil {
-		return mcplib.NewToolResultError(fmt.Sprintf("opening database: %v", err)), nil
+		return mcplib.NewToolResultError(fmt.Sprintf("resolving database: %v", err)), nil
+	}
+	db, toolErr := openMCPReadOnlyStore(path)
+	if toolErr != nil {
+		return toolErr, nil
 	}
 	defer db.Close()
 
@@ -503,9 +508,32 @@ func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.Call
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("search failed: %v", err)), nil
 	}
+	storeStatus, err := mcpStoreStatus(db)
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("reading store status: %v", err)), nil
+	}
 
-	data, _ := json.MarshalIndent(results, "", "  ")
-	return mcplib.NewToolResultText(string(data)), nil
+	return toolResultJSON(mcpSearchEnvelope(results, storeStatus))
+}
+
+func mcpSearchEnvelope(results []json.RawMessage, storeStatus mcpStoreStatusKind) map[string]any {
+	if results == nil {
+		results = []json.RawMessage{}
+	}
+	out := map[string]any{
+		"count":        len(results),
+		"results":      results,
+		"store_status": storeStatus,
+		"resumable":    false,
+	}
+	if len(results) == 0 {
+		if storeStatus == mcpStoreStatusEmpty {
+			out["next_step"] = mcpEmptyStoreNextStep()
+		} else {
+			out["next_step"] = "No local search matches. Try a broader query, a lower-specificity FTS expression, or sync again if data may be stale."
+		}
+	}
+	return out
 }
 
 // validateReadOnlyQuery gates the MCP sql tool. The agent contract advertised
@@ -513,22 +541,27 @@ func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.Call
 // mutating tool lets MCP hosts auto-approve writes and is treated as a real
 // bug per the project's agent-native security model.
 //
-// The gate is an allowlist (SELECT or WITH only) applied AFTER stripping the
-// leading whitespace, line comments, block comments, and semicolons that
-// SQLite itself ignores before parsing. A naive HasPrefix check on a
-// keyword blocklist is bypassable by prefixing the dangerous statement with
-// "/* x */" or "-- x\n" — TrimSpace strips outer whitespace but does not
-// understand SQL comment syntax. Combined with the empirical fact that
-// modernc.org/sqlite's mode=ro does NOT block VACUUM INTO (writes a snapshot
-// to a new file) or ATTACH DATABASE (opens a separate writable handle),
-// such a bypass produces silent exfiltration to an attacker-chosen path.
+// The gate rejects multi-statement input, then applies an allowlist (SELECT or
+// WITH only) AFTER stripping the leading whitespace, line comments, block
+// comments, and semicolons that SQLite itself ignores before parsing. A naive
+// HasPrefix check on a keyword blocklist is bypassable by prefixing the
+// dangerous statement with "/* x */" or "-- x\n"; a naive leading-keyword
+// allowlist is bypassable by appending "; ATTACH DATABASE ...". Combined with
+// the empirical fact that modernc.org/sqlite's mode=ro does NOT block VACUUM
+// INTO (writes a snapshot to a new file) or ATTACH DATABASE (opens a separate
+// writable handle), either bypass produces silent exfiltration to an
+// attacker-chosen path.
 //
 // SELECT and WITH are the only allowed leading keywords. WITH supports
 // SELECT-form CTEs; CTE-wrapped writes ("WITH x AS (...) INSERT ...") are
 // caught by OpenReadOnly's mode=ro one layer down. PRAGMA, ATTACH, VACUUM,
 // and every other DDL/DML keyword fail at this gate before reaching SQLite.
 func validateReadOnlyQuery(query string) error {
-	upper := strings.ToUpper(stripLeadingSQLNoise(query))
+	stripped := stripLeadingSQLNoise(query)
+	if hasTrailingSQLStatement(stripped) {
+		return fmt.Errorf("only a single SELECT or WITH statement is allowed")
+	}
+	upper := strings.ToUpper(stripped)
 	if !strings.HasPrefix(upper, "SELECT") && !strings.HasPrefix(upper, "WITH") {
 		return fmt.Errorf("only SELECT queries are allowed")
 	}
@@ -562,6 +595,97 @@ func stripLeadingSQLNoise(query string) string {
 	}
 }
 
+// hasTrailingSQLStatement reports whether query contains a statement
+// terminator followed by more executable SQL. A trailing semicolon is allowed;
+// a second statement is not. Semicolons inside string literals, quoted
+// identifiers, bracket identifiers, and comments are ignored to match SQLite's
+// parser shape closely enough for this security gate.
+func hasTrailingSQLStatement(query string) bool {
+	inSingle := false
+	inDouble := false
+	inBacktick := false
+	inBracket := false
+	inLineComment := false
+	inBlockComment := false
+
+	for i := 0; i < len(query); i++ {
+		ch := query[i]
+		next := byte(0)
+		if i+1 < len(query) {
+			next = query[i+1]
+		}
+
+		switch {
+		case inLineComment:
+			if ch == '\n' {
+				inLineComment = false
+			}
+			continue
+		case inBlockComment:
+			if ch == '*' && next == '/' {
+				inBlockComment = false
+				i++
+			}
+			continue
+		case inSingle:
+			if ch == '\'' {
+				if next == '\'' {
+					i++
+					continue
+				}
+				inSingle = false
+			}
+			continue
+		case inDouble:
+			if ch == '"' {
+				if next == '"' {
+					i++
+					continue
+				}
+				inDouble = false
+			}
+			continue
+		case inBacktick:
+			if ch == '`' {
+				if next == '`' {
+					i++
+					continue
+				}
+				inBacktick = false
+			}
+			continue
+		case inBracket:
+			if ch == ']' {
+				inBracket = false
+			}
+			continue
+		}
+
+		switch {
+		case ch == '-' && next == '-':
+			inLineComment = true
+			i++
+		case ch == '/' && next == '*':
+			inBlockComment = true
+			i++
+		case ch == '\'':
+			inSingle = true
+		case ch == '"':
+			inDouble = true
+		case ch == '`':
+			inBacktick = true
+		case ch == '[':
+			inBracket = true
+		case ch == ';':
+			if stripLeadingSQLNoise(query[i+1:]) != "" {
+				return true
+			}
+			return false
+		}
+	}
+	return false
+}
+
 func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	args := req.GetArguments()
 	query, ok := args["query"].(string)
@@ -573,19 +697,26 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 		return mcplib.NewToolResultError(err.Error()), nil
 	}
 
-	db, err := store.OpenReadOnly(dbPath())
+	path, err := mcpDBPath()
 	if err != nil {
-		return mcplib.NewToolResultError(fmt.Sprintf("opening database: %v", err)), nil
+		return mcplib.NewToolResultError(fmt.Sprintf("resolving database: %v", err)), nil
+	}
+	db, toolErr := openMCPReadOnlyStore(path)
+	if toolErr != nil {
+		return toolErr, nil
 	}
 	defer db.Close()
 
-	rows, err := db.Query(query)
+	rows, err := db.DB().QueryContext(ctx, query)
 	if err != nil {
-		return mcplib.NewToolResultError(fmt.Sprintf("query failed: %v", err)), nil
+		return mcplib.NewToolResultError(mcpSQLQueryError(err)), nil
 	}
 	defer rows.Close()
 
-	cols, _ := rows.Columns()
+	cols, err := rows.Columns()
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("reading columns: %v", err)), nil
+	}
 	var results []map[string]any
 	for rows.Next() {
 		values := make([]any, len(cols))
@@ -593,26 +724,94 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 		for i := range values {
 			ptrs[i] = &values[i]
 		}
-		rows.Scan(ptrs...)
+		if err := rows.Scan(ptrs...); err != nil {
+			return mcplib.NewToolResultError(fmt.Sprintf("scanning row: %v", err)), nil
+		}
 		row := make(map[string]any)
 		for i, col := range cols {
 			row[col] = values[i]
 		}
 		results = append(results, row)
 	}
+	// rows.Next() stops on a mid-iteration error without failing the loop, so
+	// skipping rows.Err() would return a truncated result set as success.
+	if err := rows.Err(); err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("reading rows: %v", err)), nil
+	}
+	storeStatus, err := mcpStoreStatus(db)
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("reading store status: %v", err)), nil
+	}
 
-	data, _ := json.MarshalIndent(results, "", "  ")
-	return mcplib.NewToolResultText(string(data)), nil
+	return toolResultJSON(mcpSQLEnvelope(results, cols, storeStatus))
+}
+
+func mcpSQLEnvelope(rows []map[string]any, columns []string, storeStatus mcpStoreStatusKind) map[string]any {
+	if rows == nil {
+		rows = []map[string]any{}
+	}
+	out := map[string]any{
+		"count":        len(rows),
+		"columns":      columns,
+		"rows":         rows,
+		"store_status": storeStatus,
+		"resumable":    false,
+	}
+	if len(rows) == 0 {
+		if storeStatus == mcpStoreStatusEmpty {
+			out["next_step"] = mcpEmptyStoreNextStep()
+		} else {
+			out["next_step"] = "The read-only SQL query returned no rows. Check resource_type filters, json_extract paths, or run sync again if data may be stale."
+		}
+	}
+	return out
+}
+
+func mcpSQLQueryError(err error) string {
+	msg := err.Error()
+	if strings.Contains(strings.ToLower(msg), "no such table") {
+		return fmt.Sprintf("query failed: %v. Synced records live in resources(resource_type, id, data), not one SQL table per resource. Filter by resource_type, for example resource_type='address', and read JSON fields with json_extract(data,'$.field').", err)
+	}
+	return fmt.Sprintf("query failed: %v", err)
+}
+
+// toolResultJSON renders v as the indented JSON body of an MCP text result,
+// surfacing a marshal failure as a tool error instead of empty content.
+func toolResultJSON(v any) (*mcplib.CallToolResult, error) {
+	text, err := bound.JSON(v)
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("encoding result: %v", err)), nil
+	}
+	return mcplib.NewToolResultText(text), nil
 }
 
 func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+	paths := map[string]string{}
+	if dir, err := cliutil.ConfigDir(); err == nil {
+		paths["config_dir"] = dir
+	}
+	if dir, err := cliutil.DataDir(); err == nil {
+		paths["data_dir"] = dir
+	}
+	if dir, err := cliutil.StateDir(); err == nil {
+		paths["state_dir"] = dir
+	}
+	if dir, err := cliutil.CacheDir(); err == nil {
+		paths["cache_dir"] = dir
+	}
 	ctx := map[string]any{
 		"api":         "shopper",
-		"description": "The first CLI for Shopper — every catalog, cart",
+		"description": "Every Shopper storefront in one CLI — catalog, cart, delivery schedule, charge calendar, and spend analytics no web UI surfaces.",
 		"archetype":   "generic",
-		"tool_count":  21,
+		"tool_count":  22,
+		"paths":       paths,
 		// tool_surface tells agents which surface a capability lives on.
 		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion shopper-pp-cli binary.",
+		// learn_protocol is generated from the single shared source of
+		// truth (the exported constant internal/learn.RecallFirstProtocol)
+		// also consumed by the CLI agent-context command, so the MCP and
+		// CLI agent surfaces cannot drift.
+		"learn_protocol": learn.RecallFirstProtocol,
 		"auth": map[string]any{
 			"type": "bearer_token",
 			"env_vars": []map[string]any{
@@ -629,36 +828,45 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		"resources": []map[string]any{
 			{
 				"name":        "address",
-				"description": "Operations on address",
+				"description": "Saved delivery addresses with per-address available-store information",
 				"endpoints":   []string{"list_address"},
 				"syncable":    true,
 			},
 			{
 				"name":        "cart",
-				"description": "Operations on summary",
+				"description": "Cart: view summary, add products, remove products",
 				"endpoints":   []string{"add", "list_summary", "remove"},
 				"syncable":    true,
 				"searchable":  true,
+				"writable":    true,
 			},
 			{
 				"name":        "catalog",
-				"description": "Operations on departments",
+				"description": "Product catalog: search, departments, banners, suggestions",
 				"endpoints":   []string{"create_count", "create_filters", "create_search", "get_view", "list_banners", "list_departments", "list_news", "list_suggest"},
 				"syncable":    true,
 				"searchable":  true,
+				"writable":    true,
 			},
 			{
 				"name":        "delivery",
-				"description": "Operations on summary",
+				"description": "Delivery schedule: upcoming delivery date, edit-lock window, and reschedule calendar",
 				"endpoints":   []string{"list_calendar", "list_summary"},
 				"syncable":    true,
 			},
 			{
 				"name":        "features",
-				"description": "Operations on toggle",
+				"description": "Storefront configuration, feature toggles, and timer state",
 				"endpoints":   []string{"create_select", "create_start", "create_view", "list_stores", "list_tick", "list_toggle"},
 				"syncable":    true,
 				"searchable":  true,
+				"writable":    true,
+			},
+			{
+				"name":        "orders",
+				"description": "Purchase history and spend — reads from GET /orders/orders (web 'Histórico de compras')",
+				"endpoints":   []string{"list_orders"},
+				"syncable":    true,
 			},
 			{
 				"name":        "session",
@@ -677,24 +885,25 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		// Command-mirror capabilities are exposed through MCP by shelling out
 		// to the companion CLI binary.
 		"command_mirror_capabilities": []map[string]string{
-			{"name": "Charge & Edit Calendar", "command": "charge-calendar", "description": "Every upcoming cycle's charge date, edit-lock deadline", "rationale": "Charge = delivery-7d and lock = delivery-5d (-3d Fresh)", "via": "mcp-command-mirror"},
-			{"name": "Basket Diff", "command": "basket diff", "description": "Compares your current recurring basket against a previous cycle's snapshot to show exactly what was added, dropped", "rationale": "Requires two basket states over time", "via": "mcp-command-mirror"},
-			{"name": "Price Watch", "command": "price-watch", "description": "Tracks the price history of the SKUs you actually buy and alerts when one rises or drops meaningfully versus your own", "rationale": "/catalog/search returns only today's price", "via": "mcp-command-mirror"},
-			{"name": "Restock Predictor", "command": "restock predict", "description": "Predicts when you'll run out of each staple from your historical buying cadence and suggests what to add to the", "rationale": "Needs a per-SKU purchase time series (cadence + quantity across cycles) joined against the current basket", "via": "mcp-command-mirror"},
-			{"name": "Catalog Drift Detector", "command": "catalog drift", "description": "Flags products you buy that were discontinued, silently swapped, or kept their price while shrinking the pack", "rationale": "Detecting shrinkflation or disappearance requires comparing successive catalog snapshots (price, pack size", "via": "mcp-command-mirror"},
-			{"name": "Cashback Threshold Optimizer", "command": "cashback optimize", "description": "Computes the cheapest set of items to add (or whether to wait) to cross the next cashback tier", "rationale": "Combines current cart total, the active cashback rule, and predicted restock demand into a knapsack over your own demand", "via": "mcp-command-mirror"},
+			{"name": "Charge & Edit Calendar", "command": "charge-calendar", "description": "Every upcoming cycle's charge date, edit-lock deadline, and delivery date in one timeline so you never miss an edit window or get surprised by a charge.", "rationale": "Requires combining /delivery/summary (deliveryDate) and /delivery/v2/calendar (reschedule config) and computing charge=−7d, lock=−5d offsets. No single API endpoint returns this compound view.", "via": "mcp-command-mirror"},
+			{"name": "Basket Diff", "command": "basket diff", "description": "Compares your current recurring basket against a previous cycle's snapshot to show exactly what was added, dropped, or re-quantified before the template locks.", "rationale": "Requires snapshotting basket state to local SQLite and diffing against a prior snapshot — no API tracks basket-over-time history.", "via": "mcp-command-mirror"},
+			{"name": "Price Watch", "command": "price-watch", "description": "Tracks the price history of the SKUs you actually buy and alerts when one rises or drops meaningfully versus your own purchase baseline.", "rationale": "Requires correlating synced catalog prices across multiple sync runs — no API endpoint exposes historical price data.", "via": "mcp-command-mirror"},
+			{"name": "Restock Predictor", "command": "restock predict", "description": "Predicts when you'll run out of each staple from your historical buying cadence and suggests what to add to the upcoming basket.", "rationale": "Requires analysing order history cadence across synced orders data — no API endpoint answers 'when will you run out'.", "via": "mcp-command-mirror"},
+			{"name": "Catalog Drift Detector", "command": "catalog drift", "description": "Flags products you buy that were discontinued, silently swapped, or kept their price while shrinking the pack, surfacing the real R$/kg or R$/L change.", "rationale": "Requires comparing catalog snapshots across sync runs to detect substitution, discontinuation, and pack-size changes — invisible from any single API call.", "via": "mcp-command-mirror"},
+			{"name": "Cashback Threshold Optimizer", "command": "cashback optimize", "description": "Computes the cheapest set of items to add (or whether to wait) to cross the next cashback tier, favoring things you'll need anyway.", "rationale": "Requires combining live cart/summary cashback fields with local catalog data to compute the cheapest tier-crossing additions.", "via": "mcp-command-mirror"},
+			{"name": "Cross-Store Checkout Preview", "command": "checkout preview", "description": "Aggregates cart totals, next delivery date, charge date, minimum-order status, and accepted payment types into one pre-checkout view before you open the browser.", "rationale": "Combines siteapi cart/summary + delivery/summary + features/stores payment params and computes charge-date offset — no single endpoint returns a checkout summary.", "via": "mcp-command-mirror"},
 		},
 		"playbook": []map[string]string{
-			{"topic": "Charge & Edit Calendar", "insight": "Charge = delivery-7d and lock = delivery-5d (-3d Fresh) must be derived across many cycles by joining snapshotted delivery calendar with plan cadence; no single endpoint returns all your money/edit dates."},
-			{"topic": "Basket Diff", "insight": "Requires two basket states over time; the API only returns the current /cart/summary and the web UI never persists last cycle's template."},
-			{"topic": "Price Watch", "insight": "/catalog/search returns only today's price; a personal 'more expensive than I paid' baseline needs periodic local price snapshots the API never keeps."},
-			{"topic": "Restock Predictor", "insight": "Needs a per-SKU purchase time series (cadence + quantity across cycles) joined against the current basket; no endpoint exposes a consumption model."},
-			{"topic": "Catalog Drift Detector", "insight": "Detecting shrinkflation or disappearance requires comparing successive catalog snapshots (price, pack size, availability) per SKU and normalizing to unit price; a single /catalog/search call has no temporal reference."},
-			{"topic": "Cashback Threshold Optimizer", "insight": "Combines current cart total, the active cashback rule, and predicted restock demand into a knapsack over your own demand; no endpoint computes cheapest add-ons to reach a tier."},
+			{"topic": "Charge & Edit Calendar", "insight": "Requires combining /delivery/summary (deliveryDate) and /delivery/v2/calendar (reschedule config) and computing charge=−7d, lock=−5d offsets. No single API endpoint returns this compound view."},
+			{"topic": "Basket Diff", "insight": "Requires snapshotting basket state to local SQLite and diffing against a prior snapshot — no API tracks basket-over-time history."},
+			{"topic": "Price Watch", "insight": "Requires correlating synced catalog prices across multiple sync runs — no API endpoint exposes historical price data."},
+			{"topic": "Restock Predictor", "insight": "Requires analysing order history cadence across synced orders data — no API endpoint answers 'when will you run out'."},
+			{"topic": "Catalog Drift Detector", "insight": "Requires comparing catalog snapshots across sync runs to detect substitution, discontinuation, and pack-size changes — invisible from any single API call."},
+			{"topic": "Cashback Threshold Optimizer", "insight": "Requires combining live cart/summary cashback fields with local catalog data to compute the cheapest tier-crossing additions."},
+			{"topic": "Cross-Store Checkout Preview", "insight": "Combines siteapi cart/summary + delivery/summary + features/stores payment params and computes charge-date offset — no single endpoint returns a checkout summary."},
 		},
 	}
-	data, _ := json.MarshalIndent(ctx, "", "  ")
-	return mcplib.NewToolResultText(string(data)), nil
+	return toolResultJSON(ctx)
 }
 
 // RegisterNovelFeatureTools is kept as a compatibility no-op for older MCP

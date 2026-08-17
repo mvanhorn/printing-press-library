@@ -1,0 +1,226 @@
+{
+  "api_name": "quranku",
+  "base_url": "https://media-quran-api.lpoalr.easypanel.host/api",
+  "description": "Every Al-Qur'an feature the app has, plus the Indonesian Tarjamah Tafsiriyah offline, a local database, offline search, a khatam plan, and a hifz tracker no other Qur'an tool has.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "audio_surah",
+      "description": "Get the reciter-\u003eaudio-URL map for a surah. Required: surah. Returns the AudioManifest.",
+      "method": "GET",
+      "path": "/audio/{surah}.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "surah",
+          "type": "int",
+          "location": "path",
+          "description": "Surah number (1-114)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chapters_get",
+      "description": "Get background/introduction text for a chapter. Required: id. Optional: language (default: id). Returns the ChapterInfo.",
+      "method": "GET",
+      "path": "/chapters/{id}/info",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Chapter number (1-114)",
+          "required": true
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "Language code for the info text"
+        }
+      ]
+    },
+    {
+      "name": "chapters_list",
+      "description": "List chapters with localized metadata. Optional: language (default: id). Returns array of Chapter.",
+      "method": "GET",
+      "path": "/chapters",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "Language code for names (e.g. id, en, ar)"
+        }
+      ]
+    },
+    {
+      "name": "juz_list",
+      "description": "List all 30 juz with their verse mappings. Returns array of Juz.",
+      "method": "GET",
+      "path": "/juzs",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "recitation_get",
+      "description": "Get the audio file URL for a chapter by reciter. Required: reciter, chapter. Returns the AudioFile.",
+      "method": "GET",
+      "path": "/chapter_recitations/{reciter}/{chapter}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "reciter",
+          "type": "int",
+          "location": "path",
+          "description": "Reciter ID (e.g. 7 = Mishary Alafasy)",
+          "required": true
+        },
+        {
+          "name": "chapter",
+          "type": "int",
+          "location": "path",
+          "description": "Chapter number (1-114)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "surah_get",
+      "description": "Get a surah with all verses and the Tarjamah Tafsiriyah translation. Required: id. Returns the SurahDetail.",
+      "method": "GET",
+      "path": "/surahs/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Surah number (1-114)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "surah_list",
+      "description": "List all 114 surahs (Tafsiriyah source). Returns array of Surah.",
+      "method": "GET",
+      "path": "/surahs",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "tafsirs_list",
+      "description": "List available tafsirs (other than Tafsiriyah). Optional: language (default: id). Returns array of Tafsir.",
+      "method": "GET",
+      "path": "/resources/tafsirs",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by language"
+        }
+      ]
+    },
+    {
+      "name": "uthmani_by-chapter",
+      "description": "Get clean Uthmani-script Arabic for a chapter. Required: chapter_number. Returns array of UthmaniVerse.",
+      "method": "GET",
+      "path": "/quran/verses/uthmani",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "chapter_number",
+          "type": "int",
+          "location": "query",
+          "description": "Chapter number (1-114)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "verses_by-chapter",
+      "description": "List verses of a chapter with Arabic text. Required: chapter. Optional: language (default: id), fields (default: text_uthmani), per_page (default: 50) (plus 1 more). Returns array of Verse.",
+      "method": "GET",
+      "path": "/verses/by_chapter/{chapter}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "chapter",
+          "type": "int",
+          "location": "path",
+          "description": "Chapter number (1-114)",
+          "required": true
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "Language code"
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated verse fields to include"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Verses per page (max 50)"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        }
+      ]
+    },
+    {
+      "name": "websearch_query",
+      "description": "Search the Qur'an by word or meaning. Required: q. Optional: language (default: en), size (default: 20), page (default: 1). Returns array of SearchResult.",
+      "method": "GET",
+      "path": "/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Search query",
+          "required": true
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "Language for translated results"
+        },
+        {
+          "name": "size",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "api_name": "crestron",
+  "base_url": "https://www.crestron.com",
+  "description": "Every Crestron product, spec sheet, and firmware release — searchable offline, with fleet-wide currency checks the website cannot do.",
+  "mcp_ready": "partial",
+  "http_transport": "standard",
+  "auth": {
+    "type": "cookie",
+    "cookie_domain": "crestron.com",
+    "cookies": [
+      ".ASPXFORMSAUTH",
+      ".WebApp.Cookies",
+      "ASP.NET_SessionId",
+      "CMSCsrfCookie"
+    ]
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+    },
+    {
+      "name": "Accept-Language",
+      "value": "en-US,en;q=0.9"
+    }
+  ],
+  "tools": []
+}

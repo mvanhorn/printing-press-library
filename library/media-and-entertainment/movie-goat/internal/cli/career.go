@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"os"
 	"sort"
 	"strconv"
 	"strings"
@@ -65,8 +64,9 @@ Roles:
   crew     all crew credits
   (default) cast + crew
 
-Set OMDB_API_KEY to enable IMDb / Rotten Tomatoes enrichment. To respect
-OMDb's per-day quota, no more than 50 credits are enriched per call.`,
+Run "movie-goat-pp-cli auth set-omdb-token <token>" (or set OMDB_API_KEY) to
+enable IMDb / Rotten Tomatoes enrichment. To respect OMDb's per-day quota, no
+more than 50 credits are enriched per call.`,
 		Example: `  movie-goat-pp-cli career 525
   movie-goat-pp-cli career "Greta Gerwig" --role director --since 2010
   movie-goat-pp-cli career "Roger Deakins" --role dp --json`,
@@ -99,7 +99,7 @@ OMDb's per-day quota, no more than 50 credits are enriched per call.`,
 			if id, perr := strconv.Atoi(query); perr == nil {
 				personID = id
 			} else {
-				p, err := searchPersonByName(c, query)
+				p, err := searchPersonByName(c, flags, query)
 				if err != nil {
 					return classifyAPIError(err)
 				}
@@ -137,7 +137,8 @@ OMDb's per-day quota, no more than 50 credits are enriched per call.`,
 			}
 
 			// 5. Optional OMDb enrichment, capped at careerOMDBCap.
-			omdbKey := strings.TrimSpace(os.Getenv("OMDB_API_KEY"))
+			// PATCH(omdb-key-in-config-like-tmdb)
+			omdbKey := flags.omdbAPIKey()
 			if omdbKey != "" {
 				cap := len(credits)
 				if cap > careerOMDBCap {

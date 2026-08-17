@@ -21,8 +21,17 @@ import (
 const adapterName = "youtube"
 
 type Adapter struct {
-	Bin       string // path to yt-dlp (override for tests)
-	Bilingual bool   // v0.2 mode; v0.1 errors out
+	Bin string // path to yt-dlp (override for tests)
+	// Lang is a single subtitle language code passed to yt-dlp --sub-langs.
+	// Empty means "en". The live catalog of available tracks is per-video,
+	// so non-English shows need this settable rather than the historical
+	// hardcoded "en". One code per fetch in v0.1: multiple codes would make
+	// yt-dlp write several VTTs and the file picker below would grab an
+	// arbitrary one. Note: the rolling-window de-dup (collapseRollingWindow)
+	// operates on space-separated words, so it applies to space-tokenized
+	// languages; captions in languages written without spaces (zh, ja, th)
+	// pass through without rolling-window collapsing.
+	Lang string
 }
 
 func New() *Adapter {
@@ -34,17 +43,16 @@ func (a *Adapter) Tier() transcript.Tier { return transcript.TierFree }
 
 var ytRE = regexp.MustCompile(`(?i)^https?://(www\.|m\.)?(youtube\.com/watch|youtu\.be/|youtube\.com/shorts/|youtube\.com/embed/)`)
 
+// ytSearchRE accepts yt-dlp's native search pseudo-URLs (ytsearch1:<query>),
+// used by the Spotify cookie-missing fallback hint to resolve the same
+// episode on YouTube without the user hand-hunting for the video URL.
+var ytSearchRE = regexp.MustCompile(`(?i)^ytsearch\d*:`)
+
 func (a *Adapter) Match(url string) bool {
-	return ytRE.MatchString(url)
+	return ytRE.MatchString(url) || ytSearchRE.MatchString(url)
 }
 
 func (a *Adapter) Fetch(ctx context.Context, url string) (*transcript.Transcript, error) {
-	if a.Bilingual {
-		return nil, &source.NotImplementedError{
-			Adapter: adapterName,
-			Detail:  "the bilingual aligner (--bilingual zh-Hans,en) ships in v0.2",
-		}
-	}
 	bin, err := EnsureYtDlp(ctx, a.Bin, os.Stderr)
 	if err != nil {
 		return nil, &source.NotImplementedError{
@@ -77,11 +85,22 @@ func (a *Adapter) Fetch(ctx context.Context, url string) (*transcript.Transcript
 	videoID, title, uploader, durationStr, uploadDate := parts[0], parts[1], parts[2], parts[3], parts[4]
 	durSec, _ := strconv.Atoi(durationStr)
 
+	// Canonicalize ytsearch pseudo-URLs to the resolved watch URL so the
+	// cached transcript is keyed by the real video, not the search query.
+	if ytSearchRE.MatchString(url) && videoID != "" {
+		url = "https://www.youtube.com/watch?v=" + videoID
+	}
+
+	langs := strings.TrimSpace(a.Lang)
+	if langs == "" {
+		langs = "en"
+	}
+
 	// Second pass: subtitles
 	subCmd := exec.CommandContext(ctx, bin,
 		"--no-warnings",
 		"--write-auto-subs",
-		"--sub-langs", "en",
+		"--sub-langs", langs,
 		"--sub-format", "vtt",
 		"--skip-download",
 		"-o", filepath.Join(dir, "%(id)s.%(ext)s"),
@@ -108,7 +127,7 @@ func (a *Adapter) Fetch(ctx context.Context, url string) (*transcript.Transcript
 		return nil, &source.NotApplicableError{
 			Source: adapterName,
 			URL:    url,
-			Reason: "yt-dlp returned no English auto-subs (try a different episode or --paid)",
+			Reason: fmt.Sprintf("yt-dlp returned no %q auto-subs (try --lang <code> for non-English shows, or --paid)", langs),
 		}
 	}
 
@@ -206,32 +225,107 @@ func parseVTT(s, speaker string) []transcript.Segment {
 //   - cur.Text is identical to prev.Text         → drop cur
 //   - prev.Text is a prefix of cur.Text          → replace prev with cur (cur is the longer form)
 //   - cur.Text is a prefix of prev.Text          → drop cur (prev already has more)
+//   - a suffix of prev.Text (≥3 words) is a prefix of cur.Text
+//     → emit cur with the overlapping words removed (sliding window)
 //   - otherwise                                  → emit cur
+//
+// The sliding-window rule is what actually fires on live auto-subs: YouTube
+// emits cues whose first half repeats the second half of the previous cue
+// ("...more likely to experience anxiety and" / "more likely to experience
+// anxiety and depression than..."), which the prefix rules alone never merge —
+// the result was every word appearing twice in the canonical markdown. The
+// 3-word minimum keeps natural repetition ("of the", "and the") intact.
 func collapseRollingWindow(segs []transcript.Segment) []transcript.Segment {
 	if len(segs) == 0 {
 		return segs
 	}
 	out := make([]transcript.Segment, 0, len(segs))
 	out = append(out, segs[0])
+	// prevOrig is the ORIGINAL text of the previous cue, before any trim.
+	// Every comparison runs against it, never against the trimmed remainder
+	// stored in out: when a cue advances fewer words than it repeats, the
+	// remainder is shorter than the window and comparing against it lets the
+	// repeated run back in ("a b c d e" / "c d e f" / "d e f g" must yield
+	// "a b c d e f g", not re-emit "d e f").
+	prevOrig := segs[0].Text
 	for i := 1; i < len(segs); i++ {
 		cur := segs[i]
 		prev := &out[len(out)-1]
-		if cur.Text == prev.Text {
+		if cur.Text == prevOrig {
 			continue
 		}
-		if strings.HasPrefix(cur.Text, prev.Text) {
-			// cur extends prev — replace.
-			prev.Text = cur.Text
+		if strings.HasPrefix(cur.Text, prevOrig) {
+			// cur extends the previous window. When the emitted segment is
+			// the untouched window, replace it wholesale (preserves exact
+			// spacing/punctuation); when it is a trimmed remainder, append
+			// only the new tail.
+			if prev.Text == prevOrig {
+				prev.Text = cur.Text
+			} else if tail := strings.TrimSpace(cur.Text[len(prevOrig):]); tail != "" {
+				if prev.Text != "" {
+					prev.Text += " "
+				}
+				prev.Text += tail
+			}
 			prev.TsSec = cur.TsSec
+			prevOrig = cur.Text
 			continue
 		}
-		if strings.HasPrefix(prev.Text, cur.Text) {
-			// prev already contains cur — drop.
+		if strings.HasPrefix(prevOrig, cur.Text) {
+			// The previous window already contains cur — drop, keep the
+			// larger window as context.
 			continue
 		}
+		if rem, trimmed := trimWordOverlap(prevOrig, cur.Text); trimmed {
+			prevOrig = cur.Text
+			if rem == "" {
+				// cur was entirely overlap — nothing new.
+				continue
+			}
+			cur.Text = rem
+			out = append(out, cur)
+			continue
+		}
+		prevOrig = cur.Text
 		out = append(out, cur)
 	}
 	return out
+}
+
+// minOverlapWords is the shortest prev-suffix / cur-prefix word run treated as
+// a rolling-window artifact rather than natural repetition.
+const minOverlapWords = 3
+
+// trimWordOverlap finds the longest run of whole words that is both a suffix
+// of prev and a prefix of cur. When the run is at least minOverlapWords long,
+// it returns cur with that run removed and trimmed=true. Matching is
+// word-exact (case-sensitive): auto-sub rolling windows repeat the words
+// verbatim, so anything looser risks eating real speech.
+//
+// Words are strings.Fields tokens, so this only fires for space-tokenized
+// languages. Captions written without spaces (zh, ja, th) come through as one
+// token per cue and are deliberately left untouched — a wrong merge is worse
+// than a duplicate, and the limitation is documented on --lang.
+func trimWordOverlap(prev, cur string) (rem string, trimmed bool) {
+	pw := strings.Fields(prev)
+	cw := strings.Fields(cur)
+	max := len(pw)
+	if len(cw) < max {
+		max = len(cw)
+	}
+	for k := max; k >= minOverlapWords; k-- {
+		match := true
+		for j := 0; j < k; j++ {
+			if pw[len(pw)-k+j] != cw[j] {
+				match = false
+				break
+			}
+		}
+		if match {
+			return strings.Join(cw[k:], " "), true
+		}
+	}
+	return cur, false
 }
 
 func slugifyShow(uploader string) string {

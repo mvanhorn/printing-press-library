@@ -1,0 +1,137 @@
+name: cults3d
+description: Cults3D creations search and metadata (search/browse only; the official API does not serve third-party file downloads by design)
+version: "0.1.0"
+base_url: https://cults3d.com
+auth:
+  type: none
+config:
+  format: toml
+  path: "~/.config/cults3d-pp-cli/config.toml"
+resources:
+  creations:
+    description: Cults3D creations (designs)
+    endpoints:
+      search:
+        method: POST
+        path: /graphql
+        tier: cults3d
+        description: Search Cults3D creations by keyword
+        params:
+          - name: query
+            type: string
+            required: true
+            positional: true
+            description: Search keywords
+        body:
+          - name: query
+            body_name: query
+            type: string
+            required: true
+            dispatch_param: true
+            default: |
+              query SearchCreations($query: String!, $limit: Int, $offset: Int) {
+                result: creationsSearchBatch(query: $query, limit: $limit, offset: $offset) {
+                  identifier
+                  name
+                  shortUrl
+                  likesCount
+                  downloadsCount
+                  publishedAt
+                  creator { nick shortUrl }
+                }
+              }
+          - name: variables
+            body_name: variables
+            type: object
+            fields:
+              - name: query
+                type: string
+                required: true
+                description: Search keywords
+              - name: limit
+                type: integer
+                default: 20
+              - name: offset
+                type: integer
+                default: 0
+        response:
+          type: array
+          item: Cults3DCreation
+        response_path: data.result
+      get:
+        method: POST
+        path: /graphql
+        tier: cults3d
+        description: Get a Cults3D creation's detail
+        params:
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: Cults3D creation slug
+        body:
+          - name: query
+            body_name: query
+            type: string
+            required: true
+            dispatch_param: true
+            default: |
+              query GetCreation($slug: String!) {
+                model: creation(slug: $slug) {
+                  identifier
+                  name
+                  shortUrl
+                  likesCount
+                  downloadsCount
+                  viewsCount
+                  publishedAt
+                  category { name }
+                  license { code name }
+                  creator { nick shortUrl }
+                }
+              }
+          - name: variables
+            body_name: variables
+            type: object
+            fields:
+              - name: slug
+                type: string
+                required: true
+                description: Cults3D creation slug
+        response:
+          type: object
+          item: Cults3DCreationDetail
+        response_path: data.model
+types:
+  Cults3DCreation:
+    fields:
+      - name: identifier
+        type: string
+      - name: name
+        type: string
+      - name: shortUrl
+        type: string
+      - name: likesCount
+        type: integer
+      - name: downloadsCount
+        type: integer
+      - name: publishedAt
+        type: string
+        format: date-time
+  Cults3DCreationDetail:
+    fields:
+      - name: identifier
+        type: string
+      - name: name
+        type: string
+      - name: shortUrl
+        type: string
+      - name: likesCount
+        type: integer
+      - name: downloadsCount
+        type: integer
+      - name: viewsCount
+        type: integer
+      - name: publishedAt
+        type: string
+        format: date-time

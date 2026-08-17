@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "ars-sicilia-iter-data-citata",
+  "applied_at": "2026-08-16",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.18.0",
+  "summary": "Le date che il titolo di una legge cita — le norme che modifica — non diventano piu' eventi dell'iter. Dopo un'annotazione «Lr ... Titolo : ...» si scartano gli eventi la cui data precede la promulgazione: appartengono al titolo, non alla cronologia.",
+  "reason": "reIterDate spezza la regione di stato a ogni data, e il titolo dentro l'annotazione Lr cita quasi sempre le norme modificate con le loro date. Il frammento di titolo che seguiva una di quelle date diventava un evento, e l'ordinamento per data lo portava in cima: `ddl iter 18 350` apriva la cronologia di un atto del 2023 con «23 giugno 2011 — iter — \", n. 118. D.F.B. 2023. Mese di febbraio\"», che non e' un passaggio d'iter ma un pezzo del d.lgs. 118/2011 citato nel titolo. Idem sul ddl 700. E' la stessa famiglia del fantasma che il fix precedente (ars-sicilia-iter-sede-commissione) aveva evitato di creare spostando la pulizia delle virgolette dalla regione all'azione — questo pero' era gia' in produzione. La finestra si apre sull'annotazione Lr e si chiude sulla prima data che non torna indietro, che e' di nuovo l'iter vero (la pubblicazione in Gurs). Scoperto misurando un difetto diverso: il report `docs/news-agent/2026-08-16_11-23.md` segnalava come anomali gli eventi anteriori alla presentazione, che sugli stralci sono invece storia reale dell'atto (verificato: l'iter del ddl base 1030 non contiene l'evento che il report gli attribuiva, e sotto quel numero il portale ha un solo documento). La misura ha respinto quella segnalazione e ha fatto emergere questa, che e' un evento inesistente invece di un'etichetta mancante.",
+  "files": [
+    "internal/cli/ddl_iter.go",
+    "internal/cli/ddl_iter_parse_test.go"
+  ],
+  "validated_outcome": "I due casi noti sono puliti: `ddl iter 18 350` e `ddl iter 18 700` non aprono piu' con l'evento del 23 giugno 2011 e cominciano dalla loro presentazione. Frequenza misurata: 2 atti su 26 campionati (18 della XVIII, 8 della XVII), entrambi «debiti fuori bilancio», categoria che cita sempre il d.lgs. 118/2011. Non-regressione: i tre stralci con storia anteriore alla data di scheda (18/6030, 18/3031, 18/8030) sono invariati evento per evento, e i 18 casi di controllo (10 `ddl iter` e 8 `legge cronologia`, leg. XVI-XVIII) escono identici byte a byte alla build precedente. go build, go vet e go test ./... verdi; binario reinstallato in ~/.local/bin."
+}

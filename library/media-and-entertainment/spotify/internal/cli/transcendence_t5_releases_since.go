@@ -12,6 +12,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"sort"
@@ -118,7 +119,7 @@ Requires followed_artists to be populated (call 'sync' first or run
 				}
 			pageLoop:
 				for {
-					data, err := c.Get(cursor, cursorParams)
+					data, err := c.Get(context.Background(), cursor, cursorParams)
 					if err != nil {
 						// Skip artists that 404 etc.; report inline.
 						fmt.Fprintf(cmd.ErrOrStderr(), "warning: artist %s skipped: %v\n", a.ID, err)

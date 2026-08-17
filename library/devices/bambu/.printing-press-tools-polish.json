@@ -1,0 +1,28 @@
+{
+  "timestamp": "2026-07-11T14:33:35.36343Z",
+  "cli_dir": "\u003ccli-dir\u003e/bambu-pp-cli",
+  "findings": [
+    {
+      "kind": "missing-read-only",
+      "command": "health",
+      "file": "bambu_commands.go",
+      "line": 387,
+      "evidence": "name matches read heuristic; no mcp:read-only annotation",
+      "status": "accepted",
+      "note": "Health fetches live state and persists the snapshot into user-visible local history, so mcp:local-write is the accurate safety classification"
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 692,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated learn-loop command; the concise Short is accurate and any framework-wide wording change belongs in the generator template"
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-07-11T14:30:07.982746Z"
+  }
+}

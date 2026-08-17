@@ -9,9 +9,10 @@ import (
 
 func newConversationsCustomersCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "customers",
-		Short: "Create and delete customers for conversations",
-		RunE:  parentNoSubcommandRunE(flags),
+		Use:         "customers",
+		Short:       "Create and delete customers for conversations",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newConversationsCustomersAttachContactToConversationCmd(flags))

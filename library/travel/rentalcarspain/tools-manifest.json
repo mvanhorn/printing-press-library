@@ -1,0 +1,41 @@
+{
+  "api_name": "rentalcarspain",
+  "base_url": "https://www.doyouspain.com",
+  "description": "Watch Málaga car-rental prices the way you already do — DoYouSpain's cheapest supplier, cross-checked direct, always with full insurance — now in one command with local price history and drop alerts.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "rentalcarspain-pp-cli/0.1 (+https://github.com/mvanhorn/printing-press-library)"
+    }
+  ],
+  "tools": [
+    {
+      "name": "offers_list",
+      "description": "Fetch the raw DoYouSpain results HTML for an already-resolved search session. Required: s, b.",
+      "method": "GET",
+      "path": "/do/list/en",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "s",
+          "type": "string",
+          "location": "query",
+          "description": "DoYouSpain search session token (SID101 cookie value)",
+          "required": true
+        },
+        {
+          "name": "b",
+          "type": "string",
+          "location": "query",
+          "description": "DoYouSpain booking token (DZW137 cookie value)",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

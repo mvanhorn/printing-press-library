@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "cache-key-param-separator",
+  "applied_at": "2026-06-18",
+  "base_run_id": "20260616-232033",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Cache key now delimits each query-param entry so distinct param sets cannot collide.",
+  "reason": "The generated cacheKey loop appended k+\"=\"+v with no separator, so {ab:cd,ef:gh} and {ab:cde,f:gh} produced the same key and could return a stale cached response.",
+  "files": [
+    "internal/client/client.go"
+  ],
+  "validated_outcome": "go test ./..."
+}

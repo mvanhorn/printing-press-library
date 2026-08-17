@@ -1,0 +1,51 @@
+version: 2
+project_name: ticketdata-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: ticketdata-pp-cli
+    main: ./cmd/ticketdata-pp-cli
+    binary: ticketdata-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/media-and-entertainment/ticketdata/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: ticketdata-pp-mcp
+    main: ./cmd/ticketdata-pp-mcp
+    binary: ticketdata-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: ticketdata-pp-cli
+    repository:
+      owner: mvanhorn
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every TicketData price signal for any event, performer, or venue, plus a local price-history store for trend math, drift alerts, and cross-event comparisons no ticket tool ships."
+    install: |
+      bin.install "ticketdata-pp-cli"
+      bin.install "ticketdata-pp-mcp"

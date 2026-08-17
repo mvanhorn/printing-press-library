@@ -1,0 +1,599 @@
+name: mobbin
+description: "Mobbin design-inspiration CLI: search, browse, and save UI patterns from real shipped apps (web, iOS, Android) with a local offline store."
+version: "0.1.0"
+category: productivity
+base_url: "https://mobbin.com"
+spec_source: "browser-sniffed + pdcolandrea/mobbin-mcp source"
+http_transport: standard
+health_check_path: /api/searchable-apps/web
+
+cli_description: "Browse Mobbin's 621,500+ shipped UI screens from the terminal, with offline SQLite mirror and design-deck workflows no other Mobbin tool ships."
+
+auth:
+  type: cookie
+  header: Cookie
+  in: header
+  verify_path: "https://ujasntkfphywizsdaapi.supabase.co/rest/v1/workspaces?select=id&limit=1"
+  env_vars: []
+  cookie_domain: "mobbin.com"
+  cookie_names:
+    - "sb-ujasntkfphywizsdaapi-auth-token.0"
+    - "sb-ujasntkfphywizsdaapi-auth-token.1"
+
+config:
+  format: toml
+  path: "~/.config/mobbin-pp-cli/config.toml"
+
+required_headers:
+  - name: User-Agent
+    value: "mobbin-pp-cli/0.1.0 (+https://github.com/mvanhorn/cli-printing-press)"
+  - name: Accept
+    value: "application/json, text/html, */*"
+  - name: Origin
+    value: "https://mobbin.com"
+  - name: Referer
+    value: "https://mobbin.com/"
+
+resources:
+  apps:
+    description: "Browse and search apps in Mobbin's library (web, iOS, Android)."
+    endpoints:
+      list:
+        method: GET
+        path: "/api/searchable-apps/{platform}"
+        no_auth: true
+        description: "List every app for a platform. Returns a flat array of {id, appName, platform, ...}. Large response (~1,000+ apps); cache locally for autocomplete."
+        params:
+          - name: platform
+            type: AppSearchFilter
+            required: true
+            positional: true
+            description: "Platform: web, ios, or android"
+            enum: [web, ios, android]
+        response:
+          type: array
+          item: App
+      popular:
+        method: POST
+        path: "/api/popular-apps/fetch-popular-apps-with-preview-screens"
+        no_auth: true
+        description: "Popular apps grouped by category with preview screenshots. Web's the default; pair with --platform ios or android for mobile."
+        body:
+          - name: platform
+            type: PaginationOptions
+            required: true
+            default: "web"
+            description: "Platform: web, ios, or android"
+            enum: [web, ios, android]
+          - name: limitPerCategory
+            flag_name: limit-per-category
+            type: int
+            default: 10
+            description: "Apps returned per category (max 50)"
+      discover:
+        method: POST
+        path: "/api/discover/fetch-discover-page-apps"
+        no_auth: true
+        description: "Paginated discover-page apps. Tabs are latest / popular / animations."
+        body:
+          - name: tab
+            type: ScreenSearchFilter
+            required: true
+            default: "latest"
+            description: "Discover tab: latest, popular, or animations"
+            enum: [latest, popular, animations]
+          - name: platform
+            type: PaginationOptions
+            required: true
+            default: "web"
+            description: "Platform: web, ios, or android"
+            enum: [web, ios, android]
+          - name: pageIndex
+            flag_name: page-index
+            type: int
+            default: 0
+            description: "Zero-based page index"
+      search:
+        method: POST
+        path: "/api/content/search-apps"
+        description: "Authenticated app search with category filters. Requires Mobbin Pro session (run `mobbin-pp-cli auth login --chrome` first)."
+        body:
+          - name: searchRequestId
+            type: FlowSearchFilter
+            default: ""
+            description: "Empty string for fresh searches; previous searchRequestId to continue."
+          - name: filterOptions
+            type: PaginationOptions
+            description: "JSON filter object. Use --platform / --app-categories flags for ergonomics; this carries the structured shape."
+            fields:
+              - name: platform
+                type: string
+                required: true
+                enum: [web, ios, android]
+              - name: appCategories
+                flag_name: app-categories
+                type: string
+                description: "Comma-separated category slugs"
+          - name: paginationOptions
+            type: CollectionPaginationOptions
+            fields:
+              - name: pageSize
+                flag_name: page-size
+                type: int
+                default: 24
+              - name: pageIndex
+                flag_name: page-index
+                type: int
+                default: 0
+              - name: sortBy
+                flag_name: sort-by
+                type: string
+                default: "publishedAt"
+                description: "Sort: publishedAt, trending, popularity"
+
+  screens:
+    description: "Search and inspect individual screens. Filter by pattern, element, OCR keywords, and app category."
+    endpoints:
+      search:
+        method: POST
+        path: "/api/content/search-screens"
+        description: "Cross-app screen search. Use --screen-patterns 'paywall' or --screen-elements 'search-bar' to filter. Requires Mobbin Pro session."
+        body:
+          - name: searchRequestId
+            type: string
+            default: ""
+          - name: filterOptions
+            type: string
+            fields:
+              - name: platform
+                type: string
+                required: true
+                enum: [web, ios, android]
+              - name: screenPatterns
+                flag_name: screen-patterns
+                type: string
+                description: "Comma-separated pattern slugs (e.g. paywall,onboarding)"
+              - name: screenElements
+                flag_name: screen-elements
+                type: string
+                description: "Comma-separated element slugs (e.g. search-bar,empty-state)"
+              - name: screenKeywords
+                flag_name: screen-keywords
+                type: string
+                description: "OCR keywords found in the screenshot text"
+              - name: appCategories
+                flag_name: app-categories
+                type: string
+                description: "Comma-separated category slugs"
+              - name: hasAnimation
+                flag_name: has-animation
+                type: bool
+                description: "Filter to animated screens only"
+          - name: paginationOptions
+            type: string
+            fields:
+              - name: pageSize
+                flag_name: page-size
+                type: int
+                default: 24
+              - name: pageIndex
+                flag_name: page-index
+                type: int
+                default: 0
+              - name: sortBy
+                flag_name: sort-by
+                type: string
+                default: "trending"
+
+  flows:
+    description: "Search and browse user-flow recordings (onboarding, checkout, settings)."
+    endpoints:
+      search:
+        method: POST
+        path: "/api/content/search-flows"
+        description: "Cross-app flow search. Filter by --flow-actions like 'creating-account' or 'subscribing'. Requires Mobbin Pro session."
+        body:
+          - name: searchRequestId
+            type: string
+            default: ""
+          - name: filterOptions
+            type: string
+            fields:
+              - name: platform
+                type: string
+                required: true
+                enum: [web, ios, android]
+              - name: flowActions
+                flag_name: flow-actions
+                type: string
+                description: "Comma-separated flow-action slugs (e.g. creating-account, subscribing)"
+              - name: appCategories
+                flag_name: app-categories
+                type: string
+          - name: paginationOptions
+            type: string
+            fields:
+              - name: pageSize
+                flag_name: page-size
+                type: int
+                default: 24
+              - name: pageIndex
+                flag_name: page-index
+                type: int
+                default: 0
+              - name: sortBy
+                flag_name: sort-by
+                type: string
+                default: "trending"
+
+  filters:
+    description: "Browse the filter taxonomy — every app category, screen pattern, UI element, and flow action with definitions and content counts."
+    endpoints:
+      list:
+        method: POST
+        path: "/api/filter-tags/fetch-dictionary-definitions"
+        no_auth: true
+        description: "Full filter taxonomy. Returns the dictionary that powers every search filter — patterns, elements, categories, flow actions, definitions, and content counts."
+
+  trending:
+    description: "Trending entities updated daily by Mobbin's editorial team."
+    endpoints:
+      apps:
+        method: POST
+        path: "/api/search-bar/fetch-trending-apps"
+        no_auth: true
+        description: "Trending apps for a platform — what's hot this week on Mobbin."
+        body:
+          - name: platform
+            type: string
+            required: true
+            default: "web"
+            description: "Platform: web, ios, or android"
+            enum: [web, ios, android]
+      sites:
+        method: POST
+        path: "/api/search-bar/fetch-trending-sites"
+        no_auth: true
+        description: "Trending web sites (web-only surface)."
+      filter-tags:
+        method: POST
+        path: "/api/search-bar/fetch-trending-filter-tags"
+        no_auth: true
+        description: "Trending filter tags — patterns, elements, or categories users search for right now."
+        body:
+          - name: experience
+            type: string
+            required: true
+            default: "apps"
+            description: "Either 'apps' (mobile experience) or 'sites' (web)."
+            enum: [apps, sites]
+          - name: platform
+            type: string
+            description: "Platform (web/ios/android). Required when experience=apps."
+            enum: [web, ios, android]
+      keywords:
+        method: POST
+        path: "/api/search-bar/fetch-trending-text-in-screenshot-keywords"
+        no_auth: true
+        description: "Trending OCR keywords found inside screenshots — what text-in-screenshots users are searching."
+        body:
+          - name: platform
+            type: string
+            required: true
+            default: "web"
+            enum: [web, ios, android]
+
+  sites:
+    description: "Web sites in Mobbin's library (the web-app equivalent of `apps` for mobile)."
+    endpoints:
+      list:
+        method: POST
+        path: "/api/search-bar/fetch-searchable-sites"
+        no_auth: true
+        description: "Full searchable-sites list for the web experience."
+
+  autocomplete:
+    description: "Cross-entity autocomplete search across apps, screens, and flows."
+    endpoints:
+      query:
+        method: POST
+        path: "/api/search-bar/search"
+        description: "Fast autocomplete across apps, screens, and flows. Returns matching IDs grouped by relevance. Requires Mobbin Pro session for full result quality."
+        body:
+          - name: query
+            type: string
+            required: true
+            description: "Search query, e.g. 'paywall'"
+          - name: experience
+            type: string
+            default: "apps"
+            description: "Either 'apps' or 'sites'"
+            enum: [apps, sites]
+          - name: platform
+            type: string
+            default: "ios"
+            enum: [web, ios, android]
+
+  collections:
+    description: "Manage your saved Mobbin collections (decks of screens, flows, or apps). Read endpoints hit mobbin.com/api; write endpoints hit Supabase PostgREST directly (auth-token + apikey)."
+    base_url: "https://mobbin.com"
+    endpoints:
+      list:
+        method: POST
+        path: "/api/collection/fetch-collections"
+        description: "All collections owned by the authenticated user."
+      contents:
+        method: POST
+        path: "/collections/api/fetch-collection-contents"
+        description: "Items inside a collection, paginated. Bucketed by --content-type and --platform-type."
+        body:
+          - name: collectionId
+            flag_name: collection-id
+            type: string
+            required: true
+            description: "Collection UUID (from `collections list`)"
+          - name: contentType
+            flag_name: content-type
+            type: string
+            required: true
+            default: "screens"
+            description: "Content type: apps, screens, flows, sites, or sections"
+            enum: [apps, screens, flows, sites, sections]
+          - name: platformType
+            flag_name: platform-type
+            type: string
+            required: true
+            default: "mobile"
+            description: "Platform bucket: mobile or web"
+            enum: [mobile, web]
+          - name: paginationOptions
+            type: string
+            fields:
+              - name: pageSize
+                flag_name: page-size
+                type: int
+                default: 24
+              - name: keysetPagination
+                flag_name: keyset-pagination
+                type: string
+                description: "Echo back the nextCursor object from the previous page; omit for first page"
+      create:
+        method: POST
+        path: "/rest/v1/collections"
+        base_url: "https://ujasntkfphywizsdaapi.supabase.co"
+        description: "Create a new collection in the authenticated user's workspace. Writes hit Supabase PostgREST directly (Bearer + apikey headers)."
+        body:
+          - name: workspaceId
+            flag_name: workspace-id
+            type: string
+            required: true
+            description: "Workspace UUID (from `workspaces list`; defaults to the user's primary workspace)"
+          - name: name
+            type: string
+            required: true
+            description: "Collection name"
+          - name: description
+            type: string
+            description: "Collection description"
+            default: ""
+      delete:
+        method: DELETE
+        path: "/rest/v1/collections"
+        base_url: "https://ujasntkfphywizsdaapi.supabase.co"
+        description: "Delete a collection. Uses PostgREST filter ?id=eq.<id>."
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Collection UUID"
+            format: "eq.{value}"
+      add-screen:
+        method: POST
+        path: "/rest/v1/collection_screens"
+        base_url: "https://ujasntkfphywizsdaapi.supabase.co"
+        description: "Add a screen to a collection."
+        body:
+          - name: collectionId
+            flag_name: collection-id
+            type: string
+            required: true
+            description: "Collection UUID"
+          - name: screenId
+            flag_name: screen-id
+            type: string
+            required: true
+            description: "Screen UUID"
+      remove-screen:
+        method: DELETE
+        path: "/rest/v1/collection_screens"
+        base_url: "https://ujasntkfphywizsdaapi.supabase.co"
+        description: "Remove a screen from a collection."
+        params:
+          - name: collection_id
+            flag_name: collection-id
+            type: string
+            required: true
+            description: "Collection UUID"
+            format: "eq.{value}"
+          - name: screen_id
+            flag_name: screen-id
+            type: string
+            required: true
+            description: "Screen UUID"
+            format: "eq.{value}"
+      add-flow:
+        method: POST
+        path: "/rest/v1/collection_flows"
+        base_url: "https://ujasntkfphywizsdaapi.supabase.co"
+        description: "Add a flow to a collection."
+        body:
+          - name: collectionId
+            flag_name: collection-id
+            type: string
+            required: true
+          - name: flowId
+            flag_name: flow-id
+            type: string
+            required: true
+      add-app:
+        method: POST
+        path: "/rest/v1/collection_apps"
+        base_url: "https://ujasntkfphywizsdaapi.supabase.co"
+        description: "Add an app to a collection."
+        body:
+          - name: collectionId
+            flag_name: collection-id
+            type: string
+            required: true
+          - name: appId
+            flag_name: app-id
+            type: string
+            required: true
+
+  workspaces:
+    description: "List your Mobbin workspaces. The default workspace is required to create collections."
+    endpoints:
+      list:
+        method: GET
+        path: "/rest/v1/workspaces"
+        base_url: "https://ujasntkfphywizsdaapi.supabase.co"
+        description: "All workspaces the authenticated user belongs to."
+        params:
+          - name: select
+            type: string
+            default: "*"
+            description: "PostgREST select clause"
+
+types:
+  PaginationOptions:
+    fields:
+      - name: pageSize
+        type: int
+      - name: pageIndex
+        type: int
+      - name: sortBy
+        type: string
+  CollectionPaginationOptions:
+    fields:
+      - name: pageSize
+        type: int
+      - name: keysetPagination
+        type: object
+  AppSearchFilter:
+    fields:
+      - name: platform
+        type: string
+      - name: appCategories
+        type: string
+  ScreenSearchFilter:
+    fields:
+      - name: platform
+        type: string
+      - name: screenPatterns
+        type: string
+      - name: screenElements
+        type: string
+      - name: screenKeywords
+        type: string
+      - name: appCategories
+        type: string
+      - name: hasAnimation
+        type: bool
+  FlowSearchFilter:
+    fields:
+      - name: platform
+        type: string
+      - name: flowActions
+        type: string
+      - name: appCategories
+        type: string
+  App:
+    fields:
+      - name: id
+        type: string
+      - name: appName
+        type: string
+      - name: platform
+        type: string
+      - name: appCategories
+        type: string
+      - name: thumbnailUrl
+        type: string
+      - name: createdAt
+        type: string
+      - name: updatedAt
+        type: string
+  Screen:
+    fields:
+      - name: id
+        type: string
+      - name: appId
+        type: string
+      - name: appName
+        type: string
+      - name: platform
+        type: string
+      - name: screenName
+        type: string
+      - name: imageUrl
+        type: string
+      - name: patterns
+        type: array
+      - name: elements
+        type: array
+  Flow:
+    fields:
+      - name: id
+        type: string
+      - name: appId
+        type: string
+      - name: appName
+        type: string
+      - name: flowName
+        type: string
+      - name: platform
+        type: string
+      - name: steps
+        type: array
+  Pattern:
+    fields:
+      - name: id
+        type: string
+      - name: slug
+        type: string
+      - name: name
+        type: string
+      - name: definition
+        type: string
+      - name: count
+        type: int
+  Element:
+    fields:
+      - name: id
+        type: string
+      - name: slug
+        type: string
+      - name: name
+        type: string
+      - name: definition
+        type: string
+      - name: count
+        type: int
+  Collection:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: description
+        type: string
+      - name: workspaceId
+        type: string
+      - name: createdAt
+        type: string
+
+mcp:
+  transport: [stdio, http]
+  orchestration: code
+  endpoint_tools: visible

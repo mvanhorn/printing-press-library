@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "medium-reader-forward-cookie-redirect",
+  "applied_at": "2026-07-01",
+  "base_run_id": "20260616-pp-medium-8f59d2cb",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Forward the request's headers (notably the Tier-1 session Cookie) across Medium's cross-domain redirect so member posts on custom publication domains unlock instead of returning the anonymous preview.",
+  "reason": "read canonicalises every article to https://medium.com/p/<id>, which Medium 302-redirects to the post's canonical host. For a custom-domain publication that host is a DIFFERENT registrable domain (uxdesign.cc, uxplanet.org, towardsdatascience.com, ...), and Go's stdlib redirect logic classifies Cookie as a sensitive header and strips it on the cross-registrable-domain hop -- so the user's own Tier-1 medium.com session never reached the custom host, which then served the anonymous preview (is_preview_only=true), even though the same cookie unlocks medium.com and *.medium.com subdomains. The fix enables Surf's ForwardHeadersOnRedirect() on the client builder in internal/source/transport.go (NewHTTPClient): it installs, via .Std(), a CheckRedirect that re-copies the original request's headers onto each redirect hop, and because stdlib runs CheckRedirect AFTER its sensitive-header strip, the Cookie is restored. The redirect targets are always Medium-served publication domains -- exactly where the user intends their own session to apply -- and behaviour with no cookie is unchanged (still an anonymous preview). This is a printed-CLI fix for the keyless fork's hand-added Tier-1 cookie path, not an upstream generator concern (the generator emits no credential flow), so it is recorded here rather than deferred upstream. Empirically proven with the user's own medium.com session (cookie values never logged, printed, or committed): uxdesign.cc 3d358a859304 196->2006 words and b64137494f6a 206->799; uxplanet.org 547a0256ad87 189->1779; all is_preview_only true->false; medium.com and *.medium.com controls unchanged (no regression).",
+  "files": [
+    "internal/source/transport.go",
+    "internal/source/transport_test.go"
+  ],
+  "validated_outcome": "go build ./... and go test ./internal/source/... green in the library layout; gofmt clean. Hermetic regression test TestNewHTTPClientForwardsCookieAcrossRedirect asserts the returned client's CheckRedirect restores the Cookie on a cross-registrable-domain hop and fails without the ForwardHeadersOnRedirect() call (no network, no real cookie value). Live before/after matrix on two custom domains with medium.com and *.medium.com controls confirmed member full bodies unlock with no regression to the anonymous path."
+}

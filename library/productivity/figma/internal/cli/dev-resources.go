@@ -9,8 +9,11 @@ import (
 
 func newDevResourcesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "dev-resources",
-		Short: "Interact with dev resources in Figma Dev Mode.",
+		Use:         "dev-resources",
+		Short:       "Interact with dev resources in Figma Dev Mode.",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newDevResourcesPostCmd(flags))

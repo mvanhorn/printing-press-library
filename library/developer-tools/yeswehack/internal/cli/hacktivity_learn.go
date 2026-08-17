@@ -46,10 +46,10 @@ func newHacktivityLearnCmd(flags *rootFlags) *cobra.Command {
 				if program != "" && stringField(h, "program.slug", "data.program.slug") != program {
 					continue
 				}
-				if cwe != "" && stringField(h, "vulnerable_part", "data.vulnerable_part") != cwe {
+				if cwe != "" && cweFromReport(h) != normalizeCWE(cwe) {
 					continue
 				}
-				if ts := parseFlexibleTime(stringField(h, "disclosed_at", "data.disclosed_at")); !ts.IsZero() && ts.Before(cutoff) {
+				if ts := hacktivityDate(h); !ts.IsZero() && ts.Before(cutoff) {
 					continue
 				}
 				out = append(out, h)

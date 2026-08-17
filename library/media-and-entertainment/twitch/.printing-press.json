@@ -1,0 +1,57 @@
+{
+    "schema_version":  1,
+    "generated_at":  "2026-06-20T21:24:49.1673035Z",
+    "printing_press_version":  "4.24.0",
+    "api_name":  "twitch",
+    "display_name":  "Twitch Helix",
+    "cli_name":  "twitch-pp-cli",
+    "creator":  {
+                    "handle":  "coopdogGGs",
+                    "name":  "ryanc00per"
+                },
+    "owner":  "coopdogggs",
+    "printer":  "coopdogGGs",
+    "printer_name":  "ryanc00per",
+    "spec_path":  "twitch-spec.json",
+    "spec_format":  "openapi3",
+    "spec_checksum":  "sha256:59e8c5221e6c086449859081296eaf855ca272a2f24ec42a666dc4b861b5ef2b",
+    "run_id":  "20260620-151417",
+    "category":  "media-and-entertainment",
+    "description":  "Twitch Helix API",
+    "mcp_binary":  "twitch-pp-mcp",
+    "mcp_tool_count":  144,
+    "mcp_public_tool_count":  13,
+    "mcp_ready":  "full",
+    "api_version":  "helix",
+    "auth_type":  "bearer_token",
+    "auth_env_vars":  [
+                          "TWITCH_CLIENT_ID",
+                          "TWITCH_CLIENT_SECRET"
+                      ],
+    "novel_features":  [
+                           {
+                               "name":  "Local SQLite Sync",
+                               "command":  "sync",
+                               "description":  "Mirror Twitch Helix data (top games, live streams, global emotes, content labels) into a local SQLite store for offline search and analysis",
+                               "rationale":  "No Twitch tool persists data; every library and the official twitch-cli is a stateless live passthrough"
+                           },
+                           {
+                               "name":  "Full-Text Search",
+                               "command":  "search",
+                               "description":  "Full-text search across locally synced Twitch records",
+                               "rationale":  "Requires the local SQLite index; impossible with the stateless API wrappers"
+                           },
+                           {
+                               "name":  "Local Analytics",
+                               "command":  "analytics",
+                               "description":  "Group-by and count aggregation over locally synced Twitch data without re-hitting the rate-limited API",
+                               "rationale":  "Offline aggregation is absent from every alternative"
+                           },
+                           {
+                               "name":  "Compound Workflows",
+                               "command":  "workflow",
+                               "description":  "Chain multiple Helix operations into one agent-friendly command",
+                               "rationale":  "Combines several API calls behind a single invocation"
+                           }
+                       ]
+}

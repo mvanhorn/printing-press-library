@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "ht-ml-novel-command-wiring",
+  "applied_at": "2026-06-26",
+  "base_run_id": "20260625-202846-acc7c150",
+  "base_printing_press_version": "4.26.0",
+  "summary": "Register the hand-built store-aware write/scaffold commands on the root command.",
+  "reason": "ht-ml.app has no global API key and no list endpoint, so create/update/asset/password/template flows are hand-built novel commands that resolve the per-site update_key from the local store; they must be wired into the generated root command tree.",
+  "files": [
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "go build ./... and `ht-ml-pp-cli --help` list publish/update/password/templates/new."
+}

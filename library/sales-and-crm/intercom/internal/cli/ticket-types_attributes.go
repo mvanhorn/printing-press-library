@@ -9,9 +9,10 @@ import (
 
 func newTicketTypesAttributesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "attributes",
-		Short: "Create and update attributes for ticket types",
-		RunE:  parentNoSubcommandRunE(flags),
+		Use:         "attributes",
+		Short:       "Create and update attributes for ticket types",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newTicketTypesAttributesCreateTicketTypeCmd(flags))

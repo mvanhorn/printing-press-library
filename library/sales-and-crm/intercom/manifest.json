@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "intercom-pp-mcp",
   "display_name": "Intercom",
-  "version": "4.14.0",
+  "version": "4.29.0",
   "description": "Every Intercom resource as a typed CLI with offline sync and EU/AU regions.",
   "author": {
     "name": "CLI Printing Press"

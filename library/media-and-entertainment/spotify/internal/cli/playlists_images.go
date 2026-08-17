@@ -9,8 +9,10 @@ import (
 
 func newPlaylistsImagesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "images",
-		Short: "Manage images",
+		Use:         "images",
+		Short:       "Get and upload images for playlists",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newPlaylistsImagesGetPlaylistCoverCmd(flags))

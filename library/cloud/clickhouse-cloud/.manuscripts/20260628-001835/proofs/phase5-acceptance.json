@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "run_id": "20260628-001835",
+  "api_name": "clickhouse-cloud",
+  "cli_name": "clickhouse-cloud-pp-cli",
+  "printing_press_version": "4.26.0",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 5,
+  "tests_passed": 5,
+  "tests_skipped": 0,
+  "auth_context": {
+    "type": "basic"
+  },
+  "accepted": true,
+  "dogfood": {
+    "verdict": "PASS",
+    "path_check": {
+      "tested": 5,
+      "valid": 5,
+      "valid_pct": 100
+    },
+    "auth_check": {
+      "match": true,
+      "detail": "spec and generated client both use Basic auth"
+    },
+    "example_check": {
+      "tested": 10,
+      "valid_examples": 10
+    },
+    "dead_flags": {
+      "total": 22,
+      "dead": 0
+    },
+    "dead_functions": {
+      "total": 81,
+      "dead": 0
+    },
+    "mcp_surface_parity": {
+      "pass": true
+    }
+  },
+  "local_validation": [
+    "env GOCACHE=/private/tmp/clickhouse-cloud-gocache go test ./...",
+    "env GOCACHE=/private/tmp/clickhouse-cloud-gocache go vet ./...",
+    "env GOCACHE=/private/tmp/clickhouse-cloud-gocache go build ./cmd/clickhouse-cloud-pp-cli ./cmd/clickhouse-cloud-pp-mcp",
+    "env GOCACHE=/private/tmp/clickhouse-cloud-gocache cli-printing-press dogfood --dir . --spec spec.json --json"
+  ],
+  "notes": [
+    "Live API execution requires user-provided ClickHouse Cloud API key credentials.",
+    "Official oneOf/anyOf request bodies are exposed through generated --body-json fallbacks."
+  ]
+}

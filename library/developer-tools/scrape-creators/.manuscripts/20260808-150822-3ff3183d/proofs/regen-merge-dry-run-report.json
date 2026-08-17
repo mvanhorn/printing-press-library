@@ -1,0 +1,3877 @@
+{
+  "cli_dir": "<HOME>/printing-press/library/scrape-creators",
+  "fresh_dir": "<HOME>/printing-press/.runstate/giuseppebisemi-9a6a2b3d/runs/20260808-150822-3ff3183d/working/scrape-creators-pp-cli",
+  "applied": false,
+  "files": [
+    {
+      "path": "cmd/scrape-creators-pp-cli/main.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "cmd/scrape-creators-pp-mcp/main.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "main": {
+            "published": "func main() {\n\ts := server.NewMCPServer(\n\t\t\"Scrape Creators\",\n\t\t\"2026.6.2\",\n\t\tserver.WithToolCapabilities(false),\n\t)\n\tmc...",
+            "fresh": "func main() {\n\t_ = os.Setenv(\"SCRAPE_CREATORS_LEARN_SURFACE\", \"mcp\")\n\tif err := cli.BindMCPServerProfile(); err != nil {..."
+          }
+        }
+      }
+    },
+    {
+      "path": "go.mod",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "go.sum",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cache/cache.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "(*Store).Get": {
+            "published": "func (s *Store) Get(key string) (json.RawMessage, bool) {\n\tpath := s.path(key)\n\tinfo, err := os.Stat(path)\n\tif err != ni...",
+            "fresh": "func (s *Store) Get(key string) (json.RawMessage, bool) {\n\tpath := s.path(key)\n\tinfo, err := os.Stat(path)\n\tif err != ni..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/account.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAccountCmd": {
+            "published": "func newAccountCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"account\",\n\t\tShort:       \"...",
+            "fresh": "func newAccountCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"account\",\n\t\tShort:       \"..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/account_budget.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/account_budget_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/account_estimate.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/account_estimate_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/account_list-getapiusage.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAccountListGetapiusageCmd": {
+            "published": "func newAccountListGetapiusageCmd(flags *rootFlags) *cobra.Command {\n\tvar flagPage string\n\tvar flagEndpoint string\n\tvar ...",
+            "fresh": "func newAccountListGetapiusageCmd(flags *rootFlags) *cobra.Command {\n\tvar flagPage string\n\tvar flagEndpoint string\n\tvar ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/account_list-getdailyusagecount.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAccountListGetdailyusagecountCmd": {
+            "published": "func newAccountListGetdailyusagecountCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"list...",
+            "fresh": "func newAccountListGetdailyusagecountCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"list..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/account_list-getmostusedroutes.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAccountListGetmostusedroutesCmd": {
+            "published": "func newAccountListGetmostusedroutesCmd(flags *rootFlags) *cobra.Command {\n\tvar flagStartTime string\n\tvar flagEndTime st...",
+            "fresh": "func newAccountListGetmostusedroutesCmd(flags *rootFlags) *cobra.Command {\n\tvar flagStartTime string\n\tvar flagEndTime st..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/account_list.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAccountListCmd": {
+            "published": "func newAccountListCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"list\",\n\t\tShort:       ...",
+            "fresh": "func newAccountListCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"list\",\n\t\tShort:       ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ads.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/ads_monitor.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newNovelAdsMonitorCmd": {
+            "published": "func newNovelAdsMonitorCmd(flags *rootFlags) *cobra.Command {\n\tvar dbPath string\n\tcmd := \u0026cobra.Command{\n\t\tUse:     \"mon...",
+            "fresh": "func newNovelAdsMonitorCmd(flags *rootFlags) *cobra.Command {\n\tvar dbPath string\n\tcmd := \u0026cobra.Command{\n\t\tUse:     \"mon..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ads_monitor_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/agent_context.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "buildAgentContext": {
+            "published": "func buildAgentContext(rootCmd *cobra.Command) agentContext {\n\tenvVars := []agentContextAuthEnvVar{\n\t\t{\n\t\t\tName:        ...",
+            "fresh": "func buildAgentContext(rootCmd *cobra.Command) agentContext {\n\tenvVars := []agentContextAuthEnvVar{\n\t\t{\n\t\t\tName:        ..."
+          },
+          "type:agentContext": {
+            "published": "type agentContext struct {\n\tSchemaVersion              string                 `json:\"schema_version\"`\n\tCLI              ...",
+            "fresh": "type agentContext struct {\n\tSchemaVersion              string                 `json:\"schema_version\"`\n\tCLI              ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/amend_compact_comments_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/amend_pagination_test.go",
+      "verdict": "TEMPLATED-WITH-ADDITIONS",
+      "applied": false,
+      "decl_set_delta": {
+        "in_published_not_fresh": [
+          "TestAdoptLonePositionalArg",
+          "TestLocalSyncHint",
+          "TestPaginatedGetStopsWithoutDeclaredCursor"
+        ],
+        "in_fresh_not_published": [
+          "TestPaginatedGetAutoDetectsUndeclaredCursor"
+        ]
+      }
+    },
+    {
+      "path": "internal/cli/analytics.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/api_discovery.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAPICmd": {
+            "published": "func newAPICmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"api [interface]\",\n\t\tShort:    ...",
+            "fresh": "func newAPICmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"api [interface]\",\n\t\tShort:    ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/apple-music.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/apple-music_list-applemusic-2.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/apple-music_list-applemusic-3.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/apple-music_list-applemusic.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/apple-music_list.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/auth.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/bluesky.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newBlueskyCmd": {
+            "published": "func newBlueskyCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"bluesky\",\n\t\tShort:       \"...",
+            "fresh": "func newBlueskyCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"bluesky\",\n\t\tShort:       \"..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/bluesky_list-profile.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newBlueskyListProfileCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/bluesky_list-user.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newBlueskyListUserCmd": {
+            "published": "func newBlueskyListUserCmd(flags *rootFlags) *cobra.Command {\n\tvar flagHandle string\n\tvar flagUserId string\n\tcmd := \u0026cob...",
+            "fresh": "func newBlueskyListUserCmd(flags *rootFlags) *cobra.Command {\n\tvar flagHandle string\n\tvar flagUserId string\n\tcmd := \u0026cob..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/bluesky_list.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newBlueskyListCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/channel_workflow.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newWorkflowStatusCmd": [
+            "OpenWithContext"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/comments.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/comments_coverage.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/comments_coverage_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/comments_search.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/comments_search_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/comments_sweep.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/comments_sweep_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/comments_thread.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/comments_thread_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/content.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/content_spikes.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/content_spikes_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/creator.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/creator_compare.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newNovelCreatorCompareCmd": {
+            "published": "func newNovelCreatorCompareCmd(flags *rootFlags) *cobra.Command {\n\tvar platform string\n\tvar sampleSize int\n\tcmd := \u0026cobr...",
+            "fresh": "func newNovelCreatorCompareCmd(flags *rootFlags) *cobra.Command {\n\tvar platform string\n\tvar sampleSize int\n\tcmd := \u0026cobr..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/creator_compare_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/creator_find.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newNovelCreatorFindCmd": {
+            "published": "func newNovelCreatorFindCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"find \u003chandle\u003e\",\n\t...",
+            "fresh": "func newNovelCreatorFindCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"find \u003chandle\u003e\",\n\t..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/creator_find_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/creator_tagged.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/creator_tagged_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/creator_track.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/creator_track_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/data_source.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "resolveLocal": [
+            "isSyncableResource",
+            "localSyncHint"
+          ],
+          "resolvePaginatedReadWithStrategy": [
+            "Errorf",
+            "assertLiveJSONBody",
+            "attachFreshness",
+            "isNetworkError",
+            "paginatedGet",
+            "resolveLocal",
+            "validateDataSourceStrategy",
+            "writeThroughCache"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/deliver.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/doctor.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "collectCacheReport": {
+            "published": "func collectCacheReport(ctx context.Context, staleAfterSpec string) map[string]any {\n\treport := map[string]any{}\n\tdbPath...",
+            "fresh": "func collectCacheReport(ctx context.Context, staleAfterSpec string) map[string]any {\n\treport := map[string]any{}\n\tdbPath..."
+          },
+          "newDoctorCmd": {
+            "published": "func newDoctorCmd(flags *rootFlags) *cobra.Command {\n\tvar failOn string\n\tcmd := \u0026cobra.Command{\n\t\tUse:   \"doctor\",\n\t\tSho...",
+            "fresh": "func newDoctorCmd(flags *rootFlags) *cobra.Command {\n\tvar failOn string\n\tcmd := \u0026cobra.Command{\n\t\tUse:   \"doctor\",\n\t\tSho..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/export.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/facebook.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newFacebookCmd": {
+            "published": "func newFacebookCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"facebook\",\n\t\tShort:      ...",
+            "fresh": "func newFacebookCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"facebook\",\n\t\tShort:      ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/facebook_create-adlibrary.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/facebook_create.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/facebook_list-adlibrary-2.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newFacebookListAdlibrary2Cmd": {
+            "published": "func newFacebookListAdlibrary2Cmd(flags *rootFlags) *cobra.Command {\n\tvar flagId string\n\tvar flagUrl string\n\tcmd := \u0026cob...",
+            "fresh": "func newFacebookListAdlibrary2Cmd(flags *rootFlags) *cobra.Command {\n\tvar flagId string\n\tvar flagUrl string\n\tvar flagCac..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/facebook_list-adlibrary-3.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newFacebookListAdlibrary3Cmd": {
+            "published": "func newFacebookListAdlibrary3Cmd(flags *rootFlags) *cobra.Command {\n\tvar flagPageId string\n\tvar flagCompanyName string\n...",
+            "fresh": "func newFacebookListAdlibrary3Cmd(flags *rootFlags) *cobra.Command {\n\tvar flagPageId string\n\tvar flagCompanyName string\n..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/facebook_list-adlibrary-4.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newFacebookListAdlibrary4Cmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/facebook_list-adlibrary-5.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newFacebookListAdlibrary5Cmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/facebook_list-adlibrary.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newFacebookListAdlibraryCmd": {
+            "published": "func newFacebookListAdlibraryCmd(flags *rootFlags) *cobra.Command {\n\tvar flagId string\n\tvar flagUrl string\n\tvar flagTrim...",
+            "fresh": "func newFacebookListAdlibraryCmd(flags *rootFlags) *cobra.Command {\n\tvar flagId string\n\tvar flagUrl string\n\tvar flagTrim..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/facebook_list-event.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newFacebookListEventCmd": {
+            "published": "func newFacebookListEventCmd(flags *rootFlags) *cobra.Command {\n\tvar flagId string\n\tvar flagUrl string\n\tcmd := \u0026cobra.Co...",
+            "fresh": "func newFacebookListEventCmd(flags *rootFlags) *cobra.Command {\n\tvar flagId string\n\tvar flagUrl string\n\tcmd := \u0026cobra.Co..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/facebook_list-events.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newFacebookListEventsCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/facebook_list-group-2.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/facebook_list-group.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newFacebookListGroupCmd": [
+            "Changed",
+            "Errorf"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/facebook_list-marketplace-2.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newFacebookListMarketplace2Cmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/facebook_list-marketplace-3.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newFacebookListMarketplace3Cmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/facebook_list-marketplace.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newFacebookListMarketplaceCmd": {
+            "published": "func newFacebookListMarketplaceCmd(flags *rootFlags) *cobra.Command {\n\tvar flagId string\n\tvar flagUrl string\n\tcmd := \u0026co...",
+            "fresh": "func newFacebookListMarketplaceCmd(flags *rootFlags) *cobra.Command {\n\tvar flagId string\n\tvar flagUrl string\n\tcmd := \u0026co..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/facebook_list-post-2.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newFacebookListPost2Cmd": {
+            "published": "func newFacebookListPost2Cmd(flags *rootFlags) *cobra.Command {\n\tvar flagUrl string\n\tvar flagFeedbackId string\n\tvar flag...",
+            "fresh": "func newFacebookListPost2Cmd(flags *rootFlags) *cobra.Command {\n\tvar flagUrl string\n\tvar flagFeedbackId string\n\tvar flag..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/facebook_list-post-3.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newFacebookListPost3Cmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/facebook_list-post-4.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newFacebookListPost4Cmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/facebook_list-post.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newFacebookListPostCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/facebook_list-profile-2.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newFacebookListProfile2Cmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/facebook_list-profile-3.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newFacebookListProfile3Cmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/facebook_list-profile-4.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newFacebookListProfile4Cmd": {
+            "published": "func newFacebookListProfile4Cmd(flags *rootFlags) *cobra.Command {\n\tvar flagUrl string\n\tvar flagPageId string\n\tvar flagC...",
+            "fresh": "func newFacebookListProfile4Cmd(flags *rootFlags) *cobra.Command {\n\tvar flagUrl string\n\tvar flagPageId string\n\tvar flagC..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/facebook_list-profile-5.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newFacebookListProfile5Cmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/facebook_list-profile.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newFacebookListProfileCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/facebook_list.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newFacebookListCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/feedback.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/github.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newGithubCmd": {
+            "published": "func newGithubCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"github\",\n\t\tShort:       \"Sc...",
+            "fresh": "func newGithubCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"github\",\n\t\tShort:       \"Sc..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/github_list-trending-2.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newGithubListTrending2Cmd": {
+            "published": "func newGithubListTrending2Cmd(flags *rootFlags) *cobra.Command {\n\tvar flagLanguage string\n\tvar flagSince string\n\tvar fl...",
+            "fresh": "func newGithubListTrending2Cmd(flags *rootFlags) *cobra.Command {\n\tvar flagLanguage string\n\tvar flagSince string\n\tvar fl..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/github_list-trending.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newGithubListTrendingCmd": {
+            "published": "func newGithubListTrendingCmd(flags *rootFlags) *cobra.Command {\n\tvar flagLanguage string\n\tvar flagSince string\n\tcmd := ...",
+            "fresh": "func newGithubListTrendingCmd(flags *rootFlags) *cobra.Command {\n\tvar flagLanguage string\n\tvar flagSince string\n\tcmd := ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/github_list-user-2.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newGithubListUser2Cmd": {
+            "published": "func newGithubListUser2Cmd(flags *rootFlags) *cobra.Command {\n\tvar flagHandle string\n\tvar flagUrl string\n\tvar flagYear f...",
+            "fresh": "func newGithubListUser2Cmd(flags *rootFlags) *cobra.Command {\n\tvar flagHandle string\n\tvar flagUrl string\n\tvar flagYear f..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/github_list-user-3.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newGithubListUser3Cmd": {
+            "published": "func newGithubListUser3Cmd(flags *rootFlags) *cobra.Command {\n\tvar flagHandle string\n\tvar flagUrl string\n\tvar flagYear f...",
+            "fresh": "func newGithubListUser3Cmd(flags *rootFlags) *cobra.Command {\n\tvar flagHandle string\n\tvar flagUrl string\n\tvar flagYear f..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/github_list-user-4.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newGithubListUser4Cmd": {
+            "published": "func newGithubListUser4Cmd(flags *rootFlags) *cobra.Command {\n\tvar flagHandle string\n\tvar flagUrl string\n\tvar flagCursor...",
+            "fresh": "func newGithubListUser4Cmd(flags *rootFlags) *cobra.Command {\n\tvar flagHandle string\n\tvar flagUrl string\n\tvar flagCursor..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/github_list-user-5.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newGithubListUser5Cmd": {
+            "published": "func newGithubListUser5Cmd(flags *rootFlags) *cobra.Command {\n\tvar flagHandle string\n\tvar flagUrl string\n\tvar flagCursor...",
+            "fresh": "func newGithubListUser5Cmd(flags *rootFlags) *cobra.Command {\n\tvar flagHandle string\n\tvar flagUrl string\n\tvar flagCursor..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/github_list-user-6.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newGithubListUser6Cmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/github_list-user-7.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newGithubListUser7Cmd": {
+            "published": "func newGithubListUser7Cmd(flags *rootFlags) *cobra.Command {\n\tvar flagHandle string\n\tvar flagUrl string\n\tvar flagType s...",
+            "fresh": "func newGithubListUser7Cmd(flags *rootFlags) *cobra.Command {\n\tvar flagHandle string\n\tvar flagUrl string\n\tvar flagType s..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/github_list-user.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newGithubListUserCmd": {
+            "published": "func newGithubListUserCmd(flags *rootFlags) *cobra.Command {\n\tvar flagHandle string\n\tvar flagUrl string\n\tcmd := \u0026cobra.C...",
+            "fresh": "func newGithubListUserCmd(flags *rootFlags) *cobra.Command {\n\tvar flagHandle string\n\tvar flagUrl string\n\tcmd := \u0026cobra.C..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/github_list.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newGithubListCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/google.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newGoogleCmd": {
+            "published": "func newGoogleCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"google\",\n\t\tShort:       \"Sc...",
+            "fresh": "func newGoogleCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"google\",\n\t\tShort:       \"Sc..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/google_list-adlibrary.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newGoogleListAdlibraryCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/google_list-company.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newGoogleListCompanyCmd": {
+            "published": "func newGoogleListCompanyCmd(flags *rootFlags) *cobra.Command {\n\tvar flagDomain string\n\tvar flagAdvertiserId string\n\tvar...",
+            "fresh": "func newGoogleListCompanyCmd(flags *rootFlags) *cobra.Command {\n\tvar flagDomain string\n\tvar flagAdvertiserId string\n\tvar..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/google_list-search.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newGoogleListSearchCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/google_list.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newGoogleListCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/helpers.go",
+      "verdict": "TEMPLATED-WITH-ADDITIONS",
+      "applied": false,
+      "decl_set_delta": {
+        "in_published_not_fresh": [
+          "adoptLonePositionalArg",
+          "compactListEnvelopeObject"
+        ],
+        "in_fresh_not_published": [
+          "(*selectMatchState).merge",
+          "(responsePathPaginatedClient).GetWithHeaders",
+          "(responsePathPaginatedClient).IsDryRun",
+          "canonicalPaginationCollectionKeys",
+          "cloneRawObject",
+          "collectionItemsForOutput",
+          "compactListEnvelopeObjectAtDepth",
+          "declarePlatformAnalytics",
+          "deleteRawPath",
+          "detectPartialFailure",
+          "dryRunResult",
+          "emitPlatformOutputMetadata",
+          "envelopeMetadataKeys",
+          "extractPaginatedItemsFromObject",
+          "extractPaginatedItemsMatchingPath",
+          "filterFieldsRecAtDepth",
+          "hasChangedLocalFlags",
+          "isDryRunResponse",
+          "isDryRunResponseForClient",
+          "isJSONArray",
+          "maxListEnvelopeDepth",
+          "paginatedCollectionEnvelopeField",
+          "paginatedGetWithResponsePath",
+          "partialFailureErr",
+          "partialFailureReport",
+          "platformStructuredOutputSelected",
+          "resolvePlatformWindow",
+          "responsePathItemsKey",
+          "responsePathPaginatedClient",
+          "selectFieldKeys",
+          "selectMatchState",
+          "validatePlatformAnalytics",
+          "wrapPlatformStructuredOutput",
+          "writeDryRun"
+        ]
+      }
+    },
+    {
+      "path": "internal/cli/import.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/instagram.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newInstagramCmd": {
+            "published": "func newInstagramCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"instagram\",\n\t\tShort:    ...",
+            "fresh": "func newInstagramCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"instagram\",\n\t\tShort:    ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/instagram_list-audio.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newInstagramListAudioCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/instagram_list-media.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newInstagramListMediaCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/instagram_list-post-2.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newInstagramListPost2Cmd": [
+            "MaximumNArgs",
+            "NFlag",
+            "adoptLonePositionalArg"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/instagram_list-post-3.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/instagram_list-post.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newInstagramListPostCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/instagram_list-profile.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newInstagramListProfileCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/instagram_list-reels-2.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newInstagramListReels2Cmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/instagram_list-reels.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newInstagramListReelsCmd": {
+            "published": "func newInstagramListReelsCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"list-reels\",\n\t\t...",
+            "fresh": "func newInstagramListReelsCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"list-reels\",\n\t\t..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/instagram_list-search-2.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newInstagramListSearch2Cmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/instagram_list-search-3.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/instagram_list-search-4.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/instagram_list-search.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newInstagramListSearchCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/instagram_list-user-2.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newInstagramListUser2Cmd": {
+            "published": "func newInstagramListUser2Cmd(flags *rootFlags) *cobra.Command {\n\tvar flagUserId string\n\tvar flagHandle string\n\tcmd := \u0026...",
+            "fresh": "func newInstagramListUser2Cmd(flags *rootFlags) *cobra.Command {\n\tvar flagUserId string\n\tvar flagHandle string\n\tcmd := \u0026..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/instagram_list-user-3.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newInstagramListUser3Cmd": {
+            "published": "func newInstagramListUser3Cmd(flags *rootFlags) *cobra.Command {\n\tvar flagUserId string\n\tvar flagHandle string\n\tvar flag...",
+            "fresh": "func newInstagramListUser3Cmd(flags *rootFlags) *cobra.Command {\n\tvar flagUserId string\n\tvar flagHandle string\n\tvar flag..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/instagram_list-user-4.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newInstagramListUser4Cmd": [
+            "MaximumNArgs",
+            "NFlag",
+            "adoptLonePositionalArg"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/instagram_list-user-5.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newInstagramListUser5Cmd": {
+            "published": "func newInstagramListUser5Cmd(flags *rootFlags) *cobra.Command {\n\tvar flagId string\n\tcmd := \u0026cobra.Command{\n\t\tUse:      ...",
+            "fresh": "func newInstagramListUser5Cmd(flags *rootFlags) *cobra.Command {\n\tvar flagHandle string\n\tvar flagNextMaxId string\n\tvar f..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/instagram_list-user-6.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/instagram_list-user.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newInstagramListUserCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/instagram_list.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newInstagramListCmd": {
+            "published": "func newInstagramListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagUserId string\n\tcmd := \u0026cobra.Command{\n\t\tUse:       ...",
+            "fresh": "func newInstagramListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagUserId string\n\tvar flagCacheMaxAge string\n\tcmd := \u0026..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/kwai.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newKwaiCmd": {
+            "published": "func newKwaiCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"kwai\",\n\t\tShort:       \"Scrape...",
+            "fresh": "func newKwaiCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"kwai\",\n\t\tShort:       \"Scrape..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/kwai_list-profile.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newKwaiListProfileCmd": {
+            "published": "func newKwaiListProfileCmd(flags *rootFlags) *cobra.Command {\n\tvar flagHandle string\n\tvar flagUrl string\n\tcmd := \u0026cobra....",
+            "fresh": "func newKwaiListProfileCmd(flags *rootFlags) *cobra.Command {\n\tvar flagHandle string\n\tvar flagUrl string\n\tcmd := \u0026cobra...."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/kwai_list-user.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newKwaiListUserCmd": {
+            "published": "func newKwaiListUserCmd(flags *rootFlags) *cobra.Command {\n\tvar flagHandle string\n\tvar flagUrl string\n\tvar flagCursor st...",
+            "fresh": "func newKwaiListUserCmd(flags *rootFlags) *cobra.Command {\n\tvar flagHandle string\n\tvar flagUrl string\n\tvar flagCursor st..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/kwai_list.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newKwaiListCmd": {
+            "published": "func newKwaiListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagUrl string\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"list\"...",
+            "fresh": "func newKwaiListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagUrl string\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"list\"..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/learn_init.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/learn_init_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/learnings_candidates.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/learnings_candidates_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/learnings_stats.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/learnings_stats_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/linkedin.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newLinkedinCmd": {
+            "published": "func newLinkedinCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"linkedin\",\n\t\tShort:      ...",
+            "fresh": "func newLinkedinCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"linkedin\",\n\t\tShort:      ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/linkedin_list-ads.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newLinkedinListAdsCmd": {
+            "published": "func newLinkedinListAdsCmd(flags *rootFlags) *cobra.Command {\n\tvar flagCompany string\n\tvar flagKeyword string\n\tvar flagC...",
+            "fresh": "func newLinkedinListAdsCmd(flags *rootFlags) *cobra.Command {\n\tvar flagCompany string\n\tvar flagKeyword string\n\tvar flagC..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/linkedin_list-company-2.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newLinkedinListCompany2Cmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/linkedin_list-company.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newLinkedinListCompanyCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/linkedin_list-post-2.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newLinkedinListPost2Cmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/linkedin_list-post.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newLinkedinListPostCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/linkedin_list-profile.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newLinkedinListProfileCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/linkedin_list-search.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newLinkedinListSearchCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/linkedin_list.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newLinkedinListCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/novel_comments_logic_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/pinterest.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newPinterestCmd": {
+            "published": "func newPinterestCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"pinterest\",\n\t\tShort:    ...",
+            "fresh": "func newPinterestCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"pinterest\",\n\t\tShort:    ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/pinterest_list-pin.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newPinterestListPinCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/pinterest_list-search.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newPinterestListSearchCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/pinterest_list-user.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newPinterestListUserCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/pinterest_list.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newPinterestListCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/platform_cli_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/platform_client.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/platform_window.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/platform_window_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/playbook_init.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/playbook_init_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/playbooks/embed.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/profile.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "ApplyProfileToFlags": {
+            "published": "func ApplyProfileToFlags(cmd *cobra.Command, profile *Profile) error {\n\tif profile == nil || len(profile.Values) == 0 {\n...",
+            "fresh": "func ApplyProfileToFlags(cmd *cobra.Command, profile *Profile) error {\n\tif profile == nil || len(profile.Values) == 0 {\n..."
+          },
+          "newProfileSaveCmd": {
+            "published": "func newProfileSaveCmd(flags *rootFlags) *cobra.Command {\n\tvar description string\n\tcmd := \u0026cobra.Command{\n\t\tUse:   \"save...",
+            "fresh": "func newProfileSaveCmd(flags *rootFlags) *cobra.Command {\n\tvar description string\n\tcmd := \u0026cobra.Command{\n\t\tUse:   \"save..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/promoted_amazon.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newAmazonPromotedCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/promoted_detect-age-gender.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newDetectAgeGenderPromotedCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/promoted_kick.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newKickPromotedCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/promoted_komi.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newKomiPromotedCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/promoted_linkbio.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newLinkbioPromotedCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/promoted_linkme.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newLinkmePromotedCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/promoted_linktree.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newLinktreePromotedCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/promoted_pillar.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newPillarPromotedCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/promoted_snapchat.go",
+      "verdict": "PUBLISHED-ONLY-TEMPLATED",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/reddit.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newRedditCmd": {
+            "published": "func newRedditCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"reddit\",\n\t\tShort:       \"Sc...",
+            "fresh": "func newRedditCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"reddit\",\n\t\tShort:       \"Sc..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/reddit_create.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/reddit_list-post-2.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newRedditListPost2Cmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/reddit_list-post.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newRedditListPostCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/reddit_list-subreddit-2.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newRedditListSubreddit2Cmd": {
+            "published": "func newRedditListSubreddit2Cmd(flags *rootFlags) *cobra.Command {\n\tvar flagSubreddit string\n\tvar flagUrl string\n\tcmd :=...",
+            "fresh": "func newRedditListSubreddit2Cmd(flags *rootFlags) *cobra.Command {\n\tvar flagSubreddit string\n\tvar flagUrl string\n\tvar fl..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/reddit_list-subreddit-3.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newRedditListSubreddit3Cmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/reddit_list-subreddit.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newRedditListSubredditCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/reddit_list.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newRedditListCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/resource_paths.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/root.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "Execute": [
+            "Execute"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/root_test.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "TestFilterFields": {
+            "published": "func TestFilterFields(t *testing.T) {\n\tt.Parallel()\n\tcases := []struct {\n\t\tname   string\n\t\tinput  string\n\t\tfields string...",
+            "fresh": "func TestFilterFields(t *testing.T) {\n\tt.Parallel()\n\tcases := []struct {\n\t\tname   string\n\t\tinput  string\n\t\tfields string..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/rumble.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newRumbleCmd": {
+            "published": "func newRumbleCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"rumble\",\n\t\tShort:       \"Sc...",
+            "fresh": "func newRumbleCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"rumble\",\n\t\tShort:       \"Sc..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/rumble_list-channel.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newRumbleListChannelCmd": {
+            "published": "func newRumbleListChannelCmd(flags *rootFlags) *cobra.Command {\n\tvar flagHandle string\n\tvar flagUrl string\n\tvar flagCurs...",
+            "fresh": "func newRumbleListChannelCmd(flags *rootFlags) *cobra.Command {\n\tvar flagHandle string\n\tvar flagUrl string\n\tvar flagCurs..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/rumble_list-video-2.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newRumbleListVideo2Cmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/rumble_list-video-3.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newRumbleListVideo3Cmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/rumble_list-video.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newRumbleListVideoCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/rumble_list.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newRumbleListCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/scrapecreators_novel_helpers.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/scrapecreators_novel_helpers_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/search.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newSearchCmd": {
+            "published": "func newSearchCmd(flags *rootFlags) *cobra.Command {\n\tvar resourceType string\n\tvar limit int\n\tvar dbPath string\n\tsearchR...",
+            "fresh": "func newSearchCmd(flags *rootFlags) *cobra.Command {\n\tvar resourceType string\n\tvar limit int\n\tvar dbPath string\n\tsearchR..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/snapchat.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/snapchat_list-spotlight-2.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/snapchat_list-spotlight.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/snapchat_list.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/soundcloud.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newSoundcloudCmd": {
+            "published": "func newSoundcloudCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"soundcloud\",\n\t\tShort:  ...",
+            "fresh": "func newSoundcloudCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"soundcloud\",\n\t\tShort:  ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/soundcloud_list-artist.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newSoundcloudListArtistCmd": {
+            "published": "func newSoundcloudListArtistCmd(flags *rootFlags) *cobra.Command {\n\tvar flagHandle string\n\tvar flagUrl string\n\tvar flagC...",
+            "fresh": "func newSoundcloudListArtistCmd(flags *rootFlags) *cobra.Command {\n\tvar flagHandle string\n\tvar flagUrl string\n\tvar flagC..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/soundcloud_list-track.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newSoundcloudListTrackCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/soundcloud_list.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newSoundcloudListCmd": {
+            "published": "func newSoundcloudListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagHandle string\n\tvar flagUrl string\n\tcmd := \u0026cobra.C...",
+            "fresh": "func newSoundcloudListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagHandle string\n\tvar flagUrl string\n\tcmd := \u0026cobra.C..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/spotify.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newSpotifyCmd": {
+            "published": "func newSpotifyCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"spotify\",\n\t\tShort:       \"...",
+            "fresh": "func newSpotifyCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"spotify\",\n\t\tShort:       \"..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/spotify_list-artist.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newSpotifyListArtistCmd": {
+            "published": "func newSpotifyListArtistCmd(flags *rootFlags) *cobra.Command {\n\tvar flagId string\n\tvar flagUrl string\n\tcmd := \u0026cobra.Co...",
+            "fresh": "func newSpotifyListArtistCmd(flags *rootFlags) *cobra.Command {\n\tvar flagId string\n\tvar flagUrl string\n\tcmd := \u0026cobra.Co..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/spotify_list-podcast-2.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newSpotifyListPodcast2Cmd": {
+            "published": "func newSpotifyListPodcast2Cmd(flags *rootFlags) *cobra.Command {\n\tvar flagId string\n\tvar flagUrl string\n\tvar flagCursor...",
+            "fresh": "func newSpotifyListPodcast2Cmd(flags *rootFlags) *cobra.Command {\n\tvar flagId string\n\tvar flagUrl string\n\tvar flagCursor..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/spotify_list-podcast.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newSpotifyListPodcastCmd": {
+            "published": "func newSpotifyListPodcastCmd(flags *rootFlags) *cobra.Command {\n\tvar flagId string\n\tvar flagUrl string\n\tcmd := \u0026cobra.C...",
+            "fresh": "func newSpotifyListPodcastCmd(flags *rootFlags) *cobra.Command {\n\tvar flagId string\n\tvar flagUrl string\n\tcmd := \u0026cobra.C..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/spotify_list-search.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newSpotifyListSearchCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/spotify_list-track.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newSpotifyListTrackCmd": {
+            "published": "func newSpotifyListTrackCmd(flags *rootFlags) *cobra.Command {\n\tvar flagId string\n\tvar flagUrl string\n\tcmd := \u0026cobra.Com...",
+            "fresh": "func newSpotifyListTrackCmd(flags *rootFlags) *cobra.Command {\n\tvar flagId string\n\tvar flagUrl string\n\tcmd := \u0026cobra.Com..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/spotify_list.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newSpotifyListCmd": {
+            "published": "func newSpotifyListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagId string\n\tvar flagUrl string\n\tcmd := \u0026cobra.Command{...",
+            "fresh": "func newSpotifyListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagId string\n\tvar flagUrl string\n\tcmd := \u0026cobra.Command{..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/sync.go",
+      "verdict": "TEMPLATED-WITH-ADDITIONS",
+      "applied": false,
+      "decl_set_delta": {
+        "in_published_not_fresh": [
+          "depluralizeResourceStem",
+          "genericIDFieldFallbacks",
+          "isDefaultSyncResource",
+          "isDryRunResponse",
+          "isSyncableResource",
+          "localSyncHint",
+          "lowerCamelResourceIDBase",
+          "resourceIDBaseNames",
+          "scalarIDString",
+          "stripLeadingResourceVerb",
+          "suffixIDFieldFallback"
+        ],
+        "in_fresh_not_published": [
+          "cursorPageHasContinuation",
+          "extractJSONItemsArray",
+          "hydrateScalarItems",
+          "hydratedItemPath",
+          "isNullOrEmptyJSON",
+          "isSyncStatePersistenceError",
+          "itemHydrationConfig",
+          "itemHydrationPaths",
+          "lookupRefreshEntityFields",
+          "normalizeRestSyncTimestampField",
+          "parseRestSyncTimestamp",
+          "reconcileTypedTable",
+          "reconcileTypedTables",
+          "refreshLookupsFromSyncedStore",
+          "restSyncTimestamp",
+          "restSyncTimestampField",
+          "scalarItemID",
+          "shortPageEndsPagination",
+          "syncResourceSortField",
+          "syncResourceSortParam",
+          "syncResourceSortValue",
+          "syncWatermarkOverlap"
+        ]
+      }
+    },
+    {
+      "path": "internal/cli/sync_hint.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/sync_hint_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/sync_numeric_id_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/tail.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "fetchAndEmit": [
+            "Unmarshal"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/teach.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/teach_playbook.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/teach_playbook_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/teach_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/threads.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newThreadsCmd": {
+            "published": "func newThreadsCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"threads\",\n\t\tShort:       \"...",
+            "fresh": "func newThreadsCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"threads\",\n\t\tShort:       \"..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/threads_list-profile.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newThreadsListProfileCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/threads_list-search-2.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newThreadsListSearch2Cmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/threads_list-search.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newThreadsListSearchCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/threads_list-user.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newThreadsListUserCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/threads_list.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newThreadsListCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/tiktok.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newTiktokCmd": {
+            "published": "func newTiktokCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"tiktok\",\n\t\tShort:       \"Sc...",
+            "fresh": "func newTiktokCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"tiktok\",\n\t\tShort:       \"Sc..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/tiktok_list-adlibrary-2.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newTiktokListAdlibrary2Cmd": [
+            "IntVar"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/tiktok_list-adlibrary.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newTiktokListAdlibraryCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/tiktok_list-collection.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/tiktok_list-creators.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newTiktokListCreatorsCmd": {
+            "published": "func newTiktokListCreatorsCmd(flags *rootFlags) *cobra.Command {\n\tvar flagPage string\n\tvar flagSortBy string\n\tvar flagFo...",
+            "fresh": "func newTiktokListCreatorsCmd(flags *rootFlags) *cobra.Command {\n\tvar flagPage string\n\tvar flagSortBy string\n\tvar flagFo..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/tiktok_list-hashtags.go",
+      "verdict": "PUBLISHED-ONLY-TEMPLATED",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/tiktok_list-live.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newTiktokListLiveCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/tiktok_list-product.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newTiktokListProductCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/tiktok_list-profile-2.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newTiktokListProfile2Cmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/tiktok_list-profile-3.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newTiktokListProfile3Cmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/tiktok_list-profile.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newTiktokListProfileCmd": {
+            "published": "func newTiktokListProfileCmd(flags *rootFlags) *cobra.Command {\n\tvar flagHandle string\n\tvar flagUserId string\n\tcmd := \u0026c...",
+            "fresh": "func newTiktokListProfileCmd(flags *rootFlags) *cobra.Command {\n\tvar flagHandle string\n\tvar flagUserId string\n\tvar flagC..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/tiktok_list-search-2.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newTiktokListSearch2Cmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/tiktok_list-search-3.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newTiktokListSearch3Cmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/tiktok_list-search-4.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newTiktokListSearch4Cmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/tiktok_list-search-5.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newTiktokListSearch5Cmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/tiktok_list-search.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newTiktokListSearchCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/tiktok_list-shop-2.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newTiktokListShop2Cmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/tiktok_list-shop-3.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newTiktokListShop3Cmd": {
+            "published": "func newTiktokListShop3Cmd(flags *rootFlags) *cobra.Command {\n\tvar flagUrl string\n\tvar flagProductId string\n\tvar flagReg...",
+            "fresh": "func newTiktokListShop3Cmd(flags *rootFlags) *cobra.Command {\n\tvar flagUrl string\n\tvar flagProductId string\n\tvar flagReg..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/tiktok_list-shop.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newTiktokListShopCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/tiktok_list-song-2.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newTiktokListSong2Cmd": {
+            "published": "func newTiktokListSong2Cmd(flags *rootFlags) *cobra.Command {\n\tvar flagClipId string\n\tvar flagCursor string\n\tvar flagAll...",
+            "fresh": "func newTiktokListSong2Cmd(flags *rootFlags) *cobra.Command {\n\tvar flagClipId string\n\tvar flagCursor string\n\tvar flagAll..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/tiktok_list-song.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newTiktokListSongCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/tiktok_list-user-2.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newTiktokListUser2Cmd": {
+            "published": "func newTiktokListUser2Cmd(flags *rootFlags) *cobra.Command {\n\tvar flagHandle string\n\tvar flagUserId string\n\tvar flagMin...",
+            "fresh": "func newTiktokListUser2Cmd(flags *rootFlags) *cobra.Command {\n\tvar flagHandle string\n\tvar flagUserId string\n\tvar flagMin..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/tiktok_list-user-3.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newTiktokListUser3Cmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/tiktok_list-user-4.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newTiktokListUser4Cmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/tiktok_list-user-5.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newTiktokListUser5Cmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/tiktok_list-user.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newTiktokListUserCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/tiktok_list-video-2.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newTiktokListVideo2Cmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/tiktok_list-video-3.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newTiktokListVideo3Cmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/tiktok_list-video-4.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newTiktokListVideo4Cmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/tiktok_list-video.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newTiktokListVideoCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/tiktok_list.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newTiktokListCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/transcripts.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/transcripts_search.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/transcripts_search_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/trends.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/trends_triangulate.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newNovelTrendsTriangulateCmd": {
+            "published": "func newNovelTrendsTriangulateCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"triangulate...",
+            "fresh": "func newNovelTrendsTriangulateCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"triangulate..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/trends_triangulate_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/truthsocial.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newTruthsocialCmd": {
+            "published": "func newTruthsocialCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"truthsocial\",\n\t\tShort:...",
+            "fresh": "func newTruthsocialCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"truthsocial\",\n\t\tShort:..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/truthsocial_list-profile.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newTruthsocialListProfileCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/truthsocial_list-user.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newTruthsocialListUserCmd": {
+            "published": "func newTruthsocialListUserCmd(flags *rootFlags) *cobra.Command {\n\tvar flagHandle string\n\tvar flagUserId string\n\tvar fla...",
+            "fresh": "func newTruthsocialListUserCmd(flags *rootFlags) *cobra.Command {\n\tvar flagHandle string\n\tvar flagUserId string\n\tvar fla..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/truthsocial_list.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newTruthsocialListCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/twitch.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newTwitchCmd": {
+            "published": "func newTwitchCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"twitch\",\n\t\tShort:       \"Ma...",
+            "fresh": "func newTwitchCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"twitch\",\n\t\tShort:       \"Ma..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/twitch_list-profile.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newTwitchListProfileCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/twitch_list-user-2.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newTwitchListUser2Cmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/twitch_list-user.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newTwitchListUserCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/twitch_list.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newTwitchListCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/twitter.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newTwitterCmd": {
+            "published": "func newTwitterCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"twitter\",\n\t\tShort:       \"...",
+            "fresh": "func newTwitterCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"twitter\",\n\t\tShort:       \"..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/twitter_list-community.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newTwitterListCommunityCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/twitter_list-profile.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newTwitterListProfileCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/twitter_list-tweet-2.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newTwitterListTweet2Cmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/twitter_list-tweet.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newTwitterListTweetCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/twitter_list-usertweets.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newTwitterListUsertweetsCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/twitter_list.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newTwitterListCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/version.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/which.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "rankWhich": [
+            "Fields"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/which_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/youtube.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newYoutubeCmd": {
+            "published": "func newYoutubeCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"youtube\",\n\t\tShort:       \"...",
+            "fresh": "func newYoutubeCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"youtube\",\n\t\tShort:       \"..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/youtube_list-channel-2.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newYoutubeListChannel2Cmd": {
+            "published": "func newYoutubeListChannel2Cmd(flags *rootFlags) *cobra.Command {\n\tvar flagChannelId string\n\tvar flagHandle string\n\tvar ...",
+            "fresh": "func newYoutubeListChannel2Cmd(flags *rootFlags) *cobra.Command {\n\tvar flagChannelId string\n\tvar flagHandle string\n\tvar ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/youtube_list-channel-3.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newYoutubeListChannel3Cmd": {
+            "published": "func newYoutubeListChannel3Cmd(flags *rootFlags) *cobra.Command {\n\tvar flagChannelId string\n\tvar flagHandle string\n\tvar ...",
+            "fresh": "func newYoutubeListChannel3Cmd(flags *rootFlags) *cobra.Command {\n\tvar flagChannelId string\n\tvar flagHandle string\n\tvar ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/youtube_list-channel-4.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newYoutubeListChannel4Cmd": {
+            "published": "func newYoutubeListChannel4Cmd(flags *rootFlags) *cobra.Command {\n\tvar flagHandle string\n\tvar flagChannelId string\n\tvar ...",
+            "fresh": "func newYoutubeListChannel4Cmd(flags *rootFlags) *cobra.Command {\n\tvar flagHandle string\n\tvar flagChannelId string\n\tvar ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/youtube_list-channel.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newYoutubeListChannelCmd": {
+            "published": "func newYoutubeListChannelCmd(flags *rootFlags) *cobra.Command {\n\tvar flagChannelId string\n\tvar flagHandle string\n\tvar f...",
+            "fresh": "func newYoutubeListChannelCmd(flags *rootFlags) *cobra.Command {\n\tvar flagChannelId string\n\tvar flagHandle string\n\tvar f..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/youtube_list-channelvideos.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newYoutubeListChannelvideosCmd": {
+            "published": "func newYoutubeListChannelvideosCmd(flags *rootFlags) *cobra.Command {\n\tvar flagChannelId string\n\tvar flagHandle string\n...",
+            "fresh": "func newYoutubeListChannelvideosCmd(flags *rootFlags) *cobra.Command {\n\tvar flagChannelId string\n\tvar flagHandle string\n..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/youtube_list-communitypost.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newYoutubeListCommunitypostCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/youtube_list-playlist.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newYoutubeListPlaylistCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/youtube_list-search-2.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newYoutubeListSearch2Cmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/youtube_list-search.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newYoutubeListSearchCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/youtube_list-shorts.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newYoutubeListShortsCmd": {
+            "published": "func newYoutubeListShortsCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"list-shorts\",\n\t\t...",
+            "fresh": "func newYoutubeListShortsCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"list-shorts\",\n\t\t..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/youtube_list-video-2.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newYoutubeListVideo2Cmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/youtube_list-video-3.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newYoutubeListVideo3Cmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/youtube_list-video-4.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newYoutubeListVideo4Cmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/youtube_list-video-5.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newYoutubeListVideo5Cmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/youtube_list-video.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newYoutubeListVideoCmd": [
+            "NFlag"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/youtube_list.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newYoutubeListCmd": {
+            "published": "func newYoutubeListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagChannelId string\n\tvar flagHandle string\n\tvar flagUrl ...",
+            "fresh": "func newYoutubeListCmd(flags *rootFlags) *cobra.Command {\n\tvar flagChannelId string\n\tvar flagHandle string\n\tvar flagUrl ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/client/client.go",
+      "verdict": "TEMPLATED-WITH-ADDITIONS",
+      "applied": false,
+      "decl_set_delta": {
+        "in_published_not_fresh": [
+          "(*Client).invalidateCache"
+        ],
+        "in_fresh_not_published": [
+          "(*Client).BindPlatformSession",
+          "(*Client).GetMutating",
+          "(*Client).GetMutatingWithHeaders",
+          "(*Client).IsDryRun",
+          "(*Client).PatchQueryWithParams",
+          "(*Client).PatchQueryWithParamsAndHeaders",
+          "(*Client).PutQueryWithParams",
+          "(*Client).PutQueryWithParamsAndHeaders",
+          "(*Client).SetPlatformEndpointBudget",
+          "(*Client).cacheKeyFor",
+          "(*Client).cacheResourceDir",
+          "(*Client).doMutation",
+          "(*Client).invalidateCacheAfterMutation",
+          "(*Client).invalidateCacheResource",
+          "(*Client).platformBudgetLocked",
+          "(*Client).platformCacheMetadataMatches",
+          "(*Client).platformRetryPolicy",
+          "(*Client).readCacheWithHeaders",
+          "(*Client).waitForPlatformBudget",
+          "(*Client).writeCacheWithHeaders",
+          "(*Client).writePlatformCacheMetadata",
+          "RateLimitAuto",
+          "cacheResourceTag",
+          "canonicalRepresentationHeaders",
+          "canonicalStringMap",
+          "defaultAutoStartRate",
+          "isPermanentDNSError",
+          "maxIdleConnsPerHost",
+          "newRateLimiter",
+          "numericVersionSegment",
+          "platformCacheMetadata",
+          "requestIdempotencyKey",
+          "safeEndpointClass"
+        ]
+      }
+    },
+    {
+      "path": "internal/client/client_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/client/client_verify_short_circuit_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/client/platform_budget_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/client/platform_rate_limit_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/cliutil_test.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "TestAdaptiveLimiter_RampsUpAfterSuccesses": [
+            "NewAdaptiveLimiter"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cliutil/credentials.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "LoadCredentials": [
+            "Is",
+            "ReadFile",
+            "Unmarshal",
+            "warnCredentialsIssue"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cliutil/credentials_perms_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/credentials_test.go",
+      "verdict": "TEMPLATED-WITH-ADDITIONS",
+      "applied": false,
+      "decl_set_delta": {
+        "in_published_not_fresh": [
+          "TestCorruptCredentialsFallsBackToLegacyConfig",
+          "TestCredentialsFileWinsWhenLegacyConfigAlsoHasSecrets",
+          "legacyCredentialTOML"
+        ],
+        "in_fresh_not_published": [
+          "TestCaptureCredentialStderrDrainsConcurrently",
+          "TestConfigFileWinsWhenCredentialsFileAlsoHasSecrets",
+          "TestCorruptCredentialsDoesNotOverrideLegacyConfig",
+          "TestExplicitConfigFallsBackToGlobalCredentialsWhenSiblingEmpty",
+          "TestExplicitConfigFallsBackToGlobalCredentialsWhenSiblingMissing",
+          "TestExplicitConfigFileCredentialsWinOverSiblingAndGlobal",
+          "TestExplicitConfigRejectsMalformedSiblingInsteadOfUsingGlobal",
+          "TestExplicitConfigUsesSiblingCredentialsBeforeGlobal",
+          "TestPartialConfigCredentialsMergeMissingFields",
+          "TestSymlinkedExplicitConfigUsesResolvedSiblingCredentials",
+          "legacyConfigData",
+          "partialConfigData",
+          "writeCredentialsFile"
+        ]
+      }
+    },
+    {
+      "path": "internal/cliutil/creds_perms_eval.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/creds_perms_eval_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/creds_perms_unix.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/creds_perms_windows.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/duration.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/duration_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/extractnumber.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/extractnumber_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/fanout.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/jwtshape.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/jwtshape_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/odata_date.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/odata_date_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/paths.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "defaultBase": [
+            "UserHomeDir"
+          ],
+          "expandTilde": [
+            "UserHomeDir"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cliutil/paths_test.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "resetPathEnv": [
+            "Setenv",
+            "TempDir"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cliutil/probe.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/ratelimit.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "(*AdaptiveLimiter).OnRateLimit": {
+            "published": "func (l *AdaptiveLimiter) OnRateLimit() {\n\tif l == nil {\n\t\treturn\n\t}\n\tl.mu.Lock()\n\tdefer l.mu.Unlock()\n\tl.ceiling = l.ra...",
+            "fresh": "func (l *AdaptiveLimiter) OnRateLimit() {\n\tif l == nil {\n\t\treturn\n\t}\n\tl.mu.Lock()\n\tdefer l.mu.Unlock()\n\tl.ceiling = l.ra..."
+          },
+          "(*AdaptiveLimiter).OnSuccess": {
+            "published": "func (l *AdaptiveLimiter) OnSuccess() {\n\tif l == nil {\n\t\treturn\n\t}\n\tl.mu.Lock()\n\tdefer l.mu.Unlock()\n\tl.successes++\n\tif ...",
+            "fresh": "func (l *AdaptiveLimiter) OnSuccess() {\n\tif l == nil {\n\t\treturn\n\t}\n\tl.mu.Lock()\n\tdefer l.mu.Unlock()\n\tif l.headerDriven ..."
+          },
+          "NewAdaptiveLimiter": {
+            "published": "func NewAdaptiveLimiter(ratePerSec float64) *AdaptiveLimiter {\n\tif ratePerSec \u003c= 0 {\n\t\treturn nil\n\t}\n\tfloor := 0.5\n\tif r...",
+            "fresh": "func NewAdaptiveLimiter(ratePerSec float64) *AdaptiveLimiter {\n\treturn newAdaptiveLimiter(ratePerSec, ratePerSec)\n}"
+          },
+          "type:AdaptiveLimiter": {
+            "published": "type AdaptiveLimiter struct {\n\tmu          sync.Mutex\n\trate        float64\n\tfloor       float64\n\tceiling     float64\n\tsu...",
+            "fresh": "type AdaptiveLimiter struct {\n\tmu           sync.Mutex\n\trate         float64\n\tfloor        float64\n\tceiling      float64..."
+          },
+          "type:RateLimitError": {
+            "published": "type RateLimitError struct {\n\tURL        string\n\tRetryAfter time.Duration\n\tBody       string\n}",
+            "fresh": "type RateLimitError struct {\n\tURL        string\n\tRetryAfter time.Duration\n\tBody       string\n\tCause      error\n}"
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cliutil/testenv/sandbox_unix.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/testenv/sandbox_windows.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/testenv/testenv.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/text.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/verifyenv.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/config/config.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "(*Config).applyCredentials": {
+            "published": "func (c *Config) applyCredentials(creds *cliutil.Credentials) {\n\tif creds == nil {\n\t\treturn\n\t}\n\tc.AuthHeaderVal = creds....",
+            "fresh": "func (c *Config) applyCredentials(creds *cliutil.Credentials) {\n\tif creds == nil {\n\t\treturn\n\t}\n\tif c.AuthHeaderVal == \"\"..."
+          },
+          "Load": {
+            "published": "func Load(configPath string) (*Config, error) {\n\tcfg := \u0026Config{\n\t\tBaseURL: \"https://api.scrapecreators.com\",\n\t}\n\tpath, ...",
+            "fresh": "func Load(configPath string) (*Config, error) {\n\tcfg := \u0026Config{\n\t\tBaseURL: \"https://api.scrapecreators.com\",\n\t}\n\tpath, ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/config/config_perms_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/derive.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/derive_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/doc.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/entities/config.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/entities/config_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/entities/extract.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/entities/extract_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/journal.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/journal_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/lookups/seeds.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/lookups/seeds_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/lookups/store.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/lookups/store_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/match.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/match_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/normalize.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/normalize_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/patterns/apply.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/patterns/apply_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/patterns/doc.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/patterns/extract.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/patterns/extract_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/patterns/store.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/patterns/store_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/playbooks.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/playbooks_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/preseed.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/preseed_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/promote.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/promote_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/protocol.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/recall.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/recall_canonical_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/recall_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/synthesize.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/synthesize_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/teach.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/teach_log.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/teach_log_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/teach_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/mcp/bound/bound.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "boundedListEnvelope": {
+            "published": "func boundedListEnvelope(field string, items []json.RawMessage, originalBytes int, note string) []byte {\n\tbuild := func(...",
+            "fresh": "func boundedListEnvelope(field string, items []json.RawMessage, originalBytes int, note string) []byte {\n\tbuild := func(..."
+          },
+          "boundedPageListEnvelope": {
+            "published": "func boundedPageListEnvelope(field string, items []json.RawMessage, original json.RawMessage, note string, opts PageOpti...",
+            "fresh": "func boundedPageListEnvelope(field string, items []json.RawMessage, original json.RawMessage, note string, opts PageOpti..."
+          },
+          "boundedSingleArrayPageObject": {
+            "published": "func boundedSingleArrayPageObject(data json.RawMessage, opts PageOptions) ([]byte, bool) {\n\tvar obj map[string]json.RawM...",
+            "fresh": "func boundedSingleArrayPageObject(data json.RawMessage, opts PageOptions) ([]byte, bool) {\n\tvar obj map[string]json.RawM..."
+          },
+          "previewEnvelope": {
+            "published": "func previewEnvelope(data []byte, note string) string {\n\tlimit := len(data)\n\tif limit \u003e maxPreviewBytes {\n\t\tlimit = maxP...",
+            "fresh": "func previewEnvelope(data []byte, note string) string {\n\tlimit := len(data)\n\tif limit \u003e maxPreviewBytes {\n\t\tlimit = maxP..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/mcp/bound/bound_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/mcp/cobratree/classify.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "classify": {
+            "published": "func classify(cmd *cobra.Command) commandKind {\n\tif cmd == nil || cmd.Hidden || isMCPHidden(cmd) {\n\t\treturn commandHidde...",
+            "fresh": "func classify(cmd *cobra.Command) commandKind {\n\tif cmd == nil || cmd.Hidden || isMCPHidden(cmd) {\n\t\treturn commandHidde..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/mcp/cobratree/cli_path.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/mcp/cobratree/names.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/mcp/cobratree/shellout.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "shellOutToCLI": [
+            "NewToolResultError"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/mcp/cobratree/shellout_test.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "TestCliArgsFromMCP_BlocksRootFlags": {
+            "published": "func TestCliArgsFromMCP_BlocksRootFlags(t *testing.T) {\n\tin := map[string]any{\n\t\t\"args\":     \"contacts\",\n\t\t\"base-url\": \"...",
+            "fresh": "func TestCliArgsFromMCP_BlocksRootFlags(t *testing.T) {\n\tin := map[string]any{\n\t\t\"args\":     \"contacts\",\n\t\t\"base-url\": \"..."
+          },
+          "writeShelloutHelper": {
+            "published": "func writeShelloutHelper(t *testing.T, mode string) string {\n\tt.Helper()\n\tdir := t.TempDir()\n\tif runtime.GOOS == \"window...",
+            "fresh": "func writeShelloutHelper(t *testing.T, mode string) string {\n\tt.Helper()\n\tdir := t.TempDir()\n\tif runtime.GOOS == \"window..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/mcp/cobratree/typemap.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "positionalArgsForCommand": [
+            "Trim"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/mcp/cobratree/walker.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "walk": [
+            "classify"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/mcp/code_orch.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "RegisterCodeOrchestrationTools": {
+            "published": "func RegisterCodeOrchestrationTools(s *server.MCPServer) {\n\ts.AddTool(\n\t\tmcplib.NewTool(\"scrape-creators_search\",\n\t\t\tmcp...",
+            "fresh": "func RegisterCodeOrchestrationTools(s *server.MCPServer) {\n\ts.AddTool(\n\t\tmcplib.NewTool(\"scrape-creators_search\",\n\t\t\tmcp..."
+          },
+          "handleCodeOrchExecute": {
+            "published": "func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {\n\targs := r...",
+            "fresh": "func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {\n\targs := r..."
+          },
+          "handleCodeOrchSearch": {
+            "published": "func handleCodeOrchSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {\n\targs := re...",
+            "fresh": "func handleCodeOrchSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {\n\targs := re..."
+          },
+          "type:codeOrchEndpoint": {
+            "published": "type codeOrchEndpoint struct {\n\tID         string\n\tMethod     string\n\tPath       string\n\tTier       string\n\tSummary    s...",
+            "fresh": "type codeOrchEndpoint struct {\n\tID         string\n\tMethod     string\n\tPath       string\n\tTier       string\n\tSummary    s..."
+          },
+          "type:codeOrchParamBinding": {
+            "published": "type codeOrchParamBinding struct {\n\tPublicName string\n\tWireName   string\n}",
+            "fresh": "type codeOrchParamBinding struct {\n\tPublicName string\n\tWireName   string\n\tDefault    string\n}"
+          },
+          "var:codeOrchEndpoints": {
+            "published": "var codeOrchEndpoints = []codeOrchEndpoint{\n\t{\n\t\tID:             \"account.list\",\n\t\tMethod:         \"GET\",\n\t\tPath:       ...",
+            "fresh": "var codeOrchEndpoints = []codeOrchEndpoint{\n\t{\n\t\tID:             \"account.list\",\n\t\tMethod:         \"GET\",\n\t\tPath:       ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/mcp/code_orch_writebody_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/mcp/intents.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/mcp/platform_gate.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/mcp/platform_gate_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/mcp/recipe_intents_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/mcp/tools.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "makeAPIHandler": [
+            "NewToolResultError",
+            "mcpToolPageResultText",
+            "mcpToolResultText"
+          ],
+          "mcpToolPageResultText": [
+            "EndpointPageResponse",
+            "NewToolResultText"
+          ],
+          "mcpToolResultText": [
+            "EndpointResponse",
+            "NewToolResultText"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/mcp/tools_test.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "resetMCPPathEnv": [
+            "Setenv",
+            "TempDir"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/platform/conformance_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/platform/doctor.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/platform/gate.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/platform/metadata.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/platform/migration.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/platform/profile.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/platform/ratelimit.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/platform/receipt.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/store/candidates.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/store/candidates_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/store/events.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/store/events_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/store/extras.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/store/learnings.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/store/learnings_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/store/playbooks.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/store/playbooks_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/store/schema_version_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/store/scrapecreators_comments_migrations.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/store/scrapecreators_migrations.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/store/scrapecreators_migrations_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/store/store.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "(*Store).ReconcilePartition": [
+            "Prepare"
+          ],
+          "(*Store).SaveSyncState": [
+            "Exec",
+            "Format",
+            "Lock",
+            "Unlock"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/store/upsert_batch_test.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "TestUpsertBatch_GenericFallbackList": {
+            "published": "func TestUpsertBatch_GenericFallbackList(t *testing.T) {\n\tdbPath := filepath.Join(t.TempDir(), \"data.db\")\n\ts, err := Ope...",
+            "fresh": "func TestUpsertBatch_GenericFallbackList(t *testing.T) {\n\tdbPath := filepath.Join(t.TempDir(), \"data.db\")\n\ts, err := Ope..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/types/types.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "spec.json",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    }
+  ],
+  "go_mod": {
+    "merged": false,
+    "preserved_module_path": "scrape-creators-pp-cli"
+  }
+}

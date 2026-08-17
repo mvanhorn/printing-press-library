@@ -57,7 +57,7 @@ var (
 
 	// ErrPaymentRequired signals a venue requires payment-on-book that the CLI
 	// cannot handle (full prepay). Card-required-but-not-prepaid venues
-	// surface a different category (handled by the CLI command via CVC prompt).
+	// surface a different category through the per-booking CVC flow.
 	ErrPaymentRequired = errors.New("tock: venue requires prepayment (out of v0.2 scope)")
 
 	// ErrPastCancellationWindow signals that cancel was called past the
@@ -70,7 +70,44 @@ var (
 	// ErrUpcomingShapeChanged signals that $REDUX_STATE.patron.purchaseSummaries
 	// is missing or wrong shape — Tock SPA-refactor canary.
 	ErrUpcomingShapeChanged = errors.New("tock: $REDUX_STATE.patron.purchaseSummaries missing — Tock SPA may have changed")
+
+	// ErrSlotControlNotFound signals selector/layout drift before checkout.
+	// The wrapped error includes a page-state hint with the interactive
+	// controls that were present so agents can distinguish provider drift from
+	// login walls or challenge pages.
+	ErrSlotControlNotFound = errors.New("tock: requested booking slot control not found")
+
+	// ErrCVCRequired signals that checkout stalled on an unfilled CVC field —
+	// the venue requires per-transaction CVC re-entry and none was provided.
+	ErrCVCRequired = errors.New("tock: venue requires CVC re-entry for this booking")
 )
+
+// ChromeBookError is the typed failure envelope for attach-mode booking.
+// PageState is deliberately sanitized before it is stored: it contains a
+// query-free path, booleans, strict time labels, and allowlisted control
+// categories only.
+type ChromeBookError struct {
+	Kind      error
+	Step      string
+	PageState string
+	Cause     error
+}
+
+func (e *ChromeBookError) Error() string {
+	parts := []string{e.Kind.Error()}
+	if e.Step != "" {
+		parts = append(parts, "step="+e.Step)
+	}
+	if e.Cause != nil {
+		parts = append(parts, e.Cause.Error())
+	}
+	if e.PageState != "" {
+		parts = append(parts, "page_state="+e.PageState)
+	}
+	return strings.Join(parts, ": ")
+}
+
+func (e *ChromeBookError) Unwrap() error { return e.Kind }
 
 // BookRequest is the user-facing input to Book(). v0.2 returns
 // ErrBookingNotImplemented; this struct exists for API symmetry with
@@ -143,8 +180,10 @@ type UpcomingReservation struct {
 // a real Chrome through the click-flow: venue → slot → checkout → fill CVC
 // → confirm → receipt page → extract confirmation.
 //
-// For card-required venues, req.CVC must be set (the CLI prompts the user
-// interactively). For free venues, CVC is ignored.
+// For card-required venues, req.CVC may be set explicitly. Agent/no-input
+// callers may attempt with an empty value; if checkout remains blocked on an
+// empty CVC field, ChromeBook returns ErrCVCRequired. For free venues, CVC is
+// ignored.
 //
 // Requires Chrome running with --remote-debugging-port=9222 (the same
 // "attach" mode used by `internal/source/opentable/chrome_avail.go`), or

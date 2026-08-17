@@ -5,7 +5,7 @@
 Built for agentic users who already pay for Huberman, Acquired, Founders, and Peter Attia and want to feed those transcripts into Claude or Hermes without copy-pasting. Walks a cookie -> free -> paid dispatch chain across 10 sources, normalizes everything to the same `**Speaker** (MM:SS)` markdown shape, caches to a local FTS5 store, and ships an MCP wrapper so agents can drive the whole thing.
 
 Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
-Contributors: [@tmchow](https://github.com/tmchow) (Trevin Chow).
+Contributors: [@tmchow](https://github.com/tmchow) (Trevin Chow), [@giuseppebisemi](https://github.com/giuseppebisemi) (Giuseppe Bisemi).
 
 ## Install
 
@@ -36,7 +36,7 @@ npx -y @mvanhorn/printing-press-library install podcast-goat --agent claude-code
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.6 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/podcast-goat/cmd/podcast-goat-pp-cli@latest
@@ -160,7 +160,7 @@ podcast-goat-pp-cli magic 'AI chip supply chain' --out chips.md
 **Deferred to v0.2** — each one ships a clean typed `NotImplementedError` today with a remediation hint pointing at the workaround:
 
 - **`huberman` / `acquired` / `founders` / `peterattia` HTML parsers** — cookie capture and authenticated GET both work (`auth login-service --service <name>` writes `~/.config/podcast-goat/cookies/cookies-<service>.json`, the adapter loads it and fires the authenticated request). The HTML-to-segment parser awaits first-time browser capture from a logged-in session to calibrate the per-publisher shape. Until then, most of these shows' free episodes are available via the **Spotify** path above.
-- **`--bilingual zh-Hans,en` aligner** — the flag is wired but errors with a deferral message. v0.1 yt-dlp ships the English path; v0.2 adds Chinese + auto-translation.
+- **Bilingual zh-Hans,en aligner** — not yet implemented and no longer advertised on the CLI surface (a reserved `--bilingual` flag used to error with a deferral message; it was removed so `--help` only promises what ships). Single-language non-English fetches work today via `episode get --lang <code>`.
 - **`whisperapi` audio extraction** — provider switch (`--provider-name elevenlabs|openai|deepgram`) and key checks are live, but the yt-dlp audio extract → upload → diarize pipeline ships in v0.2. Use `--provider spoken` or `--provider taddy` for paid fallback today.
 - **Chrome App-Bound v10 cookie strip** — Chrome 127+ App-Bound encryption requires a 32-byte host-prefix strip on the CDP path; lands in v0.2 alongside the cookie-tier HTML parsers that need it.
 - **Persisted Spotify bearer cache** — the TOTP-bootstrapped bearer is cached in-memory for its ~1h TTL. Within one process (MCP server, scripted batch) the cache survives across fetches; across CLI invocations each `episode get` re-bootstraps (a few hundred ms). v0.2 adds on-disk persistence so even one-shot CLI calls hit a warm cache.
@@ -207,15 +207,22 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ### Multilingual reach
-- **`episode get --bilingual`** — yt-dlp dual-language auto-subs, greedy nearest-neighbor alignment, emits one markdown file with paired Chinese + auto-translated English per turn.
+- **`episode get --lang`** — Fetch YouTube auto-subs in any single language yt-dlp knows (one code per fetch); the default stays `en`.
 
-  _Makes Mandarin-only podcasts (e.g., Xiaojun) usable for English-reading agents in one step._
+  _Non-English shows have transcripts too. Without `--lang`, an Italian-only video fails even when its captions exist. Two limits, by design: rolling-cue de-dup applies to space-tokenized languages (captions written without spaces, like zh/ja/th, pass through un-collapsed), and non-default-language fetches are not written to the local cache (cache identity is per-URL and language-blind in v0.1 — use `--out` to keep them)._
 
   ```bash
-  podcast-goat-pp-cli episode get 'https://www.youtube.com/watch?v=EXAMPLE' --bilingual zh-Hans,en
+  podcast-goat-pp-cli episode get 'https://www.youtube.com/watch?v=EXAMPLE' --lang it
   ```
 
 ### Agent-native plumbing
+- **`episode info --probe`** — Spend-free availability check: asks spoken.md's search endpoint whether it actually has the episode, instead of showing only a static cost estimate.
+
+  _Estimates say what a fetch would cost, not whether the source has the episode. Probe before paying — it works with the demo key._
+
+  ```bash
+  podcast-goat-pp-cli episode info <url> --paid --probe --json
+  ```
 - **`auth services`** — One-row-per-service table of cookie age, expiry, last-fetch result, with remediation hint when stale.
 
   _Cookies decay silently. Reach for this before a batch run to confirm member access still works._
@@ -315,7 +322,8 @@ Environment variables:
 - **`episode get` returns nothing on a member URL** — Run `auth services` to confirm the service cookie isn't stale; re-run `auth login-service --service <name>` if so.
 - **yt-dlp YouTube path fails with 'no subtitles'** — Some YouTube videos have no auto-subs. Use `--provider whisper --provider-name elevenlabs` to transcribe from audio (requires `ELEVENLABS_API_KEY`).
 - **Paid fallback fires when you expected cookie hit** — Run `episode get <url> --explain` to see the dispatcher trace — usually a cookie expiry or a URL host that doesn't match a known publisher.
-- **Bilingual alignment looks off** — yt-dlp auto-translate quality varies. Pass `--align greedy|exact` to switch alignment strategy; `exact` requires both tracks to have matching segment counts.
+- **YouTube fetch fails on a non-English show** — The default subtitle language is `en`. Pass `episode get <url> --lang <code>` (e.g. `--lang it`) to fetch the captions that actually exist.
+- **Not sure spoken.md has the episode before paying** — Run `episode info <url> --paid --probe`; the spoken row reports `probe: available (<title>)` or `probe: no results` via the spend-free search endpoint (works with the demo key).
 
 ---
 

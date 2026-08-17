@@ -1,0 +1,65 @@
+type: object
+required:
+  - id
+properties:
+  id:
+    type: integer
+    format: int
+  url:
+    type: string
+  target_type:
+    type: string
+  target_id:
+    type: integer
+    format: int
+  public_url:
+    type: string
+  target_url:
+    type: string
+  body:
+    type: string
+  body_html:
+    type: string
+  user:
+    nullable: true
+    $ref: './user_schema.yaml'
+  added:
+    type: string
+    format: date-time
+  modified:
+    anyOf:
+      - type: string
+        maxLength: 0
+      - type: string
+        format: date-time  
+  parent_id:
+    type: integer
+    minimum: 0
+  parent_url:
+    type: string
+  is_deleted:
+    type: boolean
+  attachments:
+    type: array
+    items:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int
+        name: 
+          type: string
+        download_url:
+          type: string
+  needs_moderation:
+    type: boolean
+  is_root_comment:
+    type: boolean
+  has_children:
+    type: boolean
+  topic_name:
+    type: string
+  things: 
+    type: array
+    items: 
+      $ref: './short_thing_schema.yaml'

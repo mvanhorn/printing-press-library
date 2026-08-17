@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "sculptok-truncate-json-array-helper",
+  "applied_at": "2026-06-23",
+  "base_run_id": "20260622-164426-352dd01a",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Added internal/cli/truncate_json_array.go supplying truncateJSONArray.",
+  "reason": "Generated list commands (credits_history.go, promoted_drawings.go) reference truncateJSONArray but the generator did not emit it, breaking the build at the govulncheck gate.",
+  "files": ["internal/cli/truncate_json_array.go"],
+  "upstream_issue": ""
+}

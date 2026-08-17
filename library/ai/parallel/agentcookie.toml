@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "parallel-pp-cli"
+display_name = "Parallel"
+description = "Agent-native Parallel web research with a local SQLite memory no other Parallel CLI keeps."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/parallel-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+PARALLEL_API_KEY = true

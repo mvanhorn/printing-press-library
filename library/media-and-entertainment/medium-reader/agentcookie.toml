@@ -1,0 +1,19 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "medium-reader-pp-cli"
+display_name = "Medium Reader"
+description = "Read any Medium author, publication, or tag as a local, full-text-searchable corpus — direct from Medium, no key, no proxy."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/medium-reader-pp-cli/config.toml"
+
+[sync]
+default = false
+
+# v2 is keyless ($0 / no-key): there is no API credential to sync. The only
+# optional credential is the user's OWN Medium session cookie (Tier 1), supplied
+# at runtime via MEDIUM_SESSION / --cookie-file and never stored as a managed
+# secret. Nothing here is synced by default.
+[sync.keys]

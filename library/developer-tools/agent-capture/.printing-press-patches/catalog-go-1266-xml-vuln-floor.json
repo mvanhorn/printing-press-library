@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "catalog-go-1266-xml-vuln-floor",
+  "applied_at": "2026-08-17",
+  "base_run_id": "20260405-115134",
+  "base_printing_press_version": "0.4.0",
+  "summary": "Raise the published CLI Go toolchain floor to a release with the reachable encoding/xml recursion guard fix.",
+  "reason": "The agent-capture package graph reaches encoding/xml through its syntax-highlighting imports; Go 1.26.6 carries the standard-library fix for GO-2026-6088 while preserving the catalog's package-reachability vulnerability gate.",
+  "files": [
+    "go.mod"
+  ],
+  "validated_outcome": "govulncheck ./... no longer reports GO-2026-6088 for agent-capture after the scoped module floor bump."
+}

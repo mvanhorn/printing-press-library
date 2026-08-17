@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "zillow",
+  "run_id": "20260729-222156",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 215,
+  "tests_passed": 215,
+  "tests_skipped": 79,
+  "auth_context": {
+    "type": "none"
+  }
+}

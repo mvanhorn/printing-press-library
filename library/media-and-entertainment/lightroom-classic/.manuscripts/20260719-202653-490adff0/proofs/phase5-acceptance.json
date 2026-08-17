@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "lightroom-classic",
+  "run_id": "20260719-202653-490adff0",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 124,
+  "tests_passed": 124,
+  "tests_skipped": 65,
+  "auth_context": {
+    "type": "none"
+  }
+}

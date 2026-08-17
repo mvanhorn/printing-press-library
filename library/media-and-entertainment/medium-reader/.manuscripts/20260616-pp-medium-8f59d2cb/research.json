@@ -1,0 +1,224 @@
+{
+  "api_name": "medium-reader",
+  "novelty_score": 7,
+  "alternatives": [
+    {
+      "name": "medium-api",
+      "url": "https://github.com/weeping-angel/medium-api",
+      "language": "Python",
+      "install_method": "",
+      "stars": 250,
+      "last_updated": "",
+      "command_count": 42,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "medium-api-js",
+      "url": "https://github.com/weeping-angel/medium-api-js",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 40,
+      "last_updated": "",
+      "command_count": 42,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "medium-mcp-server",
+      "url": "https://github.com/Dishant27/medium-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 30,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-16T10:35:00Z",
+  "novel_features": [
+    {
+      "name": "Author archive",
+      "command": "author-archive",
+      "description": "Mirror a writer's entire body of work into local SQLite, full-text searchable offline.",
+      "rationale": "No single API call returns an author's complete catalog with content; this resolves the username, pages through every article, fetches each body, and stores it locally.",
+      "example": "medium-pp-cli author-archive the-medium-blog --agent",
+      "why_it_matters": "Reach for this when you need a complete, queryable copy of one author's writing rather than the 10-item RSS window or one-article-at-a-time fetches.",
+      "group": "Local corpus that compounds"
+    },
+    {
+      "name": "Corpus search",
+      "command": "corpus",
+      "description": "Full-text and regex search across everything you have synced locally (authors, publications, tags).",
+      "rationale": "Medium's own search is server-side, shallow, and uncomposable; this searches your mirrored corpus offline with SQL/regex.",
+      "example": "medium-pp-cli corpus \"design systems\" --agent --select title,author,url",
+      "why_it_matters": "Use this to find a half-remembered passage across all the writing you have archived, without burning API calls.",
+      "group": "Local corpus that compounds"
+    },
+    {
+      "name": "Topic pulse",
+      "command": "tag-pulse",
+      "description": "One ranked digest of what is surging in a topic, merging hot/new/top feeds, latest posts, and top writers for a tag.",
+      "rationale": "Requires combining four separate endpoints and de-duplicating locally; no single API call produces a topic overview.",
+      "example": "medium-pp-cli tag-pulse design --agent",
+      "why_it_matters": "Use this for a fast read on where a topic is heading this week instead of polling four endpoints by hand.",
+      "group": "Topic intelligence"
+    },
+    {
+      "name": "Who writes about",
+      "command": "who-writes",
+      "description": "Surface the authoritative voices on a topic, ranked by output and engagement, from top writers, recommended users, and your archived articles.",
+      "rationale": "Requires a local join across top-writers, recommended-users, and archived article authorship that no endpoint exposes together.",
+      "example": "medium-pp-cli who-writes ux --agent",
+      "why_it_matters": "Use this to decide who to follow or archive on a subject, ranked by real output rather than a flat follow list.",
+      "group": "Topic intelligence"
+    },
+    {
+      "name": "Author compare",
+      "command": "author-compare",
+      "description": "Compare two writers on output cadence, topic mix, and engagement (claps and voters per article) from locally archived data.",
+      "rationale": "Requires aggregating each author's archived articles and computing distributions a single API response never carries.",
+      "example": "medium-pp-cli author-compare the-medium-blog uxdesigncc --agent",
+      "why_it_matters": "Use this to weigh two writers or publications before committing to follow or archive one.",
+      "group": "Comparative analysis"
+    },
+    {
+      "name": "New-since digest",
+      "command": "digest",
+      "description": "A deduped, ranked 'what is new since last sync' across the authors, publications, and tags you have archived.",
+      "rationale": "Requires time-windowed aggregation over the local store; no API call answers 'what changed for everything I track'.",
+      "example": "medium-pp-cli digest --since 7d --agent",
+      "why_it_matters": "Use this as a personal what-did-I-miss feed across everything you have synced, computed offline.",
+      "group": "Local corpus that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Author archive",
+      "command": "author-archive",
+      "description": "Mirror a writer's entire body of work into local SQLite, full-text searchable offline.",
+      "rationale": "No single API call returns an author's complete catalog with content; this resolves the username, pages through every article, fetches each body, and stores it locally.",
+      "example": "medium-pp-cli author-archive the-medium-blog --agent",
+      "why_it_matters": "Reach for this when you need a complete, queryable copy of one author's writing rather than the 10-item RSS window or one-article-at-a-time fetches.",
+      "group": "Local corpus that compounds"
+    },
+    {
+      "name": "Corpus search",
+      "command": "corpus",
+      "description": "Full-text and regex search across everything you have synced locally (authors, publications, tags).",
+      "rationale": "Medium's own search is server-side, shallow, and uncomposable; this searches your mirrored corpus offline with SQL/regex.",
+      "example": "medium-pp-cli corpus \"design systems\" --agent --select title,author,url",
+      "why_it_matters": "Use this to find a half-remembered passage across all the writing you have archived, without burning API calls.",
+      "group": "Local corpus that compounds"
+    },
+    {
+      "name": "Topic pulse",
+      "command": "tag-pulse",
+      "description": "One ranked digest of what is surging in a topic, merging hot/new/top feeds, latest posts, and top writers for a tag.",
+      "rationale": "Requires combining four separate endpoints and de-duplicating locally; no single API call produces a topic overview.",
+      "example": "medium-pp-cli tag-pulse design --agent",
+      "why_it_matters": "Use this for a fast read on where a topic is heading this week instead of polling four endpoints by hand.",
+      "group": "Topic intelligence"
+    },
+    {
+      "name": "Who writes about",
+      "command": "who-writes",
+      "description": "Surface the authoritative voices on a topic, ranked by output and engagement, from top writers, recommended users, and your archived articles.",
+      "rationale": "Requires a local join across top-writers, recommended-users, and archived article authorship that no endpoint exposes together.",
+      "example": "medium-pp-cli who-writes ux --agent",
+      "why_it_matters": "Use this to decide who to follow or archive on a subject, ranked by real output rather than a flat follow list.",
+      "group": "Topic intelligence"
+    },
+    {
+      "name": "Author compare",
+      "command": "author-compare",
+      "description": "Compare two writers on output cadence, topic mix, and engagement (claps and voters per article) from locally archived data.",
+      "rationale": "Requires aggregating each author's archived articles and computing distributions a single API response never carries.",
+      "example": "medium-pp-cli author-compare the-medium-blog uxdesigncc --agent",
+      "why_it_matters": "Use this to weigh two writers or publications before committing to follow or archive one.",
+      "group": "Comparative analysis"
+    },
+    {
+      "name": "New-since digest",
+      "command": "digest",
+      "description": "A deduped, ranked 'what is new since last sync' across the authors, publications, and tags you have archived.",
+      "rationale": "Requires time-windowed aggregation over the local store; no API call answers 'what changed for everything I track'.",
+      "example": "medium-pp-cli digest --since 7d --agent",
+      "why_it_matters": "Use this as a personal what-did-I-miss feed across everything you have synced, computed offline.",
+      "group": "Local corpus that compounds"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": null
+  },
+  "narrative": {
+    "display_name": "Medium Reader",
+    "headline": "Read any Medium author, publication, or tag as a local, full-text-searchable corpus.",
+    "value_prop": "medium-pp-cli mirrors authors, publications, and tags into a local SQLite store, so you can archive a writer's entire body of work, search across everything you have synced, and see what is surging in a topic — offline, in one command, agent-native.",
+    "auth_narrative": "Reads use Medium's own public surfaces directly — its RSS feeds, the article page, and Medium's internal GraphQL endpoint — with no API key and no third-party service. Member-locked article bodies can be unlocked by supplying your own Medium session cookie (MEDIUM_SESSION or --cookie-file); read anonymously, locked posts return Medium's public preview.",
+    "quickstart": [
+      {
+        "command": "medium-pp-cli doctor --dry-run",
+        "comment": "health check; confirms config and base URL without needing a key"
+      },
+      {
+        "command": "medium-pp-cli user get-idfor the-medium-blog",
+        "comment": "resolve a username to its internal user id"
+      },
+      {
+        "command": "medium-pp-cli tag-pulse design --agent",
+        "comment": "see what is surging in a topic in one call"
+      },
+      {
+        "command": "medium-pp-cli author-archive the-medium-blog --agent",
+        "comment": "mirror an author's full catalog into the local store"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "search or author-archive reports 'surface unavailable'",
+        "fix": "Medium changed its internal GraphQL endpoint; feed and read keep working. Update the source adapter under internal/source and open a PR against the library."
+      },
+      {
+        "symptom": "read returns only a short preview (is_preview_only: true)",
+        "fix": "the article is member-locked and you are reading anonymously; supply your own Medium session cookie (MEDIUM_SESSION or --cookie-file) to unlock the full body"
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent needs to read, archive, search, or analyze Medium content — a specific author's catalog, a publication's articles, a tag's trending feed, or the full text of an article. It is the right tool when the task is research, monitoring, or building a local corpus of Medium writing.",
+    "anti_triggers": [
+      "Do not use to publish or update posts on Medium; the official write API was closed to new integrations in 2025.",
+      "Do not use to bulk-collect or redistribute copyrighted Medium content; this is for personal reading and research of content you have access to.",
+      "Do not use for non-Medium blogs or RSS in general."
+    ],
+    "recipes": [
+      {
+        "title": "Archive an author and search their work offline",
+        "command": "medium-pp-cli author-archive uxdesigncc --agent && medium-pp-cli corpus \"accessibility\" --data-source local --agent",
+        "explanation": "Mirror a writer's catalog once, then search it with no further API calls."
+      },
+      {
+        "title": "Topic scan with trimmed output",
+        "command": "medium-pp-cli tag-pulse \"artificial-intelligence\" --agent --select title,author,claps",
+        "explanation": "Get a topic digest and keep only the fields an agent needs to rank."
+      },
+      {
+        "title": "Pull a paywalled article you can read as a subscriber",
+        "command": "medium-pp-cli article markdown get 8858690a420a --agent",
+        "explanation": "Fetch the full markdown body of an article by its id."
+      }
+    ],
+    "trigger_phrases": [
+      "archive this Medium author",
+      "what is trending in the design tag on Medium",
+      "get the full text of this Medium article",
+      "who writes about UX on Medium",
+      "search my Medium corpus",
+      "use medium-pp-cli",
+      "run medium"
+    ]
+  }
+}

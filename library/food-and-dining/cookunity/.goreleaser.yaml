@@ -1,0 +1,51 @@
+version: 2
+project_name: cookunity-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: cookunity-pp-cli
+    main: ./cmd/cookunity-pp-cli
+    binary: cookunity-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/food-and-dining/cookunity/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: cookunity-pp-mcp
+    main: ./cmd/cookunity-pp-mcp
+    binary: cookunity-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: cookunity-pp-cli
+    repository:
+      owner: gcole326
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Mirror CookUnity's full weekly menu into a local database so you can plan meals offline — filter by macros, diet, and budget, and diff the menu week over week, none of which the web app can do."
+    install: |
+      bin.install "cookunity-pp-cli"
+      bin.install "cookunity-pp-mcp"

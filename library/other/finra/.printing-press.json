@@ -1,0 +1,107 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-06T15:20:40.814077Z",
+  "printing_press_version": "4.27.1",
+  "api_name": "finra",
+  "display_name": "FINRA",
+  "cli_name": "finra-pp-cli",
+  "creator": {
+    "handle": "mschreib28",
+    "name": "Michael Schreiber"
+  },
+  "owner": "mschreib28",
+  "printer": "mschreib28",
+  "printer_name": "Michael Schreiber",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:29642af827923e1b132dd37006337f3800a074676965f34abe758f2cdcc66d99",
+  "run_id": "20260705-224800-9d954693",
+  "category": "other",
+  "description": "Every FINRA Query API dataset, plus local trend detection and batch registration checks no other FINRA tool offers.",
+  "mcp_binary": "finra-pp-mcp",
+  "mcp_tool_count": 7,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "oauth2",
+  "auth_env_vars": [
+    "FINRA_CLIENT_ID",
+    "FINRA_CLIENT_SECRET"
+  ],
+  "novel_features": [
+    {
+      "name": "Threshold-list escalation tracker",
+      "command": "regsho threshold-watch",
+      "description": "See which symbols just crossed the Reg SHO 5-day threshold escalation point before it triggers a mandatory close-out."
+    },
+    {
+      "name": "New-complaints-since-last-sync",
+      "command": "complaints new",
+      "description": "See 4530 customer complaint filings for a firm within a recent time window, without re-reading the full history."
+    },
+    {
+      "name": "Fixed-income market-health snapshot",
+      "command": "fixedincome health",
+      "description": "One snapshot report joining TRACE, Corporate/Agency Debt Market Breadth, and Corporate/Agency Debt Market Sentiment for a time window."
+    },
+    {
+      "name": "TRACE monthly volume trend",
+      "command": "trace liquidity",
+      "description": "Month-over-month trend in TRACE Monthly Volume trade count and volume for a product category (or market-wide if no category given)."
+    },
+    {
+      "name": "Registration timeline",
+      "command": "registration timeline",
+      "description": "Full chronological registration-status history for one person, joining Composite Individual, Firm Registration Status History, and Individual Delta records."
+    },
+    {
+      "name": "Registration validation batch check",
+      "command": "registration validate-batch",
+      "description": "Validate many CRDs from a file in one call instead of checking them one at a time."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Threshold-list escalation tracker",
+      "command": "regsho threshold-watch",
+      "description": "See which symbols just crossed the Reg SHO 5-day threshold escalation point before it triggers a mandatory close-out."
+    },
+    {
+      "name": "New-complaints-since-last-sync",
+      "command": "complaints new",
+      "description": "See 4530 customer complaint filings for a firm within a recent time window, without re-reading the full history."
+    },
+    {
+      "name": "Fixed-income market-health snapshot",
+      "command": "fixedincome health",
+      "description": "One snapshot report joining TRACE, Corporate/Agency Debt Market Breadth, and Corporate/Agency Debt Market Sentiment for a time window."
+    },
+    {
+      "name": "TRACE monthly volume trend",
+      "command": "trace liquidity",
+      "description": "Month-over-month trend in TRACE Monthly Volume trade count and volume for a product category (or market-wide if no category given)."
+    },
+    {
+      "name": "Registration timeline",
+      "command": "registration timeline",
+      "description": "Full chronological registration-status history for one person, joining Composite Individual, Firm Registration Status History, and Individual Delta records."
+    },
+    {
+      "name": "Registration validation batch check",
+      "command": "registration validate-batch",
+      "description": "Validate many CRDs from a file in one call instead of checking them one at a time."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 27,
+    "total": 27,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 95,
+      "grade": "A",
+      "total": 95
+    }
+  }
+}

@@ -1,0 +1,2247 @@
+openapi: 3.1.0
+info:
+  title: Raindrop.io API
+  description: Complete Raindrop.io control plus offline search, safe cleanup, and durable knowledge workflows.
+  version: 1.0.4
+  contact:
+    name: Raindrop.io API
+    url: https://developer.raindrop.io
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.raindrop.io/rest/v1
+    description: Raindrop.io REST API
+
+security:
+  - BearerAuth: []
+
+paths:
+  # User endpoints
+  /user:
+    get:
+      operationId: getUserProfile
+      summary: Get user profile
+      description: Retrieves the authenticated user's profile information
+      responses:
+        '200':
+          description: User profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfileResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '429':
+          $ref: '#/components/responses/RateLimitError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /user/stats:
+    get:
+      operationId: getUserStats
+      summary: Get user statistics
+      description: Retrieves account-wide statistics for the authenticated user
+      responses:
+        '200':
+          description: User statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserStatsResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  # Collection endpoints
+  /collections:
+    get:
+      operationId: getAllCollections
+      summary: Get all collections
+      description: Retrieves all collections for the authenticated user
+      responses:
+        '200':
+          description: Collections retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectionsResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+    put:
+      operationId: updateCollectionsLayout
+      summary: Reorder or expand collections
+      description: Update global collection order or expanded state
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sort:
+                  type: string
+                  enum: [title, -title, -count]
+                expanded:
+                  type: boolean
+      responses:
+        '200':
+          description: Collection layout updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultResponse'
+
+  /collections/{parentId}/childrens:
+    get:
+      operationId: getChildCollections
+      summary: Get child collections
+      description: Retrieves child collections of a specific parent collection
+      parameters:
+        - name: parentId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Parent collection ID
+      responses:
+        '200':
+          description: Child collections retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectionsResponse'
+
+  /collections/clean:
+    put:
+      operationId: removeEmptyCollections
+      summary: Remove empty collections
+      description: Remove all empty collections from the account
+      responses:
+        '200':
+          description: Empty collections removed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                    description: Number of collections removed
+
+  /collection:
+    post:
+      operationId: createCollection
+      summary: Create a new collection
+      description: Creates a new collection with the specified properties
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCollectionRequest'
+      responses:
+        '201':
+          description: Collection created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectionItemResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /collection/{id}:
+    get:
+      operationId: getCollection
+      summary: Get collection details
+      description: Retrieves detailed information about a specific collection
+      parameters:
+        - $ref: '#/components/parameters/CollectionId'
+      responses:
+        '200':
+          description: Collection retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectionItemResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    put:
+      operationId: updateCollection
+      summary: Update a collection
+      description: Updates properties of an existing collection
+      parameters:
+        - $ref: '#/components/parameters/CollectionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCollectionRequest'
+      responses:
+        '200':
+          description: Collection updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectionItemResponse'
+
+    delete:
+      operationId: deleteCollection
+      summary: Delete a collection
+      description: Permanently deletes a collection and all its bookmarks
+      parameters:
+        - $ref: '#/components/parameters/CollectionId'
+      responses:
+        '204':
+          description: Collection deleted successfully
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /collection/{id}/stats:
+    get:
+      operationId: getCollectionStats
+      summary: Get collection statistics
+      description: Retrieves statistics for a specific collection
+      parameters:
+        - $ref: '#/components/parameters/CollectionId'
+      responses:
+        '200':
+          description: Collection statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectionStatsResponse'
+
+  /collection/{id}/sharing:
+    put:
+      operationId: shareCollection
+      summary: Share a collection
+      description: Share a collection with specific users or generate public sharing link
+      parameters:
+        - $ref: '#/components/parameters/CollectionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShareCollectionRequest'
+      responses:
+        '200':
+          description: Collection shared successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShareCollectionResponse'
+
+  /collection/{id}/merge:
+    put:
+      operationId: mergeCollections
+      summary: Merge collections
+      description: Merge multiple collections into a target collection
+      parameters:
+        - $ref: '#/components/parameters/CollectionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                with:
+                  type: array
+                  items:
+                    type: integer
+                  description: Array of collection IDs to merge into the target
+              required:
+                - with
+      responses:
+        '200':
+          description: Collections merged successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultResponse'
+
+  /collection/-99/clear:
+    put:
+      operationId: emptyTrash
+      summary: Empty trash
+      description: Permanently delete all bookmarks in the trash collection
+      responses:
+        '200':
+          description: Trash emptied successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultResponse'
+
+  # Bookmark endpoints
+  /raindrops/0:
+    get:
+      operationId: getAllBookmarks
+      summary: Get all bookmarks
+      description: Retrieves all bookmarks from all collections with filtering options
+      parameters:
+        - $ref: '#/components/parameters/SearchQuery'
+        - $ref: '#/components/parameters/SortOrder'
+        - $ref: '#/components/parameters/TagFilter'
+        - $ref: '#/components/parameters/ImportantFilter'
+        - $ref: '#/components/parameters/DuplicatesFilter'
+        - $ref: '#/components/parameters/BrokenFilter'
+        - $ref: '#/components/parameters/NotagFilter'
+        - $ref: '#/components/parameters/HighlightFilter'
+        - $ref: '#/components/parameters/DomainFilter'
+        - $ref: '#/components/parameters/PerPage'
+        - $ref: '#/components/parameters/Page'
+      responses:
+        '200':
+          description: Bookmarks retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookmarksResponse'
+
+    put:
+      operationId: batchUpdateBookmarks
+      summary: Update multiple bookmarks across all collections
+      description: Update properties of multiple bookmarks at once
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchUpdateBookmarksRequest'
+      responses:
+        '200':
+          description: Bookmarks updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultResponse'
+
+  /raindrops/{collectionId}:
+    get:
+      operationId: getBookmarksByCollection
+      summary: Get bookmarks from a collection
+      description: Retrieves bookmarks from a specific collection with filtering options
+      parameters:
+        - $ref: '#/components/parameters/CollectionId'
+        - $ref: '#/components/parameters/SearchQuery'
+        - $ref: '#/components/parameters/SortOrder'
+        - $ref: '#/components/parameters/TagFilter'
+        - $ref: '#/components/parameters/ImportantFilter'
+        - $ref: '#/components/parameters/DuplicatesFilter'
+        - $ref: '#/components/parameters/BrokenFilter'
+        - $ref: '#/components/parameters/NotagFilter'
+        - $ref: '#/components/parameters/HighlightFilter'
+        - $ref: '#/components/parameters/DomainFilter'
+        - $ref: '#/components/parameters/PerPage'
+        - $ref: '#/components/parameters/Page'
+      responses:
+        '200':
+          description: Bookmarks retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookmarksResponse'
+
+    put:
+      operationId: batchUpdateBookmarksInCollection
+      summary: Update multiple bookmarks in a collection
+      description: Update properties of multiple bookmarks in a specific collection at once
+      parameters:
+        - $ref: '#/components/parameters/CollectionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchUpdateBookmarksRequest'
+      responses:
+        '200':
+          description: Bookmarks updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultResponse'
+
+    delete:
+      operationId: batchDeleteBookmarksInCollection
+      summary: Delete multiple bookmarks or empty collection
+      description: Delete multiple bookmarks in a specific collection or empty trash/collection
+      parameters:
+        - $ref: '#/components/parameters/CollectionId'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: integer
+                  description: Array of bookmark IDs to delete
+      responses:
+        '200':
+          description: Bookmarks deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultResponse'
+
+  /raindrops:
+    get:
+      operationId: searchRaindrops
+      summary: Advanced bookmark search
+      description: Search bookmarks with advanced filtering options
+      parameters:
+        - $ref: '#/components/parameters/SearchQuery'
+        - $ref: '#/components/parameters/CollectionFilter'
+        - name: tags
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+          description: Filter by tags
+        - name: createdStart
+          in: query
+          schema:
+            type: string
+            format: date-time
+          description: Filter by creation date (start)
+        - name: createdEnd
+          in: query
+          schema:
+            type: string
+            format: date-time
+          description: Filter by creation date (end)
+        - $ref: '#/components/parameters/ImportantFilter'
+        - name: media
+          in: query
+          schema:
+            type: string
+          description: Filter by media type
+        - $ref: '#/components/parameters/PerPage'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/SortOrder'
+      responses:
+        '200':
+          description: Search results retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookmarksResponse'
+
+  /raindrops/single:
+    get:
+      operationId: getSingleBookmark
+      summary: Get detailed information about a single bookmark
+      description: Retrieves comprehensive details about a specific bookmark by ID
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
+          description: Bookmark ID
+      responses:
+        '200':
+          description: Bookmark retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookmarkItemResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /raindrops/multiple:
+    get:
+      operationId: getMultipleBookmarks
+      summary: Get multiple bookmarks by IDs
+      description: Retrieves multiple bookmarks by their IDs
+      parameters:
+        - name: ids
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Comma-separated bookmark IDs
+      responses:
+        '200':
+          description: Bookmarks retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookmarksResponse'
+
+  /raindrops/move:
+    put:
+      operationId: bulkMoveBookmarks
+      summary: Move multiple bookmarks
+      description: Move multiple bookmarks to a different collection
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkMoveBookmarksRequest'
+      responses:
+        '200':
+          description: Bookmarks moved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultResponse'
+
+  /raindrops/tags:
+    put:
+      operationId: batchTagBookmarks
+      summary: Add or remove tags from bookmarks
+      description: Batch operation to add or remove tags from multiple bookmarks
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchTagBookmarksRequest'
+      responses:
+        '200':
+          description: Tags updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultResponse'
+
+  /raindrops/delete:
+    delete:
+      operationId: batchDeleteBookmarks
+      summary: Delete multiple bookmarks
+      description: Delete multiple bookmarks at once
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: integer
+                  description: Array of bookmark IDs to delete
+              required:
+                - ids
+      responses:
+        '200':
+          description: Bookmarks deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultResponse'
+
+  # Single bookmark operations
+  /raindrop:
+    post:
+      operationId: createBookmark
+      summary: Add a new bookmark
+      description: Creates a new bookmark with automatic metadata extraction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBookmarkRequest'
+      responses:
+        '201':
+          description: Bookmark created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookmarkItemResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+
+  /raindrop/{id}:
+    get:
+      operationId: getBookmark
+      summary: Get bookmark by ID
+      description: Retrieves detailed information about a specific bookmark
+      parameters:
+        - $ref: '#/components/parameters/BookmarkId'
+      responses:
+        '200':
+          description: Bookmark retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookmarkItemResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    put:
+      operationId: updateBookmark
+      summary: Update a bookmark
+      description: Updates properties of an existing bookmark
+      parameters:
+        - $ref: '#/components/parameters/BookmarkId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateBookmarkRequest'
+      responses:
+        '200':
+          description: Bookmark updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookmarkItemResponse'
+
+    delete:
+      operationId: deleteBookmark
+      summary: Delete a bookmark
+      description: Moves a bookmark to trash (soft delete)
+      parameters:
+        - $ref: '#/components/parameters/BookmarkId'
+      responses:
+        '204':
+          description: Bookmark deleted successfully
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /raindrop/{id}/permanent:
+    delete:
+      operationId: permanentDeleteBookmark
+      summary: Permanently delete a bookmark
+      description: Permanently deletes a bookmark (cannot be recovered)
+      parameters:
+        - $ref: '#/components/parameters/BookmarkId'
+      responses:
+        '204':
+          description: Bookmark permanently deleted
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /raindrop/{id}/reminder:
+    put:
+      operationId: setReminder
+      summary: Set a reminder for a bookmark
+      description: Set or update a reminder notification for a bookmark
+      parameters:
+        - $ref: '#/components/parameters/BookmarkId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetReminderRequest'
+      responses:
+        '200':
+          description: Reminder set successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookmarkItemResponse'
+
+    delete:
+      operationId: deleteReminder
+      summary: Delete a bookmark reminder
+      description: Remove the reminder notification from a bookmark
+      parameters:
+        - $ref: '#/components/parameters/BookmarkId'
+      responses:
+        '200':
+          description: Reminder deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookmarkItemResponse'
+
+  /raindrop/{id}/highlights:
+    get:
+      operationId: getHighlightsForBookmark
+      summary: Get highlights for a specific bookmark
+      description: Retrieves all text highlights for a given bookmark
+      parameters:
+        - $ref: '#/components/parameters/BookmarkId'
+      responses:
+        '200':
+          description: Highlights retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HighlightsResponse'
+
+  # File operations
+  /raindrop/file:
+    put:
+      operationId: uploadFile
+      summary: Upload a file as a bookmark
+      description: Upload a file and create a bookmark from it
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: File to upload
+                collectionId:
+                  type: string
+                  description: Collection ID to add the file to
+              required:
+                - file
+                - collectionId
+      responses:
+        '201':
+          description: File uploaded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookmarkItemResponse'
+
+  /file/{id}:
+    get:
+      operationId: getFile
+      summary: Retrieve a file
+      description: Download or retrieve information about an uploaded file
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: File ID
+      responses:
+        '200':
+          description: File retrieved successfully
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    delete:
+      operationId: deleteFile
+      summary: Delete a file
+      description: Delete an uploaded file
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: File ID
+      responses:
+        '204':
+          description: File deleted successfully
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  # Highlights
+  /highlights:
+    get:
+      operationId: getAllHighlights
+      summary: Get all highlights
+      description: Retrieves all highlights from a user's bookmarks with pagination
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - name: perpage
+          in: query
+          schema:
+            type: integer
+            default: 25
+            maximum: 50
+          description: Number of highlights per page (max 50)
+      responses:
+        '200':
+          description: Highlights retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HighlightsResponse'
+
+    post:
+      operationId: addHighlightToBookmark
+      summary: Add a new highlight to a bookmark
+      description: Creates a new text highlight for a specific bookmark
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateHighlightRequest'
+      responses:
+        '201':
+          description: Highlight created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HighlightItemResponse'
+
+  /highlights/{id}:
+    put:
+      operationId: updateHighlight
+      summary: Update a highlight
+      description: Modifies an existing highlight's text, note, or color
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Highlight ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateHighlightRequest'
+      responses:
+        '200':
+          description: Highlight updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HighlightItemResponse'
+
+    delete:
+      operationId: deleteHighlight
+      summary: Delete a highlight
+      description: Permanently removes a highlight from a bookmark
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Highlight ID
+      responses:
+        '204':
+          description: Highlight deleted successfully
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /highlights/{collectionId}:
+    get:
+      operationId: getHighlightsByCollection
+      summary: Get all highlights in a collection
+      description: Retrieves all highlights from bookmarks in a specific collection
+      parameters:
+        - name: collectionId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Collection ID
+        - $ref: '#/components/parameters/Page'
+        - name: perpage
+          in: query
+          schema:
+            type: integer
+            default: 25
+            maximum: 50
+          description: Number of highlights per page (max 50)
+      responses:
+        '200':
+          description: Collection highlights retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HighlightsResponse'
+
+  # Tags
+  /tags:
+    get:
+      operationId: getAllTags
+      summary: Get all tags used in bookmarks
+      description: Retrieves all unique tags used in the user's bookmarks
+      responses:
+        '200':
+          description: Tags retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagsResponse'
+
+  /tags/0:
+    get:
+      operationId: getAllTagsAlt
+      summary: Get all tags (alternative endpoint)
+      description: Alternative endpoint to retrieve all tags
+      responses:
+        '200':
+          description: Tags retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagsResponse'
+
+    put:
+      operationId: renameOrMergeAllTags
+      summary: Rename or merge tags globally
+      description: Rename or merge tags across all collections
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TagOperationRequest'
+      responses:
+        '200':
+          description: Tag operation completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultResponse'
+
+    delete:
+      operationId: deleteAllTags
+      summary: Delete multiple tags globally
+      description: Delete multiple tags from all bookmarks
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tags:
+                  type: array
+                  items:
+                    type: string
+                  description: Array of tag names to delete
+              required:
+                - tags
+      responses:
+        '200':
+          description: Tags deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultResponse'
+
+  /tags/{collectionId}:
+    get:
+      operationId: getTagsByCollection
+      summary: Get tags from a specific collection
+      description: Retrieves all tags used in bookmarks within a specific collection
+      parameters:
+        - $ref: '#/components/parameters/CollectionId'
+      responses:
+        '200':
+          description: Collection tags retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagsResponse'
+
+    put:
+      operationId: renameOrMergeCollectionTags
+      summary: Rename or merge tags in a collection
+      description: Rename or merge tags within a specific collection
+      parameters:
+        - $ref: '#/components/parameters/CollectionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TagOperationRequest'
+      responses:
+        '200':
+          description: Tag operation completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultResponse'
+
+    delete:
+      operationId: deleteCollectionTags
+      summary: Delete tags from a collection
+      description: Delete multiple tags from bookmarks in a specific collection
+      parameters:
+        - $ref: '#/components/parameters/CollectionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tags:
+                  type: array
+                  items:
+                    type: string
+                  description: Array of tag names to delete
+              required:
+                - tags
+      responses:
+        '200':
+          description: Tags deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultResponse'
+
+  # Import/Export
+  /import:
+    post:
+      x-pp-resource: bookmark_transfer
+      operationId: importBookmarks
+      summary: Import bookmarks from external services
+      description: Import bookmarks from files or external services
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ImportBookmarksRequest'
+      responses:
+        '200':
+          description: Import completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportResponse'
+
+  /import/url:
+    post:
+      x-pp-resource: bookmark_transfer
+      operationId: importFromUrl
+      summary: Import bookmarks from URL
+      description: Import bookmarks from a remote URL hosting a bookmarks file
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ImportFromUrlRequest'
+      responses:
+        '200':
+          description: Import initiated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportJobResponse'
+
+  /export:
+    post:
+      x-pp-resource: bookmark_transfer
+      operationId: exportBookmarks
+      summary: Export bookmarks
+      description: Export bookmarks in various formats
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExportBookmarksRequest'
+      responses:
+        '200':
+          description: Export initiated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExportResponse'
+
+  # Filters
+  /raindrop/suggest:
+    post:
+      operationId: suggestForUrl
+      summary: Suggest tags and collections for a new URL
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [link]
+              properties:
+                link:
+                  type: string
+                  format: uri
+      responses:
+        '200':
+          description: Suggestions retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuggestionsResponse'
+
+  /raindrop/{id}/suggest:
+    get:
+      operationId: suggestForBookmark
+      summary: Suggest tags and collections for an existing bookmark
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Suggestions retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuggestionsResponse'
+
+  /filters/{collectionId}:
+    get:
+      operationId: getAvailableFilters
+      summary: Get available filters for bookmarks
+      description: Returns available filters such as tags, domains, and highlights to refine searches
+      parameters:
+        - name: collectionId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Collection ID, or 0 for all bookmarks
+      responses:
+        '200':
+          description: Filters retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FiltersResponse'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: access-token
+      x-auth-env-vars:
+        - RAINDROP_TOKEN
+      description: Raindrop.io API access token
+
+  parameters:
+    CollectionId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+      description: Collection ID
+
+    BookmarkId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+      description: Bookmark ID
+
+    SearchQuery:
+      name: search
+      in: query
+      schema:
+        type: string
+      description: Search query for filtering results
+
+    SortOrder:
+      name: sort
+      in: query
+      schema:
+        type: string
+        enum:
+          - +created
+          - -created
+          - +title
+          - -title
+          - +domain
+          - -domain
+          - +score
+          - -score
+        default: -created
+      description: Sort order for results
+
+    TagFilter:
+      name: tag
+      in: query
+      schema:
+        type: string
+      description: Filter by specific tag
+
+    ImportantFilter:
+      name: important
+      in: query
+      schema:
+        type: boolean
+      description: Filter by important flag
+
+    DuplicatesFilter:
+      name: duplicates
+      in: query
+      schema:
+        type: boolean
+      description: Filter by duplicates
+
+    BrokenFilter:
+      name: broken
+      in: query
+      schema:
+        type: boolean
+      description: Filter by broken links
+
+    NotagFilter:
+      name: notag
+      in: query
+      schema:
+        type: boolean
+      description: Filter by items without tags
+
+    HighlightFilter:
+      name: highlight
+      in: query
+      schema:
+        type: boolean
+      description: Filter by presence of highlights
+
+    DomainFilter:
+      name: domain
+      in: query
+      schema:
+        type: string
+      description: Filter by domain
+
+    CollectionFilter:
+      name: collection
+      in: query
+      schema:
+        type: integer
+      description: Filter by collection ID
+
+    PerPage:
+      name: perpage
+      in: query
+      schema:
+        type: integer
+        default: 50
+        minimum: 1
+        maximum: 50
+      description: Number of items per page
+
+    Page:
+      name: page
+      in: query
+      schema:
+        type: integer
+        default: 0
+        minimum: 0
+      description: Page number for pagination
+
+  responses:
+    BadRequestError:
+      description: Bad request - invalid parameters or request body
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    UnauthorizedError:
+      description: Unauthorized - invalid or missing access token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    NotFoundError:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    RateLimitError:
+      description: Rate limit exceeded
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    ServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  schemas:
+    # Core entity schemas
+    Collection:
+      type: object
+      properties:
+        _id:
+          type: integer
+          description: Collection ID
+        title:
+          type: string
+          description: Collection title
+        description:
+          type: string
+          description: Collection description
+        color:
+          type: string
+          description: Collection color theme
+        count:
+          type: integer
+          description: Number of bookmarks in collection
+        public:
+          type: boolean
+          description: Whether collection is public
+        parent:
+          type: object
+          properties:
+            $id:
+              type: integer
+          description: Parent collection reference
+        expanded:
+          type: boolean
+          description: Whether collection is expanded in UI
+        sort:
+          type: string
+          description: Sort order within parent
+        access:
+          type: object
+          description: Access control settings
+        created:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        lastUpdate:
+          type: string
+          format: date-time
+          description: Last update timestamp
+      required:
+        - _id
+        - title
+
+    Bookmark:
+      type: object
+      properties:
+        _id:
+          type: integer
+          description: Bookmark ID
+        link:
+          type: string
+          format: uri
+          description: Bookmark URL
+        title:
+          type: string
+          description: Bookmark title
+        excerpt:
+          type: string
+          description: Bookmark description/excerpt
+        note:
+          type: string
+          description: User notes for the bookmark
+        type:
+          type: string
+          enum: [link, article, image, video, document, audio]
+          description: Type of bookmark content
+        cover:
+          type: string
+          format: uri
+          description: Cover image URL
+        tags:
+          type: array
+          items:
+            type: string
+          description: Array of tags
+        important:
+          type: boolean
+          description: Whether bookmark is marked as important
+        reminder:
+          type: object
+          properties:
+            date:
+              type: string
+              format: date-time
+            note:
+              type: string
+          description: Reminder settings
+        removed:
+          type: boolean
+          description: Whether bookmark is in trash
+        created:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        lastUpdate:
+          type: string
+          format: date-time
+          description: Last update timestamp
+        domain:
+          type: string
+          description: Domain of the bookmark URL
+        creatorRef:
+          type: integer
+          description: User ID of creator
+        collection:
+          type: object
+          properties:
+            $id:
+              type: integer
+            title:
+              type: string
+          description: Collection reference
+        highlights:
+          type: array
+          items:
+            $ref: '#/components/schemas/Highlight'
+          description: Text highlights for this bookmark
+        media:
+          type: array
+          items:
+            type: object
+            properties:
+              link:
+                type: string
+                format: uri
+          description: List of media/covers associated with the raindrop
+        cache:
+          type: object
+          properties:
+            status:
+              type: string
+              enum: [ready, retry, failed]
+            size:
+              type: integer
+            created:
+              type: string
+              format: date-time
+          description: Details about the permanent copy (cached version)
+      required:
+        - _id
+        - link
+        - title
+
+    Highlight:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: Unique highlight ID
+        text:
+          type: string
+          description: Highlighted text content
+        note:
+          type: string
+          description: Optional note for the highlight
+        color:
+          type: string
+          enum: [blue, brown, cyan, gray, green, indigo, orange, pink, purple, red, teal, yellow]
+          default: yellow
+          description: Highlight color
+        created:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        lastUpdate:
+          type: string
+          format: date-time
+          description: Last update timestamp
+        title:
+          type: string
+          description: Title of the parent bookmark
+        link:
+          type: string
+          format: uri
+          description: URL of the parent bookmark
+        domain:
+          type: string
+          description: Domain of the parent bookmark
+        excerpt:
+          type: string
+          description: Context around the highlight
+        tags:
+          type: array
+          items:
+            type: string
+          description: Tags from the parent bookmark
+        raindrop:
+          type: object
+          properties:
+            _id:
+              type: integer
+            title:
+              type: string
+            link:
+              type: string
+            collection:
+              type: object
+              properties:
+                $id:
+                  type: integer
+          description: Reference to parent bookmark
+      required:
+        - _id
+        - text
+
+    Tag:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: Tag name
+        count:
+          type: integer
+          description: Number of bookmarks with this tag
+      required:
+        - _id
+        - count
+
+    User:
+      type: object
+      properties:
+        _id:
+          type: integer
+          description: User ID
+        email:
+          type: string
+          format: email
+          description: User email address
+        fullName:
+          type: string
+          description: User's full name
+        avatar:
+          type: string
+          format: uri
+          description: Avatar image URL
+        pro:
+          type: boolean
+          description: Whether user has Pro subscription
+        proExpire:
+          type: string
+          format: date-time
+          description: Pro subscription expiration date
+        registered:
+          type: string
+          format: date-time
+          description: Registration date
+        lastUpdate:
+          type: string
+          format: date-time
+          description: Last profile update
+      required:
+        - _id
+        - email
+
+    # Request schemas
+    CreateCollectionRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          description: Collection title
+        public:
+          type: boolean
+          default: false
+          description: Whether collection should be public
+        parent:
+          type: object
+          properties:
+            $id:
+              type: integer
+          description: Parent collection reference
+        color:
+          type: string
+          description: Collection color theme
+        description:
+          type: string
+          description: Collection description
+      required:
+        - title
+
+    UpdateCollectionRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Collection title
+        public:
+          type: boolean
+          description: Whether collection should be public
+        parent:
+          type: object
+          properties:
+            $id:
+              type: integer
+          description: Parent collection reference
+        color:
+          type: string
+          description: Collection color theme
+        description:
+          type: string
+          description: Collection description
+
+    ShareCollectionRequest:
+      type: object
+      properties:
+        level:
+          type: string
+          enum: [view, edit, remove]
+          description: Sharing permission level
+        emails:
+          type: array
+          items:
+            type: string
+            format: email
+          description: Email addresses to share with
+      required:
+        - level
+
+    CreateBookmarkRequest:
+      type: object
+      properties:
+        link:
+          type: string
+          format: uri
+          description: Bookmark URL
+        title:
+          type: string
+          description: Bookmark title (auto-extracted if not provided)
+        excerpt:
+          type: string
+          description: Bookmark description
+        tags:
+          type: array
+          items:
+            type: string
+          description: Array of tags
+        important:
+          type: boolean
+          default: false
+          description: Whether bookmark is important
+        collection:
+          type: object
+          properties:
+            $id:
+              type: integer
+          description: Target collection reference
+        pleaseParse:
+          type: object
+          description: Settings for content parsing
+      required:
+        - link
+
+    UpdateBookmarkRequest:
+      type: object
+      properties:
+        link:
+          type: string
+          format: uri
+          description: Bookmark URL
+        title:
+          type: string
+          description: Bookmark title
+        excerpt:
+          type: string
+          description: Bookmark description
+        note:
+          type: string
+          description: User notes
+        tags:
+          type: array
+          items:
+            type: string
+          description: Array of tags
+        important:
+          type: boolean
+          description: Whether bookmark is important
+        collection:
+          type: object
+          properties:
+            $id:
+              type: integer
+          description: Target collection reference
+        cover:
+          type: string
+          format: uri
+          description: Cover image URL
+
+    BatchUpdateBookmarksRequest:
+      type: object
+      properties:
+        ids:
+          type: array
+          items:
+            type: integer
+          description: Array of bookmark IDs to update
+        tags:
+          type: array
+          items:
+            type: string
+          description: Tags to set on bookmarks
+        collection:
+          type: object
+          properties:
+            $id:
+              type: integer
+          description: Collection to move bookmarks to
+        important:
+          type: boolean
+          description: Whether bookmarks should be marked important
+        broken:
+          type: boolean
+          description: Whether bookmarks should be marked as broken
+      required:
+        - ids
+
+    BulkMoveBookmarksRequest:
+      type: object
+      properties:
+        ids:
+          type: array
+          items:
+            type: integer
+          description: Array of bookmark IDs to move
+        collection:
+          type: object
+          properties:
+            $id:
+              type: integer
+          description: Target collection
+      required:
+        - ids
+        - collection
+
+    BatchTagBookmarksRequest:
+      type: object
+      properties:
+        ids:
+          type: array
+          items:
+            type: integer
+          description: Array of bookmark IDs
+        tags:
+          type: array
+          items:
+            type: string
+          description: Tags to add or remove
+        replace:
+          type: boolean
+          default: false
+          description: Whether to replace existing tags or add to them
+      required:
+        - ids
+        - tags
+
+    SetReminderRequest:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date-time
+          description: Reminder date and time
+        note:
+          type: string
+          description: Optional reminder note
+      required:
+        - date
+
+    CreateHighlightRequest:
+      type: object
+      properties:
+        raindrop:
+          type: object
+          properties:
+            $id:
+              type: integer
+          description: Bookmark reference
+        text:
+          type: string
+          description: Highlighted text
+        note:
+          type: string
+          description: Optional note for the highlight
+        color:
+          type: string
+          enum: [blue, brown, cyan, gray, green, indigo, orange, pink, purple, red, teal, yellow]
+          default: yellow
+          description: Highlight color
+      required:
+        - raindrop
+        - text
+
+    UpdateHighlightRequest:
+      type: object
+      properties:
+        text:
+          type: string
+          description: Updated highlight text
+        note:
+          type: string
+          description: Updated note
+        color:
+          type: string
+          enum: [blue, brown, cyan, gray, green, indigo, orange, pink, purple, red, teal, yellow]
+          description: Updated highlight color
+
+    TagOperationRequest:
+      type: object
+      properties:
+        from:
+          type: string
+          description: Original tag name (for rename operation)
+        to:
+          type: string
+          description: New tag name
+        tags:
+          type: array
+          items:
+            type: string
+          description: Array of tag names (for merge operation)
+
+    ImportBookmarksRequest:
+      type: object
+      properties:
+        file:
+          type: string
+          format: binary
+          description: Bookmarks file to import
+        collection:
+          type: string
+          description: Collection ID to import into
+        format:
+          type: string
+          enum: [html, csv, pocket, instapaper, netscape, readwise]
+          description: Format of the import file
+        mode:
+          type: string
+          enum: [add, replace]
+          default: add
+          description: Import mode
+        parse:
+          type: boolean
+          default: true
+          description: Whether to parse content during import
+      required:
+        - file
+
+    ImportFromUrlRequest:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          description: URL of bookmarks file to import
+        parse:
+          type: boolean
+          default: true
+          description: Whether to parse imported bookmarks
+        collection:
+          type: object
+          properties:
+            $id:
+              type: integer
+            title:
+              type: string
+          description: Collection details to import into
+      required:
+        - url
+
+    ExportBookmarksRequest:
+      type: object
+      properties:
+        collection:
+          type: integer
+          description: Collection ID to export (omit for all bookmarks)
+        format:
+          type: string
+          enum: [csv, html, pdf]
+          description: Export format
+        broken:
+          type: boolean
+          default: false
+          description: Include broken bookmarks
+        duplicates:
+          type: boolean
+          default: false
+          description: Include duplicate bookmarks
+      required:
+        - format
+
+    # Response schemas
+    UserProfileResponse:
+      type: object
+      properties:
+        result:
+          type: boolean
+        user:
+          $ref: '#/components/schemas/User'
+      required:
+        - result
+        - user
+
+    UserStatsResponse:
+      type: object
+      properties:
+        result:
+          type: boolean
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              _id:
+                type: integer
+              count:
+                type: integer
+        meta:
+          type: object
+          properties:
+            broken:
+              type: object
+              properties:
+                count:
+                  type: integer
+        stats:
+          type: object
+          properties:
+            bookmarks:
+              type: integer
+            collections:
+              type: integer
+            highlights:
+              type: integer
+            tags:
+              type: integer
+            trash:
+              type: integer
+      required:
+        - result
+
+    CollectionStatsResponse:
+      type: object
+      properties:
+        result:
+          type: boolean
+        stats:
+          type: object
+          properties:
+            bookmarks:
+              type: integer
+            highlights:
+              type: integer
+            tags:
+              type: integer
+      required:
+        - result
+        - stats
+
+    CollectionsResponse:
+      type: object
+      properties:
+        result:
+          type: boolean
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Collection'
+      required:
+        - result
+        - items
+
+    CollectionItemResponse:
+      type: object
+      properties:
+        result:
+          type: boolean
+        item:
+          $ref: '#/components/schemas/Collection'
+      required:
+        - result
+        - item
+
+    ShareCollectionResponse:
+      type: object
+      properties:
+        result:
+          type: boolean
+        link:
+          type: string
+          format: uri
+          description: Public sharing link
+        access:
+          type: array
+          items:
+            type: object
+            properties:
+              email:
+                type: string
+                format: email
+              level:
+                type: string
+                enum: [view, edit]
+          description: List of users with access
+      required:
+        - result
+        - link
+        - access
+
+    BookmarksResponse:
+      type: object
+      properties:
+        result:
+          type: boolean
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Bookmark'
+        count:
+          type: integer
+          description: Total number of matching bookmarks
+        collectionId:
+          type: integer
+          description: Collection ID that was searched
+      required:
+        - result
+        - items
+
+    BookmarkItemResponse:
+      type: object
+      properties:
+        result:
+          type: boolean
+        item:
+          $ref: '#/components/schemas/Bookmark'
+      required:
+        - result
+        - item
+
+    HighlightsResponse:
+      type: object
+      properties:
+        result:
+          type: boolean
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Highlight'
+      required:
+        - result
+        - items
+
+    HighlightItemResponse:
+      type: object
+      properties:
+        result:
+          type: boolean
+        item:
+          $ref: '#/components/schemas/Highlight'
+      required:
+        - result
+        - item
+
+    TagsResponse:
+      type: object
+      properties:
+        result:
+          type: boolean
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+      required:
+        - result
+        - items
+
+    SuggestionsResponse:
+      type: object
+      properties:
+        result:
+          type: boolean
+        item:
+          type: object
+          properties:
+            tags:
+              type: array
+              items:
+                type: string
+            collections:
+              type: array
+              items:
+                type: object
+                properties:
+                  _id:
+                    type: integer
+                  title:
+                    type: string
+            covers:
+              type: array
+              items:
+                type: string
+                format: uri
+      required:
+        - result
+        - item
+
+    ImportResponse:
+      type: object
+      properties:
+        result:
+          type: boolean
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              _id:
+                type: integer
+              link:
+                type: string
+        imported:
+          type: integer
+          description: Number of bookmarks imported
+        duplicates:
+          type: integer
+          description: Number of duplicates found
+      required:
+        - result
+        - items
+
+    ImportJobResponse:
+      type: object
+      properties:
+        result:
+          type: boolean
+        item:
+          type: object
+          properties:
+            _id:
+              type: string
+              description: Import job ID
+      required:
+        - result
+        - item
+
+    ImportStatusResponse:
+      type: object
+      properties:
+        result:
+          type: boolean
+        status:
+          type: string
+          enum: [in-progress, ready, error]
+          description: Current import status
+        progress:
+          type: integer
+          minimum: 0
+          maximum: 100
+          description: Import progress percentage
+        imported:
+          type: integer
+          description: Number of bookmarks imported so far
+        duplicates:
+          type: integer
+          description: Number of duplicates found
+        error:
+          type: string
+          description: Error message if status is 'error'
+      required:
+        - result
+        - status
+
+    ExportResponse:
+      type: object
+      properties:
+        result:
+          type: boolean
+        url:
+          type: string
+          format: uri
+          description: Download URL for the exported file
+      required:
+        - result
+        - url
+
+    ExportStatusResponse:
+      type: object
+      properties:
+        result:
+          type: boolean
+        status:
+          type: string
+          enum: [in-progress, ready, error]
+          description: Current export status
+        progress:
+          type: integer
+          minimum: 0
+          maximum: 100
+          description: Export progress percentage
+        url:
+          type: string
+          format: uri
+          description: Download URL when ready
+        error:
+          type: string
+          description: Error message if status is 'error'
+      required:
+        - result
+        - status
+
+    FiltersResponse:
+      type: object
+      properties:
+        result:
+          type: boolean
+        tags:
+          type: array
+          items:
+            type: string
+          description: Available tag filters
+        domains:
+          type: array
+          items:
+            type: string
+          description: Available domain filters
+        highlights:
+          type: array
+          items:
+            type: string
+          description: Available highlight filters
+      required:
+        - result
+        - tags
+        - domains
+        - highlights
+
+    ResultResponse:
+      type: object
+      properties:
+        result:
+          type: boolean
+          description: Whether the operation was successful
+      required:
+        - result
+
+    ErrorResponse:
+      type: object
+      properties:
+        result:
+          type: boolean
+          default: false
+        error:
+          type: string
+          description: Error message
+        errorMessage:
+          type: string
+          description: Detailed error description
+        errorCode:
+          type: integer
+          description: Error code
+      required:
+        - result
+        - error

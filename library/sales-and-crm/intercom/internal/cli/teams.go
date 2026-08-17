@@ -9,10 +9,11 @@ import (
 
 func newTeamsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:    "teams",
-		Short:  "Everything about your Teams",
-		Hidden: true,
-		RunE:   parentNoSubcommandRunE(flags),
+		Use:         "teams",
+		Short:       "Everything about your Teams",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newTeamsListCmd(flags))

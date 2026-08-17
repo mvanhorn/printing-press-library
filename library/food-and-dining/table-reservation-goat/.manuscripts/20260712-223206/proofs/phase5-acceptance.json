@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "table-reservation-goat",
+  "run_id": "20260712-223206",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 100,
+  "tests_passed": 100,
+  "tests_skipped": 76,
+  "auth_context": {
+    "type": "none"
+  }
+}

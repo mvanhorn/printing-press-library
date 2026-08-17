@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "opensky-stdin-opaque-query",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260807-162902",
+  "base_printing_press_version": "4.28.0",
+  "summary": "recall, teach, learnings forget, and teach-playbook now resolve the query from stdin when no inline flag/positional is given (shared queryFromArgsOrStdin helper). Agent recipes in SKILL.md and AGENTS.md feed the question through a quoted heredoc (<<'EOF') instead of interpolating it into a shell command line. Adds internal/cli/query_stdin_test.go covering flag > positional > stdin > none precedence.",
+  "reason": "Greptile policy gate: any shell-quoting scheme (double or single) still lets a crafted question break out of the quote and execute command substitution before the CLI receives it. A quoted heredoc does zero shell expansion, so apostrophes, $(...), and backticks travel to the CLI as opaque data. Interactive terminals are refused (usage error, not a hang); existing inline usage is unchanged.",
+  "files": [
+    "internal/cli/helpers.go",
+    "internal/cli/teach.go",
+    "internal/cli/teach_playbook.go",
+    "internal/cli/query_stdin_test.go",
+    "SKILL.md",
+    "AGENTS.md"
+  ],
+  "validated_outcome": "go build ./..., go vet ./..., and the full go test ./... suite (12 packages) pass. Live: printf 'what flies over JFK?' | opensky-pp-cli recall --agent returns the query intact; printf 'who owns aa07f9' | opensky-pp-cli teach ... exits 0 silently; learnings forget --all via stdin deletes 1 row.",
+  "upstream_issue": "Template defect: the generated SKILL.md/AGENTS.md agent recipes interpolate user questions into shell commands; candidate for a cli-printing-press template fix (stdin-opaque query channel in the printed CLI + heredoc recipes)."
+}

@@ -1,0 +1,87 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-24T22:26:38.860227Z",
+  "printing_press_version": "4.29.0",
+  "api_name": "zameen",
+  "display_name": "Zameen",
+  "cli_name": "zameen-pp-cli",
+  "creator": {
+    "handle": "qazmataz",
+    "name": "qazmataz"
+  },
+  "owner": "qazmataz",
+  "printer": "qazmataz",
+  "printer_name": "qazmataz",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:a44ef2649c4423ea956b54735fa4a74933d1dfd8d703163840cd781dd8a61f87",
+  "run_id": "20260724-180912-b60f21c2",
+  "category": "commerce",
+  "description": "Search Zameen.com property listings from your terminal — real filters, an offline SQLite mirror, saved-search monitoring, and price-drop alerts no scraper offers.",
+  "mcp_binary": "zameen-pp-mcp",
+  "mcp_tool_count": 1,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Saved-search cross-run diff",
+      "command": "watch",
+      "description": "Re-run a saved search and see exactly which listings are new and which dropped in price since last time."
+    },
+    {
+      "name": "Area price research",
+      "command": "comps",
+      "description": "Median price, price-per-Marla, and inventory count for an area or society, computed from your synced listings."
+    },
+    {
+      "name": "Below-market plot-file detector",
+      "command": "deals",
+      "description": "Ranks scanned listings by how far under the area's price-per-Marla they sit and flags below-market files."
+    },
+    {
+      "name": "Days-on-market / aging inventory",
+      "command": "aging",
+      "description": "Lists the longest-standing inventory by days-on-market, derived from each listing's update timestamp."
+    },
+    {
+      "name": "Agency inventory leaderboard",
+      "command": "agencies",
+      "description": "Ranks agencies by listing count and median asking price in an area, from your synced listings."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Saved-search cross-run diff",
+      "command": "watch",
+      "description": "Re-run a saved search and see exactly which listings are new and which dropped in price since last time."
+    },
+    {
+      "name": "Area price research",
+      "command": "comps",
+      "description": "Median price, price-per-Marla, and inventory count for an area or society, computed from your synced listings."
+    },
+    {
+      "name": "Below-market plot-file detector",
+      "command": "deals",
+      "description": "Ranks scanned listings by how far under the area's price-per-Marla they sit and flags below-market files."
+    },
+    {
+      "name": "Days-on-market / aging inventory",
+      "command": "aging",
+      "description": "Lists the longest-standing inventory by days-on-market, derived from each listing's update timestamp."
+    },
+    {
+      "name": "Agency inventory leaderboard",
+      "command": "agencies",
+      "description": "Ranks agencies by listing count and median asking price in an area, from your synced listings."
+    }
+  ],
+  "scorecard": {
+    "steinberger": {
+      "percentage": 86,
+      "grade": "A",
+      "total": 86
+    }
+  }
+}

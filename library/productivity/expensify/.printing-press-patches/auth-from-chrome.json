@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "auth-from-chrome",
+  "applied_at": "2026-06-22",
+  "base_run_id": "20260622-180206",
+  "base_printing_press_version": "4.25.0",
+  "summary": "`auth login --from-chrome` reads the freshest www.expensify.com authToken from Chrome's cookie store (newest by last_update_utc incl. the WAL sidecar; prefix-stripped v10 decrypt with PKCS#7 verification).",
+  "reason": "A fresh login leaves stale authToken rows behind; selecting by value length grabbed an expired one, and a not-yet-checkpointed token lives only in the WAL sidecar.",
+  "files": [
+    "internal/cli/auth_login.go",
+    "internal/cli/chrome_cookie.go",
+    "internal/cli/auth.go"
+  ]
+}

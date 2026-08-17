@@ -1,0 +1,17 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "nutrition-pp-cli"
+display_name = "Nutrition (USDA FoodData Central + NutritionValue.org)"
+description = "One agent-native CLI over USDA FoodData Central and NutritionValue.org - with cross-source enrichment, protein-density comparison, nutrient ranking, and a local SQLite cache no other nutrition tool ships."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/nutrition-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+FDC_API_KEY = true
+USDA_API_KEY = true

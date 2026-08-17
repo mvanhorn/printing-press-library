@@ -1,0 +1,291 @@
+name: screener
+description: Discovered API spec for screener
+version: 0.1.0
+base_url: https://www.screener.in
+spec_source: sniffed
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+auth_warnings:
+    - 'rejected auth candidate "q" from query: search input'
+config:
+    format: toml
+    path: ~/.config/screener-pp-cli/config.toml
+resources:
+    company:
+        description: Operations on search
+        endpoints:
+            get_chart:
+                method: GET
+                path: /api/company/{company_id}/chart/
+                description: GET /api/company/{company_id}/chart/
+                params:
+                    - name: company_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The company_id path segment
+                      fields: []
+                    - name: consolidated
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: days
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: q
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: ChartDataset
+                pagination: null
+                response_path: datasets
+            get_peers:
+                method: GET
+                path: /api/company/{company_id}/peers/
+                description: Fetch structured metadata from /api/company/{company_id}/peers/
+                params:
+                    - name: company_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The company_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+            list_consolidated:
+                method: GET
+                path: /company/INFY/consolidated/
+                description: Fetch structured links from /company/INFY/consolidated/
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+            list_search:
+                method: GET
+                path: /api/company/search/
+                description: GET /api/company/search/
+                params:
+                    - name: fts
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: q
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: v
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: Search
+                pagination: null
+    explore:
+        description: Operations on explore
+        endpoints:
+            list_explore:
+                method: GET
+                path: /explore/
+                description: Fetch structured links from /explore/
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+    filings:
+        description: Operations on filings
+        endpoints:
+            list_filings:
+                method: GET
+                path: /filings/
+                description: Fetch structured links from /filings/
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+    full-text-search:
+        description: Operations on full-text-search
+        endpoints:
+            list_full_text_search:
+                method: GET
+                path: /full-text-search/
+                description: Fetch structured links from /full-text-search/
+                params:
+                    - name: q
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+    ipo:
+        description: Operations on ipo
+        endpoints:
+            list_ipo:
+                method: GET
+                path: /ipo/
+                description: Fetch structured links from /ipo/
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+    market:
+        description: Operations on IN080101
+        endpoints:
+            list_IN080101:
+                method: GET
+                path: /market/IN08/IN0801/IN080101/
+                description: Fetch structured links from /market/IN08/IN0801/IN080101/
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+    results:
+        description: Operations on latest
+        endpoints:
+            list_latest:
+                method: GET
+                path: /results/latest/
+                description: Fetch structured links from /results/latest/
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+    screens:
+        description: Operations on the-bull-cartel
+        endpoints:
+            get_the_bull_cartel:
+                method: GET
+                path: /screens/{screen_id}/the-bull-cartel/
+                description: Fetch structured metadata from /screens/{screen_id}/the-bull-cartel/
+                params:
+                    - name: screen_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The screen_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+    trades:
+        description: Operations on insiders
+        endpoints:
+            list_insiders:
+                method: GET
+                path: /trades/insiders/
+                description: Fetch structured links from /trades/insiders/
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+types:
+    ChartDataset:
+        fields:
+            - name: label
+              type: string
+            - name: metric
+              type: string
+            - name: values
+              type: array
+    Search:
+        fields:
+            - name: id
+              type: integer
+            - name: name
+              type: string
+            - name: url
+              type: string

@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "id": "review-hardening",
+  "applied_at": "2026-07-20",
+  "base_run_id": "pp-pp-local-2026-07-11",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Preserve Paperclip's composed authentication, credential boundaries, retry safety, MCP transport parity, tail failures, and bounded recall I/O across regeneration.",
+  "reason": "The generated package discarded all declared security schemes, exposed local-file and token-bearing inputs through MCP or diagnostics, retried mutations, hid single-poll failures, and performed one resource lookup per recall candidate.",
+  "files": [
+    "manifest.json",
+    "internal/cli/agent_context.go",
+    "internal/cli/root.go",
+    "internal/cli/tail.go",
+    "internal/client/client.go",
+    "internal/config/config.go",
+    "internal/learn/recall.go",
+    "internal/mcp/cobratree/shellout.go",
+    "internal/mcp/cobratree/typemap.go",
+    "internal/mcp/tools.go"
+  ],
+  "validated_outcome": "Focused package tests cover each repaired behavior; full repository validation is recorded on the pull request."
+}

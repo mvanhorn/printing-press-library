@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/source/auth"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/source/opentable"
@@ -26,9 +27,15 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 		Short: "Check CLI health",
 		Example: `  table-reservation-goat-pp-cli doctor
   table-reservation-goat-pp-cli doctor --json
-  table-reservation-goat-pp-cli doctor --fail-on warn`,
+  table-reservation-goat-pp-cli doctor --fail-on warn
+  table-reservation-goat-pp-cli doctor --fail-on stale`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			report := map[string]any{}
+			pathsReport := collectPathsReport()
+			report["paths"] = pathsReport
+			if warning := pathsWarning(pathsReport); warning != "" {
+				report["paths_warning"] = warning
+			}
 
 			// Check config
 			cfg, err := config.Load(flags.configPath)
@@ -94,12 +101,12 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				otCli, otErr := opentable.New(session)
 				switch {
 				case otErr != nil:
-					// Prefix with "error:" so the indicator switch (line ~164)
-					// and doctorExitForFailOn both classify this as FAIL.
-					// Their predicates match the literal substring "error";
-					// Go errors like `"no cookie jar"` or `"connection
-					// refused"` don't carry it on their own, so without the
-					// prefix this status falls through to a green OK.
+					// Prefix with "error:" so the indicator switch and
+					// doctorExitForFailOn both classify this as FAIL. Their
+					// predicates match the literal substring "error"; Go errors
+					// like `"no cookie jar"` or `"connection refused"` don't
+					// carry it on their own, so without the prefix this status
+					// falls through to a green OK.
 					report["api_opentable"] = fmt.Sprintf("error: client init: %s", otErr)
 				default:
 					ctx := cmd.Context()
@@ -117,11 +124,26 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 			}
-			// Cache health: only reported when this CLI has a local store.
+			// Cache health: only reported when this CLI has generated sync.
 			// Surfaces rows + last_synced_at per resource, schema version,
 			// and a fresh/stale/unknown verdict so agents can introspect
 			// whether to trust the cached data before issuing queries.
 			report["cache"] = collectCacheReport(cmd.Context(), "")
+
+			// Verify mode state. Surfaced so an operator who unintentionally
+			// inherits PRINTING_PRESS_VERIFY=1 (parent shell, CI runner, container
+			// image) detects the foot-gun without inspecting a response body.
+			// Pairs with the synthetic envelope's verify_noop / reason literals
+			// as a second diagnosis anchor.
+			if cliutil.IsVerifyEnv() {
+				if cliutil.IsVerifyLiveHTTPEnv() {
+					report["verify_mode"] = "INFO ACTIVE — live HTTP opt-in (mutating verbs dial out)"
+				} else {
+					report["verify_mode"] = "INFO ACTIVE — mutating HTTP verbs short-circuit (PRINTING_PRESS_VERIFY=1; no network calls for DELETE/POST/PUT/PATCH)"
+				}
+			} else {
+				report["verify_mode"] = "normal operation"
+			}
 
 			report["version"] = version
 
@@ -138,7 +160,12 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				{"config", "Config"},
 				{"auth", "Auth"},
 				{"env_vars", "Env Vars"},
+				{"verify_mode", "Verify Mode"},
+				{"paths_warning", "Paths"},
+				{"credentials_location_warning", "Credentials Storage"},
+				{"api", "API"},
 				{"api_opentable", "OpenTable"},
+				{"credentials", "Credentials"},
 			}
 			for _, ck := range checkKeys {
 				v, ok := report[ck.key]
@@ -148,6 +175,8 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				s := fmt.Sprintf("%v", v)
 				indicator := green("OK")
 				switch {
+				case strings.HasPrefix(s, "WARN"):
+					indicator = yellow("WARN")
 				case strings.HasPrefix(s, "INFO"):
 					indicator = yellow("INFO")
 				case strings.HasPrefix(s, "ERROR"):
@@ -155,13 +184,14 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				case strings.HasPrefix(s, "optional"):
 					// Optional-auth CLI with no key set — informational, not a failure.
 					indicator = yellow("INFO")
-				case strings.HasPrefix(s, "inconclusive"):
-					// The credential probe could not produce a definitive verdict
-					// (typically because the bare base URL returns 401/403 even for
-					// valid tokens). Surface as WARN, not FAIL — the user's actual
-					// commands will reveal a real auth failure if one exists.
+				case strings.Contains(s, "scope-limited"):
 					indicator = yellow("WARN")
-				case strings.Contains(s, "error") || strings.Contains(s, "not configured") || strings.Contains(s, "unreachable") || strings.Contains(s, "invalid") || strings.Contains(s, "missing") || strings.Contains(s, "blocked"):
+				case strings.Contains(s, "not verified"):
+					// "present, not verified" — credentials are loaded but no
+					// probe ran. Informational, not a warning; a clean config
+					// shouldn't render yellow WARN in CI dashboards.
+					indicator = yellow("INFO")
+				case strings.Contains(s, "error") || strings.Contains(s, "not configured") || strings.Contains(s, "unreachable") || strings.Contains(s, "invalid") || strings.Contains(s, "missing"):
 					indicator = red("FAIL")
 				case s == "not required":
 					// Public APIs: no auth needed is a healthy state, not a warning.
@@ -172,7 +202,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				fmt.Fprintf(w, "  %s %s: %s\n", indicator, ck.label, s)
 			}
 			// Print info keys without status indicator
-			for _, key := range []string{"config_path", "base_url", "auth_source", "version"} {
+			for _, key := range []string{"config_path", "base_url", "auth_source", "credentials_location", "version"} {
 				if v, ok := report[key]; ok {
 					fmt.Fprintf(w, "  %s: %v\n", key, v)
 				}
@@ -185,33 +215,130 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 					renderCacheReport(w, cacheRep)
 				}
 			}
+			if pathsAny, ok := report["paths"]; ok {
+				if pathsRep, ok := pathsAny.(map[string]any); ok {
+					renderPathsReport(w, pathsRep)
+				}
+			}
 			return doctorExitForFailOn(failOn, report)
 		},
 	}
-	cmd.Flags().StringVar(&failOn, "fail-on", "", "Exit non-zero when a health level is reached: stale, error. Default is never.")
+	cmd.Flags().StringVar(&failOn, "fail-on", "", "Exit non-zero for selected health gates. stale: cache freshness plus errors; warn: credential/path warnings plus errors; error: errors only. Default is never.")
 	return cmd
 }
 
+func collectPathsReport() map[string]any {
+	report := map[string]any{}
+	resolutions, err := cliutil.AllPathResolutions()
+	if err != nil {
+		report["status"] = "error"
+		report["detail"] = err.Error()
+		return report
+	}
+	report["status"] = "ok"
+	ignoredSeen := map[string]bool{}
+	var ignored []map[string]string
+	var notes []string
+	for _, resolution := range resolutions {
+		report[resolution.KindName] = map[string]any{
+			"dir":    resolution.Dir,
+			"rung":   resolution.Rung,
+			"source": resolution.Source,
+		}
+		for _, skipped := range resolution.IgnoredOverrides {
+			key := skipped.Name + "\x00" + skipped.Value
+			if ignoredSeen[key] {
+				continue
+			}
+			ignoredSeen[key] = true
+			ignored = append(ignored, map[string]string{
+				"name":  skipped.Name,
+				"value": skipped.Value,
+			})
+		}
+		if cliutil.HomeOverrideActive() && resolution.Rung == "per-kind-env" && (resolution.Kind == cliutil.PathKindData || resolution.Kind == cliutil.PathKindConfig) {
+			notes = append(notes, fmt.Sprintf("--home shadowed for %s by %s", resolution.KindName, resolution.Source))
+		}
+	}
+	if len(ignored) > 0 {
+		report["skipped_relative_overrides"] = ignored
+	}
+	if len(notes) > 0 {
+		report["notes"] = notes
+	}
+	return report
+}
+
+func pathsWarning(report map[string]any) string {
+	if report == nil {
+		return ""
+	}
+	var parts []string
+	if raw, ok := report["skipped_relative_overrides"].([]map[string]string); ok && len(raw) > 0 {
+		names := make([]string, 0, len(raw))
+		for _, entry := range raw {
+			names = append(names, entry["name"])
+		}
+		parts = append(parts, "relative override skipped: "+strings.Join(names, ", "))
+	}
+	if raw, ok := report["notes"].([]string); ok && len(raw) > 0 {
+		parts = append(parts, "home override shadowed")
+	}
+	if len(parts) == 0 {
+		return ""
+	}
+	return "WARN paths: " + strings.Join(parts, "; ")
+}
+
+func renderPathsReport(w io.Writer, rep map[string]any) {
+	fmt.Fprintf(w, "  Paths:\n")
+	for _, kind := range []string{"config", "data", "state", "cache"} {
+		entry, ok := rep[kind].(map[string]any)
+		if !ok {
+			continue
+		}
+		fmt.Fprintf(w, "    %s: %v (%v)\n", kind, entry["dir"], entry["source"])
+	}
+	if raw, ok := rep["skipped_relative_overrides"].([]map[string]string); ok && len(raw) > 0 {
+		fmt.Fprintf(w, "    skipped_relative_overrides:\n")
+		for _, entry := range raw {
+			fmt.Fprintf(w, "      %s=%q\n", entry["name"], entry["value"])
+		}
+	}
+	if raw, ok := rep["notes"].([]string); ok && len(raw) > 0 {
+		fmt.Fprintf(w, "    notes:\n")
+		for _, note := range raw {
+			fmt.Fprintf(w, "      %s\n", note)
+		}
+	}
+}
+
 // doctorExitForFailOn returns a non-nil error when the report's worst
-// status meets or exceeds the --fail-on threshold. "error" always trips
-// when any section reports an error; "stale" also trips when the cache
-// section is stale. The default empty string means never fail on status.
+// status meets the --fail-on gate. "error" trips on failing sections, "warn"
+// trips on deliberate WARN sections plus errors, and "stale" trips on cache
+// freshness plus errors. The default empty string means never fail on status.
 func doctorExitForFailOn(failOn string, report map[string]any) error {
 	if failOn == "" {
 		return nil
 	}
 	worstError := false
+	worstWarn := false
 	worstStale := false
 	for _, v := range report {
 		s, ok := v.(string)
 		if ok {
-			if strings.Contains(s, "error") || strings.Contains(s, "unreachable") || strings.Contains(s, "invalid") || strings.Contains(s, "missing") || strings.Contains(s, "blocked") || strings.Contains(s, "not configured") {
+			if strings.Contains(s, "error") || strings.Contains(s, "unreachable") || strings.Contains(s, "invalid") || strings.Contains(s, "missing") {
 				worstError = true
+			}
+			if strings.HasPrefix(s, "WARN") {
+				worstWarn = true
 			}
 		}
 		if m, ok := v.(map[string]any); ok {
 			if st, _ := m["status"].(string); st == "error" {
 				worstError = true
+			} else if st == "warn" {
+				worstWarn = true
 			} else if st == "stale" {
 				worstStale = true
 			}
@@ -222,12 +349,16 @@ func doctorExitForFailOn(failOn string, report map[string]any) error {
 		if worstError {
 			return fmt.Errorf("doctor: --fail-on=error triggered")
 		}
+	case "warn":
+		if worstError || worstWarn {
+			return fmt.Errorf("doctor: --fail-on=warn triggered")
+		}
 	case "stale":
 		if worstError || worstStale {
 			return fmt.Errorf("doctor: --fail-on=stale triggered")
 		}
 	default:
-		return fmt.Errorf("doctor: unknown --fail-on value %q (valid: stale, error)", failOn)
+		return fmt.Errorf("doctor: unknown --fail-on value %q (valid: stale, warn, error)", failOn)
 	}
 	return nil
 }
@@ -321,8 +452,8 @@ func collectCacheReport(ctx context.Context, staleAfterSpec string) map[string]a
 
 	switch {
 	case !haveAny && len(resources) == 0:
-		report["status"] = "unknown"
-		report["hint"] = "sync_state is empty; run 'table-reservation-goat-pp-cli sync' to hydrate."
+		report["status"] = "empty"
+		report["hint"] = "Cache is empty; run 'table-reservation-goat-pp-cli sync' to hydrate."
 	case fresh:
 		report["status"] = "fresh"
 	default:
@@ -342,6 +473,8 @@ func renderCacheReport(w io.Writer, rep map[string]any) {
 	case "error":
 		indicator = red("FAIL")
 	case "unknown":
+		indicator = yellow("INFO")
+	case "empty":
 		indicator = yellow("INFO")
 	}
 	fmt.Fprintf(w, "  %s Cache: %s\n", indicator, status)

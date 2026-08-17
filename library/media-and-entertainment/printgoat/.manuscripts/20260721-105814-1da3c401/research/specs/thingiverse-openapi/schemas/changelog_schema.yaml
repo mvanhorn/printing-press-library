@@ -1,0 +1,25 @@
+type: object
+properties:
+  version:
+    type: string
+    example: 2.49.0
+  data:
+    type: string
+    example: 29-11-2022
+  highlights:
+    type: array
+    items:
+      type: object
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+  features:
+    type: array
+    items: 
+      type: string
+  bugfixes:
+    type: array
+    items: 
+      type: string

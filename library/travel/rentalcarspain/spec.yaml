@@ -1,0 +1,64 @@
+name: rentalcarspain
+description: "Car rental price search for Malaga and Spain — DoYouSpain aggregator, cross-checked direct, always full insurance"
+version: "0.1.0"
+base_url: "https://www.doyouspain.com"
+cli_description: "Watch Malaga car-rental prices — DoYouSpain's cheapest supplier, cross-checked direct, always with full insurance."
+category: travel
+http_transport: standard
+health_check_path: "/"
+required_headers:
+  - name: User-Agent
+    value: "rentalcarspain-pp-cli/0.1 (+https://github.com/mvanhorn/printing-press-library)"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/rentalcarspain/config.toml"
+
+resources:
+  offers:
+    description: "Raw DoYouSpain offer listing for a location and date range (low-level; prefer the top-level 'search' command)"
+    endpoints:
+      list:
+        method: GET
+        path: "/do/list/en"
+        description: "Fetch the raw DoYouSpain results HTML for an already-resolved search session"
+        no_auth: true
+        response_format: html
+        html_extract:
+          mode: page
+        params:
+          - name: s
+            type: string
+            required: true
+            positional: false
+            description: "DoYouSpain search session token (SID101 cookie value)"
+          - name: b
+            type: string
+            required: true
+            positional: false
+            description: "DoYouSpain booking token (DZW137 cookie value)"
+
+types:
+  Offer:
+    fields:
+      - name: supplier
+        type: string
+      - name: supplier_code
+        type: string
+      - name: car
+        type: string
+      - name: car_class
+        type: string
+      - name: per_day
+        type: float
+      - name: total
+        type: float
+      - name: full_insurance_total
+        type: float
+      - name: deposit
+        type: float
+      - name: currency
+        type: string

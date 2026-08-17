@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "export-file-output-alias",
+  "applied_at": "2026-06-12",
+  "base_run_id": "20260509-005754",
+  "base_printing_press_version": "4.0.6",
+  "summary": "transcripts export accepts --file and -o as aliases for the explicit output path, not only --output and --vault.",
+  "reason": "Agents reach for --file (and the conventional -o shorthand) to name an output path; the generated command only declared --output and --vault, so 'transcripts export <id> --file <path>' aborted with 'unknown flag: --file' before running. A regen must keep --file and -o wired to the same destination as --output, expand a leading ~ on the explicit output path (as --vault already does), and reject --output and --file together rather than silently dropping one.",
+  "files": [
+    "internal/cli/transcripts_ff.go"
+  ],
+  "validated_outcome": "transcripts export <id> --file ~/out.md --agent writes the rendered markdown to the tilde-expanded home path (verified against a real synced transcript); passing both --output and --file is rejected; go build/vet/test and verify-skill all pass."
+}
