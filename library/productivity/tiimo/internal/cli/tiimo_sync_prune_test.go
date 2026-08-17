@@ -162,3 +162,81 @@ func TestCanPruneOccurrencesGuards(t *testing.T) {
 		t.Errorf("refusal should name --profile, got %q", why)
 	}
 }
+
+func mkCalendarOccurrence(t *testing.T, st *store.Store, id, day, calID string) string {
+	t.Helper()
+	raw, err := json.Marshal(map[string]any{
+		"activityId": id,
+		"title":      "imported event",
+		"startTime":  day + "T09:00:00",
+		"calendarId": calID,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	keyed, key, err := occurrenceID(raw, day)
+	if err != nil {
+		t.Fatalf("occurrenceID: %v", err)
+	}
+	if err := st.UpsertActivities(keyed); err != nil {
+		t.Fatalf("upsert: %v", err)
+	}
+	return key
+}
+
+// A hidden or disconnected calendar is skipped by syncCalendarEvents, so its
+// occurrences never reach the seen set. Without protection, pruning would read
+// that absence as deletion and destroy the mirrored history of a calendar the
+// user merely hid.
+func TestHiddenCalendarRowsSurvivePruning(t *testing.T) {
+	ctx := context.Background()
+	st, err := store.OpenWithContext(ctx, filepath.Join(t.TempDir(), "m.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer st.Close()
+
+	from := time.Date(2026, 8, 10, 0, 0, 0, 0, time.Local)
+	to := time.Date(2026, 8, 20, 0, 0, 0, 0, time.Local)
+
+	hiddenA := mkCalendarOccurrence(t, st, "ev-1", "2026-08-12", "cal-hidden")
+	hiddenB := mkCalendarOccurrence(t, st, "ev-2", "2026-08-15", "cal-hidden")
+	otherCal := mkCalendarOccurrence(t, st, "ev-3", "2026-08-13", "cal-active")
+	native := mkOccurrence(t, st, "act-1", "2026-08-14", "native, gone upstream")
+
+	seen := map[string]bool{}
+	if err := retainCalendarRows(st, "cal-hidden", seen); err != nil {
+		t.Fatalf("retainCalendarRows: %v", err)
+	}
+	if !seen[hiddenA] || !seen[hiddenB] {
+		t.Fatalf("hidden calendar rows were not retained: %v", seen)
+	}
+	if seen[otherCal] || seen[native] {
+		t.Error("retained rows belonging to a different calendar")
+	}
+
+	removed, err := pruneStaleOccurrences(st, from, to, seen)
+	if err != nil {
+		t.Fatalf("prune: %v", err)
+	}
+	// Only the two rows this run neither fetched nor retained should go.
+	if removed != 2 {
+		t.Fatalf("want 2 removed (the active-calendar and native rows), got %d", removed)
+	}
+	surv := map[string]bool{}
+	rows, err := st.DB().Query(`SELECT id FROM activities`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			t.Fatal(err)
+		}
+		surv[id] = true
+	}
+	if !surv[hiddenA] || !surv[hiddenB] {
+		t.Error("hiding a calendar destroyed its mirrored events")
+	}
+}

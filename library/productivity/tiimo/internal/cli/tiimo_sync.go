@@ -622,6 +622,25 @@ func syncCalendarEvents(ctx context.Context, c apiGetter, st *store.Store, pid s
 	var firstErr error
 	for _, cal := range cals {
 		if cal.CalendarID == "" || cal.Hidden || !cal.Connected {
+			// A hidden or disconnected calendar is not a deleted one. Its
+			// events stay in the mirror, but this run will not enumerate them,
+			// so without help they would look stale and be pruned -- hiding a
+			// calendar in the app would silently destroy its mirrored history.
+			//
+			// Rows carry the calendar they came from, so instead of blocking
+			// pruning for the whole run, re-affirm just this calendar's rows.
+			// Everything else in the window still prunes normally.
+			if seen != nil && cal.CalendarID != "" {
+				if err := retainCalendarRows(st, cal.CalendarID, seen); err != nil {
+					// The rows could not be re-affirmed, so the seen set is
+					// genuinely incomplete and the run must not be treated as
+					// authoritative.
+					recordFailures++
+					if firstErr == nil {
+						firstErr = err
+					}
+				}
+			}
 			continue
 		}
 		attempted++
@@ -938,4 +957,27 @@ func pruneStaleOccurrences(st *store.Store, from, to time.Time, seen map[string]
 		return 0, err
 	}
 	return len(victims), nil
+}
+
+// retainCalendarRows adds every mirrored occurrence belonging to one external
+// calendar to the seen set, so a run that did not fetch that calendar does not
+// treat its rows as deleted upstream.
+//
+// calendar_id is a plain UUID with no NUL, so it is safe to match in SQL; the
+// occurrence keys it returns are not, which is why they are collected in Go
+// rather than compared there.
+func retainCalendarRows(st *store.Store, calendarID string, seen map[string]bool) error {
+	rows, err := st.DB().Query(`SELECT id FROM activities WHERE calendar_id = ?`, calendarID)
+	if err != nil {
+		return fmt.Errorf("retaining rows for calendar %s: %w", calendarID, err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			return fmt.Errorf("retaining rows for calendar %s: %w", calendarID, err)
+		}
+		seen[id] = true
+	}
+	return rows.Err()
 }
