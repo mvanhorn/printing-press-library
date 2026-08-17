@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "lever-dryrun-json-output",
+  "applied_at": "2026-08-10",
+  "base_run_id": "20260807-044310",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Teach/recall/playbook/learnings/sync dry-run short-circuits now emit a writeDryRun JSON envelope ({\"dry_run\":true,\"action\":...,\"would\":...}) instead of returning nil silently, matching the current generator template contract. Fixes the live-dogfood json_fidelity cell for teach and playbook amend under --dry-run --json on engine 4.30.x.",
+  "reason": "Live dogfood matrix on the current engine flagged teach and playbook amend json_fidelity as invalid JSON: the printed CLI returned nil on --dry-run with no stdout. Generator template already emits writeDryRun; printed CLI predates that change. Lever additionally carries a sync.go novel command with the same nil-dry-run pattern, patched to the same contract.",
+  "files": [
+    "internal/cli/helpers.go",
+    "internal/cli/teach.go",
+    "internal/cli/teach_playbook.go",
+    "internal/cli/learnings_candidates.go",
+    "internal/cli/learnings_stats.go",
+    "internal/cli/sync.go"
+  ],
+  "validated_outcome": "Live dogfood gate PASS (61 tests, 0 failed, 49 environment-dependent skips); smoke-test 8/8 live PASS; teach/playbook amend/sync dry-run json_fidelity all emit valid JSON.",
+  "upstream_issue": "Generator template internal/generator/templates/teach.go.tmpl (and teach_playbook.go.tmpl, learnings_candidates.go.tmpl, learnings_stats.go.tmpl, novel_feature_command.go.tmpl) already carries the writeDryRun contract; this patch aligns the printed CLI with it."
+}

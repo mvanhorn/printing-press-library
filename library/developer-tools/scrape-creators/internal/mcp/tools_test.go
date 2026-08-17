@@ -13,6 +13,7 @@ import (
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/cliutil/testenv"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/mcp/bound"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/store"
 )
@@ -69,28 +70,12 @@ func TestMCPPathResolutionMatchesCLIResolverWithPlatformDefaults(t *testing.T) {
 
 func resetMCPPathEnv(t *testing.T) string {
 	t.Helper()
-	home := t.TempDir()
-	t.Setenv("HOME", home)
-	for _, name := range []string{
-		"SCRAPE_CREATORS_CONFIG",
-		"SCRAPE_CREATORS_CONFIG_DIR",
-		"SCRAPE_CREATORS_DATA_DIR",
-		"SCRAPE_CREATORS_STATE_DIR",
-		"SCRAPE_CREATORS_CACHE_DIR",
-		"SCRAPE_CREATORS_HOME",
-		"XDG_CONFIG_HOME",
-		"XDG_DATA_HOME",
-		"XDG_STATE_HOME",
-		"XDG_CACHE_HOME",
-	} {
-		t.Setenv(name, "")
-	}
 	restore, err := cliutil.SetHomeOverride("")
 	if err != nil {
 		t.Fatalf("reset home override: %v", err)
 	}
 	t.Cleanup(restore)
-	return home
+	return testenv.Isolate(t, cliutil.ConfigDir, cliutil.DataDir, cliutil.StateDir, cliutil.CacheDir)
 }
 
 func TestMCPRegisterToolsPreservesTypedSpecialTools(t *testing.T) {
@@ -591,6 +576,37 @@ func TestMCPToolResultTextBoundsOversizedNonGETResponses(t *testing.T) {
 	}
 	if envelope.Preview == "" {
 		t.Fatalf("preview result should include a bounded preview")
+	}
+}
+
+func TestMCPToolErrorBoundsEndpointErrors(t *testing.T) {
+	message := "provider returned HTTP 500: " + strings.Repeat("z", bound.MaxBytes+10000)
+	result := mcpToolError(message)
+	if !result.IsError {
+		t.Fatal("mcpToolError must mark the result as an error")
+	}
+
+	text := mcpTextContent(t, result)
+	if len(text) > bound.MaxBytes {
+		t.Fatalf("bounded endpoint error length = %d, want <= %d", len(text), bound.MaxBytes)
+	}
+
+	var envelope struct {
+		Truncated     bool   `json:"truncated"`
+		OriginalBytes int    `json:"original_bytes"`
+		Preview       string `json:"preview"`
+	}
+	if err := json.Unmarshal([]byte(text), &envelope); err != nil {
+		t.Fatalf("bounded endpoint error must remain JSON: %v\\n%s", err, text)
+	}
+	if !envelope.Truncated {
+		t.Fatalf("bounded endpoint error did not mark truncation: %s", text)
+	}
+	if envelope.OriginalBytes != len(message) {
+		t.Fatalf("original_bytes = %d, want %d", envelope.OriginalBytes, len(message))
+	}
+	if envelope.Preview == "" {
+		t.Fatal("bounded endpoint error should include a preview")
 	}
 }
 

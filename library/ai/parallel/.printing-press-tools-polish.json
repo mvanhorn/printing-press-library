@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-07-20T15:20:41.684065Z",
+  "cli_dir": "\u003ccli-dir\u003e/parallel",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-07-20T15:18:39.687945Z"
+  }
+}

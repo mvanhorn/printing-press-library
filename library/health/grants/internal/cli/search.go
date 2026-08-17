@@ -84,6 +84,14 @@ func cmdSearch(args []string) int {
 			fmt.Fprintf(os.Stderr, "  (warning: --min-award filter applies only to the first %d fetched results; increase --rows to fetch more)\n", *rows)
 		}
 
+		// Same page-full truncation risk for the eligibility filter: it is applied
+		// client-side over the first page only, so matching opportunities on later
+		// pages are dropped silently. Kept independent of the --min-award guard so
+		// both warnings surface when both filters are active.
+		if *eligibility != "" && initialFetched == *rows && total > initialFetched {
+			fmt.Fprintf(os.Stderr, "  (warning: --eligibility filter applies only to the first %d fetched results; increase --rows to fetch more)\n", *rows)
+		}
+
 		// Warn when opportunities were dropped solely because applicant-type
 		// metadata was absent, not because they genuinely do not match.
 		if eligibilitySkipped > 0 {

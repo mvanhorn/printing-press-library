@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "giustizia-amministrativa-published-install-path",
+  "applied_at": "2026-08-08",
+  "base_run_id": "20260621-094103",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Sezione di installazione senza Node riportata al testo post-pubblicazione in SKILL.md ('Prerequisites: Install the CLI') e in README.md ('Without Node'): il fallback `go install` con il percorso reale della libreria pubblica, library/productivity/giustizia-amministrativa.",
+  "reason": "Entrambi i file erano fermi al testo che il generatore emette *prima* della pubblicazione: 'install Node or use the category-specific Go fallback after publish'. La CLI e' pubblicata dal 23 luglio 2026 sotto la categoria `productivity` (registry.json, release 2026.7.2), quindi chi legge oggi lo SKILL o il README pubblicato e non ha Node riceve un rinvio a un passo futuro invece del comando che gia' funziona. In SKILL.md il testo atteso e' generato dal manifest e il disallineamento faceva fallire `cli-printing-press verify-skill` su `canonical-sections`; e' stato incollato verbatim, non riscritto. README.md non e' coperto da quel controllo ma aveva la stessa frase, con la stessa conseguenza per il lettore.",
+  "files": [
+    "SKILL.md",
+    "README.md"
+  ],
+  "validated_outcome": "`cli-printing-press verify-skill --dir .` esce 0, canonical-sections passa. Percorso `library/productivity/giustizia-amministrativa` verificato contro registry.json della libreria pubblica."
+}

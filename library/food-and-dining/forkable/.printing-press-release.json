@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "forkable",
+  "cli_name": "forkable-pp-cli",
+  "version": "2026.8.1",
+  "released_at": "2026-08-10T03:38:45Z",
+  "source_commit": "3cc4998972ecf298fb0d543fb5c322803c33ec19",
+  "printing_press_version": "4.28.0",
+  "run_id": "20260717-100008-2c197495",
+  "changes": [
+    {
+      "title": "feat(forkable): add forkable",
+      "pr": 1565,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1565",
+      "commit": "3cc4998972ecf298fb0d543fb5c322803c33ec19"
+    }
+  ]
+}

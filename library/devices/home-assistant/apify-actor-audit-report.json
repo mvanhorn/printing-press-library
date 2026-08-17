@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/home-assistant",
+  "research_dir": "\u003ccli-dir\u003e/20260718-170717-2c0fb604",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

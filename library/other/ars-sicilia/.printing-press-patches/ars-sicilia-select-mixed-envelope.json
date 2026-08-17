@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "ars-sicilia-select-mixed-envelope",
+  "applied_at": "2026-07-29",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.18.0",
+  "summary": "--select con nomi misti (alcuni a livello root, altri dentro l'array annidato) non scarta più l'array. Un array figlio viene aperto solo quando risponde ai nomi rimasti irrisolti, così un nome inesistente non innesta righe vuote nell'output; i fratelli scalari non richiesti restano fuori, a differenza del fallback envelope che scatta quando nessun nome matcha.",
+  "reason": "filterFieldsRec applicava il fallback envelope solo se NESSUNA chiave root matchava: bastava un nome risolto a livello root perché i nomi annidati venissero ignorati e l'array sparisse tutto. Su `legge cronologia 18 26 --anno 2025 --select data,fase,sede,titolo` l'output era `{titolo}` e i 27 eventi svanivano senza errore né hint. L'hint di --select taceva correttamente: topLevelKeys è additivo e data/fase/sede esistono davvero dentro `eventi`, quindi nessun nome risultava sconosciuto. Colpiva tutti i comandi aggregati con risposta oggetto+array: legge cronologia, ddl iter, deputato profilo, commissione dossier.",
+  "files": ["internal/cli/helpers.go", "internal/cli/root_test.go"],
+  "validated_outcome": "`legge cronologia 18 26 --anno 2025 --select data,fase,titolo` -> {titolo, eventi:[27 eventi con data,fase,titolo]} (prima: {titolo} e 0 eventi); `--select titolo` -> {titolo}, invariato; `--select data,fase` -> envelope fallback invariato; `--select eventi.data` -> invariato; `--select titolo,zzz` -> {titolo} senza eventi innestati, più l'hint su zzz. 15 casi in TestFilterFields verdi, i 12 preesistenti compresi."
+}

@@ -20,7 +20,7 @@ import (
 	"github.com/spf13/pflag"
 )
 
-var version = "2026.7.1"
+var version = "2026.8.2"
 
 type rootFlags struct {
 	asJSON        bool
@@ -95,6 +95,19 @@ func Execute() error {
 			fmt.Fprintf(os.Stderr, "warning: deliver to %s:%s failed: %v\n", flags.deliverSink.Scheme, flags.deliverSink.Target, derr)
 			return derr
 		}
+	}
+	// PATCH(amend-2026-08-13: --select that matches nothing is a usage error) —
+	// filterFields already replaced the output with a diagnostic naming the
+	// available fields; without this the run would still exit 0 and a caller
+	// piping to jq would read the miss as an empty result.
+	if missedSpec := selectNoMatchSpec(); err == nil && missedSpec != "" {
+		// The diagnostic itself rides the normal `{meta, results}` envelope on
+		// stdout, because `available_fields` is data a caller wants to parse.
+		// But main.go prints nothing, so without this line an interactive user
+		// gets a JSON blob and a bare exit 2 — and the CLI's documented
+		// "errors on stderr" contract would go unmet. Say it once, in prose.
+		fmt.Fprintf(os.Stderr, "error: --select %q matched no fields; available_fields on stdout lists what this payload offers (paths are relative to the payload, not the {meta, results} envelope)\n", missedSpec)
+		return usageErr(fmt.Errorf("--select %q matched no fields in the response; see the emitted available_fields", missedSpec))
 	}
 	if err != nil && isCobraUsageError(err) {
 		// Cobra/pflag pre-RunE errors (unknown flag, unknown command,
@@ -185,7 +198,12 @@ Run 'spotify-pp-cli doctor' to verify auth and connectivity.`,
 	rootCmd.PersistentFlags().DurationVar(&flags.maxAge, "max-age", 30*time.Minute, "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables")
 	rootCmd.PersistentFlags().StringVar(&flags.profileName, "profile", "", "Apply values from a saved profile (see 'spotify-pp-cli profile list')")
 	rootCmd.PersistentFlags().StringVar(&flags.deliverSpec, "deliver", "", "Route output to a sink: stdout (default), file:<path>, webhook:<url>")
-	rootCmd.PersistentFlags().Float64Var(&flags.rateLimit, "rate-limit", 0, "Max requests per second (0 to disable)")
+	// PATCH(amend-2026-08-08: adaptive limiter on by default) — the default
+	// of 0 disabled the AdaptiveLimiter entirely, leaving the ramp/halve
+	// pacing machinery dead code while unpaced bursts burned Spotify's
+	// rolling-30s window. 3 req/s is a safe floor; 0 remains the explicit
+	// opt-out.
+	rootCmd.PersistentFlags().Float64Var(&flags.rateLimit, "rate-limit", 3, "Max requests per second (default 3, adaptive; 0 disables client-side pacing)")
 
 	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
 		if _, err := cliutil.SetHomeOverride(flags.homePath); err != nil {

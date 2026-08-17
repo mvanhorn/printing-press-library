@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "giustizia-amministrativa-corpus-orphans",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260621-094103",
+  "base_printing_press_version": "4.24.0",
+  "summary": "corpus build confronta i .md presenti in --out con quelli appena elencati nel manifest e dichiara i residui: campo orfani nella risposta JSON e avviso su stderr (che il layer MCP porta in avvisi). I file non vengono toccati.",
+  "reason": "Un .md lasciato in --out da una selezione precedente non compare nel manifest appena scritto, quindi nulla nel corpus ne ammette l'esistenza: la risposta e' coerente, il manifest e' coerente, solo la cartella non lo e'. Chi cita da un file orfano cita un provvedimento che quella selezione aveva deliberatamente escluso, e il manifest -- l'unico documento di provenienza del corpus -- non lo menziona. Il caso si e' presentato davvero in una sessione osservata: due corpus build sulla stessa cartella con liste che differivano di un elemento. Scelta deliberata di dichiarare e non cancellare: --skip-existing esiste proprio per far accumulare un corpus su piu' esecuzioni, quindi rimuovere i file non elencati distruggerebbe in silenzio cio' che quel flag serve a conservare. Il difetto e' il silenzio, non la presenza del file.",
+  "files": [
+    "internal/cli/corpus_build.go"
+  ],
+  "validated_outcome": "Due corpus build consecutivi sulla stessa cartella con un ECLI sostituito: il secondo restituisce orfani=[ECLI_IT_CDS_2026_6055SENT.md] e l'avviso 'ci sono 1 file .md non elencati nel manifest (residui di una selezione precedente) ... Non sono stati toccati'. Il file resta su disco. Prima esecuzione: orfani nullo. go build/vet/test verdi."
+}

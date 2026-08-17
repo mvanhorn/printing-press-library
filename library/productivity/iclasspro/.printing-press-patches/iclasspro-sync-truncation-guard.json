@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "iclasspro-sync-truncation-guard",
+  "applied_at": "2026-08-13",
+  "base_run_id": "20260805-132802-de816ded",
+  "base_printing_press_version": "4.30.1",
+  "summary": "Keep page-capped catalog walks out of authoritative sync snapshots while retaining their availability observations.",
+  "reason": "A sync stopped by --max-pages is only a prefix of the catalog. Promoting it to the newest snapshot made drift report every entity beyond the cap as removed.",
+  "files": [
+    "internal/cli/iclasspro_common.go",
+    "internal/cli/iclasspro_sync.go",
+    "internal/cli/iclasspro_sync_test.go"
+  ],
+  "validated_outcome": "PASS: incomplete class and camp page walks are marked truncated; truncated walks record openings history without creating a sync run; focused tests, full Go tests, go vet, and go build passed.",
+  "findings": [
+    "Greptile P1: page caps created false removals in drift"
+  ],
+  "publication_status": "pr_open",
+  "reapply_notes": "Preserve icpCollection.Truncated and route truncated collections through RecordICPOpenings rather than RecordICPObservations. Re-run TestIcpCollectMarksOnlyIncompletePageCapsTruncated and TestIcpRecordSyncObservationsDoesNotPromotePartialWalk."
+}

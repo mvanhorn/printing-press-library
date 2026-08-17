@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "productive-pp-cli"
+display_name = "Productive"
+description = "Fast, paginated Productive.io financial pulls — recognized-revenue-by-budget-month and recognized-vs-invoiced reconciliation as first-class commands, built for a revenue-recognition pipeline instead of a chat window."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/productive-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+PRODUCTIVE_API_TOKEN = true

@@ -1,0 +1,2632 @@
+{
+  "api_name": "unifi",
+  "base_url": "",
+  "description": "Every UniFi Network API operation, plus drift detection, topology, and rule prediction no other UniFi tool has.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "api_key",
+    "header": "X-API-Key",
+    "in": "header",
+    "env_vars": [
+      "UNIFI_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "UNIFI_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "countries_get",
+      "description": "Returns ISO-standard country codes and names, used for region-based configuration or regulatory compliance. Filterable properties (click to expand) |Name|Type|Allowed functions| |-|-|-| |`code`|`STRING`|`eq` `ne` `in` `notIn`| |`name`|`STRING`|`eq` `ne` `in` `notIn` `like`| . Optional: offset (default: 0), limit (default: 25), filter.",
+      "method": "GET",
+      "path": "/v1/countries",
+      "params": [
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter"
+        }
+      ]
+    },
+    {
+      "name": "dpi_get-application-categories",
+      "description": "Returns predefined Deep Packet Inspection (DPI) application categories used for traffic identification and filtering. Filterable properties (click to expand) |Name|Type|Allowed functions| |-|-|-| |`id`|`INTEGER`|`eq` `ne` `in` `notIn`| |`name`|`STRING`|`eq` `ne` `in` `notIn` `like`| . Optional: offset (default: 0), limit (default: 25), filter.",
+      "method": "GET",
+      "path": "/v1/dpi/categories",
+      "params": [
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter"
+        }
+      ]
+    },
+    {
+      "name": "dpi_get-applications",
+      "description": "Lists DPI-recognized applications grouped under categories. Useful for firewall or traffic analytics integration. Filterable properties (click to expand) |Name|Type|Allowed functions| |-|-|-| |`id`|`INTEGER`|`eq` `ne` `in` `notIn`| |`name`|`STRING`|`eq` `ne` `in` `notIn` `like`| . Optional: offset (default: 0), limit (default: 25), filter. Returns array of DpiApplication.",
+      "method": "GET",
+      "path": "/v1/dpi/applications",
+      "params": [
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter"
+        }
+      ]
+    },
+    {
+      "name": "info_get",
+      "description": "Retrieve general information about the UniFi Network application. Returns the ApplicationInfo.",
+      "method": "GET",
+      "path": "/v1/info",
+      "params": []
+    },
+    {
+      "name": "pending-devices_get-page",
+      "description": "Retrieve a paginated list of devices pending adoption, including basic device information. Filterable properties (click to expand) |Name|Type|Allowed functions| |-|-|-| |`macAddress`|`STRING`|`eq` `ne` `in` `notIn`| |`ipAddress`|`STRING`|`eq` `ne` `in` `notIn`| |`model`|`STRING`|`eq` `ne` `in` `notIn`| |`state`|`STRING`|`eq` `ne` `in` `notIn`| |`supported`|`BOOLEAN`|`eq` `ne`| |`firmwareVersion`|`STRING`|`isNull` `isNotNull` `eq` `ne` `gt` `ge` `lt` `le` `like` `in` `notIn`| |`firmwareUpdatable`|`BOOLEAN`|`eq` `ne`| |`features`|`SET(STRING)`|`isEmpty` `contains` `containsAny` `containsAll` `containsExactly`| . Optional: offset (default: 0), limit (default: 25), filter. Returns array of DevicePendingAdoption.",
+      "method": "GET",
+      "path": "/v1/pending-devices",
+      "params": [
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter"
+        }
+      ]
+    },
+    {
+      "name": "sites_get-overview-page",
+      "description": "Retrieve a paginated list of local sites managed by this Network application. Site ID is required for other UniFi Network API calls. Filterable properties (click to expand) |Name|Type|Allowed functions| |-|-|-| |`id`|`UUID`|`eq` `ne` `in` `notIn`| |`internalReference`|`STRING`|`eq` `ne` `in` `notIn`| |`name`|`STRING`|`eq` `ne` `in` `notIn`| . Optional: offset (default: 0), limit (default: 25), filter. Returns array of SiteOverview.",
+      "method": "GET",
+      "path": "/v1/sites",
+      "params": [
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter"
+        }
+      ]
+    },
+    {
+      "name": "sites_acl-rules_create",
+      "description": "Create a new user defined ACL rule on a site. Required: siteId, action, enabled, name, type. Optional: description, destinationFilter, enforcingDeviceFilter (plus 2 more). Returns the new AclRule.",
+      "method": "POST",
+      "path": "/v1/sites/{siteId}/acl-rules",
+      "params": [
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "action",
+          "type": "string",
+          "location": "body",
+          "description": "ACL rule action",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "ACL rule description"
+        },
+        {
+          "name": "destinationFilter",
+          "type": "string",
+          "location": "body",
+          "description": "Traffic destination filter"
+        },
+        {
+          "name": "enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Enabled",
+          "required": true
+        },
+        {
+          "name": "enforcingDeviceFilter",
+          "type": "string",
+          "location": "body",
+          "description": "IDs of the Switch-capable devices used to enforce the ACL rule. When null, the rule will be provisioned to all switches on the site."
+        },
+        {
+          "name": "index",
+          "type": "int",
+          "location": "body",
+          "description": "ACL rule index. This property is deprecated and has no effect. Use the dedicated ACL rule reordering endpoint."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "ACL rule name",
+          "required": true
+        },
+        {
+          "name": "sourceFilter",
+          "type": "string",
+          "location": "body",
+          "description": "Traffic source filter"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_acl-rules_delete",
+      "description": "Delete an existing user defined ACL rule on a site. Required: aclRuleId, siteId. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/sites/{siteId}/acl-rules/{aclRuleId}",
+      "params": [
+        {
+          "name": "aclRuleId",
+          "type": "string",
+          "location": "path",
+          "description": "Acl rule id",
+          "required": true
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_acl-rules_get",
+      "description": "Get ACL Rule. Required: aclRuleId, siteId. Returns the AclRule.",
+      "method": "GET",
+      "path": "/v1/sites/{siteId}/acl-rules/{aclRuleId}",
+      "params": [
+        {
+          "name": "aclRuleId",
+          "type": "string",
+          "location": "path",
+          "description": "Acl rule id",
+          "required": true
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_acl-rules_get-ordering",
+      "description": "Retrieve user-defined ACL rule ordering on a site. Required: siteId. Returns array of string.",
+      "method": "GET",
+      "path": "/v1/sites/{siteId}/acl-rules/ordering",
+      "params": [
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_acl-rules_get-page",
+      "description": "Retrieve a paginated list of all ACL rules on a site. Filterable properties (click to expand) |Name|Type|Allowed functions| |-|-|-| |`type`|`STRING`|`eq` `ne` `in` `notIn`| |`id`|`UUID`|`eq` `ne` `in` `notIn`| |`enabled`|`BOOLEAN`|`eq` `ne`| |`name`|`STRING`|`eq` `ne` `in` `notIn` `like`| |`description`|`STRING`|`isNull` `isNotNull` `eq` `ne` `in` `notIn` `like`| |`action`|`STRING`|`eq` `ne` `in` `notIn`| |`index`|`INTEGER`|`eq` `ne` `gt` `ge` `lt` `le` `in` `notIn`| |`protocolFilter`|`SET(STRING)`|`isNull` `isNotNull` `contains` `containsAny` `containsAll` `containsExactly`| |`networkId`|`UUID`|`isNull` `isNotNull` `eq` `ne` `in` `notIn`| |`enforcingDeviceFilter.deviceIds`|`SET(UUID)`|`isNull` `isNotNull` `contains` `containsAny` `containsAll` `containsExactly`| |`metadata.origin`|`STRING`|`eq` `ne` `in` `notIn`| |`sourceFilter.type`|`STRING`|`isNull` `isNotNull` `eq` `ne` `in` `notIn`| |`sourceFilter.ipAddressesOrSubnets`|`SET(STRING)`|`contains` `containsAny` `containsAll` `containsExactly`| |`sourceFilter.portFilter`|`SET(INTEGER)`|`isNull` `isNotNull` `contains` `containsAny` `containsAll` `containsExactly`| |`sourceFilter.networkIds`|`SET(UUID)`|`contains` `containsAny` `containsAll` `containsExactly`| |`sourceFilter.macAddresses`|`SET(STRING)`|`contains` `containsAny` `containsAll` `containsExactly`| |`sourceFilter.prefixLength`|`INTEGER`|`isNull` `isNotNull` `eq` `ne` `gt` `ge` `lt` `le` `in` `notIn`| |`destinationFilter.type`|`STRING`|`isNull` `isNotNull` `eq` `ne` `in` `notIn`| |`destinationFilter.ipAddressesOrSubnets`|`SET(STRING)`|`contains` `containsAny` `containsAll` `containsExactly`| |`destinationFilter.portFilter`|`SET(INTEGER)`|`isNull` `isNotNull` `contains` `containsAny` `containsAll` `containsExactly`| |`destinationFilter.networkIds`|`SET(UUID)`|`contains` `containsAny` `containsAll` `containsExactly`| |`destinationFilter.macAddresses`|`SET(STRING)`|`contains` `containsAny` `containsAll` `containsExactly`| |`destinationFilter.prefixLength`|`INTEGER`|`isNull` `isNotNull` `eq` `ne` `gt` `ge` `lt` `le` `in` `notIn`| . Required: siteId. Optional: offset (default: 0), limit (default: 25), filter. Returns array of AclRuleObject.",
+      "method": "GET",
+      "path": "/v1/sites/{siteId}/acl-rules",
+      "params": [
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter"
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_acl-rules_update",
+      "description": "Update an existing user defined ACL rule on a site. Required: aclRuleId, siteId, action, enabled, name, type. Optional: description, destinationFilter, enforcingDeviceFilter (plus 2 more). Returns the updated AclRule.",
+      "method": "PUT",
+      "path": "/v1/sites/{siteId}/acl-rules/{aclRuleId}",
+      "params": [
+        {
+          "name": "aclRuleId",
+          "type": "string",
+          "location": "path",
+          "description": "Acl rule id",
+          "required": true
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "action",
+          "type": "string",
+          "location": "body",
+          "description": "ACL rule action",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "ACL rule description"
+        },
+        {
+          "name": "destinationFilter",
+          "type": "string",
+          "location": "body",
+          "description": "Traffic destination filter"
+        },
+        {
+          "name": "enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Enabled",
+          "required": true
+        },
+        {
+          "name": "enforcingDeviceFilter",
+          "type": "string",
+          "location": "body",
+          "description": "IDs of the Switch-capable devices used to enforce the ACL rule. When null, the rule will be provisioned to all switches on the site."
+        },
+        {
+          "name": "index",
+          "type": "int",
+          "location": "body",
+          "description": "ACL rule index. This property is deprecated and has no effect. Use the dedicated ACL rule reordering endpoint."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "ACL rule name",
+          "required": true
+        },
+        {
+          "name": "sourceFilter",
+          "type": "string",
+          "location": "body",
+          "description": "Traffic source filter"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_acl-rules_update-ordering",
+      "description": "Reorder user-defined ACL rules on a site. Required: siteId, orderedAclRuleIds. Returns array of string.",
+      "method": "PUT",
+      "path": "/v1/sites/{siteId}/acl-rules/ordering",
+      "params": [
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "orderedAclRuleIds",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Ordered acl rule ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_clients_execute-connected-action",
+      "description": "Perform an action on a specific connected client. The request body must include the action name and any applicable input arguments. Required: clientId, siteId, action. Returns the new ClientActionResponse.",
+      "method": "POST",
+      "path": "/v1/sites/{siteId}/clients/{clientId}/actions",
+      "params": [
+        {
+          "name": "clientId",
+          "type": "string",
+          "location": "path",
+          "description": "Client id",
+          "required": true
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "action",
+          "type": "string",
+          "location": "body",
+          "description": "Action",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_clients_get-connected-details",
+      "description": "Retrieve detailed information about a specific connected client, including name, IP address, MAC address, connection type and access information. Required: clientId, siteId. Returns the ClientDetails.",
+      "method": "GET",
+      "path": "/v1/sites/{siteId}/clients/{clientId}",
+      "params": [
+        {
+          "name": "clientId",
+          "type": "string",
+          "location": "path",
+          "description": "Client id",
+          "required": true
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_clients_get-connected-overview-page",
+      "description": "Retrieve a paginated list of all connected clients on a site, including physical devices (computers, smartphones) and active VPN connections. Filterable properties (click to expand) |Name|Type|Allowed functions| |-|-|-| |`id`|`UUID`|`eq` `ne` `in` `notIn`| |`type`|`STRING`|`eq` `ne` `in` `notIn`| |`macAddress`|`STRING`|`isNull` `isNotNull` `eq` `ne` `in` `notIn`| |`ipAddress`|`STRING`|`isNull` `isNotNull` `eq` `ne` `in` `notIn`| |`connectedAt`|`TIMESTAMP`|`isNull` `isNotNull` `eq` `ne` `gt` `ge` `lt` `le`| |`access.type`|`STRING`|`eq` `ne` `in` `notIn`| |`access.authorized`|`BOOLEAN`|`isNull` `isNotNull` `eq` `ne`| . Required: siteId. Optional: offset (default: 0), limit (default: 25), filter. Returns array of ClientOverview.",
+      "method": "GET",
+      "path": "/v1/sites/{siteId}/clients",
+      "params": [
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter"
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_device-tags_get-page",
+      "description": "Returns all device tags defined within a site, which can be used for WiFi Broadcast assignments. Filterable properties (click to expand) |Name|Type|Allowed functions| |-|-|-| |`id`|`UUID`|`eq` `ne` `in` `notIn`| |`name`|`STRING`|`eq` `ne` `in` `notIn` `like`| |`deviceIds`|`SET(UUID)`|`contains` `containsAny` `containsAll` `containsExactly`| . Required: siteId. Optional: offset (default: 0), limit (default: 25), filter.",
+      "method": "GET",
+      "path": "/v1/sites/{siteId}/device-tags",
+      "params": [
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "filter",
+          "type": "object",
+          "location": "query",
+          "description": "Filter"
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_devices_adopt",
+      "description": "Adopt a device to a site. Required: siteId, ignoreDeviceLimit, macAddress. Returns the new AdoptedDeviceDetails.",
+      "method": "POST",
+      "path": "/v1/sites/{siteId}/devices",
+      "params": [
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "ignoreDeviceLimit",
+          "type": "bool",
+          "location": "body",
+          "description": "Ignore device limit",
+          "required": true
+        },
+        {
+          "name": "macAddress",
+          "type": "string",
+          "location": "body",
+          "description": "Mac address",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_devices_execute-adopted-action",
+      "description": "Perform an action on an specific adopted device. The request body must include the action name and any applicable input arguments. Required: siteId, deviceId, action.",
+      "method": "POST",
+      "path": "/v1/sites/{siteId}/devices/{deviceId}/actions",
+      "params": [
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "deviceId",
+          "type": "string",
+          "location": "path",
+          "description": "Device id",
+          "required": true
+        },
+        {
+          "name": "action",
+          "type": "string",
+          "location": "body",
+          "description": "Action",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_devices_execute-port-action",
+      "description": "Perform an action on a specific device port. The request body must include the action name and any applicable input arguments. Required: portIdx, siteId, deviceId, action.",
+      "method": "POST",
+      "path": "/v1/sites/{siteId}/devices/{deviceId}/interfaces/ports/{portIdx}/actions",
+      "params": [
+        {
+          "name": "portIdx",
+          "type": "int",
+          "location": "path",
+          "description": "Port idx",
+          "required": true
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "deviceId",
+          "type": "string",
+          "location": "path",
+          "description": "Device id",
+          "required": true
+        },
+        {
+          "name": "action",
+          "type": "string",
+          "location": "body",
+          "description": "Action",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_devices_get-adopted-details",
+      "description": "Retrieve detailed information about a specific adopted device, including firmware versioning, uplink state, details about device features and interfaces (ports, radios) and other key attributes. Required: siteId, deviceId. Returns the AdoptedDeviceDetails.",
+      "method": "GET",
+      "path": "/v1/sites/{siteId}/devices/{deviceId}",
+      "params": [
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "deviceId",
+          "type": "string",
+          "location": "path",
+          "description": "Device id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_devices_get-adopted-latest-statistics",
+      "description": "Retrieve the latest real-time statistics of a specific adopted device, such as uptime, data transmission rates, CPU and memory utilization. Required: siteId, deviceId. Returns the LatestStatisticsForADevice.",
+      "method": "GET",
+      "path": "/v1/sites/{siteId}/devices/{deviceId}/statistics/latest",
+      "params": [
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "deviceId",
+          "type": "string",
+          "location": "path",
+          "description": "Device id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_devices_get-adopted-overview-page",
+      "description": "Retrieve a paginated list of all adopted devices on a site, including basic device information. Filterable properties (click to expand) |Name|Type|Allowed functions| |-|-|-| |`id`|`UUID`|`eq` `ne` `in` `notIn`| |`macAddress`|`STRING`|`eq` `ne` `in` `notIn`| |`ipAddress`|`STRING`|`eq` `ne` `in` `notIn`| |`name`|`STRING`|`eq` `ne` `in` `notIn` `like`| |`model`|`STRING`|`eq` `ne` `in` `notIn`| |`state`|`STRING`|`eq` `ne` `in` `notIn`| |`supported`|`BOOLEAN`|`eq` `ne`| |`firmwareVersion`|`STRING`|`isNull` `isNotNull` `eq` `ne` `gt` `ge` `lt` `le` `like` `in` `notIn`| |`firmwareUpdatable`|`BOOLEAN`|`eq` `ne`| |`features`|`SET(STRING)`|`isEmpty` `contains` `containsAny` `containsAll` `containsExactly`| |`interfaces`|`SET(STRING)`|`isEmpty` `contains` `containsAny` `containsAll` `containsExactly`| . Required: siteId. Optional: offset (default: 0), limit (default: 25), filter. Returns array of AdoptedDeviceOverview.",
+      "method": "GET",
+      "path": "/v1/sites/{siteId}/devices",
+      "params": [
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter"
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_devices_remove",
+      "description": "Removes (unadopts) an adopted device from the site. If the device is online, it will be reset to factory defaults. Required: siteId, deviceId. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/sites/{siteId}/devices/{deviceId}",
+      "params": [
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "deviceId",
+          "type": "string",
+          "location": "path",
+          "description": "Device id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_dns_create-policy",
+      "description": "Create a new DNS policy on a site. Required: siteId, enabled, type. Returns the new DnsPolicy.",
+      "method": "POST",
+      "path": "/v1/sites/{siteId}/dns/policies",
+      "params": [
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Enabled",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_dns_delete-policy",
+      "description": "Delete an existing DNS policy on a site. Required: dnsPolicyId, siteId. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/sites/{siteId}/dns/policies/{dnsPolicyId}",
+      "params": [
+        {
+          "name": "dnsPolicyId",
+          "type": "string",
+          "location": "path",
+          "description": "Dns policy id",
+          "required": true
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_dns_get-policy",
+      "description": "Retrieve specific DNS policy. Required: dnsPolicyId, siteId. Returns the DnsPolicy.",
+      "method": "GET",
+      "path": "/v1/sites/{siteId}/dns/policies/{dnsPolicyId}",
+      "params": [
+        {
+          "name": "dnsPolicyId",
+          "type": "string",
+          "location": "path",
+          "description": "Dns policy id",
+          "required": true
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_dns_get-policy-page",
+      "description": "Retrieve a paginated list of all DNS policies on a site. Filterable properties (click to expand) |Name|Type|Allowed functions| |-|-|-| |`type`|`STRING`|`eq` `ne` `in` `notIn`| |`id`|`UUID`|`eq` `ne` `in` `notIn`| |`enabled`|`BOOLEAN`|`eq` `ne`| |`domain`|`STRING`|`eq` `ne` `in` `notIn` `like`| |`ipv4Address`|`STRING`|`eq` `ne` `in` `notIn` `like`| |`ipv6Address`|`STRING`|`eq` `ne` `in` `notIn` `like`| |`targetDomain`|`STRING`|`eq` `ne` `in` `notIn` `like`| |`mailServerDomain`|`STRING`|`eq` `ne` `in` `notIn` `like`| |`text`|`STRING`|`eq` `ne` `in` `notIn` `like`| |`serverDomain`|`STRING`|`eq` `ne` `in` `notIn` `like`| |`ipAddress`|`STRING`|`eq` `ne` `in` `notIn` `like`| |`ttlSeconds`|`INTEGER`|`eq` `ne` `gt` `ge` `lt` `le` `in` `notIn`| |`priority`|`INTEGER`|`eq` `ne` `gt` `ge` `lt` `le` `in` `notIn`| |`service`|`STRING`|`eq` `ne` `in` `notIn`| |`protocol`|`STRING`|`eq` `ne` `in` `notIn`| |`port`|`INTEGER`|`eq` `ne` `gt` `ge` `lt` `le` `in` `notIn`| |`weight`|`INTEGER`|`eq` `ne` `gt` `ge` `lt` `le` `in` `notIn`| . Required: siteId. Optional: offset (default: 0), limit (default: 25), filter. Returns array of DnsPolicy.",
+      "method": "GET",
+      "path": "/v1/sites/{siteId}/dns/policies",
+      "params": [
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter"
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_dns_update-policy",
+      "description": "Update an existing DNS policy on a site. Required: dnsPolicyId, siteId, enabled, type. Returns the updated DnsPolicy.",
+      "method": "PUT",
+      "path": "/v1/sites/{siteId}/dns/policies/{dnsPolicyId}",
+      "params": [
+        {
+          "name": "dnsPolicyId",
+          "type": "string",
+          "location": "path",
+          "description": "Dns policy id",
+          "required": true
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Enabled",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_firewall_create-policy",
+      "description": "Create a new firewall policy on a site. Required: siteId, action, destination, enabled, ipProtocolScope, loggingEnabled, name, source. Optional: connectionStateFilter, description, ipsecFilter (plus 1 more). Returns array of string.",
+      "method": "POST",
+      "path": "/v1/sites/{siteId}/firewall/policies",
+      "params": [
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "action",
+          "type": "string",
+          "location": "body",
+          "description": "Defines action for matched traffic.",
+          "required": true
+        },
+        {
+          "name": "connectionStateFilter",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Match on firewall connection state. If null, matches all connection states."
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "destination-traffic-filter",
+          "wire_name": "destination.trafficFilter",
+          "type": "string",
+          "location": "body",
+          "description": "Traffic filter"
+        },
+        {
+          "name": "destination-zone-id",
+          "wire_name": "destination.zoneId",
+          "type": "string",
+          "location": "body",
+          "description": "ID of the firewall zone to which the matched traffic is destined.",
+          "required": true
+        },
+        {
+          "name": "enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Enabled",
+          "required": true
+        },
+        {
+          "name": "ipProtocolScope",
+          "type": "string",
+          "location": "body",
+          "description": "Defines rules for matching by IP version and protocol.",
+          "required": true
+        },
+        {
+          "name": "ipsecFilter",
+          "type": "string",
+          "location": "body",
+          "description": "Match on traffic encrypted, or not encrypted by IPsec. If null, matches all traffic."
+        },
+        {
+          "name": "loggingEnabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Generate syslog entries when traffic is matched. Such entries are sent to a remote syslog server.",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "schedule",
+          "type": "string",
+          "location": "body",
+          "description": "Defines date and time when the entity is active. If null, the entity is always active."
+        },
+        {
+          "name": "source-traffic-filter",
+          "wire_name": "source.trafficFilter",
+          "type": "string",
+          "location": "body",
+          "description": "Traffic filter"
+        },
+        {
+          "name": "source-zone-id",
+          "wire_name": "source.zoneId",
+          "type": "string",
+          "location": "body",
+          "description": "ID of the firewall zone from which the matched traffic originates.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_firewall_create-zone",
+      "description": "Create a new custom firewall zone on a site. Required: siteId, name, networkIds. Returns array of string.",
+      "method": "POST",
+      "path": "/v1/sites/{siteId}/firewall/zones",
+      "params": [
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of a firewall zone",
+          "required": true
+        },
+        {
+          "name": "networkIds",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "List of Network IDs",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_firewall_delete-policy",
+      "description": "Delete an existing firewall policy on a site. Required: firewallPolicyId, siteId. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/sites/{siteId}/firewall/policies/{firewallPolicyId}",
+      "params": [
+        {
+          "name": "firewallPolicyId",
+          "type": "string",
+          "location": "path",
+          "description": "Firewall policy id",
+          "required": true
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_firewall_delete-zone",
+      "description": "Delete a custom firewall zone from a site. Required: firewallZoneId, siteId. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/sites/{siteId}/firewall/zones/{firewallZoneId}",
+      "params": [
+        {
+          "name": "firewallZoneId",
+          "type": "string",
+          "location": "path",
+          "description": "Firewall zone id",
+          "required": true
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_firewall_get-policies",
+      "description": "Retrieve a list of all firewall policies on a site. Filterable properties (click to expand) |Name|Type|Allowed functions| |-|-|-| |`id`|`UUID`|`eq` `ne` `in` `notIn`| |`name`|`STRING`|`eq` `ne` `in` `notIn` `like`| |`source.zoneId`|`UUID`|`eq` `ne` `in` `notIn`| |`destination.zoneId`|`UUID`|`eq` `ne` `in` `notIn`| |`metadata.origin`|`STRING`|`eq` `ne` `in` `notIn`| . Required: siteId. Optional: offset (default: 0), limit (default: 25), filter. Returns array of FirewallPolicy.",
+      "method": "GET",
+      "path": "/v1/sites/{siteId}/firewall/policies",
+      "params": [
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter"
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_firewall_get-policy",
+      "description": "Retrieve specific firewall policy. Required: firewallPolicyId, siteId. Returns array of string.",
+      "method": "GET",
+      "path": "/v1/sites/{siteId}/firewall/policies/{firewallPolicyId}",
+      "params": [
+        {
+          "name": "firewallPolicyId",
+          "type": "string",
+          "location": "path",
+          "description": "Firewall policy id",
+          "required": true
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_firewall_get-policy-ordering",
+      "description": "Retrieve user-defined firewall policy ordering for a specific source/destination zone pair. Required: sourceFirewallZoneId, destinationFirewallZoneId, siteId. Returns the IntegrationFirewallPolicyOrderingDto.",
+      "method": "GET",
+      "path": "/v1/sites/{siteId}/firewall/policies/ordering",
+      "params": [
+        {
+          "name": "sourceFirewallZoneId",
+          "type": "string",
+          "location": "query",
+          "description": "Source firewall zone id",
+          "required": true
+        },
+        {
+          "name": "destinationFirewallZoneId",
+          "type": "string",
+          "location": "query",
+          "description": "Destination firewall zone id",
+          "required": true
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_firewall_get-zone",
+      "description": "Get a firewall zone on a site. Required: firewallZoneId, siteId. Returns array of string.",
+      "method": "GET",
+      "path": "/v1/sites/{siteId}/firewall/zones/{firewallZoneId}",
+      "params": [
+        {
+          "name": "firewallZoneId",
+          "type": "string",
+          "location": "path",
+          "description": "Firewall zone id",
+          "required": true
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_firewall_get-zones",
+      "description": "Retrieve a list of all firewall zones on a site. Filterable properties (click to expand) |Name|Type|Allowed functions| |-|-|-| |`id`|`UUID`|`eq` `ne` `in` `notIn`| |`name`|`STRING`|`eq` `ne` `in` `notIn` `like`| |`metadata.origin`|`STRING`|`eq` `ne` `in` `notIn`| |`metadata.configurable`|`BOOLEAN`|`eq` `ne` `isNull` `isNotNull`| . Required: siteId. Optional: offset (default: 0), limit (default: 25), filter. Returns array of FirewallZone.",
+      "method": "GET",
+      "path": "/v1/sites/{siteId}/firewall/zones",
+      "params": [
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter"
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_firewall_patch-policy",
+      "description": "Patch an existing firewall policy on a site. Required: firewallPolicyId, siteId. Optional: loggingEnabled. Returns array of string.",
+      "method": "PATCH",
+      "path": "/v1/sites/{siteId}/firewall/policies/{firewallPolicyId}",
+      "params": [
+        {
+          "name": "firewallPolicyId",
+          "type": "string",
+          "location": "path",
+          "description": "Firewall policy id",
+          "required": true
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "loggingEnabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Logging enabled"
+        }
+      ]
+    },
+    {
+      "name": "sites_firewall_update-policy",
+      "description": "Update an existing firewall policy on a site. Required: firewallPolicyId, siteId, action, destination, enabled, ipProtocolScope, loggingEnabled, name, source. Optional: connectionStateFilter, description, ipsecFilter (plus 1 more). Returns array of string.",
+      "method": "PUT",
+      "path": "/v1/sites/{siteId}/firewall/policies/{firewallPolicyId}",
+      "params": [
+        {
+          "name": "firewallPolicyId",
+          "type": "string",
+          "location": "path",
+          "description": "Firewall policy id",
+          "required": true
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "action",
+          "type": "string",
+          "location": "body",
+          "description": "Defines action for matched traffic.",
+          "required": true
+        },
+        {
+          "name": "connectionStateFilter",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Match on firewall connection state. If null, matches all connection states."
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "destination-traffic-filter",
+          "wire_name": "destination.trafficFilter",
+          "type": "string",
+          "location": "body",
+          "description": "Traffic filter"
+        },
+        {
+          "name": "destination-zone-id",
+          "wire_name": "destination.zoneId",
+          "type": "string",
+          "location": "body",
+          "description": "ID of the firewall zone to which the matched traffic is destined.",
+          "required": true
+        },
+        {
+          "name": "enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Enabled",
+          "required": true
+        },
+        {
+          "name": "ipProtocolScope",
+          "type": "string",
+          "location": "body",
+          "description": "Defines rules for matching by IP version and protocol.",
+          "required": true
+        },
+        {
+          "name": "ipsecFilter",
+          "type": "string",
+          "location": "body",
+          "description": "Match on traffic encrypted, or not encrypted by IPsec. If null, matches all traffic."
+        },
+        {
+          "name": "loggingEnabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Generate syslog entries when traffic is matched. Such entries are sent to a remote syslog server.",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "schedule",
+          "type": "string",
+          "location": "body",
+          "description": "Defines date and time when the entity is active. If null, the entity is always active."
+        },
+        {
+          "name": "source-traffic-filter",
+          "wire_name": "source.trafficFilter",
+          "type": "string",
+          "location": "body",
+          "description": "Traffic filter"
+        },
+        {
+          "name": "source-zone-id",
+          "wire_name": "source.zoneId",
+          "type": "string",
+          "location": "body",
+          "description": "ID of the firewall zone from which the matched traffic originates.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_firewall_update-policy-ordering",
+      "description": "Reorder user-defined firewall policies for a specific source/destination zone pair. Required: sourceFirewallZoneId, destinationFirewallZoneId, siteId, orderedFirewallPolicyIds. Returns the updated IntegrationFirewallPolicyOrderingDto.",
+      "method": "PUT",
+      "path": "/v1/sites/{siteId}/firewall/policies/ordering",
+      "params": [
+        {
+          "name": "sourceFirewallZoneId",
+          "type": "string",
+          "location": "query",
+          "description": "Source firewall zone id",
+          "required": true
+        },
+        {
+          "name": "destinationFirewallZoneId",
+          "type": "string",
+          "location": "query",
+          "description": "Destination firewall zone id",
+          "required": true
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "ordered-firewall-policy-ids-after-system-defined",
+          "wire_name": "orderedFirewallPolicyIds.afterSystemDefined",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "After system defined",
+          "required": true
+        },
+        {
+          "name": "ordered-firewall-policy-ids-before-system-defined",
+          "wire_name": "orderedFirewallPolicyIds.beforeSystemDefined",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Before system defined",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_firewall_update-zone",
+      "description": "Update a firewall zone on a site. Required: firewallZoneId, siteId, name, networkIds. Returns array of string.",
+      "method": "PUT",
+      "path": "/v1/sites/{siteId}/firewall/zones/{firewallZoneId}",
+      "params": [
+        {
+          "name": "firewallZoneId",
+          "type": "string",
+          "location": "path",
+          "description": "Firewall zone id",
+          "required": true
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of a firewall zone",
+          "required": true
+        },
+        {
+          "name": "networkIds",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "List of Network IDs",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_hotspot_create-vouchers",
+      "description": "Create one or more Hotspot vouchers. Required: siteId, name, timeLimitMinutes. Optional: authorizedGuestLimit, count (default: 1), dataUsageLimitMBytes (plus 2 more). Returns array of HotspotVoucherDetails.",
+      "method": "POST",
+      "path": "/v1/sites/{siteId}/hotspot/vouchers",
+      "params": [
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "authorizedGuestLimit",
+          "type": "int",
+          "location": "body",
+          "description": "(Optional) limit for how many different guests can use the same voucher to authorize network access"
+        },
+        {
+          "name": "count",
+          "type": "int",
+          "location": "body",
+          "description": "Number of vouchers to generate"
+        },
+        {
+          "name": "dataUsageLimitMBytes",
+          "type": "int",
+          "location": "body",
+          "description": "(Optional) data usage limit in megabytes"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Voucher note, duplicated across all generated vouchers",
+          "required": true
+        },
+        {
+          "name": "rxRateLimitKbps",
+          "type": "int",
+          "location": "body",
+          "description": "(Optional) download rate limit in kilobits per second"
+        },
+        {
+          "name": "timeLimitMinutes",
+          "type": "int",
+          "location": "body",
+          "description": "How long (in minutes) the voucher will provide access to the network since authorization of the first guest. Subsequently connected guests, if allowed, will share the same expiration time.",
+          "required": true
+        },
+        {
+          "name": "txRateLimitKbps",
+          "type": "int",
+          "location": "body",
+          "description": "(Optional) upload rate limit in kilobits per second"
+        }
+      ]
+    },
+    {
+      "name": "sites_hotspot_delete-voucher",
+      "description": "Remove a specific Hotspot voucher. Required: voucherId, siteId. Returns the VoucherDeletionResults. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/sites/{siteId}/hotspot/vouchers/{voucherId}",
+      "params": [
+        {
+          "name": "voucherId",
+          "type": "string",
+          "location": "path",
+          "description": "Voucher id",
+          "required": true
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_hotspot_delete-vouchers",
+      "description": "Remove Hotspot vouchers based on the specified filter criteria. Filterable properties (click to expand) |Name|Type|Allowed functions| |-|-|-| |`id`|`UUID`|`eq` `ne` `in` `notIn`| |`createdAt`|`TIMESTAMP`|`eq` `ne` `gt` `ge` `lt` `le`| |`name`|`STRING`|`eq` `ne` `in` `notIn` `like`| |`code`|`STRING`|`eq` `ne` `in` `notIn`| |`authorizedGuestLimit`|`INTEGER`|`isNull` `isNotNull` `eq` `ne` `gt` `ge` `lt` `le`| |`authorizedGuestCount`|`INTEGER`|`eq` `ne` `gt` `ge` `lt` `le`| |`activatedAt`|`TIMESTAMP`|`eq` `ne` `gt` `ge` `lt` `le`| |`expiresAt`|`TIMESTAMP`|`eq` `ne` `gt` `ge` `lt` `le`| |`expired`|`BOOLEAN`|`eq` `ne`| |`timeLimitMinutes`|`INTEGER`|`eq` `ne` `gt` `ge` `lt` `le`| |`dataUsageLimitMBytes`|`INTEGER`|`isNull` `isNotNull` `eq` `ne` `gt` `ge` `lt` `le`| |`rxRateLimitKbps`|`INTEGER`|`isNull` `isNotNull` `eq` `ne` `gt` `ge` `lt` `le`| |`txRateLimitKbps`|`INTEGER`|`isNull` `isNotNull` `eq` `ne` `gt` `ge` `lt` `le`| . Required: filter, siteId. Returns the VoucherDeletionResults. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/sites/{siteId}/hotspot/vouchers",
+      "params": [
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter",
+          "required": true
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_hotspot_get-voucher",
+      "description": "Retrieve details of a specific Hotspot voucher. Required: voucherId, siteId. Returns the HotspotVoucherDetails.",
+      "method": "GET",
+      "path": "/v1/sites/{siteId}/hotspot/vouchers/{voucherId}",
+      "params": [
+        {
+          "name": "voucherId",
+          "type": "string",
+          "location": "path",
+          "description": "Voucher id",
+          "required": true
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_hotspot_get-vouchers",
+      "description": "Retrieve a paginated list of Hotspot vouchers. Filterable properties (click to expand) |Name|Type|Allowed functions| |-|-|-| |`id`|`UUID`|`eq` `ne` `in` `notIn`| |`createdAt`|`TIMESTAMP`|`eq` `ne` `gt` `ge` `lt` `le`| |`name`|`STRING`|`eq` `ne` `in` `notIn` `like`| |`code`|`STRING`|`eq` `ne` `in` `notIn`| |`authorizedGuestLimit`|`INTEGER`|`isNull` `isNotNull` `eq` `ne` `gt` `ge` `lt` `le`| |`authorizedGuestCount`|`INTEGER`|`eq` `ne` `gt` `ge` `lt` `le`| |`activatedAt`|`TIMESTAMP`|`eq` `ne` `gt` `ge` `lt` `le`| |`expiresAt`|`TIMESTAMP`|`eq` `ne` `gt` `ge` `lt` `le`| |`expired`|`BOOLEAN`|`eq` `ne`| |`timeLimitMinutes`|`INTEGER`|`eq` `ne` `gt` `ge` `lt` `le`| |`dataUsageLimitMBytes`|`INTEGER`|`isNull` `isNotNull` `eq` `ne` `gt` `ge` `lt` `le`| |`rxRateLimitKbps`|`INTEGER`|`isNull` `isNotNull` `eq` `ne` `gt` `ge` `lt` `le`| |`txRateLimitKbps`|`INTEGER`|`isNull` `isNotNull` `eq` `ne` `gt` `ge` `lt` `le`| . Required: siteId. Optional: offset (default: 0), limit (default: 100), filter. Returns array of HotspotVoucherDetails.",
+      "method": "GET",
+      "path": "/v1/sites/{siteId}/hotspot/vouchers",
+      "params": [
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter"
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_networks_create",
+      "description": "Create a new network on a site. Required: siteId, enabled, management, name, vlanId. Optional: dhcpGuarding. Returns the new NetworkDetails.",
+      "method": "POST",
+      "path": "/v1/sites/{siteId}/networks",
+      "params": [
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "dhcp-guarding-trusted-dhcp-server-ip-addresses",
+          "wire_name": "dhcpGuarding.trustedDhcpServerIpAddresses",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "List of trusted DHCP server IP addresses.",
+          "required": true
+        },
+        {
+          "name": "enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Enabled",
+          "required": true
+        },
+        {
+          "name": "management",
+          "type": "string",
+          "location": "body",
+          "description": "Management",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "vlanId",
+          "type": "int",
+          "location": "body",
+          "description": "VLAN ID. Must be 1 for the default network and \u003e= 2 for additional networks.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_networks_delete",
+      "description": "Delete an existing network on a site. Required: networkId, siteId. Optional: force (default: false). Destructive.",
+      "method": "DELETE",
+      "path": "/v1/sites/{siteId}/networks/{networkId}",
+      "params": [
+        {
+          "name": "networkId",
+          "type": "string",
+          "location": "path",
+          "description": "Network id",
+          "required": true
+        },
+        {
+          "name": "force",
+          "type": "bool",
+          "location": "query",
+          "description": "Force"
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_networks_get-details",
+      "description": "Retrieve detailed information about a specific network. Required: networkId, siteId. Returns the NetworkDetails.",
+      "method": "GET",
+      "path": "/v1/sites/{siteId}/networks/{networkId}",
+      "params": [
+        {
+          "name": "networkId",
+          "type": "string",
+          "location": "path",
+          "description": "Network id",
+          "required": true
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_networks_get-overview-page",
+      "description": "Retrieve a paginated list of all Networks on a site. Filterable properties (click to expand) |Name|Type|Allowed functions| |-|-|-| |`management`|`STRING`|`eq` `ne` `in` `notIn`| |`id`|`UUID`|`eq` `ne` `in` `notIn`| |`name`|`STRING`|`eq` `ne` `in` `notIn` `like`| |`enabled`|`BOOLEAN`|`eq` `ne`| |`vlanId`|`INTEGER`|`eq` `ne` `gt` `ge` `lt` `le` `in` `notIn`| |`deviceId`|`UUID`|`eq` `ne` `in` `notIn` `isNull` `isNotNull`| |`metadata.origin`|`STRING`|`eq` `ne` `in` `notIn`| . Required: siteId. Optional: offset (default: 0), limit (default: 25), filter. Returns array of NetworkOverview.",
+      "method": "GET",
+      "path": "/v1/sites/{siteId}/networks",
+      "params": [
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter"
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_networks_get-references",
+      "description": "Retrieve references to a specific network. Required: networkId, siteId. Returns array of NetworkReferenceResource.",
+      "method": "GET",
+      "path": "/v1/sites/{siteId}/networks/{networkId}/references",
+      "params": [
+        {
+          "name": "networkId",
+          "type": "string",
+          "location": "path",
+          "description": "Network id",
+          "required": true
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_networks_update",
+      "description": "Update an existing network on a site. Required: networkId, siteId, enabled, management, name, vlanId. Optional: dhcpGuarding. Returns the updated NetworkDetails.",
+      "method": "PUT",
+      "path": "/v1/sites/{siteId}/networks/{networkId}",
+      "params": [
+        {
+          "name": "networkId",
+          "type": "string",
+          "location": "path",
+          "description": "Network id",
+          "required": true
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "dhcp-guarding-trusted-dhcp-server-ip-addresses",
+          "wire_name": "dhcpGuarding.trustedDhcpServerIpAddresses",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "List of trusted DHCP server IP addresses.",
+          "required": true
+        },
+        {
+          "name": "enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Enabled",
+          "required": true
+        },
+        {
+          "name": "management",
+          "type": "string",
+          "location": "body",
+          "description": "Management",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "vlanId",
+          "type": "int",
+          "location": "body",
+          "description": "VLAN ID. Must be 1 for the default network and \u003e= 2 for additional networks.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_radius_get-profile-overview-page",
+      "description": "Returns available RADIUS authentication profiles, including configuration origin metadata. Filterable properties (click to expand) |Name|Type|Allowed functions| |-|-|-| |`id`|`UUID`|`eq` `ne` `in` `notIn`| |`name`|`STRING`|`eq` `ne` `in` `notIn` `like`| |`metadata.origin`|`STRING`|`eq` `ne` `in` `notIn`| . Required: siteId. Optional: offset (default: 0), limit (default: 25), filter.",
+      "method": "GET",
+      "path": "/v1/sites/{siteId}/radius/profiles",
+      "params": [
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter"
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_switching_get-lag",
+      "description": "Retrieve LAG details. Required: lagId, siteId. Returns array of IntegrationLagMemberDto.",
+      "method": "GET",
+      "path": "/v1/sites/{siteId}/switching/lags/{lagId}",
+      "params": [
+        {
+          "name": "lagId",
+          "type": "string",
+          "location": "path",
+          "description": "Lag id",
+          "required": true
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_switching_get-lag-page",
+      "description": "Retrieve a paginated list of all LAGs (Link Aggregation Groups) on a site. Filterable properties (click to expand) |Name|Type|Allowed functions| |-|-|-| |`id`|`UUID`|`eq` `ne` `in` `notIn`| |`type`|`STRING`|`eq` `ne` `in` `notIn`| |`switchStackId`|`UUID`|`eq` `ne` `in` `notIn` `isNull` `isNotNull`| |`mcLagDomainId`|`UUID`|`eq` `ne` `in` `notIn` `isNull` `isNotNull`| |`members.deviceId`|`SET(UUID)`|`contains` `containsAny` `containsAll` `containsExactly`| |`members.portIdxs`|`SET(INTEGER)`|`contains` `containsAny` `containsAll` `containsExactly`| |`metadata.origin`|`STRING`|`eq` `ne` `in` `notIn`| . Required: siteId. Optional: offset (default: 0), limit (default: 25), filter. Returns array of LagDetails.",
+      "method": "GET",
+      "path": "/v1/sites/{siteId}/switching/lags",
+      "params": [
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter"
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_switching_get-mc-lag-domain",
+      "description": "Retrieve MC-LAG Domain details. Required: mcLagDomainId, siteId. Returns the IntegrationMcLagDomainDto.",
+      "method": "GET",
+      "path": "/v1/sites/{siteId}/switching/mc-lag-domains/{mcLagDomainId}",
+      "params": [
+        {
+          "name": "mcLagDomainId",
+          "type": "string",
+          "location": "path",
+          "description": "Mc lag domain id",
+          "required": true
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_switching_get-mc-lag-domain-page",
+      "description": "Retrieve a paginated list of all MC-LAG Domains on a site. Filterable properties (click to expand) |Name|Type|Allowed functions| |-|-|-| |`id`|`UUID`|`eq` `ne` `in` `notIn`| |`name`|`STRING`|`eq` `ne` `in` `notIn` `like`| |`peers.deviceId`|`SET(UUID)`|`contains` `containsAny` `containsAll` `containsExactly`| |`metadata.origin`|`STRING`|`eq` `ne` `in` `notIn`| . Required: siteId. Optional: offset (default: 0), limit (default: 25), filter. Returns array of IntegrationMcLagDomainDto.",
+      "method": "GET",
+      "path": "/v1/sites/{siteId}/switching/mc-lag-domains",
+      "params": [
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter"
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_switching_get-switch-stack",
+      "description": "Retrieve Switch Stack details. Required: switchStackId, siteId. Returns the IntegrationSwitchStackDto.",
+      "method": "GET",
+      "path": "/v1/sites/{siteId}/switching/switch-stacks/{switchStackId}",
+      "params": [
+        {
+          "name": "switchStackId",
+          "type": "string",
+          "location": "path",
+          "description": "Switch stack id",
+          "required": true
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_switching_get-switch-stack-page",
+      "description": "Retrieve a paginated list of all Switch Stacks on a site. Filterable properties (click to expand) |Name|Type|Allowed functions| |-|-|-| |`id`|`UUID`|`eq` `ne` `in` `notIn`| |`name`|`STRING`|`eq` `ne` `in` `notIn` `like`| |`members.deviceId`|`SET(UUID)`|`contains` `containsAny` `containsAll` `containsExactly`| |`metadata.origin`|`STRING`|`eq` `ne` `in` `notIn`| . Required: siteId. Optional: offset (default: 0), limit (default: 25), filter. Returns array of IntegrationSwitchStackDto.",
+      "method": "GET",
+      "path": "/v1/sites/{siteId}/switching/switch-stacks",
+      "params": [
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter"
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_traffic-matching-lists_create",
+      "description": "Create a new traffic matching list on a site. Required: siteId, name, type. Returns the new TrafficMatchingList.",
+      "method": "POST",
+      "path": "/v1/sites/{siteId}/traffic-matching-lists",
+      "params": [
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_traffic-matching-lists_delete",
+      "description": "Delete an exist traffic matching list on a site. Required: trafficMatchingListId, siteId. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/sites/{siteId}/traffic-matching-lists/{trafficMatchingListId}",
+      "params": [
+        {
+          "name": "trafficMatchingListId",
+          "type": "string",
+          "location": "path",
+          "description": "Traffic matching list id",
+          "required": true
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_traffic-matching-lists_get",
+      "description": "Retrieve all traffic matching lists on a site. Filterable properties (click to expand) |Name|Type|Allowed functions| |-|-|-| |`id`|`UUID`|`eq` `ne` `in` `notIn`| |`name`|`STRING`|`eq` `ne` `in` `notIn` `like`| . Required: siteId. Optional: offset (default: 0), limit (default: 25), filter. Returns array of TrafficMatchingList.",
+      "method": "GET",
+      "path": "/v1/sites/{siteId}/traffic-matching-lists",
+      "params": [
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter"
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_traffic-matching-lists_get-sites",
+      "description": "Get an exist traffic matching list on a site. Required: trafficMatchingListId, siteId. Returns the TrafficMatchingList.",
+      "method": "GET",
+      "path": "/v1/sites/{siteId}/traffic-matching-lists/{trafficMatchingListId}",
+      "params": [
+        {
+          "name": "trafficMatchingListId",
+          "type": "string",
+          "location": "path",
+          "description": "Traffic matching list id",
+          "required": true
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_traffic-matching-lists_update",
+      "description": "Update an exist traffic matching list on a site. Required: trafficMatchingListId, siteId, name, type. Returns the updated TrafficMatchingList.",
+      "method": "PUT",
+      "path": "/v1/sites/{siteId}/traffic-matching-lists/{trafficMatchingListId}",
+      "params": [
+        {
+          "name": "trafficMatchingListId",
+          "type": "string",
+          "location": "path",
+          "description": "Traffic matching list id",
+          "required": true
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_vpn_get-server-page",
+      "description": "Retrieve a paginated list of all VPN servers on a site. Filterable properties (click to expand) |Name|Type|Allowed functions| |-|-|-| |`type`|`STRING`|`eq` `ne` `in` `notIn`| |`id`|`UUID`|`eq` `ne` `in` `notIn`| |`name`|`STRING`|`eq` `ne` `in` `notIn` `like`| |`enabled`|`BOOLEAN`|`eq` `ne`| |`metadata.origin`|`STRING`|`eq` `ne` `in` `notIn`| . Required: siteId. Optional: offset (default: 0), limit (default: 25), filter. Returns array of VpnServerOverview.",
+      "method": "GET",
+      "path": "/v1/sites/{siteId}/vpn/servers",
+      "params": [
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter"
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_vpn_get-site-to-site-tunnel-page",
+      "description": "Retrieve a paginated list of all site-to-site VPN tunnels on a site. Filterable properties (click to expand) |Name|Type|Allowed functions| |-|-|-| |`type`|`STRING`|`eq` `ne` `in` `notIn`| |`id`|`UUID`|`eq` `ne` `in` `notIn`| |`name`|`STRING`|`eq` `ne` `in` `notIn` `like`| |`metadata.origin`|`STRING`|`eq` `ne` `in` `notIn`| |`metadata.source`|`STRING`|`eq` `ne` `in` `notIn` `isNull` `isNotNull`| . Required: siteId. Optional: offset (default: 0), limit (default: 25), filter. Returns array of SiteToSiteVpnTunnelOverview.",
+      "method": "GET",
+      "path": "/v1/sites/{siteId}/vpn/site-to-site-tunnels",
+      "params": [
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter"
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_wans_get-overview-page",
+      "description": "Returns available WAN interface definitions for a given site, including identifiers and names. Useful for network and NAT configuration. Required: siteId. Optional: offset (default: 0), limit (default: 25).",
+      "method": "GET",
+      "path": "/v1/sites/{siteId}/wans",
+      "params": [
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_wifi_create-broadcast",
+      "description": "Create a new Wifi Broadcast on the specified site. Required: siteId, channel2gLockedTo6 (default: false), clientIsolationEnabled, dtimPeriod2gLockedTo3 (default: false), enabled, hideName, multicastToUnicastConversionEnabled, name, securityConfiguration, type, uapsdEnabled. Optional: basicDataRateKbpsByFrequencyGHz, blackoutScheduleConfiguration, broadcastingDeviceFilter (plus 4 more). Returns the new WifiBroadcastDetails.",
+      "method": "POST",
+      "path": "/v1/sites/{siteId}/wifi/broadcasts",
+      "params": [
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "basic-data-rate-kbps-by-frequency-g-hz-2-4",
+          "wire_name": "basicDataRateKbpsByFrequencyGHz.2.4",
+          "type": "int",
+          "location": "body",
+          "description": "2 4",
+          "required": true
+        },
+        {
+          "name": "basic-data-rate-kbps-by-frequency-g-hz-5",
+          "wire_name": "basicDataRateKbpsByFrequencyGHz.5",
+          "type": "int",
+          "location": "body",
+          "description": "5",
+          "required": true
+        },
+        {
+          "name": "blackout-schedule-configuration-days",
+          "wire_name": "blackoutScheduleConfiguration.days",
+          "type": "array",
+          "location": "body",
+          "description": "Days",
+          "required": true
+        },
+        {
+          "name": "broadcastingDeviceFilter",
+          "type": "string",
+          "location": "body",
+          "description": "Defines the custom scope of devices that will broadcast this WiFi network. If null, the WiFi network will be broadcast by all Access Point capable devices."
+        },
+        {
+          "name": "channel2gLockedTo6",
+          "type": "bool",
+          "location": "body",
+          "description": "Locks 2.4GHz radio channel to 6 on all broadcasting devices",
+          "required": true
+        },
+        {
+          "name": "client-filtering-policy-action",
+          "wire_name": "clientFilteringPolicy.action",
+          "type": "string",
+          "location": "body",
+          "description": "Action",
+          "required": true
+        },
+        {
+          "name": "client-filtering-policy-mac-address-filter",
+          "wire_name": "clientFilteringPolicy.macAddressFilter",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Mac address filter",
+          "required": true
+        },
+        {
+          "name": "clientIsolationEnabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Client isolation enabled",
+          "required": true
+        },
+        {
+          "name": "dtimPeriod2gLockedTo3",
+          "type": "bool",
+          "location": "body",
+          "description": "Locks DTIM period to 3 for 2.4GHz radio",
+          "required": true
+        },
+        {
+          "name": "enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Enabled",
+          "required": true
+        },
+        {
+          "name": "hideName",
+          "type": "bool",
+          "location": "body",
+          "description": "Hide name",
+          "required": true
+        },
+        {
+          "name": "mdnsProxyConfiguration",
+          "type": "string",
+          "location": "body",
+          "description": "Mdns proxy configuration"
+        },
+        {
+          "name": "multicastFilteringPolicy",
+          "type": "string",
+          "location": "body",
+          "description": "Multicast filtering policy"
+        },
+        {
+          "name": "multicastToUnicastConversionEnabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Multicast to unicast conversion enabled",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "network",
+          "type": "string",
+          "location": "body",
+          "description": "Network"
+        },
+        {
+          "name": "security-configuration-radius-configuration",
+          "wire_name": "securityConfiguration.radiusConfiguration",
+          "type": "string",
+          "location": "body",
+          "description": "Radius configuration"
+        },
+        {
+          "name": "security-configuration-type",
+          "wire_name": "securityConfiguration.type",
+          "type": "string",
+          "location": "body",
+          "description": "Type",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type",
+          "required": true
+        },
+        {
+          "name": "uapsdEnabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Indicates whether Unscheduled Automatic Power Save Delivery (U-APSD) is enabled",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_wifi_delete-broadcast",
+      "description": "Delete an existing Wifi Broadcast from the specified site. Required: wifiBroadcastId, siteId. Optional: force (default: false). Destructive.",
+      "method": "DELETE",
+      "path": "/v1/sites/{siteId}/wifi/broadcasts/{wifiBroadcastId}",
+      "params": [
+        {
+          "name": "wifiBroadcastId",
+          "type": "string",
+          "location": "path",
+          "description": "Wifi broadcast id",
+          "required": true
+        },
+        {
+          "name": "force",
+          "type": "bool",
+          "location": "query",
+          "description": "Force"
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_wifi_get-broadcast-details",
+      "description": "Retrieve detailed information about a specific Wifi. Required: wifiBroadcastId, siteId. Returns the WifiBroadcastDetails.",
+      "method": "GET",
+      "path": "/v1/sites/{siteId}/wifi/broadcasts/{wifiBroadcastId}",
+      "params": [
+        {
+          "name": "wifiBroadcastId",
+          "type": "string",
+          "location": "path",
+          "description": "Wifi broadcast id",
+          "required": true
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_wifi_get-broadcast-page",
+      "description": "Retrieve a paginated list of all Wifi Broadcasts on a site. Filterable properties (click to expand) |Name|Type|Allowed functions| |-|-|-| |`type`|`STRING`|`eq` `ne` `in` `notIn`| |`id`|`UUID`|`eq` `ne` `in` `notIn`| |`enabled`|`BOOLEAN`|`eq` `ne`| |`name`|`STRING`|`eq` `ne` `in` `notIn` `like`| |`broadcastingFrequenciesGHz`|`SET(DECIMAL)`|`contains` `containsAny` `containsAll` `containsExactly`| |`metadata.origin`|`STRING`|`eq` `ne` `in` `notIn`| |`network.type`|`STRING`|`eq` `ne` `in` `notIn` `isNull` `isNotNull`| |`network.networkId`|`UUID`|`eq` `ne` `in` `notIn`| |`securityConfiguration.type`|`STRING`|`eq` `ne` `in` `notIn`| |`broadcastingDeviceFilter.type`|`STRING`|`eq` `ne` `in` `notIn` `isNull` `isNotNull`| |`broadcastingDeviceFilter.deviceIds`|`SET(UUID)`|`contains` `containsAny` `containsAll` `containsExactly`| |`broadcastingDeviceFilter.deviceTagIds`|`SET(UUID)`|`contains` `containsAny` `containsAll` `containsExactly`| |`hotspotConfiguration.type`|`STRING`|`eq` `ne` `in` `notIn`| . Required: siteId. Optional: offset (default: 0), limit (default: 25), filter. Returns array of WifiBroadcastOverview.",
+      "method": "GET",
+      "path": "/v1/sites/{siteId}/wifi/broadcasts",
+      "params": [
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter"
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_wifi_update-broadcast",
+      "description": "Update an existing Wifi Broadcast on the specified site. Required: wifiBroadcastId, siteId, channel2gLockedTo6 (default: false), clientIsolationEnabled, dtimPeriod2gLockedTo3 (default: false), enabled, hideName, multicastToUnicastConversionEnabled, name, securityConfiguration, type, uapsdEnabled. Optional: basicDataRateKbpsByFrequencyGHz, blackoutScheduleConfiguration, broadcastingDeviceFilter (plus 4 more). Returns the updated WifiBroadcastDetails.",
+      "method": "PUT",
+      "path": "/v1/sites/{siteId}/wifi/broadcasts/{wifiBroadcastId}",
+      "params": [
+        {
+          "name": "wifiBroadcastId",
+          "type": "string",
+          "location": "path",
+          "description": "Wifi broadcast id",
+          "required": true
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "basic-data-rate-kbps-by-frequency-g-hz-2-4",
+          "wire_name": "basicDataRateKbpsByFrequencyGHz.2.4",
+          "type": "int",
+          "location": "body",
+          "description": "2 4",
+          "required": true
+        },
+        {
+          "name": "basic-data-rate-kbps-by-frequency-g-hz-5",
+          "wire_name": "basicDataRateKbpsByFrequencyGHz.5",
+          "type": "int",
+          "location": "body",
+          "description": "5",
+          "required": true
+        },
+        {
+          "name": "blackout-schedule-configuration-days",
+          "wire_name": "blackoutScheduleConfiguration.days",
+          "type": "array",
+          "location": "body",
+          "description": "Days",
+          "required": true
+        },
+        {
+          "name": "broadcastingDeviceFilter",
+          "type": "string",
+          "location": "body",
+          "description": "Defines the custom scope of devices that will broadcast this WiFi network. If null, the WiFi network will be broadcast by all Access Point capable devices."
+        },
+        {
+          "name": "channel2gLockedTo6",
+          "type": "bool",
+          "location": "body",
+          "description": "Locks 2.4GHz radio channel to 6 on all broadcasting devices",
+          "required": true
+        },
+        {
+          "name": "client-filtering-policy-action",
+          "wire_name": "clientFilteringPolicy.action",
+          "type": "string",
+          "location": "body",
+          "description": "Action",
+          "required": true
+        },
+        {
+          "name": "client-filtering-policy-mac-address-filter",
+          "wire_name": "clientFilteringPolicy.macAddressFilter",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Mac address filter",
+          "required": true
+        },
+        {
+          "name": "clientIsolationEnabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Client isolation enabled",
+          "required": true
+        },
+        {
+          "name": "dtimPeriod2gLockedTo3",
+          "type": "bool",
+          "location": "body",
+          "description": "Locks DTIM period to 3 for 2.4GHz radio",
+          "required": true
+        },
+        {
+          "name": "enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Enabled",
+          "required": true
+        },
+        {
+          "name": "hideName",
+          "type": "bool",
+          "location": "body",
+          "description": "Hide name",
+          "required": true
+        },
+        {
+          "name": "mdnsProxyConfiguration",
+          "type": "string",
+          "location": "body",
+          "description": "Mdns proxy configuration"
+        },
+        {
+          "name": "multicastFilteringPolicy",
+          "type": "string",
+          "location": "body",
+          "description": "Multicast filtering policy"
+        },
+        {
+          "name": "multicastToUnicastConversionEnabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Multicast to unicast conversion enabled",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "network",
+          "type": "string",
+          "location": "body",
+          "description": "Network"
+        },
+        {
+          "name": "security-configuration-radius-configuration",
+          "wire_name": "securityConfiguration.radiusConfiguration",
+          "type": "string",
+          "location": "body",
+          "description": "Radius configuration"
+        },
+        {
+          "name": "security-configuration-type",
+          "wire_name": "securityConfiguration.type",
+          "type": "string",
+          "location": "body",
+          "description": "Type",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type",
+          "required": true
+        },
+        {
+          "name": "uapsdEnabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Indicates whether Unscheduled Automatic Power Save Delivery (U-APSD) is enabled",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

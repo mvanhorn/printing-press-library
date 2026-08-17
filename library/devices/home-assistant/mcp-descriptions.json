@@ -1,0 +1,16 @@
+{
+  "descriptions": {
+  "calendars_list": "List calendar entities that this token can access, so an agent can select a calendar before retrieving or changing its events.",
+  "calendars_list-events": "Retrieve events from one calendar entity during the required start and end time window; use this to inspect scheduling conflicts or upcoming commitments.",
+  "components_list": "List integrations currently loaded by this Home Assistant instance to diagnose availability and choose supported capabilities.",
+  "config_validate": "Ask Home Assistant to validate its configuration before a reload or restart, returning server-side syntax and setup errors.",
+  "error-log_get": "Retrieve the current Home Assistant error log for diagnosing failing integrations, automations, and service calls.",
+  "events_fire": "Fire the required named Home Assistant event with an optional JSON body, for testing automations or notifying event listeners.",
+  "events_list": "List the event types currently exposed by Home Assistant before subscribing to or firing an event.",
+  "intent_handle": "Send a natural-language request to Home Assistant Assist and return the resolved intent response for the configured conversation agent.",
+  "services_list": "List callable Home Assistant service domains and actions so an agent can validate a service before issuing a mutation.",
+  "states_get": "Retrieve one live entity state and attributes by the required entity ID, suitable for checking a device before taking action.",
+  "states_list": "List all current entity states and attributes for inventory, filtering, and state-based household analysis.",
+  "template_render": "Render a Home Assistant Jinja template against the live state machine to safely inspect a computed value before automation use."
+  }
+}

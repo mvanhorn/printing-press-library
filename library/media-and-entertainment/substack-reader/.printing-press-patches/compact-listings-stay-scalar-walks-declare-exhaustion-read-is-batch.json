@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "compact-listings-stay-scalar-walks-declare-exhaustion-read-is-batch",
+  "applied_at": "2026-07-31",
+  "base_run_id": "20260710-081225",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Compact list projections admit only short scalar fields (corpus rows carry the full FTS body in _pp_body_text, so frequency-based keep rules re-import it) and derive a bounded snippet; read's agent envelope stamps meta.source live (it is a live command; the printOutputWithFlags default misreported local); archiveWalk reports WHY it ended (exhausted vs limit-stopped, --limit 0 = whole archive); read is variadic with per-post error entries in an envelope array.",
+  "reason": "Dogfooded on a real corpus: search --agent returned entire article bodies per hit despite --compact's key-fields promise (and read misreported provenance as local), 'Archived 50 posts' at the default --limit read as a complete archive, and multi-post reads forced bash for-loops. All are honesty/ergonomics contracts a regen must preserve, not spec-derived behavior.",
+  "files": [
+    "internal/cli/helpers.go",
+    "internal/cli/archive.go",
+    "internal/cli/read.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "amend_compact_test.go pins the compact scalar gate + snippet bound and the live-provenance meta plumbing; archive_test.go pins exhausted=false on a limit stop and true only on an empty page; read multi-arg smoke-tested via --dry-run.",
+  "findings_addressed": ["F1", "F2", "F3"]
+}

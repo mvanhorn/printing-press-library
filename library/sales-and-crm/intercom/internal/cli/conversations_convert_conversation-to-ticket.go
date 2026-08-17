@@ -21,26 +21,58 @@ func newConversationsConvertConversationToTicketCmd(flags *rootFlags) *cobra.Com
 		Use:         "conversation-to-ticket <id>",
 		Aliases:     []string{"create"},
 		Short:       "You can convert a conversation to a ticket.",
-		Example:     "  intercom-pp-cli conversations convert conversation-to-ticket 550e8400-e29b-41d4-a716-446655440000 --ticket-type-id 550e8400-e29b-41d4-a716-446655440000",
+		Example:     "  intercom-pp-cli conversations convert conversation-to-ticket 123 --ticket-type-id 1234",
 		Annotations: map[string]string{"pp:endpoint": "convert.conversation-to-ticket", "pp:method": "POST", "pp:path": "/conversations/{id}/convert"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) == 0 {
+			// Bare invocation of a command with required input prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only read commands fall through so a bare call still executes.
+			// Machine callers (--json/--agent, which sets asJSON) get a usage
+			// error + exit 2 instead of silent exit-0 help, so an incomplete
+			// invocation is never mistaken for success.
+			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "requires input",
+						"usage": cmd.CommandPath() + " --help",
+					}, flags); printErr != nil {
+						return printErr
+					}
+					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
+				}
 				return cmd.Help()
+			}
+			if len(args) == 0 {
+				// A missing required positional is a usage error in every output
+				// mode (matches command_promoted.go.tmpl). Machine callers
+				// (--json/--agent) also get a JSON error envelope on stdout;
+				// usageErr sets exit 2.
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "missing required argument",
+						"usage": fmt.Sprintf("%s%s", cmd.CommandPath(), " <id>"),
+					}, flags); printErr != nil {
+						return printErr
+					}
+				}
+				return usageErr(fmt.Errorf("missing required argument\nUsage: %s%s", cmd.CommandPath(), " <id>"))
 			}
 			if !stdinBody {
 				if !cmd.Flags().Changed("ticket-type-id") && !flags.dryRun {
 					return fmt.Errorf("required flag \"%s\" not set", "ticket-type-id")
 				}
 			}
+			path := "/conversations/{id}/convert"
+			if len(args) < 1 || args[0] == "" {
+				return usageErr(fmt.Errorf("id is required\nUsage: %s <%s>", cmd.CommandPath(), "id"))
+			}
+			path = replacePathParam(path, "id", args[0])
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/conversations/{id}/convert"
-			path = replacePathParam(path, "id", args[0])
 			params := map[string]string{}
-			var body map[string]any
+			var body any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
@@ -52,16 +84,21 @@ func newConversationsConvertConversationToTicketCmd(flags *rootFlags) *cobra.Com
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
+				bodyMap := map[string]any{}
+				body = bodyMap
 				if bodyAttributes != "" {
 					var parsedAttributes any
 					if err := json.Unmarshal([]byte(bodyAttributes), &parsedAttributes); err != nil {
 						return fmt.Errorf("parsing --attributes JSON: %w", err)
 					}
-					body["attributes"] = parsedAttributes
+					asMap, ok := parsedAttributes.(map[string]any)
+					if !ok {
+						return fmt.Errorf("--attributes must be a JSON object, got JSON %T", parsedAttributes)
+					}
+					bodyMap["attributes"] = asMap
 				}
 				if bodyTicketTypeId != "" {
-					body["ticket_type_id"] = bodyTicketTypeId
+					bodyMap["ticket_type_id"] = bodyTicketTypeId
 				}
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
@@ -131,6 +168,9 @@ func newConversationsConvertConversationToTicketCmd(flags *rootFlags) *cobra.Com
 					"status":   statusCode,
 					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
 				}
+				if flags.agent {
+					envelope["meta"] = map[string]any{"source": "live"}
+				}
 				if partialFailure != nil {
 					envelope["partial_failure"] = partialFailure
 				}
@@ -169,7 +209,11 @@ func newConversationsConvertConversationToTicketCmd(flags *rootFlags) *cobra.Com
 				if len(filtered) > 0 {
 					var parsed any
 					if err := json.Unmarshal(filtered, &parsed); err == nil {
-						envelope["data"] = parsed
+						if flags.agent {
+							envelope["results"] = parsed
+						} else {
+							envelope["data"] = parsed
+						}
 					}
 				}
 				envelopeJSON, err := json.Marshal(envelope)

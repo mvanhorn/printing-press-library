@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "giustizia-amministrativa-search-total",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260621-094103",
+  "base_printing_press_version": "4.24.0",
+  "summary": "search comunica il totale dichiarato dal portale anche ai consumatori non umani: quando i risultati sono troncati emette una nota che il layer MCP porta nel campo avvisi. Uniformata inoltre la forma della risposta MCP: wrapListWithWarnings usa le stesse chiavi count/items dell'envelope tipizzato, invece di 'risultati', cosi' la presenza di un avviso non cambia lo schema; stesso allineamento in BoundToolText.",
+  "reason": "res.Total esisteva ma si fermava al confine: runGASearch lo stampava solo per l'output umano, mentre in modalita' macchina serializzava il solo array. Il client vedeva quindi un count che e' la dimensione del campione e nessun denominatore, e senza denominatore la richiesta tipica -- 'le N piu' rilevanti' -- non e' calibrabile da nessuno: N su quanti resta ignoto. Il dato era gia' in casa (ParseTotal lo estrae, stats lo pubblica come total_results). Segnalato da un osservatore esterno che ha analizzato una sessione reale. La correzione ha fatto emergere un secondo difetto: MergeDiagnostics avvolgeva gli array in {risultati, avvisi} mentre l'envelope tipizzato usa {count, items}, quindi la risposta cambiava schema a seconda che un avviso fosse scattato o no -- e cambiava proprio nel momento in cui il lettore e' meno preparato a gestirlo.",
+  "files": [
+    "internal/cli/ga_core.go",
+    "internal/mcp/cobratree/shellout.go"
+  ],
+  "validated_outcome": "provvedimenti_cerca phrase='clausola sociale' tipo=sentenza limit=5: avvisi contiene 'il portale dichiara 1914 risultati per questa query, questi sono i primi 5'. Forma stabile: con avvisi le chiavi sono count/items/avvisi, senza avvisi count/items; count e' sempre presente e coerente. go build/vet/test verdi."
+}

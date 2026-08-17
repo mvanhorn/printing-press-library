@@ -5,634 +5,352 @@ package mcp
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"math"
+	"net/url"
 	"os"
 	"path/filepath"
-	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
+	"github.com/mvanhorn/printing-press-library/library/productivity/slack/internal/cli"
 	"github.com/mvanhorn/printing-press-library/library/productivity/slack/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/productivity/slack/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/productivity/slack/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/productivity/slack/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/productivity/slack/internal/mcp/bound"
+	"github.com/mvanhorn/printing-press-library/library/productivity/slack/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/productivity/slack/internal/store"
 )
 
-// looksLikeAuthError checks if an error message body contains auth-related keywords.
-func looksLikeAuthError(msg string) bool {
-	lower := strings.ToLower(msg)
-	patterns := []string{
-		`\bkey\b`,
-		`\btoken\b`,
-		`\bunauthorized\b`,
-		`\bapi_key\b`,
-		`missing.{0,20}key`,
-		`required.{0,20}key`,
-		`\bforbidden\b`,
-		`\bauthenticat`,
-		`\bcredential`,
-	}
-	for _, p := range patterns {
-		if matched, _ := regexp.MatchString(p, lower); matched {
-			return true
-		}
-	}
-	return false
-}
-
-// sanitizeErrorBody truncates and strips credential-shaped strings from error output.
-func sanitizeErrorBody(msg string) string {
-	if len(msg) > 200 {
-		msg = msg[:200] + "..."
-	}
-	credPatterns := regexp.MustCompile(`(?i)(sk-[a-zA-Z0-9]{8,}|sk_live_[a-zA-Z0-9]+|Bearer\s+[a-zA-Z0-9._\-]+|key=[a-zA-Z0-9._\-]+)`)
-	msg = credPatterns.ReplaceAllString(msg, "[REDACTED]")
-	return msg
-}
+const (
+	// MCP hosts can fan out tool calls faster than a human CLI session.
+	// Keep them on the same polite-client limiter path instead of disabling
+	// pacing with rate=0; users can still tune human CLI calls with --rate-limit.
+	defaultMCPRateLimit = 2
+)
 
 // RegisterTools registers all API operations as MCP tools.
 func RegisterTools(s *server.MCPServer) {
-	s.AddTool(
-		mcplib.NewTool("auth_revoke",
-			mcplib.WithDescription("Revoke the current authentication token"),
-			mcplib.WithBoolean("test", mcplib.Description("Test mode - check without revoking")),
-		),
-		makeAPIHandler("GET", "/auth.revoke", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("auth_test",
-			mcplib.WithDescription("Test the authentication token and get identity info"),
-		),
-		makeAPIHandler("POST", "/auth.test", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("bots_info",
-			mcplib.WithDescription("Get information about a bot user"),
-			mcplib.WithString("bot", mcplib.Required(), mcplib.Description("Bot user ID")),
-		),
-		makeAPIHandler("GET", "/bots.info", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("conversations_archive",
-			mcplib.WithDescription("Archive a channel"),
-			mcplib.WithString("channel", mcplib.Required(), mcplib.Description("Channel ID to archive")),
-		),
-		makeAPIHandler("POST", "/conversations.archive", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("conversations_create",
-			mcplib.WithDescription("Create a new channel"),
-			mcplib.WithString("name", mcplib.Required(), mcplib.Description("Name of the channel")),
-			mcplib.WithBoolean("is_private", mcplib.Description("Create a private channel")),
-		),
-		makeAPIHandler("POST", "/conversations.create", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("conversations_history",
-			mcplib.WithDescription("Fetch message history for a channel"),
-			mcplib.WithString("channel", mcplib.Required(), mcplib.Description("Channel ID")),
-			mcplib.WithNumber("limit", mcplib.Description("Number of messages to return (max 1000)")),
-			mcplib.WithString("cursor", mcplib.Description("Pagination cursor")),
-			mcplib.WithString("oldest", mcplib.Description("Only messages after this Unix timestamp")),
-			mcplib.WithString("latest", mcplib.Description("Only messages before this Unix timestamp")),
-		),
-		makeAPIHandler("GET", "/conversations.history", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("conversations_info",
-			mcplib.WithDescription("Get information about a channel"),
-			mcplib.WithString("channel", mcplib.Required(), mcplib.Description("Channel ID")),
-		),
-		makeAPIHandler("GET", "/conversations.info", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("conversations_invite",
-			mcplib.WithDescription("Invite users to a channel"),
-			mcplib.WithString("channel", mcplib.Required(), mcplib.Description("Channel ID")),
-			mcplib.WithString("users", mcplib.Required(), mcplib.Description("Comma-separated list of user IDs to invite")),
-		),
-		makeAPIHandler("POST", "/conversations.invite", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("conversations_list",
-			mcplib.WithDescription("List all channels in the workspace"),
-			mcplib.WithString("types", mcplib.Description("Comma-separated channel types: public_channel, private_channel, mpim, im")),
-			mcplib.WithNumber("limit", mcplib.Description("Maximum number of channels to return (max 1000)")),
-			mcplib.WithString("cursor", mcplib.Description("Pagination cursor")),
-			mcplib.WithBoolean("exclude_archived", mcplib.Description("Exclude archived channels")),
-		),
-		makeAPIHandler("GET", "/conversations.list", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("conversations_mark",
-			mcplib.WithDescription("Mark a channel as read up to a specific message"),
-			mcplib.WithString("channel", mcplib.Required(), mcplib.Description("Channel ID")),
-			mcplib.WithString("ts", mcplib.Required(), mcplib.Description("Timestamp of the message to mark as read")),
-		),
-		makeAPIHandler("POST", "/conversations.mark", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("conversations_members",
-			mcplib.WithDescription("List members of a channel"),
-			mcplib.WithString("channel", mcplib.Required(), mcplib.Description("Channel ID")),
-			mcplib.WithNumber("limit", mcplib.Description("Maximum members to return")),
-			mcplib.WithString("cursor", mcplib.Description("Pagination cursor")),
-		),
-		makeAPIHandler("GET", "/conversations.members", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("conversations_replies",
-			mcplib.WithDescription("Fetch replies in a thread"),
-			mcplib.WithString("channel", mcplib.Required(), mcplib.Description("Channel ID containing the thread")),
-			mcplib.WithString("ts", mcplib.Required(), mcplib.Description("Thread parent message timestamp")),
-			mcplib.WithNumber("limit", mcplib.Description("Number of replies to return")),
-			mcplib.WithString("cursor", mcplib.Description("Pagination cursor")),
-		),
-		makeAPIHandler("GET", "/conversations.replies", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("conversations_set_purpose",
-			mcplib.WithDescription("Set the purpose for a channel"),
-			mcplib.WithString("channel", mcplib.Required(), mcplib.Description("Channel ID")),
-			mcplib.WithString("purpose", mcplib.Required(), mcplib.Description("New purpose text")),
-		),
-		makeAPIHandler("POST", "/conversations.setPurpose", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("conversations_set_topic",
-			mcplib.WithDescription("Set the topic for a channel"),
-			mcplib.WithString("channel", mcplib.Required(), mcplib.Description("Channel ID")),
-			mcplib.WithString("topic", mcplib.Required(), mcplib.Description("New topic text")),
-		),
-		makeAPIHandler("POST", "/conversations.setTopic", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("conversations_unarchive",
-			mcplib.WithDescription("Unarchive a channel"),
-			mcplib.WithString("channel", mcplib.Required(), mcplib.Description("Channel ID to unarchive")),
-		),
-		makeAPIHandler("POST", "/conversations.unarchive", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("dnd_end_dnd",
-			mcplib.WithDescription("End the current Do Not Disturb session immediately"),
-		),
-		makeAPIHandler("POST", "/dnd.endDnd", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("dnd_end_snooze",
-			mcplib.WithDescription("End the current Do Not Disturb session"),
-		),
-		makeAPIHandler("POST", "/dnd.endSnooze", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("dnd_info",
-			mcplib.WithDescription("Get DND status for the authenticated user"),
-			mcplib.WithString("user", mcplib.Description("User ID (defaults to authed user)")),
-		),
-		makeAPIHandler("GET", "/dnd.info", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("dnd_set_snooze",
-			mcplib.WithDescription("Turn on Do Not Disturb for a specified number of minutes"),
-			mcplib.WithNumber("num_minutes", mcplib.Required(), mcplib.Description("Number of minutes to snooze")),
-		),
-		makeAPIHandler("POST", "/dnd.setSnooze", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("dnd_team_info",
-			mcplib.WithDescription("Get DND status for multiple users"),
-			mcplib.WithString("users", mcplib.Required(), mcplib.Description("Comma-separated list of user IDs")),
-		),
-		makeAPIHandler("POST", "/dnd.teamInfo", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("emoji_list",
-			mcplib.WithDescription("List all custom emoji for the workspace"),
-		),
-		makeAPIHandler("GET", "/emoji.list", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("files_delete",
-			mcplib.WithDescription("Delete a file"),
-			mcplib.WithString("file", mcplib.Required(), mcplib.Description("File ID to delete")),
-		),
-		makeAPIHandler("POST", "/files.delete", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("files_info",
-			mcplib.WithDescription("Get information about a file"),
-			mcplib.WithString("file", mcplib.Required(), mcplib.Description("File ID")),
-		),
-		makeAPIHandler("GET", "/files.info", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("files_list",
-			mcplib.WithDescription("List files in the workspace"),
-			mcplib.WithString("channel", mcplib.Description("Filter by channel")),
-			mcplib.WithString("user", mcplib.Description("Filter by user")),
-			mcplib.WithString("types", mcplib.Description("Filter by file type: all, spaces, snippets, images, etc.")),
-			mcplib.WithNumber("count", mcplib.Description("Number of files per page")),
-			mcplib.WithNumber("page", mcplib.Description("Page number")),
-		),
-		makeAPIHandler("GET", "/files.list", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("files_upload",
-			mcplib.WithDescription("Upload a file to Slack"),
-			mcplib.WithString("channels", mcplib.Description("Comma-separated channel IDs to share the file with")),
-			mcplib.WithString("content", mcplib.Description("File content (for text-based files)")),
-			mcplib.WithString("filename", mcplib.Description("Filename")),
-			mcplib.WithString("title", mcplib.Description("Title of the file")),
-			mcplib.WithString("initial_comment", mcplib.Description("Initial comment for the file")),
-		),
-		makeAPIHandler("POST", "/files.upload", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("messages_delete_message",
-			mcplib.WithDescription("Delete a message"),
-			mcplib.WithString("channel", mcplib.Required(), mcplib.Description("Channel containing the message")),
-			mcplib.WithString("ts", mcplib.Required(), mcplib.Description("Timestamp of the message to delete")),
-		),
-		makeAPIHandler("POST", "/chat.delete", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("messages_get_permalink",
-			mcplib.WithDescription("Get a permalink URL for a message"),
-			mcplib.WithString("channel", mcplib.Required(), mcplib.Description("Channel ID")),
-			mcplib.WithString("message_ts", mcplib.Required(), mcplib.Description("Message timestamp")),
-		),
-		makeAPIHandler("GET", "/chat.getPermalink", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("messages_list_scheduled",
-			mcplib.WithDescription("List scheduled messages"),
-			mcplib.WithString("channel", mcplib.Description("Filter by channel")),
-		),
-		makeAPIHandler("POST", "/chat.scheduledMessages.list", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("messages_post_message",
-			mcplib.WithDescription("Send a message to a channel, DM, or thread"),
-			mcplib.WithString("channel", mcplib.Required(), mcplib.Description("Channel ID or name to send the message to")),
-			mcplib.WithString("text", mcplib.Required(), mcplib.Description("Message text (supports mrkdwn formatting)")),
-			mcplib.WithString("thread_ts", mcplib.Description("Thread timestamp to reply in a thread")),
-			mcplib.WithBoolean("unfurl_links", mcplib.Description("Enable or disable link unfurling")),
-		),
-		makeAPIHandler("POST", "/chat.postMessage", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("messages_schedule_message",
-			mcplib.WithDescription("Schedule a message for later delivery"),
-			mcplib.WithString("channel", mcplib.Required(), mcplib.Description("Channel to send the scheduled message to")),
-			mcplib.WithString("text", mcplib.Required(), mcplib.Description("Message text")),
-			mcplib.WithNumber("post_at", mcplib.Required(), mcplib.Description("Unix timestamp for when to send the message")),
-		),
-		makeAPIHandler("POST", "/chat.scheduleMessage", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("messages_update_message",
-			mcplib.WithDescription("Update an existing message"),
-			mcplib.WithString("channel", mcplib.Required(), mcplib.Description("Channel containing the message")),
-			mcplib.WithString("ts", mcplib.Required(), mcplib.Description("Timestamp of the message to update")),
-			mcplib.WithString("text", mcplib.Required(), mcplib.Description("New message text")),
-		),
-		makeAPIHandler("POST", "/chat.update", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("pins_add",
-			mcplib.WithDescription("Pin a message to a channel"),
-			mcplib.WithString("channel", mcplib.Required(), mcplib.Description("Channel ID")),
-			mcplib.WithString("timestamp", mcplib.Required(), mcplib.Description("Message timestamp to pin")),
-		),
-		makeAPIHandler("POST", "/pins.add", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("pins_list",
-			mcplib.WithDescription("List pinned items in a channel"),
-			mcplib.WithString("channel", mcplib.Required(), mcplib.Description("Channel ID")),
-		),
-		makeAPIHandler("GET", "/pins.list", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("pins_remove",
-			mcplib.WithDescription("Unpin a message from a channel"),
-			mcplib.WithString("channel", mcplib.Required(), mcplib.Description("Channel ID")),
-			mcplib.WithString("timestamp", mcplib.Required(), mcplib.Description("Message timestamp to unpin")),
-		),
-		makeAPIHandler("POST", "/pins.remove", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("reactions_add",
-			mcplib.WithDescription("Add an emoji reaction to a message"),
-			mcplib.WithString("channel", mcplib.Required(), mcplib.Description("Channel containing the message")),
-			mcplib.WithString("name", mcplib.Required(), mcplib.Description("Emoji name without colons")),
-			mcplib.WithString("timestamp", mcplib.Required(), mcplib.Description("Message timestamp")),
-		),
-		makeAPIHandler("POST", "/reactions.add", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("reactions_get",
-			mcplib.WithDescription("Get reactions for a message"),
-			mcplib.WithString("channel", mcplib.Required(), mcplib.Description("Channel containing the message")),
-			mcplib.WithString("timestamp", mcplib.Required(), mcplib.Description("Message timestamp")),
-		),
-		makeAPIHandler("GET", "/reactions.get", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("reactions_list",
-			mcplib.WithDescription("List reactions made by the authenticated user"),
-			mcplib.WithNumber("count", mcplib.Description("Number of items per page")),
-			mcplib.WithString("cursor", mcplib.Description("Pagination cursor")),
-			mcplib.WithString("user", mcplib.Description("Show reactions by this user (defaults to authed user)")),
-		),
-		makeAPIHandler("GET", "/reactions.list", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("reactions_remove",
-			mcplib.WithDescription("Remove an emoji reaction from a message"),
-			mcplib.WithString("channel", mcplib.Required(), mcplib.Description("Channel containing the message")),
-			mcplib.WithString("name", mcplib.Required(), mcplib.Description("Emoji name without colons")),
-			mcplib.WithString("timestamp", mcplib.Required(), mcplib.Description("Message timestamp")),
-		),
-		makeAPIHandler("POST", "/reactions.remove", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("reminders_add",
-			mcplib.WithDescription("Create a new reminder"),
-			mcplib.WithString("text", mcplib.Required(), mcplib.Description("Reminder text")),
-			mcplib.WithString("time", mcplib.Required(), mcplib.Description("When to remind: Unix timestamp, or natural language like 'in 15 minutes'")),
-			mcplib.WithString("user", mcplib.Description("User to remind (defaults to authed user)")),
-		),
-		makeAPIHandler("POST", "/reminders.add", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("reminders_complete",
-			mcplib.WithDescription("Mark a reminder as complete"),
-			mcplib.WithString("reminder", mcplib.Required(), mcplib.Description("Reminder ID")),
-		),
-		makeAPIHandler("POST", "/reminders.complete", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("reminders_delete",
-			mcplib.WithDescription("Delete a reminder"),
-			mcplib.WithString("reminder", mcplib.Required(), mcplib.Description("Reminder ID")),
-		),
-		makeAPIHandler("POST", "/reminders.delete", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("reminders_info",
-			mcplib.WithDescription("Get info about a reminder"),
-			mcplib.WithString("reminder", mcplib.Required(), mcplib.Description("Reminder ID")),
-		),
-		makeAPIHandler("GET", "/reminders.info", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("reminders_list",
-			mcplib.WithDescription("List all reminders for the authenticated user"),
-		),
-		makeAPIHandler("GET", "/reminders.list", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("search_messages",
-			mcplib.WithDescription("Search for messages matching a query"),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Search query (supports Slack search modifiers like from:, in:, has:)")),
-			mcplib.WithNumber("count", mcplib.Description("Number of results per page")),
-			mcplib.WithNumber("page", mcplib.Description("Page number of results")),
-			mcplib.WithString("sort", mcplib.Description("Sort order: score or timestamp")),
-			mcplib.WithString("sort_dir", mcplib.Description("Sort direction: asc or desc")),
-		),
-		makeAPIHandler("GET", "/search.messages", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("stars_add",
-			mcplib.WithDescription("Star a message, file, or channel"),
-			mcplib.WithString("channel", mcplib.Description("Channel ID (for starring the channel itself)")),
-			mcplib.WithString("timestamp", mcplib.Description("Message timestamp (for starring a message)")),
-			mcplib.WithString("file", mcplib.Description("File ID (for starring a file)")),
-		),
-		makeAPIHandler("POST", "/stars.add", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("stars_list",
-			mcplib.WithDescription("List starred items"),
-			mcplib.WithNumber("count", mcplib.Description("Number of items per page")),
-			mcplib.WithString("cursor", mcplib.Description("Pagination cursor")),
-		),
-		makeAPIHandler("GET", "/stars.list", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("stars_remove",
-			mcplib.WithDescription("Remove a star from an item"),
-			mcplib.WithString("channel", mcplib.Description("Channel ID")),
-			mcplib.WithString("timestamp", mcplib.Description("Message timestamp")),
-			mcplib.WithString("file", mcplib.Description("File ID")),
-		),
-		makeAPIHandler("POST", "/stars.remove", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("team_access_logs",
-			mcplib.WithDescription("Get workspace access logs (requires admin)"),
-			mcplib.WithNumber("count", mcplib.Description("Number of entries per page")),
-			mcplib.WithNumber("page", mcplib.Description("Page number")),
-		),
-		makeAPIHandler("GET", "/team.accessLogs", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("team_billable_info",
-			mcplib.WithDescription("Get billable information for workspace users"),
-			mcplib.WithString("user", mcplib.Description("Filter by user ID")),
-		),
-		makeAPIHandler("GET", "/team.billableInfo", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("team_info",
-			mcplib.WithDescription("Get information about the workspace"),
-		),
-		makeAPIHandler("GET", "/team.info", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("usergroups_create",
-			mcplib.WithDescription("Create a new user group"),
-			mcplib.WithString("name", mcplib.Required(), mcplib.Description("Name of the user group")),
-			mcplib.WithString("handle", mcplib.Description("Mention handle (e.g., @team-leads)")),
-			mcplib.WithString("description", mcplib.Description("Description of the group")),
-			mcplib.WithString("channels", mcplib.Description("Comma-separated channel IDs the group defaults to")),
-		),
-		makeAPIHandler("POST", "/usergroups.create", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("usergroups_list",
-			mcplib.WithDescription("List all user groups in the workspace"),
-			mcplib.WithBoolean("include_users", mcplib.Description("Include user lists in response")),
-			mcplib.WithBoolean("include_disabled", mcplib.Description("Include disabled user groups")),
-		),
-		makeAPIHandler("GET", "/usergroups.list", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("usergroups_update",
-			mcplib.WithDescription("Update an existing user group"),
-			mcplib.WithString("usergroup", mcplib.Required(), mcplib.Description("User group ID")),
-			mcplib.WithString("name", mcplib.Description("New name")),
-			mcplib.WithString("handle", mcplib.Description("New mention handle")),
-			mcplib.WithString("description", mcplib.Description("New description")),
-		),
-		makeAPIHandler("POST", "/usergroups.update", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("usergroups_users_list",
-			mcplib.WithDescription("List users in a user group"),
-			mcplib.WithString("usergroup", mcplib.Required(), mcplib.Description("User group ID")),
-		),
-		makeAPIHandler("GET", "/usergroups.users.list", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("usergroups_users_update",
-			mcplib.WithDescription("Update the members of a user group"),
-			mcplib.WithString("usergroup", mcplib.Required(), mcplib.Description("User group ID")),
-			mcplib.WithString("users", mcplib.Required(), mcplib.Description("Comma-separated list of user IDs")),
-		),
-		makeAPIHandler("POST", "/usergroups.users.update", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_get_presence",
-			mcplib.WithDescription("Get a user's online presence status"),
-			mcplib.WithString("user", mcplib.Required(), mcplib.Description("User ID")),
-		),
-		makeAPIHandler("GET", "/users.getPresence", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_info",
-			mcplib.WithDescription("Get information about a user"),
-			mcplib.WithString("user", mcplib.Required(), mcplib.Description("User ID")),
-		),
-		makeAPIHandler("GET", "/users.info", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_list",
-			mcplib.WithDescription("List all users in the workspace"),
-			mcplib.WithNumber("limit", mcplib.Description("Maximum number of users to return")),
-			mcplib.WithString("cursor", mcplib.Description("Pagination cursor")),
-		),
-		makeAPIHandler("GET", "/users.list", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_lookup_by_email",
-			mcplib.WithDescription("Find a user by their email address"),
-			mcplib.WithString("email", mcplib.Required(), mcplib.Description("Email address to look up")),
-		),
-		makeAPIHandler("GET", "/users.lookupByEmail", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_profile_get",
-			mcplib.WithDescription("Get a user's profile information"),
-			mcplib.WithString("user", mcplib.Description("User ID (defaults to authed user)")),
-		),
-		makeAPIHandler("GET", "/users.profile.get", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_profile_set",
-			mcplib.WithDescription("Set the user's profile fields"),
-			mcplib.WithString("profile", mcplib.Description("JSON object with profile fields to set")),
-			mcplib.WithString("name", mcplib.Description("Name of a single field to set")),
-			mcplib.WithString("value", mcplib.Description("Value for the single field")),
-		),
-		makeAPIHandler("POST", "/users.profile.set", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("users_set_presence",
-			mcplib.WithDescription("Set the user's presence status"),
-			mcplib.WithString("presence", mcplib.Required(), mcplib.Description("Either 'auto' or 'away'")),
-		),
-		makeAPIHandler("POST", "/users.setPresence", []string{}),
-	)
-	// Sync tool
-	s.AddTool(
-		mcplib.NewTool("sync",
-			mcplib.WithDescription("Sync API data to local SQLite for offline search and analysis"),
-			mcplib.WithString("resources", mcplib.Description("Comma-separated resource types to sync")),
-			mcplib.WithString("since", mcplib.Description("Incremental sync since duration (7d, 24h, 1w)")),
-			mcplib.WithBoolean("full", mcplib.Description("Full resync ignoring checkpoints")),
-		),
-		handleSync,
-	)
-	// Search tool
+	// Code-orchestration mode — the full surface is covered by two tools
+	// (<api>_search + <api>_execute). Endpoint-mirror tools are suppressed.
+	RegisterCodeOrchestrationTools(s)
+	// Intent tools — higher-level compositions declared in the spec or lifted from recipes.
+	RegisterIntents(s)
+	// Search tool — faster than iterating list endpoints for finding specific items
 	s.AddTool(
 		mcplib.NewTool("search",
-			mcplib.WithDescription("Full-text search across synced data"),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Search query")),
+			mcplib.WithDescription("Full-text search across all synced data. Faster than paginating list endpoints. Requires sync first."),
+			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Search query (supports FTS5 syntax: AND, OR, NOT, quotes for phrases)")),
 			mcplib.WithNumber("limit", mcplib.Description("Max results (default 25)")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
 		),
 		handleSearch,
 	)
-	// SQL tool
+	// SQL tool — ad-hoc analysis on synced data without API calls
 	s.AddTool(
 		mcplib.NewTool("sql",
-			mcplib.WithDescription("Run read-only SQL query against local database"),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT only)")),
+			mcplib.WithDescription("Run read-only SQL against local database. Use for ad-hoc analysis, aggregations, and joins across synced resources. Requires sync first."),
+			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT or WITH...SELECT). Synced records live in resources(resource_type, id, data); filter by resource_type and use json_extract on data, e.g. SELECT json_extract(data,'$.name') FROM resources WHERE resource_type='api-test'.")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
 		),
 		handleSQL,
 	)
 
-	// About tool — self-describing metadata for this MCP server
+	// Context tool — front-loaded domain knowledge for agents.
+	// Call this first to understand the API taxonomy, query patterns, and capabilities.
 	s.AddTool(
-		mcplib.NewTool("about",
-			mcplib.WithDescription("Describe this MCP server's capabilities, auth requirements, and unique features"),
+		mcplib.NewTool("context",
+			mcplib.WithDescription("Get API domain context: resource taxonomy, auth requirements, query tips, and unique capabilities. Call this first."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
 		),
-		handleAbout,
+		handleContext,
 	)
+
+	// Runtime Cobra-tree mirror — exposes every user-facing command that is
+	// not already covered by a typed endpoint or framework MCP tool.
+	cobratree.RegisterAll(s, cli.RootCmd(), cobratree.SiblingCLIPath)
+}
+
+type mcpParamBinding struct {
+	PublicName         string
+	WireName           string
+	Location           string
+	Format             string
+	RequestContentType string
+}
+
+type mcpPageConfig struct {
+	CursorParam    string
+	NextCursorPath string
+}
+
+func formatMCPParamValue(v any) string {
+	switch tv := v.(type) {
+	case string:
+		return tv
+	case bool:
+		return strconv.FormatBool(tv)
+	case float64:
+		if math.IsNaN(tv) || math.IsInf(tv, 0) {
+			return strconv.FormatFloat(tv, 'f', -1, 64)
+		}
+		if math.Trunc(tv) == tv && math.Abs(tv) < 1e15 {
+			return strconv.FormatInt(int64(tv), 10)
+		}
+		return strconv.FormatFloat(tv, 'f', -1, 64)
+	case float32:
+		f := float64(tv)
+		if math.IsNaN(f) || math.IsInf(f, 0) {
+			return strconv.FormatFloat(f, 'f', -1, 32)
+		}
+		if math.Trunc(f) == f && math.Abs(f) < 1e15 {
+			return strconv.FormatInt(int64(f), 10)
+		}
+		return strconv.FormatFloat(f, 'f', -1, 32)
+	default:
+		// Composite values (a native []any / map[string]any from an array or
+		// object param) reach this path when bound to a query or path slot;
+		// JSON-encode them so the wire value is valid JSON rather than Go's
+		// "[a b c]" / "map[...]" rendering. Body params never come through
+		// here — they are stored natively in bodyArgs and marshalled there.
+		if b, err := json.Marshal(v); err == nil {
+			return string(b)
+		}
+		return fmt.Sprintf("%v", v)
+	}
+}
+
+func mcpPathValue(v any) string {
+	return cliutil.EscapePathParam(formatMCPParamValue(v))
+}
+func mcpFormFieldValue(v any) string {
+	if s, ok := v.(string); ok {
+		return s
+	}
+	if data, err := json.Marshal(v); err == nil {
+		return string(data)
+	}
+	return fmt.Sprintf("%v", v)
 }
 
 // makeAPIHandler creates a generic MCP tool handler for an API endpoint.
-func makeAPIHandler(method, pathTemplate string, positionalParams []string) server.ToolHandlerFunc {
+func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse bool, headerOverrides map[string]string, pageConfig mcpPageConfig, bindings []mcpParamBinding, positionalParams []string) server.ToolHandlerFunc {
 	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 		c, err := newMCPClient()
 		if err != nil {
-			return mcplib.NewToolResultError(err.Error()), nil
+			return mcpToolError(err.Error()), nil
 		}
 
-		// Build path by substituting positional params
+		// mcp-go v0.47+ made CallToolParams.Arguments an `any` to support
+		// non-map payloads; GetArguments() returns the map[string]any shape
+		// we rely on here (or an empty map when the payload is something else).
+		args := req.GetArguments()
+
+		// positionalParams mixes real URL path params with CLI positional
+		// args that map to query params (e.g. `search <query>` -> ?query=);
+		// the placeholder check below disambiguates them at runtime.
 		path := pathTemplate
-		for _, p := range positionalParams {
-			if v, ok := req.Params.Arguments[p]; ok {
-				path = strings.Replace(path, "{"+p+"}", fmt.Sprintf("%v", v), 1)
-			}
-		}
-
-		// Collect non-positional params as query params
+		knownArgs := make(map[string]bool, len(bindings))
+		pathParams := make(map[string]bool, len(positionalParams))
 		params := make(map[string]string)
-		for k, v := range req.Params.Arguments {
-			isPositional := false
-			for _, p := range positionalParams {
-				if k == p {
-					isPositional = true
-					break
+		bodyArgs := make(map[string]any)
+		mcpCursor := ""
+		if pageConfig.CursorParam != "" {
+			knownArgs["cursor"] = true
+			if v, ok := args["cursor"]; ok {
+				s, ok := v.(string)
+				if !ok {
+					return mcpToolError("cursor must be an opaque string returned by a previous MCP response"), nil
+				}
+				mcpCursor = s
+				upstreamCursor, err := bound.UpstreamCursor(s)
+				if err != nil {
+					return mcpToolError(err.Error()), nil
+				}
+				if upstreamCursor != "" {
+					params[pageConfig.CursorParam] = upstreamCursor
 				}
 			}
-			if !isPositional {
-				params[k] = fmt.Sprintf("%v", v)
+		}
+		var headers map[string]string
+		if len(headerOverrides) > 0 {
+			headers = make(map[string]string, len(headerOverrides)+1)
+			for k, v := range headerOverrides {
+				headers[k] = v
+			}
+		}
+		if binaryResponse {
+			if headers == nil {
+				headers = map[string]string{}
+			}
+			headers[client.BinaryResponseHeader] = "true"
+		}
+		formFields := url.Values{}
+		formEncoded := false
+		for _, binding := range bindings {
+			knownArgs[binding.PublicName] = true
+			if strings.EqualFold(binding.RequestContentType, "application/x-www-form-urlencoded") {
+				formEncoded = true
+			}
+			v, ok := args[binding.PublicName]
+			if !ok {
+				continue
+			}
+			switch binding.Location {
+			case "path":
+				placeholder := "{" + binding.WireName + "}"
+				pathParams[binding.PublicName] = true
+				path = strings.Replace(path, placeholder, mcpPathValue(v), 1)
+			case "body":
+				bodyArgs[binding.WireName] = v
+				if formEncoded {
+					formFields.Set(binding.WireName, mcpFormFieldValue(v))
+				}
+			default:
+				params[binding.WireName] = formatMCPParamValue(v)
+			}
+		}
+		for _, p := range positionalParams {
+			placeholder := "{" + p + "}"
+			if !strings.Contains(pathTemplate, placeholder) {
+				continue
+			}
+			pathParams[p] = true
+			if v, ok := args[p]; ok {
+				path = strings.Replace(path, placeholder, mcpPathValue(v), 1)
+			}
+		}
+
+		for k, v := range args {
+			if pathParams[k] || knownArgs[k] {
+				continue
+			}
+			switch method {
+			case "POST", "PUT", "PATCH":
+				bodyArgs[k] = v
+				if formEncoded {
+					formFields.Set(k, mcpFormFieldValue(v))
+				}
+			default:
+				params[k] = formatMCPParamValue(v)
 			}
 		}
 
 		var data json.RawMessage
 		switch method {
 		case "GET":
-			data, err = c.Get(path, params)
+			if len(headers) > 0 {
+				data, err = c.GetWithHeaders(ctx, path, params, headers)
+				break
+			}
+			data, err = c.Get(ctx, path, params)
 		case "POST":
-			body, _ := json.Marshal(req.Params.Arguments)
-			data, _, err = c.Post(path, body)
+			if formEncoded {
+				if len(headers) > 0 {
+					if readOnly {
+						data, _, err = c.PostQueryFormWithParamsAndHeaders(ctx, path, params, formFields, headers)
+						break
+					}
+					data, _, err = c.PostFormWithParamsAndHeaders(ctx, path, params, formFields, headers)
+					break
+				}
+				if readOnly {
+					data, _, err = c.PostQueryFormWithParams(ctx, path, params, formFields)
+					break
+				}
+				data, _, err = c.PostFormWithParams(ctx, path, params, formFields)
+				break
+			}
+			if len(headers) > 0 {
+				if readOnly {
+					data, _, err = c.PostQueryWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				} else {
+					data, _, err = c.PostWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				}
+				break
+			}
+			if readOnly {
+				data, _, err = c.PostQueryWithParams(ctx, path, params, bodyArgs)
+			} else {
+				data, _, err = c.PostWithParams(ctx, path, params, bodyArgs)
+			}
 		case "PUT":
-			body, _ := json.Marshal(req.Params.Arguments)
-			data, _, err = c.Put(path, body)
+			if formEncoded {
+				if len(headers) > 0 {
+					if readOnly {
+						data, _, err = c.PutQueryFormWithParamsAndHeaders(ctx, path, params, formFields, headers)
+						break
+					}
+					data, _, err = c.PutFormWithParamsAndHeaders(ctx, path, params, formFields, headers)
+					break
+				}
+				if readOnly {
+					data, _, err = c.PutQueryFormWithParams(ctx, path, params, formFields)
+					break
+				}
+				data, _, err = c.PutFormWithParams(ctx, path, params, formFields)
+				break
+			}
+			if len(headers) > 0 {
+				if readOnly {
+					data, _, err = c.PutQueryWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				} else {
+					data, _, err = c.PutWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				}
+				break
+			}
+			if readOnly {
+				data, _, err = c.PutQueryWithParams(ctx, path, params, bodyArgs)
+			} else {
+				data, _, err = c.PutWithParams(ctx, path, params, bodyArgs)
+			}
 		case "PATCH":
-			body, _ := json.Marshal(req.Params.Arguments)
-			data, _, err = c.Patch(path, body)
+			if formEncoded {
+				if len(headers) > 0 {
+					if readOnly {
+						data, _, err = c.PatchQueryFormWithParamsAndHeaders(ctx, path, params, formFields, headers)
+						break
+					}
+					data, _, err = c.PatchFormWithParamsAndHeaders(ctx, path, params, formFields, headers)
+					break
+				}
+				if readOnly {
+					data, _, err = c.PatchQueryFormWithParams(ctx, path, params, formFields)
+					break
+				}
+				data, _, err = c.PatchFormWithParams(ctx, path, params, formFields)
+				break
+			}
+			if len(headers) > 0 {
+				if readOnly {
+					data, _, err = c.PatchQueryWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				} else {
+					data, _, err = c.PatchWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				}
+				break
+			}
+			if readOnly {
+				data, _, err = c.PatchQueryWithParams(ctx, path, params, bodyArgs)
+			} else {
+				data, _, err = c.PatchWithParams(ctx, path, params, bodyArgs)
+			}
 		case "DELETE":
-			data, _, err = c.Delete(path)
+			if len(headers) > 0 {
+				data, _, err = c.DeleteWithParamsAndHeaders(ctx, path, params, headers)
+				break
+			}
+			data, _, err = c.DeleteWithParams(ctx, path, params)
 		default:
-			return mcplib.NewToolResultError("unsupported method: " + method), nil
+			return mcpToolError("unsupported method: " + method), nil
 		}
 
 		if err != nil {
@@ -640,95 +358,167 @@ func makeAPIHandler(method, pathTemplate string, positionalParams []string) serv
 			switch {
 			case strings.Contains(msg, "HTTP 409"):
 				return mcplib.NewToolResultText("already exists (no-op)"), nil
-			case strings.Contains(msg, "HTTP 400") && looksLikeAuthError(msg):
-				return mcplib.NewToolResultError("authentication error: " + sanitizeErrorBody(msg) +
+			case strings.Contains(msg, "HTTP 400") && cliutil.LooksLikeAuthError(msg):
+				return mcpToolError("authentication error: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: the API rejected the request — this usually means auth is missing or invalid." +
-					"\n      Set your API key: export SLACK_BOT_TOKEN=<your-key>" +
+					"\n      Set credentials with: export SLACK_BOT_TOKEN=\"your-token-here\" SLACK_USER_TOKEN=\"your-token-here\"" +
 					"\n      Run 'slack-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 401"):
-				return mcplib.NewToolResultError("authentication failed: " + sanitizeErrorBody(msg) +
+				return mcpToolError("authentication failed: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: check your token." +
-					"\n      Set it with: export SLACK_BOT_TOKEN=<your-key>" +
+					"\n      Set credentials with: export SLACK_BOT_TOKEN=\"your-token-here\" SLACK_USER_TOKEN=\"your-token-here\"" +
 					"\n      Run 'slack-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 403"):
-				return mcplib.NewToolResultError("permission denied: " + sanitizeErrorBody(msg) +
-					"\nhint: your credentials are valid but lack access to this resource." +
-					"\n      Set it with: export SLACK_BOT_TOKEN=<your-key>" +
+				return mcpToolError("permission denied: " + cliutil.SanitizeErrorBody(msg) +
+					"\nhint: your credentials are valid but lack access to this resource. Check that they have the required permissions and match the API's expected auth scheme." +
+					"\n      Set credentials with: export SLACK_BOT_TOKEN=\"your-token-here\" SLACK_USER_TOKEN=\"your-token-here\"" +
 					"\n      Run 'slack-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 404"):
 				if method == "DELETE" {
 					return mcplib.NewToolResultText("already deleted (no-op)"), nil
 				}
-				return mcplib.NewToolResultError("not found: " + msg), nil
+				return mcpToolError("not found: " + msg), nil
 			case strings.Contains(msg, "HTTP 429"):
-				return mcplib.NewToolResultError("rate limited: " + msg), nil
+				return mcpToolError("rate limited: " + msg), nil
 			default:
-				return mcplib.NewToolResultError(msg), nil
+				return mcpToolError(msg), nil
 			}
 		}
 
-		// For GET responses, wrap bare arrays with count metadata
-		if method == "GET" {
-			trimmed := strings.TrimSpace(string(data))
-			if len(trimmed) > 0 && trimmed[0] == '[' {
-				var items []json.RawMessage
-				if json.Unmarshal(data, &items) == nil {
-					wrapped := map[string]any{
-						"count": len(items),
-						"items": items,
-					}
-					out, _ := json.Marshal(wrapped)
-					return mcplib.NewToolResultText(string(out)), nil
-				}
+		if binaryResponse {
+			encoded := base64.StdEncoding.EncodeToString(data)
+			out, err := json.Marshal(map[string]any{
+				"content_encoding": "base64",
+				"data_base64":      encoded,
+				"byte_count":       len(data),
+			})
+			if err != nil {
+				return mcpToolError(fmt.Sprintf("encoding binary result: %v", err)), nil
 			}
+			if len(out) > bound.MaxBytes {
+				return mcpToolError(fmt.Sprintf("binary response is too large for MCP text output: %d response bytes encode to %d base64 bytes and %d MCP result bytes, exceeding the %d byte budget. Use the companion CLI command with --output <file> to save the payload locally.", len(data), len(encoded), len(out), bound.MaxBytes)), nil
+			}
+			return mcplib.NewToolResultText(string(out)), nil
 		}
-		return mcplib.NewToolResultText(string(data)), nil
+		if pageConfig.CursorParam != "" {
+			return mcpToolPageResultText(method, data, pageConfig, mcpCursor), nil
+		}
+		return mcpToolResultText(method, data), nil
 	}
+}
+
+func mcpToolResultText(method string, data json.RawMessage) *mcplib.CallToolResult {
+	return mcplib.NewToolResultText(bound.EndpointResponse(method, data))
+}
+
+// mcpToolError keeps provider-controlled typed endpoint errors within the MCP
+// text-result budget just like successful endpoint results.
+func mcpToolError(message string) *mcplib.CallToolResult {
+	return mcplib.NewToolResultError(bound.Text(message))
+}
+
+func mcpToolPageResultText(method string, data json.RawMessage, pageConfig mcpPageConfig, cursor string) *mcplib.CallToolResult {
+	return mcplib.NewToolResultText(bound.EndpointPageResponse(method, data, bound.PageOptions{
+		Cursor:         cursor,
+		CursorParam:    pageConfig.CursorParam,
+		NextCursorPath: pageConfig.NextCursorPath,
+	}))
 }
 
 func newMCPClient() (*client.Client, error) {
-	home, _ := os.UserHomeDir()
-	cfgPath := filepath.Join(home, ".config", "slack-pp-cli", "config.toml")
-	cfg, err := config.Load(cfgPath)
+	cfg, err := newMCPConfig()
+	if err != nil {
+		return nil, err
+	}
+	return newMCPClientFromConfig(cfg), nil
+}
+
+func newMCPConfig() (*config.Config, error) {
+	cfg, err := config.Load("")
 	if err != nil {
 		return nil, fmt.Errorf("loading config: %w", err)
 	}
-	c := client.New(cfg, 30*time.Second, 0)
+	return cfg, nil
+}
+
+func newMCPClientFromConfig(cfg *config.Config) *client.Client {
+	c := client.New(cfg, 60*time.Second, defaultMCPRateLimit)
 	// Agents calling through MCP need fresh data every call. The on-disk
-	// response cache survives across MCP server invocations, so a DELETE/PATCH
-	// followed by a GET would otherwise return the pre-mutation snapshot for up
-	// to the cache TTL. Skip the cache for the MCP path; the interactive CLI
+	// response cache survives across MCP server invocations, so a
+	// DELETE/PATCH followed by a GET would otherwise return the
+	// pre-mutation snapshot for up to the cache TTL. The interactive CLI
 	// constructs its own client and is unaffected.
 	c.NoCache = true
-	return c, nil
+	return c
 }
 
-func dbPath() string {
-	home, _ := os.UserHomeDir()
-	return filepath.Join(home, ".local", "share", "slack-pp-cli", "data.db")
+func mcpDBPath() (string, error) {
+	dir, err := cliutil.DataDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(dir, "data.db"), nil
 }
 
-// Note: MCP tools use their own dbPath() because they are in a separate package (main, not cli).
-// The CLI's defaultDBPath() in the cli package uses the same canonical path.
+type mcpStoreStatusKind string
 
-func handleSync(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-	return mcplib.NewToolResultText("sync not yet implemented via MCP - use the CLI: slack-pp-cli sync"), nil
+const (
+	mcpStoreStatusEmpty mcpStoreStatusKind = "empty"
+	mcpStoreStatusReady mcpStoreStatusKind = "ready"
+)
+
+func openMCPReadOnlyStore(path string) (*store.Store, *mcplib.CallToolResult) {
+	if _, err := os.Stat(path); err != nil {
+		if os.IsNotExist(err) {
+			return nil, mcplib.NewToolResultError(mcpMissingStoreMessage(path))
+		}
+		return nil, mcplib.NewToolResultError(fmt.Sprintf("checking local data store %s: %v", path, err))
+	}
+	db, err := store.OpenReadOnly(path)
+	if err != nil {
+		return nil, mcplib.NewToolResultError(fmt.Sprintf("opening local data store %s: %v. Run slack-pp-cli sync to refresh the store, or use live endpoint MCP tools for unsynced data.", path, err))
+	}
+	return db, nil
+}
+
+func mcpMissingStoreMessage(path string) string {
+	return fmt.Sprintf("No local data store found at %s. Run slack-pp-cli sync before using MCP search/sql, or use live endpoint MCP tools for unsynced data.", path)
+}
+
+func mcpStoreStatus(db *store.Store) (mcpStoreStatusKind, error) {
+	status, err := db.Status()
+	if err != nil {
+		return "", err
+	}
+	if len(status) == 0 {
+		return mcpStoreStatusEmpty, nil
+	}
+	return mcpStoreStatusReady, nil
+}
+
+func mcpEmptyStoreNextStep() string {
+	return "Run slack-pp-cli sync to populate the local SQLite store before using MCP search/sql."
 }
 
 func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-	query, ok := req.Params.Arguments["query"].(string)
+	args := req.GetArguments()
+	query, ok := args["query"].(string)
 	if !ok || query == "" {
 		return mcplib.NewToolResultError("query is required"), nil
 	}
 
 	limit := 25
-	if v, ok := req.Params.Arguments["limit"].(float64); ok && v > 0 {
+	if v, ok := args["limit"].(float64); ok && v > 0 {
 		limit = int(v)
 	}
 
-	db, err := store.Open(dbPath())
+	path, err := mcpDBPath()
 	if err != nil {
-		return mcplib.NewToolResultError(fmt.Sprintf("opening database: %v", err)), nil
+		return mcplib.NewToolResultError(fmt.Sprintf("resolving database: %v", err)), nil
+	}
+	db, toolErr := openMCPReadOnlyStore(path)
+	if toolErr != nil {
+		return toolErr, nil
 	}
 	defer db.Close()
 
@@ -736,38 +526,215 @@ func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.Call
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("search failed: %v", err)), nil
 	}
+	storeStatus, err := mcpStoreStatus(db)
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("reading store status: %v", err)), nil
+	}
 
-	data, _ := json.MarshalIndent(results, "", "  ")
-	return mcplib.NewToolResultText(string(data)), nil
+	return toolResultJSON(mcpSearchEnvelope(results, storeStatus))
+}
+
+func mcpSearchEnvelope(results []json.RawMessage, storeStatus mcpStoreStatusKind) map[string]any {
+	if results == nil {
+		results = []json.RawMessage{}
+	}
+	out := map[string]any{
+		"count":        len(results),
+		"results":      results,
+		"store_status": storeStatus,
+		"resumable":    false,
+	}
+	if len(results) == 0 {
+		if storeStatus == mcpStoreStatusEmpty {
+			out["next_step"] = mcpEmptyStoreNextStep()
+		} else {
+			out["next_step"] = "No local search matches. Try a broader query, a lower-specificity FTS expression, or sync again if data may be stale."
+		}
+	}
+	return out
+}
+
+// validateReadOnlyQuery gates the MCP sql tool. The agent contract advertised
+// to the host is ReadOnlyHintAnnotation(true); a false annotation on a
+// mutating tool lets MCP hosts auto-approve writes and is treated as a real
+// bug per the project's agent-native security model.
+//
+// The gate rejects multi-statement input, then applies an allowlist (SELECT or
+// WITH only) AFTER stripping the leading whitespace, line comments, block
+// comments, and semicolons that SQLite itself ignores before parsing. A naive
+// HasPrefix check on a keyword blocklist is bypassable by prefixing the
+// dangerous statement with "/* x */" or "-- x\n"; a naive leading-keyword
+// allowlist is bypassable by appending "; ATTACH DATABASE ...". Combined with
+// the empirical fact that modernc.org/sqlite's mode=ro does NOT block VACUUM
+// INTO (writes a snapshot to a new file) or ATTACH DATABASE (opens a separate
+// writable handle), either bypass produces silent exfiltration to an
+// attacker-chosen path.
+//
+// SELECT and WITH are the only allowed leading keywords. WITH supports
+// SELECT-form CTEs; CTE-wrapped writes ("WITH x AS (...) INSERT ...") are
+// caught by OpenReadOnly's mode=ro one layer down. PRAGMA, ATTACH, VACUUM,
+// and every other DDL/DML keyword fail at this gate before reaching SQLite.
+func validateReadOnlyQuery(query string) error {
+	stripped := stripLeadingSQLNoise(query)
+	if hasTrailingSQLStatement(stripped) {
+		return fmt.Errorf("only a single SELECT or WITH statement is allowed")
+	}
+	upper := strings.ToUpper(stripped)
+	if !strings.HasPrefix(upper, "SELECT") && !strings.HasPrefix(upper, "WITH") {
+		return fmt.Errorf("only SELECT queries are allowed")
+	}
+	return nil
+}
+
+// stripLeadingSQLNoise removes leading whitespace, SQL line comments
+// (-- to end of line), block comments (/* ... */), and statement
+// separators (;) from query. SQLite skips these before parsing the first
+// keyword, so a security gate that does not strip them mismatches what the
+// driver actually executes.
+func stripLeadingSQLNoise(query string) string {
+	for {
+		query = strings.TrimLeft(query, " \t\r\n;")
+		switch {
+		case strings.HasPrefix(query, "--"):
+			if idx := strings.IndexByte(query, '\n'); idx >= 0 {
+				query = query[idx+1:]
+				continue
+			}
+			return ""
+		case strings.HasPrefix(query, "/*"):
+			if idx := strings.Index(query[2:], "*/"); idx >= 0 {
+				query = query[2+idx+2:]
+				continue
+			}
+			return ""
+		default:
+			return query
+		}
+	}
+}
+
+// hasTrailingSQLStatement reports whether query contains a statement
+// terminator followed by more executable SQL. A trailing semicolon is allowed;
+// a second statement is not. Semicolons inside string literals, quoted
+// identifiers, bracket identifiers, and comments are ignored to match SQLite's
+// parser shape closely enough for this security gate.
+func hasTrailingSQLStatement(query string) bool {
+	inSingle := false
+	inDouble := false
+	inBacktick := false
+	inBracket := false
+	inLineComment := false
+	inBlockComment := false
+
+	for i := 0; i < len(query); i++ {
+		ch := query[i]
+		next := byte(0)
+		if i+1 < len(query) {
+			next = query[i+1]
+		}
+
+		switch {
+		case inLineComment:
+			if ch == '\n' {
+				inLineComment = false
+			}
+			continue
+		case inBlockComment:
+			if ch == '*' && next == '/' {
+				inBlockComment = false
+				i++
+			}
+			continue
+		case inSingle:
+			if ch == '\'' {
+				if next == '\'' {
+					i++
+					continue
+				}
+				inSingle = false
+			}
+			continue
+		case inDouble:
+			if ch == '"' {
+				if next == '"' {
+					i++
+					continue
+				}
+				inDouble = false
+			}
+			continue
+		case inBacktick:
+			if ch == '`' {
+				if next == '`' {
+					i++
+					continue
+				}
+				inBacktick = false
+			}
+			continue
+		case inBracket:
+			if ch == ']' {
+				inBracket = false
+			}
+			continue
+		}
+
+		switch {
+		case ch == '-' && next == '-':
+			inLineComment = true
+			i++
+		case ch == '/' && next == '*':
+			inBlockComment = true
+			i++
+		case ch == '\'':
+			inSingle = true
+		case ch == '"':
+			inDouble = true
+		case ch == '`':
+			inBacktick = true
+		case ch == '[':
+			inBracket = true
+		case ch == ';':
+			if stripLeadingSQLNoise(query[i+1:]) != "" {
+				return true
+			}
+			return false
+		}
+	}
+	return false
 }
 
 func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-	query, ok := req.Params.Arguments["query"].(string)
+	args := req.GetArguments()
+	query, ok := args["query"].(string)
 	if !ok || query == "" {
 		return mcplib.NewToolResultError("query is required"), nil
 	}
 
-	// Block write operations
-	upper := strings.ToUpper(strings.TrimSpace(query))
-	for _, prefix := range []string{"INSERT", "UPDATE", "DELETE", "DROP", "ALTER", "CREATE"} {
-		if strings.HasPrefix(upper, prefix) {
-			return mcplib.NewToolResultError("only SELECT queries are allowed"), nil
-		}
+	if err := validateReadOnlyQuery(query); err != nil {
+		return mcplib.NewToolResultError(err.Error()), nil
 	}
 
-	db, err := store.Open(dbPath())
+	path, err := mcpDBPath()
 	if err != nil {
-		return mcplib.NewToolResultError(fmt.Sprintf("opening database: %v", err)), nil
+		return mcplib.NewToolResultError(fmt.Sprintf("resolving database: %v", err)), nil
+	}
+	db, toolErr := openMCPReadOnlyStore(path)
+	if toolErr != nil {
+		return toolErr, nil
 	}
 	defer db.Close()
 
-	rows, err := db.Query(query)
+	rows, err := db.DB().QueryContext(ctx, query)
 	if err != nil {
-		return mcplib.NewToolResultError(fmt.Sprintf("query failed: %v", err)), nil
+		return mcplib.NewToolResultError(mcpSQLQueryError(err)), nil
 	}
 	defer rows.Close()
 
-	cols, _ := rows.Columns()
+	cols, err := rows.Columns()
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("reading columns: %v", err)), nil
+	}
 	var results []map[string]any
 	for rows.Next() {
 		values := make([]any, len(cols))
@@ -775,39 +742,457 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 		for i := range values {
 			ptrs[i] = &values[i]
 		}
-		rows.Scan(ptrs...)
+		if err := rows.Scan(ptrs...); err != nil {
+			return mcplib.NewToolResultError(fmt.Sprintf("scanning row: %v", err)), nil
+		}
 		row := make(map[string]any)
 		for i, col := range cols {
 			row[col] = values[i]
 		}
 		results = append(results, row)
 	}
+	// rows.Next() stops on a mid-iteration error without failing the loop, so
+	// skipping rows.Err() would return a truncated result set as success.
+	if err := rows.Err(); err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("reading rows: %v", err)), nil
+	}
+	storeStatus, err := mcpStoreStatus(db)
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("reading store status: %v", err)), nil
+	}
 
-	data, _ := json.MarshalIndent(results, "", "  ")
-	return mcplib.NewToolResultText(string(data)), nil
+	return toolResultJSON(mcpSQLEnvelope(results, cols, storeStatus))
 }
 
-func handleAbout(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-	about := map[string]any{
-		"api":               "slack",
-		"description":       "Send messages, search conversations, manage channels and users in your Slack workspace",
-		"tool_count":        62,
-		"public_tool_count": 0,
+func mcpSQLEnvelope(rows []map[string]any, columns []string, storeStatus mcpStoreStatusKind) map[string]any {
+	if rows == nil {
+		rows = []map[string]any{}
+	}
+	out := map[string]any{
+		"count":        len(rows),
+		"columns":      columns,
+		"rows":         rows,
+		"store_status": storeStatus,
+		"resumable":    false,
+	}
+	if len(rows) == 0 {
+		if storeStatus == mcpStoreStatusEmpty {
+			out["next_step"] = mcpEmptyStoreNextStep()
+		} else {
+			out["next_step"] = "The read-only SQL query returned no rows. Check resource_type filters, json_extract paths, or run sync again if data may be stale."
+		}
+	}
+	return out
+}
+
+func mcpSQLQueryError(err error) string {
+	msg := err.Error()
+	if strings.Contains(strings.ToLower(msg), "no such table") {
+		return fmt.Sprintf("query failed: %v. Synced records live in resources(resource_type, id, data), not one SQL table per resource. Filter by resource_type, for example resource_type='api-test', and read JSON fields with json_extract(data,'$.field').", err)
+	}
+	return fmt.Sprintf("query failed: %v", err)
+}
+
+// toolResultJSON renders v as the indented JSON body of an MCP text result,
+// surfacing a marshal failure as a tool error instead of empty content.
+func toolResultJSON(v any) (*mcplib.CallToolResult, error) {
+	text, err := bound.JSON(v)
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("encoding result: %v", err)), nil
+	}
+	return mcplib.NewToolResultText(text), nil
+}
+
+func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+	paths := map[string]string{}
+	if dir, err := cliutil.ConfigDir(); err == nil {
+		paths["config_dir"] = dir
+	}
+	if dir, err := cliutil.DataDir(); err == nil {
+		paths["data_dir"] = dir
+	}
+	if dir, err := cliutil.StateDir(); err == nil {
+		paths["state_dir"] = dir
+	}
+	if dir, err := cliutil.CacheDir(); err == nil {
+		paths["cache_dir"] = dir
+	}
+	ctx := map[string]any{
+		"api":         "slack",
+		"description": "Every Slack read your token can make, mirrored to local SQLite so your history outlives Slack's own retention wall.",
+		"archetype":   "communication",
+		"tool_count":  91,
+		"paths":       paths,
+		// tool_surface tells agents which surface a capability lives on.
+		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion slack-pp-cli binary.",
+		// learn_protocol is generated from the single shared source of
+		// truth (the exported constant internal/learn.RecallFirstProtocol)
+		// also consumed by the CLI agent-context command, so the MCP and
+		// CLI agent surfaces cannot drift.
+		"learn_protocol": learn.RecallFirstProtocol,
 		"auth": map[string]any{
-			"type":     "bearer_token",
-			"env_vars": []string{"SLACK_BOT_TOKEN", "SLACK_USER_TOKEN"},
+			"type": "bearer_token",
+			"env_vars": []map[string]any{
+				{
+					"name":        "SLACK_BOT_TOKEN",
+					"kind":        "per_call",
+					"required":    true,
+					"sensitive":   true,
+					"description": "Set to your API credential.",
+				},
+				{
+					"name":        "SLACK_USER_TOKEN",
+					"kind":        "per_call",
+					"required":    true,
+					"sensitive":   true,
+					"description": "Set to your API credential.",
+				},
+			},
 		},
-		"unique_capabilities": []map[string]string{
-			{"name": "Channel Health Report", "command": "health", "description": "See which channels are thriving and which are dying with messages/day, response times, and active poster counts"},
-			{"name": "Response Time Analytics", "command": "response-times", "description": "Measure how fast your team responds to messages and threads in any channel"},
-			{"name": "Offline Digest", "command": "digest", "description": "Get a daily or weekly summary of activity, mentions, and action items across all channels"},
-			{"name": "Stale Thread Radar", "command": "threads stale", "description": "Find unanswered threads that need attention before they go cold"},
-			{"name": "Interaction Network", "command": "network", "description": "See who talks to whom and how information flows through your team"},
-			{"name": "Channel Activity Trends", "command": "trends", "description": "Track channel activity over time to spot patterns and shifts"},
-			{"name": "Quiet Channel Detector", "command": "channels quiet", "description": "Find channels with no recent activity that may be candidates for archiving"},
-			{"name": "User Activity Summary", "command": "users activity", "description": "See where a team member is active across channels, threads, and reactions"},
+		"resources": []map[string]any{
+			{
+				"name":        "api-test",
+				"description": "Manage api test",
+				"endpoints":   []string{"test"},
+				"searchable":  true,
+			},
+			{
+				"name":        "auth_api",
+				"description": "Test and manage authentication",
+				"endpoints":   []string{"revoke", "test"},
+				"writable":    true,
+			},
+			{
+				"name":        "bots",
+				"description": "Get information about bot users",
+				"endpoints":   []string{"get"},
+				"searchable":  true,
+			},
+			{
+				"name":        "chat-delete-scheduled-message",
+				"description": "Manage chat delete scheduled message",
+				"endpoints":   []string{"chat_delete_scheduled_message"},
+				"searchable":  true,
+				"writable":    true,
+			},
+			{
+				"name":        "chat-me-message",
+				"description": "Manage chat me message",
+				"endpoints":   []string{"chat_me_message"},
+				"searchable":  true,
+				"writable":    true,
+			},
+			{
+				"name":        "chat-post-ephemeral",
+				"description": "Manage chat post ephemeral",
+				"endpoints":   []string{"chat_post_ephemeral"},
+				"searchable":  true,
+				"writable":    true,
+			},
+			{
+				"name":        "chat-unfurl",
+				"description": "Manage chat unfurl",
+				"endpoints":   []string{"chat_unfurl"},
+				"searchable":  true,
+				"writable":    true,
+			},
+			{
+				"name":        "conversations",
+				"description": "Read channel history, list channels, manage channel membership",
+				"endpoints":   []string{"archive", "create", "get", "history", "invite", "list", "mark", "members", "replies", "set_purpose", "set_topic", "unarchive"},
+				"syncable":    true,
+				"searchable":  true,
+				"writable":    true,
+			},
+			{
+				"name":        "conversations-close",
+				"description": "Manage conversations close",
+				"endpoints":   []string{"conversations_close"},
+				"searchable":  true,
+				"writable":    true,
+			},
+			{
+				"name":        "conversations-join",
+				"description": "Manage conversations join",
+				"endpoints":   []string{"conversations_join"},
+				"searchable":  true,
+				"writable":    true,
+			},
+			{
+				"name":        "conversations-kick",
+				"description": "Manage conversations kick",
+				"endpoints":   []string{"conversations_kick"},
+				"searchable":  true,
+				"writable":    true,
+			},
+			{
+				"name":        "conversations-leave",
+				"description": "Manage conversations leave",
+				"endpoints":   []string{"conversations_leave"},
+				"searchable":  true,
+				"writable":    true,
+			},
+			{
+				"name":        "conversations-open",
+				"description": "Manage conversations open",
+				"endpoints":   []string{"conversations_open"},
+				"searchable":  true,
+				"writable":    true,
+			},
+			{
+				"name":        "conversations-rename",
+				"description": "Manage conversations rename",
+				"endpoints":   []string{"conversations_rename"},
+				"searchable":  true,
+				"writable":    true,
+			},
+			{
+				"name":        "dnd",
+				"description": "Manage Do Not Disturb settings",
+				"endpoints":   []string{"end_dnd", "end_snooze", "get", "set_snooze", "team_info"},
+				"searchable":  true,
+				"writable":    true,
+			},
+			{
+				"name":        "emoji",
+				"description": "List custom emoji in the workspace",
+				"endpoints":   []string{"list"},
+				"syncable":    true,
+			},
+			{
+				"name":        "files",
+				"description": "Upload, list, and manage files",
+				"endpoints":   []string{"delete", "get", "list", "upload"},
+				"syncable":    true,
+				"searchable":  true,
+				"writable":    true,
+			},
+			{
+				"name":        "files-comments-delete",
+				"description": "Manage files comments delete",
+				"endpoints":   []string{"files_comments_delete"},
+				"searchable":  true,
+				"writable":    true,
+			},
+			{
+				"name":        "files-remote-add",
+				"description": "Manage files remote add",
+				"endpoints":   []string{"files_remote_add"},
+				"searchable":  true,
+				"writable":    true,
+			},
+			{
+				"name":        "files-remote-info",
+				"description": "Manage files remote info",
+				"endpoints":   []string{"files_remote_info"},
+				"searchable":  true,
+			},
+			{
+				"name":        "files-remote-list",
+				"description": "Manage files remote list",
+				"endpoints":   []string{"files_remote_list"},
+				"syncable":    true,
+				"searchable":  true,
+			},
+			{
+				"name":        "files-remote-remove",
+				"description": "Manage files remote remove",
+				"endpoints":   []string{"files_remote_remove"},
+				"searchable":  true,
+				"writable":    true,
+			},
+			{
+				"name":        "files-remote-share",
+				"description": "Manage files remote share",
+				"endpoints":   []string{"files_remote_share"},
+				"searchable":  true,
+			},
+			{
+				"name":        "files-remote-update",
+				"description": "Manage files remote update",
+				"endpoints":   []string{"files_remote_update"},
+				"searchable":  true,
+				"writable":    true,
+			},
+			{
+				"name":        "files-revoke-public-url",
+				"description": "Manage files revoke public url",
+				"endpoints":   []string{"files_revoke_public_url"},
+				"searchable":  true,
+				"writable":    true,
+			},
+			{
+				"name":        "files-shared-public-url",
+				"description": "Manage files shared public url",
+				"endpoints":   []string{"files_shared_public_url"},
+				"searchable":  true,
+				"writable":    true,
+			},
+			{
+				"name":        "messages",
+				"description": "Send, read, update, and delete messages in channels and DMs",
+				"endpoints":   []string{"delete_message", "get_permalink", "list_scheduled", "post_message", "schedule_message", "update_message"},
+				"searchable":  true,
+				"writable":    true,
+			},
+			{
+				"name":        "pins",
+				"description": "Pin and unpin messages in channels",
+				"endpoints":   []string{"add", "list", "remove"},
+				"syncable":    true,
+				"searchable":  true,
+				"writable":    true,
+			},
+			{
+				"name":        "reactions",
+				"description": "Add and remove emoji reactions on messages",
+				"endpoints":   []string{"add", "get", "list", "remove"},
+				"syncable":    true,
+				"searchable":  true,
+				"writable":    true,
+			},
+			{
+				"name":        "reminders",
+				"description": "Create and manage personal reminders",
+				"endpoints":   []string{"add", "complete", "delete", "get", "list"},
+				"syncable":    true,
+				"searchable":  true,
+				"writable":    true,
+			},
+			{
+				"name":        "search_api",
+				"description": "Search messages and files across the workspace",
+				"endpoints":   []string{"messages"},
+				"searchable":  true,
+			},
+			{
+				"name":        "stars",
+				"description": "Star and unstar messages and files",
+				"endpoints":   []string{"add", "list", "remove"},
+				"syncable":    true,
+				"searchable":  true,
+				"writable":    true,
+			},
+			{
+				"name":        "team",
+				"description": "Get workspace information",
+				"endpoints":   []string{"access_logs", "billable_info", "get"},
+				"searchable":  true,
+			},
+			{
+				"name":        "team-integration-logs",
+				"description": "Manage team integration logs",
+				"endpoints":   []string{"team_integration_logs"},
+				"syncable":    true,
+				"searchable":  true,
+			},
+			{
+				"name":        "team-profile-get",
+				"description": "Manage team profile get",
+				"endpoints":   []string{"team_profile_get"},
+				"searchable":  true,
+			},
+			{
+				"name":        "usergroups",
+				"description": "Manage workspace user groups",
+				"endpoints":   []string{"create", "list", "update", "users_list", "users_update"},
+				"syncable":    true,
+				"searchable":  true,
+				"writable":    true,
+			},
+			{
+				"name":        "usergroups-disable",
+				"description": "Manage usergroups disable",
+				"endpoints":   []string{"usergroups_disable"},
+				"searchable":  true,
+				"writable":    true,
+			},
+			{
+				"name":        "usergroups-enable",
+				"description": "Manage usergroups enable",
+				"endpoints":   []string{"usergroups_enable"},
+				"searchable":  true,
+				"writable":    true,
+			},
+			{
+				"name":        "users",
+				"description": "List and look up workspace users",
+				"endpoints":   []string{"get", "get_presence", "list", "lookup_by_email", "profile_get", "profile_set", "set_presence"},
+				"syncable":    true,
+				"searchable":  true,
+				"writable":    true,
+			},
+			{
+				"name":        "users-conversations",
+				"description": "Manage users conversations",
+				"endpoints":   []string{"users_conversations"},
+				"syncable":    true,
+				"searchable":  true,
+			},
+			{
+				"name":        "users-delete-photo",
+				"description": "Manage users delete photo",
+				"endpoints":   []string{"users_delete_photo"},
+				"searchable":  true,
+				"writable":    true,
+			},
+			{
+				"name":        "users-identity",
+				"description": "Manage users identity",
+				"endpoints":   []string{"users_identity"},
+				"syncable":    true,
+				"searchable":  true,
+			},
+			{
+				"name":        "users-set-active",
+				"description": "Manage users set active",
+				"endpoints":   []string{"users_set_active"},
+				"writable":    true,
+			},
+			{
+				"name":        "users-set-photo",
+				"description": "Manage users set photo",
+				"endpoints":   []string{"users_set_photo"},
+				"searchable":  true,
+				"writable":    true,
+			},
+		},
+		"query_tips": []string{
+			"Pagination uses cursor-based paging. Pass cursor parameter for subsequent pages.",
+			"Control page size with the limit parameter (default 100).",
+			"Use the sql tool for ad-hoc analysis on synced data. Run sync first to populate the local database.",
+			"Use the search tool for full-text search across all synced resources. Faster than iterating list endpoints.",
+			"Prefer sql/search over repeated API calls when the data is already synced.",
+		},
+		// Command-mirror capabilities are exposed through MCP by shelling out
+		// to the companion CLI binary.
+		"command_mirror_capabilities": []map[string]string{
+			{"name": "Archive Recall", "command": "archive recall", "description": "Find messages in your local archive, including ones Slack has already hidden behind the 90-day retention wall.", "rationale": "Requires a local FTS5 index over synced messages joined to users and channels for name resolution and thread context; no API call returns messages Slack no longer serves.", "via": "mcp-command-mirror"},
+			{"name": "Archive Coverage", "command": "archive coverage", "description": "Show what date range your local mirror actually holds per channel, and where the gaps are.", "rationale": "Requires aggregating per-channel timestamp ranges across the local store and diffing consecutive synced windows; the API has no concept of what you have already mirrored.", "via": "mcp-command-mirror"},
+			{"name": "Catch-up", "command": "catchup", "description": "See what happened while you were away: new volume per channel, messages that mention you, and threads still waiting on your reply.", "rationale": "Requires one local pass joining messages, conversations, users, and usergroup membership to compute obligation rather than unread volume, which Slack's own badge cannot express.", "via": "mcp-command-mirror"},
+			{"name": "Stale Thread Radar", "command": "threads stale", "description": "List threads across the archive where the last reply is not yours and nobody has answered since.", "rationale": "Requires grouping local messages by thread_ts and ranking by age since the latest reply; thread reply-ownership is a Slack-specific structure with no equivalent endpoint.", "via": "mcp-command-mirror"},
+			{"name": "Channel Health", "command": "health", "description": "Compare your channels by messages per day, distinct posters, median first-reply latency, and days idle.", "rationale": "Requires a per-channel aggregate over the local store joined to users; comparing channels through the API alone means one paginated call per channel with no shared basis.", "via": "mcp-command-mirror"},
+			{"name": "User Activity", "command": "users activity", "description": "Profile where one person posts, which threads they carry, and when they were last seen.", "rationale": "Requires a cross-channel rollup over local messages and reactions per user, which no single endpoint assembles.", "via": "mcp-command-mirror"},
+			{"name": "Identity Card", "command": "users whois", "description": "Turn an opaque Slack ID, handle, or email into one card with shared channels, timezone, DND state, and last-seen.", "rationale": "Requires resolving any identifier form against the local users table then joining messages for shared channels and recency, collapsing what is otherwise a per-ID lookup loop.", "via": "mcp-command-mirror"},
+		},
+		"playbook": []map[string]string{
+			{"topic": "Archive Recall", "insight": "Requires a local FTS5 index over synced messages joined to users and channels for name resolution and thread context; no API call returns messages Slack no longer serves."},
+			{"topic": "Archive Coverage", "insight": "Requires aggregating per-channel timestamp ranges across the local store and diffing consecutive synced windows; the API has no concept of what you have already mirrored."},
+			{"topic": "Catch-up", "insight": "Requires one local pass joining messages, conversations, users, and usergroup membership to compute obligation rather than unread volume, which Slack's own badge cannot express."},
+			{"topic": "Stale Thread Radar", "insight": "Requires grouping local messages by thread_ts and ranking by age since the latest reply; thread reply-ownership is a Slack-specific structure with no equivalent endpoint."},
+			{"topic": "Channel Health", "insight": "Requires a per-channel aggregate over the local store joined to users; comparing channels through the API alone means one paginated call per channel with no shared basis."},
+			{"topic": "User Activity", "insight": "Requires a cross-channel rollup over local messages and reactions per user, which no single endpoint assembles."},
+			{"topic": "Identity Card", "insight": "Requires resolving any identifier form against the local users table then joining messages for shared channels and recency, collapsing what is otherwise a per-ID lookup loop."},
+			{"topic": "Message search", "insight": "Use the search tool on synced data rather than paginating through message history. Message APIs often have aggressive rate limits."},
+			{"topic": "Channel health", "insight": "When analyzing channel activity, use the channel-health command or sql aggregation on synced messages. Don't iterate individual messages via API."},
 		},
 	}
-	data, _ := json.MarshalIndent(about, "", "  ")
-	return mcplib.NewToolResultText(string(data)), nil
+	return toolResultJSON(ctx)
+}
+
+// RegisterNovelFeatureTools is kept as a compatibility no-op for older MCP
+// mains. New generated mains call RegisterTools only; RegisterTools now
+// includes the runtime Cobra-tree mirror.
+func RegisterNovelFeatureTools(s *server.MCPServer) {
+	_ = s
 }

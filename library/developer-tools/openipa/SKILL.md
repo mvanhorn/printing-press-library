@@ -139,6 +139,8 @@ These capabilities aren't available in any other tool for this API.
 
 - `openipa-pp-cli enti cerca` — Cerca enti per nome o descrizione
 - `openipa-pp-cli enti get` — Dati anagrafici completi di un ente per codice IPA
+- `openipa-pp-cli enti istat` — Abbina codice IPA ↔ ISTAT tramite dataset CKAN (`--codice <IPA>` o `--istat <ISTAT>`)
+- `openipa-pp-cli enti categorie` — Lista live delle categorie IPA con codici (filtrabile con `--cerca <testo>`)
 
 **fatturazione** — Servizi di fatturazione elettronica (SFE) — ricerca uffici destinatari
 

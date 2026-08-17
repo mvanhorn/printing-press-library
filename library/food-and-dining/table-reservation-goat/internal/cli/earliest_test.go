@@ -8,6 +8,8 @@ import (
 	"encoding/json"
 	"strings"
 	"testing"
+
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/source/opentable"
 )
 
 // runEarliest drives the earliest cobra command through a string-args
@@ -238,6 +240,51 @@ func TestResolveEarliestForVenue_BareNumericIsAmbiguous(t *testing.T) {
 	if strings.Contains(row.Reason, "Tock venues are addressed") {
 		t.Errorf("bare numeric should not trigger the Tock-numeric category error; got %q", row.Reason)
 	}
+}
+
+func TestOpenTableNoAvailabilityReason_DistinguishesMissingDataFromFullness(t *testing.T) {
+	t.Run("no matching availability chunks", func(t *testing.T) {
+		reason := openTableNoAvailabilityReason("restaurant #1080775", 1080775, 3, 2, 0, "")
+		if !strings.Contains(reason, "response contained no availability data for restaurant 1080775") {
+			t.Fatalf("reason = %q; want missing restaurant data diagnostic", reason)
+		}
+		if strings.Contains(reason, "no open slots") {
+			t.Fatalf("reason = %q; missing data must not be reported as genuine fullness", reason)
+		}
+	})
+
+	t.Run("matching chunks with no bookable slots", func(t *testing.T) {
+		reason := openTableNoAvailabilityReason("Perry's", 1080775, 3, 2, 1, "")
+		if !strings.Contains(reason, "no open slots in 3-day window for party=2") {
+			t.Fatalf("reason = %q; want genuine fullness diagnostic", reason)
+		}
+		if !strings.Contains(reason, "slots present but none available/matching") {
+			t.Fatalf("reason = %q; want matching-data distinction", reason)
+		}
+		if strings.Contains(reason, "response contained no availability data") {
+			t.Fatalf("reason = %q; matched chunks must not use missing-data diagnostic", reason)
+		}
+	})
+}
+
+func TestCountInformativeAvailabilityChunks_IgnoresEmptyDayWrappers(t *testing.T) {
+	avail := []opentable.RestaurantAvailability{
+		{RestaurantID: 1080775},                                   // matching, no day data
+		{RestaurantID: 999, AvailabilityDays: dayFixtures(1)},     // day data, wrong restaurant
+		{RestaurantID: 1080775, AvailabilityDays: dayFixtures(0)}, // matching, empty days slice
+		{RestaurantID: 1080775, AvailabilityDays: dayFixtures(2)}, // informative
+	}
+	if got := countInformativeAvailabilityChunks(avail, 1080775); got != 1 {
+		t.Fatalf("countInformativeAvailabilityChunks = %d; want 1 (empty-day wrappers carry no slot data)", got)
+	}
+	if got := countInformativeAvailabilityChunks(avail[:3], 1080775); got != 0 {
+		t.Fatalf("countInformativeAvailabilityChunks = %d; want 0 when every matching wrapper is day-free", got)
+	}
+}
+
+func dayFixtures(n int) []opentable.AvailabilityDay {
+	days := make([]opentable.AvailabilityDay, n)
+	return days
 }
 
 // TestSummarizeEarliest covers issue #406 failure 4: zero-resolution

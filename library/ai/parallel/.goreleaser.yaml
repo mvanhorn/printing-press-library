@@ -1,0 +1,51 @@
+version: 2
+project_name: parallel-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: parallel-pp-cli
+    main: ./cmd/parallel-pp-cli
+    binary: parallel-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/ai/parallel/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: parallel-pp-mcp
+    main: ./cmd/parallel-pp-mcp
+    binary: parallel-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: parallel-pp-cli
+    repository:
+      owner: somsamantray
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Agent-native Parallel web research with a local SQLite memory no other Parallel CLI keeps."
+    install: |
+      bin.install "parallel-pp-cli"
+      bin.install "parallel-pp-mcp"

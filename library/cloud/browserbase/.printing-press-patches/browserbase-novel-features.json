@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "browserbase-novel-features",
+  "applied_at": "2026-08-13",
+  "base_run_id": "20260813-205859-c0b56b36",
+  "base_printing_press_version": "4.30.2",
+  "summary": "Seven hand-written transcendence commands: sessions orphans/run, fetch batch, projects digest, agents runs diff, usage trend, web history.",
+  "reason": "Novel features approved in the absorb manifest require hand-written Go beyond generator output.",
+  "files": [
+    "internal/cli/sessions_orphans.go",
+    "internal/cli/sessions_run.go",
+    "internal/cli/fetch_batch.go",
+    "internal/cli/projects_digest.go",
+    "internal/cli/agents_runs_diff.go",
+    "internal/cli/usage_trend.go",
+    "internal/cli/web_history.go"
+  ],
+  "validated_outcome": "shipcheck 7/7 PASS; live dogfood 242/242 PASS"
+}

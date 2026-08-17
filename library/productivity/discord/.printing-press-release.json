@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "discord",
+  "cli_name": "discord-pp-cli",
+  "version": "2026.8.1",
+  "released_at": "2026-08-13T05:15:04Z",
+  "source_commit": "4df503c2ccf26c9413111e99d5f78695fa616334",
+  "printing_press_version": "4.30.1",
+  "run_id": "20260810-204427",
+  "changes": [
+    {
+      "title": "feat(discord): add discord",
+      "pr": 1687,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1687",
+      "commit": "4df503c2ccf26c9413111e99d5f78695fa616334"
+    }
+  ]
+}

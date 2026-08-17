@@ -1,0 +1,98 @@
+{
+  "endpoint": "GET /v1/projects/attachments/collaborator/{collaborator_id}/xr/fav_board",
+  "method": "GET",
+  "raw_url": "https://www.peerspace.com/v1/projects/attachments/collaborator/66915212d22cc89e3402c745/xr/fav_board?limit=500",
+  "status": 200,
+  "request_headers": {
+    ":authority": "www.peerspace.com",
+    ":method": "GET",
+    ":path": "/v1/projects/attachments/collaborator/66915212d22cc89e3402c745/xr/fav_board?limit=500",
+    ":scheme": "https",
+    "accept": "application/json",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9,fr-FR;q=0.8,fr;q=0.7,ko;q=0.6,es;q=0.5",
+    "baggage": "REDACTED",
+    "cache-control": "no-cache, must-revalidate",
+    "pragma": "no-cache",
+    "priority": "u=1, i",
+    "referer": "https://www.peerspace.com/fr/s/?bbox_of_interest=[48.9021476,2.2242171,48.8155622,2.4698511]&price_hourly_min=100&price_hourly_max=250&map_pref=false&p=1&location=paris--france&a=meetup",
+    "sec-ch-ua": "\"Not;A=Brand\";v=\"8\", \"Chromium\";v=\"150\", \"Google Chrome\";v=\"150\"",
+    "sec-ch-ua-mobile": "?1",
+    "sec-ch-ua-platform": "\"Android\"",
+    "sec-fetch-dest": "empty",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-site": "same-origin",
+    "traceparent": "REDACTED",
+    "tracestate": "REDACTED",
+    "user-agent": "Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36",
+    "x-datadog-origin": "rum",
+    "x-datadog-parent-id": "3828169130236231185",
+    "x-datadog-sampling-priority": "1",
+    "x-datadog-trace-id": "9583977315511034431"
+  },
+  "request_body": null,
+  "response_headers": {
+    "cf-cache-status": "DYNAMIC",
+    "cf-ray": "a1c043fcaa5c99b5-CDG",
+    "content-encoding": "gzip",
+    "content-type": "application/json; charset=utf-8",
+    "date": "Thu, 16 Jul 2026 10:18:55 GMT",
+    "server": "cloudflare",
+    "vary": "Accept-Encoding",
+    "via": "1.1 google"
+  },
+  "response_body": {
+    "attachments": [
+      {
+        "_id": "66915299907f5b4afc8c8d8d",
+        "created": "2024-07-12T15:58:17.437Z",
+        "created_by_sso_id": "66915212d22cc89e3402c745",
+        "notification_sent": false,
+        "ns": "FAV_BOARD",
+        "project_id": "669152994300a86e4a943da5",
+        "value": "666a83cb643da4d3aeeb0ba3"
+      },
+      {
+        "_id": "669152b7907f5b4afc8dba1c",
+        "created": "2024-07-12T15:58:47.731Z",
+        "created_by_sso_id": "66915212d22cc89e3402c745",
+        "notification_sent": false,
+        "ns": "FAV_BOARD",
+        "project_id": "669152994300a86e4a943da5",
+        "value": "63beda39fde211000ea6533b"
+      },
+      {
+        "_id": "669152f2907f5b4afc8f7aec",
+        "created": "2024-07-12T15:59:46.857Z",
+        "created_by_sso_id": "66915212d22cc89e3402c745",
+        "notification_sent": false,
+        "ns": "FAV_BOARD",
+        "project_id": "669152994300a86e4a943da5",
+        "value": "6571fb7031c77e000e82c159"
+      },
+      {
+        "_id": "66915304907f5b4afc8fe6db",
+        "created": "2024-07-12T16:00:04.600Z",
+        "created_by_sso_id": "66915212d22cc89e3402c745",
+        "notification_sent": false,
+        "ns": "FAV_BOARD",
+        "project_id": "669152994300a86e4a943da5",
+        "value": "63060858467965000e63ff18"
+      },
+      {
+        "_id": "6691533a907f5b4afc91d67a",
+        "created": "2024-07-12T16:00:58.080Z",
+        "created_by_sso_id": "66915212d22cc89e3402c745",
+        "notification_sent": false,
+        "ns": "FAV_BOARD",
+        "project_id": "669152994300a86e4a943da5",
+        "value": "666ad2e06e7d8f2818cbf445"
+      }
+    ],
+    "limit": 500,
+    "matched": 5,
+    "returned": 5,
+    "skip": 0
+  },
+  "response_body_known": true
+}

@@ -23,6 +23,8 @@ func newEventsCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newEventsByClassificationCmd(flags))
 	cmd.AddCommand(newEventsDedupCmd(flags))
 	cmd.AddCommand(newEventsOnSaleSoonCmd(flags))
+	cmd.AddCommand(newEventsPresalesCmd(flags))
+	cmd.AddCommand(newEventsCheckoutCmd(flags))
 	cmd.AddCommand(newEventsPriceBandsCmd(flags))
 	cmd.AddCommand(newEventsResidencyCmd(flags))
 	cmd.AddCommand(newEventsTourCmd(flags))

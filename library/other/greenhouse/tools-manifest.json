@@ -1,0 +1,108 @@
+{
+  "api_name": "greenhouse",
+  "base_url": "https://boards-api.greenhouse.io/v1/boards",
+  "description": "Public Greenhouse Job Board API (https://developers.greenhouse.io/job-board.html).",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "departments_list",
+      "description": "List departments for a company (each department contains its open jobs). Required: board_token. Optional: render_as (default: list). Returns array of Department.",
+      "method": "GET",
+      "path": "/{board_token}/departments",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "board_token",
+          "type": "string",
+          "location": "path",
+          "description": "Board token",
+          "required": true
+        },
+        {
+          "name": "render_as",
+          "type": "string",
+          "location": "query",
+          "description": "Render as"
+        }
+      ]
+    },
+    {
+      "name": "jobs_get",
+      "description": "Retrieve a single job posting. Required: board_token, job_id. Optional: questions (default: false). Returns the JobDetail.",
+      "method": "GET",
+      "path": "/{board_token}/jobs/{job_id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "board_token",
+          "type": "string",
+          "location": "path",
+          "description": "Board token",
+          "required": true
+        },
+        {
+          "name": "job_id",
+          "type": "int",
+          "location": "path",
+          "description": "Greenhouse job id (from the `id` field in the list endpoint)",
+          "required": true
+        },
+        {
+          "name": "questions",
+          "type": "bool",
+          "location": "query",
+          "description": "Include application questions, location questions, compliance, and demographic questions"
+        }
+      ]
+    },
+    {
+      "name": "jobs_list",
+      "description": "List all open jobs for a company. Required: board_token. Optional: content (default: false). Returns array of Job.",
+      "method": "GET",
+      "path": "/{board_token}/jobs",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "board_token",
+          "type": "string",
+          "location": "path",
+          "description": "Company identifier (the Greenhouse board token)",
+          "required": true
+        },
+        {
+          "name": "content",
+          "type": "bool",
+          "location": "query",
+          "description": "Set true to include full description, departments, and offices for each job"
+        }
+      ]
+    },
+    {
+      "name": "offices_list",
+      "description": "List offices for a company (each office contains its departments and their jobs). Required: board_token. Optional: render_as (default: list). Returns array of Office.",
+      "method": "GET",
+      "path": "/{board_token}/offices",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "board_token",
+          "type": "string",
+          "location": "path",
+          "description": "Board token",
+          "required": true
+        },
+        {
+          "name": "render_as",
+          "type": "string",
+          "location": "query",
+          "description": "Render as"
+        }
+      ]
+    }
+  ]
+}

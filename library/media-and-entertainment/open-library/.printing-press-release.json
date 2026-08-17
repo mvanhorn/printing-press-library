@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "open-library",
+  "cli_name": "open-library-pp-cli",
+  "version": "2026.8.1",
+  "released_at": "2026-08-10T03:17:21Z",
+  "source_commit": "4fb63c617293168afb5711c7e73e267562ca6ed7",
+  "printing_press_version": "4.26.0",
+  "run_id": "20260626-061033",
+  "changes": [
+    {
+      "title": "feat(open-library): add open-library",
+      "pr": 1369,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1369",
+      "commit": "4fb63c617293168afb5711c7e73e267562ca6ed7"
+    }
+  ]
+}

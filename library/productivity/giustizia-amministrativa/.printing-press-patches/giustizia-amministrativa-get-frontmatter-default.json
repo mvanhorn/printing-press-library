@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "giustizia-amministrativa-get-frontmatter-default",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260621-094103",
+  "base_printing_press_version": "4.24.0",
+  "summary": "--front-matter su get e provvedimenti get passa da default false a default true (opt-out con --front-matter=false). L'output md/text include quindi sempre il blocco YAML con l'url pubblico della sentenza, non solo su richiesta esplicita.",
+  "reason": "get --format md (il default) restituiva solo il corpo del testo, senza traccia dell'url della fonte. Per un provvedimento molto lungo, o per un utente che salva/incolla solo il testo, l'url verita' andava perso e non c'era modo di risalire alla fonte. --front-matter esisteva gia' come opt-in ma un agente MCP che non sa di doverlo chiedere non lo ottiene mai. provvedimenti_get (il tool MCP tipizzato, sistemato nello stesso giro da giustizia-amministrativa-mcp-typed-via-cli) usa gia' sempre --json che include url a prescindere da questo flag; questo patch copre l'altro percorso, il testo md/text in chiaro.",
+  "files": [
+    "internal/cli/get.go",
+    "internal/cli/provvedimenti_get.go"
+  ],
+  "validated_outcome": "go build/vet/test verdi. get --format md senza flag ora antepone il blocco YAML con url; get --front-matter=false torna al solo corpo del testo com'era prima."
+}

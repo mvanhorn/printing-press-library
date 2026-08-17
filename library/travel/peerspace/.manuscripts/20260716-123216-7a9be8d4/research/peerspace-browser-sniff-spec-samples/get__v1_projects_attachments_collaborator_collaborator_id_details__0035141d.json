@@ -1,0 +1,133 @@
+{
+  "endpoint": "GET /v1/projects/attachments/collaborator/{collaborator_id}/details",
+  "method": "GET",
+  "raw_url": "https://www.peerspace.com/v1/projects/attachments/collaborator/66915212d22cc89e3402c745/details?limit=500&ns_count=FAV_BOARD",
+  "status": 200,
+  "request_headers": {
+    ":authority": "www.peerspace.com",
+    ":method": "GET",
+    ":path": "/v1/projects/attachments/collaborator/66915212d22cc89e3402c745/details?limit=500&ns_count=FAV_BOARD",
+    ":scheme": "https",
+    "accept": "application/json",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9,fr-FR;q=0.8,fr;q=0.7,ko;q=0.6,es;q=0.5",
+    "baggage": "REDACTED",
+    "cache-control": "no-cache, must-revalidate",
+    "pragma": "no-cache",
+    "priority": "u=1, i",
+    "referer": "https://www.peerspace.com/fr/s/?bbox_of_interest=[48.9021476,2.2242171,48.8155622,2.4698511]&price_hourly_min=100&price_hourly_max=250&map_pref=false&p=1&location=paris--france&a=meetup",
+    "sec-ch-ua": "\"Not;A=Brand\";v=\"8\", \"Chromium\";v=\"150\", \"Google Chrome\";v=\"150\"",
+    "sec-ch-ua-mobile": "?1",
+    "sec-ch-ua-platform": "\"Android\"",
+    "sec-fetch-dest": "empty",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-site": "same-origin",
+    "traceparent": "REDACTED",
+    "tracestate": "REDACTED",
+    "user-agent": "Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36",
+    "x-datadog-origin": "rum",
+    "x-datadog-parent-id": "5512291194006703546",
+    "x-datadog-sampling-priority": "1",
+    "x-datadog-trace-id": "11848965523758454240"
+  },
+  "request_body": null,
+  "response_headers": {
+    "cf-cache-status": "DYNAMIC",
+    "cf-ray": "a1c043e1ca5499b5-CDG",
+    "content-encoding": "gzip",
+    "content-type": "application/json; charset=utf-8",
+    "date": "Thu, 16 Jul 2026 10:18:50 GMT",
+    "server": "cloudflare",
+    "vary": "Accept-Encoding",
+    "via": "1.1 google"
+  },
+  "response_body": {
+    "limit": 500,
+    "matched": 1,
+    "projects": [
+      {
+        "_id": "669152994300a86e4a943da5",
+        "activity": "Événement professionnel",
+        "canonical_loc_data": {
+          "administrative_area_level_1": {
+            "long_name": "Île-de-France",
+            "short_name": "IDF",
+            "types": [
+              "administrative_area_level_1",
+              "political"
+            ]
+          },
+          "administrative_area_level_2": {
+            "long_name": "Département de Paris",
+            "short_name": "Département de Paris",
+            "types": [
+              "administrative_area_level_2",
+              "political"
+            ]
+          },
+          "country": {
+            "long_name": "France",
+            "short_name": "FR",
+            "types": [
+              "country",
+              "political"
+            ]
+          },
+          "formatted_address": "31 Rue de Rivoli, 75004 Paris, France",
+          "locality": {
+            "long_name": "Paris",
+            "short_name": "Paris",
+            "types": [
+              "locality",
+              "political"
+            ]
+          },
+          "postal_code": {
+            "long_name": "75004",
+            "short_name": "75004",
+            "types": [
+              "postal_code"
+            ]
+          },
+          "route": {
+            "long_name": "Rue de Rivoli",
+            "short_name": "Rue de Rivoli",
+            "types": [
+              "route"
+            ]
+          },
+          "street_number": {
+            "long_name": "31",
+            "short_name": "31",
+            "types": [
+              "street_number"
+            ]
+          },
+          "timezone": {
+            "id": "Europe/Paris",
+            "name": "Unknown Timezone Name",
+            "offset": 2,
+            "offset_ms": 7200000
+          }
+        },
+        "count": 5,
+        "cover_img_id": "iuflw6wazulyqsgpmasi",
+        "created": "2024-07-12T15:58:17.212Z",
+        "created_by_sso_id": "66915212d22cc89e3402c745",
+        "do_not_notify": false,
+        "external_id": "prj-L3wQLqw8vnoWx",
+        "keyword": "",
+        "location": "Paris, ",
+        "modified": "2024-07-12T16:00:58.084Z",
+        "name": "100+ pax (<200$)",
+        "obj_state": "ACTIVE",
+        "schedule": [],
+        "seo_index": false,
+        "type": "STANDARD"
+      }
+    ],
+    "returned": 1,
+    "skip": 0
+  },
+  "response_body_known": true
+}

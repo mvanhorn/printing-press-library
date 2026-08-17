@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "raindrop",
+  "cli_name": "raindrop-pp-cli",
+  "version": "2026.8.1",
+  "released_at": "2026-08-17T05:31:07Z",
+  "source_commit": "12ebdd5a0c0ae4c0dceb554ccff47300d2703c8c",
+  "printing_press_version": "4.30.2",
+  "run_id": "20260814-120132",
+  "changes": [
+    {
+      "title": "feat(raindrop): add raindrop",
+      "pr": 1717,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1717",
+      "commit": "12ebdd5a0c0ae4c0dceb554ccff47300d2703c8c"
+    }
+  ]
+}

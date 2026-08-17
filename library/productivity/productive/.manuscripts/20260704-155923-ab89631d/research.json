@@ -1,0 +1,242 @@
+{
+  "api_name": "productive",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "berwickgeek/productive-mcp",
+      "url": "https://github.com/berwickgeek/productive-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "druellan/Productive-Simple-MCP",
+      "url": "https://github.com/druellan/Productive-Simple-MCP",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "BenEdgeContra/productive-client",
+      "url": "https://github.com/BenEdgeContra/productive-client",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-04T15:59:50Z",
+  "novel_features": [
+    {
+      "name": "Recognized revenue by budget × month",
+      "command": "recognized-revenue",
+      "description": "Pull recognized (earned) revenue grouped by budget and month across a date range in one call.",
+      "rationale": "Wraps the /reports/financial_item_reports report with budget×month grouping, date-range filtering, and report-rate-limit throttling — no wrapper or MCP models this report.",
+      "example": "productive-pp-cli recognized-revenue --from 2026-01-01 --to 2026-06-30 --json",
+      "why_it_matters": "Reach for this when you need earned revenue per budget per month for revenue recognition — it replaces a chain of manual report calls.",
+      "group": "Revenue recognition"
+    },
+    {
+      "name": "Invoiced by budget × month",
+      "command": "invoiced",
+      "description": "Net finalized invoiced amount attributed per budget per month, drafts reported separately.",
+      "rationale": "Same report with financial_item_type=invoice_attribution and the total_invoiced metric — finalized-only, net of tax, grouped the way reconciliation needs.",
+      "example": "productive-pp-cli invoiced --from 2026-01-01 --to 2026-06-30 --json",
+      "why_it_matters": "Use for the billed side of the ledger when comparing against recognized revenue.",
+      "group": "Revenue recognition"
+    },
+    {
+      "name": "Reconcile recognized vs invoiced",
+      "command": "reconcile",
+      "description": "Join recognized revenue and invoiced amounts per budget×month and flag the deltas.",
+      "rationale": "A local join of two report series with signed deltas and threshold flags — impossible in a single API call, and the whole point of the revenue-reconciliation workflow.",
+      "example": "productive-pp-cli reconcile --from 2026-01-01 --to 2026-06-30 --threshold 100 --json",
+      "why_it_matters": "This is the reconciliation itself — pick it to surface budgets where earned and billed revenue diverge.",
+      "group": "Revenue recognition"
+    },
+    {
+      "name": "Bulk raw export for reconciliation workflows",
+      "command": "export",
+      "description": "Stream full paginated pulls of any resource to JSONL or JSON (auto-paginated, no memory pressure).",
+      "rationale": "Direct REST pagination removes the MCP token ceiling that forced 15-20-invoice batches, so a whole resource exports in one streaming command.",
+      "example": "productive-pp-cli export line_items --format jsonl --output line_items.jsonl",
+      "why_it_matters": "Use to refresh bulk raw pulls for a downstream pipeline; pair with list --csv when you need CSV.",
+      "group": "Bulk extraction"
+    },
+    {
+      "name": "Offline sync, SQL and search",
+      "command": "sync",
+      "description": "Mirror any resource into local SQLite, then query it with SQL and full-text search offline.",
+      "rationale": "A local store lets the pipeline re-run without re-hitting the 10-request/30-second report rate limit.",
+      "example": "productive-pp-cli sync --resources invoices,line_items,invoice_attributions,deals",
+      "why_it_matters": "Sync once, then run sql/search repeatedly with zero API cost and no rate-limit risk.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "AR aging / unpaid invoices",
+      "command": "aging",
+      "description": "Bucket unpaid invoice amounts by age past their due date.",
+      "rationale": "Derives an accounts-receivable aging view from amount_unpaid and pay_on that no PM-focused Productive tool offers.",
+      "example": "productive-pp-cli aging --as-of 2026-07-04 --json",
+      "why_it_matters": "Use for a quick receivables snapshot — which invoices are overdue and by how long.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Recognized revenue by budget × month",
+      "command": "recognized-revenue",
+      "description": "Pull recognized (earned) revenue grouped by budget and month across a date range in one call.",
+      "rationale": "Wraps the /reports/financial_item_reports report with budget×month grouping, date-range filtering, and report-rate-limit throttling — no wrapper or MCP models this report.",
+      "example": "productive-pp-cli recognized-revenue --from 2026-01-01 --to 2026-06-30 --json",
+      "why_it_matters": "Reach for this when you need earned revenue per budget per month for revenue recognition — it replaces a chain of manual report calls.",
+      "group": "Revenue recognition"
+    },
+    {
+      "name": "Invoiced by budget × month",
+      "command": "invoiced",
+      "description": "Net finalized invoiced amount attributed per budget per month, drafts reported separately.",
+      "rationale": "Same report with financial_item_type=invoice_attribution and the total_invoiced metric — finalized-only, net of tax, grouped the way reconciliation needs.",
+      "example": "productive-pp-cli invoiced --from 2026-01-01 --to 2026-06-30 --json",
+      "why_it_matters": "Use for the billed side of the ledger when comparing against recognized revenue.",
+      "group": "Revenue recognition"
+    },
+    {
+      "name": "Reconcile recognized vs invoiced",
+      "command": "reconcile",
+      "description": "Join recognized revenue and invoiced amounts per budget×month and flag the deltas.",
+      "rationale": "A local join of two report series with signed deltas and threshold flags — impossible in a single API call, and the whole point of the revenue-reconciliation workflow.",
+      "example": "productive-pp-cli reconcile --from 2026-01-01 --to 2026-06-30 --threshold 100 --json",
+      "why_it_matters": "This is the reconciliation itself — pick it to surface budgets where earned and billed revenue diverge.",
+      "group": "Revenue recognition"
+    },
+    {
+      "name": "Bulk raw export for reconciliation workflows",
+      "command": "export",
+      "description": "Stream full paginated pulls of any resource to JSONL or JSON (auto-paginated, no memory pressure).",
+      "rationale": "Direct REST pagination removes the MCP token ceiling that forced 15-20-invoice batches, so a whole resource exports in one streaming command.",
+      "example": "productive-pp-cli export line_items --format jsonl --output line_items.jsonl",
+      "why_it_matters": "Use to refresh bulk raw pulls for a downstream pipeline; pair with list --csv when you need CSV.",
+      "group": "Bulk extraction"
+    },
+    {
+      "name": "Offline sync, SQL and search",
+      "command": "sync",
+      "description": "Mirror any resource into local SQLite, then query it with SQL and full-text search offline.",
+      "rationale": "A local store lets the pipeline re-run without re-hitting the 10-request/30-second report rate limit.",
+      "example": "productive-pp-cli sync --resources invoices,line_items,invoice_attributions,deals",
+      "why_it_matters": "Sync once, then run sql/search repeatedly with zero API cost and no rate-limit risk.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "AR aging / unpaid invoices",
+      "command": "aging",
+      "description": "Bucket unpaid invoice amounts by age past their due date.",
+      "rationale": "Derives an accounts-receivable aging view from amount_unpaid and pay_on that no PM-focused Productive tool offers.",
+      "example": "productive-pp-cli aging --as-of 2026-07-04 --json",
+      "why_it_matters": "Use for a quick receivables snapshot — which invoices are overdue and by how long.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "PRODUCTIVE_API_TOKEN"
+  },
+  "narrative": {
+    "display_name": "Productive",
+    "headline": "Full Productive.io v2 API client — list/get across ~48 resource types, generic create/update/delete, 11 report types, and a local sync/search/export/tail data layer, plus first-class revenue-recognition commands (recognized-revenue, invoiced, reconcile, aging).",
+    "value_prop": "A CLI over the entire Productive.io v2 JSON:API — projects, tasks, deals/budgets, people, bookings, time entries, invoices, line items, expenses, and every other resource, each with `list`/`get` plus a generic `create`/`update`/`delete` write surface and 11 report types. It removes the MCP token ceiling that forced line-item pulls in 15–20-invoice batches, paginates large result sets to exhaustion, and ships a local SQLite mirror for offline SQL/full-text search. On top of that full-API coverage it adds hand-built revenue-recognition commands (recognized-revenue, invoiced, reconcile, aging).",
+    "auth_narrative": "Productive uses two headers: X-Auth-Token (secret API token) and X-Organization-Id (your org id, not secret). Set PRODUCTIVE_API_TOKEN and PRODUCTIVE_ORGANIZATION_ID. Get a token from Productive → Settings → API access. Run `productive-pp-cli doctor` to confirm both are set and the API is reachable.",
+    "quickstart": [
+      {
+        "command": "productive-pp-cli doctor --dry-run",
+        "comment": "confirm the binary and flags before wiring credentials"
+      },
+      {
+        "command": "productive-pp-cli deals list --stage-type budget --page-size 200 --json",
+        "comment": "list production budgets (the units revenue is grouped by)"
+      },
+      {
+        "command": "productive-pp-cli recognized-revenue --from 2026-01-01 --to 2026-06-30 --json",
+        "comment": "the headline report: recognized revenue by budget × month"
+      },
+      {
+        "command": "productive-pp-cli reconcile --from 2026-01-01 --to 2026-06-30 --json",
+        "comment": "recognized vs invoiced per budget × month with deltas"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on every call",
+        "fix": "Set PRODUCTIVE_API_TOKEN and PRODUCTIVE_ORGANIZATION_ID; verify with `productive-pp-cli doctor`."
+      },
+      {
+        "symptom": "429 / rate limited on report commands",
+        "fix": "Report endpoints allow only 10 requests / 30s; sync once with `sync` and query the local store, or narrow the date range."
+      },
+      {
+        "symptom": "Money values look 100x too large",
+        "fix": "Raw --json is in smallest currency unit (cents); human and --csv output divide by the currency subunit (100 for SGD/most)."
+      },
+      {
+        "symptom": "Line-item pull seems truncated",
+        "fix": "Increase --page-size (max 200); the CLI paginates to exhaustion by default — check total_count in meta."
+      }
+    ],
+    "when_to_use": "Use this CLI to extract Productive.io financial data for a revenue-recognition reconciliation pipeline: recognized revenue by budget and month, invoiced amounts via invoice attributions, unpaid receivables, and bulk raw pulls of invoices, line items, and attributions in bulk. It is the right tool when you need paginated, scriptable, offline-queryable financial data rather than interactive chat answers.",
+    "anti_triggers": [
+      "Do not use it as a substitute for the Productive web UI for complex multi-step editing — it offers generic create/update/delete, not guided forms.",
+      "Do not use it for interactive one-off questions where the official MCP connector is more convenient.",
+      "Do not assume server-side aggregation beyond what the report endpoints provide; heavy cross-resource analytics belong in the local SQLite store via sync + sql."
+    ],
+    "recipes": [
+      {
+        "title": "Recognized revenue for H1, by budget and month",
+        "command": "productive-pp-cli recognized-revenue --from 2026-01-01 --to 2026-06-30 --json",
+        "explanation": "The pipeline's primary input: earned revenue grouped by budget × month."
+      },
+      {
+        "title": "Reconcile earned vs billed and flag gaps",
+        "command": "productive-pp-cli reconcile --from 2026-01-01 --to 2026-06-30 --threshold 100 --json",
+        "explanation": "Shows budgets where recognized and invoiced revenue diverge beyond the threshold."
+      },
+      {
+        "title": "Bulk-export line items to JSONL",
+        "command": "productive-pp-cli export line_items --format jsonl --output line_items.jsonl",
+        "explanation": "Auto-paginated streaming pull of every line item; use line-items list --csv for CSV instead."
+      },
+      {
+        "title": "Narrow a deep report response for an agent",
+        "command": "productive-pp-cli recognized-revenue --from 2026-01-01 --to 2026-06-30 --agent --select rows.budget_name,rows.date,rows.total_recognized_revenue",
+        "explanation": "Uses --select dotted paths to keep only the fields an agent needs from a large report payload."
+      },
+      {
+        "title": "Offline: full-text search over synced data",
+        "command": "productive-pp-cli search \"Acme\" --json",
+        "explanation": "After 'sync' mirrors resources to local SQLite, search runs instant offline FTS (use 'sql' for arbitrary SELECTs)."
+      }
+    ],
+    "trigger_phrases": [
+      "recognized revenue by budget",
+      "reconcile recognized vs invoiced",
+      "pull Productive invoices",
+      "export line items to csv",
+      "productive financial report",
+      "use productive-pp-cli",
+      "run productive-pp-cli"
+    ]
+  }
+}

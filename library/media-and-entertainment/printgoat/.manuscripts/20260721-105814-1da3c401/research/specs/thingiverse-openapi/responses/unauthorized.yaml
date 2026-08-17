@@ -1,0 +1,9 @@
+description: Authentication information is missing or invalid
+content:
+  application/json:
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Unauthorized

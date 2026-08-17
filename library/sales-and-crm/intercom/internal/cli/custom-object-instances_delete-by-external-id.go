@@ -17,23 +17,37 @@ func newCustomObjectInstancesDeleteByExternalIdCmd(flags *rootFlags) *cobra.Comm
 		Use:         "delete-by-external-id <custom_object_type_identifier> <id>",
 		Aliases:     []string{"delete"},
 		Short:       "Delete a single Custom Object instance using the Intercom defined id.",
-		Example:     "  intercom-pp-cli custom-object-instances delete-by-external-id example-value 550e8400-e29b-41d4-a716-446655440000",
+		Example:     "  intercom-pp-cli custom-object-instances delete-by-external-id Order 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "custom-object-instances.delete-by-external-id", "pp:method": "DELETE", "pp:path": "/custom_object_instances/{custom_object_type_identifier}/{id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
-				return cmd.Help()
+				// A missing required positional is a usage error in every output
+				// mode (matches command_promoted.go.tmpl). Machine callers
+				// (--json/--agent) also get a JSON error envelope on stdout;
+				// usageErr sets exit 2.
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "missing required argument",
+						"usage": fmt.Sprintf("%s%s", cmd.CommandPath(), " <custom_object_type_identifier> <id>"),
+					}, flags); printErr != nil {
+						return printErr
+					}
+				}
+				return usageErr(fmt.Errorf("missing required argument\nUsage: %s%s", cmd.CommandPath(), " <custom_object_type_identifier> <id>"))
 			}
+			path := "/custom_object_instances/{custom_object_type_identifier}/{id}"
+			if len(args) < 1 || args[0] == "" {
+				return usageErr(fmt.Errorf("custom_object_type_identifier is required\nUsage: %s <%s>", cmd.CommandPath(), "custom_object_type_identifier"))
+			}
+			path = replacePathParam(path, "custom_object_type_identifier", args[0])
+			if len(args) < 2 || args[1] == "" {
+				return usageErr(fmt.Errorf("id is required\nUsage: %s <%s>", cmd.CommandPath(), "id"))
+			}
+			path = replacePathParam(path, "id", args[1])
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/custom_object_instances/{custom_object_type_identifier}/{id}"
-			path = replacePathParam(path, "custom_object_type_identifier", args[0])
-			if len(args) < 2 {
-				return usageErr(fmt.Errorf("id is required\nUsage: %s <%s>", cmd.CommandPath(), "id"))
-			}
-			path = replacePathParam(path, "id", args[1])
 			params := map[string]string{}
 			data, statusCode, err := c.DeleteWithParams(cmd.Context(), path, params)
 			if err != nil {
@@ -99,6 +113,9 @@ func newCustomObjectInstancesDeleteByExternalIdCmd(flags *rootFlags) *cobra.Comm
 					"status":   statusCode,
 					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
 				}
+				if flags.agent {
+					envelope["meta"] = map[string]any{"source": "live"}
+				}
 				if partialFailure != nil {
 					envelope["partial_failure"] = partialFailure
 				}
@@ -137,7 +154,11 @@ func newCustomObjectInstancesDeleteByExternalIdCmd(flags *rootFlags) *cobra.Comm
 				if len(filtered) > 0 {
 					var parsed any
 					if err := json.Unmarshal(filtered, &parsed); err == nil {
-						envelope["data"] = parsed
+						if flags.agent {
+							envelope["results"] = parsed
+						} else {
+							envelope["data"] = parsed
+						}
 					}
 				}
 				envelopeJSON, err := json.Marshal(envelope)

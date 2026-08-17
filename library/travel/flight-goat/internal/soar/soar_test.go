@@ -3,6 +3,7 @@
 package soar
 
 import (
+	"context"
 	"strings"
 	"testing"
 )
@@ -236,6 +237,70 @@ func TestSearchURLStopsAirlines(t *testing.T) {
 	}
 }
 
+func TestMultiCitySearchURL(t *testing.T) {
+	slices := []Slice{
+		{Origin: "IAH", Destination: "FCO", DepartureDate: "2026-09-27"},
+		{Origin: "CAI", Destination: "SEA", DepartureDate: "2026-10-04"},
+	}
+	// Mirrors the live GUI URL: path is first origin / final destination /
+	// first date; slices are ORIG-DEST-YYMMDD-<cabin> joined by ';' (%3B).
+	got := MultiCitySearchURL(slices, "first", nil, nil)
+	want := "https://flysoar.ai/flights/iah/sea/260927/?cabin=first&slices=IAH-FCO-260927-first%3BCAI-SEA-261004-first&trip=multicity"
+	if got != want {
+		t.Fatalf("MultiCitySearchURL:\n got %q\nwant %q", got, want)
+	}
+	// Empty cabin normalizes to economy (the slices token needs a cabin).
+	eco := MultiCitySearchURL(slices, "", nil, nil)
+	for _, want := range []string{"cabin=economy", "IAH-FCO-260927-economy"} {
+		if !strings.Contains(eco, want) {
+			t.Fatalf("MultiCitySearchURL default cabin missing %q in %q", want, eco)
+		}
+	}
+	// GUI filters carry over.
+	filtered := MultiCitySearchURL(slices, "business", []int{0, 1}, []string{"DL", "UA"})
+	for _, want := range []string{"stops=0%2C1", "airlines=DL%2CUA", "trip=multicity"} {
+		if !strings.Contains(filtered, want) {
+			t.Fatalf("MultiCitySearchURL filters missing %q in %q", want, filtered)
+		}
+	}
+	// Lowercase input codes normalize into the path and slice tokens.
+	lower := MultiCitySearchURL([]Slice{
+		{Origin: "sea", Destination: "den", DepartureDate: "2026-09-27"},
+		{Origin: "den", Destination: "sfo", DepartureDate: "2026-10-04"},
+	}, "economy", nil, nil)
+	if !strings.Contains(lower, "/flights/sea/sfo/260927/?") || !strings.Contains(lower, "SEA-DEN-260927-economy") {
+		t.Fatalf("MultiCitySearchURL case normalization wrong: %q", lower)
+	}
+}
+
+func TestSearchValidatesMultiCity(t *testing.T) {
+	ctx := context.Background()
+	// One slice is not a multi-city trip.
+	one := SearchOptions{Slices: []Slice{{Origin: "SEA", Destination: "DEN", DepartureDate: "2026-09-27"}}}
+	if _, err := Search(ctx, one); err == nil {
+		t.Fatal("expected error for a single slice")
+	}
+	// A return date cannot combine with slices.
+	rt := SearchOptions{
+		ReturnDate: "2026-10-10",
+		Slices: []Slice{
+			{Origin: "SEA", Destination: "DEN", DepartureDate: "2026-09-27"},
+			{Origin: "DEN", Destination: "SFO", DepartureDate: "2026-10-04"},
+		},
+	}
+	if _, err := Search(ctx, rt); err == nil {
+		t.Fatal("expected error for return date + slices")
+	}
+	// Every slice needs origin, destination, and date.
+	missing := SearchOptions{Slices: []Slice{
+		{Origin: "SEA", Destination: "DEN", DepartureDate: "2026-09-27"},
+		{Origin: "DEN", Destination: "SFO"},
+	}}
+	if _, err := Search(ctx, missing); err == nil {
+		t.Fatal("expected error for slice with missing date")
+	}
+}
+
 func TestNormalizeStops(t *testing.T) {
 	cases := []struct {
 		in   []int
@@ -351,6 +416,12 @@ func TestBookingRequest(t *testing.T) {
 			"DCA -> IAH on 2026-09-23, first class, nonstop, on UA"},
 		{SearchQuery{Origin: "DCA", Destination: "IAH", DepartureDate: "2026-09-23", CabinClass: "first", Passengers: 2, Stops: []int{0, 1}, Airlines: []string{"DL", "UA"}},
 			"DCA -> IAH on 2026-09-23, first class, nonstop or 1 stop, on DL/UA, 2 passengers"},
+		{SearchQuery{Origin: "IAH", Destination: "SEA", DepartureDate: "2026-09-27", CabinClass: "first", Passengers: 2,
+			Slices: []Slice{
+				{Origin: "IAH", Destination: "FCO", DepartureDate: "2026-09-27"},
+				{Origin: "CAI", Destination: "SEA", DepartureDate: "2026-10-04"},
+			}},
+			"multi-city: IAH -> FCO on 2026-09-27, then CAI -> SEA on 2026-10-04, first class, 2 passengers"},
 	}
 	for _, c := range cases {
 		if got := BookingRequest(c.q); got != c.want {

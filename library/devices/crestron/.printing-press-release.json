@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "crestron",
+  "cli_name": "crestron-pp-cli",
+  "version": "2026.8.1",
+  "released_at": "2026-08-06T07:34:55Z",
+  "source_commit": "c4948ab6806e6346acfcad5a70c134ad3bd4ba84",
+  "printing_press_version": "4.30.0",
+  "run_id": "20260802-132209-30c5fe35",
+  "changes": [
+    {
+      "title": "feat(crestron): add crestron",
+      "pr": 1648,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1648",
+      "commit": "c4948ab6806e6346acfcad5a70c134ad3bd4ba84"
+    }
+  ]
+}

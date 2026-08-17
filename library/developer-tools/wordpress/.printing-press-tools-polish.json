@@ -1,0 +1,15 @@
+{
+  "timestamp": "2026-07-21T18:44:12.962893Z",
+  "cli_dir": "\u003ccli-dir\u003e/wordpress-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 692,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file (learn-loop framework command); Short is accurate for the learnings list surface. Richer default belongs in the generator template — retro candidate."
+    }
+  ]
+}

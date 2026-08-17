@@ -1,0 +1,214 @@
+{
+ "VB150-Dimensions": {
+  "entityId": "ka0Rd0000006s8zIAA",
+  "probe": "200|application/pdf; charset=UTF-8|787052"
+ },
+ "CAM520-Pro-3-Dimensions": {
+  "entityId": "ka0Rd0000003qTVIAY",
+  "probe": "200|application/pdf; charset=UTF-8|989265"
+ },
+ "CAM570-Dimensions": {
+  "entityId": "ka0Rd0000003oMrIAI",
+  "probe": "200|application/pdf; charset=UTF-8|503214"
+ },
+ "CAM130-Wall-Ceiling-Mount-Dimensions": {
+  "entityId": "ka0Rd0000003Yd3IAE",
+  "probe": "200|application/pdf; charset=UTF-8|201018"
+ },
+ "TR530-TR320-HTTP-CGI-Commands": {
+  "entityId": "ka08b000000gdF6AAI",
+  "probe": "200|application/pdf; charset=UTF-8|510157"
+ },
+ "TR530-Ceiling-Wall-Mount": {
+  "entityId": "ka08b000000gdF2AAI",
+  "probe": "200|application/pdf; charset=UTF-8|506223"
+ },
+ "PTZ310-330-HTTP-CGI-Commands": {
+  "entityId": "ka08b000000gdFBAAY",
+  "probe": "200|application/pdf; charset=UTF-8|538877"
+ },
+ "VB130-VB130E-Wall-Mount-Dimensions": {
+  "entityId": "ka08b000000gdBdAAI",
+  "probe": "200|application/pdf; charset=UTF-8|122162"
+ },
+ "VB130-Dimensions": {
+  "entityId": "ka08b000000unMBAAY",
+  "probe": "200|application/pdf; charset=UTF-8|233469"
+ },
+ "VB342P-Dimensions": {
+  "entityId": "ka08b000000unM1AAI",
+  "probe": "200|application/pdf; charset=UTF-8|298217"
+ },
+ "VC520-Dimensions": {
+  "entityId": "ka08b000000unLdAAI",
+  "probe": "200|application/pdf; charset=UTF-8|345688"
+ },
+ "VB342-Dimensions": {
+  "entityId": "ka08b000000unLmAAI",
+  "probe": "204||0"
+ },
+ "VB342-Pro-Dimensions": {
+  "entityId": "ka08b000000unLrAAI",
+  "probe": "200|application/pdf; charset=UTF-8|273453"
+ },
+ "CAM520-Pro-Mount-Dimensions": {
+  "entityId": "ka08b000000unLcAAI",
+  "probe": "200|application/pdf; charset=UTF-8|464182"
+ },
+ "L-Mount-Dimensions": {
+  "entityId": "ka08b000000unLTAAY",
+  "probe": "200|application/pdf; charset=UTF-8|737778"
+ },
+ "CAM520-Pro-Dimensions": {
+  "entityId": "ka08b000000unLXAAY",
+  "probe": "200|application/pdf; charset=UTF-8|529327"
+ },
+ "CAM530-Dimensions": {
+  "entityId": "ka08b000000unLSAAY",
+  "probe": "200|application/pdf; charset=UTF-8|568524"
+ },
+ "CAM550-Dimensions": {
+  "entityId": "ka08b000000unLNAAY",
+  "probe": "200|application/pdf; charset=UTF-8|696727"
+ },
+ "CAM520-Pro-2-Dimensions": {
+  "entityId": "ka08b000000unLIAAY",
+  "probe": "200|application/pdf; charset=UTF-8|533014"
+ },
+ "CAM520-Dimensions": {
+  "entityId": "ka08b000000unL4AAI",
+  "probe": "200|application/pdf; charset=UTF-8|498040"
+ },
+ "CAM520-Pro-PoE-Advanced-Dimensions": {
+  "entityId": "ka08b000000unKuAAI",
+  "probe": "200|application/pdf; charset=UTF-8|650745"
+ },
+ "Speakerphone-Dimensions": {
+  "entityId": "ka08b000000unKzAAI",
+  "probe": "200|application/pdf; charset=UTF-8|71686"
+ },
+ "VC520-Pro-2-Dimensions": {
+  "entityId": "ka08b000000unKtAAI",
+  "probe": "200|application/pdf; charset=UTF-8|650745"
+ },
+ "VC520P-Dimensions": {
+  "entityId": "ka08b000000unKeAAI",
+  "probe": "200|application/pdf; charset=UTF-8|631478"
+ },
+ "VC520-Pro-Speakerphone-Dimensions": {
+  "entityId": "ka08b000000unKoAAI",
+  "probe": "200|application/pdf; charset=UTF-8|137668"
+ },
+ "CAM130-Dimensions": {
+  "entityId": "ka08b000000unL8AAI",
+  "probe": "200|application/pdf; charset=UTF-8|256130"
+ },
+ "CAM340P-Dimensions": {
+  "entityId": "ka08b000000unJ2AAI",
+  "probe": "200|application/pdf; charset=UTF-8|158974"
+ },
+ "CAM540-Dimensions": {
+  "entityId": "ka08b000000unIJAAY",
+  "probe": "200|application/pdf; charset=UTF-8|268222"
+ },
+ "AVer-PTZapp-for-Mac": {
+  "entityId": "ka08b000000unHfAAI",
+  "probe": "204||0"
+ },
+ "AVer-PTZapp-for-Windows": {
+  "entityId": "ka08b000000unHVAAY",
+  "probe": "204||0"
+ },
+ "AVer-Pro-AV-Camera-Control-Guide-VISCA-over-IP-UDP-and-RS-232-commands": {
+  "entityId": "ka00y000000DLq5AAG",
+  "probe": "200|application/pdf; charset=UTF-8|4130669"
+ },
+ "CL01-Camera-Controller-Connection-Guide": {
+  "entityId": "ka00y000000DKhhAAG",
+  "probe": "200|application/pdf; charset=UTF-8|2601004"
+ },
+ "Smart-Frame-PTZapp-2": {
+  "entityId": "ka00y000000HRe7AAG",
+  "probe": "200|application/pdf; charset=UTF-8|437227"
+ },
+ "Smart-Frame-PTZapp": {
+  "entityId": "ka00y000000HReHAAW",
+  "probe": "200|application/pdf; charset=UTF-8|375354"
+ },
+ "CAM520-Pro-Quick-Installation-Guide": {
+  "entityId": "ka00y000000Tsh9AAC",
+  "probe": "200|application/pdf; charset=UTF-8|1927771"
+ },
+ "VC520-Pro-Quick-Instalation-Guide": {
+  "entityId": "ka00y000000Tsh4AAC",
+  "probe": "200|application/pdf; charset=UTF-8|1163269"
+ },
+ "AVer-VISCA-RS232-Commands": {
+  "entityId": "ka00y000000LX9zAAG",
+  "probe": "200|application/pdf; charset=UTF-8|660392"
+ },
+ "VB-VC-Series-USB-API": {
+  "entityId": "ka00y000000LX9uAAG",
+  "probe": "200|application/pdf; charset=UTF-8|83197"
+ },
+ "CAM-Series-USB-API": {
+  "entityId": "ka00y000000LX9pAAG",
+  "probe": "200|application/pdf; charset=UTF-8|74297"
+ },
+ "Where-do-I-download-software-for-my-document-camera": {
+  "entityId": "ka00y000000DGGpAAO",
+  "probe": "204||0"
+ },
+ "VC520-Manual-2019-06-28-060937": {
+  "entityId": "ka00y000000DGE5AAO",
+  "probe": "200|application/pdf; charset=UTF-8|1481443"
+ },
+ "VC520-Quick-Start-Guide": {
+  "entityId": "ka00y000000DGEAAA4",
+  "probe": "200|application/pdf; charset=UTF-8|3869027"
+ },
+ "AVer-Intel-Unite-Plugin": {
+  "entityId": "ka00y000000DGBzAAO",
+  "probe": "200|application/octet-stream;type=unknown; charset=UTF-8|437829"
+ },
+ "CAM340-Quick-Start-Guide": {
+  "entityId": "ka00y000000DGBBAA4",
+  "probe": "200|application/pdf; charset=UTF-8|251163"
+ },
+ "CAM520-Quick-Start-Guide": {
+  "entityId": "ka00y000000DGB1AAO",
+  "probe": "200|application/pdf; charset=UTF-8|921701"
+ },
+ "VC520-Manual": {
+  "entityId": "ka00y000000DGBVAA4",
+  "probe": "200|application/pdf; charset=UTF-8|1646148"
+ },
+ "CAM540-Manual": {
+  "entityId": "ka00y000000DGArAAO",
+  "probe": "200|application/pdf; charset=UTF-8|1236713"
+ },
+ "VB342-Manual": {
+  "entityId": "ka00y000000DGAmAAO",
+  "probe": "200|application/pdf; charset=UTF-8|1291871"
+ },
+ "CAM530-Manual": {
+  "entityId": "ka00y000000DGAsAAO",
+  "probe": "200|application/pdf; charset=UTF-8|1230838"
+ },
+ "VB342-Datasheet": {
+  "entityId": "ka00y000000DG3WAAW",
+  "probe": "200|application/pdf; charset=UTF-8|540333"
+ },
+ "CAM540-Datasheet": {
+  "entityId": "ka00y000000DG11AAG",
+  "probe": "200|application/pdf; charset=UTF-8|435494"
+ },
+ "VC320-Manual": {
+  "entityId": "ka00y000000DGBkAAO",
+  "probe": "200|application/pdf; charset=UTF-8|2005691"
+ },
+ "CAM520-Manual": {
+  "entityId": "ka00y000000DGB6AAO",
+  "probe": "200|application/pdf; charset=UTF-8|1066608"
+ }
+}

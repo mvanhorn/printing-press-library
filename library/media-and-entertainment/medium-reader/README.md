@@ -132,11 +132,33 @@ To unlock member full bodies, add your own session cookie under `env`:
 
 </details>
 
+## Updating
+
+The installer manages the **CLI binary and the agent skill**; the **MCP server is a separate binary** on its own track. They update independently — refreshing one does not refresh the other.
+
+- **CLI + skill** — re-run the installer (or its `update` alias), which fetches the newest published build:
+
+  ```bash
+  npx -y @mvanhorn/printing-press-library update medium-reader
+  ```
+
+- **MCP server** — the installer does **not** touch it. If you run the MCP (via `claude mcp add` or the manual JSON config above), update its binary on its own, then restart the server so it loads the new build:
+
+  ```bash
+  go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/medium-reader/cmd/medium-reader-pp-mcp@latest
+  ```
+
+  Your existing `medium-reader` MCP registration picks up the new binary on restart.
+
+- **Claude Desktop (MCPB)** — re-download the latest `.mcpb` from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/medium-reader-current) and double-click to update.
+
 ## Authentication
 
 **No key. No account. No setup.** Medium Reader reads Medium's public surfaces anonymously (this is "Tier 0"), so every command works the moment it is installed.
 
 There is one **optional** layer, "Tier 1": your own Medium **session cookie**. Medium serves only a short preview body for member-locked articles to anonymous readers. If you are a logged-in Medium member, you can hand the CLI your own browser session so the `read` path returns the full article body you can already read in your browser. This is **your own cookie, never an API key** — and it is always optional.
+
+Your single medium.com session unlocks member posts on **every** Medium publication, whether served from `medium.com` or a custom publication domain (`uxdesign.cc`, `uxplanet.org`, `towardsdatascience.com`, …): the reader forwards your session to the article's canonical host as Medium redirects to it. You do not need a separate cookie per domain.
 
 Import it any of these ways (first hit wins):
 
@@ -209,7 +231,7 @@ These capabilities aren't available in any other tool — and they all run keyle
   ```
 
 ### Comparative analysis
-- **`author-compare`** — Compare two writers on output cadence, topic mix, and engagement (claps and voters per article) from locally archived data.
+- **`author-compare`** — Compare two writers on output cadence, topic mix, and engagement (claps, voters, responses, and reading time per article) from locally archived data. Engagement is keyless/Tier-0, including for member-only posts.
 
   _Use this to weigh two writers or publications before committing to follow or archive one._
 
@@ -285,7 +307,7 @@ A deduped, ranked 'what is new since last sync' across the authors, publications
 
 ### author-compare
 
-Compare two writers on output cadence, topic mix, and engagement (claps and voters per article) from locally archived data.
+Compare two writers on output cadence, topic mix, and engagement (claps, voters, responses, and reading time per article) from locally archived data. Engagement is keyless/Tier-0, including for member-only posts.
 
 ### analytics
 

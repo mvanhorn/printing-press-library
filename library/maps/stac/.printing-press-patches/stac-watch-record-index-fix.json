@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "stac-watch-record-index-fix",
+  "applied_at": "2026-06-24",
+  "base_run_id": "20260624-152026-b6ccb73c",
+  "base_printing_press_version": "4.25.0",
+  "summary": "Fix watch --record recording the wrong raw scene on a parse-index mismatch.",
+  "reason": "parseFeatures drops features that fail to unmarshal, so the parsed slice can be shorter than rawFeatures. The loop recorded rawFeatures[i] using the parsed-slice index i, which misaligns after any skipped entry and upserts the wrong scene under --record. Now iterates rawFeatures directly and unmarshals inline so raw and parsed always correspond.",
+  "files": ["internal/cli/watch.go"],
+  "validated_outcome": "go build ./... and go vet ./... pass; verify-skill matches shipped CLI source.",
+  "upstream_issue": ""
+}

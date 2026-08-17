@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "api_name": "judgeme",
+  "run_id": "20260729-224012-eda553b7",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 200,
+  "tests_passed": 200,
+  "tests_skipped": 116,
+  "auth_context": {
+    "type": "api_key",
+    "api_key_available": true
+  }
+}

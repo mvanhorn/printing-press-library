@@ -1,0 +1,32 @@
+openapi: 3.0.3
+info:
+  title: CFPB Consumer Complaints API
+  version: 1.0.0
+  description: Search published CFPB consumer complaint records and aggregations.
+  x-cli-name: cfpb-complaints
+servers:
+  - url: https://www.consumerfinance.gov
+paths:
+  /data-research/consumer-complaints/search/api/v1/:
+    get:
+      operationId: listComplaints
+      summary: Search published consumer complaints
+      parameters:
+        - {name: size, in: query, schema: {type: integer, default: 25, maximum: 1000}}
+        - {name: from, in: query, schema: {type: integer, default: 0}}
+        - {name: search_term, in: query, schema: {type: string}}
+        - {name: company, in: query, schema: {type: string}}
+        - {name: product, in: query, schema: {type: string}}
+        - {name: issue, in: query, schema: {type: string}}
+        - {name: state, in: query, schema: {type: string}}
+        - {name: date_received_min, in: query, schema: {type: string, format: date}}
+        - {name: date_received_max, in: query, schema: {type: string, format: date}}
+        - {name: has_narrative, in: query, schema: {type: boolean}}
+        - {name: field, in: query, schema: {type: string}}
+        - {name: sort, in: query, schema: {type: string}}
+      responses:
+        '200':
+          description: Elasticsearch-style search result
+          content:
+            application/json:
+              schema: {type: object, additionalProperties: true}

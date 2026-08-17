@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "jimmy-johns",
   "cli_name": "jimmy-johns-pp-cli",
-  "version": "2026.7.2",
-  "released_at": "2026-07-13T08:35:16Z",
-  "source_commit": "68197713ff7fe67be17d84fc7e9f46a46297681d",
+  "version": "2026.8.1",
+  "released_at": "2026-08-17T05:47:06Z",
+  "source_commit": "d6b74e6df2b2c66612e1f6e29433c0c0aae531e6",
   "printing_press_version": "4.28.0",
   "run_id": "20260712-190027-jj-reprint428",
   "changes": [
     {
-      "title": "feat(jimmy-johns): add jimmy-johns",
-      "pr": 1505,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1505",
-      "commit": "68197713ff7fe67be17d84fc7e9f46a46297681d"
+      "title": "fix(cli): bump golang.org/x/text to v0.39.0 in affected published CLIs",
+      "pr": 1636,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1636",
+      "commit": "d6b74e6df2b2c66612e1f6e29433c0c0aae531e6"
     }
   ]
 }

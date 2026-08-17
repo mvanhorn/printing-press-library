@@ -1,0 +1,285 @@
+{
+  "api_name": "browserbase",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "browse",
+      "url": "https://github.com/browserbase/stagehand",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 30,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "sdk-node",
+      "url": "https://github.com/browserbase/sdk-node",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 20,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "sdk-python",
+      "url": "https://github.com/browserbase/sdk-python",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 20,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "mcp-server-browserbase",
+      "url": "https://github.com/browserbase/mcp-server-browserbase",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "steel-cli",
+      "url": "https://github.com/steel-dev/steel-browser",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 15,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-13T21:10:00Z",
+  "novel_features": [
+    {
+      "name": "Orphaned-session sweeper",
+      "command": "sessions orphans",
+      "description": "Find running sessions that were never released (keepAlive orphans) and the runtime they're burning, then optionally stop them in batch. Requires `sync` first — an unsynced store returns an empty scan.",
+      "rationale": "Requires scanning synced session history locally and correlating age with status — no single API call answers 'which sessions are abandoned and costing me minutes'.",
+      "example": "browserbase-pp-cli sessions orphans --older-than 15m --stop --json",
+      "why_it_matters": "Reach for this when a crashed automation may have left billable sessions running — it turns a silent cost leak into a one-command cleanup.",
+      "group": "Session lifecycle control"
+    },
+    {
+      "name": "Safe session runner",
+      "command": "sessions run",
+      "description": "Create a session, print its connect URL, and guarantee it is released on completion, timeout, or interrupt.",
+      "rationale": "Requires orchestrating create, signal handling, and REQUEST_RELEASE in one lifecycle — the API has no compound operation for this.",
+      "example": "browserbase-pp-cli sessions run --project 1fbe3566-db19-4010-9410-0ba94f0497ea --timeout 15m",
+      "why_it_matters": "Use when you need a browser session for a script or agent without leaking keepAlive sessions on failure.",
+      "group": "Session lifecycle control"
+    },
+    {
+      "name": "Batch fetcher",
+      "command": "fetch batch",
+      "description": "Fetch a list of URLs with rate-limit pacing and a resumable checkpoint, so large scrape jobs survive interruptions.",
+      "rationale": "Requires pacing against the documented 5 req/sec limit and persisting a per-URL progress ledger locally — the single fetch endpoint has no batch or resume.",
+      "example": "browserbase-pp-cli fetch batch --file urls.txt --format markdown --resume --json",
+      "why_it_matters": "Reach for this when scraping a list of pages: it paces requests, skips already-fetched URLs, and reports per-URL status.",
+      "group": "Agent-native fetch pipeline"
+    },
+    {
+      "name": "Project digest",
+      "command": "projects digest",
+      "description": "See everything that ran in a project this week — sessions, agent runs, and downloads grouped by day — from the local store. Requires `sync` first; an unsynced store returns an empty digest.",
+      "rationale": "Requires joining synced sessions, agent runs, and download metadata by project and day — an aggregate no API endpoint returns.",
+      "example": "browserbase-pp-cli projects digest --project 1fbe3566-db19-4010-9410-0ba94f0497ea --since 7d --json",
+      "why_it_matters": "Use when reviewing what a project actually did over a period, without clicking through the dashboard.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Agent-run diff",
+      "command": "agents runs diff",
+      "description": "Compare two agent runs structurally — message sequences and final structured results — to see what changed between prompt iterations.",
+      "rationale": "Requires locally syncing run messages and computing a unified diff of sequences and result objects — no API endpoint diffs runs.",
+      "example": "browserbase-pp-cli agents runs diff 52f6b13d-eb27-436d-86ff-356b2fd01697 2d310606-42fa-483c-9a7b-7102a85ddb09 --json",
+      "why_it_matters": "Reach for this when iterating on an agent's prompt or schema and you need to see exactly what changed between two runs.",
+      "group": "Agent-native fetch pipeline"
+    },
+    {
+      "name": "Usage trend",
+      "command": "usage trend",
+      "description": "Track per-project browserMinutes and proxyBytes over sync history and spot quota creep before the bill arrives. Requires `sync` first; an unsynced store returns an empty trend.",
+      "rationale": "Requires accumulating project-usage snapshots across syncs into a local time series — the API only returns the current total.",
+      "example": "browserbase-pp-cli usage trend --project 1fbe3566-db19-4010-9410-0ba94f0497ea --since 30d --json",
+      "why_it_matters": "Use when you own the Browserbase bill and want to see usage direction, not just a snapshot.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Web activity history",
+      "command": "web history",
+      "description": "Review past fetch and search calls with cached results, and re-emit a cached response without re-hitting the API. Requires `sync` first; an unsynced store returns an empty history.",
+      "rationale": "Requires a local cache ledger that every fetch/search invocation writes — the API returns no history of your own calls.",
+      "example": "browserbase-pp-cli web history --since 7d --type fetch --json",
+      "why_it_matters": "Reach for this when you need provenance for what was fetched, or want to re-run a prior result offline.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Orphaned-session sweeper",
+      "command": "sessions orphans",
+      "description": "Find running sessions that were never released (keepAlive orphans) and the runtime they're burning, then optionally stop them in batch. Requires `sync` first — an unsynced store returns an empty scan.",
+      "rationale": "Requires scanning synced session history locally and correlating age with status — no single API call answers 'which sessions are abandoned and costing me minutes'.",
+      "example": "browserbase-pp-cli sessions orphans --older-than 15m --stop --json",
+      "why_it_matters": "Reach for this when a crashed automation may have left billable sessions running — it turns a silent cost leak into a one-command cleanup.",
+      "group": "Session lifecycle control"
+    },
+    {
+      "name": "Safe session runner",
+      "command": "sessions run",
+      "description": "Create a session, print its connect URL, and guarantee it is released on completion, timeout, or interrupt.",
+      "rationale": "Requires orchestrating create, signal handling, and REQUEST_RELEASE in one lifecycle — the API has no compound operation for this.",
+      "example": "browserbase-pp-cli sessions run --project 1fbe3566-db19-4010-9410-0ba94f0497ea --timeout 15m",
+      "why_it_matters": "Use when you need a browser session for a script or agent without leaking keepAlive sessions on failure.",
+      "group": "Session lifecycle control"
+    },
+    {
+      "name": "Batch fetcher",
+      "command": "fetch batch",
+      "description": "Fetch a list of URLs with rate-limit pacing and a resumable checkpoint, so large scrape jobs survive interruptions.",
+      "rationale": "Requires pacing against the documented 5 req/sec limit and persisting a per-URL progress ledger locally — the single fetch endpoint has no batch or resume.",
+      "example": "browserbase-pp-cli fetch batch --file urls.txt --format markdown --resume --json",
+      "why_it_matters": "Reach for this when scraping a list of pages: it paces requests, skips already-fetched URLs, and reports per-URL status.",
+      "group": "Agent-native fetch pipeline"
+    },
+    {
+      "name": "Project digest",
+      "command": "projects digest",
+      "description": "See everything that ran in a project this week — sessions, agent runs, and downloads grouped by day — from the local store. Requires `sync` first; an unsynced store returns an empty digest.",
+      "rationale": "Requires joining synced sessions, agent runs, and download metadata by project and day — an aggregate no API endpoint returns.",
+      "example": "browserbase-pp-cli projects digest --project 1fbe3566-db19-4010-9410-0ba94f0497ea --since 7d --json",
+      "why_it_matters": "Use when reviewing what a project actually did over a period, without clicking through the dashboard.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Agent-run diff",
+      "command": "agents runs diff",
+      "description": "Compare two agent runs structurally — message sequences and final structured results — to see what changed between prompt iterations.",
+      "rationale": "Requires locally syncing run messages and computing a unified diff of sequences and result objects — no API endpoint diffs runs.",
+      "example": "browserbase-pp-cli agents runs diff 52f6b13d-eb27-436d-86ff-356b2fd01697 2d310606-42fa-483c-9a7b-7102a85ddb09 --json",
+      "why_it_matters": "Reach for this when iterating on an agent's prompt or schema and you need to see exactly what changed between two runs.",
+      "group": "Agent-native fetch pipeline"
+    },
+    {
+      "name": "Usage trend",
+      "command": "usage trend",
+      "description": "Track per-project browserMinutes and proxyBytes over sync history and spot quota creep before the bill arrives. Requires `sync` first; an unsynced store returns an empty trend.",
+      "rationale": "Requires accumulating project-usage snapshots across syncs into a local time series — the API only returns the current total.",
+      "example": "browserbase-pp-cli usage trend --project 1fbe3566-db19-4010-9410-0ba94f0497ea --since 30d --json",
+      "why_it_matters": "Use when you own the Browserbase bill and want to see usage direction, not just a snapshot.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Web activity history",
+      "command": "web history",
+      "description": "Review past fetch and search calls with cached results, and re-emit a cached response without re-hitting the API. Requires `sync` first; an unsynced store returns an empty history.",
+      "rationale": "Requires a local cache ledger that every fetch/search invocation writes — the API returns no history of your own calls.",
+      "example": "browserbase-pp-cli web history --since 7d --type fetch --json",
+      "why_it_matters": "Reach for this when you need provenance for what was fetched, or want to re-run a prior result offline.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "BROWSERBASE_API_KEY"
+  },
+  "narrative": {
+    "display_name": "Browserbase",
+    "headline": "Every Browserbase cloud feature, plus session lifecycle control, local history, and usage analytics no other tool has.",
+    "value_prop": "Manage the full Browserbase surface — sessions, projects, downloads, contexts, agents, functions — from one agent-native CLI. Track orphaned sessions, batch-fetch with rate-limit pacing, diff agent runs, and watch usage trends from a local SQLite store that compounds across syncs.",
+    "auth_narrative": "Set BROWSERBASE_API_KEY (your key looks like `bb_live_...`). Optionally set BROWSERBASE_PROJECT_ID to scope commands to a project.",
+    "quickstart": [
+      {
+        "command": "browserbase-pp-cli doctor --dry-run",
+        "comment": "Verify the CLI works and your API key is set."
+      },
+      {
+        "command": "browserbase-pp-cli projects list",
+        "comment": "See your projects and find the one to work in."
+      },
+      {
+        "command": "browserbase-pp-cli sessions create --project-id 1fbe3566-db19-4010-9410-0ba94f0497ea --json",
+        "comment": "Spin up a headless browser session."
+      },
+      {
+        "command": "browserbase-pp-cli sessions orphans --older-than 15m --json",
+        "comment": "Find sessions that were never released and are burning minutes."
+      },
+      {
+        "command": "browserbase-pp-cli fetch --url https://example.com --format markdown",
+        "comment": "Grab a page as clean markdown without writing browser code."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized / Missing x-bb-api-key header",
+        "fix": "Set BROWSERBASE_API_KEY to your key from browserbase.com/settings."
+      },
+      {
+        "symptom": "429 rate limited on fetch/search",
+        "fix": "Use `fetch batch` for paced fetching, or back off — fetch is 5 req/sec, search 2 req/sec."
+      },
+      {
+        "symptom": "keepAlive sessions keep running after my script exits",
+        "fix": "Use `sessions run` for guaranteed release, or `sessions orphans --stop` to clean up stragglers."
+      },
+      {
+        "symptom": "Session timed out unexpectedly",
+        "fix": "Pass `--timeout` (60-21600s) to `sessions create`; the project default may be shorter than your job."
+      }
+    ],
+    "when_to_use": "Use browserbase-pp-cli when you need to manage cloud headless browsers programmatically: create and clean up sessions, fetch pages or run web searches without writing browser code, track project usage, and manage agents or hosted functions. It is the right choice for automation scripts, CI pipelines, and AI agents that need structured, reproducible browser infrastructure operations.",
+    "anti_triggers": [
+      "Do not use this CLI for interactive browser automation with DOM clicks and form fills — that needs a live CDP session; use `sessions run` to get a connectUrl and attach Playwright/Puppeteer.",
+      "Do not use this CLI as a general web scraper for sites with heavy anti-bot protection — use the fetch endpoint's proxy/stealth options deliberately."
+    ],
+    "recipes": [
+      {
+        "title": "Clean up orphaned sessions",
+        "command": "browserbase-pp-cli sessions orphans --older-than 15m --stop --json",
+        "explanation": "Find and release sessions that were never explicitly stopped, preventing wasted browser minutes."
+      },
+      {
+        "title": "Scrape a list of URLs safely",
+        "command": "browserbase-pp-cli fetch batch --file urls.txt --format markdown --resume --json",
+        "explanation": "Fetch many pages with rate-limit pacing and resumable progress."
+      },
+      {
+        "title": "Weekly project review",
+        "command": "browserbase-pp-cli projects digest --project 1fbe3566-db19-4010-9410-0ba94f0497ea --since 7d --json",
+        "explanation": "See every session, agent run, and download in the project this week."
+      },
+      {
+        "title": "Check usage trend",
+        "command": "browserbase-pp-cli usage trend --project 1fbe3566-db19-4010-9410-0ba94f0497ea --since 30d --json",
+        "explanation": "Spot quota creep before the bill arrives."
+      },
+      {
+        "title": "Narrow a fetch response for agents",
+        "command": "browserbase-pp-cli fetch --url https://news.ycombinator.com --format markdown --agent --select statusCode,markdown",
+        "explanation": "Fetch a page and select only the fields an agent needs, saving context."
+      }
+    ],
+    "trigger_phrases": [
+      "create a browser session",
+      "fetch this page",
+      "search the web for X",
+      "check my browserbase usage",
+      "list my browserbase sessions",
+      "use browserbase",
+      "run browserbase"
+    ]
+  }
+}

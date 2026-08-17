@@ -55,7 +55,7 @@ hit the API rate-limit budget.`,
 			// connection filtered to type=blocks; downstream issue is
 			// .relatedIssue.
 			const q = `query Blocking($assignee: ID!) {
-				issues(filter: {assignee: {id: {eq: $assignee}}, state: {type: {nin: ["completed", "canceled"]}}}, first: 100) {
+				issues(filter: {assignee: {id: {eq: $assignee}}, state: {type: {nin: ["completed", "canceled", "duplicate"]}}}, first: 100) {
 					nodes {
 						id
 						identifier
@@ -133,7 +133,7 @@ hit the API rate-limit budget.`,
 					if r.Type != "blocks" {
 						continue
 					}
-					if r.RelatedIssue.State.Type == "completed" || r.RelatedIssue.State.Type == "canceled" {
+					if r.RelatedIssue.State.Type == "completed" || r.RelatedIssue.State.Type == "canceled" || r.RelatedIssue.State.Type == "duplicate" {
 						continue
 					}
 					assignee := r.RelatedIssue.Assignee.DisplayName

@@ -17,7 +17,7 @@ func newNotesPromotedCmd(flags *rootFlags) *cobra.Command {
 		Use:         "notes <id>",
 		Short:       "You can fetch the details of a single note.",
 		Long:        "You can fetch the details of a single note.",
-		Example:     "  intercom-pp-cli notes 550e8400-e29b-41d4-a716-446655440000",
+		Example:     "  intercom-pp-cli notes 1",
 		Annotations: map[string]string{"pp:endpoint": "notes.retrieve", "pp:method": "GET", "pp:path": "/notes/{id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -26,7 +26,7 @@ func newNotesPromotedCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/notes/{id}"
-			if len(args) < 1 {
+			if len(args) < 1 || args[0] == "" {
 				// JSON envelope: {error, usage}. Written first; the
 				// usageErr return preserves exit code 2 across modes.
 				if flags.asJSON {
@@ -41,14 +41,10 @@ func newNotesPromotedCmd(flags *rootFlags) *cobra.Command {
 			}
 			path = replacePathParam(path, "id", args[0])
 			params := map[string]string{}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "notes", false, path, params, nil, cmd.ErrOrStderr())
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "notes", false, path, params, nil, "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			// Unwrap API response envelopes (e.g. {"status":"success","data":[...]})
-			// so output helpers see the inner data, not the wrapper.
-			data = extractResponseData(data)
-
 			// Print provenance to stderr for human-facing output only.
 			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
 			// --select) and piped stdout suppress this line; the JSON envelope
@@ -92,7 +88,7 @@ func newNotesPromotedCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 

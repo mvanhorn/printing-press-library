@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "techmeme",
   "cli_name": "techmeme-pp-cli",
-  "version": "2026.7.3",
-  "released_at": "2026-07-10T05:45:05Z",
-  "source_commit": "ff3454fa2f8f6b9d65479c6e20c1b3ff3d01ee37",
+  "version": "2026.8.1",
+  "released_at": "2026-08-17T05:47:06Z",
+  "source_commit": "d6b74e6df2b2c66612e1f6e29433c0c0aae531e6",
   "printing_press_version": "4.0.3",
   "run_id": "20260509-193944",
   "changes": [
     {
-      "title": "fix(techmeme): emit dated, valid JSON from search",
-      "pr": 1440,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1440",
-      "commit": "ff3454fa2f8f6b9d65479c6e20c1b3ff3d01ee37"
+      "title": "fix(cli): bump golang.org/x/text to v0.39.0 in affected published CLIs",
+      "pr": 1636,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1636",
+      "commit": "d6b74e6df2b2c66612e1f6e29433c0c0aae531e6"
     }
   ]
 }

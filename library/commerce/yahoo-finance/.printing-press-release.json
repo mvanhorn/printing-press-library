@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "yahoo-finance",
   "cli_name": "yahoo-finance-pp-cli",
-  "version": "2026.7.1",
-  "released_at": "2026-07-08T18:21:21Z",
-  "source_commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0",
+  "version": "2026.8.1",
+  "released_at": "2026-08-10T02:27:51Z",
+  "source_commit": "4ca369b52ca93bf8c38a8aa408d3fbf730d98882",
   "printing_press_version": "4.14.0",
   "run_id": "20260524-221143",
   "changes": [
     {
-      "title": "fix(catalog): require Go 1.26.5 across published modules",
-      "pr": 1467,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1467",
-      "commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0"
+      "title": "fix(yahoo-finance): let period1 override range",
+      "pr": 1633,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1633",
+      "commit": "4ca369b52ca93bf8c38a8aa408d3fbf730d98882"
     }
   ]
 }

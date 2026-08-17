@@ -31,19 +31,33 @@ func newTicketsUpdateCmd(flags *rootFlags) *cobra.Command {
 		Annotations: map[string]string{"pp:endpoint": "tickets.update", "pp:method": "PUT", "pp:path": "/tickets/{id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
-				return cmd.Help()
+				// A missing required positional is a usage error in every output
+				// mode (matches command_promoted.go.tmpl). Machine callers
+				// (--json/--agent) also get a JSON error envelope on stdout;
+				// usageErr sets exit 2.
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "missing required argument",
+						"usage": fmt.Sprintf("%s%s", cmd.CommandPath(), " <id>"),
+					}, flags); printErr != nil {
+						return printErr
+					}
+				}
+				return usageErr(fmt.Errorf("missing required argument\nUsage: %s%s", cmd.CommandPath(), " <id>"))
 			}
 			if !stdinBody {
 			}
+			path := "/tickets/{id}"
+			if len(args) < 1 || args[0] == "" {
+				return usageErr(fmt.Errorf("id is required\nUsage: %s <%s>", cmd.CommandPath(), "id"))
+			}
+			path = replacePathParam(path, "id", args[0])
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/tickets/{id}"
-			path = replacePathParam(path, "id", args[0])
 			params := map[string]string{}
-			var body map[string]any
+			var body any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
@@ -55,7 +69,8 @@ func newTicketsUpdateCmd(flags *rootFlags) *cobra.Command {
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
+				bodyMap := map[string]any{}
+				body = bodyMap
 				{
 					nestedAssignment := map[string]any{}
 					if bodyAssignmentAdminId != "" {
@@ -65,33 +80,37 @@ func newTicketsUpdateCmd(flags *rootFlags) *cobra.Command {
 						nestedAssignment["assignee_id"] = bodyAssignmentAssigneeId
 					}
 					if len(nestedAssignment) > 0 {
-						body["assignment"] = nestedAssignment
+						bodyMap["assignment"] = nestedAssignment
 					}
 				}
 				if bodyCompanyId != "" {
-					body["company_id"] = bodyCompanyId
+					bodyMap["company_id"] = bodyCompanyId
 				}
 				if cmd.Flags().Changed("is-shared") {
-					body["is_shared"] = bodyIsShared
+					bodyMap["is_shared"] = bodyIsShared
 				}
 				if cmd.Flags().Changed("open") {
-					body["open"] = bodyOpen
+					bodyMap["open"] = bodyOpen
 				}
 				if cmd.Flags().Changed("skip-notifications") {
-					body["skip_notifications"] = bodySkipNotifications
+					bodyMap["skip_notifications"] = bodySkipNotifications
 				}
 				if bodySnoozedUntil != 0 {
-					body["snoozed_until"] = bodySnoozedUntil
+					bodyMap["snoozed_until"] = bodySnoozedUntil
 				}
 				if bodyTicketAttributes != "" {
 					var parsedTicketAttributes any
 					if err := json.Unmarshal([]byte(bodyTicketAttributes), &parsedTicketAttributes); err != nil {
 						return fmt.Errorf("parsing --ticket-attributes JSON: %w", err)
 					}
-					body["ticket_attributes"] = parsedTicketAttributes
+					asMap, ok := parsedTicketAttributes.(map[string]any)
+					if !ok {
+						return fmt.Errorf("--ticket-attributes must be a JSON object, got JSON %T", parsedTicketAttributes)
+					}
+					bodyMap["ticket_attributes"] = asMap
 				}
 				if bodyTicketStateId != "" {
-					body["ticket_state_id"] = bodyTicketStateId
+					bodyMap["ticket_state_id"] = bodyTicketStateId
 				}
 			}
 			data, statusCode, err := c.PutWithParams(cmd.Context(), path, params, body)
@@ -161,6 +180,9 @@ func newTicketsUpdateCmd(flags *rootFlags) *cobra.Command {
 					"status":   statusCode,
 					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
 				}
+				if flags.agent {
+					envelope["meta"] = map[string]any{"source": "live"}
+				}
 				if partialFailure != nil {
 					envelope["partial_failure"] = partialFailure
 				}
@@ -199,7 +221,11 @@ func newTicketsUpdateCmd(flags *rootFlags) *cobra.Command {
 				if len(filtered) > 0 {
 					var parsed any
 					if err := json.Unmarshal(filtered, &parsed); err == nil {
-						envelope["data"] = parsed
+						if flags.agent {
+							envelope["results"] = parsed
+						} else {
+							envelope["data"] = parsed
+						}
 					}
 				}
 				envelopeJSON, err := json.Marshal(envelope)

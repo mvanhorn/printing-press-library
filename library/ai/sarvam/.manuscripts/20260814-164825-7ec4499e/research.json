@@ -1,0 +1,318 @@
+{
+  "api_name": "sarvam",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "sarvam-mcp",
+      "url": "https://github.com/sarvamai/sarvam-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 32,
+      "last_updated": "",
+      "command_count": 21,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "sarvamai-cli",
+      "url": "https://github.com/indic-ai-contribs/sarvamai-cli",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Sarvam-cli",
+      "url": "https://github.com/preethamak/Sarvam-cli",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "sarvamai/skills",
+      "url": "https://github.com/sarvamai/skills",
+      "language": "Markdown",
+      "install_method": "",
+      "stars": 69,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "sarvam-ai-sdk",
+      "url": "https://github.com/sarvamai/sarvam-ai-sdk",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-14T17:20:00Z",
+  "novel_features": [
+    {
+      "name": "Voice auditioning",
+      "command": "voices preview",
+      "description": "Generate one sample sentence across every TTS speaker and hear them all side by side",
+      "rationale": "Requires pacing N TTS calls across the speaker catalog with labeled file output — no single API call or existing tool provides auditioning",
+      "example": "sarvam-pp-cli voices preview --lang hi-IN --sample \"नमस्ते, स्वागत है\" --speakers shubh,ritu,priya --output ./voices",
+      "why_it_matters": "Use when choosing a TTS voice for a new language or prompt set without burning manual API calls",
+      "group": "Speech workflow"
+    },
+    {
+      "name": "Conversation resume",
+      "command": "chat resume",
+      "description": "Continue a past chat thread from local history with full context",
+      "rationale": "The chat API requires the full message array, which only a local store can replay",
+      "example": "sarvam-pp-cli chat resume 20260814_2d09e061 \"what was our conclusion?\"",
+      "why_it_matters": "Use to continue an assistant session without losing context, offline from the original thread",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Batch job retry",
+      "command": "stt-job retry",
+      "description": "Re-run only the failed files of a batch STT job with one command",
+      "rationale": "Filters per-file failure state from job details and orchestrates the initiate/upload/start lifecycle — no existing tool does this",
+      "example": "sarvam-pp-cli stt-job retry 20260707_9f1c2b3a-4d5e-6f70-8a9b-c0d1e2f3a4b5 --failed-only --dir ./audio/",
+      "why_it_matters": "Use when a batch job partially fails and you need to reprocess just the failures",
+      "group": "Job orchestration"
+    },
+    {
+      "name": "Pronunciation spot-check",
+      "command": "pron-check",
+      "description": "Verify a term's TTS pronunciation via a speech round-trip (TTS then STT)",
+      "rationale": "Chains TTS with dict_id and STT to mechanically verify pronunciation dictionaries actually change how a term sounds",
+      "example": "sarvam-pp-cli pron-check \"SarvamPay\" --lang hi-IN",
+      "why_it_matters": "Use to confirm a pronunciation dictionary edit took effect before shipping IVR prompts",
+      "group": "Speech workflow"
+    },
+    {
+      "name": "Subtitle export",
+      "command": "subs",
+      "description": "Emit .srt/.vtt subtitles from timestamped transcriptions in local history",
+      "rationale": "Formats timestamped STT output into subtitle cue blocks — a pure local computation no API provides",
+      "example": "sarvam-pp-cli subs --from last --format srt --output subtitles.srt",
+      "why_it_matters": "Use to turn a timestamped transcription into subtitles without a throwaway script",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Extraction schema library",
+      "command": "docai schema list",
+      "description": "Save, list, and diff doc-ai extraction schemas locally",
+      "rationale": "Stores extraction JSON schemas with versioning in the local store — schemas otherwise live in gists with no diff",
+      "example": "sarvam-pp-cli docai schema list",
+      "why_it_matters": "Use to version extraction schemas so schema changes never silently break extraction runs",
+      "group": "Document intelligence"
+    },
+    {
+      "name": "Folder extraction run",
+      "command": "docai batch",
+      "description": "Run a saved extraction schema over a folder of documents with job pacing",
+      "rationale": "Orchestrates the full upload/extract/poll/results lifecycle per file with a saved schema — no competitor CLI offers this",
+      "example": "sarvam-pp-cli docai batch --schema invoice-v1 --dir ./docs/ --out ./results/",
+      "why_it_matters": "Use for weekly batch document extraction (KYC, invoices) without writing orchestration code",
+      "group": "Document intelligence"
+    },
+    {
+      "name": "Batch job report",
+      "command": "stt-job report",
+      "description": "Per-file digest of a batch STT job with typed exit codes for cron alerting",
+      "rationale": "Transforms job status counts and per-file state into a persisted report with non-zero exit on failure — the dashboard cannot be scripted",
+      "example": "sarvam-pp-cli stt-job report 20260707_9f1c2b3a-4d5e-6f70-8a9b-c0d1e2f3a4b5 --json",
+      "why_it_matters": "Use in cron to alert when a batch transcription job degrades",
+      "group": "Job orchestration"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Voice auditioning",
+      "command": "voices preview",
+      "description": "Generate one sample sentence across every TTS speaker and hear them all side by side",
+      "rationale": "Requires pacing N TTS calls across the speaker catalog with labeled file output — no single API call or existing tool provides auditioning",
+      "example": "sarvam-pp-cli voices preview --lang hi-IN --sample \"नमस्ते, स्वागत है\" --speakers shubh,ritu,priya --output ./voices",
+      "why_it_matters": "Use when choosing a TTS voice for a new language or prompt set without burning manual API calls",
+      "group": "Speech workflow"
+    },
+    {
+      "name": "Conversation resume",
+      "command": "chat resume",
+      "description": "Continue a past chat thread from local history with full context",
+      "rationale": "The chat API requires the full message array, which only a local store can replay",
+      "example": "sarvam-pp-cli chat resume 20260814_2d09e061 \"what was our conclusion?\"",
+      "why_it_matters": "Use to continue an assistant session without losing context, offline from the original thread",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Batch job retry",
+      "command": "stt-job retry",
+      "description": "Re-run only the failed files of a batch STT job with one command",
+      "rationale": "Filters per-file failure state from job details and orchestrates the initiate/upload/start lifecycle — no existing tool does this",
+      "example": "sarvam-pp-cli stt-job retry 20260707_9f1c2b3a-4d5e-6f70-8a9b-c0d1e2f3a4b5 --failed-only --dir ./audio/",
+      "why_it_matters": "Use when a batch job partially fails and you need to reprocess just the failures",
+      "group": "Job orchestration"
+    },
+    {
+      "name": "Pronunciation spot-check",
+      "command": "pron-check",
+      "description": "Verify a term's TTS pronunciation via a speech round-trip (TTS then STT)",
+      "rationale": "Chains TTS with dict_id and STT to mechanically verify pronunciation dictionaries actually change how a term sounds",
+      "example": "sarvam-pp-cli pron-check \"SarvamPay\" --lang hi-IN",
+      "why_it_matters": "Use to confirm a pronunciation dictionary edit took effect before shipping IVR prompts",
+      "group": "Speech workflow"
+    },
+    {
+      "name": "Subtitle export",
+      "command": "subs",
+      "description": "Emit .srt/.vtt subtitles from timestamped transcriptions in local history",
+      "rationale": "Formats timestamped STT output into subtitle cue blocks — a pure local computation no API provides",
+      "example": "sarvam-pp-cli subs --from last --format srt --output subtitles.srt",
+      "why_it_matters": "Use to turn a timestamped transcription into subtitles without a throwaway script",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Extraction schema library",
+      "command": "docai schema list",
+      "description": "Save, list, and diff doc-ai extraction schemas locally",
+      "rationale": "Stores extraction JSON schemas with versioning in the local store — schemas otherwise live in gists with no diff",
+      "example": "sarvam-pp-cli docai schema list",
+      "why_it_matters": "Use to version extraction schemas so schema changes never silently break extraction runs",
+      "group": "Document intelligence"
+    },
+    {
+      "name": "Folder extraction run",
+      "command": "docai batch",
+      "description": "Run a saved extraction schema over a folder of documents with job pacing",
+      "rationale": "Orchestrates the full upload/extract/poll/results lifecycle per file with a saved schema — no competitor CLI offers this",
+      "example": "sarvam-pp-cli docai batch --schema invoice-v1 --dir ./docs/ --out ./results/",
+      "why_it_matters": "Use for weekly batch document extraction (KYC, invoices) without writing orchestration code",
+      "group": "Document intelligence"
+    },
+    {
+      "name": "Batch job report",
+      "command": "stt-job report",
+      "description": "Per-file digest of a batch STT job with typed exit codes for cron alerting",
+      "rationale": "Transforms job status counts and per-file state into a persisted report with non-zero exit on failure — the dashboard cannot be scripted",
+      "example": "sarvam-pp-cli stt-job report 20260707_9f1c2b3a-4d5e-6f70-8a9b-c0d1e2f3a4b5 --json",
+      "why_it_matters": "Use in cron to alert when a batch transcription job degrades",
+      "group": "Job orchestration"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "SARVAM_API_KEY"
+  },
+  "narrative": {
+    "display_name": "Sarvam AI",
+    "headline": "Every Sarvam AI model on your terminal — translate, speak, transcribe, chat, and extract documents in 22 Indian languages, with a local history that compounds",
+    "value_prop": "Sarvam AI's official SDKs and MCP server are great for code, but nothing offers offline capability: no local history of translations, TTS generations, transcriptions, or chat threads. sarvam-pp-cli adds a local SQLite store, voice auditioning, conversation resume, batch job retry/report, pronunciation spot-checks, subtitle export, and a doc-ai extraction schema library — all with --json, --dry-run, and typed exit codes for agents and scripts.",
+    "auth_narrative": "Authentication uses the Sarvam AI API subscription key (sk_ format). Set it with `export SARVAM_API_KEY=sk_...` or `sarvam-pp-cli auth set-token`. The key goes in the `api-subscription-key` header (or `Authorization: Bearer`). Note: an invalid key returns HTTP 403 with `invalid_api_key_error`, not 401 — treat 403 as the auth-failure signal. The separate Voice Agents platform (apps.sarvam.ai) uses a different X-API-Key system and is out of scope for this CLI.",
+    "quickstart": [
+      {
+        "command": "sarvam-pp-cli doctor --dry-run",
+        "comment": "Verify the CLI is installed and configured"
+      },
+      {
+        "command": "sarvam-pp-cli translate --input \"Hello, how are you?\" --source-language-code en-IN --target-language-code hi-IN",
+        "comment": "First translation — the core workflow"
+      },
+      {
+        "command": "sarvam-pp-cli text-to-speech text-to-speech \"नमस्ते, स्वागत है\" --language-code hi-IN --speaker shubh",
+        "comment": "Generate speech audio"
+      },
+      {
+        "command": "sarvam-pp-cli chat \"What is Sarvam AI?\" --model sarvam-105b",
+        "comment": "Ask the multilingual chat model"
+      },
+      {
+        "command": "sarvam-pp-cli search \"नमस्ते\" --json",
+        "comment": "Search past work offline"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "HTTP 403 invalid_api_key_error",
+        "fix": "The key is invalid or expired — not a 401. Re-run `sarvam-pp-cli auth set-token` with a fresh key from the Sarvam dashboard."
+      },
+      {
+        "symptom": "TTS pitch/loudness rejected on bulbul:v3",
+        "fix": "pitch and loudness are bulbul:v2-only. Use `--model bulbul:v2` or drop those flags."
+      },
+      {
+        "symptom": "Chat returns content: null with only reasoning",
+        "fix": "Set `--max-tokens` explicitly — hidden reasoning can consume the token budget before content."
+      },
+      {
+        "symptom": "Translate rejects \u003e1000 chars",
+        "fix": "mayura:v1 caps at 1000 chars. Use `--model sarvam-translate:v1` for up to 2000 chars."
+      },
+      {
+        "symptom": "Rate limit 429",
+        "fix": "Sarvam uses token-bucket limits (translate 60/min, TTS 60/min, chat 40/min on sarvam-105b). Add pacing or retry with backoff."
+      }
+    ],
+    "when_to_use": "Use sarvam-pp-cli when you need to translate, transliterate, transcribe, synthesize speech, chat, or extract document fields through Sarvam AI's Indic-language models — especially when you want a record of what you did, offline search across past work, batch orchestration, or scriptable/agent-friendly output. It is the right tool for voice-agent prompt engineering, call-center transcription QA, content localization, and document-intelligence pipelines.",
+    "anti_triggers": [
+      "Do not use this CLI for the Voice Agents platform (apps.sarvam.ai) — deployments, campaigns, cohorts, analytics, and instant outbound use a separate X-API-Key auth system with org/workspace scoping and are not implemented here.",
+      "Do not use this CLI for real-time WebSocket streaming (realtime STT, TTS WS) — those are AsyncAPI surfaces not covered by the REST CLI.",
+      "Do not use this CLI to replace a full speech-recognition model benchmark — the API is a paid service and the CLI does not add model-evaluation tooling."
+    ],
+    "recipes": [
+      {
+        "title": "Translate a support reply",
+        "command": "sarvam-pp-cli translate --input \"Your EMI of Rs. 3000 is pending\" --source-language-code en-IN --target-language-code hi-IN --mode formal",
+        "explanation": "Translate a single message with formal tone for customer communications"
+      },
+      {
+        "title": "Audition voices for a new prompt set",
+        "command": "sarvam-pp-cli voices preview --lang hi-IN --sample \"नमस्ते, स्वागत है\" --speakers shubh,ritu,priya",
+        "explanation": "Hear 3 voices on the same sample before committing to a speaker"
+      },
+      {
+        "title": "Subtitle a promo video",
+        "command": "sarvam-pp-cli subs --from last --format srt --output subtitles.srt",
+        "explanation": "Turn the last timestamped transcription into SRT subtitles"
+      },
+      {
+        "title": "Reprocess failed batch files",
+        "command": "sarvam-pp-cli stt-job retry 20260707_9f1c2b3a-4d5e-6f70-8a9b-c0d1e2f3a4b5 --failed-only --dir ./audio/",
+        "explanation": "Re-run only the files that failed in a batch transcription job"
+      },
+      {
+        "title": "Check a pronunciation dictionary",
+        "command": "sarvam-pp-cli pron-check \"SarvamPay\" --lang hi-IN --dict p_5cb7faa6",
+        "explanation": "Verify a custom pronunciation actually changed how the term sounds"
+      },
+      {
+        "title": "Extract fields from a folder of documents",
+        "command": "sarvam-pp-cli docai batch --schema invoice-v1 --dir ./docs/ --out ./results/",
+        "explanation": "Run a saved extraction schema over every document with pacing"
+      },
+      {
+        "title": "Continue a past chat session",
+        "command": "sarvam-pp-cli chat resume 20260814_2d09e061 \"what was our conclusion?\"",
+        "explanation": "Pick up an assistant conversation where it left off, with full context"
+      }
+    ],
+    "trigger_phrases": [
+      "translate this to Hindi",
+      "generate speech audio in Tamil",
+      "transcribe this audio file",
+      "what language is this text",
+      "extract fields from this document",
+      "use sarvam",
+      "run sarvam"
+    ]
+  }
+}

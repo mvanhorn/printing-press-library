@@ -1,0 +1,48 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-20T00:00:00Z",
+  "printing_press_version": "4.28.0",
+  "api_name": "greenhouse",
+  "category": "other",
+  "display_name": "Greenhouse",
+  "cli_name": "greenhouse-pp-cli",
+  "creator": {
+    "handle": "veltri-23",
+    "name": "Hunter Veltri"
+  },
+  "printer": "veltri-23",
+  "printer_name": "Hunter Veltri",
+  "spec_path": "./spec.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:149134b1acfa6f5dc507c1456148d6d4a8392d8160d6adf4b43d3e815ffb2e6b",
+  "run_id": "greenhouse-job-board-2026-07-19",
+  "description": "Greenhouse Job Board CLI — query any company's public Greenhouse job board from the command line. Generic board_token, no auth required, 4 operations covering jobs, departments, and offices.",
+  "mcp_binary": "greenhouse-pp-mcp",
+  "mcp_tool_count": 35,
+  "mcp_public_tool_count": 4,
+  "mcp_ready": "full",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Generic board_token",
+      "command": "jobs list <board_token>",
+      "description": "Single CLI serves any company that uses Greenhouse Job Board (Stripe, Anthropic, Airbnb, Notion, Figma, etc.) — board_token is a positional argument, not a hardcoded prefix."
+    },
+    {
+      "name": "Engine Resource Rename",
+      "command": "jobs list <board_token>",
+      "description": "Renamed the auto-scaffolded 'greenhouse-job-board-jobs' resource to 'jobs' to fix an engine shadow-rename caused by the 'jobs/' cobra conflict. Recorded in .printing-press-patches/001-rename-jobs-resource.json so regens preserve it."
+    }
+  ],
+  "search_terms": [
+    "greenhouse",
+    "greenhouse-pp-cli",
+    "jobs",
+    "job board",
+    "recruiting",
+    "hiring",
+    "apply",
+    "ATS",
+    "careers"
+  ]
+}

@@ -103,6 +103,9 @@ func newNovelCreatorFindCmd(flags *rootFlags) *cobra.Command {
 				return rows[i].Platform < rows[j].Platform
 			})
 
+			if err := allSourcesFailedErr("creator find", len(creatorPlatforms), failures); err != nil {
+				return err
+			}
 			warnFetchFailures(cmd, "creator find", failures)
 
 			if novelWantsMachine(cmd.OutOrStdout(), flags) {

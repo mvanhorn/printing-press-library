@@ -53,12 +53,15 @@ func storeAll(json.RawMessage) (bool, error) { return true, nil }
 // items actually returned so short pages never skip the posts behind them.
 func TestArchiveWalkShortPageDoesNotEndWalk(t *testing.T) {
 	var offsets []int
-	archived, skipped, err := archiveWalk(120, 50, fixturePages(96, 25, 23, &offsets), storeAll)
+	archived, skipped, exhausted, err := archiveWalk(120, 50, fixturePages(96, 25, 23, &offsets), storeAll)
 	if err != nil {
 		t.Fatalf("archiveWalk error = %v", err)
 	}
 	if archived != 96 || skipped != 0 {
 		t.Fatalf("archived = %d, skipped = %d; want 96 archived (the whole fixture), 0 skipped", archived, skipped)
+	}
+	if !exhausted {
+		t.Fatalf("exhausted = false; the walk ended on an empty page, so the archive is complete")
 	}
 	want := []int{0, 23, 48, 73, 96}
 	if fmt.Sprint(offsets) != fmt.Sprint(want) {
@@ -70,7 +73,7 @@ func TestArchiveWalkShortPageDoesNotEndWalk(t *testing.T) {
 // holds more posts.
 func TestArchiveWalkRespectsLimit(t *testing.T) {
 	var offsets []int
-	archived, _, err := archiveWalk(30, 50, fixturePages(96, 25, 25, &offsets), storeAll)
+	archived, _, exhausted, err := archiveWalk(30, 50, fixturePages(96, 25, 25, &offsets), storeAll)
 	if err != nil {
 		t.Fatalf("archiveWalk error = %v", err)
 	}
@@ -79,6 +82,12 @@ func TestArchiveWalkRespectsLimit(t *testing.T) {
 	}
 	if len(offsets) != 2 {
 		t.Fatalf("fetch calls = %d (%v), want 2 — the walk must stop at the limit", len(offsets), offsets)
+	}
+	// Regression (amend-2026-07-31): a limit-stop must be reported as NOT
+	// exhausted — "Archived 50 posts" at the default cap silently read as a
+	// complete archive when 116 more posts existed.
+	if exhausted {
+		t.Fatalf("exhausted = true; the walk stopped at --limit with 66 fixture posts unread")
 	}
 }
 
@@ -95,7 +104,7 @@ func TestArchiveWalkSkippedItemsDoNotCountTowardLimit(t *testing.T) {
 		}
 		return m.I%2 == 1, nil
 	}
-	archived, skipped, err := archiveWalk(3, 50, fixturePages(6, 25, 25, &offsets), storeOdd)
+	archived, skipped, _, err := archiveWalk(3, 50, fixturePages(6, 25, 25, &offsets), storeOdd)
 	if err != nil {
 		t.Fatalf("archiveWalk error = %v", err)
 	}
@@ -107,12 +116,15 @@ func TestArchiveWalkSkippedItemsDoNotCountTowardLimit(t *testing.T) {
 // TestArchiveWalkEmptyArchive: an empty first page terminates immediately.
 func TestArchiveWalkEmptyArchive(t *testing.T) {
 	var offsets []int
-	archived, skipped, err := archiveWalk(50, 50, fixturePages(0, 25, 25, &offsets), storeAll)
+	archived, skipped, exhausted, err := archiveWalk(50, 50, fixturePages(0, 25, 25, &offsets), storeAll)
 	if err != nil {
 		t.Fatalf("archiveWalk error = %v", err)
 	}
 	if archived != 0 || skipped != 0 || len(offsets) != 1 {
 		t.Fatalf("archived = %d, skipped = %d, fetches = %d; want 0, 0, 1", archived, skipped, len(offsets))
+	}
+	if !exhausted {
+		t.Fatalf("exhausted = false; an empty first page proves the archive has nothing to serve")
 	}
 }
 
@@ -131,12 +143,15 @@ func TestArchiveWalkPropagatesFetchError(t *testing.T) {
 		}
 		return nil, fmt.Errorf("boom")
 	}
-	archived, _, err := archiveWalk(50, 50, fetch, storeAll)
+	archived, _, exhausted, err := archiveWalk(50, 50, fetch, storeAll)
 	if err == nil || !strings.Contains(err.Error(), "boom") {
 		t.Fatalf("err = %v, want the fetch error propagated", err)
 	}
 	if archived != 10 {
 		t.Fatalf("archived = %d, want the 10 posts stored before the failure", archived)
+	}
+	if exhausted {
+		t.Fatalf("exhausted = true; an aborted walk must never claim the archive is complete")
 	}
 }
 

@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "raindrop-full-sync-prunes-global-resources",
+  "applied_at": "2026-08-14",
+  "base_run_id": "20260814-120132",
+  "base_printing_press_version": "4.30.2",
+  "summary": "Complete full syncs must reconcile account-global Raindrop resources against their complete seen-ID sets.",
+  "reason": "Raindrop bookmark, collection, tag, and highlight list endpoints enumerate the authenticated account globally; without global reconciliation, remotely deleted rows remain in offline workflows forever.",
+  "files": ["internal/cli/sync.go", "internal/store/store.go", "internal/store/reconcile_resource_test.go", "internal/cli/duplicates_apply_test.go"],
+  "validated_outcome": "Focused store and command tests prove unseen global rows are pruned while seen rows remain."
+}

@@ -1,0 +1,31 @@
+{
+  "timestamp": "2026-08-15T03:15:59.232424Z",
+  "cli_dir": "\u003ccli-dir\u003e",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "Brief but complete: cobra.NoArgs with no flags, so there are no parameters to name, and the return is the profile-name array the verb already implies. Adding words here would pad, not inform."
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 691,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "Real gap, but teach.go carries the generator's DO-NOT-EDIT header: the learn-loop template emits this Short for every printed CLI, so the durable fix is a generator-template change, not a hand-edit that the next regen wipes. Surfaced as a retro candidate."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-08-15T03:01:07.700456Z"
+  },
+  "progress": {
+    "last_processed_finding_id": "thin-short:teach.go:691"
+  }
+}

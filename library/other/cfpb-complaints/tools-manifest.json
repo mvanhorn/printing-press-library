@@ -1,0 +1,94 @@
+{
+  "api_name": "cfpb-complaints",
+  "base_url": "https://www.consumerfinance.gov",
+  "description": "Search published CFPB consumer complaint records and aggregations.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "data-research_list-complaints",
+      "description": "Search published consumer complaints. Optional: size (default: 25), from (default: 0), search_term (plus 9 more). Returns the DataResearchListComplaintsResponse.",
+      "method": "GET",
+      "path": "/data-research/consumer-complaints/search/api/v1/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "size",
+          "type": "int",
+          "location": "query",
+          "description": "Size"
+        },
+        {
+          "name": "from",
+          "type": "int",
+          "location": "query",
+          "description": "From"
+        },
+        {
+          "name": "search_term",
+          "type": "string",
+          "location": "query",
+          "description": "Search term"
+        },
+        {
+          "name": "company",
+          "type": "string",
+          "location": "query",
+          "description": "Company"
+        },
+        {
+          "name": "product",
+          "type": "string",
+          "location": "query",
+          "description": "Product"
+        },
+        {
+          "name": "issue",
+          "type": "string",
+          "location": "query",
+          "description": "Issue"
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "query",
+          "description": "State"
+        },
+        {
+          "name": "date_received_min",
+          "type": "string",
+          "location": "query",
+          "description": "Date received min"
+        },
+        {
+          "name": "date_received_max",
+          "type": "string",
+          "location": "query",
+          "description": "Date received max"
+        },
+        {
+          "name": "has_narrative",
+          "type": "bool",
+          "location": "query",
+          "description": "Has narrative"
+        },
+        {
+          "name": "field",
+          "type": "string",
+          "location": "query",
+          "description": "Field"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort"
+        }
+      ]
+    }
+  ]
+}

@@ -15,4 +15,7 @@
 .cache/
 dogfood-results.json
 workflow-verify-report.json
+publish-live-gate.json
 *.log
+# macOS
+.DS_Store

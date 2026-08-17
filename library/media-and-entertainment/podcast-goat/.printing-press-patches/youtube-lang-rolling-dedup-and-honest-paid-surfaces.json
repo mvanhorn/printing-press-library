@@ -1,0 +1,36 @@
+{
+  "schema_version": 2,
+  "id": "youtube-lang-rolling-dedup-and-honest-paid-surfaces",
+  "applied_at": "2026-07-31",
+  "base_run_id": "20260517-103310",
+  "base_printing_press_version": "4.8.0",
+  "summary": "YouTube auto-subs are per-video-language and rolling-window: the subtitle language must be selectable (--lang, one code per fetch, was hardcoded en) and consecutive cues overlap suffix-to-prefix against the ORIGINAL previous cue, so collapse must trim word overlaps or transcripts double; the word-level trim applies to space-tokenized languages only, and non-default-language fetches are not cached (per-URL identity is language-blind). Paid/optional surfaces must stay honest: doctor treats provider keys as optional and exposes key_sources (with a pt_demo demo-key marker) in --json too, info --probe checks real spoken.md availability (own 12s deadline, honors --provider), the dispatcher's chain-exhausted error wraps the typed error with %w so the CLI can react (Spotify cookie dead-ends get a shell-safe single-quoted ytsearch fallback hint), and unshipped features are not advertised on any surface including novel_features.",
+  "reason": "Dogfood sessions on the published CLI hit all of these live: non-English videos failed despite existing captions, a 43-minute episode rendered ~2x its word count, a healthy install FAILed doctor over optional keys, spoken.md coverage had to be mapped by grepping fetch errors, a Spotify URL dead-ended on a cookie the user never captured, and --help promised a --bilingual aligner that only returned a deferral error.",
+  "files": [
+    "internal/cli/amend_lang_probe_test.go",
+    "internal/cli/auth_set_key.go",
+    "internal/cli/doctor.go",
+    "internal/cli/doctor_extras.go",
+    "internal/cli/episode_get.go",
+    "internal/cli/episode_get_fallback.go",
+    "internal/cli/episode_info.go",
+    "internal/cli/root.go",
+    "internal/cli/which.go",
+    "internal/dispatch/dispatch.go",
+    "internal/dispatch/dispatch_test.go",
+    "internal/mcp/tools.go",
+    "internal/source/spoken/spoken.go",
+    "internal/source/youtube/youtube.go",
+    "internal/source/youtube/youtube_test.go"
+  ],
+  "validated_outcome": "go build/vet/test pass with new unit tests for the dedup (incl. shifted-window short-advance regression), dispatch error unwrapping, adapter-copy semantics, hostile-oEmbed-title shell safety, probe gating/notes, doctor env-vars verdict, and demo-key detection; verify_skill.py clean; live smoke confirmed --lang validation, doctor JSON key_sources with config:demo, probe availability via demo key, --provider probe exclusion, and the Spotify fallback hint firing end-to-end.",
+  "findings_addressed": [
+    "F1",
+    "F2",
+    "F3",
+    "F4",
+    "F5",
+    "F6",
+    "F9"
+  ]
+}

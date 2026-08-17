@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "tiimo",
+  "cli_name": "tiimo-pp-cli",
+  "version": "2026.8.1",
+  "released_at": "2026-08-17T05:43:40Z",
+  "source_commit": "1935de78e22e7a4f2a5d6edc8cf758ebdc652afd",
+  "printing_press_version": "4.30.2",
+  "run_id": "20260814-154828-17a1784d",
+  "changes": [
+    {
+      "title": "feat(tiimo): add tiimo",
+      "pr": 1732,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1732",
+      "commit": "1935de78e22e7a4f2a5d6edc8cf758ebdc652afd"
+    }
+  ]
+}

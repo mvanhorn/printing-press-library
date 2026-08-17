@@ -4,11 +4,13 @@ package granola
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"strings"
+	"sync/atomic"
 	"testing"
 )
 
@@ -258,4 +260,164 @@ func TestLoadTokensRaw_DetectsEncryptedSource(t *testing.T) {
 func writeFile(t *testing.T, path string, data []byte) error {
 	t.Helper()
 	return os.WriteFile(path, data, 0o644)
+}
+
+// PATCH(d6-read-only-applies-to-all-desktop-token-sources): tests for the
+// stored-accounts.json arm of D6. Granola desktop's key migration made
+// supabase.json.enc undecryptable for this CLI, so loadTokensRaw now falls
+// through to stored-accounts.json on exactly the installs where the desktop
+// still owns that (single-use) refresh token.
+
+// writeStoredAccounts writes a stored-accounts.json in Granola's real shape:
+// a stringified accounts array whose entries carry a stringified tokens blob.
+func writeStoredAccounts(t *testing.T, dir string) {
+	t.Helper()
+	tokens, err := json.Marshal(map[string]any{
+		"access_token":  "stored-access",
+		"refresh_token": "stored-refresh",
+		"expires_in":    3600,
+		"obtained_at":   1700000000000,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	accounts, err := json.Marshal([]map[string]any{{
+		"email":   "user@example.com",
+		"userId":  "u",
+		"savedAt": "2026-07-01T00:00:00Z",
+		"tokens":  string(tokens),
+	}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	top, err := json.Marshal(map[string]string{"accounts": string(accounts)})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := writeFile(t, dir+"/stored-accounts.json", top); err != nil {
+		t.Fatal(err)
+	}
+}
+
+// migratedSupportDir simulates a current Granola install: supabase.json.enc is
+// on disk but this CLI can no longer open it, so the token load falls through
+// to stored-accounts.json. The key override is set to the test DEK so the test
+// never shells out to the real Keychain; the ciphertext simply does not open
+// under it, which is the same fall-through loadTokensRaw takes when the DEK
+// itself is unavailable.
+func migratedSupportDir(t *testing.T) string {
+	t.Helper()
+	tmp := t.TempDir()
+	t.Setenv("GRANOLA_SUPPORT_DIR", tmp)
+	t.Setenv("GRANOLA_SAFESTORAGE_KEY_OVERRIDE", "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=")
+	if err := writeFile(t, tmp+"/supabase.json.enc", []byte("v11-not-openable-under-the-old-dek-scheme")); err != nil {
+		t.Fatal(err)
+	}
+	writeStoredAccounts(t, tmp)
+	return tmp
+}
+
+// countingRefreshServer stands in for Granola's refresh endpoint and records
+// whether it was called at all - a refusal must not touch the network.
+func countingRefreshServer(t *testing.T, calls *atomic.Int32) {
+	t.Helper()
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		calls.Add(1)
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`{"access_token":"rotated","refresh_token":"rotated-refresh","expires_in":3600}`))
+	}))
+	t.Cleanup(srv.Close)
+	origClient := refreshClient
+	SetRefreshHTTPClient(&http.Client{Transport: &rewriteTransport{target: srv.URL}})
+	t.Cleanup(func() { SetRefreshHTTPClient(origClient) })
+}
+
+func TestRefreshAccessToken_RefusesStoredAccountsOnMigratedInstall(t *testing.T) {
+	ResetTokenCache()
+	defer ResetTokenCache()
+	t.Setenv("GRANOLA_WORKOS_TOKEN", "")
+	t.Setenv("GRANOLA_WORKOS_REFRESH", "")
+	migratedSupportDir(t)
+	var calls atomic.Int32
+	countingRefreshServer(t, &calls)
+
+	refresh, err := LoadRefreshToken()
+	if err != nil {
+		t.Fatalf("LoadRefreshToken: %v", err)
+	}
+	if refresh != "stored-refresh" {
+		t.Fatalf("expected the stored-accounts refresh token, got %q", refresh)
+	}
+	if src := CurrentTokenSource(); src != TokenSourceStoredAccounts {
+		t.Fatalf("expected TokenSourceStoredAccounts, got %v", src)
+	}
+
+	_, err = RefreshAccessToken(refresh)
+	if err == nil {
+		t.Fatal("expected ErrRefreshRefused, got nil")
+	}
+	if !errors.Is(err, ErrRefreshRefused) {
+		t.Fatalf("expected ErrRefreshRefused, got %v", err)
+	}
+	if got := calls.Load(); got != 0 {
+		t.Errorf("expected no refresh request against the stale desktop token, got %d", got)
+	}
+	if !strings.Contains(err.Error(), "stored-accounts") {
+		t.Errorf("expected the refusal to name the source, got %v", err)
+	}
+	if !strings.Contains(err.Error(), "open Granola desktop") {
+		t.Errorf("expected the refusal to point at Granola desktop, got %v", err)
+	}
+}
+
+func TestRefreshAccessToken_AllowsStoredAccountsOnLegacyInstall(t *testing.T) {
+	ResetTokenCache()
+	defer ResetTokenCache()
+	t.Setenv("GRANOLA_WORKOS_TOKEN", "")
+	t.Setenv("GRANOLA_WORKOS_REFRESH", "")
+	// Legacy install: stored-accounts.json only, no encrypted store the
+	// desktop could be tracking the same refresh token in.
+	tmp := t.TempDir()
+	t.Setenv("GRANOLA_SUPPORT_DIR", tmp)
+	writeStoredAccounts(t, tmp)
+	var calls atomic.Int32
+	countingRefreshServer(t, &calls)
+
+	refresh, err := LoadRefreshToken()
+	if err != nil {
+		t.Fatalf("LoadRefreshToken: %v", err)
+	}
+	if src := CurrentTokenSource(); src != TokenSourceStoredAccounts {
+		t.Fatalf("expected TokenSourceStoredAccounts, got %v", src)
+	}
+	if _, err := RefreshAccessToken(refresh); err != nil {
+		t.Fatalf("legacy stored-accounts install should allow refresh, got: %v", err)
+	}
+	if got := calls.Load(); got != 1 {
+		t.Errorf("expected one refresh request, got %d", got)
+	}
+}
+
+func TestRefreshAccessToken_AllowsEnvOverrideOnMigratedInstall(t *testing.T) {
+	ResetTokenCache()
+	defer ResetTokenCache()
+	migratedSupportDir(t)
+	t.Setenv("GRANOLA_WORKOS_TOKEN", "env-access-token")
+	t.Setenv("GRANOLA_WORKOS_REFRESH", "env-refresh")
+	var calls atomic.Int32
+	countingRefreshServer(t, &calls)
+
+	refresh, err := LoadRefreshToken()
+	if err != nil {
+		t.Fatalf("LoadRefreshToken: %v", err)
+	}
+	if src := CurrentTokenSource(); src != TokenSourceEnvOverride {
+		t.Fatalf("expected TokenSourceEnvOverride, got %v", src)
+	}
+	if _, err := RefreshAccessToken(refresh); err != nil {
+		t.Fatalf("env override should allow refresh regardless of on-disk state, got: %v", err)
+	}
+	if got := calls.Load(); got != 1 {
+		t.Errorf("expected one refresh request, got %d", got)
+	}
 }

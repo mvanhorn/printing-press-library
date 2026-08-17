@@ -5,6 +5,7 @@
 Every Domino's feature you would expect — store locator, menu browse, build cart, validate, price, place, and track — plus a local data layer that compounds. Save named templates with `template save`, find the cheapest store for your order with `compare-prices`, hunt for the best stacked deal with `deals best`, and watch your delivery in real-time with `track --watch`.
 
 Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
+Contributors: [@rogilvy](https://github.com/rogilvy) (Robert Ogilvy).
 
 ## Install
 
@@ -122,13 +123,21 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 ## Authentication
 
-Most commands work without authentication: store locator, menu browse, cart building, anonymous order placement, and tracking-by-phone all succeed unauthenticated. For loyalty rewards, member-exclusive deals, and order history, run `dominos-pp-cli auth login` — it spawns a Chrome window pointed at dominos.com sign-in, waits for you to complete a normal login (handles captcha and 2FA), then reads the bearer token from sessionStorage and saves it to `~/.config/dominos-pp-cli/config.toml`. The token persists until Domino's expires it (~1 hour). Run `auth status` to confirm; `auth logout` to clear.
+Most US commands work without authentication: store locator, menu browse, cart building, anonymous order placement, and tracking-by-phone all succeed unauthenticated. For order history and account-scoped checkout inspection, run `dominos-pp-cli auth login`. Add `--market ca` for Domino's Canada; the selected market is persisted with the harvested session token and customer ID. The isolated Chrome window is used only for sign-in. Subsequent Canadian history, card-count, validation, pricing, and store-capability calls run directly through the CLI's HTTP client.
+
+Canadian support currently covers the Power API used for stores, menus, order history, validation, pricing, and checkout inspection. The US GraphQL loyalty/cart BFF is not available on the Canadian storefront. Canadian checkout preview never places an order and never prints card metadata. `orders place --market ca` and confirmed quick/template placement are rejected until a Canadian payment and service-method contract is implemented.
 
 ## Quick Start
 
 ```bash
 # 1. Sign in once. Spawns Chrome, you sign in normally, token harvests automatically.
 dominos-pp-cli auth login
+
+# Canada: one-time sign-in, then direct CLI calls
+dominos-pp-cli auth login --market ca
+dominos-pp-cli customer orders --market ca --limit 5 --json
+dominos-pp-cli customer cards --market ca --json
+dominos-pp-cli checkout preview --market ca --last --json
 
 # 2. Find your closest stores (no auth needed)
 dominos-pp-cli stores find --street "709 19th Ave" --city "Seattle WA 98122"
@@ -168,6 +177,16 @@ dominos-pp-cli track --phone 2065551234 --watch --interval 30s
 dominos-pp-cli order-quick --template friday-night --json
 dominos-pp-cli order-quick --template friday-night --confirm --eta-watch --json
 ```
+
+### Canadian checkout preview (cannot place)
+
+```bash
+dominos-pp-cli checkout preview --market ca --last --json
+```
+
+Browser login harvests the customer ID automatically. If you authenticate with `DOMINOS_TOKEN`, `auth login --paste`, or `auth login --stdin`, pass the matching customer ID explicitly: `checkout preview <customerID> --market ca --last --json`.
+
+This fetches the latest account order, removes historical payment and order identifiers, validates and reprices it, counts saved cards without emitting their metadata, and reports an allowlisted set of store payment capabilities. Its network path contains no `/power/place-order` request.
 
 ## Unique Features
 
@@ -254,6 +273,13 @@ Customer profile, order history, and loyalty (requires `auth login`)
 
 - **`dominos-pp-cli customer loyalty`** - Loyalty points balance, tier status, and pending points for the customer.
 - **`dominos-pp-cli customer orders`** - List the customer's recent orders. Returns full Order objects (Address, Products, Amounts, Coupons, Status, etc.) for analytics, reorder, and order-history workflows.
+- **`dominos-pp-cli customer cards`** - Return only saved-card count and availability; card details and payment references are always redacted.
+
+### checkout
+
+Inspect checkout readiness without placing an order.
+
+- **`dominos-pp-cli checkout preview --last`** - Fetch, sanitize, validate, and price the latest account order; summarize saved-card count and store payment capabilities. This command cannot place an order.
 
 ### graphql
 

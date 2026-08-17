@@ -1,0 +1,51 @@
+version: 2
+project_name: notebooklm-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: notebooklm-pp-cli
+    main: ./cmd/notebooklm-pp-cli
+    binary: notebooklm-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/ai/notebooklm/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: notebooklm-pp-mcp
+    main: ./cmd/notebooklm-pp-mcp
+    binary: notebooklm-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: notebooklm-pp-cli
+    repository:
+      owner: somsamantray
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Unofficial Gemini Notebook (NotebookLM) CLI with Chrome cookie auth, offline search, and MCP."
+    install: |
+      bin.install "notebooklm-pp-cli"
+      bin.install "notebooklm-pp-mcp"

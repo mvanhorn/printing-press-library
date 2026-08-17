@@ -1,0 +1,10 @@
+description: Successful response
+content:
+  application/json:
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+    example:
+      ok: ok

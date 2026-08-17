@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "ars-sicilia-happy-args-novel",
+  "applied_at": "2026-08-14",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.18.0",
+  "summary": "Declare pp:happy-args on the four novel commands that take positional arguments (ddl iter, deputato profilo, commissione dossier, legge cronologia), with real values taken from the run's research examples.",
+  "reason": "The live dogfood matrix skips happy-path and json-fidelity tests for commands whose positionals it cannot synthesize (`non-id positional \"nome\" at depth 0`, `command path has fewer segments than placeholders`), and publish validate then fails phase5 with `hollow coverage` for exactly those commands. pp:happy-args is the documented-by-example escape valve used by finra and fred. It does not currently take effect here — those two CLIs annotate endpoint-backed commands, while these four are composite novel commands with no pp:endpoint, so the matrix discards them before reading the annotation (measured: skip reasons byte-identical before and after). The arguments are kept because they are correct and will be honoured once cli-printing-press#4046 is fixed.",
+  "files": [
+    "internal/cli/ddl_iter.go",
+    "internal/cli/deputato_profilo.go",
+    "internal/cli/commissione_dossier.go",
+    "internal/cli/legge_cronologia.go"
+  ],
+  "validated_outcome": "Values verified by hand against the live portal: `ddl iter 18 1153`, `deputato profilo \"Abbate Ignazio\" --legisl 18`, `commissione dossier SESTA --legisl 18`, `legge cronologia 18 26 --anno 2025` all return populated results. Live dogfood after the change: 113/113 passed, 0 failed.",
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/4046"
+}

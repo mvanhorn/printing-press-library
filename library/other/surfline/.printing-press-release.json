@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "surfline",
+  "cli_name": "surfline-pp-cli",
+  "version": "2026.8.1",
+  "released_at": "2026-08-10T02:38:28Z",
+  "source_commit": "4b637271dfbf6a6b907d0e0152ae75f8fba2feef",
+  "printing_press_version": "4.24.0",
+  "run_id": "20260614-164025-61e51520",
+  "changes": [
+    {
+      "title": "feat(surfline): add surfline",
+      "pr": 1201,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1201",
+      "commit": "4b637271dfbf6a6b907d0e0152ae75f8fba2feef"
+    }
+  ]
+}

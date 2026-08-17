@@ -2,6 +2,14 @@
 
 This file is maintained by printing-press-library release automation. Do not hand-edit release sections in normal PRs.
 
+## 2026.8.2 - 2026-08-10
+
+- feat(slack): add canvases resource (create, read, edit, delete, share) (#1605).
+
+## 2026.8.1 - 2026-08-06
+
+- feat(slack): reprint slack under Printing Press v4.29.0 (#1652).
+
 ## 2026.7.2 - 2026-07-08
 
 - feat: registry hygiene follow-ups (pp-first descriptions, expanded MCP validation, --validate for skills, npm publish auto-trigger) (#675).

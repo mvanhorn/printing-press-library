@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "ars-sicilia-bd-sync-normalize",
+  "applied_at": "2026-07-23",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.18.0",
+  "summary": "Coerenza del percorso sync/analytics locale per gli archivi /bd/. parseBDRow normalizza la legislatura da numero romano (XVIII) ad arabo ('18'); yearOf riconosce il formato data /bd/ DD/MM/YYYY (oltre ai formati Icaro), cosi' analytics --group-by anno funziona sugli archivi sedute sincronizzati.",
+  "reason": "I record /bd/ salvavano legisl='XVIII', incoerente col flusso Icaro e con le query locali che filtrano $.legisl == '18' (analytics/search avrebbero mancato i record). yearOf non gestiva DD/MM/YYYY, quindi group-by anno restava vuoto sui /bd/.",
+  "files": [
+    "internal/icaroclient/bd.go",
+    "internal/cli/analytics.go"
+  ],
+  "validated_outcome": "sync --resources sommari,resoconti,convocazioni --legisl 18 -> record con legisl='18', id univoci; analytics --type sommari --group-by anno --legisl 18 -> 2026."
+}

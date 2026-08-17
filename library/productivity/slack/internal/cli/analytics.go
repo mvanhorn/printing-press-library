@@ -6,8 +6,9 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
-	"os"
+	"io"
 	"sort"
+	"strings"
 
 	"github.com/mvanhorn/printing-press-library/library/productivity/slack/internal/store"
 	"github.com/spf13/cobra"
@@ -20,8 +21,9 @@ func newAnalyticsCmd(flags *rootFlags) *cobra.Command {
 	var limit int
 
 	cmd := &cobra.Command{
-		Use:   "analytics",
-		Short: "Run analytics queries on locally synced data",
+		Use:         "analytics",
+		Short:       "Run analytics queries on locally synced data",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Long: `Analyze locally synced data with count, group-by, and summary operations.
 Data must be synced first with the sync command.`,
 		Example: `  # Count records by type
@@ -33,15 +35,18 @@ Data must be synced first with the sync command.`,
   # Top 10 most frequent values
   slack-pp-cli analytics --type messages --group-by channel_id --limit 10 --json`,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			out := cmd.OutOrStdout()
 			if dbPath == "" {
 				dbPath = defaultDBPath("slack-pp-cli")
 			}
 
-			db, err := store.Open(dbPath)
+			db, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
 				return fmt.Errorf("opening local database: %w\nRun 'slack-pp-cli sync' first.", err)
 			}
 			defer db.Close()
+
+			maybeEmitSyncHints(cmd, db, resourceType, flags.maxAge)
 
 			if resourceType == "" {
 				// Show summary of all resource types
@@ -49,21 +54,35 @@ Data must be synced first with the sync command.`,
 				if err != nil {
 					return fmt.Errorf("getting status: %w", err)
 				}
-				if flags.asJSON {
-					enc := json.NewEncoder(os.Stdout)
-					enc.SetIndent("", "  ")
-					return enc.Encode(status)
+				if wantsMachineOutput(flags) {
+					if flags.csv || flags.plain || flags.quiet {
+						type statusRow struct {
+							ResourceType string `json:"resource_type"`
+							Count        int    `json:"count"`
+						}
+						keys := make([]string, 0, len(status))
+						for rt := range status {
+							keys = append(keys, rt)
+						}
+						sort.Strings(keys)
+						rows := make([]statusRow, 0, len(keys))
+						for _, rt := range keys {
+							rows = append(rows, statusRow{ResourceType: rt, Count: status[rt]})
+						}
+						return printJSONFiltered(out, rows, flags)
+					}
+					return printJSONFiltered(out, status, flags)
 				}
-				fmt.Println("Resource Type\tCount")
-				fmt.Println("-------------\t-----")
+				fmt.Fprintln(out, "Resource Type\tCount")
+				fmt.Fprintln(out, "-------------\t-----")
 				for rt, count := range status {
-					fmt.Printf("%s\t%d\n", rt, count)
+					fmt.Fprintf(out, "%s\t%d\n", rt, count)
 				}
 				return nil
 			}
 
 			if groupBy != "" {
-				return runGroupBy(db, resourceType, groupBy, limit, flags)
+				return runGroupBy(out, db, resourceType, groupBy, limit, flags)
 			}
 
 			count, err := db.Count(resourceType)
@@ -71,49 +90,58 @@ Data must be synced first with the sync command.`,
 				return fmt.Errorf("counting: %w", err)
 			}
 
-			if flags.asJSON {
+			if wantsMachineOutput(flags) {
 				result := map[string]any{"resource_type": resourceType, "count": count}
-				enc := json.NewEncoder(os.Stdout)
-				enc.SetIndent("", "  ")
-				return enc.Encode(result)
+				return printJSONFiltered(out, result, flags)
 			}
 
-			fmt.Printf("%s: %d records\n", resourceType, count)
+			fmt.Fprintf(out, "%s: %d records\n", resourceType, count)
 			return nil
 		},
 	}
 
 	cmd.Flags().StringVar(&resourceType, "type", "", "Resource type to analyze")
 	cmd.Flags().StringVar(&groupBy, "group-by", "", "Field to group by")
-	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
+	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite database file path (default: resolved data directory data.db)")
 	cmd.Flags().IntVar(&limit, "limit", 25, "Max groups to show")
 
 	return cmd
 }
 
-func runGroupBy(db *store.Store, resourceType, field string, limit int, flags *rootFlags) error {
+func runGroupBy(out io.Writer, db *store.Store, resourceType, field string, limit int, flags *rootFlags) error {
 	items, err := db.List(resourceType, 0)
 	if err != nil {
 		return err
 	}
 
 	counts := make(map[string]int)
-	nilCount := 0
+	validFields := make(map[string]struct{})
+	matchedAny := false
+	missingFieldCount := 0
+	decodedRows := 0
 	for _, item := range items {
 		var obj map[string]any
 		if err := json.Unmarshal(item, &obj); err != nil {
 			continue
 		}
-		v, exists := obj[field]
-		if !exists || v == nil {
-			nilCount++
-			continue
+		decodedRows++
+		for key := range obj {
+			validFields[key] = struct{}{}
 		}
-		val := fmt.Sprintf("%v", v)
-		counts[val]++
+		raw, ok := resolvedGroupValue(obj, field)
+		if ok {
+			matchedAny = true
+			val := fmt.Sprintf("%v", raw)
+			counts[val]++
+		} else {
+			missingFieldCount++
+		}
 	}
-	if len(counts) == 0 && nilCount > 0 {
-		return fmt.Errorf("field %q not found in %s records", field, resourceType)
+	if decodedRows > 0 && !matchedAny {
+		return fmt.Errorf("group-by field %q was not found in any %s record; valid group-by fields: %s", field, resourceType, formatGroupByFields(validFields))
+	}
+	if missingFieldCount > 0 {
+		counts["<nil>"] += missingFieldCount
 	}
 
 	type kv struct {
@@ -129,16 +157,51 @@ func runGroupBy(db *store.Store, resourceType, field string, limit int, flags *r
 		sorted = sorted[:limit]
 	}
 
-	if flags.asJSON {
-		enc := json.NewEncoder(os.Stdout)
-		enc.SetIndent("", "  ")
-		return enc.Encode(sorted)
+	if wantsMachineOutput(flags) {
+		return printJSONFiltered(out, sorted, flags)
 	}
 
-	fmt.Printf("%s\tCount\n", field)
-	fmt.Println("---\t-----")
+	fmt.Fprintf(out, "%s\tCount\n", field)
+	fmt.Fprintln(out, "---\t-----")
 	for _, kv := range sorted {
-		fmt.Printf("%s\t%d\n", kv.Key, kv.Count)
+		fmt.Fprintf(out, "%s\t%d\n", kv.Key, kv.Count)
 	}
 	return nil
+}
+
+func resolvedGroupValue(obj map[string]any, field string) (any, bool) {
+	if val, ok := obj[field]; ok {
+		return val, true
+	}
+	if !strings.HasSuffix(field, "_id") {
+		if val, ok := obj[field+"_id"]; ok {
+			return val, true
+		}
+	}
+	return nil, false
+}
+
+func formatGroupByFields(fields map[string]struct{}) string {
+	if len(fields) == 0 {
+		return "none"
+	}
+	var names []string
+	var aliases []string
+	for name := range fields {
+		names = append(names, name)
+		if strings.HasSuffix(name, "_id") {
+			alias := strings.TrimSuffix(name, "_id")
+			if alias != "" {
+				if _, exists := fields[alias]; !exists {
+					aliases = append(aliases, alias)
+				}
+			}
+		}
+	}
+	sort.Strings(names)
+	sort.Strings(aliases)
+	if len(aliases) == 0 {
+		return strings.Join(names, ", ")
+	}
+	return fmt.Sprintf("%s (aliases: %s)", strings.Join(names, ", "), strings.Join(aliases, ", "))
 }

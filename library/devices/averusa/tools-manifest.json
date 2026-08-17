@@ -1,0 +1,107 @@
+{
+  "api_name": "averusa",
+  "base_url": "https://averusa.my.site.com/support/s",
+  "description": "Every AVer USA manual, spec sheet, and white paper in a local, type-filtered catalog — with spec comparison and link audits no AVer site offers.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
+    },
+    {
+      "name": "Accept",
+      "value": "*/*"
+    }
+  ],
+  "tools": [
+    {
+      "name": "docs_download",
+      "description": "Download an article's attached file (PDF). Required: entity-id.",
+      "method": "GET",
+      "path": "/servlet/fileField?entityId={entity_id}\u0026field=File__Body__s",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "entity-id",
+          "wire_name": "entity_id",
+          "type": "string",
+          "location": "path",
+          "description": "Salesforce entityId resolved from the article URL name (see docs sync)",
+          "required": true,
+          "aliases": [
+            "e"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "docs_get",
+      "description": "Fetch a knowledge article as clean text (crawler-UA SSR). Required: url-name.",
+      "method": "GET",
+      "path": "/article/CAM540-Manual",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "url-name",
+          "wire_name": "url_name",
+          "type": "string",
+          "location": "path",
+          "description": "Article URL name from the sitemap, e.g. CAM540-Manual",
+          "required": true,
+          "aliases": [
+            "u"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "docs_list",
+      "description": "Fetch the support-portal article sitemap (all knowledge-article URLs).",
+      "method": "GET",
+      "path": "/sitemap-topicarticle-1.xml",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "products_get",
+      "description": "Fetch a product page as clean text (spec links, downloads). Required: category, model.",
+      "method": "GET",
+      "path": "/products/conference-camera/cam570",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "category",
+          "type": "string",
+          "location": "query",
+          "description": "Product category slug, e.g. conference-camera, ptz-camera, document-camera, video-bar, charging-cart",
+          "required": true,
+          "aliases": [
+            "c"
+          ]
+        },
+        {
+          "name": "model",
+          "type": "string",
+          "location": "path",
+          "description": "Product model slug, e.g. cam570, vc520pro3, tr530",
+          "required": true,
+          "aliases": [
+            "m"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "products_list",
+      "description": "Fetch the main-site sitemap (product pages, categories).",
+      "method": "GET",
+      "path": "/sitemap.xml",
+      "no_auth": true,
+      "params": []
+    }
+  ]
+}

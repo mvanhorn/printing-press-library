@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "greenhouse",
+  "cli_name": "greenhouse-pp-cli",
+  "version": "2026.8.1",
+  "released_at": "2026-08-17T05:32:23Z",
+  "source_commit": "027475398124c04c592c623b988764520536b63e",
+  "printing_press_version": "4.28.0",
+  "run_id": "greenhouse-job-board-2026-07-19",
+  "changes": [
+    {
+      "title": "feat(greenhouse): add greenhouse",
+      "pr": 1669,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1669",
+      "commit": "027475398124c04c592c623b988764520536b63e"
+    }
+  ]
+}

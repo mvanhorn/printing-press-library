@@ -1,0 +1,354 @@
+{
+  "api_name": "scientific-consensus",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "pyalex",
+      "url": "https://github.com/J535D165/pyalex",
+      "language": "Python",
+      "install_method": "",
+      "stars": 350,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "semanticscholar",
+      "url": "https://github.com/danielnsilva/semanticscholar",
+      "language": "Python",
+      "install_method": "",
+      "stars": 400,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "habanero",
+      "url": "https://github.com/sckott/habanero",
+      "language": "Python",
+      "install_method": "",
+      "stars": 250,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "metapub",
+      "url": "https://github.com/metapub/metapub",
+      "language": "Python",
+      "install_method": "",
+      "stars": 200,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "europepmc",
+      "url": "https://github.com/ropensci/europepmc",
+      "language": "R",
+      "install_method": "",
+      "stars": 150,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-20T16:56:00Z",
+  "novel_features": [
+    {
+      "name": "Consensus engine",
+      "command": "consensus",
+      "description": "Answer 'what does the evidence say about X' with a Consensus Score, Confidence Score, and Evidence Strength across all sources.",
+      "rationale": "No single API returns a consensus verdict; requires classifying each study's stance and weighting by evidence tier across a normalized local corpus.",
+      "example": "scientific-consensus consensus \"vitamin D reduces respiratory infections\" --agent",
+      "why_it_matters": "Reach for this when an agent needs an evidence-backed yes/no/mixed verdict instead of a raw paper list.",
+      "group": "Evidence intelligence"
+    },
+    {
+      "name": "Evidence engine + pyramid",
+      "command": "evidence",
+      "description": "Classify retrieved studies by design (meta-analysis to case report) and render the evidence pyramid for a topic.",
+      "rationale": "OpenAlex type is too coarse; real classification cascades PubMed pubtype -\u003e Semantic Scholar -\u003e title/abstract heuristics, only possible by joining sources locally.",
+      "example": "scientific-consensus evidence \"intermittent fasting weight loss\" --agent",
+      "why_it_matters": "Reach for this to judge whether a claim rests on RCTs/meta-analyses or just case series.",
+      "group": "Evidence intelligence"
+    },
+    {
+      "name": "Claim comparison",
+      "command": "compare",
+      "description": "Run two consensus analyses side-by-side to compare competing claims or interventions.",
+      "rationale": "Requires two consensus passes over one local store and a normalized diff; no incumbent compares claims head-to-head.",
+      "example": "scientific-consensus compare \"statins reduce mortality\" \"statins increase diabetes risk\" --agent",
+      "why_it_matters": "Reach for this when an agent must weigh two interventions or contradictory claims.",
+      "group": "Evidence intelligence"
+    },
+    {
+      "name": "Research gap detector",
+      "command": "gaps",
+      "description": "Identify understudied populations, missing long-term/replication/RCT studies, and future directions for a topic.",
+      "rationale": "Requires cross-tabulating study designs, recency, and populations over the local corpus.",
+      "example": "scientific-consensus gaps \"pediatric long covid\" --agent",
+      "why_it_matters": "Reach for this to find what research is missing, not just what exists.",
+      "group": "Discovery"
+    },
+    {
+      "name": "Controversy detector",
+      "command": "controversies",
+      "description": "Surface conflicting studies, contradictory conclusions, and rapidly changing evidence for a topic.",
+      "rationale": "Requires detecting opposing stances and evidence churn across many works in one pass.",
+      "example": "scientific-consensus controversies \"saturated fat heart disease\" --agent",
+      "why_it_matters": "Reach for this when the question is 'is this settled or disputed?'",
+      "group": "Discovery"
+    },
+    {
+      "name": "Emerging topics",
+      "command": "emerging",
+      "description": "Detect the fastest-growing research areas and exploding publication trends.",
+      "rationale": "Requires publication-velocity analysis over topic counts in the local store.",
+      "example": "scientific-consensus emerging --field neuroscience --agent",
+      "why_it_matters": "Reach for this to spot hot research areas before they peak.",
+      "group": "Trends"
+    },
+    {
+      "name": "Topic drift",
+      "command": "drift",
+      "description": "Compare a field's topic distribution between two year windows to spot emerging and fading subtopics.",
+      "rationale": "Requires comparing topic histograms across two time windows from the local corpus.",
+      "example": "scientific-consensus drift \"machine learning genomics\" --from 2015 --to 2025 --agent",
+      "why_it_matters": "Reach for this to see how a field's focus shifted over time.",
+      "group": "Trends"
+    },
+    {
+      "name": "Reproducibility signals",
+      "command": "reproducibility",
+      "description": "Estimate reproducibility by detecting replication studies, sample sizes, and pre-registration cues.",
+      "rationale": "Requires scanning abstracts across sources for replication/registration signals joined in the local store.",
+      "example": "scientific-consensus reproducibility \"power posing\" --agent",
+      "why_it_matters": "Reach for this to gauge how well-replicated a finding is.",
+      "group": "Evidence intelligence"
+    },
+    {
+      "name": "Study quality estimate",
+      "command": "quality",
+      "description": "Estimate overall study quality from design, venue prestige, sample-size cues, and citation mass.",
+      "rationale": "Requires combining signals that only coexist after normalizing multiple sources locally.",
+      "example": "scientific-consensus quality \"omega-3 depression\" --agent",
+      "why_it_matters": "Reach for this for a quick quality signal before deep reading.",
+      "group": "Evidence intelligence"
+    },
+    {
+      "name": "Funding analysis",
+      "command": "funding",
+      "description": "Analyze funding patterns and funder concentration for a research topic.",
+      "rationale": "Requires Crossref funder data joined with works in the local store; no search tool surfaces funder concentration.",
+      "example": "scientific-consensus funding \"e-cigarette safety\" --agent",
+      "why_it_matters": "Reach for this to see who funds research on a topic (potential conflicts).",
+      "group": "Discovery"
+    },
+    {
+      "name": "Topic watch",
+      "command": "watch",
+      "description": "Monitor a topic and report major new publications since the last run.",
+      "rationale": "Requires persisting a baseline snapshot locally and diffing against fresh results on re-run.",
+      "example": "scientific-consensus watch \"GLP-1 cardiovascular outcomes\" --agent",
+      "why_it_matters": "Reach for this to keep an agent or researcher current on a fast-moving topic.",
+      "group": "Trends"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Consensus engine",
+      "command": "consensus",
+      "description": "Answer 'what does the evidence say about X' with a Consensus Score, Confidence Score, and Evidence Strength across all sources.",
+      "rationale": "No single API returns a consensus verdict; requires classifying each study's stance and weighting by evidence tier across a normalized local corpus.",
+      "example": "scientific-consensus consensus \"vitamin D reduces respiratory infections\" --agent",
+      "why_it_matters": "Reach for this when an agent needs an evidence-backed yes/no/mixed verdict instead of a raw paper list.",
+      "group": "Evidence intelligence"
+    },
+    {
+      "name": "Evidence engine + pyramid",
+      "command": "evidence",
+      "description": "Classify retrieved studies by design (meta-analysis to case report) and render the evidence pyramid for a topic.",
+      "rationale": "OpenAlex type is too coarse; real classification cascades PubMed pubtype -\u003e Semantic Scholar -\u003e title/abstract heuristics, only possible by joining sources locally.",
+      "example": "scientific-consensus evidence \"intermittent fasting weight loss\" --agent",
+      "why_it_matters": "Reach for this to judge whether a claim rests on RCTs/meta-analyses or just case series.",
+      "group": "Evidence intelligence"
+    },
+    {
+      "name": "Claim comparison",
+      "command": "compare",
+      "description": "Run two consensus analyses side-by-side to compare competing claims or interventions.",
+      "rationale": "Requires two consensus passes over one local store and a normalized diff; no incumbent compares claims head-to-head.",
+      "example": "scientific-consensus compare \"statins reduce mortality\" \"statins increase diabetes risk\" --agent",
+      "why_it_matters": "Reach for this when an agent must weigh two interventions or contradictory claims.",
+      "group": "Evidence intelligence"
+    },
+    {
+      "name": "Research gap detector",
+      "command": "gaps",
+      "description": "Identify understudied populations, missing long-term/replication/RCT studies, and future directions for a topic.",
+      "rationale": "Requires cross-tabulating study designs, recency, and populations over the local corpus.",
+      "example": "scientific-consensus gaps \"pediatric long covid\" --agent",
+      "why_it_matters": "Reach for this to find what research is missing, not just what exists.",
+      "group": "Discovery"
+    },
+    {
+      "name": "Controversy detector",
+      "command": "controversies",
+      "description": "Surface conflicting studies, contradictory conclusions, and rapidly changing evidence for a topic.",
+      "rationale": "Requires detecting opposing stances and evidence churn across many works in one pass.",
+      "example": "scientific-consensus controversies \"saturated fat heart disease\" --agent",
+      "why_it_matters": "Reach for this when the question is 'is this settled or disputed?'",
+      "group": "Discovery"
+    },
+    {
+      "name": "Emerging topics",
+      "command": "emerging",
+      "description": "Detect the fastest-growing research areas and exploding publication trends.",
+      "rationale": "Requires publication-velocity analysis over topic counts in the local store.",
+      "example": "scientific-consensus emerging --field neuroscience --agent",
+      "why_it_matters": "Reach for this to spot hot research areas before they peak.",
+      "group": "Trends"
+    },
+    {
+      "name": "Topic drift",
+      "command": "drift",
+      "description": "Compare a field's topic distribution between two year windows to spot emerging and fading subtopics.",
+      "rationale": "Requires comparing topic histograms across two time windows from the local corpus.",
+      "example": "scientific-consensus drift \"machine learning genomics\" --from 2015 --to 2025 --agent",
+      "why_it_matters": "Reach for this to see how a field's focus shifted over time.",
+      "group": "Trends"
+    },
+    {
+      "name": "Reproducibility signals",
+      "command": "reproducibility",
+      "description": "Estimate reproducibility by detecting replication studies, sample sizes, and pre-registration cues.",
+      "rationale": "Requires scanning abstracts across sources for replication/registration signals joined in the local store.",
+      "example": "scientific-consensus reproducibility \"power posing\" --agent",
+      "why_it_matters": "Reach for this to gauge how well-replicated a finding is.",
+      "group": "Evidence intelligence"
+    },
+    {
+      "name": "Study quality estimate",
+      "command": "quality",
+      "description": "Estimate overall study quality from design, venue prestige, sample-size cues, and citation mass.",
+      "rationale": "Requires combining signals that only coexist after normalizing multiple sources locally.",
+      "example": "scientific-consensus quality \"omega-3 depression\" --agent",
+      "why_it_matters": "Reach for this for a quick quality signal before deep reading.",
+      "group": "Evidence intelligence"
+    },
+    {
+      "name": "Funding analysis",
+      "command": "funding",
+      "description": "Analyze funding patterns and funder concentration for a research topic.",
+      "rationale": "Requires Crossref funder data joined with works in the local store; no search tool surfaces funder concentration.",
+      "example": "scientific-consensus funding \"e-cigarette safety\" --agent",
+      "why_it_matters": "Reach for this to see who funds research on a topic (potential conflicts).",
+      "group": "Discovery"
+    },
+    {
+      "name": "Topic watch",
+      "command": "watch",
+      "description": "Monitor a topic and report major new publications since the last run.",
+      "rationale": "Requires persisting a baseline snapshot locally and diffing against fresh results on re-run.",
+      "example": "scientific-consensus watch \"GLP-1 cardiovascular outcomes\" --agent",
+      "why_it_matters": "Reach for this to keep an agent or researcher current on a fast-moving topic.",
+      "group": "Trends"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "Scientific Consensus",
+    "headline": "Aggregate PubMed, OpenAlex, Crossref, and Europe PMC into evidence summaries, consensus scores, and study-design pyramids no single search tool produces.",
+    "value_prop": "Scientific Consensus turns large collections of papers into actionable evidence. It scores consensus across sources (`consensus`), classifies studies by design and renders evidence pyramids (`evidence`), detects gaps and controversies, and persists everything to a local SQLite store you can query offline with `--json`. Fully keyless; optional AI keys upgrade summarization.",
+    "auth_narrative": "No API key required for any command. Optional env vars raise limits or enable AI summarization: NCBI_API_KEY (PubMed, higher rate limit), SEMANTIC_SCHOLAR_API_KEY (Semantic Scholar enrichment), and OPENAI_API_KEY / ANTHROPIC_API_KEY / GEMINI_API_KEY (enhanced summarization). Everything works without them.",
+    "quickstart": [
+      {
+        "command": "scientific-consensus doctor --dry-run",
+        "comment": "Verify per-source reachability before running analyses."
+      },
+      {
+        "command": "scientific-consensus search \"vitamin d covid\" --limit 10",
+        "comment": "Cross-source search to confirm data flows."
+      },
+      {
+        "command": "scientific-consensus consensus \"vitamin D reduces respiratory infections\"",
+        "comment": "The headline command: an evidence-backed consensus verdict."
+      },
+      {
+        "command": "scientific-consensus evidence \"vitamin d covid\"",
+        "comment": "See the evidence pyramid for the same topic."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Semantic Scholar results missing or sparse",
+        "fix": "Semantic Scholar rate-limits keyless requests (HTTP 429). Set SEMANTIC_SCHOLAR_API_KEY or rely on OpenAlex/PubMed/Europe PMC; commands degrade gracefully."
+      },
+      {
+        "symptom": "PubMed throttling on large syncs",
+        "fix": "Set NCBI_API_KEY to raise the rate limit from 3 to 10 requests/second."
+      },
+      {
+        "symptom": "consensus reports method=heuristic",
+        "fix": "Stance classification is lexical without an AI key. Set OPENAI_API_KEY, ANTHROPIC_API_KEY, or GEMINI_API_KEY for AI-assisted stance detection."
+      },
+      {
+        "symptom": "Empty results offline",
+        "fix": "Run 'scientific-consensus sync \"\u003ctopic\u003e\"' first to populate the local store, or use --data-source live."
+      }
+    ],
+    "when_to_use": "Use Scientific Consensus when an agent or researcher needs to know what the evidence says about a claim, not just find papers. It is the right tool for evidence synthesis, consensus scoring, study-design classification, gap/controversy detection, and topic monitoring across biomedical and general scientific literature. It excels when offline persistence and agent-native JSON matter.",
+    "anti_triggers": [
+      "Do not use for retrieving the full text PDF of a specific paper (use the publisher or Europe PMC full-text directly).",
+      "Do not use for non-scholarly web search or news.",
+      "Do not use as a citation manager replacement for writing (use Zotero); it exports BibTeX but does not manage libraries.",
+      "Do not treat heuristic consensus/quality scores as peer-reviewed conclusions."
+    ],
+    "recipes": [
+      {
+        "title": "Evidence-backed verdict for an agent",
+        "command": "scientific-consensus consensus \"creatine improves cognition\" --agent --select verdict,consensus_score,confidence,study_count",
+        "explanation": "Returns a compact JSON verdict an agent can act on without parsing papers."
+      },
+      {
+        "title": "Evidence pyramid as a table",
+        "command": "scientific-consensus evidence \"mediterranean diet cardiovascular\" --csv",
+        "explanation": "Study-design distribution from meta-analyses down to case reports."
+      },
+      {
+        "title": "Compare two claims",
+        "command": "scientific-consensus compare \"intermittent fasting weight loss\" \"calorie counting weight loss\" --agent",
+        "explanation": "Side-by-side consensus and evidence strength for competing approaches."
+      },
+      {
+        "title": "Curate a deduped reading list",
+        "command": "scientific-consensus curate \"crispr off-target effects\" --format bibtex --limit 25",
+        "explanation": "Ranked, cross-source, DOI-deduplicated reading list exported as BibTeX."
+      },
+      {
+        "title": "Track a fast-moving topic",
+        "command": "scientific-consensus watch \"GLP-1 cardiovascular outcomes\" --agent",
+        "explanation": "Reports new publications since the last run from the local baseline."
+      }
+    ],
+    "trigger_phrases": [
+      "what does the evidence say about",
+      "scientific consensus on",
+      "is there consensus that",
+      "evidence pyramid for",
+      "research gaps in",
+      "compare the evidence for",
+      "use scientific-consensus",
+      "run scientific-consensus"
+    ]
+  }
+}

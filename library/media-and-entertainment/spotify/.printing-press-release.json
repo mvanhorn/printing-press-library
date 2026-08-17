@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "spotify",
   "cli_name": "spotify-pp-cli",
-  "version": "2026.7.1",
-  "released_at": "2026-07-08T18:21:21Z",
-  "source_commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0",
-  "printing_press_version": "4.5.2",
-  "run_id": "20260512-184940",
+  "version": "2026.8.2",
+  "released_at": "2026-08-10T02:11:44Z",
+  "source_commit": "67f0559d018efc0f2655582d57991386d436ac3e",
+  "printing_press_version": "4.27.1",
+  "run_id": "20260707-145126",
   "changes": [
     {
-      "title": "fix(catalog): require Go 1.26.5 across published modules",
-      "pr": 1467,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1467",
-      "commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0"
+      "title": "feat(spotify): quota circuit breaker with real Retry-After, token-stable tiered cache, adaptive rate limiting by default",
+      "pr": 1674,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1674",
+      "commit": "67f0559d018efc0f2655582d57991386d436ac3e"
     }
   ]
 }

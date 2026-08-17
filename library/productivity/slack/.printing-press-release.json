@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "slack",
   "cli_name": "slack-pp-cli",
-  "version": "2026.7.2",
-  "released_at": "2026-07-08T23:15:22Z",
-  "source_commit": "220c1563d0375ec8741c4c377b4bb5a4317cbf6a",
-  "printing_press_version": "1.2.1",
-  "run_id": "20260409-073625",
+  "version": "2026.8.2",
+  "released_at": "2026-08-10T02:56:26Z",
+  "source_commit": "b18d6b5276f3c19f3ca0da7c7d983bf13263a176",
+  "printing_press_version": "4.29.0",
+  "run_id": "20260801-150754-271fdf29",
   "changes": [
     {
-      "title": "feat: registry hygiene follow-ups (pp-first descriptions, expanded MCP validation, --validate for skills, npm publish auto-trigger)",
-      "pr": 675,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/675",
-      "commit": "220c1563d0375ec8741c4c377b4bb5a4317cbf6a"
+      "title": "feat(slack): add canvases resource (create, read, edit, delete, share)",
+      "pr": 1605,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1605",
+      "commit": "b18d6b5276f3c19f3ca0da7c7d983bf13263a176"
     }
   ]
 }

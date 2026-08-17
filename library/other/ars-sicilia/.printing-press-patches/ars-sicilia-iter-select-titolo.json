@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "ars-sicilia-iter-select-titolo",
+  "applied_at": "2026-08-16",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.18.0",
+  "summary": "Le ricette --select documentate per `ddl iter` includono `titolo`, con la ragione accanto. Nessuna modifica al codice: e' una correzione degli esempi in SKILL.md e README.md e della voce --select di SKILL.md.",
+  "reason": "L'esempio canonico era `ddl iter 17 290 --json --select data,fase,seduta,url` e l'altro `ddl iter 18 1153 --json --select fase,data,sede,oratori`: in nessuno dei due c'era `titolo`, che e' il solo campo a dire *cosa* e' successo. Le coordinate (data, fase, sede, seduta) coincidono legittimamente fra due eventi della stessa seduta: sul ddl 6030 il 29 lug 2026 seduta 268 compaiono «Esaminato in Aula» e «Approvato dall'Assemblea». Senza `titolo` le due righe escono identiche, e un agente che segue la ricetta della skill le legge come un duplicato del parser da collassare — cancellando l'approvazione finale della legge, cioe' l'evento piu' importante della cronologia. E' successo davvero: il report `docs/news-agent/2026-08-16_11-23.md` ha aperto il punto negativo «evento duplicato in ddl iter 18 6030» e proposto una dedup su data+fase+seduta+titolo. Prova che sia copiatura della ricetta e non scelta dell'agente: nello stesso run, su `legge cronologia` — dove SKILL.md non detta esempi con --select — ha messo `titolo` da se'. La regola scritta non e' «usa tutti i campi» (--select serve a risparmiare contesto ed e' la strada raccomandata agli agenti) ma «su ddl iter e legge cronologia `titolo` e' il contenuto dell'evento, non un campo fra gli altri». Stessa classe di ars-sicilia-select-preserva-avvisi, ma dentro le righe invece che in radice: li' il campo diceva se i dati erano tutti, qui dice quali sono.",
+  "files": [
+    "SKILL.md",
+    "README.md"
+  ],
+  "validated_outcome": "`ddl iter 18 6030 --json --select fase,data,sede,seduta,titolo,url`: i due eventi del 29 lug 2026 seduta 268 escono distinti («Esaminato in Aula», «Approvato dall'Assemblea»); con la ricetta vecchia erano due righe identiche. Group-by su tutti i campi dell'iter completo: [] — nessun duplicato esatto, quindi la dedup proposta dal report e' respinta sui dati. `ddl iter 17 290 --json --select data,fase,seduta,titolo,url` gira senza avvisi di campo inesistente. Nessuna modifica al codice, nessun test toccato."
+}

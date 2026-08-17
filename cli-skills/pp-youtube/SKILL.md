@@ -51,19 +51,21 @@ Do not activate this CLI for requests that require creating, updating, deleting,
 These capabilities aren't available in any other tool for this API.
 
 ### Blog-post composition
-- **`youtube search-bulk`** — Take a list of search terms from stdin or args, return top-N YouTube videos per term in one JSON document with titles, channels, embed URLs, and thumbnails.
+- **`youtube search-bulk`** — Take a list of search terms from stdin or args, return top-N YouTube videos per term in one JSON document with titles, channels, embed URLs, and thumbnails. Also exposed as top-level `search`, with `--limit` accepted as an alias for `--top`. A missing API key fails fast with remediation steps instead of a buried per-term 403, and a run where every term failed exits non-zero.
 
   _When you have N search terms from an upstream pipeline (image labels, photo tags, scraped keywords), reach for this instead of looping single searches._
 
   ```bash
   youtube-pp-cli youtube search-bulk "sourdough scoring" "latte art" --top 3
+  youtube-pp-cli search "sourdough scoring" --limit 3
   ```
-- **`youtube videos-transcript`** — Fetch the spoken-content transcript of a YouTube video using the timedtext endpoint. Works for auto-generated and manual captions on any public video. Caches into the local store.
+- **`youtube videos-transcript`** — Fetch the spoken-content transcript of a YouTube video using the timedtext endpoint. Works for auto-generated and manual captions on any public video. When `--lang` is left at its default and doesn't match, it auto-falls back to the only available caption language; `--format markdown|text` renders timestamped markdown or plain text besides the JSON segment envelope. Caches into the local store.
 
   _Read the transcript before deciding whether a candidate video actually fits the topic of the blog post or photo._
 
   ```bash
   youtube-pp-cli youtube videos-transcript dQw4w9WgXcQ --lang en --json
+  youtube-pp-cli youtube videos-transcript dQw4w9WgXcQ --format markdown
   ```
 - **`youtube videos-embed`** — Print embed HTML, iframe, or markdown-style embed for a video ID. Direct copy-paste into a blog draft.
 
@@ -111,6 +113,8 @@ These capabilities aren't available in any other tool for this API.
 - `youtube-pp-cli youtube search-list` — Retrieves a list of search resources
 - `youtube-pp-cli youtube videos-list` — Retrieves a list of resources, possibly filtered.
 
+**search** — top-level alias for `youtube search-bulk`: `youtube-pp-cli search "<term>" --limit 3` works as the natural first invocation (`--limit` is an alias for `--top`).
+
 
 ### Finding the right command
 
@@ -142,6 +146,14 @@ youtube-pp-cli youtube videos-transcript dQw4w9WgXcQ --lang en --json --select "
 
 Pull the first 2KB of the transcript to confirm the video is actually about the topic before adding it to the blog.
 
+### Transcript straight to markdown (any language)
+
+```bash
+youtube-pp-cli youtube videos-transcript dQw4w9WgXcQ --format markdown > transcript.md
+```
+
+Timestamped `**[MM:SS]** line` markdown, ready to paste — no JSON post-processing needed (`--format text` for the plain transcript). When the video's captions exist in only one language and `--lang` was left at its default, the command auto-falls back to that language and notes the fallback on stderr; pass `--lang <code>` explicitly to force a specific track.
+
 ### Get a markdown embed for the draft
 
 ```bash
@@ -169,6 +181,8 @@ End-to-end: keywords in, transcripts out, ready for a quality filter before blog
 ## Auth Setup
 
 API-key only — set `YOUTUBE_API_KEY` and you're done. Read-only public-data operations only (10,000 quota units/day default). Write operations are not configured; this CLI is for discovery and research, not channel management.
+
+Search commands preflight the key: with no key configured they exit 4 with the remediation steps instead of relaying Google's opaque per-term 403. `videos-transcript` needs no key at all.
 
 Run `youtube-pp-cli doctor` to verify setup.
 

@@ -1,0 +1,6 @@
+{ "schema_version":2, "id":"ars-sicilia-leggi-get-anno", "applied_at":"2026-06-28",
+  "base_run_id":"20260528-181840", "base_printing_press_version":"4.18.0",
+  "summary":"leggi get accetta --anno per disambiguare numeri di legge ripetuti tra anni diversi; runGet refactor in runGetExtra che fonde parametri extra (es. anno->LEGANN).",
+  "reason":"'leggi get 18 23' restituiva la L.R. 23/2023 invece della 23/2025: stesso numero riusato ogni anno.",
+  "files":["internal/cli/leggi_get.go","internal/cli/icaro_helpers.go"],
+  "validated_outcome":"leggi get 18 23 --anno 2025 -> L.R. 23 del 5.06.2025 (prima 20.10.2023)." }

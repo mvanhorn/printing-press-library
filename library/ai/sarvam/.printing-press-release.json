@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "sarvam",
+  "cli_name": "sarvam-pp-cli",
+  "version": "2026.8.1",
+  "released_at": "2026-08-17T04:54:13Z",
+  "source_commit": "0a906add60dac1fb38425341607c1bb73a2e6307",
+  "printing_press_version": "4.30.2",
+  "run_id": "20260814-164825-7ec4499e",
+  "changes": [
+    {
+      "title": "feat(sarvam): add Sarvam AI",
+      "pr": 1718,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1718",
+      "commit": "0a906add60dac1fb38425341607c1bb73a2e6307"
+    }
+  ]
+}

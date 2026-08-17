@@ -115,7 +115,7 @@ These capabilities aren't available in any other tool — and they run keyless, 
   ```
 
 ### Comparative analysis
-- **`author-compare`** — Compare two writers on output cadence, topic mix, and engagement (claps and voters per article) from locally archived data.
+- **`author-compare`** — Compare two writers on output cadence, topic mix, and engagement (claps, voters, responses, and reading time per article) from locally archived data. Engagement is keyless/Tier-0, including for member-only posts.
 
   _Use this to weigh two writers or publications before committing to follow or archive one._
 
@@ -292,6 +292,20 @@ Parse `$ARGUMENTS`:
 3. Verify: `claude mcp list`
 
 The MCP server exposes 10 keyless tools (feed, read, search, author_archive, author_compare, corpus, digest, analytics, plus a local SQL tool and a context tool). To unlock member full bodies, pass your own cookie via the `MEDIUM_SESSION` env on the server.
+
+## Updating
+
+Move to the latest published build:
+
+1. **CLI + skill** — re-run the installer (or its `update` alias):
+   ```bash
+   npx -y @mvanhorn/printing-press-library update medium-reader
+   ```
+2. **MCP server** — a SEPARATE binary the installer does not touch. Re-run the install, then restart the MCP so it loads the new build:
+   ```bash
+   go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/medium-reader/cmd/medium-reader-pp-mcp@latest
+   ```
+3. **Claude Desktop (MCPB)** — re-download the latest `.mcpb` and double-click.
 
 ## Direct Use
 

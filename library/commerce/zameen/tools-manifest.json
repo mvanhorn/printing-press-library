@@ -1,0 +1,48 @@
+{
+  "api_name": "zameen",
+  "base_url": "https://www.zameen.com",
+  "description": "Search Zameen.com property listings from your terminal — real filters, an offline SQLite mirror, saved-search monitoring, and price-drop alerts no scraper offers.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+    }
+  ],
+  "tools": [
+    {
+      "name": "listings_search",
+      "description": "Fetch one page of Zameen search results (server-rendered; listings parsed from the embedded page state). Required: category (default: Homes), location (default: Islamabad-3), page (default: 1).",
+      "method": "GET",
+      "path": "/{category}/{location}-{page}.html",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "category",
+          "type": "string",
+          "location": "path",
+          "description": "Property category segment (Homes, Plots, Commercial, Rentals)",
+          "required": true
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "location": "path",
+          "description": "Zameen location slug with numeric id, e.g. Islamabad-3 or Lahore_DHA_Defence-9",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "path",
+          "description": "1-based results page (25 listings per page)",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

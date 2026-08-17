@@ -71,7 +71,7 @@ func newMeetingsPromotedCmd(flags *rootFlags) *cobra.Command {
 			if flagCursor != "" {
 				params["cursor"] = fmt.Sprintf("%v", flagCursor)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "meetings", false, path, params, nil)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "meetings", true, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

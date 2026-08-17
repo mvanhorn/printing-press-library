@@ -7,6 +7,7 @@ Read-only insights CLI for Meta Marketing API focused on creative-fatigue detect
 Learn more at [Meta Ads](https://developers.facebook.com/docs/marketing-api).
 
 Created by [@sdhilip200](https://github.com/sdhilip200) (Dhilip Subramanian).
+Contributors: [@bobeglz](https://github.com/bobeglz) (bobeglz).
 
 ## Install
 

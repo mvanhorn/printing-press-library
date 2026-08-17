@@ -1,6 +1,6 @@
 ---
 name: pp-shopper
-description: "The first CLI for Shopper — every catalog, cart Trigger phrases: `search shopper for arroz`, `what's in my shopper basket`, `when is my shopper charge`, `did my shopper prices go up`, `what should I restock on shopper`, `use shopper`, `run shopper`."
+description: "Every Shopper storefront in one CLI — catalog, cart, delivery schedule, charge calendar, and spend analytics no web UI surfaces. Trigger phrases: `check my Shopper basket`, `when is my next Shopper delivery`, `when will Shopper charge me`, `show my Shopper spend`, `use shopper-pp-cli`, `search Shopper catalog`, `add item to Shopper cart`, `Shopper charge calendar`, `Shopper cashback tier`."
 author: "educrvz"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
@@ -27,129 +27,200 @@ metadata:
 
 This skill drives the `shopper-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-1. Install via the Printing Press installer:
+1. Install via the Printing Press installer. It defaults binaries to `$HOME/.local/bin` on macOS/Linux and `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows:
    ```bash
    npx -y @mvanhorn/printing-press-library install shopper --cli-only
    ```
 2. Verify: `shopper-pp-cli --version`
-3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.5 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.5 or newer). This installs into `$GOPATH/bin` (default `$HOME/go/bin`), so add that directory to `$PATH` instead:
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/commerce/shopper/cmd/shopper-pp-cli@latest
 ```
 
-If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
+If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
-Shopper's recurring basket, fixed charge-7-days-before clock, and drifting prices produce a time series the official app discards every cycle. This CLI keeps it in a local SQLite store, unlocking charge-calendar, basket diff, price-watch, restock prediction, catalog-drift detection, and cashback optimization — none of which any Shopper interface offers.
+shopper-pp-cli covers all six Shopper storefronts (Compra Programada, Fresh, Pet, Compra Única, Now, Now Bebidas) with correct store/cluster scoping, full siteapi REST surface, browser-deep-link helpers for subscription mutations, and a local SQLite layer for offline product search, basket diffs, price tracking, and cross-store spend rollup.
 
 ## When to Use This CLI
 
-Use this CLI to inspect and reason about a Shopper grocery subscription: search the catalog, read the recurring basket and delivery schedule, and answer cross-cycle questions about price changes, charge dates, restock timing, and cashback. It shines for questions the web UI can't answer because it only shows the current cycle.
+Use shopper-pp-cli when automating Shopper basket management, monitoring charge schedules, analyzing spend patterns across storefronts, or building agent workflows around the Shopper subscription cycle. Ideal for recurring-basket optimization, pre-cycle audit, and delivery-schedule awareness.
 
 ## Anti-triggers
 
 Do not use this CLI for:
-- Do not use this CLI to place or pay for an order — checkout/payment is intentionally out of scope.
-- Do not use it for non-Shopper grocery services (iFood, Daki, Rappi, Carrefour).
-- Do not use it to change account passwords or payment cards.
+- Do not use for placing orders or confirming checkout — use checkout open to hand off to the browser
+- Do not use for adding or removing saved credit cards — card management requires browser session
+- Do not use for ultra-fast delivery slot selection on now/now-bebidas — delivery slots for these stores require the browser checkout flow
+- Do not use for cancelling orders — cancellation is not available via siteapi REST
 
 ## Unique Capabilities
 
 These capabilities aren't available in any other tool for this API.
 
-### Time & Money Clock
+### Subscription intelligence
 - **`charge-calendar`** — Every upcoming cycle's charge date, edit-lock deadline, and delivery date in one timeline so you never miss an edit window or get surprised by a charge.
 
-  _Reach for this before any basket edit to answer 'can I still change the order / when does money leave the account'._
+  _Use when an agent needs to know whether the edit window is still open before modifying a recurring basket._
 
   ```bash
-  shopper charge-calendar --weeks 8 --locking-soon --agent
+  shopper-pp-cli charge-calendar --store programada --agent
   ```
-
-### Basket Intelligence
 - **`basket diff`** — Compares your current recurring basket against a previous cycle's snapshot to show exactly what was added, dropped, or re-quantified before the template locks.
 
-  _Reach for this to audit what changed before confirming a cycle, or to explain why this charge differs from the last._
+  _Use when an agent needs to verify what changed in the basket since the last confirmed delivery cycle._
 
   ```bash
-  shopper basket diff --from last-cycle --to current --agent --select added,removed,price_changed
+  shopper-pp-cli basket diff --store programada --agent
+  ```
+- **`cashback optimize`** — Computes the cheapest set of items to add (or whether to wait) to cross the next cashback tier, favoring things you'll need anyway.
+
+  _Use when an agent is finalising a basket and wants to maximise cashback return before the edit window closes._
+
+  ```bash
+  shopper-pp-cli cashback optimize --tier 2399 --store programada --agent
+  ```
+
+### Local state that compounds
+- **`price-watch`** — Tracks the price history of the SKUs you actually buy and alerts when one rises or drops meaningfully versus your own purchase baseline.
+
+  _Use when an agent needs to know if a subscribed product has changed price significantly since the last order._
+
+  ```bash
+  shopper-pp-cli price-watch --store programada --agent
   ```
 - **`restock predict`** — Predicts when you'll run out of each staple from your historical buying cadence and suggests what to add to the upcoming basket.
 
-  _Reach for this to proactively fill the next basket so the household doesn't run out of cafe/arroz/fralda mid-cycle._
+  _Use when an agent needs to pre-populate a recurring basket with items likely running low before the next cycle._
 
   ```bash
-  shopper restock predict --horizon 14d --suggest-adds --agent
-  ```
-
-### Price & Catalog Drift
-- **`price-watch`** — Tracks the price history of the SKUs you actually buy and alerts when one rises or drops meaningfully versus your own purchase baseline.
-
-  _Reach for this before confirming a cycle to catch staples that quietly got pricier, or find real drops worth stocking up on._
-
-  ```bash
-  shopper price-watch --threshold 8% --since 60d --only-basket --agent
+  shopper-pp-cli restock predict --store programada --agent
   ```
 - **`catalog drift`** — Flags products you buy that were discontinued, silently swapped, or kept their price while shrinking the pack, surfacing the real R$/kg or R$/L change.
 
-  _Reach for this when the user asks 'why is my bill the same but I have less', or to auto-find replacements for staples that vanished._
+  _Use when an agent needs to audit whether the recurring basket still contains the same products as originally added._
 
   ```bash
-  shopper catalog drift --metric per-unit --kind shrinkflation,discontinued --since 90d --agent
+  shopper-pp-cli catalog drift --store programada --agent
   ```
 
-### Cashback Optimization
-- **`cashback optimize`** — Computes the cheapest set of items to add (or whether to wait) to cross the next cashback tier, favoring things you'll need anyway.
+### Customer journey plumbing
+- **`checkout preview`** — Aggregates cart totals, next delivery date, charge date, minimum-order status, and accepted payment types into one pre-checkout view before you open the browser.
 
-  _Reach for this near the edit deadline to decide whether topping up the basket earns net-positive cashback without buying junk._
+  _Use when an agent needs to confirm basket readiness and charge schedule before directing the user to open the browser for final payment._
 
   ```bash
-  shopper cashback optimize --tier 2399 --reward 100 --prefer-restock --agent
+  shopper-pp-cli checkout preview --store programada --agent
   ```
 
 ## Command Reference
 
-**address** — Operations on address
+**address** — Saved delivery addresses with per-address available-store information
 
-- `shopper-pp-cli address` — GET /address/
+- `shopper-pp-cli address` — List delivery addresses and which stores are available at each address
 
-**cart** — Operations on summary
+**cart** — Cart: view summary, add products, remove products
 
 - `shopper-pp-cli cart add` — Add a product to the cart or increase its quantity
-- `shopper-pp-cli cart summary` — GET /cart/summary
+- `shopper-pp-cli cart list-summary` — Show current basket: items, quantities, totals, cashback, and minimum-order status
 - `shopper-pp-cli cart remove` — Remove a product from the cart or decrease its quantity
 
-**catalog** — Operations on departments
+**catalog** — Product catalog: search, departments, banners, suggestions
 
-- `shopper-pp-cli catalog count` — POST /catalog/search/count
-- `shopper-pp-cli catalog filters` — POST /catalog/search/filters
-- `shopper-pp-cli catalog search` — POST /catalog/search
-- `shopper-pp-cli catalog banner-view` — GET /catalog/banners/{banner_id}/view
-- `shopper-pp-cli catalog banners` — GET /catalog/banners
-- `shopper-pp-cli catalog departments` — GET /catalog/departments
-- `shopper-pp-cli catalog news` — GET /catalog/products/news
-- `shopper-pp-cli catalog suggest` — GET /catalog/search/suggest
+- `shopper-pp-cli catalog create-count` — Count products matching a search query and optional filters
+- `shopper-pp-cli catalog create-filters` — Get available filter options for a search query
+- `shopper-pp-cli catalog create-search` — Search the product catalog by query with optional brand/type/metadata filters
+- `shopper-pp-cli catalog get-view` — Get details for a specific catalog banner
+- `shopper-pp-cli catalog list-banners` — List promotional banners for the current store
+- `shopper-pp-cli catalog list-departments` — List product departments/categories for the current store
+- `shopper-pp-cli catalog list-news` — List new product arrivals for the current store
+- `shopper-pp-cli catalog list-suggest` — Get search suggestions for a query prefix
 
-**delivery** — Operations on summary
+**delivery** — Delivery schedule: upcoming delivery date, edit-lock window, and reschedule calendar
 
-- `shopper-pp-cli delivery calendar` — GET /delivery/v2/calendar
-- `shopper-pp-cli delivery summary` — GET /delivery/summary
+- `shopper-pp-cli delivery list-calendar` — Get delivery reschedule calendar — allowed date range and disabled days
+- `shopper-pp-cli delivery list-summary` — Show scheduled delivery date, current delivery status, and store message
 
-**features** — Operations on toggle
+**features** — Storefront configuration, feature toggles, and timer state
 
-- `shopper-pp-cli features select` — POST /features/stores/select
-- `shopper-pp-cli features start` — POST /features/timer/start
-- `shopper-pp-cli features view` — POST /features/toggle/view
-- `shopper-pp-cli features stores` — GET /features/stores
-- `shopper-pp-cli features tick` — GET /features/timer/tick
-- `shopper-pp-cli features toggle` — GET /features/toggle
+- `shopper-pp-cli features create-select` — Select active store (sets session context; no-op for header-scoped reads)
+- `shopper-pp-cli features create-start` — Start a named feature timer
+- `shopper-pp-cli features create-view` — Mark a feature toggle as viewed
+- `shopper-pp-cli features list-stores` — List all available storefronts with store IDs, cluster IDs, payment parameters, and feature flags
+- `shopper-pp-cli features list-tick` — Get current timer state
+- `shopper-pp-cli features list-toggle` — Get active feature toggles for the current store
+
+**orders** — Purchase history and spend — reads from GET /orders/orders (web 'Histórico de compras')
+
+- `shopper-pp-cli orders` — List past orders for the active store (newest-first, paginated by size)
 
 **session** — Session and social-login validation
 
-- `shopper-pp-cli session` — GET /auth/validation/social
+- `shopper-pp-cli session` — Validate social-login session status
 
+
+## Freshness Contract
+
+This printed CLI owns bounded freshness only for registered store-backed read command paths. In `--data-source auto` mode, those paths check `sync_state` and may run a bounded refresh before reading local data. `--data-source local` never refreshes. `--data-source live` reads the API and does not mutate the local store. Set `SHOPPER_NO_AUTO_REFRESH=1` to skip the freshness hook without changing source selection.
+
+Covered paths:
+
+- `shopper-pp-cli address`
+- `shopper-pp-cli address get`
+- `shopper-pp-cli address list`
+- `shopper-pp-cli address search`
+- `shopper-pp-cli cart`
+- `shopper-pp-cli cart get`
+- `shopper-pp-cli cart list`
+- `shopper-pp-cli cart search`
+- `shopper-pp-cli catalog`
+- `shopper-pp-cli catalog get`
+- `shopper-pp-cli catalog list`
+- `shopper-pp-cli catalog search`
+- `shopper-pp-cli catalog-departments`
+- `shopper-pp-cli catalog-departments get`
+- `shopper-pp-cli catalog-departments list`
+- `shopper-pp-cli catalog-departments search`
+- `shopper-pp-cli catalog-products-news`
+- `shopper-pp-cli catalog-products-news get`
+- `shopper-pp-cli catalog-products-news list`
+- `shopper-pp-cli catalog-products-news search`
+- `shopper-pp-cli catalog-search-suggest`
+- `shopper-pp-cli catalog-search-suggest get`
+- `shopper-pp-cli catalog-search-suggest list`
+- `shopper-pp-cli catalog-search-suggest search`
+- `shopper-pp-cli delivery`
+- `shopper-pp-cli delivery get`
+- `shopper-pp-cli delivery list`
+- `shopper-pp-cli delivery search`
+- `shopper-pp-cli delivery-v2-calendar`
+- `shopper-pp-cli delivery-v2-calendar get`
+- `shopper-pp-cli delivery-v2-calendar list`
+- `shopper-pp-cli delivery-v2-calendar search`
+- `shopper-pp-cli features`
+- `shopper-pp-cli features get`
+- `shopper-pp-cli features list`
+- `shopper-pp-cli features search`
+- `shopper-pp-cli features-timer-tick`
+- `shopper-pp-cli features-timer-tick get`
+- `shopper-pp-cli features-timer-tick list`
+- `shopper-pp-cli features-timer-tick search`
+- `shopper-pp-cli features-toggle`
+- `shopper-pp-cli features-toggle get`
+- `shopper-pp-cli features-toggle list`
+- `shopper-pp-cli features-toggle search`
+- `shopper-pp-cli orders`
+- `shopper-pp-cli orders get`
+- `shopper-pp-cli orders list`
+- `shopper-pp-cli orders search`
+- `shopper-pp-cli session`
+- `shopper-pp-cli session get`
+- `shopper-pp-cli session list`
+- `shopper-pp-cli session search`
+
+When JSON output uses the generated provenance envelope, freshness metadata appears at `meta.freshness`. Treat it as current-cache freshness for the covered command path, not a guarantee of complete historical backfill or API-specific enrichment.
 
 ### Finding the right command
 
@@ -161,35 +232,66 @@ shopper-pp-cli which "<capability in your own words>"
 
 `which` resolves a natural-language capability query to the best matching command from this CLI's curated feature index. Exit code `0` means at least one match; exit code `2` means no confident match — fall back to `--help` or use a narrower query.
 
+## Hand-written Extensions
+
+These commands are declared by the spec author and require separate hand-written wiring; the generator does not emit Cobra registration for them. They are listed here for discoverability and are intentionally outside `## Command Reference` so the verify-skill unknown-command check does not treat them as generator-owned paths.
+
+- `shopper-pp-cli stores` — List all available Shopper storefronts with IDs, cluster IDs, payment parameters, and capability flags
+- `shopper-pp-cli checkout preview` — Pre-checkout summary: basket totals, delivery date, charge date, min-order status, and accepted payment types (read-only
+- `shopper-pp-cli checkout open` — Open the Shopper checkout page in the system browser (subscription-based payment via session login)
+- `shopper-pp-cli delivery reschedule [--store <store>]` — Open the delivery reschedule calendar in the browser (POST /shop/minha-conta/alterar-data requires session cookie)
+- `shopper-pp-cli delivery skip` — Open the skip-delivery page in the browser — subscription stores only (POST /shop/minha-conta/pular-entrega/ requires
+- `shopper-pp-cli delivery suspend` — Open the suspend-subscription page in the browser (POST /shop/minha-conta/suspender-entrega requires session cookie)
+- `shopper-pp-cli delivery boleto` — Open the boleto-retrieval page in the browser to get the bank slip for the current order
+- `shopper-pp-cli subscription pause` — Open the subscription-pause page in the browser (POST /shop/carrinho/pause/ requires session cookie)
+- `shopper-pp-cli subscription resume` — Open the subscription-resume page in the browser (POST /shop/carrinho/play/ requires session cookie)
+- `shopper-pp-cli payment cards` — Show saved payment card count and open card-management in the browser (card add/delete is browser-required
+
 ## Recipes
 
-### Find a staple and check your price baseline
+### Check if the edit window is still open
 
 ```bash
-shopper catalog search 'cafe pilao' --agent --select results.name,results.price && shopper price-watch --only-basket --threshold 5%
+shopper-pp-cli charge-calendar --store programada --agent --select next_delivery_date,edit_lock_date,charge_date
 ```
 
-Search the catalog, then see whether your tracked staples drifted in price.
+Returns the key dates for the next cycle; compare edit_lock_date to today to know if the basket can still be changed.
 
-### Pre-deadline cycle review
+### Find items to add for next cashback tier
 
 ```bash
-shopper charge-calendar --locking-soon --agent && shopper basket diff --from last-cycle --to current --agent
+shopper-pp-cli cashback optimize --store programada --agent
 ```
 
-Check which cycle locks soon and audit what changed before it does.
+Computes the cheapest catalog additions to cross the next cashback threshold using your live cart and synced product data.
 
-### Hit the cashback tier efficiently
+### Cross-store spend rollup for last 12 months
 
 ```bash
-shopper cashback optimize --tier 2399 --reward 100 --prefer-restock --agent
+shopper-pp-cli orders spend --agent --select store,month,total
 ```
 
-Decide the cheapest useful top-up to earn cashback.
+Queries all 6 storefronts and returns a month-by-store spend matrix for budgeting analysis.
+
+### Detect if a subscribed product changed price
+
+```bash
+shopper-pp-cli price-watch --store programada --agent --select product_id,name,price_now,price_baseline,change_pct
+```
+
+Scans synced price history for products in your basket and flags meaningful price movements.
+
+### Pre-checkout summary with charge date
+
+```bash
+shopper-pp-cli checkout preview --store programada --agent --select total_amount,delivery_date,charge_date,min_order_met,payment_methods
+```
+
+Aggregates cart/delivery/payment data so an agent can confirm basket readiness before directing the user to open the checkout browser.
 
 ## Auth Setup
 
-Shopper uses a Bearer JWT. Sign in at shopper.com.br in your browser, copy the token from the Authorization header of any siteapi.shopper.com.br request (DevTools > Network), and set SHOPPER_TOKEN. The CLI also sends app-os-x-version and your store context automatically.
+Set SHOPPER_TOKEN to your Shopper JWT (from the siteapi Authorization header in browser DevTools). Run 'shopper-pp-cli doctor' to verify. The token is long-lived for the subscription cycle. Never store raw card numbers or CPF in config; card management always opens the browser.
 
 Run `shopper-pp-cli doctor` to verify setup.
 
@@ -221,6 +323,225 @@ Commands that read from the local store or the API wrap output in a provenance e
 
 Parse `.results` for data and `.meta.source` to know whether it's live or local. A human-readable `N results (live)` summary is printed to stderr only when stdout is a terminal AND no machine-format flag (`--json`, `--csv`, `--compact`, `--quiet`, `--plain`, `--select`) is set — piped/agent consumers and explicit-format runs get pure JSON on stdout.
 
+## Paths and state
+
+Agents should treat the CLI's path resolver as part of the runtime contract:
+
+- Use `--home <dir>` for one invocation, or set `SHOPPER_HOME=<dir>` to relocate all four path kinds under one root.
+- Use per-kind env vars only when a specific kind must diverge: `SHOPPER_CONFIG_DIR`, `SHOPPER_DATA_DIR`, `SHOPPER_STATE_DIR`, `SHOPPER_CACHE_DIR`.
+- Resolution order is per-kind env var, `--home`, `SHOPPER_HOME`, XDG (`XDG_CONFIG_HOME`, `XDG_DATA_HOME`, `XDG_STATE_HOME`, `XDG_CACHE_HOME`), then platform defaults.
+- `config` contains settings like `config.toml` and profiles. `data` contains `credentials.toml`, `data.db`, cookies, and auth sidecars. `state` contains persisted queries, jobs, and `teach.log`. `cache` contains regenerable HTTP/cache files.
+- Stored secrets live in `credentials.toml` under the data dir. Existing legacy `config.toml` secrets are read for compatibility and leave `config.toml` on the first auth write.
+- Run `shopper-pp-cli doctor --fail-on warn` to surface path and credential-location warnings. `agent-context` exposes a schema v4 `paths` block for agents that need the resolved dirs.
+- For MCP, pass relocation through the MCP host config. The MCP binary does not inherit CLI flags:
+
+  ```json
+  {
+    "mcpServers": {
+      "shopper": {
+        "command": "shopper-pp-mcp",
+        "env": {
+          "SHOPPER_HOME": "/srv/shopper"
+        }
+      }
+    }
+  }
+  ```
+
+Fleet precedence: an inherited per-kind env var overrides an explicit `--home` for that kind. Use `SHOPPER_HOME` or per-kind vars as durable fleet levers, and use `--home` only for a single invocation. Relocation is not reversible by unsetting env vars; move files manually before clearing `SHOPPER_HOME`, or `doctor` will not find credentials left under the former root.
+
+## Automatic learning
+
+This CLI ships a self-capturing learning loop. The CLI does its own bookkeeping: every invocation is journaled locally, a failed flag followed by a corrected retry auto-derives a `flag_alias` candidate, and a `teach` on a query family without a playbook auto-synthesizes a `playbook_candidate` from the session's journal. Your job is judgment only: `recall` first, act on surfaced candidates, `teach` the final answer, `playbook amend` when you observe a correction. You never record failures by hand.
+
+### Step 1: `recall` before any discovery
+
+Before list/search/drill commands on a new user question, run:
+
+```bash
+shopper-pp-cli recall "<user's question>" --agent
+```
+
+The response envelope:
+
+```json
+{
+  "query": "...",
+  "normalized": "<normalized form>",
+  "query_entities": ["..."],
+  "found": true | false,
+  "match_score": 0.0,
+  "results": [
+    { "resource_id": "...", "resource_type": "...", "venue": "...",
+      "confidence": 2, "entity_match": "exact|partial|unknown",
+      "source": "taught|preseed|pattern", "warnings": ["..."] }
+  ],
+  "mismatches": [ /* only when --debug-mismatches */ ],
+  "warnings": [ /* top-level */ ],
+  "candidates": [
+    { "id": 12, "class": "flag_alias | playbook_candidate",
+      "summary": "...", "sightings": 3, "last_seen": "...",
+      "rationale": "...",
+      "next_action": ["<trial command>", "shopper-pp-cli learnings confirm 12"] }
+  ],
+  "playbook": {
+    "query_family": "...",
+    "playbook": {
+      "steps": [ { "cmd": "<command with {slot} substitution>", "purpose": "..." } ],
+      "entity_slots": ["$ENTITY"],
+      "expected_tool_calls": 3
+    },
+    "slots_resolved": { "$ENTITY": { "token": "<live token>", "canonical": "<canonical>" } },
+    "notes": "<workarounds + gotchas for this query family>"
+  },
+  "notes": "<duplicate surface for non-playbook callers>"
+}
+```
+
+Empty-store short-circuit: if the store has no learnings, playbooks, or candidates yet (recall finds nothing and `learnings list` and `learnings candidates` are both empty), skip recall for the rest of this session instead of taxing every query; resume recall-first once something has been taught.
+
+### Step 2: decision tree
+
+Read `candidates`, `playbook`, `notes`, `results[0]`, and warnings in that order:
+
+```
+if Candidates present (warnings include "candidates_present"):
+    -> candidates are try-then-confirm, never facts. Follow each candidate's
+       two-step next_action verbatim: run the trial command first, then run
+       `learnings confirm <id>` only after the trial verified the behavior.
+       Reject a wrong candidate with `learnings reject <id>`.
+    -> NEVER re-teach something recall surfaced as a candidate; confirm or
+       reject that candidate instead of teaching a duplicate.
+    -> candidates ride alongside playbooks and resource hits, not instead of
+       them; continue with the branches below after acting on them.
+
+if Playbook present:
+    -> READ Playbook.notes verbatim FIRST (workarounds + gotchas the CLI surface doesn't expose)
+    -> replay Playbook.steps in order, substituting Playbook.slots_resolved entries
+       for the entity slot tokens. If a step's slot is unresolved, fall back to
+       discovery for that step only.
+    -> the Playbook's expected_tool_calls is a budget; if you find yourself running
+       materially more, record the divergence via `shopper-pp-cli playbook amend`
+       at end-of-session.
+
+elif Notes present (no Playbook):
+    -> read Notes verbatim before any discovery step; they carry known gotchas
+       for this query family even when no structured choreography exists yet.
+
+elif Found AND Results[0].EntityMatch == "exact" AND Results[0].Confidence >= 2:
+    -> skip discovery; fetch live data for Results[*].ResourceID in parallel
+
+elif Found AND Results[0].EntityMatch == "partial":
+    -> candidate hint, NOT a hit; read the resource title to validate before trusting
+
+elif (any row in Mismatches[] when --debug-mismatches was passed):
+    -> treat as cold start; the stored learning is for a different entity
+       (different canonical resolved from query_entities)
+
+else:  // Found == false, no playbook, no notes
+    -> cold start; run discovery normally; teach the answer afterward (Step 4).
+       If the family has no playbook yet, that teach auto-synthesizes a
+       playbook candidate from this session's journal - you do not need to
+       record one by hand.
+```
+
+Playbook and Notes are orthogonal to the per-resource path. A recall response can carry both a Playbook AND a `Results[]` hit - use both: the Playbook tells you which choreography to run; the resource hits short-circuit specific steps. Default to skipping `mismatches`; pass `--debug-mismatches` only when investigating cold-start surprises.
+
+Candidate judgment details: `learnings confirm <id>` prints the candidate's full payload before materializing it - check that the printed payload matches the behavior you verified. `learnings reject <id>` tombstones the derivation signature so the same candidate does not resurface. The envelope carries only the few candidates worth acting on now; `shopper-pp-cli learnings candidates` lists the full open set.
+
+Graceful degradation: if `learnings confirm` is an unknown command, you are driving an older binary - ignore the candidates guidance and follow the rest of the protocol.
+
+### Step 3: always read `warnings`
+
+- `low_confidence`: row exists at `confidence<2`. Treat as a hint, not a skip-discovery hit.
+- `resource_not_in_store`: the local store doesn't have the resource the learning points at. The match validator couldn't classify entities — direct-fetch and re-evaluate.
+- `cross_alias_match` (per-result): the row was taught under a different alias and matched the live query's canonical via `entity_lookups` (e.g., a "USA" teach satisfying a "United States" recall). Trust the resource_id.
+- `similar_shape_different_entity:<canonical>` (top-level): a structurally matching row exists but its canonical entity differs from the live query's. Treated as cold start; the warning carries the conflicting canonical as a hint, but the row is NOT promoted into Results.
+- `ambiguous_alias` (top-level): a single query entity resolved to multiple canonicals (e.g., "Cards" → Arizona Cardinals + St. Louis Cardinals). Surface the ambiguity from context before committing to a resource.
+- `candidates_present` (top-level): the envelope carries a `candidates` section. Handle it via the candidates branch in Step 2 before anything else.
+- `lookup_refresh_available` (top-level): an entity in the query has no lookup row yet, but synced data could provide one. Run `shopper-pp-cli sync` to refresh entity lookups.
+- Top-level `no_learnings_for_query_family`: the table had no rows above the Jaccard floor. Pure cold start.
+
+### Step 4: `teach &` after finalizing your response - always
+
+Teaching is unconditional. After resolving a query the store could not answer, background-teach the final resource mapping - no call-count threshold, no judging whether it was "worth" learning. The teach is the anchor of the loop: it triggers playbook synthesis for a family without a playbook, and same-referent phrasings fold into one family so near-duplicate teaches do not fragment the store. Fire it after assembling your user-facing response but BEFORE emitting it, with a shell `&` so the call returns immediately:
+
+```bash
+shopper-pp-cli teach --query "<user's question>" --resource-type <type> --resource <id1> --resource <id2>
+# (append shell `&` to background it)
+```
+
+Silent on success. Errors only land in `teach.log` under the resolved state dir. Teach the **most specific** resource - if the user asked a broad question and you walked through parent records to find the specific answer, teach the leaf id, not the parent. The CLI uses seeded `entity_lookups` for cross-alias resolution at recall time, so a teach under one alias (e.g., "Niners") satisfies future queries under another alias (e.g., "49ers", "San Francisco") automatically.
+
+PII rule: teach the structural question with identifiers stripped - never include names, emails, phone numbers, account ids, or other personal identifiers in taught queries or notes. The CLI scans teach queries for obvious email/phone shapes and warns, but does not block; strip before teaching rather than relying on the warning.
+
+### Step 5: playbooks - optional flags, automatic synthesis
+
+You do not need to decide whether a session "deserves" a playbook: a teach on a family without one auto-synthesizes a `playbook_candidate` from the session's journal, and the next session judges it via confirm/reject. Attach explicit playbook flags only when you already hold choreography worth recording verbatim - workarounds the CLI didn't surface (silently-dropped flags, undocumented params, pagination tricks, payload gotchas). Prefer the **integrated one-call form** - record the resource learning and the playbook in the same `teach` invocation:
+
+```bash
+# Common case: record both the resource learning AND the playbook in one call.
+shopper-pp-cli teach \
+  --query "<user's question>" \
+  --resource <id> \
+  --playbook-file ~/playbooks/<shape>.json \
+  --playbook-notes-file ~/playbooks/<shape>-notes.md
+# (append shell `&` to background it)
+
+# Alternate: playbook-only (no resource to record alongside).
+shopper-pp-cli teach-playbook \
+  --query "<user's question>" \
+  --playbook-file ~/playbooks/<shape>.json \
+  --notes-file ~/playbooks/<shape>-notes.md
+```
+
+Playbook files are JSON with `steps`, `entity_slots`, `expected_tool_calls`. Notes files are markdown carrying the gotchas verbatim. File-free callers (MCP-only agents) pass the same content inline: `--playbook-json` and `--playbook-notes` on the integrated `teach` form, `--playbook-json` and `--notes` on `teach-playbook`. On the integrated `teach` form, the playbook flags are optional - omit them entirely for a resource-only teach. On the standalone `teach-playbook` form, at least one of the playbook and notes flags must be set; both empty is rejected. Playbooks are keyed on the structural query family (entities stripped) so a recipe taught from one entity-shaped query applies to every other query of the same shape, with `slots_resolved` binding the live query's canonical at recall time.
+
+When you DO find a playbook on a future recall, treat it as ground truth: replay the steps with `slots_resolved` substitutions, skip the discovery that the choreography already documents, and read `notes` before any step.
+
+### Step 6: `playbook amend &` when your debug response identifies a correction
+
+If your debug-protocol response identifies a concrete correction the notes or playbook should know — a workaround, an undocumented endpoint shape, a stale field name, observed schema drift, an empty-payload fallback — fire `playbook amend` BEFORE emitting your user-facing response. Same fire-and-forget posture as `teach`.
+
+```bash
+shopper-pp-cli playbook amend \
+  --query "<exact recall query string>" \
+  --add-note "<your concrete correction>"
+# (append shell `&` to background it)
+```
+
+What counts as worth amending: a behavior you OBSERVED this session that future-you would benefit from knowing. Examples worth amending:
+
+- A workaround for a CLI surface that silently drops or misorders a flag.
+- An undocumented endpoint shape (response wrapped in `{meta, results}`, payload nested two levels deeper than the docs claim).
+- Observed schema drift (a field renamed, an index that shifted between seasons, a category label that the API now returns lower-cased).
+
+What does NOT belong in notes:
+
+- The year-specific or entity-specific answer to the user's question. That's the response, not a learning.
+- Per-team / per-athlete / per-row data the playbook already retrieves at runtime.
+- Statements that paraphrase what the existing notes already say.
+
+The amend command appends to the family's existing notes with a timestamped marker (`[amend YYYY-MM-DDTHH:MMZ]: <text>`). Multiple amends accumulate; the audit trail is visible. If no playbook exists yet for the family, amend creates a notes-only one (so cold-start corrections still land).
+
+#### PII discipline for amend notes
+
+`playbook amend` notes are designed to potentially flow upstream as shared knowledge in future versions of the Printing Press. Keep them clean of user-identifying content so the upstream-contribution path stays open without retroactive scrubbing:
+
+- **Do NOT embed** paths to user filesystems, personal API keys or tokens, user email addresses, user GitHub handles, or specific query histories tied to a single user.
+- **Acceptable**: endpoint shapes, undocumented field names, API gotchas, observed schema drift, workarounds for CLI surfaces, generalizable pagination or retry tactics.
+
+If a correction is only meaningful with user-specific context, it belongs in a personal note, not in the playbook amend.
+
+### Measuring the loop
+
+`shopper-pp-cli learnings stats` reports recall hit rate, teach-to-reuse, playbook resolution rate, and candidate confirm/reject counts from the local `learn_events` table. Rates are null until they have a denominator; everything stays on this machine. Use it to check whether the loop is earning its keep for this CLI.
+
+### Disabling learning
+
+- `--no-learn` on a single command short-circuits both `recall` and the `teach` write path. Use for deterministic agent flows or tests that must not be affected by accumulated learnings.
+- `SHOPPER_NO_LEARN=true` in the environment globally disables the pipeline.
+
 ## Agent Feedback
 
 When you (or the agent) notice something off about this CLI, record it:
@@ -231,7 +552,7 @@ shopper-pp-cli feedback --stdin < notes.txt
 shopper-pp-cli feedback list --json --limit 10
 ```
 
-Entries are stored locally at `~/.local/share/shopper-pp-cli/feedback.jsonl`. They are never POSTed unless `SHOPPER_FEEDBACK_ENDPOINT` is set AND either `--send` is passed or `SHOPPER_FEEDBACK_AUTO_SEND=true`. Default behavior is local-only.
+Entries are stored locally as `feedback.jsonl` under the resolved data dir. They are never POSTed unless `SHOPPER_FEEDBACK_ENDPOINT` is set AND either `--send` is passed or `SHOPPER_FEEDBACK_AUTO_SEND=true`. Default behavior is local-only.
 
 Write what *surprised* you, not a bug report. Short, specific, one line: that is the part that compounds.
 
@@ -249,7 +570,7 @@ Unknown schemes are refused with a structured error naming the supported set. We
 
 ## Named Profiles
 
-A profile is a saved set of flag values, reused across invocations. Use it when a scheduled agent calls the same command every run with the same configuration - HeyGen's "Beacon" pattern.
+A profile is a saved set of flag values, reused across invocations. Use it when a scheduled or recurring agent reuses the same saved flags while providing different input each run.
 
 ```
 shopper-pp-cli profile save briefing --json

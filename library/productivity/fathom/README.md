@@ -5,6 +5,7 @@
 fathom-pp-cli pulls every meeting, transcript, summary, and action item into a local SQLite store, then unlocks cross-meeting intelligence no MCP server or web UI can provide: commitment tracking across all your calls, topic trend analysis over weeks, pre-call account briefs, pipeline velocity detection, and team meeting-load audits.
 
 Created by [@neektza](https://github.com/neektza) (Nikica Jokic).
+Contributors: [@montaguegabe](https://github.com/montaguegabe) (Gabe Montague).
 
 ## Install
 
@@ -320,8 +321,8 @@ Environment variables:
 ### API-specific
 
 - **doctor returns 401 Unauthorized** — Check FATHOM_PP_CLI_API_KEY is set; generate a new key at fathom.video → User Settings → API Access
-- **sync returns 429 Too Many Requests** — Fathom rate limit is 60 req/min; run fathom-pp-cli sync with --throttle to slow down bulk fetching
-- **transcript or summary is empty in local store** — Run fathom-pp-cli stale --since 7d to find affected recordings, then fathom-pp-cli sync --recording-id <id> to re-sync individually
+- **sync returns 429 Too Many Requests** — Fathom rate limit is 60 req/min; wait for the rate limit window to reset, then run fathom-pp-cli sync again.
+- **transcript or summary is empty in local store** — Run fathom-pp-cli stale --since 7d to find affected recordings, then use fathom-pp-cli recordings get-transcript recording_id or fathom-pp-cli recordings get-summary recording_id to inspect one recording.
 - **brief or account shows no results for a domain** — Ensure sync ran with --include-transcript --include-summary --include-action-items; re-run fathom-pp-cli sync --full if needed
 
 ---

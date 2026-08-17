@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/stac-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260624-152026-b6ccb73c",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

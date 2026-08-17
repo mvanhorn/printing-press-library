@@ -31,7 +31,14 @@ import (
 //     requested page size, because the server's offset indexes the visible
 //     post list. Advancing by the requested size would skip the posts behind
 //     a short page.
-func archiveWalk(limit, pageSize int, fetch func(n, offset int) ([]json.RawMessage, error), storeItem func(raw json.RawMessage) (bool, error)) (archived, skipped int, err error) {
+//
+// The returned exhausted flag reports WHY the walk ended: true only when an
+// empty page proved the archive has nothing more to serve; false when the walk
+// stopped at the limit (the archive may hold more posts) or an error aborted
+// it. Callers surface this so "Archived 50 posts" at the default --limit is
+// never mistaken for a complete archive (PATCH amend-2026-07-31: silent
+// --limit truncation).
+func archiveWalk(limit, pageSize int, fetch func(n, offset int) ([]json.RawMessage, error), storeItem func(raw json.RawMessage) (bool, error)) (archived, skipped int, exhausted bool, err error) {
 	offset := 0
 	for archived < limit {
 		n := pageSize
@@ -40,9 +47,10 @@ func archiveWalk(limit, pageSize int, fetch func(n, offset int) ([]json.RawMessa
 		}
 		items, err := fetch(n, offset)
 		if err != nil {
-			return archived, skipped, err
+			return archived, skipped, false, err
 		}
 		if len(items) == 0 {
+			exhausted = true
 			break
 		}
 		for _, raw := range items {
@@ -51,7 +59,7 @@ func archiveWalk(limit, pageSize int, fetch func(n, offset int) ([]json.RawMessa
 			}
 			stored, err := storeItem(raw)
 			if err != nil {
-				return archived, skipped, err
+				return archived, skipped, false, err
 			}
 			if stored {
 				archived++
@@ -61,7 +69,7 @@ func archiveWalk(limit, pageSize int, fetch func(n, offset int) ([]json.RawMessa
 		}
 		offset += len(items)
 	}
-	return archived, skipped, nil
+	return archived, skipped, exhausted, nil
 }
 
 // bodyTextToStore decides what body text a post's stored record keeps. A body
@@ -144,6 +152,20 @@ func tagSourceHost(raw json.RawMessage, host string) json.RawMessage {
 	return out
 }
 
+// archiveStopHint explains a non-exhausted walk in terms of who stopped it.
+// The user's own --limit gets a rerun hint; the dogfood-env cap names itself
+// instead — telling a --limit 0 caller to "rerun with --limit 0" would be a
+// useless loop (Greptile round-1 finding).
+func archiveStopHint(exhausted, dogfoodCapped bool, userLimit, capValue int) string {
+	if exhausted {
+		return ""
+	}
+	if dogfoodCapped {
+		return fmt.Sprintf("(stopped at %d posts: dogfood mode caps archive walks at %d; run outside dogfood mode for the rest)", capValue, capValue)
+	}
+	return fmt.Sprintf("(stopped at --limit %d; the archive has more posts — rerun with a higher --limit or --limit 0 for all)", userLimit)
+}
+
 // pp:data-source live
 func newNovelArchiveCmd(flags *rootFlags) *cobra.Command {
 	var limit int
@@ -158,7 +180,10 @@ func newNovelArchiveCmd(flags *rootFlags) *cobra.Command {
 			"search, and SQL. Accepts a handle (astralcodexten), a bare host (blog.bytebytego.com), or a " +
 			"full URL.\n\n" +
 			"Walks the archive newest-first until --limit posts are stored or the archive is exhausted " +
-			"(the endpoint serves short pages mid-archive; only an empty page ends the walk). By default " +
+			"(the endpoint serves short pages mid-archive; only an empty page ends the walk). --limit 0 " +
+			"removes the cap and walks the whole archive. When the walk stops at --limit instead, the " +
+			"output says so (and JSON carries \"exhausted\": false) — an archive is only complete when " +
+			"exhausted is true. By default " +
 			"each new post's body is also fetched — one keyless request per post, rate-limited — and " +
 			"indexed for full-text search: free posts index their full text, paid posts the public " +
 			"preview (a full paid body requires your own session; see the read command). Bodies already " +
@@ -213,13 +238,24 @@ func newNovelArchiveCmd(flags *rootFlags) *cobra.Command {
 			defer db.Close()
 
 			const pageSize = 50
+			// --limit 0 (or negative) means "walk the whole archive"; the walk
+			// still terminates on the empty page that ends every archive.
+			userLimit := limit
+			if limit <= 0 {
+				limit = int(^uint(0) >> 1) // math.MaxInt without the import
+			}
+			// The dogfood cap is OURS, not the user's: keep userLimit intact
+			// and remember who stopped the walk, so the stop hint never tells
+			// a --limit 0 caller to "rerun with --limit 0".
+			dogfoodCapped := false
 			if cliutil.IsDogfoodEnv() && limit > pageSize {
 				limit = pageSize
+				dogfoodCapped = true
 			}
 
 			sc := substack.NewClient()
 			bodies, bodyErrs := 0, 0
-			archived, skipped, err := archiveWalk(limit, pageSize,
+			archived, skipped, exhausted, err := archiveWalk(limit, pageSize,
 				func(n, offset int) ([]json.RawMessage, error) {
 					items, err := sc.FetchArchivePage(ctx, base, sort, n, offset)
 					if err != nil {
@@ -298,10 +334,14 @@ func newNovelArchiveCmd(flags *rootFlags) *cobra.Command {
 					"skipped":        skipped,
 					"bodies_fetched": bodies,
 					"body_errors":    bodyErrs,
+					"exhausted":      exhausted,
 					"db":             dbPath,
 				})
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "Archived %d posts from %s into %s\n", archived, base, dbPath)
+			if hint := archiveStopHint(exhausted, dogfoodCapped, userLimit, pageSize); hint != "" {
+				fmt.Fprintf(cmd.OutOrStdout(), "  %s\n", hint)
+			}
 			if !metadataOnly {
 				fmt.Fprintf(cmd.OutOrStdout(), "  (%d post bodies fetched for full-text search", bodies)
 				if bodyErrs > 0 {
@@ -316,7 +356,7 @@ func newNovelArchiveCmd(flags *rootFlags) *cobra.Command {
 			return nil
 		},
 	}
-	cmd.Flags().IntVar(&limit, "limit", 50, "maximum posts to archive")
+	cmd.Flags().IntVar(&limit, "limit", 50, "maximum posts to archive (0 = no cap, walk the whole archive)")
 	cmd.Flags().StringVar(&sort, "sort", "new", "archive sort order: new | top | community")
 	cmd.Flags().StringVar(&dbPath, "db", "", "database path (default: standard location)")
 	cmd.Flags().BoolVar(&metadataOnly, "metadata-only", false, "skip fetching post bodies (faster; search covers titles and previews only)")

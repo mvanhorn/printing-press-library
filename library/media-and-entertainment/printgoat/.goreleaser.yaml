@@ -1,0 +1,51 @@
+version: 2
+project_name: printgoat-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: printgoat-pp-cli
+    main: ./cmd/printgoat-pp-cli
+    binary: printgoat-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/media-and-entertainment/printgoat/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: printgoat-pp-mcp
+    main: ./cmd/printgoat-pp-mcp
+    binary: printgoat-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: printgoat-pp-cli
+    repository:
+      owner: nate-d-olson
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Search and reliably download 3D-print files across Printables and Thingiverse (plus search Cults3D) — with real resumable downloads and cross-site duplicate detection nothing else has."
+    install: |
+      bin.install "printgoat-pp-cli"
+      bin.install "printgoat-pp-mcp"

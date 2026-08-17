@@ -1,0 +1,40 @@
+{
+  "run_id": "20260620-035405-a2d4c231",
+  "novel_features": [
+    {
+      "name": "Time-windowed new articles",
+      "command": "since",
+      "status": "shipped",
+      "verified": true,
+      "why_only_we": "Uses local synced_at timestamps — NEJM has no 'what changed since' API"
+    },
+    {
+      "name": "Current-issue reading digest",
+      "command": "digest",
+      "status": "shipped",
+      "verified": true,
+      "why_only_we": "Local join of current-issue articles grouped by specialty/type; NEJM website has no digest view"
+    },
+    {
+      "name": "Personal reading list",
+      "command": "reading-list",
+      "status": "shipped",
+      "verified": true,
+      "why_only_we": "Local mutable per-user state; NEJM website requires account login"
+    },
+    {
+      "name": "Specialty and type trends",
+      "command": "trends",
+      "status": "shipped",
+      "verified": true,
+      "why_only_we": "Aggregation across the local corpus over repeated syncs; no NEJM endpoint exposes this"
+    },
+    {
+      "name": "Open-access finder",
+      "command": "open-access",
+      "status": "shipped",
+      "verified": true,
+      "why_only_we": "Local isFree flag filter; NEJM website buries free full-text without a filterable index"
+    }
+  ]
+}

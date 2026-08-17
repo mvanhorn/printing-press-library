@@ -838,9 +838,9 @@
       "path": "library/travel/alaska-airlines",
       "release": {
         "cli_name": "alaska-airlines-pp-cli",
-        "version": "2026.7.1",
-        "released_at": "2026-07-08T18:21:21Z",
-        "source_commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0"
+        "version": "2026.8.1",
+        "released_at": "2026-08-06T07:40:43Z",
+        "source_commit": "b03cc01aff2a9b582ec6c85b9180af83e1101550"
       },
       "printer": "mvanhorn",
       "printer_name": "Matt Van Horn",
@@ -854,6 +854,42 @@
           "name": "Trevin Chow"
         }
       ]
+    },
+    {
+      "name": "algolia",
+      "category": "developer-tools",
+      "api": "algolia",
+      "description": "Every Algolia feature, plus offline search and a local database no other Algolia tool has.",
+      "search_terms": [
+        "algolia",
+        "algolia-pp-cli",
+        "Cross-index search",
+        "find",
+        "Search across every synced index in one shot, with each hit labeled by its source index.",
+        "Settings diff",
+        "Field-level comparison of settings between two indices (or a settings file vs an index).",
+        "Stale rules report",
+        "rules stale",
+        "Find rules that reference attributes missing from the index's searchable attributes or that can never match.",
+        "API key ACL report",
+        "apikeys report",
+        "Audit all API keys: write-capable, unrestricted, and expired keys grouped by ACL, with last-use from synced logs.",
+        "Search regression check",
+        "search check",
+        "Assert that a query returns expected objectIDs, with a typed exit code for CI pipelines.",
+        "Unsearchable-records report",
+        "objects gaps",
+        "List records missing attributes required by the index's searchable settings — records search can never return.",
+        "Records diff between indices",
+        "objects diff",
+        "Compare records of two indices (added/removed/changed by objectID) to verify prod/staging parity.",
+        "Logs error digest",
+        "logs errors",
+        "Aggregate synced log entries by error code and link failed tasks for a digest of what went wrong."
+      ],
+      "path": "library/developer-tools/algolia",
+      "printer": "SomSamantray",
+      "printer_name": "Som Samantray"
     },
     {
       "name": "allrecipes",
@@ -1363,6 +1399,9 @@
         "Cross-List Item Search",
         "item search",
         "Find any item across all your shopping lists at once — shows which list it's on and whether it's checked.",
+        "Barcode Product Lookup",
+        "items lookup --barcode",
+        "Resolve a UPC/EAN through AnyList's product catalog before adding it, including canonical name, package size, and catalog thumbnail.",
         "Sync Cache Staleness Check",
         "sync status",
         "Report how fresh your local cache is per entity type, with exit code 1 if any data is stale."
@@ -1370,9 +1409,9 @@
       "path": "library/food-and-dining/anylist",
       "release": {
         "cli_name": "anylist-pp-cli",
-        "version": "2026.7.1",
-        "released_at": "2026-07-08T18:21:21Z",
-        "source_commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0"
+        "version": "2026.8.1",
+        "released_at": "2026-08-17T04:47:01Z",
+        "source_commit": "d48f568519d15ae3dd84e0d01a169adfbea94036"
       },
       "printer": "jeeves",
       "printer_name": "Jeeves",
@@ -1386,7 +1425,7 @@
           "stdio",
           "http"
         ],
-        "tool_count": 43,
+        "tool_count": 44,
         "public_tool_count": 0,
         "auth_type": "bearer_token",
         "env_vars": [
@@ -1526,6 +1565,12 @@
         "handle": "kjmagnan1s",
         "name": "Kevin Magnan"
       },
+      "contributors": [
+        {
+          "handle": "kriptoburak",
+          "name": "Burak Bayır"
+        }
+      ],
       "mcp": {
         "binary": "apify-pp-mcp",
         "transports": [
@@ -1670,9 +1715,9 @@
       "path": "library/other/ars-sicilia",
       "release": {
         "cli_name": "ars-sicilia-pp-cli",
-        "version": "2026.7.1",
-        "released_at": "2026-07-08T18:21:21Z",
-        "source_commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0"
+        "version": "2026.8.1",
+        "released_at": "2026-08-10T02:51:29Z",
+        "source_commit": "be69bc31bf3685f874112905fa90b0471ed09568"
       },
       "printer": "aborruso",
       "printer_name": "aborruso"
@@ -1936,6 +1981,61 @@
         "public_tool_count": 2,
         "auth_type": "none",
         "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
+      "name": "averusa",
+      "category": "devices",
+      "api": "AVer USA",
+      "description": "Every AVer USA manual, spec sheet, and white paper in a local, type-filtered catalog — with spec comparison and link audits no AVer site offers.",
+      "search_terms": [
+        "averusa",
+        "AVer USA",
+        "averusa-pp-cli",
+        "Every AVer USA manual, spec sheet, and white paper in a local, type-filtered catalog — with spec comparison and link audits no AVer site offers.",
+        "Model spec comparison",
+        "compare",
+        "Side-by-side spec fields for two or more AVer models from their datasheets, ready for bid comparisons and RFP tables. Spec fields come from datasheet PDFs extracted by `harvest --with-specs`.",
+        "Single-model spec dump",
+        "specs",
+        "One model's full spec fields as clean text or JSON for spec-compliance tables and agent pipelines. Fields come from datasheet PDFs extracted by `harvest --with-specs`.",
+        "Doc link audit",
+        "docs audit",
+        "HEAD-checks every document URL in the catalog and flags 404s and soft-404 shells, caching last-checked status locally.",
+        "Offline job bag",
+        "docs pack",
+        "Batch-download every document for a model into one offline folder with stable <model>-<type> names, with a --dry-run preview. Downloads need entityIds, which `harvest` resolves at sync time.",
+        "What's-new diff",
+        "whats-new",
+        "List documents and products added or updated since the last sync, filterable by age.",
+        "Doc coverage matrix",
+        "coverage",
+        "Per-model doc-type availability matrix for a category, flagging which models are missing manuals, spec sheets, or white papers.",
+        "Current vs discontinued",
+        "products status",
+        "Flag which models AVer lists as discontinued, filterable by category."
+      ],
+      "path": "library/devices/averusa",
+      "printer": "Drummerms",
+      "printer_name": "drummerms",
+      "creator": {
+        "handle": "Drummerms",
+        "name": "drummerms"
+      },
+      "mcp": {
+        "binary": "averusa-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 5,
+        "public_tool_count": 5,
+        "auth_type": "none",
+        "env_vars": [
+          "PRINTING_PRESS_CLIENT_PROFILE"
+        ],
         "mcp_ready": "full",
         "spec_format": "internal"
       }
@@ -2818,6 +2918,58 @@
       }
     },
     {
+      "name": "browserbase",
+      "category": "cloud",
+      "api": "Browserbase",
+      "description": "Every Browserbase cloud feature, plus session lifecycle control, local history, and usage analytics no other tool has.",
+      "search_terms": [
+        "browserbase",
+        "browserbase-pp-cli",
+        "Every Browserbase cloud feature, plus session lifecycle control, local history, and usage analytics no other tool has.",
+        "Orphaned-session sweeper",
+        "sessions orphans",
+        "Find running sessions that were never released (keepAlive orphans) and the runtime they're burning, then optionally stop them in batch. Requires `sync` first — an unsynced store returns an empty scan.",
+        "Safe session runner",
+        "sessions run",
+        "Create a session, print its connect URL, and guarantee it is released on completion, timeout, or interrupt.",
+        "Batch fetcher",
+        "fetch batch",
+        "Fetch a list of URLs with rate-limit pacing and a resumable checkpoint, so large scrape jobs survive interruptions.",
+        "Project digest",
+        "projects digest",
+        "See everything that ran in a project this week — sessions, agent runs, and downloads grouped by day — from the local store. Requires `sync` first; an unsynced store returns an empty digest.",
+        "Agent-run diff",
+        "agents runs diff",
+        "Compare two agent runs structurally — message sequences and final structured results — to see what changed between prompt iterations.",
+        "Usage trend",
+        "Track per-project browserMinutes and proxyBytes over sync history and spot quota creep before the bill arrives. Requires `sync` first; an unsynced store returns an empty trend.",
+        "Web activity history",
+        "web history",
+        "Review past fetch and search calls with cached results, and re-emit a cached response without re-hitting the API. Requires `sync` first; an unsynced store returns an empty history."
+      ],
+      "path": "library/cloud/browserbase",
+      "printer": "SomSamantray",
+      "printer_name": "Som Samantray",
+      "creator": {
+        "handle": "SomSamantray",
+        "name": "Som Samantray"
+      },
+      "mcp": {
+        "binary": "browserbase-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 51,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "PRINTING_PRESS_CLIENT_PROFILE"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
       "name": "cal-com",
       "category": "productivity",
       "api": "Cal.com",
@@ -2997,6 +3149,52 @@
           "ACCOUNT_ID",
           "CLOUDFLARE_ACCOUNT_ID"
         ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "cfpb-complaints",
+      "category": "other",
+      "api": "Cfpb Consumer Complaints",
+      "description": "Search published CFPB consumer complaint records and aggregations.",
+      "search_terms": [
+        "cfpb-complaints",
+        "Cfpb Consumer Complaints",
+        "cfpb-complaints-pp-cli",
+        "Search published CFPB consumer complaint records and aggregations.",
+        "Company pulse",
+        "Summarize complaint volume, products, issues, responses, timeliness, narrative availability, and a prior-window delta for one company.",
+        "Cohort-safe peer comparison",
+        "compare companies",
+        "Compare companies inside one explicit cohort while labeling counts as non-market-adjusted complaint volume.",
+        "Emerging-theme delta",
+        "emerging themes",
+        "Rank mechanical product and issue count changes between current and baseline windows without semantic or causal claims.",
+        "Narrative evidence packet",
+        "narratives packet",
+        "Select a newest-first bounded packet of published narratives with complaint IDs, exact cohort dates, and availability caveats.",
+        "Change watch",
+        "watch changes",
+        "Compare the latest bounded cohort with a locally persisted prior observation and report newly observed complaint IDs and categories."
+      ],
+      "path": "library/other/cfpb-complaints",
+      "printer": "Avanderheyde",
+      "printer_name": "avanderheyde",
+      "creator": {
+        "handle": "Avanderheyde",
+        "name": "avanderheyde"
+      },
+      "mcp": {
+        "binary": "cfpb-complaints-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 1,
+        "public_tool_count": 1,
+        "auth_type": "none",
+        "env_vars": [],
         "mcp_ready": "full",
         "spec_format": "openapi3"
       }
@@ -3646,6 +3844,39 @@
       }
     },
     {
+      "name": "conductor",
+      "category": "developer-tools",
+      "api": "Conductor Cloud",
+      "description": "Conductor Cloud API client with bounded coding-agent launch, monitor, steering, and reporting workflows.",
+      "search_terms": [
+        "conductor",
+        "Conductor Cloud",
+        "conductor-pp-cli",
+        "Conductor Cloud API client with bounded coding-agent launch, monitor, steering, and reporting workflows.",
+        "Launch",
+        "Create a workspace and first session, send a brief, and return the Conductor deep link.",
+        "Monitor",
+        "Poll a session until real completion while streaming only new transcript events.",
+        "Steer",
+        "Send follow-up guidance to an existing Conductor session with a clear delivery receipt.",
+        "Run",
+        "Launch, monitor, and collect the final transcript and deep link with explicit timeout rules.",
+        "Plan and implement",
+        "plan-implement",
+        "Keep a planner or reviewer session separate from the implementation session in one workspace.",
+        "Daily report",
+        "daily-report",
+        "Return recent Conductor session rows and mechanical activity totals from transcript search."
+      ],
+      "path": "library/developer-tools/conductor",
+      "printer": "colegr",
+      "printer_name": "Cole Grolmus",
+      "creator": {
+        "handle": "colegr",
+        "name": "Cole Grolmus"
+      }
+    },
+    {
       "name": "conduyt-crm",
       "category": "sales-and-crm",
       "api": "Conduyt CRM",
@@ -3821,6 +4052,63 @@
           "CONTEXT_DEV_BEARER_AUTH"
         ],
         "mcp_ready": "full"
+      }
+    },
+    {
+      "name": "cookunity",
+      "category": "food-and-dining",
+      "api": "CookUnity",
+      "description": "Mirror CookUnity's full weekly menu into a local database so you can plan meals offline — filter by macros, diet, and budget, and diff the menu week over week, none of which the web app can do.",
+      "search_terms": [
+        "cookunity",
+        "cookunity-pp-cli",
+        "Mirror CookUnity's full weekly menu into a local database so you can plan meals offline — filter by macros, diet, and budget, and diff the menu week over week, none of which the web app can do.",
+        "Macro-constrained meal planner",
+        "plan",
+        "Auto-build a set of meals that collectively hit your protein, calorie, budget, and diet targets — offline, in one command.",
+        "Week-over-week menu drift",
+        "drift",
+        "See exactly which meals were added, removed, or repriced between two weekly menus.",
+        "Best-value leaderboard",
+        "value",
+        "Rank meals by nutritional value per dollar (protein-per-dollar, calories-per-dollar) computed from the local mirror.",
+        "Favorites on this week's menu",
+        "favorites",
+        "Show which of your favorited meals are actually on the current week's menu.",
+        "Meal comparison",
+        "compare",
+        "Side-by-side macro, price, chef, and allergen comparison of two or more meals.",
+        "Chef roster analytics",
+        "chefs",
+        "Leaderboard of chefs by dish count, average rating, average price, and cuisines on the current menu."
+      ],
+      "path": "library/food-and-dining/cookunity",
+      "release": {
+        "cli_name": "cookunity-pp-cli",
+        "version": "2026.7.1",
+        "released_at": "2026-07-30T06:18:25Z",
+        "source_commit": "96e8ef5649686a8c4551111384e78a91c4a878aa"
+      },
+      "printer": "gcole326",
+      "printer_name": "Greg Cole",
+      "creator": {
+        "handle": "gcole326",
+        "name": "Greg Cole"
+      },
+      "mcp": {
+        "binary": "cookunity-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 3,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "COOKUNITY_TOKEN"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
       }
     },
     {
@@ -4055,6 +4343,110 @@
       }
     },
     {
+      "name": "crates-io",
+      "category": "developer-tools",
+      "api": "Crates Io Registry",
+      "description": "Read-only endpoints for crates.io ecosystem intelligence.",
+      "search_terms": [
+        "crates-io",
+        "Crates Io Registry",
+        "crates-io-pp-cli",
+        "Read-only endpoints for crates.io ecosystem intelligence.",
+        "Crate search",
+        "crates search",
+        "Search crates.io for Rust packages with bounded result counts for dependency discovery.",
+        "Crate metadata lookup",
+        "crates get",
+        "Inspect crate metadata, versions, keywords, and categories from the public registry API.",
+        "Dependency and owner intelligence",
+        "crates dependencies list-version",
+        "Review version dependencies, crate owners, reverse dependencies, and download signals for ecosystem analysis."
+      ],
+      "path": "library/developer-tools/crates-io",
+      "release": {
+        "cli_name": "crates-io-pp-cli",
+        "version": "2026.8.1",
+        "released_at": "2026-08-10T02:40:22Z",
+        "source_commit": "87c0a43b0a92ffb2d94a60d3e18e17b49b86fb15"
+      },
+      "printer": "sdhilip200",
+      "printer_name": "Dhilip Subramanian",
+      "creator": {
+        "handle": "sdhilip200",
+        "name": "Dhilip Subramanian"
+      },
+      "mcp": {
+        "binary": "crates-io-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 7,
+        "public_tool_count": 7,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "crestron",
+      "category": "devices",
+      "api": "Crestron",
+      "description": "Every Crestron product, spec sheet, and firmware release — searchable offline, with fleet-wide currency checks the website cannot do.",
+      "search_terms": [
+        "crestron",
+        "crestron-pp-cli",
+        "Every Crestron product, spec sheet, and firmware release — searchable offline, with fleet-wide currency checks the website cannot do.",
+        "Fleet firmware status",
+        "fleet status",
+        "Check every model in your installed fleet against current firmware in one command.",
+        "Release-note full-text search",
+        "search",
+        "Search every firmware release note and change log at once for a term.",
+        "Release-note diff",
+        "firmware diff",
+        "Show what changed between two firmware versions for a model.",
+        "Submittal package builder",
+        "submittal",
+        "Download every documentation asset for a list of models into per-model folders with a coverage report.",
+        "Lifecycle and replacement trace",
+        "lifecycle",
+        "Report whether a model is still sellable and trace its replacement chain.",
+        "Spec table comparison",
+        "specs compare",
+        "Compare two models field by field across the full specification table."
+      ],
+      "path": "library/devices/crestron",
+      "release": {
+        "cli_name": "crestron-pp-cli",
+        "version": "2026.8.1",
+        "released_at": "2026-08-06T07:34:55Z",
+        "source_commit": "c4948ab6806e6346acfcad5a70c134ad3bd4ba84"
+      },
+      "printer": "Drummerms",
+      "printer_name": "drummerms",
+      "creator": {
+        "handle": "Drummerms",
+        "name": "drummerms"
+      },
+      "mcp": {
+        "binary": "crestron-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 13,
+        "public_tool_count": 0,
+        "auth_type": "cookie",
+        "env_vars": [
+          "PRINTING_PRESS_CLIENT_PROFILE"
+        ],
+        "mcp_ready": "partial",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "customer-io",
       "category": "marketing",
       "api": "Customer.io",
@@ -4223,6 +4615,12 @@
         "Diff against history only possible with the local snapshot; replaces $199+/mo Ahrefs queries."
       ],
       "path": "library/marketing/dataforseo",
+      "release": {
+        "cli_name": "dataforseo-pp-cli",
+        "version": "2026.7.1",
+        "released_at": "2026-07-21T05:40:08Z",
+        "source_commit": "14529fb037d1b0345280dba2013667e996eb228f"
+      },
       "printer": "Mazzsterr",
       "printer_name": "Mazzsterr",
       "creator": {
@@ -4592,6 +4990,57 @@
       }
     },
     {
+      "name": "discord",
+      "category": "productivity",
+      "api": "Discord",
+      "description": "Preview of the Discord v10 HTTP API specification. See https://discord.com/developers/docs for more details.",
+      "search_terms": [
+        "discord",
+        "discord-pp-cli",
+        "Preview of the Discord v10 HTTP API specification. See https://discord.com/developers/docs for more details.",
+        "Guild snapshot",
+        "guild snapshot <guild_id>",
+        "One-call-batch guild inventory: name, member count, sorted channel tree with category labels, and role list with color and mentionable flags. Built for audits and agent-driven guild reports.",
+        "Whois identity card",
+        "whois <user_id> [--guild <id>]",
+        "Resolve a user id into a card: username, display name, bot flag, account creation date derived from the snowflake, plus guild nick, roles, and join date when --guild is given.",
+        "Catch-up digest",
+        "catch-up [--guild <id>] [--since 24h]",
+        "Per-channel new-message volume inside the window across every guild the bot can see (or one guild). Reads only; never marks anything read.",
+        "Channel history digest",
+        "channel history <channel_id> [--limit N]",
+        "Recent message digest for a channel: author, timestamp, type, and content, newest first. Read-only."
+      ],
+      "path": "library/productivity/discord",
+      "release": {
+        "cli_name": "discord-pp-cli",
+        "version": "2026.8.1",
+        "released_at": "2026-08-13T05:15:04Z",
+        "source_commit": "4df503c2ccf26c9413111e99d5f78695fa616334"
+      },
+      "printer": "mvanhorn",
+      "printer_name": "Hunter Veltri",
+      "creator": {
+        "handle": "mvanhorn",
+        "name": "Hunter Veltri"
+      },
+      "mcp": {
+        "binary": "discord-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 242,
+        "public_tool_count": 22,
+        "auth_type": "api_key",
+        "env_vars": [
+          "PRINTING_PRESS_CLIENT_PROFILE"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
       "name": "dnsmadeeasy",
       "category": "developer-tools",
       "api": "Dnsmadeeasy",
@@ -4806,9 +5255,9 @@
       "path": "library/food-and-dining/dominos",
       "release": {
         "cli_name": "dominos-pp-cli",
-        "version": "2026.7.1",
-        "released_at": "2026-07-08T18:21:21Z",
-        "source_commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0"
+        "version": "2026.8.1",
+        "released_at": "2026-08-06T02:16:30Z",
+        "source_commit": "170ac80b4dee4f51157fa3feae5757a02c0438f6"
       },
       "printer": "mvanhorn",
       "printer_name": "Matt Van Horn",
@@ -4816,6 +5265,12 @@
         "handle": "mvanhorn",
         "name": "Matt Van Horn"
       },
+      "contributors": [
+        {
+          "handle": "rogilvy",
+          "name": "Robert Ogilvy"
+        }
+      ],
       "mcp": {
         "binary": "dominos-pp-mcp",
         "transports": [
@@ -5311,6 +5766,61 @@
       "creator": {
         "handle": "magoo242",
         "name": "magoo242"
+      }
+    },
+    {
+      "name": "eero",
+      "category": "devices",
+      "api": "eero",
+      "description": "Inspect an eero mesh network from the terminal with agent-friendly output for networks, nodes, connected devices, diagnostics, and speed tests.",
+      "search_terms": [
+        "eero",
+        "eero-pp-cli",
+        "Inspect an eero mesh network from the terminal with agent-friendly output for networks, nodes, connected devices, diagnostics, and speed tests.",
+        "Set EERO_SESSION_TOKEN to an eero session token, or use auth login --chrome with a browser profile that is already signed in.",
+        "Network health snapshot",
+        "network",
+        "One agent-friendly read combines network status, speed summary, client count, node count, DNS, and feature settings.",
+        "Eero inventory",
+        "eero list",
+        "List all eero nodes in a network with compact agent-friendly output.",
+        "Connected-device inventory",
+        "device list",
+        "List connected client devices for a network, with filters and compact JSON for downstream automation.",
+        "Diagnostic report lookup",
+        "diagnostics",
+        "Fetch the latest diagnostic report for a network through the same authenticated CLI surface.",
+        "Speed-test history lookup",
+        "speed-test",
+        "Read the latest available speed-test results for a network as structured output."
+      ],
+      "path": "library/devices/eero",
+      "release": {
+        "cli_name": "eero-pp-cli",
+        "version": "2026.8.1",
+        "released_at": "2026-08-10T02:12:34Z",
+        "source_commit": "ad701f58418e6434a58f06909bb7ef33b998a354"
+      },
+      "printer": "erikrogne",
+      "printer_name": "Erik Rogne",
+      "creator": {
+        "handle": "erikrogne",
+        "name": "Erik Rogne"
+      },
+      "mcp": {
+        "binary": "eero-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 11,
+        "public_tool_count": 0,
+        "auth_type": "cookie",
+        "env_vars": [
+          "EERO_SESSION_TOKEN"
+        ],
+        "mcp_ready": "partial",
+        "spec_format": "internal"
       }
     },
     {
@@ -5854,6 +6364,54 @@
       }
     },
     {
+      "name": "exa",
+      "category": "ai",
+      "api": "Exa",
+      "description": "Every Exa search API feature, plus local history, spend tracking, and diffing no other Exa tool has.",
+      "search_terms": [
+        "exa",
+        "exa-pp-cli",
+        "Every Exa search API feature, plus local history, spend tracking, and diffing no other Exa tool has.",
+        "Spend report",
+        "spend",
+        "See cumulative API spend across every Exa call, broken down by day and resource.",
+        "Monitor run diff",
+        "monitor diff",
+        "Compare two synced monitor runs and see exactly which URLs are new, gone, or unchanged.",
+        "Entity report",
+        "Build a first-seen / last-seen / mention-count timeline for any company or person across your synced searches and webset items.",
+        "Webset new",
+        "List items added to a live webset since your last sync, so you only see what changed."
+      ],
+      "path": "library/ai/exa",
+      "release": {
+        "cli_name": "exa-pp-cli",
+        "version": "2026.8.1",
+        "released_at": "2026-08-13T00:57:19Z",
+        "source_commit": "69574b9c5825aef1671685ef22924faaac408237"
+      },
+      "printer": "SomSamantray",
+      "printer_name": "Som Samantray",
+      "creator": {
+        "handle": "SomSamantray",
+        "name": "Som Samantray"
+      },
+      "mcp": {
+        "binary": "exa-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 58,
+        "public_tool_count": 0,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "PRINTING_PRESS_CLIENT_PROFILE"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
       "name": "exchangerate-api",
       "category": "payments",
       "api": "Exchangerate Api",
@@ -6070,9 +6628,9 @@
       "path": "library/commerce/facebook-marketplace",
       "release": {
         "cli_name": "facebook-marketplace-pp-cli",
-        "version": "2026.7.1",
-        "released_at": "2026-07-08T18:21:21Z",
-        "source_commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0"
+        "version": "2026.7.3",
+        "released_at": "2026-07-25T04:43:02Z",
+        "source_commit": "b3a6332f33440410ae221f7cbcf30b5adfc8bc70"
       },
       "printer": "cathrynlavery",
       "printer_name": "Cathryn Lavery",
@@ -6134,9 +6692,9 @@
       "path": "library/productivity/fathom",
       "release": {
         "cli_name": "fathom-pp-cli",
-        "version": "2026.7.1",
-        "released_at": "2026-07-08T18:21:21Z",
-        "source_commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0"
+        "version": "2026.8.1",
+        "released_at": "2026-08-10T02:45:35Z",
+        "source_commit": "b530fa841c1866356093e18b00131dc689c3da33"
       },
       "printer": "neektza",
       "printer_name": "Nikica Jokic",
@@ -6144,6 +6702,12 @@
         "handle": "neektza",
         "name": "Nikica Jokic"
       },
+      "contributors": [
+        {
+          "handle": "montaguegabe",
+          "name": "Gabe Montague"
+        }
+      ],
       "mcp": {
         "binary": "fathom-pp-mcp",
         "transports": [
@@ -6491,9 +7055,9 @@
       "path": "library/productivity/fireflies",
       "release": {
         "cli_name": "fireflies-pp-cli",
-        "version": "2026.7.1",
-        "released_at": "2026-07-08T18:21:21Z",
-        "source_commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0"
+        "version": "2026.7.2",
+        "released_at": "2026-07-22T23:47:18Z",
+        "source_commit": "1d8f5ec4082e340335925f347776a05c4e37e28d"
       },
       "printer": "neektza",
       "printer_name": "Nikica Jokic",
@@ -6501,6 +7065,12 @@
         "handle": "neektza",
         "name": "Nikica Jokic"
       },
+      "contributors": [
+        {
+          "handle": "shanegardner405-arch",
+          "name": "Shane Gardner"
+        }
+      ],
       "mcp": {
         "binary": "fireflies-pp-mcp",
         "transports": [
@@ -6545,9 +7115,9 @@
       "path": "library/travel/flight-goat",
       "release": {
         "cli_name": "flight-goat-pp-cli",
-        "version": "2026.7.3",
-        "released_at": "2026-07-13T08:32:42Z",
-        "source_commit": "ceca5e2352dee41e4ad77ceb1428e283dd0bb29b"
+        "version": "2026.8.1",
+        "released_at": "2026-08-06T02:25:14Z",
+        "source_commit": "e95d13162c28de41ef7b090ec11b2fbf21076bf3"
       },
       "printer": "mvanhorn",
       "printer_name": "Matt Van Horn",
@@ -6567,6 +7137,10 @@
         {
           "handle": "omarshahine",
           "name": "Omar Shahine"
+        },
+        {
+          "handle": "giuseppebisemi",
+          "name": "Giuseppe Bisemi"
         }
       ],
       "mcp": {
@@ -6698,6 +7272,64 @@
         ],
         "mcp_ready": "full",
         "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "forkable",
+      "category": "food-and-dining",
+      "api": "Forkable",
+      "description": "A CLI and MCP server for your Forkable office-lunch program, with a local database and history, spend, and preference queries the web app cannot answer, plus commands to set, confirm, and skip meal orders (dry-run by default; --confirm to apply).",
+      "search_terms": [
+        "forkable",
+        "forkable-pp-cli",
+        "A CLI and MCP server for your Forkable office-lunch program, with a local database and history, spend, and preference queries the web app cannot answer, plus commands to set, confirm, and skip meal orders (dry-run by default; --confirm to apply).",
+        "Served-meal history",
+        "served-history",
+        "See every meal actually served to you over time, with date, venue, price, and dietary level.",
+        "Preference-vs-served drift",
+        "preference-drift",
+        "Flag served meals that violate your stated dislikes or dietary restrictions, or miss your likes.",
+        "Auto-selection explainer",
+        "why-picked",
+        "Explain why a delivery's meal was auto-selected by ranking candidate items and their scores.",
+        "Spend trend over time",
+        "spend-trend",
+        "Bucket lunch spend into per-week or per-month totals with CSV export.",
+        "Allowance utilization",
+        "allowance-burn",
+        "Show granted-vs-consumed allowance utilization per club, including multi-club comparison.",
+        "Week-ahead digest",
+        "upcoming-digest",
+        "One agent-shaped line per upcoming day: date, venue, auto-selected item, price, allowance headroom.",
+        "Venue rotation",
+        "venue-rotation",
+        "Rank venues by how often they've served you and how recently."
+      ],
+      "path": "library/food-and-dining/forkable",
+      "release": {
+        "cli_name": "forkable-pp-cli",
+        "version": "2026.8.1",
+        "released_at": "2026-08-10T03:38:45Z",
+        "source_commit": "3cc4998972ecf298fb0d543fb5c322803c33ec19"
+      },
+      "printer": "enlewof",
+      "printer_name": "Allen Lew",
+      "creator": {
+        "handle": "enlewof",
+        "name": "Allen Lew"
+      },
+      "mcp": {
+        "binary": "forkable-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 10,
+        "public_tool_count": 1,
+        "auth_type": "cookie",
+        "env_vars": [],
+        "mcp_ready": "partial",
+        "spec_format": "internal"
       }
     },
     {
@@ -7292,9 +7924,9 @@
       "path": "library/productivity/giustizia-amministrativa",
       "release": {
         "cli_name": "giustizia-amministrativa-pp-cli",
-        "version": "2026.7.1",
-        "released_at": "2026-07-08T18:21:21Z",
-        "source_commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0"
+        "version": "2026.7.2",
+        "released_at": "2026-07-23T07:01:06Z",
+        "source_commit": "14a3685ce9929e28fe44aabd980d8bda8f53088b"
       },
       "printer": "aborruso",
       "printer_name": "aborruso",
@@ -8143,9 +8775,9 @@
       "path": "library/productivity/granola",
       "release": {
         "cli_name": "granola-pp-cli",
-        "version": "2026.7.1",
-        "released_at": "2026-07-08T18:21:21Z",
-        "source_commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0"
+        "version": "2026.8.1",
+        "released_at": "2026-08-05T05:51:22Z",
+        "source_commit": "bb6d20448f2e221e88b248f33c5cbb87d5d7adf9"
       },
       "printer": "dstevens",
       "printer_name": "Damien Stevens",
@@ -8157,6 +8789,10 @@
         {
           "handle": "jeffreydebolt",
           "name": "Jeff DeBolt"
+        },
+        {
+          "handle": "mvanhorn",
+          "name": "Matt Van Horn"
         }
       ],
       "mcp": {
@@ -8198,6 +8834,12 @@
         "Pairs open Grants.gov calls with historically awarded NIH RePORTER and NSF grants so applicants can benchmark typical award sizes for a topic before applying."
       ],
       "path": "library/health/grants",
+      "release": {
+        "cli_name": "grants-pp-cli",
+        "version": "2026.8.1",
+        "released_at": "2026-08-10T03:06:35Z",
+        "source_commit": "1dcdf980e27beaaea5b5ddc408d269b52cefdeaf"
+      },
       "printer": "laci141",
       "printer_name": "laci141",
       "creator": {
@@ -8320,6 +8962,48 @@
         ],
         "mcp_ready": "full",
         "spec_format": "internal"
+      }
+    },
+    {
+      "name": "greenhouse",
+      "category": "other",
+      "api": "Greenhouse",
+      "description": "Greenhouse Job Board CLI — query any company's public Greenhouse job board from the command line. Generic board_token, no auth required, 4 operations covering jobs, departments, and offices.",
+      "search_terms": [
+        "greenhouse",
+        "greenhouse-pp-cli",
+        "Greenhouse Job Board CLI — query any company's public Greenhouse job board from the command line. Generic board_token, no auth required, 4 operations covering jobs, departments, and offices.",
+        "Generic board_token",
+        "jobs list <board_token>",
+        "Single CLI serves any company that uses Greenhouse Job Board (Stripe, Anthropic, Airbnb, Notion, Figma, etc.) — board_token is a positional argument, not a hardcoded prefix.",
+        "Engine Resource Rename",
+        "Renamed the auto-scaffolded 'greenhouse-job-board-jobs' resource to 'jobs' to fix an engine shadow-rename caused by the 'jobs/' cobra conflict. Recorded in .printing-press-patches/001-rename-jobs-resource.json so regens preserve it."
+      ],
+      "path": "library/other/greenhouse",
+      "release": {
+        "cli_name": "greenhouse-pp-cli",
+        "version": "2026.8.1",
+        "released_at": "2026-08-17T05:32:23Z",
+        "source_commit": "027475398124c04c592c623b988764520536b63e"
+      },
+      "printer": "veltri-23",
+      "printer_name": "Hunter Veltri",
+      "creator": {
+        "handle": "veltri-23",
+        "name": "Hunter Veltri"
+      },
+      "mcp": {
+        "binary": "greenhouse-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 35,
+        "public_tool_count": 4,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
       }
     },
     {
@@ -8721,6 +9405,70 @@
       }
     },
     {
+      "name": "home-assistant",
+      "category": "devices",
+      "api": "Home Assistant",
+      "description": "Safe household actions, offline memory, and evidence-backed answers on top of the full Home Assistant control surface.",
+      "search_terms": [
+        "home-assistant",
+        "Home Assistant",
+        "home-assistant-pp-cli",
+        "Safe household actions, offline memory, and evidence-backed answers on top of the full Home Assistant control surface.",
+        "Verified household mode",
+        "mode run",
+        "Preview a scene or script, run it, and verify every resulting entity state.",
+        "Household exception check",
+        "house check",
+        "See open windows, unlocked locks, lights left on, low batteries, and unavailable safety devices in one answer.",
+        "Routine incident explanation",
+        "routine why",
+        "Reconstruct why an automation or script failed from traces, state changes, logbook entries, and errors.",
+        "Routine reference lint",
+        "routine lint",
+        "Find missing entities, unavailable services, disabled dependencies, ambiguous names, and stale routine references.",
+        "Routine impact graph",
+        "routine impact",
+        "See every automation, script, scene, helper, and service target affected by changing one entity or routine.",
+        "Mechanical household recap",
+        "house recap",
+        "Review factual household activity, routine failures, presence changes, openings, and unavailable time for a recent period.",
+        "Health hotspot grouping",
+        "health hotspots",
+        "Group recurring unavailable, stale, low-battery, and disconnecting entities into device, room, integration, and radio hotspots.",
+        "Standby energy finder",
+        "energy standby",
+        "Find devices drawing persistent power during explicit periods when related household states show inactivity."
+      ],
+      "path": "library/devices/home-assistant",
+      "release": {
+        "cli_name": "home-assistant-pp-cli",
+        "version": "2026.7.1",
+        "released_at": "2026-07-24T23:56:45Z",
+        "source_commit": "7753aa608886945c0c7e40eb968e639083497b28"
+      },
+      "printer": "Avanderheyde",
+      "printer_name": "avanderheyde",
+      "creator": {
+        "handle": "Avanderheyde",
+        "name": "avanderheyde"
+      },
+      "mcp": {
+        "binary": "home-assistant-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 18,
+        "public_tool_count": 0,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "HOME_ASSISTANT_BEARER_AUTH"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
       "name": "hotel-goat",
       "category": "travel",
       "api": "Hotel GOAT",
@@ -8993,6 +9741,74 @@
       }
     },
     {
+      "name": "iclasspro",
+      "category": "productivity",
+      "api": "iClassPro",
+      "description": "The only iClassPro tool that remembers yesterday — a queryable local mirror of any gym's catalog, with the search and filter surface the portal keeps to itself.",
+      "search_terms": [
+        "iclasspro",
+        "iclasspro-pp-cli",
+        "The only iClassPro tool that remembers yesterday — a queryable local mirror of any gym's catalog, with the search and filter surface the portal keeps to itself.",
+        "Openings watcher",
+        "watch",
+        "Get told the moment a spot frees up in a class or camp that is currently full.",
+        "Catalog drift",
+        "drift",
+        "See what changed between syncs: classes and camps added, removed, retimed, or newly marked deleted.",
+        "Registration windows",
+        "opens-soon",
+        "Find registration that has not opened yet or is about to close, across every synced class and camp.",
+        "Calendar export",
+        "calendar",
+        "Export synced camps and classes to an RFC 5545 calendar file, one event per session.",
+        "Tenant capability probe",
+        "tenant",
+        "Report which surfaces an account actually exposes: open, sign-in-gated, or plan-gated.",
+        "Fill-rate trend",
+        "fill-rate",
+        "Show how fast classes are filling over time, by class or by program.",
+        "Cross-tenant compare",
+        "compare",
+        "Compare the same kind of program across several gyms at once.",
+        "Catalog lint",
+        "lint",
+        "Flag catalog quality problems: missing descriptions or images, expired registration windows, deleted-but-listed programs.",
+        "Read-only Office Portal access",
+        "admin capabilities",
+        "Read an explicit allow-list of authenticated staff resources without mutation, export, or response caching."
+      ],
+      "path": "library/productivity/iclasspro",
+      "release": {
+        "cli_name": "iclasspro-pp-cli",
+        "version": "2026.8.1",
+        "released_at": "2026-08-17T04:57:10Z",
+        "source_commit": "dfe5ca2dde57b8767403425bf45eca381779d6d5"
+      },
+      "printer": "bobeglz",
+      "printer_name": "bobe",
+      "creator": {
+        "handle": "bobeglz",
+        "name": "bobe"
+      },
+      "mcp": {
+        "binary": "iclasspro-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 15,
+        "public_tool_count": 15,
+        "auth_type": "none",
+        "env_vars": [
+          "PRINTING_PRESS_CLIENT_PROFILE",
+          "ICLASSPRO_STAFF_USERNAME",
+          "ICLASSPRO_STAFF_PASSWORD"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "icloud",
       "category": "media-and-entertainment",
       "api": "Apple iCloud",
@@ -9038,6 +9854,53 @@
           "name": "Trevin Chow"
         }
       ]
+    },
+    {
+      "name": "ifood",
+      "category": "food-and-dining",
+      "api": "iFood",
+      "description": "Agent-ready iFood grocery quoting with browser-owned authentication and confirmation-gated cart planning.",
+      "search_terms": [
+        "ifood",
+        "ifood-pp-cli",
+        "Agent-ready iFood grocery quoting with browser-owned authentication and confirmation-gated cart planning.",
+        "Browser-safe workflow plan",
+        "browser plan",
+        "Emit the complete browser-owned quotation and cart workflow without exporting credentials.",
+        "Three-market quotation validator",
+        "browser validate-quote",
+        "Validate complete product observations from at least three markets meeting a configurable rating floor.",
+        "Confirmation-gated cart plan",
+        "browser cart-plan",
+        "Produce the exact selected merchant, products, quantities, and expected total before any cart interaction.",
+        "Cross-market grocery quote",
+        "quote",
+        "Compare requested grocery terms across eligible markets and return complete price estimates.",
+        "Preview-first cart builder",
+        "cart build",
+        "Resolve product terms into an exact read-only cart-item preview."
+      ],
+      "path": "library/food-and-dining/ifood",
+      "printer": "matheuscoelhomalta",
+      "printer_name": "Matheus Coêlho",
+      "creator": {
+        "handle": "matheuscoelhomalta",
+        "name": "Matheus Coêlho"
+      },
+      "mcp": {
+        "binary": "ifood-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 4,
+        "public_tool_count": 0,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "PRINTING_PRESS_CLIENT_PROFILE"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
     },
     {
       "name": "ikon",
@@ -9255,9 +10118,9 @@
       "path": "library/sales-and-crm/intercom",
       "release": {
         "cli_name": "intercom-pp-cli",
-        "version": "2026.7.1",
-        "released_at": "2026-07-08T18:21:21Z",
-        "source_commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0"
+        "version": "2026.7.2",
+        "released_at": "2026-07-24T23:53:50Z",
+        "source_commit": "d9a38adb198c39bd0f7a9ba69b6e7c528821a570"
       },
       "printer": "rob-coco",
       "printer_name": "Rob Zehner",
@@ -9265,10 +10128,17 @@
         "handle": "rob-coco",
         "name": "Rob Zehner"
       },
+      "contributors": [
+        {
+          "handle": "francobee",
+          "name": "Francis Battikha"
+        }
+      ],
       "mcp": {
         "binary": "intercom-pp-mcp",
         "transports": [
-          "stdio"
+          "stdio",
+          "http"
         ],
         "tool_count": 133,
         "public_tool_count": 0,
@@ -9421,9 +10291,9 @@
       "path": "library/health/janeapp",
       "release": {
         "cli_name": "janeapp-pp-cli",
-        "version": "2026.7.2",
-        "released_at": "2026-07-08T18:21:21Z",
-        "source_commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0"
+        "version": "2026.7.3",
+        "released_at": "2026-07-24T23:54:34Z",
+        "source_commit": "9b267a7c130bfce3103680e7d348db99dceb03ee"
       },
       "printer": "omarshahine",
       "printer_name": "Omar Shahine",
@@ -9653,6 +10523,60 @@
           "JUDGE_ME_SHOP_DOMAIN"
         ],
         "mcp_ready": "full"
+      }
+    },
+    {
+      "name": "judgeme",
+      "category": "marketing",
+      "api": "Judge.me",
+      "description": "A completeness-verified Judge.me review corpus with explicit populations and syndication-aware exports.",
+      "search_terms": [
+        "judgeme",
+        "Judge.me",
+        "judgeme-pp-cli",
+        "A completeness-verified Judge.me review corpus with explicit populations and syndication-aware exports.",
+        "Completeness-safe mirror",
+        "sync",
+        "Mirror the complete review corpus and refuse success when unique IDs do not equal Judge.me's live count.",
+        "Filtered corpus export",
+        "reviews export",
+        "Export explicit published, hidden, pending, or all populations as JSON or CSV.",
+        "Population census",
+        "reviews populations",
+        "Count storefront-visible and internal moderation populations with unambiguous labels.",
+        "Syndication clusters",
+        "reviews syndication",
+        "Find identical normalized review bodies attached to multiple products.",
+        "Unique-body view",
+        "reviews unique-bodies",
+        "Return one deterministic representative per normalized review body while retaining source row counts."
+      ],
+      "path": "library/marketing/judgeme",
+      "release": {
+        "cli_name": "judgeme-pp-cli",
+        "version": "2026.7.2",
+        "released_at": "2026-07-30T15:43:21Z",
+        "source_commit": "9529cbedcf9d339b869f32bee740055bd5bc1a40"
+      },
+      "printer": "cathrynlavery",
+      "printer_name": "Cathryn Lavery",
+      "creator": {
+        "handle": "cathrynlavery",
+        "name": "Cathryn Lavery"
+      },
+      "mcp": {
+        "binary": "judgeme-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 34,
+        "public_tool_count": 1,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "PRINTING_PRESS_CLIENT_PROFILE"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
       }
     },
     {
@@ -10102,6 +11026,44 @@
         "env_vars": [
           "LEMONSQUEEZY_API_KEY"
         ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "lever",
+      "category": "job-boards",
+      "api": "Lever Postings",
+      "description": "Public Lever postings API (https://api.lever.co/v0/postings). Every Lever customer exposes an open job board at api.",
+      "search_terms": [
+        "lever",
+        "Lever Postings",
+        "lever-pp-cli",
+        "Public Lever postings API (https://api.lever.co/v0/postings). Every Lever customer exposes an open job board at api.",
+        "Generic company",
+        "postings list <company>",
+        "Single CLI serves any company that publishes through Lever (leverdemo, palantir, etc.) — company is a positional argument, not a hardcoded prefix.",
+        "Company-scoped offline sync",
+        "sync <company>",
+        "sync <company> fetches all open postings and persists them under a company-scoped store key (postings:<company>); --data-source local reads are isolated per company, so synced boards never mix."
+      ],
+      "path": "library/job-boards/lever",
+      "printer": "veltri-23",
+      "printer_name": "Hunter Veltri",
+      "creator": {
+        "handle": "veltri-23",
+        "name": "Hunter Veltri"
+      },
+      "mcp": {
+        "binary": "lever-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 2,
+        "public_tool_count": 2,
+        "auth_type": "none",
+        "env_vars": [],
         "mcp_ready": "full",
         "spec_format": "openapi3"
       }
@@ -10743,9 +11705,9 @@
       "path": "library/media-and-entertainment/medium-reader",
       "release": {
         "cli_name": "medium-reader-pp-cli",
-        "version": "2026.7.1",
-        "released_at": "2026-07-08T18:21:21Z",
-        "source_commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0"
+        "version": "2026.8.1",
+        "released_at": "2026-08-10T03:22:10Z",
+        "source_commit": "785fba916b5d7e1956dc16f0db8e720909911741"
       },
       "printer": "maxswinguy",
       "printer_name": "Maxime Delavergne",
@@ -10864,6 +11826,12 @@
       },
       "printer": "sdhilip200",
       "printer_name": "Dhilip Subramanian",
+      "contributors": [
+        {
+          "handle": "bobeglz",
+          "name": "bobeglz"
+        }
+      ],
       "mcp": {
         "binary": "meta-ads-pp-mcp",
         "transports": [
@@ -11338,9 +12306,9 @@
       "path": "library/media-and-entertainment/movie-goat",
       "release": {
         "cli_name": "movie-goat-pp-cli",
-        "version": "2026.7.2",
-        "released_at": "2026-07-08T23:15:22Z",
-        "source_commit": "220c1563d0375ec8741c4c377b4bb5a4317cbf6a"
+        "version": "2026.8.1",
+        "released_at": "2026-08-10T03:01:17Z",
+        "source_commit": "a4bc6578f4ebb68687bd7c5b991217d207d25aa3"
       },
       "printer": "tmchow",
       "printer_name": "Trevin Chow",
@@ -11348,6 +12316,12 @@
         "handle": "tmchow",
         "name": "Trevin Chow"
       },
+      "contributors": [
+        {
+          "handle": "giuseppebisemi",
+          "name": "Giuseppe Bisemi"
+        }
+      ],
       "mcp": {
         "binary": "movie-goat-pp-mcp",
         "transports": [
@@ -11605,6 +12579,53 @@
       }
     },
     {
+      "name": "nejm",
+      "category": "health",
+      "api": "New England Journal of Medicine",
+      "description": "Browse, search, and triage New England Journal of Medicine articles from the terminal, backed by a local corpus and a browser-compatible transport that clears Cloudflare.",
+      "search_terms": [
+        "nejm",
+        "New England Journal of Medicine",
+        "nejm-pp-cli",
+        "Browse, search, and triage New England Journal of Medicine articles from the terminal, backed by a local corpus and a browser-compatible transport that clears Cloudflare.",
+        "Time-windowed new articles",
+        "since",
+        "List new NEJM articles published within a specified time window.",
+        "Current-issue reading digest",
+        "digest",
+        "Generate a reading digest of the current issue.",
+        "Personal reading list",
+        "reading-list",
+        "Manage a personal reading list of NEJM articles.",
+        "Specialty and type trends",
+        "trends",
+        "Show specialty and type trends across NEJM publications.",
+        "Open-access finder",
+        "open-access",
+        "Find open-access articles in NEJM."
+      ],
+      "path": "library/health/nejm",
+      "printer": "laci141",
+      "printer_name": "laci141",
+      "creator": {
+        "handle": "laci141",
+        "name": "laci141"
+      },
+      "mcp": {
+        "binary": "nejm-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 2,
+        "public_tool_count": 2,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "netlify",
       "category": "cloud",
       "api": "netlify",
@@ -11695,6 +12716,58 @@
         "auth_type": "none",
         "env_vars": [],
         "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
+      "name": "notebooklm",
+      "category": "ai",
+      "api": "Gemini Notebook (NotebookLM)",
+      "description": "Unofficial Go CLI for Gemini Notebook — notebooks, sources, chat, Studio artifacts, SQLite cache, and MCP via batchexecute RPC with Chrome session auth.",
+      "search_terms": [
+        "notebooklm",
+        "Gemini Notebook (NotebookLM)",
+        "notebooklm-pp-cli",
+        "Unofficial Go CLI for Gemini Notebook — notebooks, sources, chat, Studio artifacts, SQLite cache, and MCP via batchexecute RPC with Chrome session auth.",
+        "Chrome session auth",
+        "auth login",
+        "Import Google session cookies from Chrome without manual DevTools copying.",
+        "Offline notebook search",
+        "search",
+        "Search synced notebooks locally by title or id without another API round-trip.",
+        "Grounded chat with citations",
+        "chat ask",
+        "Ask questions against notebook sources via streamed batchexecute RPC.",
+        "Studio quiz generation",
+        "studio generate-quiz",
+        "Kick off NotebookLM Studio quiz artifact generation and optionally wait for completion.",
+        "Doctor health gate",
+        "doctor",
+        "Validate config, cookie presence, and session bootstrap tokens before live calls."
+      ],
+      "path": "library/ai/notebooklm",
+      "release": {
+        "cli_name": "notebooklm-pp-cli",
+        "version": "2026.8.1",
+        "released_at": "2026-08-06T07:42:32Z",
+        "source_commit": "0501b5489ef52eefd8573df934d8a18ac88cb7e3"
+      },
+      "printer": "SomSamantray",
+      "printer_name": "Som Samantray",
+      "creator": {
+        "handle": "SomSamantray",
+        "name": "Som Samantray"
+      },
+      "mcp": {
+        "binary": "notebooklm-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 0,
+        "public_tool_count": 0,
+        "auth_type": "cookie",
+        "env_vars": [],
+        "mcp_ready": "yes",
         "spec_format": "internal"
       }
     },
@@ -12329,6 +13402,92 @@
       }
     },
     {
+      "name": "open-food-facts",
+      "category": "food-and-dining",
+      "api": "Open Food Facts",
+      "description": "Read-only Open Food Facts recipes for barcode product lookup, structured search, nutrition summaries, allergen and ingredient inspection, bounded comparison, category samples, and source posture checks.",
+      "search_terms": [
+        "open-food-facts",
+        "Open Food Facts",
+        "open-food-facts-pp-cli",
+        "Read-only Open Food Facts recipes for barcode product lookup, structured search, nutrition summaries, allergen and ingredient inspection, bounded comparison, category samples, and source posture checks.",
+        "Barcode product lookup",
+        "product",
+        "Fetches one Open Food Facts v3 product record and returns compact identity, labels, countries, nutrition, allergen, data-quality, image, and source URL fields.",
+        "Bounded structured search",
+        "search",
+        "Uses the documented v2 structured search endpoint with category, brand, country, label, nutrition-grade, page, and page-size controls.",
+        "Nutrition summary",
+        "nutrition",
+        "Extracts key nutriments, serving basis, Nutri-Score, NOVA, Eco-Score, source URL, and data-quality tags for one barcode.",
+        "Ingredient and allergen inspection",
+        "allergens",
+        "Reports ingredient text, ingredient analysis tags, allergens, traces, additives, and voluntary-data caveats.",
+        "Small product comparison",
+        "compare",
+        "Compares two to five barcode records while preserving per-barcode lookup errors and successful product output.",
+        "Source and rate posture",
+        "sources, doctor",
+        "Reports read-only auth, custom User-Agent configuration, documented rate limits, anti-bulk non-goals, and local configuration."
+      ],
+      "path": "library/food-and-dining/open-food-facts",
+      "release": {
+        "cli_name": "open-food-facts-pp-cli",
+        "version": "2026.8.1",
+        "released_at": "2026-08-10T02:34:07Z",
+        "source_commit": "c6cf81b9251e865caaba5a1406359856a6cf74a1"
+      },
+      "printer": "sdhilip200",
+      "printer_name": "Dhilip Subramanian",
+      "creator": {
+        "handle": "sdhilip200",
+        "name": "Dhilip Subramanian"
+      }
+    },
+    {
+      "name": "open-library",
+      "category": "media-and-entertainment",
+      "api": "Open Library",
+      "description": "Read-only Open Library recipes for book search, ISBN edition lookup, author works, work metadata, bounded editions, and subject browsing with source/rate-limit caveats.",
+      "search_terms": [
+        "open-library",
+        "Open Library",
+        "open-library-pp-cli",
+        "Read-only Open Library recipes for book search, ISBN edition lookup, author works, work metadata, bounded editions, and subject browsing with source/rate-limit caveats.",
+        "Compact book/work search",
+        "book",
+        "Searches Open Library's preferred search endpoint and returns compact ranked work candidates with author, edition, ISBN, language, and source URL fields.",
+        "ISBN edition resolver",
+        "isbn",
+        "Resolves ISBN-10 or ISBN-13 values to edition metadata without account actions or borrowing flows.",
+        "Author works sampler",
+        "author",
+        "Searches author records or accepts an Open Library author ID, then fetches a bounded works sample for bibliography-building agents.",
+        "Work and editions metadata",
+        "work, editions",
+        "Fetches canonical work JSON and bounded edition lists from documented Open Library work APIs.",
+        "Subject discovery with caveats",
+        "subjects",
+        "Fetches subject works and optional facets while clearly marking the Subjects API as experimental.",
+        "Source/rate posture",
+        "sources, doctor",
+        "Reports keyless auth, optional contact-bearing User-Agent configuration, documented rate limits, and anti-bulk non-goals."
+      ],
+      "path": "library/media-and-entertainment/open-library",
+      "release": {
+        "cli_name": "open-library-pp-cli",
+        "version": "2026.8.1",
+        "released_at": "2026-08-10T03:17:21Z",
+        "source_commit": "4fb63c617293168afb5711c7e73e267562ca6ed7"
+      },
+      "printer": "sdhilip200",
+      "printer_name": "Dhilip Subramanian",
+      "creator": {
+        "handle": "sdhilip200",
+        "name": "Dhilip Subramanian"
+      }
+    },
+    {
       "name": "open-meteo",
       "category": "other",
       "api": "Open-Meteo",
@@ -12606,9 +13765,9 @@
       "path": "library/developer-tools/openipa",
       "release": {
         "cli_name": "openipa-pp-cli",
-        "version": "2026.7.1",
-        "released_at": "2026-07-08T18:21:21Z",
-        "source_commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0"
+        "version": "2026.7.2",
+        "released_at": "2026-07-22T23:47:53Z",
+        "source_commit": "c2650e8c0ce05232866619d68c3d68b5536c9576"
       },
       "printer": "aborruso",
       "printer_name": "aborruso",
@@ -12663,6 +13822,53 @@
       "creator": {
         "handle": "rvdlaar",
         "name": "Rick van de Laar"
+      }
+    },
+    {
+      "name": "opensky",
+      "category": "travel",
+      "api": "Opensky Network",
+      "description": "Public OpenSky Network API (https://opensky-network.org/api).",
+      "search_terms": [
+        "opensky",
+        "Opensky Network",
+        "opensky-pp-cli",
+        "Public OpenSky Network API (https://opensky-network.org/api).",
+        "Bare-invocation time windows",
+        "flights get-departures",
+        "begin/end default to the last hour on every /flights/* command (OpenSky requires the window and anonymous access caps it at 1h), so live queries work with zero epoch math. Override with --begin/--end.",
+        "Empty-window 404 handling",
+        "flights get-aircraft-trajectory",
+        "OpenSky answers HTTP 404 with an empty array when a window has no flights; the CLI treats that as an empty result (exit 0) instead of the generic resource-not-found error.",
+        "No-auth live tracking",
+        "states",
+        "Live ADS-B state vectors over any bounding box with no API key; --icao24 filters to one transponder for a single-aircraft view."
+      ],
+      "path": "library/travel/opensky",
+      "release": {
+        "cli_name": "opensky-pp-cli",
+        "version": "2026.8.1",
+        "released_at": "2026-08-10T02:32:13Z",
+        "source_commit": "9150163f543bcc15cda697fb96ee8bfb6f614503"
+      },
+      "printer": "veltri-23",
+      "printer_name": "Hunter Veltri",
+      "creator": {
+        "handle": "mvanhorn",
+        "name": "Hunter Veltri"
+      },
+      "mcp": {
+        "binary": "opensky-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 3,
+        "public_tool_count": 3,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
       }
     },
     {
@@ -13138,6 +14344,65 @@
       }
     },
     {
+      "name": "parallel",
+      "category": "ai",
+      "api": "Parallel",
+      "description": "Agent-native Parallel web research with a local SQLite memory no other Parallel CLI keeps.",
+      "search_terms": [
+        "parallel",
+        "parallel-pp-cli",
+        "Agent-native Parallel web research with a local SQLite memory no other Parallel CLI keeps.",
+        "Research session stitch",
+        "session stitch",
+        "Bind search, extract, and task/findall runs into one local session chain for agent resume.",
+        "Balance-aware run cost guard",
+        "tasks guard",
+        "Refuse Task creates when prepaid balance is below a threshold.",
+        "Stale monitor event digest",
+        "monitors digest",
+        "Mechanical per-monitor event counts and top titles since a duration window.",
+        "Cross-run research recall",
+        "research recall",
+        "FTS across local searches, extracts, and task summaries with typed hit IDs.",
+        "FindAll to Task Group promote",
+        "findall promote",
+        "Turn FindAll candidates into a Task Group enrichment job.",
+        "Prepaid burn vs runs",
+        "balance burn",
+        "Diff local balance snapshots against local run volume over a window.",
+        "Task interaction lineage",
+        "tasks lineage",
+        "Print the offline previous_interaction_id follow-up chain for a run."
+      ],
+      "path": "library/ai/parallel",
+      "release": {
+        "cli_name": "parallel-pp-cli",
+        "version": "2026.7.1",
+        "released_at": "2026-07-30T06:16:57Z",
+        "source_commit": "d5baa370eae472477a837bade6de778a86c1fe6d"
+      },
+      "printer": "SomSamantray",
+      "printer_name": "Som Samantray",
+      "creator": {
+        "handle": "SomSamantray",
+        "name": "Som Samantray"
+      },
+      "mcp": {
+        "binary": "parallel-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 39,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "PARALLEL_API_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
       "name": "passage",
       "category": "media-and-entertainment",
       "api": "passage",
@@ -13463,6 +14728,60 @@
       }
     },
     {
+      "name": "pinecone",
+      "category": "ai",
+      "api": "Pinecone",
+      "description": "Every Pinecone API feature, plus local sync, snapshot history, and text-first search no other Pinecone tool has.",
+      "search_terms": [
+        "pinecone",
+        "pinecone-pp-cli",
+        "Every Pinecone API feature, plus local sync, snapshot history, and text-first search no other Pinecone tool has.",
+        "Text query (embed→query pipe)",
+        "text-query",
+        "Search a dense index with a natural-language query — embeds the text via Pinecone Inference, then queries the index — without managing vectors yourself.",
+        "Index snapshot + diff",
+        "snapshot",
+        "Capture a point-in-time state of any index (per-namespace vector counts, dimension, metric, host) into local SQLite, then diff against prior snapshots to see exactly what changed.",
+        "Stale-chunk pruning",
+        "prune",
+        "Find vectors whose local metadata timestamps are older than a threshold and delete them in batches — dry-run by default, with --apply to commit.",
+        "Cross-index cascade search",
+        "cascade",
+        "Run one semantic query across multiple indexes and merge the ranked results (deduped by vector ID, best score wins) into a single agent-ready list.",
+        "Usage / growth projection",
+        "usage",
+        "Compute vector-count growth and per-namespace distribution shifts from snapshot history, with a projection to a future horizon.",
+        "Vector payload validation",
+        "check-vectors",
+        "Validate a vectors JSON file against the index schema — dimension, duplicate/empty IDs, sparse/dense shape — before you upsert and burn write units on a rejected batch.",
+        "Backup/restore coverage report",
+        "coverage",
+        "Join backups, backup schedules, and restore jobs into a per-index protection matrix showing which indexes are backed up, scheduled, and restorable."
+      ],
+      "path": "library/ai/pinecone",
+      "printer": "SomSamantray",
+      "printer_name": "Som Samantray",
+      "creator": {
+        "handle": "SomSamantray",
+        "name": "Som Samantray"
+      },
+      "mcp": {
+        "binary": "pinecone-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 95,
+        "public_tool_count": 1,
+        "auth_type": "api_key",
+        "env_vars": [
+          "PRINTING_PRESS_CLIENT_PROFILE"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "pipedrive",
       "category": "sales-and-crm",
       "api": "Pipedrive",
@@ -13636,9 +14955,12 @@
         "Cross-source content diff",
         "source compare",
         "For an episode resolvable on multiple sources, fetch all available adapters and diff segment count, token count, distinct speakers, label confidence.",
-        "Bilingual zh-Hans + en aligned transcript",
-        "episode get --bilingual",
-        "yt-dlp dual-language auto-subs, greedy nearest-neighbor alignment, emits one markdown file with paired Chinese + auto-translated English per turn.",
+        "Non-English transcript fetch",
+        "episode get --lang",
+        "Fetch YouTube auto-subs in any single language yt-dlp knows (e.g. --lang it) instead of the historical English-only path. One code per fetch; rolling-cue de-dup applies to space-tokenized languages.",
+        "Spend-free paid-source availability probe",
+        "episode info --probe",
+        "Asks spoken.md's search endpoint whether it actually has the episode, instead of showing only a static cost estimate. Works with the demo key; no transcript fetch, no spend.",
         "Per-service cookie freshness table",
         "auth services",
         "One-row-per-service table of cookie age, expiry, last-fetch result, with remediation hint when stale.",
@@ -13652,9 +14974,9 @@
       "path": "library/media-and-entertainment/podcast-goat",
       "release": {
         "cli_name": "podcast-goat-pp-cli",
-        "version": "2026.7.1",
-        "released_at": "2026-07-08T18:21:21Z",
-        "source_commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0"
+        "version": "2026.8.1",
+        "released_at": "2026-08-07T19:11:19Z",
+        "source_commit": "6b54aabb7d86feaa8a84b991b8c515dddc24f057"
       },
       "printer": "mvanhorn",
       "printer_name": "Matt Van Horn",
@@ -13666,6 +14988,10 @@
         {
           "handle": "tmchow",
           "name": "Trevin Chow"
+        },
+        {
+          "handle": "giuseppebisemi",
+          "name": "Giuseppe Bisemi"
         }
       ],
       "mcp": {
@@ -14334,6 +15660,57 @@
       }
     },
     {
+      "name": "productive",
+      "category": "productivity",
+      "api": "Productive",
+      "description": "Full Productive.io v2 API client — list/get across ~48 resource types, generic create/update/delete, 11 report types, and a local sync/search/export/tail data layer, plus first-class revenue-recognition commands (recognized-revenue, invoiced, reconcile, aging).",
+      "search_terms": [
+        "productive",
+        "productive-pp-cli",
+        "Full Productive.io v2 API client — list/get across ~48 resource types, generic create/update/delete, 11 report types, and a local sync/search/export/tail data layer, plus first-class revenue-recognition commands (recognized-revenue, invoiced, reconcile, aging).",
+        "Recognized revenue by budget × month",
+        "recognized-revenue",
+        "Pull recognized (earned) revenue grouped by budget and month across a date range in one call.",
+        "Invoiced by budget × month",
+        "invoiced",
+        "Net finalized invoiced amount attributed per budget per month, drafts reported separately.",
+        "Reconcile recognized vs invoiced",
+        "reconcile",
+        "Join recognized revenue and invoiced amounts per budget×month and flag the deltas.",
+        "Bulk raw export for reconciliation workflows",
+        "export",
+        "Stream full paginated pulls of any resource to JSONL or JSON (auto-paginated, no memory pressure).",
+        "Offline sync, SQL and search",
+        "sync",
+        "Mirror any resource into local SQLite, then query it with SQL and full-text search offline.",
+        "AR aging / unpaid invoices",
+        "aging",
+        "Bucket unpaid invoice amounts by age past their due date."
+      ],
+      "path": "library/productivity/productive",
+      "printer": "dericknwq",
+      "printer_name": "Derick Ng",
+      "creator": {
+        "handle": "dericknwq",
+        "name": "Derick Ng"
+      },
+      "mcp": {
+        "binary": "productive-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 85,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "PRODUCTIVE_API_TOKEN"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "pushover",
       "category": "social-and-messaging",
       "api": "Pushover",
@@ -14589,6 +15966,71 @@
         "env_vars": [],
         "mcp_ready": "full",
         "spec_format": "internal"
+      }
+    },
+    {
+      "name": "raindrop",
+      "category": "productivity",
+      "api": "Raindrop Io",
+      "description": "Complete Raindrop.io control plus offline search, safe cleanup, and durable knowledge workflows.",
+      "search_terms": [
+        "raindrop",
+        "Raindrop Io",
+        "raindrop-pp-cli",
+        "Complete Raindrop.io control plus offline search, safe cleanup, and durable knowledge workflows.",
+        "Offline Library",
+        "sync",
+        "Mirror bookmarks, collections, tags and highlights for instant offline search.",
+        "Inbox Review",
+        "Process Unsorted bookmarks in resumable, bounded review sessions.",
+        "Change History",
+        "changes",
+        "Show field-level bookmark changes between sync snapshots.",
+        "Tag Health",
+        "Discover case variants, near-duplicates, singleton tags and merge candidates.",
+        "Duplicate Plans",
+        "duplicates plan",
+        "Choose canonical bookmarks while preserving tags, notes and highlights.",
+        "Revisit Queue",
+        "revisit",
+        "Resurface useful forgotten bookmarks without repeating recent suggestions.",
+        "Related Bookmarks",
+        "related",
+        "Find explainable related bookmarks offline using text, tags and domains.",
+        "Highlight Digests",
+        "highlights digest",
+        "Create deduplicated Markdown or JSONL study digests from highlights.",
+        "Durable Triage",
+        "workflow status",
+        "Run crash-safe bounded triage queues with retry and manual-review states."
+      ],
+      "path": "library/productivity/raindrop",
+      "release": {
+        "cli_name": "raindrop-pp-cli",
+        "version": "2026.8.1",
+        "released_at": "2026-08-17T05:31:07Z",
+        "source_commit": "12ebdd5a0c0ae4c0dceb554ccff47300d2703c8c"
+      },
+      "printer": "srijits",
+      "printer_name": "srijits",
+      "creator": {
+        "handle": "srijits",
+        "name": "srijits"
+      },
+      "mcp": {
+        "binary": "raindrop-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 54,
+        "public_tool_count": 0,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "PRINTING_PRESS_CLIENT_PROFILE"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
       }
     },
     {
@@ -15321,6 +16763,54 @@
       }
     },
     {
+      "name": "roblox",
+      "category": "social-and-messaging",
+      "api": "Roblox",
+      "description": "Investigate Roblox's fragmented public web data from one agent-friendly CLI.",
+      "search_terms": [
+        "roblox",
+        "roblox-pp-cli",
+        "Investigate Roblox's fragmented public web data from one agent-friendly CLI.",
+        "User investigation bundle",
+        "investigate user",
+        "Assemble a public Roblox user's identity, avatar, groups, badges, inventory visibility, and thumbnails in one result.",
+        "Group due diligence",
+        "investigate group",
+        "Resolve a Roblox group, its owner, roles, and other public context in one command.",
+        "Creator catalog footprint",
+        "catalog creator-footprint",
+        "Summarize a Roblox creator's public games, bundles, and catalog-facing identity in one result.",
+        "Game ecosystem map",
+        "ecosystem game",
+        "Build a game-centered view of public universe details, creator context, media, and related badges.",
+        "Relationship overlap",
+        "network overlap",
+        "Find shared public groups and relationship records between two locally synced Roblox users."
+      ],
+      "path": "library/social-and-messaging/roblox",
+      "printer": "krMaynard",
+      "printer_name": "Kieran Maynard",
+      "creator": {
+        "handle": "krMaynard",
+        "name": "Kieran Maynard"
+      },
+      "mcp": {
+        "binary": "roblox-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 227,
+        "public_tool_count": 171,
+        "auth_type": "cookie",
+        "env_vars": [
+          "ROBLOX_COOKIES"
+        ],
+        "mcp_ready": "partial",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "running-race-results",
       "category": "other",
       "api": "Running Race Results",
@@ -15453,6 +16943,116 @@
       }
     },
     {
+      "name": "sarvam",
+      "category": "ai",
+      "api": "Sarvam AI",
+      "description": "Every Sarvam AI model on your terminal — translate, speak, transcribe, chat, and extract documents in 22 Indian languages, with a local history that compounds",
+      "search_terms": [
+        "sarvam",
+        "Sarvam AI",
+        "sarvam-pp-cli",
+        "Every Sarvam AI model on your terminal — translate, speak, transcribe, chat, and extract documents in 22 Indian languages, with a local history that compounds",
+        "Voice auditioning",
+        "voices preview",
+        "Generate one sample sentence across every TTS speaker and hear them all side by side",
+        "Conversation resume",
+        "chat resume",
+        "Continue a past chat thread from local history with full context",
+        "Batch job retry",
+        "stt-job retry",
+        "Re-run only the failed files of a batch STT job with one command",
+        "Pronunciation spot-check",
+        "pron-check",
+        "Verify a term's TTS pronunciation via a speech round-trip (TTS then STT)",
+        "Subtitle export",
+        "subs",
+        "Emit .srt/.vtt subtitles from timestamped transcriptions in local history",
+        "Extraction schema library",
+        "docai schema list",
+        "Save, list, and diff doc-ai extraction schemas locally",
+        "Folder extraction run",
+        "docai batch",
+        "Run a saved extraction schema over a folder of documents with job pacing",
+        "Batch job report",
+        "stt-job report",
+        "Per-file digest of a batch STT job with typed exit codes for cron alerting"
+      ],
+      "path": "library/ai/sarvam",
+      "release": {
+        "cli_name": "sarvam-pp-cli",
+        "version": "2026.8.1",
+        "released_at": "2026-08-17T04:54:13Z",
+        "source_commit": "0a906add60dac1fb38425341607c1bb73a2e6307"
+      },
+      "printer": "SomSamantray",
+      "printer_name": "Som Samantray"
+    },
+    {
+      "name": "scientific-consensus",
+      "category": "other",
+      "api": "Scientific Consensus",
+      "description": "Aggregate PubMed, OpenAlex, Crossref, and Europe PMC into evidence summaries, consensus scores, and study-design pyramids no single search tool produces.",
+      "search_terms": [
+        "scientific-consensus",
+        "Scientific Consensus",
+        "scientific-consensus-pp-cli",
+        "Aggregate PubMed, OpenAlex, Crossref, and Europe PMC into evidence summaries, consensus scores, and study-design pyramids no single search tool produces.",
+        "Consensus engine",
+        "consensus",
+        "Answer 'what does the evidence say about X' with a Consensus Score, Confidence Score, and Evidence Strength across all sources.",
+        "Evidence engine + pyramid",
+        "evidence",
+        "Classify retrieved studies by design (meta-analysis to case report) and render the evidence pyramid for a topic.",
+        "Claim comparison",
+        "compare",
+        "Run two consensus analyses side-by-side to compare competing claims or interventions.",
+        "Research gap detector",
+        "gaps",
+        "Identify understudied populations, missing long-term/replication/RCT studies, and future directions for a topic.",
+        "Controversy detector",
+        "controversies",
+        "Surface conflicting studies, contradictory conclusions, and rapidly changing evidence for a topic.",
+        "Emerging topics",
+        "emerging",
+        "Detect the fastest-growing research areas and exploding publication trends.",
+        "Topic drift",
+        "drift",
+        "Compare a field's topic distribution between two year windows to spot emerging and fading subtopics.",
+        "Reproducibility signals",
+        "reproducibility",
+        "Estimate reproducibility by detecting replication studies, sample sizes, and pre-registration cues.",
+        "Study quality estimate",
+        "quality",
+        "Estimate overall study quality from design, venue prestige, sample-size cues, and citation mass.",
+        "Funding analysis",
+        "funding",
+        "Analyze funding patterns and funder concentration for a research topic.",
+        "Topic watch",
+        "watch",
+        "Monitor a topic and report major new publications since the last run."
+      ],
+      "path": "library/other/scientific-consensus",
+      "printer": "laci141",
+      "printer_name": "laci141",
+      "creator": {
+        "handle": "laci141",
+        "name": "laci141"
+      },
+      "mcp": {
+        "binary": "scientific-consensus-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 10,
+        "public_tool_count": 10,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
       "name": "scrape-creators",
       "category": "developer-tools",
       "api": "Scrape Creators",
@@ -15461,38 +17061,56 @@
         "scrape-creators",
         "Scrape Creators",
         "scrape-creators-pp-cli",
-        "Every Scrape Creators endpoint across 28 platforms, plus a local store with offline transcript search, cross-platform joins, and ad-library diffing no other Scrape Creators tool ships.",
+        "Every Scrape Creators endpoint across 28 platforms, with credit-aware comment mining and a local corpus no other Scrape Creators tool has.",
+        "Cost-aware thread completion",
+        "comments thread",
+        "Fetch one post's complete comment threads, automatically picking the cheaper route between the 15-credit flat include_replies call and 1-credit per-comment reply calls (don't trust child_comment_count to decide: it's unreliable).",
+        "Reply-gap audit",
+        "comments coverage",
+        "Rank synced posts by how many comments the API reported versus how many actually landed in your local store — ground truth where the API's child_comment_count is unreliable as a thread filter.",
+        "Pre-flight credit estimator",
+        "account estimate",
+        "Project the credit cost of a planned run against your live balance and exit non-zero if it would exhaust the budget.",
         "Cross-platform presence matrix",
         "creator find",
-        "Given one handle, see which of 12 creator platforms (TikTok, Instagram, YouTube, Twitter, Threads, Bluesky, Pinterest, Twitch, TruthSocial, Snapchat, Kwai, GitHub) the handle exists on, with follower counts side-by-side.",
+        "Given one handle, see which of 12 creator platforms the creator is on with follower counts side-by-side.",
+        "Transcript full-text search",
+        "transcripts search",
+        "FTS5 full-text search across every platform transcript you've synced — nine resource types spanning YouTube, TikTok, Instagram, Facebook, LinkedIn, Rumble, and more.",
+        "Brand ad campaign monitor",
+        "ads monitor",
+        "Snapshot a brand's live ads across Facebook, TikTok, Google, and LinkedIn ad libraries; on rerun, diff new ads versus ones that disappeared.",
+        "Bulk comment sweep",
+        "comments sweep",
+        "Pull recent posts for a handle and their comments in one command, stopping cleanly at a credit budget you set.",
+        "Comment corpus FTS",
+        "comments search",
+        "Full-text search across every synced comment and reply, offline.",
+        "Credit burn projection",
+        "account budget",
+        "See how fast you're spending API credits and how many days remain at the current pace.",
         "Multi-creator comparison",
         "creator compare",
         "Compare two or more creators side-by-side on follower count, engagement rate, and content volume.",
         "Engagement spike detector",
         "content spikes",
         "Surface the videos that performed far above a creator's own baseline — the ones that actually went viral.",
-        "Transcript full-text search",
-        "transcripts search",
-        "FTS5 full-text search across every transcript you've synced — YouTube, TikTok, Instagram, Facebook, LinkedIn, and Rumble.",
         "Trend triangulation",
         "trends triangulate",
-        "Snapshot a hashtag or topic across platforms in one call to see which platform it's rising fastest on.",
+        "Snapshot a hashtag or topic across platforms in one call to see which platform it is biggest on.",
         "Follower growth tracker",
         "creator track",
-        "Append a follower snapshot per run across every synced platform, then read the growth trajectory over time.",
-        "Brand ad campaign monitor",
-        "ads monitor",
-        "Snapshot a brand's live ads across Facebook, TikTok, Google, and LinkedIn ad libraries; on rerun, diff new ads vs. ones that disappeared.",
-        "Credit burn projection",
-        "account budget",
-        "See how fast you're spending API credits and how many days remain at the current pace, computed from the API's credit balance and daily usage history."
+        "Append a follower snapshot per run on a chosen platform, then read the growth trajectory over time.",
+        "UGC tag watcher",
+        "creator tagged",
+        "Snapshot the posts a creator or brand is tagged in and diff new mentions on rerun."
       ],
       "path": "library/developer-tools/scrape-creators",
       "release": {
         "cli_name": "scrape-creators-pp-cli",
-        "version": "2026.7.1",
-        "released_at": "2026-07-08T18:21:21Z",
-        "source_commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0"
+        "version": "2026.8.2",
+        "released_at": "2026-08-17T05:35:03Z",
+        "source_commit": "beb9430257048a263fc1eb3c922a5fce406bfe31"
       },
       "printer": "adrianhorning08",
       "printer_name": "Adrian Horning",
@@ -15504,6 +17122,10 @@
         {
           "handle": "tmchow",
           "name": "Trevin Chow"
+        },
+        {
+          "handle": "giuseppebisemi",
+          "name": "Giuseppe Bisemi"
         }
       ],
       "mcp": {
@@ -15512,11 +17134,11 @@
           "stdio",
           "http"
         ],
-        "tool_count": 164,
+        "tool_count": 178,
         "public_tool_count": 0,
         "auth_type": "api_key",
         "env_vars": [
-          "SCRAPECREATORS_API_KEY"
+          "PRINTING_PRESS_CLIENT_PROFILE"
         ],
         "mcp_ready": "full",
         "spec_format": "openapi3"
@@ -15572,6 +17194,68 @@
         "auth_type": "api_key",
         "env_vars": [
           "SCRAPEDO_API_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
+      "name": "sculptok",
+      "category": "ai",
+      "api": "Sculptok",
+      "description": "SculptOK AI depth-map, relief, STL and 3D generation CLI",
+      "search_terms": [
+        "sculptok",
+        "sculptok-pp-cli",
+        "SculptOK AI depth-map, relief, STL and 3D generation CLI",
+        "One-command depth-map generate",
+        "generate depthmap",
+        "Turn a local image into SculptOK depth-map candidates in one command: upload, submit, auto-poll to completion, and download the results.",
+        "One-command image-to-STL",
+        "generate stl",
+        "Convert a local image straight to a printable STL with full thickness, width, invert, and scale control, polled to completion and saved.",
+        "One-command 3D model generate",
+        "generate threed",
+        "Generate a 3D model from a local image at basic, standard, or high precision, polled and downloaded automatically.",
+        "Credit-cost preflight estimator",
+        "cost",
+        "Estimate exactly how many credits a draw or a whole batch would cost and compare it against your live balance before spending anything.",
+        "Spend analytics by kind and day",
+        "analytics",
+        "Aggregate your locally synced credit events by action type to see where credits actually went.",
+        "Reconcile credits against jobs",
+        "reconcile",
+        "Cross-check synced credit charges against produced draw jobs to surface credits spent with no matching result.",
+        "Offline job search",
+        "search",
+        "Full-text search your local mirror of draws and credit events by kind, status, or parameters without any API call."
+      ],
+      "path": "library/ai/sculptok",
+      "release": {
+        "cli_name": "sculptok-pp-cli",
+        "version": "2026.7.1",
+        "released_at": "2026-07-29T02:47:52Z",
+        "source_commit": "14f584d6820fe91895cd1d892a0350b44a587b69"
+      },
+      "printer": "vcolombo",
+      "printer_name": "Vincent Colombo",
+      "contributors": [
+        {
+          "handle": "vcolombo",
+          "name": "Vincent Colombo"
+        }
+      ],
+      "mcp": {
+        "binary": "sculptok-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 8,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "SCULPTOK_API_KEY"
         ],
         "mcp_ready": "full",
         "spec_format": "internal"
@@ -16508,7 +18192,7 @@
       "search_terms": [
         "shopper",
         "shopper-pp-cli",
-        "The first CLI for Shopper — every catalog, cart, and delivery surface plus a local price/basket history the web app throws away each cycle.",
+        "Every Shopper storefront in one CLI — catalog, cart, delivery schedule, charge calendar, and spend analytics no web UI surfaces.",
         "Charge & Edit Calendar",
         "charge-calendar",
         "Every upcoming cycle's charge date, edit-lock deadline, and delivery date in one timeline so you never miss an edit window or get surprised by a charge.",
@@ -16525,14 +18209,17 @@
         "Flags products you buy that were discontinued, silently swapped, or kept their price while shrinking the pack, surfacing the real R$/kg or R$/L change.",
         "Cashback Threshold Optimizer",
         "cashback optimize",
-        "Computes the cheapest set of items to add (or whether to wait) to cross the next cashback tier, favoring things you'll need anyway."
+        "Computes the cheapest set of items to add (or whether to wait) to cross the next cashback tier, favoring things you'll need anyway.",
+        "Cross-Store Checkout Preview",
+        "checkout preview",
+        "Aggregates cart totals, next delivery date, charge date, minimum-order status, and accepted payment types into one pre-checkout view before you open the browser."
       ],
       "path": "library/commerce/shopper",
       "release": {
         "cli_name": "shopper-pp-cli",
-        "version": "2026.7.1",
-        "released_at": "2026-07-08T18:21:21Z",
-        "source_commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0"
+        "version": "2026.8.1",
+        "released_at": "2026-08-06T07:36:15Z",
+        "source_commit": "580bd1c42822a7490b9fe3d47845cc3b965caef6"
       },
       "printer": "educrvz",
       "printer_name": "educrvz",
@@ -16546,11 +18233,11 @@
           "stdio",
           "http"
         ],
-        "tool_count": 21,
+        "tool_count": 22,
         "public_tool_count": 0,
         "auth_type": "bearer_token",
         "env_vars": [
-          "SHOPPER_TOKEN"
+          "PRINTING_PRESS_CLIENT_PROFILE"
         ],
         "mcp_ready": "full",
         "spec_format": "internal"
@@ -16617,6 +18304,69 @@
       }
     },
     {
+      "name": "simplefin",
+      "category": "payments",
+      "api": "SimpleFIN",
+      "description": "Pull every bank, card, and brokerage account through SimpleFIN into a local SQLite ledger — with net worth, cash flow, recurring-charge detection, and holdings gain/loss no single bank app can show.",
+      "search_terms": [
+        "simplefin",
+        "simplefin-pp-cli",
+        "Pull every bank, card, and brokerage account through SimpleFIN into a local SQLite ledger — with net worth, cash flow, recurring-charge detection, and holdings gain/loss no single bank app can show.",
+        "Net worth + trajectory",
+        "networth",
+        "Total net worth across every institution, with a balance trajectory over time no bank app can show.",
+        "Cash flow analysis",
+        "cashflow",
+        "Income vs outflow by month and top-spend merchants across all accounts.",
+        "Recurring/subscription detection",
+        "recurring",
+        "Surfaces subscriptions and regular obligations by detecting repeated payees with regular cadence.",
+        "Holdings gain/loss",
+        "portfolio",
+        "Investment positions with market value vs cost basis and total gain/loss across brokerages.",
+        "Rules-based categorization",
+        "categorize",
+        "Assigns categories to transactions with deterministic keyword/regex rules (the protocol has none).",
+        "Ledger/plaintext export",
+        "export",
+        "Exports the local ledger to ledger, beancount, csv, or qif for plaintextaccounting tools.",
+        "Content-based dedup",
+        "reconcile",
+        "Finds and merges duplicate transactions created by SimpleFIN's unstable, mirrored IDs using content hashing.",
+        "Recent activity since last check",
+        "since",
+        "What's new across all accounts since a date or your last sync — new transactions and balance changes, neutrally framed."
+      ],
+      "path": "library/payments/simplefin",
+      "release": {
+        "cli_name": "simplefin-pp-cli",
+        "version": "2026.8.1",
+        "released_at": "2026-08-06T07:41:28Z",
+        "source_commit": "58eff51e947984f781132fdd16eee86eb5afc18e"
+      },
+      "printer": "twidtwid",
+      "printer_name": "Todd Dailey",
+      "creator": {
+        "handle": "twidtwid",
+        "name": "Todd Dailey"
+      },
+      "mcp": {
+        "binary": "simplefin-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 2,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "SIMPLEFIN_ACCESS_URL"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "skool",
       "category": "media-and-entertainment",
       "api": "Skool",
@@ -16644,9 +18394,9 @@
       "path": "library/media-and-entertainment/skool",
       "release": {
         "cli_name": "skool-pp-cli",
-        "version": "2026.7.1",
-        "released_at": "2026-07-08T18:21:21Z",
-        "source_commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0"
+        "version": "2026.8.1",
+        "released_at": "2026-08-13T00:38:49Z",
+        "source_commit": "5bb91e97bd0c34f6e6882460b7fd49d075571a92"
       },
       "printer": "quoxientzero",
       "printer_name": "Zain Haseeb",
@@ -16682,14 +18432,33 @@
       "search_terms": [
         "slack",
         "slack-pp-cli",
-        "Send messages, search conversations, monitor channels, and manage your Slack workspace from the terminal"
+        "Every Slack read your token can make, mirrored to local SQLite so your history outlives Slack's own retention wall.",
+        "Archive Recall",
+        "Find messages in your local archive, including ones Slack has already hidden behind the 90-day retention wall.",
+        "Archive Coverage",
+        "Show what date range your local mirror actually holds per channel, and where the gaps are.",
+        "Catch-up",
+        "catchup",
+        "See what happened while you were away: new volume per channel, messages that mention you, and threads still waiting on your reply.",
+        "Stale Thread Radar",
+        "threads stale",
+        "List threads across the archive where the last reply is not yours and nobody has answered since.",
+        "Channel Health",
+        "health",
+        "Compare your channels by messages per day, distinct posters, median first-reply latency, and days idle.",
+        "User Activity",
+        "users activity",
+        "Profile where one person posts, which threads they carry, and when they were last seen.",
+        "Identity Card",
+        "users whois",
+        "Turn an opaque Slack ID, handle, or email into one card with shared channels, timezone, DND state, and last-seen."
       ],
       "path": "library/productivity/slack",
       "release": {
         "cli_name": "slack-pp-cli",
-        "version": "2026.7.2",
-        "released_at": "2026-07-08T23:15:22Z",
-        "source_commit": "220c1563d0375ec8741c4c377b4bb5a4317cbf6a"
+        "version": "2026.8.2",
+        "released_at": "2026-08-10T02:56:26Z",
+        "source_commit": "b18d6b5276f3c19f3ca0da7c7d983bf13263a176"
       },
       "printer": "mvanhorn",
       "printer_name": "Matt Van Horn",
@@ -16697,18 +18466,27 @@
         "handle": "mvanhorn",
         "name": "Matt Van Horn"
       },
+      "contributors": [
+        {
+          "handle": "ChrisGutierrezNet",
+          "name": "Chris G. | AI Automation"
+        }
+      ],
       "mcp": {
         "binary": "slack-pp-mcp",
         "transports": [
-          "stdio"
+          "stdio",
+          "http"
         ],
-        "tool_count": 66,
-        "public_tool_count": 0,
-        "auth_type": "api_key",
+        "tool_count": 91,
+        "public_tool_count": 29,
+        "auth_type": "bearer_token",
         "env_vars": [
-          "SLACK_BOT_TOKEN"
+          "SLACK_BOT_TOKEN",
+          "SLACK_USER_TOKEN"
         ],
-        "mcp_ready": "full"
+        "mcp_ready": "full",
+        "spec_format": "internal"
       }
     },
     {
@@ -17057,9 +18835,9 @@
       "path": "library/media-and-entertainment/spotify",
       "release": {
         "cli_name": "spotify-pp-cli",
-        "version": "2026.7.1",
-        "released_at": "2026-07-08T18:21:21Z",
-        "source_commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0"
+        "version": "2026.8.2",
+        "released_at": "2026-08-10T02:11:44Z",
+        "source_commit": "67f0559d018efc0f2655582d57991386d436ac3e"
       },
       "printer": "rob-coco",
       "printer_name": "Rob Zehner",
@@ -17067,6 +18845,12 @@
         "handle": "rob-coco",
         "name": "Rob Zehner"
       },
+      "contributors": [
+        {
+          "handle": "giuseppebisemi",
+          "name": "Giuseppe Bisemi"
+        }
+      ],
       "mcp": {
         "binary": "spotify-pp-mcp",
         "transports": [
@@ -17126,6 +18910,71 @@
         ],
         "mcp_ready": "full",
         "spec_format": "openapi"
+      }
+    },
+    {
+      "name": "stac",
+      "category": "maps",
+      "api": "STAC API",
+      "description": "The first Go single-binary STAC CLI: every search filter the Python tools have, plus an offline cache, scene ranking, coverage, and asset resolution no other STAC tool offers.",
+      "search_terms": [
+        "stac",
+        "STAC API",
+        "stac-pp-cli",
+        "The first Go single-binary STAC CLI: every search filter the Python tools have, plus an offline cache, scene ranking, coverage, and asset resolution no other STAC tool offers.",
+        "Least-cloudy scene",
+        "scenes best",
+        "Pick the single clearest scene over an area and date range.",
+        "Cloud-cover histogram",
+        "clouds",
+        "Show the cloud-cover distribution over an area and date range.",
+        "Coverage check",
+        "coverage",
+        "Answer whether data exists over an area and when, with a temporal summary.",
+        "Scene timeline",
+        "timeline",
+        "Build a per-date time series of scenes for change detection.",
+        "Temporal gaps",
+        "gaps",
+        "Find missing acquisition windows over an area versus expected revisit.",
+        "Watch new scenes",
+        "watch",
+        "Report scenes published over an area since the last check.",
+        "Asset URL resolution",
+        "assets",
+        "Resolve an item's band and asset download URLs, provider-aware.",
+        "Compare collections",
+        "compare",
+        "Compare two collections over the same area and date range.",
+        "xarray stack snippet",
+        "stack-snippet",
+        "Emit a ready-to-paste stackstac/odc-stac Python snippet for matched scenes."
+      ],
+      "path": "library/maps/stac",
+      "release": {
+        "cli_name": "stac-pp-cli",
+        "version": "2026.8.1",
+        "released_at": "2026-08-10T04:07:30Z",
+        "source_commit": "06fb37aeb1702fa0fc7664e67945c30a593f7988"
+      },
+      "printer": "ghltshubh",
+      "printer_name": "ghltshubh",
+      "creator": {
+        "handle": "ghltshubh",
+        "name": "ghltshubh"
+      },
+      "mcp": {
+        "binary": "stac-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 12,
+        "public_tool_count": 12,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
       }
     },
     {
@@ -17437,9 +19286,9 @@
       "path": "library/media-and-entertainment/substack",
       "release": {
         "cli_name": "substack-pp-cli",
-        "version": "2026.7.1",
-        "released_at": "2026-07-08T18:21:21Z",
-        "source_commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0"
+        "version": "2026.7.2",
+        "released_at": "2026-07-29T06:12:24Z",
+        "source_commit": "df91a2c415cf2ce0ed288b248f1fbb8bb2a7177e"
       },
       "printer": "chirantan",
       "printer_name": "Chirantan Rajhans",
@@ -17455,6 +19304,10 @@
         {
           "handle": "tmchow",
           "name": "Trevin Chow"
+        },
+        {
+          "handle": "MBemera",
+          "name": "Matthew Bright"
         }
       ],
       "mcp": {
@@ -17500,9 +19353,9 @@
       "path": "library/media-and-entertainment/substack-reader",
       "release": {
         "cli_name": "substack-reader-pp-cli",
-        "version": "2026.7.1",
-        "released_at": "2026-07-20T16:26:43Z",
-        "source_commit": "80867fe8953f97af3fb69ea88f3bc09eda4d6c59"
+        "version": "2026.8.1",
+        "released_at": "2026-08-10T02:49:52Z",
+        "source_commit": "69654fe831295ceb8cdce62de28ab96db7a990cb"
       },
       "printer": "maxswinguy",
       "printer_name": "Maxime Delavergne",
@@ -17510,6 +19363,12 @@
         "handle": "maxswinguy",
         "name": "Maxime Delavergne"
       },
+      "contributors": [
+        {
+          "handle": "giuseppebisemi",
+          "name": "Giuseppe Bisemi"
+        }
+      ],
       "mcp": {
         "binary": "substack-reader-pp-mcp",
         "transports": [
@@ -17810,6 +19669,69 @@
       }
     },
     {
+      "name": "surfline",
+      "category": "other",
+      "api": "Surfline",
+      "description": "Every Surfline forecast, scriptable from your terminal — plus multi-spot ranking, a local forecast journal, and cron-able alerts no Surfline tool has.",
+      "search_terms": [
+        "surfline",
+        "surfline-pp-cli",
+        "Every Surfline forecast, scriptable from your terminal — plus multi-spot ranking, a local forecast journal, and cron-able alerts no Surfline tool has.",
+        "Dawn-patrol one-shot",
+        "now",
+        "One spot's next few hours as a paddle/no-paddle line readout: swell, wind, tide and rating joined per hour.",
+        "Multi-spot rank",
+        "rank",
+        "Score and sort several spots best-first on a transparent sum of wave, wind and swell optimalScore.",
+        "Optimal-window scanner",
+        "windows",
+        "Emit only the contiguous time blocks where wave, wind and swell optimalScore are all good, daylight-only.",
+        "Raw conditions dump",
+        "raw",
+        "Pipe-friendly table/JSON of min/max/optimalScore/humanRelation plus swell components and wind directionType/gust, no rating editorializing.",
+        "Scriptable alert rules",
+        "alert run",
+        "Store swell/wind/tide threshold rules locally; alert run fetches a fresh forecast, evaluates them, prints matches and sets an exit code for cron.",
+        "Buoy vs forecast cross-check",
+        "buoy-check",
+        "Show nearby-buoy observed swell against the spot's wave forecast for the same window, side by side.",
+        "Forecast-history journal",
+        "journal show",
+        "Snapshot the current forecast into local SQLite and review a spot's snapshots over time.",
+        "Offline spot search",
+        "search",
+        "Resolve spot names to spotIds via FTS over the locally-synced taxonomy, with no network."
+      ],
+      "path": "library/other/surfline",
+      "release": {
+        "cli_name": "surfline-pp-cli",
+        "version": "2026.8.1",
+        "released_at": "2026-08-10T02:38:28Z",
+        "source_commit": "4b637271dfbf6a6b907d0e0152ae75f8fba2feef"
+      },
+      "printer": "Shoffner",
+      "printer_name": "Shoffner",
+      "creator": {
+        "handle": "Shoffner",
+        "name": "Shoffner"
+      },
+      "mcp": {
+        "binary": "surfline-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 15,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "SURFLINE_ACCESS_TOKEN"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "surgegraph",
       "category": "ai",
       "api": "Surgegraph Facade",
@@ -17979,9 +19901,9 @@
       "path": "library/food-and-dining/table-reservation-goat",
       "release": {
         "cli_name": "table-reservation-goat-pp-cli",
-        "version": "2026.7.6",
-        "released_at": "2026-07-20T16:29:06Z",
-        "source_commit": "7273626283faf13b8dc27a4debf4de684069ae05"
+        "version": "2026.8.3",
+        "released_at": "2026-08-17T05:44:48Z",
+        "source_commit": "2e3441b7fd93249a8f5bf36d8cc245d01d1218e8"
       },
       "printer": "pejmanjohn",
       "printer_name": "Pejman Pour-Moezzi",
@@ -17997,6 +19919,10 @@
         {
           "handle": "teebs4140",
           "name": "Dylan Thibault"
+        },
+        {
+          "handle": "wbell2000",
+          "name": "William Bell"
         }
       ],
       "mcp": {
@@ -18417,14 +20343,20 @@
         "Render a markdown 'what's on' report grouped by night → venue → events with classification labels and price bands, suitable for newsletter, Obsidian, iMessage, or agent context.",
         "Price-band distribution",
         "events price-bands",
-        "Bucket events by priceRanges.min into <$50 / $50-100 / $100-200 / $200+ bands and report count + sample events per band, grouped by classification."
+        "Bucket events by priceRanges.min into <$50 / $50-100 / $100-200 / $200+ bands and report count + sample events per band, grouped by classification.",
+        "Real presale window planner",
+        "events presales",
+        "Query sales.presales directly, classify each window as upcoming, open, or ended, and filter by how soon it opens.",
+        "Safe checkout handoff",
+        "events checkout",
+        "Select an open or named official presale URL, fall back to the event purchase page, and require --launch before opening a browser."
       ],
       "path": "library/media-and-entertainment/ticketmaster",
       "release": {
         "cli_name": "ticketmaster-pp-cli",
-        "version": "2026.7.1",
-        "released_at": "2026-07-08T18:21:21Z",
-        "source_commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0"
+        "version": "2026.8.1",
+        "released_at": "2026-08-10T03:11:45Z",
+        "source_commit": "d7e2595312340e5875b4d37a0bba088252b73725"
       },
       "printer": "omarshahine",
       "printer_name": "Omar Shahine",
@@ -18432,6 +20364,12 @@
         "handle": "omarshahine",
         "name": "Omar Shahine"
       },
+      "contributors": [
+        {
+          "handle": "Avanderheyde",
+          "name": "Alderik"
+        }
+      ],
       "mcp": {
         "binary": "ticketmaster-pp-mcp",
         "transports": [
@@ -18554,6 +20492,54 @@
         "mcp_ready": "full",
         "spec_format": "openapi3"
       }
+    },
+    {
+      "name": "tiimo",
+      "category": "productivity",
+      "api": "tiimo",
+      "description": "Your Tiimo plan, finally exportable, queryable, and yours.",
+      "search_terms": [
+        "tiimo",
+        "tiimo-pp-cli",
+        "Export",
+        "Stream a paginated resource straight to JSON or JSONL. Use backup for a whole-planner snapshot and feed for calendar or spreadsheet formats.",
+        "Calendar feed",
+        "feed",
+        "Generate a subscribable read-only iCalendar file of your Tiimo activities.",
+        "Local backup",
+        "backup",
+        "Write every mirrored record - activities, to-dos, tags, routines, calendars - to one portable JSON snapshot. This is the whole-planner export Tiimo does not offer.",
+        "Plan-versus-actual drift",
+        "drift",
+        "Show which activities consistently start late, overrun, or spend the most time paused.",
+        "Checklist stall points",
+        "stalls",
+        "Find the exact checklist step where a multi-step routine tends to break down.",
+        "Routine adherence",
+        "adherence",
+        "Completion rate for each recurring activity over a window.",
+        "Overlap detection",
+        "overlaps",
+        "List activities that are double-booked against each other.",
+        "Free-gap finder",
+        "gaps",
+        "Find the unscheduled windows in a day that are at least a given length.",
+        "Rolling window",
+        "rolling",
+        "A true rolling multi-day view starting from today.",
+        "Day capacity",
+        "capacity",
+        "Committed versus free minutes per day, broken down by time-of-day bucket."
+      ],
+      "path": "library/productivity/tiimo",
+      "release": {
+        "cli_name": "tiimo-pp-cli",
+        "version": "2026.8.1",
+        "released_at": "2026-08-17T05:43:40Z",
+        "source_commit": "1935de78e22e7a4f2a5d6edc8cf758ebdc652afd"
+      },
+      "printer": "vcolombo",
+      "printer_name": "Vincent Colombo"
     },
     {
       "name": "tiktok-shop",
@@ -19251,9 +21237,9 @@
       "path": "library/travel/uk-train-goat",
       "release": {
         "cli_name": "uk-train-goat-pp-cli",
-        "version": "2026.7.1",
-        "released_at": "2026-07-08T18:21:21Z",
-        "source_commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0"
+        "version": "2026.7.2",
+        "released_at": "2026-07-24T23:52:48Z",
+        "source_commit": "7a042318377fae2cc8f4c75ca3ac1a62f2406c2e"
       },
       "printer": "ahujasachin92",
       "printer_name": "Sachin Ahuja",
@@ -19275,6 +21261,63 @@
         ],
         "mcp_ready": "full",
         "spec_format": "internal"
+      }
+    },
+    {
+      "name": "unifi",
+      "category": "devices",
+      "api": "UniFi",
+      "description": "Every UniFi Network API operation, plus drift detection, topology, and rule prediction no other UniFi tool has.",
+      "search_terms": [
+        "unifi",
+        "unifi-pp-cli",
+        "Every UniFi Network API operation, plus drift detection, topology, and rule prediction no other UniFi tool has.",
+        "Device topology tree",
+        "topology",
+        "See the physical device tree (gateway to switches to APs) built entirely from local mirror data, no live crawl needed.",
+        "Config drift detection",
+        "drift",
+        "Show what changed in site config (networks, firewall, wifi, DNS) since the last sync snapshot.",
+        "Newcomer detection",
+        "newcomer",
+        "List devices and clients first seen since a given sync, for spotting new hardware joining the network.",
+        "Port audit",
+        "port-audit",
+        "Review port utilization and PoE status across every switch on a site in one table.",
+        "Guest network report",
+        "guest report",
+        "Summarize guest network usage: active vouchers and connected guest clients, from local data.",
+        "Firewall rule prediction",
+        "rule-predict",
+        "Predict which firewall policy would match a hypothetical packet before making a live change."
+      ],
+      "path": "library/devices/unifi",
+      "release": {
+        "cli_name": "unifi-pp-cli",
+        "version": "2026.8.1",
+        "released_at": "2026-08-13T04:55:45Z",
+        "source_commit": "8ab48dcb195d13bf6bc209e8ccddd649feab656b"
+      },
+      "printer": "phoenix-server",
+      "printer_name": "Ricardo Cabral",
+      "creator": {
+        "handle": "phoenix-server",
+        "name": "Ricardo Cabral"
+      },
+      "mcp": {
+        "binary": "unifi-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 73,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "PRINTING_PRESS_CLIENT_PROFILE"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
       }
     },
     {
@@ -19433,6 +21476,68 @@
         ],
         "mcp_ready": "full",
         "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "v0",
+      "category": "ai",
+      "api": "v0",
+      "description": "Generate and iterate on web apps with v0 from the terminal: create chats from prompts, stream agent output, sync history to a local SQLite mirror, and track credit spend across models.",
+      "search_terms": [
+        "v0",
+        "v0-pp-cli",
+        "Generate and iterate on web apps with v0 from the terminal: create chats from prompts, stream agent output, sync history to a local SQLite mirror, and track credit spend across models.",
+        "Credit spend analytics",
+        "spend",
+        "Aggregate v0 credit cost and token usage from the synced message mirror, grouped by chat, day, or model.",
+        "Streaming capture",
+        "chats stream",
+        "Create a chat and stream the SSE response live, rendering each event and recording model attribution for spend analytics.",
+        "Tail chat generation",
+        "messages tail",
+        "Poll a chat until the newest assistant message finishes, with --follow for continuous watching.",
+        "Chat file tree",
+        "chats files",
+        "Render a chat's generated source files as an indented directory tree.",
+        "Preview URL helper",
+        "chats preview",
+        "Print only the live preview URL for a chat, ready for embedding or scripting.",
+        "Offline search",
+        "search",
+        "Full-text search over synced chats and messages without hitting the API.",
+        "Local sync mirror",
+        "sync",
+        "Cursor-paginated sync of chats and messages into a local SQLite mirror for offline search and spend analytics.",
+        "Auth diagnostics",
+        "doctor",
+        "Validate V0_API_KEY and API reachability with a live check."
+      ],
+      "path": "library/ai/v0",
+      "release": {
+        "cli_name": "v0-pp-cli",
+        "version": "2026.8.1",
+        "released_at": "2026-08-06T07:39:41Z",
+        "source_commit": "ba9335cf07168ca181d004704662c266a350f86c"
+      },
+      "printer": "SomSamantray",
+      "printer_name": "Som Samantray",
+      "creator": {
+        "handle": "SomSamantray",
+        "name": "Som Samantray"
+      },
+      "mcp": {
+        "binary": "v0-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 41,
+        "public_tool_count": 0,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "PRINTING_PRESS_CLIENT_PROFILE"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
       }
     },
     {
@@ -19982,6 +22087,61 @@
       }
     },
     {
+      "name": "weaviate-collections",
+      "category": "developer-tools",
+      "api": "Weaviate Collections",
+      "description": "Full collection-config control for Weaviate Cloud, plus schema history, drift diffing, and lint that no other Weaviate tool has.",
+      "search_terms": [
+        "weaviate-collections",
+        "Weaviate Collections",
+        "weaviate-collections-pp-cli",
+        "Full collection-config control for Weaviate Cloud, plus schema history, drift diffing, and lint that no other Weaviate tool has.",
+        "Schema snapshot & history",
+        "schema snapshot",
+        "Save a point-in-time copy of every collection's config to the local store, then browse history over time.",
+        "Schema drift diff",
+        "schema diff",
+        "Diff a collection's live config against a saved snapshot or another collection.",
+        "Collection config lint",
+        "collections lint",
+        "Flag risky collection configs: no vectorizer set, replication factor of 1, unindexed high-cardinality properties.",
+        "Cross-collection tenant audit",
+        "tenants audit",
+        "See tenant counts and activity status across every collection in one view.",
+        "Schema export/import bundle",
+        "schema export",
+        "Export every collection's config as one portable JSON bundle for backup or promotion to another environment."
+      ],
+      "path": "library/developer-tools/weaviate-collections",
+      "release": {
+        "cli_name": "weaviate-collections-pp-cli",
+        "version": "2026.8.1",
+        "released_at": "2026-08-10T03:35:07Z",
+        "source_commit": "9b60999c507af83fdc7ece435e6398aa8fc2215d"
+      },
+      "printer": "SomSamantray",
+      "printer_name": "SomSamantray",
+      "creator": {
+        "handle": "SomSamantray",
+        "name": "SomSamantray"
+      },
+      "mcp": {
+        "binary": "weaviate-collections-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 21,
+        "public_tool_count": 0,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "WEAVIATE_API_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
       "name": "whoop",
       "category": "devices",
       "api": "WHOOP",
@@ -20195,6 +22355,67 @@
       "creator": {
         "handle": "Amit-Tabibi",
         "name": "Amit"
+      }
+    },
+    {
+      "name": "wordpress",
+      "category": "developer-tools",
+      "api": "WordPress",
+      "description": "WP-CLI-grade control over any WordPress site through plain HTTPS — no SSH, no server-side plugin, one static binary.",
+      "search_terms": [
+        "wordpress",
+        "wordpress-pp-cli",
+        "WP-CLI-grade control over any WordPress site through plain HTTPS — no SSH, no server-side plugin, one static binary.",
+        "Fleet rollup",
+        "fleet",
+        "See core version, pending updates, admin-account count and sync age for every site you manage, in one table.",
+        "REST reachability diagnosis",
+        "diagnose",
+        "Say in one command why a site's REST API is failing: path-based block, app-layer filter, bot challenge, renamed prefix, or stripped Authorization header.",
+        "Credential capability audit",
+        "caps",
+        "Report what your credentials are actually allowed to do on each route, with zero writes.",
+        "REST visibility gap",
+        "schema",
+        "Find out why a post type, field, or meta key is missing from the REST surface.",
+        "Editorial queue with age",
+        "queue",
+        "See drafts, pending, and scheduled posts bucketed by how long they have been sitting in that state.",
+        "Content hygiene audit",
+        "audit",
+        "Find posts and pages missing a featured image, a real category, an excerpt, or tags.",
+        "Orphaned media",
+        "orphans",
+        "List media files that no post or page references and that are nobody's featured image."
+      ],
+      "path": "library/developer-tools/wordpress",
+      "release": {
+        "cli_name": "wordpress-pp-cli",
+        "version": "2026.7.1",
+        "released_at": "2026-07-29T06:17:13Z",
+        "source_commit": "f48197a34ad453256195e0795aeebdc17a073202"
+      },
+      "printer": "bobeglz",
+      "printer_name": "bobe",
+      "creator": {
+        "handle": "bobeglz",
+        "name": "bobe"
+      },
+      "mcp": {
+        "binary": "wordpress-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 174,
+        "public_tool_count": 32,
+        "auth_type": "api_key",
+        "env_vars": [
+          "WORDPRESS_USER",
+          "WORDPRESS_APP_PASSWORD"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
       }
     },
     {
@@ -20467,9 +22688,9 @@
       "path": "library/commerce/yahoo-finance",
       "release": {
         "cli_name": "yahoo-finance-pp-cli",
-        "version": "2026.7.1",
-        "released_at": "2026-07-08T18:21:21Z",
-        "source_commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0"
+        "version": "2026.8.1",
+        "released_at": "2026-08-10T02:27:51Z",
+        "source_commit": "4ca369b52ca93bf8c38a8aa408d3fbf730d98882"
       },
       "printer": "tmchow",
       "printer_name": "Trevin Chow",
@@ -20589,9 +22810,9 @@
       "path": "library/media-and-entertainment/youtube",
       "release": {
         "cli_name": "youtube-pp-cli",
-        "version": "2026.7.1",
-        "released_at": "2026-07-08T18:21:21Z",
-        "source_commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0"
+        "version": "2026.8.1",
+        "released_at": "2026-08-10T02:43:05Z",
+        "source_commit": "3e4096d597e91af89f26604170de980e6d1c925b"
       },
       "printer": "justinwfu",
       "printer_name": "Justin",
@@ -20599,6 +22820,12 @@
         "handle": "justinwfu",
         "name": "Justin"
       },
+      "contributors": [
+        {
+          "handle": "giuseppebisemi",
+          "name": "Giuseppe Bisemi"
+        }
+      ],
       "mcp": {
         "binary": "youtube-pp-mcp",
         "transports": [
@@ -20612,6 +22839,131 @@
         ],
         "mcp_ready": "full",
         "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "zameen",
+      "category": "commerce",
+      "api": "Zameen",
+      "description": "Search Zameen.com property listings from your terminal — real filters, an offline SQLite mirror, saved-search monitoring, and price-drop alerts no scraper offers.",
+      "search_terms": [
+        "zameen",
+        "zameen-pp-cli",
+        "Search Zameen.com property listings from your terminal — real filters, an offline SQLite mirror, saved-search monitoring, and price-drop alerts no scraper offers.",
+        "Saved-search cross-run diff",
+        "watch",
+        "Re-run a saved search and see exactly which listings are new and which dropped in price since last time.",
+        "Area price research",
+        "comps",
+        "Median price, price-per-Marla, and inventory count for an area or society, computed from your synced listings.",
+        "Below-market plot-file detector",
+        "deals",
+        "Ranks scanned listings by how far under the area's price-per-Marla they sit and flags below-market files.",
+        "Days-on-market / aging inventory",
+        "aging",
+        "Lists the longest-standing inventory by days-on-market, derived from each listing's update timestamp.",
+        "Agency inventory leaderboard",
+        "agencies",
+        "Ranks agencies by listing count and median asking price in an area, from your synced listings."
+      ],
+      "path": "library/commerce/zameen",
+      "printer": "qazmataz",
+      "printer_name": "qazmataz",
+      "creator": {
+        "handle": "qazmataz",
+        "name": "qazmataz"
+      },
+      "mcp": {
+        "binary": "zameen-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 1,
+        "public_tool_count": 1,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
+      "name": "zillow",
+      "category": "other",
+      "api": "Zillow",
+      "description": "Official Zillow Research data, normalized for explainable housing-market decisions.",
+      "search_terms": [
+        "zillow",
+        "zillow-pp-cli",
+        "Official Zillow Research data, normalized for explainable housing-market decisions.",
+        "Client affordability gap",
+        "affordability gap",
+        "Compare household income with Zillow's regional homeowner-income-needed estimate.",
+        "Rent/value yield proxy",
+        "yield-proxy",
+        "Join ZORI and ZHVI on a common date for a transparent gross rent-to-value proxy.",
+        "Supply absorption ratio",
+        "supply-ratio",
+        "Join inventory and sales nowcast into an approximate months-of-inventory ratio.",
+        "Market turning points",
+        "turning-points",
+        "Find dated slope sign reversals across temperature, inventory, days pending, and ZHVI.",
+        "Weighted regional shortlist",
+        "shortlist",
+        "Rank regions with explicit user weights and visible min-max-normalized components.",
+        "Sync quality audit",
+        "quality audit",
+        "Detect missing observations, duplicate regions, coverage gaps, and large monthly jumps.",
+        "Market breadth",
+        "breadth",
+        "Measure rising, falling, and unchanged regions by state or geography type.",
+        "Buy versus rent break-even",
+        "buy-vs-rent",
+        "Run a visible-assumption ownership-versus-rent cash-flow scenario.",
+        "Negotiation leverage",
+        "negotiation",
+        "Combine price cuts, sale-to-list ratio, days pending, and inventory into an explainable score.",
+        "Price-tier spread",
+        "tier-spread",
+        "Compare bottom-, middle-, and top-tier ZHVI growth.",
+        "Demand pressure",
+        "demand-pressure",
+        "Combine rental demand and for-sale market momentum with component-level evidence.",
+        "New-construction gap",
+        "new-build-gap",
+        "Compare new-construction pricing and sales activity with typical regional home value.",
+        "Client-ready market brief",
+        "client-brief",
+        "Compose deterministic Markdown or JSON briefs from sourced regional metrics.",
+        "Formula and provenance explainer",
+        "explain",
+        "Show formulas, datasets, freshness behavior, and caveats for compound commands."
+      ],
+      "path": "library/other/zillow",
+      "release": {
+        "cli_name": "zillow-pp-cli",
+        "version": "2026.8.1",
+        "released_at": "2026-08-01T04:21:09Z",
+        "source_commit": "44426fab98ef7b9572a02e14db6990ab670d2799"
+      },
+      "printer": "veltri-23",
+      "printer_name": "Hunter Veltri",
+      "creator": {
+        "handle": "veltri-23",
+        "name": "Hunter Veltri"
+      },
+      "mcp": {
+        "binary": "zillow-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 17,
+        "public_tool_count": 17,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "internal"
       }
     },
     {

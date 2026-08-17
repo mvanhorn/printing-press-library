@@ -1,0 +1,25 @@
+{
+  "schema_version": 2,
+  "id": "title-resolution-must-signal-ambiguity",
+  "applied_at": "2026-07-26",
+  "base_run_id": "20260504-004256",
+  "base_printing_press_version": "3.8.0",
+  "summary": "Resolving a title to a TMDb id is a ranked guess, not a lookup: when several entries share the title the CLI must disclose it on both channels — a stderr notice and a meta.ambiguous record in the JSON — and accept a year to override, never silently take TMDb's top-ranked result.",
+  "reason": "/search/* orders results by a proprietary TMDb relevance score that is exposed nowhere in the payload and tracks neither vote_count nor the popularity field, so its top result can differ from the canonical edition — `ratings \"Sabrina\"` returned the 1995 version over the 1954 Wilder film even though the 1954 entry leads on both readable signals (1373 vs 703 ratings, 4.25 vs 3.60 popularity), with nothing in stdout, stderr, or the exit code to show a choice had been made. Do not restate this as popularity ordering: the data contradicts it and the claim is the first thing a reviewer checks. Any regen that restores a bare Results[0] pick reintroduces a wrong answer that reads as a confident one. Two constraints keep the disclosure honest: it must reach stdout as well as stderr, because the consumer most exposed to a silently wrong year is the unattended script running with 2>/dev/null; and it must be gated on rating counts, because TMDb's long tail of unrated same-titled shorts otherwise makes it fire on every lookup, which is the same as not having it.",
+  "files": [
+    "internal/cli/tmdb_helpers.go",
+    "internal/cli/tmdb_helpers_test.go",
+    "internal/cli/helpers.go",
+    "internal/cli/root.go",
+    "internal/cli/ratings.go",
+    "internal/cli/marathon.go",
+    "internal/cli/watchlist.go",
+    "internal/cli/versus.go",
+    "internal/cli/career.go",
+    "internal/cli/collaborators.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "Live TMDb: `ratings \"Sabrina\"` prints the 1954 and 2018 alternatives on stderr AND emits meta.ambiguous with signal alternative_better_rated on stdout; the field survives --select title and --agent, and is absent entirely for `ratings \"Inception\"`. `--year 1954`, `\"Sabrina (1954)\"`, and `versus \"Sabrina (1954)\" \"Sabrina (1995)\"` all resolve to the intended ids; `\"Fight Club\"`, `\"The Matrix\"`, and `\"Heat\"` stay silent on both channels. go build/vet/test, govulncheck, and the repo verify-skill checks pass.",
+  "findings_addressed": ["F1", "F2", "F3"]
+}

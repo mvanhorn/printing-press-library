@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "discord-oauth2-user-tier",
+  "base_run_id": "20260810-204427",
+  "reason": "Discord rejects bot tokens on /oauth2/@me and /oauth2/userinfo (401 Missing Access confirmed via raw curl). Both commands are user-token-only in practice; annotate pp:requires-tier: oauth2-user so live dogfood skips them on bot-tier runs instead of failing.",
+  "files": [
+    "internal/cli/oauth2_get-my-authorization.go",
+    "internal/cli/oauth2_get-openid-connect-userinfo.go"
+  ],
+  "validated_outcome": "live dogfood PASS 457/457 (run 2026-08-10, phase5-acceptance.json)",
+  "upstream_issue": "Discord spec lists BotToken as an alternative security scheme on these paths, but the live API rejects bot tokens; generator cannot know this from the spec."
+}

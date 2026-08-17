@@ -9,10 +9,11 @@ import (
 
 func newHelpCenterCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:    "help-center",
-		Short:  "Everything about your Help Center",
-		Hidden: true,
-		RunE:   parentNoSubcommandRunE(flags),
+		Use:         "help-center",
+		Short:       "Everything about your Help Center",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newHelpCenterCreateCollectionCmd(flags))

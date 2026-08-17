@@ -1,0 +1,1311 @@
+{
+  "dir": "C:\\AI\\workspaces\\ppl-gh\\library\\other\\greenhouse",
+  "binary": "C:\\Users\\mrvel\\AppData\\Local\\Temp\\greenhouse-pp-cli-dogfood-1592395287.exe",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 76,
+  "passed": 76,
+  "failed": 0,
+  "skipped": 58,
+  "commands": [
+    "api",
+    "departments",
+    "doctor",
+    "feedback list",
+    "jobs get",
+    "jobs list",
+    "learnings candidates",
+    "learnings confirm",
+    "learnings forget",
+    "learnings list",
+    "learnings purge",
+    "learnings reject",
+    "learnings stats",
+    "load",
+    "offices",
+    "orphans",
+    "playbook amend",
+    "playbook list",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "recall",
+    "stale",
+    "sync",
+    "teach",
+    "teach-lookup",
+    "teach-pattern",
+    "teach-playbook",
+    "which",
+    "workflow status"
+  ],
+  "tests": [
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api <interface>' to see that interface's methods.\n\nUsage:\n  greenhouse-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  greenhouse-pp-cli api\n\n  # Show methods for a specific interface\n  greenhouse-pp-cli api <interface-name>\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'greenhouse-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'greenhouse-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "departments",
+      "kind": "help",
+      "args": [
+        "departments",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List departments for a company (each department contains its open jobs)\n\nUsage:\n  greenhouse-pp-cli departments <board_token> [flags]\n\nExamples:\n  greenhouse-pp-cli departments your-token-here\n\nFlags:\n  -h, --help               help for departments\n      --render-as string   Render as (one of: list, tree) (default \"list\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'greenhouse-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "departments",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [departments] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "departments",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [departments] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "departments",
+      "kind": "error_path",
+      "args": [
+        "departments",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /__printing_press_invalid__/departments returned HTTP 404: {\"status\":404,\"error\":\"Department not found\"}\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  greenhouse-pp-cli doctor [flags]\n\nExamples:\n  greenhouse-pp-cli doctor\n  greenhouse-pp-cli doctor --json\n  greenhouse-pp-cli doctor --fail-on warn\n  greenhouse-pp-cli doctor --fail-on stale\n\nFlags:\n      --fail-on string   Exit non-zero for selected health gates. stale: cache freshness plus errors; warn: credential/path warnings plus errors; error: errors only. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'greenhouse-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  OK Auth: not required\n  OK Verify Mode: normal operation\n  OK API: reachable (HTTP 404 at /)\n  config_path: C:\\Users\\mrvel\\AppData\\Local\\Temp\\printing-press-subprocess-2187840125\\.config\\greenhouse-pp-cli\\config.toml\n  base_url: https://boards-api.greenhouse.io/v1/boards\n  version: 0.0.0-dev\n  Paths:\n    config: C:\\Users\\mrvel\\AppData\\Local\\Temp\\printing-press-subprocess-2187840125\\.config\\greenhouse-pp-cli (XDG_CONFIG_HOME)\n    data: C:\\Users\\mrvel\\AppData\\Local\\Temp\\printing-press-subprocess-2187840125\\.local\\share\\greenhouse-pp-cli (XDG_DATA_HOME)\n    state: C:\\Users\\mrvel\\AppData\\Local\\Temp\\printing-press-subprocess-2187840125\\.local\\state\\greenhouse-pp-cli (XDG_STATE_HOME)\n    cache: C:\\Users\\mrvel\\AppData\\Local\\Temp\\printing-press-subprocess-2187840125\\.cache\\greenhouse-pp-cli (XDG_CACHE_HOME)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"api\": \"reachable (HTTP 404 at /)\",\n  \"auth\": \"not required\",\n  \"base_url\": \"https://boards-api.greenhouse.io/v1/boards\",\n  \"config\": \"ok\",\n  \"config_path\": \"C:\\\\Users\\\\mrvel\\\\AppData\\\\Local\\\\Temp\\\\printing-press-subprocess-2187840125\\\\.config\\\\greenhouse-pp-cli\\\\config.toml\",\n  \"paths\": {\n    \"cache\": {\n      \"dir\": \"C:\\\\Users\\\\mrvel\\\\AppData\\\\Local\\\\Temp\\\\printing-press-subprocess-2187840125\\\\.cache\\\\greenhouse-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CACHE_HOME\"\n    },\n    \"config\": {\n      \"dir\": \"C:\\\\Users\\\\mrvel\\\\AppData\\\\Local\\\\Temp\\\\printing-press-subprocess-2187840125\\\\.config\\\\greenhouse-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CONFIG_HOME\"\n    },\n    \"data\": {\n      \"dir\": \"C:\\\\Users\\\\mrvel\\\\AppData\\\\Local\\\\Temp\\\\printing-press-subprocess-2187840125\\\\.local\\\\share\\\\greenhouse-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_DATA_HOME\"\n    },\n    \"state\": {\n      \"dir\": \"C:\\\\Users\\\\mrvel\\\\AppData\\\\Local\\\\Temp\\\\printing-press-subprocess-2187840125\\\\.local\\\\state\\\\greenhouse-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_STATE_HOME\"\n    },\n    \"status\": \"ok\"\n  },\n  \"verify_mode\": \"normal operation\",\n  \"version\": \"0.0.0-dev\"\n}\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  greenhouse-pp-cli feedback list [flags]\n\nExamples:\n  greenhouse-pp-cli feedback list\n  greenhouse-pp-cli feedback list --limit 5\n  greenhouse-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'greenhouse-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "jobs get",
+      "kind": "help",
+      "args": [
+        "jobs",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Retrieve a single job posting\n\nUsage:\n  greenhouse-pp-cli jobs get <board_token> <job_id> [flags]\n\nExamples:\n  greenhouse-pp-cli jobs get your-token-here 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n  -h, --help        help for get\n      --questions   Include application questions, location questions, compliance, and demographic questions\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'greenhouse-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "jobs get",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [jobs get] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "jobs get",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [jobs get] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "jobs get",
+      "kind": "error_path",
+      "args": [
+        "jobs",
+        "get",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: job_id is required\nUsage: greenhouse-pp-cli jobs get <job_id>\n"
+    },
+    {
+      "command": "jobs list",
+      "kind": "help",
+      "args": [
+        "jobs",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List all open jobs for a company\n\nUsage:\n  greenhouse-pp-cli jobs list <board_token> [flags]\n\nExamples:\n  greenhouse-pp-cli jobs list your-token-here\n\nFlags:\n      --content   Set true to include full description, departments, and offices for each job\n  -h, --help      help for list\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'greenhouse-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "jobs list",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"board_token\" at depth 0"
+    },
+    {
+      "command": "jobs list",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"board_token\" at depth 0"
+    },
+    {
+      "command": "jobs list",
+      "kind": "error_path",
+      "args": [
+        "jobs",
+        "list",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /__printing_press_invalid__/jobs returned HTTP 404: {\"status\":404,\"error\":\"Job not found\"}\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "learnings candidates",
+      "kind": "help",
+      "args": [
+        "learnings",
+        "candidates",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Lists rows from the learn_candidates table: corrections and playbook\nshapes the CLI derived from observed usage. Candidates are quarantined\nuntil an explicit 'learnings confirm <id>' materializes them; they never\nalter command behavior or recall's verified results on their own.\n\nUsage:\n  greenhouse-pp-cli learnings candidates [flags]\n\nExamples:\n  greenhouse-pp-cli learnings candidates\n  greenhouse-pp-cli learnings candidates --class flag_alias\n  greenhouse-pp-cli learnings candidates --status rejected\n\nFlags:\n      --class string    Filter by class (flag_alias | playbook_candidate)\n      --db string       SQLite database file path (default: resolved data directory data.db)\n  -h, --help            help for candidates\n      --limit int       Maximum rows to return (default: capped)\n      --status string   Filter by status (open | confirmed | rejected | expired; empty for all) (default \"open\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'greenhouse-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "learnings candidates",
+      "kind": "happy_path",
+      "args": [
+        "learnings",
+        "candidates"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "learnings candidates",
+      "kind": "json_fidelity",
+      "args": [
+        "learnings",
+        "candidates",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "learnings candidates",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "learnings confirm",
+      "kind": "help",
+      "args": [
+        "learnings",
+        "confirm",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Promotes one open candidate into the verified knowledge tables.\n\nThe full candidate payload is printed before anything is written, so\nthe caller always sees exactly what is being blessed. Materialization\nis per class:\n\n  playbook_candidate  upserts a playbook row for the candidate's query\n                      family (confidence 2, the same floor as a teach)\n  flag_alias          appends a timestamped [amend ...] correction note\n                      to the query family's playbook notes\n\nUsage errors (unknown id, non-open status) exit 2.\n\nUsage:\n  greenhouse-pp-cli learnings confirm <id> [flags]\n\nExamples:\n  greenhouse-pp-cli learnings confirm 3\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n  -h, --help        help for confirm\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'greenhouse-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "learnings confirm",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no id parseable from companion at depth 0"
+    },
+    {
+      "command": "learnings confirm",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no id parseable from companion at depth 0"
+    },
+    {
+      "command": "learnings confirm",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "learnings confirm",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "no id parseable from companion at depth 0"
+    },
+    {
+      "command": "learnings forget",
+      "kind": "help",
+      "args": [
+        "learnings",
+        "forget",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Removes rows from the search_learnings table so a bad teach can be\nundone without dropping the whole DB.\n\nRequires at least one of --resource, --action, or --all.\n\nUsage:\n  greenhouse-pp-cli learnings forget <query> [flags]\n\nExamples:\n  greenhouse-pp-cli learnings forget \"<question>\" --resource <id>\n  greenhouse-pp-cli learnings forget \"<question>\" --all\n\nFlags:\n      --action string     Delete only rules with this action (boost | hide | alias_of)\n      --all               Delete every rule for the supplied query\n      --db string         SQLite database file path (default: resolved data directory data.db)\n  -h, --help              help for forget\n      --resource string   Delete only the rule for this resource_id\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'greenhouse-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "learnings forget",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "learnings forget",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "learnings forget",
+      "kind": "error_path",
+      "args": [
+        "learnings",
+        "forget",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: learnings forget: forget learnings: pass --resource, --action, or --all\n"
+    },
+    {
+      "command": "learnings list",
+      "kind": "help",
+      "args": [
+        "learnings",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recorded learnings\n\nUsage:\n  greenhouse-pp-cli learnings list [flags]\n\nExamples:\n  greenhouse-pp-cli learnings list --agent\n  greenhouse-pp-cli learnings list --query \"<substring>\"\n  greenhouse-pp-cli learnings list --warnings --agent\n\nFlags:\n      --action string        Filter by action (boost | hide | alias_of)\n      --db string            SQLite database file path (default: resolved data directory data.db)\n  -h, --help                 help for list\n      --limit int            Maximum rows to return (default 200)\n      --min-confidence int   Filter by minimum confidence\n      --query string         Filter by normalized query substring\n      --resource string      Filter by resource_id\n      --source string        Filter by source (taught | manual-forget)\n      --warnings             Return teach-time warnings from teach.log instead of stored learning rows\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'greenhouse-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "learnings list",
+      "kind": "happy_path",
+      "args": [
+        "learnings",
+        "list",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": []\n}\n"
+    },
+    {
+      "command": "learnings list",
+      "kind": "json_fidelity",
+      "args": [
+        "learnings",
+        "list",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": []\n}\n"
+    },
+    {
+      "command": "learnings list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "learnings purge",
+      "kind": "help",
+      "args": [
+        "learnings",
+        "purge",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Deletes expired and confirmed candidate rows. Materialized artifacts\n(playbook rows, correction notes) are untouched. Rejected rows are kept\nby default because they tombstone their derivation signatures; pass\n--tombstones to remove them too, which re-allows derivation of those\nsignatures. Open rows are never purged.\n\nOpen rows past the unseen TTL are swept to expired first, so a single\npurge also clears stale candidates nobody judged.\n\nUsage:\n  greenhouse-pp-cli learnings purge [flags]\n\nExamples:\n  greenhouse-pp-cli learnings purge\n  greenhouse-pp-cli learnings purge --tombstones\n\nFlags:\n      --db string    SQLite database file path (default: resolved data directory data.db)\n  -h, --help         help for purge\n      --tombstones   Also delete rejected rows (re-allows derivation of their signatures)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'greenhouse-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "learnings purge",
+      "kind": "happy_path",
+      "args": [
+        "learnings",
+        "purge"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"expired\": 0,\n  \"purged\": 0,\n  \"tombstones\": false\n}\n"
+    },
+    {
+      "command": "learnings purge",
+      "kind": "json_fidelity",
+      "args": [
+        "learnings",
+        "purge",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"expired\": 0,\n  \"purged\": 0,\n  \"tombstones\": false\n}\n"
+    },
+    {
+      "command": "learnings purge",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "learnings reject",
+      "kind": "help",
+      "args": [
+        "learnings",
+        "reject",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Marks a candidate rejected. The rejected row stays as a tombstone on\nits derivation signature: the identical observation never re-derives a\ncandidate, and recall never resurfaces it.\n\nRejecting a CONFIRMED playbook_candidate tombstones the candidate but\nleaves the playbook row in place; repair the guidance with\n'playbook amend' if needed. A confirmed flag_alias cannot be rejected:\nits correction note already lives in the family playbook, so repair the\nguidance with 'playbook amend' instead.\n\nUsage errors (unknown id, no-reject-path candidates) exit 2.\n\nUsage:\n  greenhouse-pp-cli learnings reject <id> [flags]\n\nExamples:\n  greenhouse-pp-cli learnings reject 3\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n  -h, --help        help for reject\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'greenhouse-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "learnings reject",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"id\""
+    },
+    {
+      "command": "learnings reject",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"id\""
+    },
+    {
+      "command": "learnings reject",
+      "kind": "error_path",
+      "args": [
+        "learnings",
+        "reject",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: learnings reject: invalid candidate id \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "learnings stats",
+      "kind": "help",
+      "args": [
+        "learnings",
+        "stats",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Aggregates the local learn_events table into the loop's headline\nmetrics:\n\n  recall_hit_rate           recall hits / (hits + misses)\n  teach_to_reuse            fraction of taught learnings later seen in a\n                            recall hit (joined by learning row id, with a\n                            query-family fallback for older rows)\n  playbook_resolution_rate  playbook hits not followed by an amend on the\n                            same query family\n  candidates_confirmed/rejected  judgment counts on auto-captured candidates\n\nRates are null until their denominator is non-zero. Everything is\nlocal-only: events never leave this machine.\n\nUsage:\n  greenhouse-pp-cli learnings stats [flags]\n\nExamples:\n  greenhouse-pp-cli learnings stats\n  greenhouse-pp-cli learnings stats --json\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n  -h, --help        help for stats\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'greenhouse-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "learnings stats",
+      "kind": "happy_path",
+      "args": [
+        "learnings",
+        "stats"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"recall_hit_rate\": null,\n  \"recall_hits\": 0,\n  \"recall_misses\": 0,\n  \"teach_to_reuse\": null,\n  \"taught_rows\": 0,\n  \"reused_rows\": 0,\n  \"playbook_resolution_rate\": null,\n  \"playbook_hits\": 0,\n  \"playbook_hits_amended\": 0,\n  \"candidates_confirmed\": 0,\n  \"candidates_rejected\": 0,\n  \"event_counts\": {},\n  \"events_pruned\": 0\n}\n"
+    },
+    {
+      "command": "learnings stats",
+      "kind": "json_fidelity",
+      "args": [
+        "learnings",
+        "stats",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"recall_hit_rate\": null,\n  \"recall_hits\": 0,\n  \"recall_misses\": 0,\n  \"teach_to_reuse\": null,\n  \"taught_rows\": 0,\n  \"reused_rows\": 0,\n  \"playbook_resolution_rate\": null,\n  \"playbook_hits\": 0,\n  \"playbook_hits_amended\": 0,\n  \"candidates_confirmed\": 0,\n  \"candidates_rejected\": 0,\n  \"event_counts\": {},\n  \"events_pruned\": 0\n}\n"
+    },
+    {
+      "command": "learnings stats",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "load",
+      "kind": "help",
+      "args": [
+        "load",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Analyze locally synced data to show how many items are assigned to each\nperson. Helps identify overloaded team members and unbalanced workload.\n\nUsage:\n  greenhouse-pp-cli load [flags]\n\nExamples:\n  # Show workload distribution\n  greenhouse-pp-cli load\n\n  # Limit results\n  greenhouse-pp-cli load --limit 10\n\n  # Output as JSON\n  greenhouse-pp-cli load --json\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n  -h, --help        help for load\n      --limit int   Maximum entries to show (default 50)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'greenhouse-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "load",
+      "kind": "happy_path",
+      "args": [
+        "load"
+      ],
+      "status": "pass",
+      "output_sample": "No items found. Run sync first.\nhint: local store has not been synced yet. Run 'greenhouse-pp-cli sync' before trusting local results.\n"
+    },
+    {
+      "command": "load",
+      "kind": "json_fidelity",
+      "args": [
+        "load",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"distribution\": null,\n  \"showing\": 0,\n  \"total_count\": 0\n}\nhint: local store has not been synced yet. Run 'greenhouse-pp-cli sync' before trusting local results.\n"
+    },
+    {
+      "command": "load",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "offices",
+      "kind": "help",
+      "args": [
+        "offices",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List offices for a company (each office contains its departments and their jobs)\n\nUsage:\n  greenhouse-pp-cli offices <board_token> [flags]\n\nExamples:\n  greenhouse-pp-cli offices your-token-here\n\nFlags:\n  -h, --help               help for offices\n      --render-as string   Render as (one of: list, tree) (default \"list\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'greenhouse-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "offices",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [offices] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "offices",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [offices] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "offices",
+      "kind": "error_path",
+      "args": [
+        "offices",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /__printing_press_invalid__/offices returned HTTP 404: {\"status\":404,\"error\":\"Office not found\"}\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "orphans",
+      "kind": "help",
+      "args": [
+        "orphans",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Scan locally synced data for items that are missing important fields\nsuch as assignee, project, priority, or labels. Useful for triaging unowned work.\n\nUsage:\n  greenhouse-pp-cli orphans [flags]\n\nExamples:\n  # Find orphaned items\n  greenhouse-pp-cli orphans\n\n  # Output as JSON\n  greenhouse-pp-cli orphans --json\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n  -h, --help        help for orphans\n      --limit int   Maximum items to show (default 50)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'greenhouse-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "orphans",
+      "kind": "happy_path",
+      "args": [
+        "orphans"
+      ],
+      "status": "pass",
+      "output_sample": "No orphaned items found. All items have key fields populated.\nhint: local store has not been synced yet. Run 'greenhouse-pp-cli sync' before trusting local results.\n"
+    },
+    {
+      "command": "orphans",
+      "kind": "json_fidelity",
+      "args": [
+        "orphans",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"items\": null,\n  \"showing\": 0,\n  \"total_count\": 0\n}\nhint: local store has not been synced yet. Run 'greenhouse-pp-cli sync' before trusting local results.\n"
+    },
+    {
+      "command": "orphans",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "playbook amend",
+      "kind": "help",
+      "args": [
+        "playbook",
+        "amend",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Appends a timestamped note to the matching family's playbook notes_text.\nIf no playbook exists for the family yet, creates a notes-only one.\n\nDesigned for agents to fire when their debug-protocol response\nidentifies a concrete correction worth persisting (a workaround, an\nundocumented endpoint shape, a stale field name, observed schema\ndrift). Same fire-and-forget posture as teach: silent on success,\nerrors to teach.log, safe to background with &.\n\nDisabling: pass --no-learn or set GREENHOUSE_NO_LEARN=true.\n\nUsage:\n  greenhouse-pp-cli playbook amend [flags]\n\nExamples:\n  greenhouse-pp-cli playbook amend \\\n    --query \"<exact recall query>\" \\\n    --add-note \"summary endpoint envelope: data lives at .results.header, not .header\"\n\nFlags:\n      --add-note string   The note text to append to the family's playbook (required)\n      --db string         Database path (default: standard cache location)\n  -h, --help              help for amend\n      --query string      The exact recall query whose family should be amended (required)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'greenhouse-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "playbook amend",
+      "kind": "happy_path",
+      "args": [
+        "playbook",
+        "amend",
+        "--query",
+        "<exact recall query>",
+        "--add-note",
+        "summary endpoint envelope: data lives at .results.header, not .header",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "dry-run: would run playbook amend; no changes made\n"
+    },
+    {
+      "command": "playbook amend",
+      "kind": "json_fidelity",
+      "args": [
+        "playbook",
+        "amend",
+        "--query",
+        "<exact recall query>",
+        "--add-note",
+        "summary endpoint envelope: data lives at .results.header, not .header",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"dry_run\":true,\"action\":\"playbook amend\",\"would\":\"run playbook amend; no changes made\"}\n"
+    },
+    {
+      "command": "playbook amend",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "playbook amend",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "playbook list",
+      "kind": "help",
+      "args": [
+        "playbook",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List stored playbooks (query_family, content presence, last observed)\n\nUsage:\n  greenhouse-pp-cli playbook list [flags]\n\nExamples:\n  greenhouse-pp-cli playbook list --agent\n\nFlags:\n      --db string   Database path (default: standard cache location)\n  -h, --help        help for list\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'greenhouse-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "playbook list",
+      "kind": "happy_path",
+      "args": [
+        "playbook",
+        "list",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": []\n}\n"
+    },
+    {
+      "command": "playbook list",
+      "kind": "json_fidelity",
+      "args": [
+        "playbook",
+        "list",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": []\n}\n"
+    },
+    {
+      "command": "playbook list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  greenhouse-pp-cli profile delete <name> [flags]\n\nExamples:\n  greenhouse-pp-cli profile delete my-defaults --yes\n  greenhouse-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'greenhouse-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  greenhouse-pp-cli profile list [flags]\n\nExamples:\n  greenhouse-pp-cli profile list\n  greenhouse-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'greenhouse-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under <name>. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile, --config, and --home, which are never\ncaptured: they control profile/config resolution and would never apply).\n\nUsage:\n  greenhouse-pp-cli profile save <name> [--<flag> <value> ...] [flags]\n\nExamples:\n  greenhouse-pp-cli profile save my-defaults --json --compact\n  greenhouse-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'greenhouse-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  greenhouse-pp-cli profile show <name> [flags]\n\nExamples:\n  greenhouse-pp-cli profile show my-defaults\n  greenhouse-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'greenhouse-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  greenhouse-pp-cli profile use <name> [flags]\n\nExamples:\n  greenhouse-pp-cli profile use my-defaults\n  greenhouse-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'greenhouse-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "recall",
+      "kind": "help",
+      "args": [
+        "recall",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Returns prior learnings matching the supplied query by token-set\noverlap (Jaccard >= 0.6) plus entity-aware validation. The LLM should\ncall this FIRST when starting work on a new user question; if\nfound=true AND results[0].entity_match == \"exact\" AND confidence >= 2,\nthe LLM can skip discovery and go straight to live fetch for the\nreturned resource IDs.\n\nEmpty match returns {\"found\": false, \"results\": []} with exit 0 \u2014 this\nis an information query, not a not-found error.\n\nDisabling: GREENHOUSE_NO_LEARN=true returns the empty shape even\nwhen learnings exist.\n\nUsage:\n  greenhouse-pp-cli recall <query> [flags]\n\nExamples:\n  greenhouse-pp-cli recall \"<question>\" --agent\n  greenhouse-pp-cli recall \"<question>\" --agent --min-confidence 2\n\nFlags:\n      --db string            SQLite database file path (default: resolved data directory data.db)\n      --debug-mismatches     Include cross-entity mismatches in the envelope under mismatches[]\n  -h, --help                 help for recall\n      --limit int            Maximum number of learnings to return (default 10)\n      --min-confidence int   Minimum confidence to include in results (default 1)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'greenhouse-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "recall",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [recall] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "recall",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [recall] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "recall",
+      "kind": "error_path",
+      "args": [
+        "recall",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"found\": false,\n  \"query\": \"__printing_press_invalid__\",\n  \"normalized\": \"__printing_press_invalid__\",\n  \"query_entities\": [],\n  \"results\": [],\n  \"warnings\": [\n    \"no_learnings_for_query_family\"\n  ]\n}\n"
+    },
+    {
+      "command": "stale",
+      "kind": "help",
+      "args": [
+        "stale",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Scan locally synced data for items that have not been updated within\nthe specified number of days. Useful for identifying forgotten or blocked work.\n\nUsage:\n  greenhouse-pp-cli stale [flags]\n\nExamples:\n  # Find items not updated in 30 days (default)\n  greenhouse-pp-cli stale\n\n  # Find items not updated in 14 days\n  greenhouse-pp-cli stale --days 14\n\n  # Filter by team\n  greenhouse-pp-cli stale --days 7 --team backend\n\n  # Output as JSON\n  greenhouse-pp-cli stale --days 30 --json\n\nFlags:\n      --days int      Number of days without update to consider stale (default 30)\n      --db string     SQLite database file path (default: resolved data directory data.db)\n  -h, --help          help for stale\n      --limit int     Maximum items to show (default 50)\n      --team string   Filter by team identifier\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'greenhouse-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "stale",
+      "kind": "happy_path",
+      "args": [
+        "stale"
+      ],
+      "status": "pass",
+      "output_sample": "No stale items found.\nhint: local store has not been synced yet. Run 'greenhouse-pp-cli sync' before trusting local results.\n"
+    },
+    {
+      "command": "stale",
+      "kind": "json_fidelity",
+      "args": [
+        "stale",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"items\": null,\n  \"showing\": 0,\n  \"total_count\": 0\n}\nhint: local store has not been synced yet. Run 'greenhouse-pp-cli sync' before trusting local results.\n"
+    },
+    {
+      "command": "stale",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "sync",
+      "kind": "help",
+      "args": [
+        "sync",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Fetch jobs, departments, and offices for a company and store them locally\n\nUsage:\n  greenhouse-pp-cli sync <board_token> [flags]\n\nExamples:\n  greenhouse-pp-cli sync stripe\n\nFlags:\n  -h, --help   help for sync\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'greenhouse-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "sync",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [sync] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "sync",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [sync] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [sync] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "teach",
+      "kind": "help",
+      "args": [
+        "teach",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Record one or more \"this query -> this resource\" mappings so the next\nquery that matches surfaces the right resources without re-running discovery.\n\nThis command is designed to be backgrounded by an LLM right before it\nemits the user-facing response: silent on success, errors only to\nthe CLI state directory's teach.log, safe to fire-and-forget.\n\nDisabling: pass --no-learn or set GREENHOUSE_NO_LEARN=true.\n\nUsage:\n  greenhouse-pp-cli teach [flags]\n\nExamples:\n  greenhouse-pp-cli teach --query \"who owns acme\" --resource acme --resource-type company\n\nFlags:\n      --db string                    SQLite database file path (default: resolved data directory data.db)\n  -h, --help                         help for teach\n      --no-validate                  Suppress teach-time resource-shape validation (warnings to teach.log)\n      --notes string                 Optional free-form note recorded in the audit log\n      --playbook-file string         Optional path to a JSON playbook recording the CLI choreography for this query family\n      --playbook-json string         Optional inline JSON playbook (mutually exclusive with --playbook-file; for agents without filesystem access)\n      --playbook-notes string        Optional inline gotchas/workarounds for this query family (stored alongside the playbook)\n      --playbook-notes-file string   Optional path to a markdown file with playbook notes\n      --query string                 User's original natural-language question (required)\n      --quiet                        Silent on success (default true \u2014 designed for background invocation) (default true)\n      --resource strings             Resource ID \u2014 repeat for multiple (required)\n      --resource-type string         Resource type (required; e.g. matches a row in the local resources table)\n      --venue string                 Optional venue scope tag stored with the learning\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'greenhouse-pp-cli profile list')\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "teach",
+      "kind": "happy_path",
+      "args": [
+        "teach",
+        "--query",
+        "who owns acme",
+        "--resource",
+        "acme",
+        "--resource-type",
+        "company",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "dry-run: would run teach; no changes made\n"
+    },
+    {
+      "command": "teach",
+      "kind": "json_fidelity",
+      "args": [
+        "teach",
+        "--query",
+        "who owns acme",
+        "--resource",
+        "acme",
+        "--resource-type",
+        "company",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"dry_run\":true,\"action\":\"teach\",\"would\":\"run teach; no changes made\"}\n"
+    },
+    {
+      "command": "teach",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "teach",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "teach-lookup",
+      "kind": "help",
+      "args": [
+        "teach-lookup",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Adds one row to entity_lookups. Used by the recall path's pattern\nengine to substitute values for canonical names at substitution time.\nComputed kinds (lowercase, uppercase, kebab-case, capitalize-first, slug)\ncannot be taught \u2014 they are derived from the canonical input.\n\nUsage:\n  greenhouse-pp-cli teach-lookup [flags]\n\nExamples:\n  greenhouse-pp-cli teach-lookup --kind country --canonical \"United States\" --value USA\n\nFlags:\n      --canonical string   Canonical entity name (required)\n      --db string          SQLite database file path (default: resolved data directory data.db)\n  -h, --help               help for teach-lookup\n      --kind string        Entity kind, e.g. country, team (required, must not be a computed kind)\n      --value string       Value/alias that should resolve to the canonical (required)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'greenhouse-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "teach-lookup",
+      "kind": "happy_path",
+      "args": [
+        "teach-lookup",
+        "--kind",
+        "country",
+        "--canonical",
+        "United States",
+        "--value",
+        "USA"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"canonical\": \"United States\",\n  \"kind\": \"country\",\n  \"recorded\": true,\n  \"value\": \"USA\"\n}\n"
+    },
+    {
+      "command": "teach-lookup",
+      "kind": "json_fidelity",
+      "args": [
+        "teach-lookup",
+        "--kind",
+        "country",
+        "--canonical",
+        "United States",
+        "--value",
+        "USA",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"canonical\": \"United States\",\n  \"kind\": \"country\",\n  \"recorded\": true,\n  \"value\": \"USA\"\n}\n"
+    },
+    {
+      "command": "teach-lookup",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "teach-pattern",
+      "kind": "help",
+      "args": [
+        "teach-pattern",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Adds one row to search_patterns. The recall path uses patterns to\nsubstitute live query entities into a resource template, so a pattern\nwith query_template=\"items in {entity}\" and\nresource_template=\"GROUP-{entity:category}\" generalizes one teach into\na whole family.\n\nUsage:\n  greenhouse-pp-cli teach-pattern [flags]\n\nExamples:\n  greenhouse-pp-cli teach-pattern --query-template \"items in {entity}\" --resource-template \"GROUP-{entity:category}\" --resource-type items --entity-kind category --strategy substitute\n\nFlags:\n      --db string                  SQLite database file path (default: resolved data directory data.db)\n      --entity-kind string         Entity kind name registered in entity_lookups (required)\n  -h, --help                       help for teach-pattern\n      --query-template string      Query template with {entity} placeholder (required)\n      --resource-template string   Resource template with typed entity slot, e.g. PREFIX-{entity:country} (required)\n      --resource-type string       Resource type for substituted IDs (required)\n      --strategy string            Substitution strategy: substitute | substitute-then-search-prefix (default substitute)\n      --venue string               Optional venue scope tag\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'greenhouse-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "teach-pattern",
+      "kind": "happy_path",
+      "args": [
+        "teach-pattern",
+        "--query-template",
+        "items in {entity}",
+        "--resource-template",
+        "GROUP-{entity:category}",
+        "--resource-type",
+        "items",
+        "--entity-kind",
+        "category",
+        "--strategy",
+        "substitute"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"entity_kind\": \"category\",\n  \"newly_inserted\": true,\n  \"pattern_id\": 1,\n  \"query_template\": \"items in {entity}\",\n  \"recorded\": true,\n  \"resource_template\": \"GROUP-{entity:category}\",\n  \"resource_type\": \"items\",\n  \"strategy\": \"substitute\",\n  \"venue\": \"\"\n}\n"
+    },
+    {
+      "command": "teach-pattern",
+      "kind": "json_fidelity",
+      "args": [
+        "teach-pattern",
+        "--query-template",
+        "items in {entity}",
+        "--resource-template",
+        "GROUP-{entity:category}",
+        "--resource-type",
+        "items",
+        "--entity-kind",
+        "category",
+        "--strategy",
+        "substitute",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"entity_kind\": \"category\",\n  \"newly_inserted\": false,\n  \"pattern_id\": 1,\n  \"query_template\": \"items in {entity}\",\n  \"recorded\": true,\n  \"resource_template\": \"GROUP-{entity:category}\",\n  \"resource_type\": \"items\",\n  \"strategy\": \"substitute\",\n  \"venue\": \"\"\n}\n"
+    },
+    {
+      "command": "teach-pattern",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "teach-playbook",
+      "kind": "help",
+      "args": [
+        "teach-playbook",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Stores a structured CLI command sequence (with entity slots) and/or\nfree-form gotchas/workarounds, keyed on the structural query family.\nThe recall path surfaces this whenever a future query of the same\nfamily fires, so the agent can replay the choreography and read the\nnotes verbatim.\n\nAt least one of --playbook-json/--playbook-file and --notes/--notes-file\nmust be set. --playbook-json takes the playbook body inline so MCP-only\nagents can record playbooks without a file on disk.\n\nUsage:\n  greenhouse-pp-cli teach-playbook [flags]\n\nExamples:\n  greenhouse-pp-cli teach-playbook \\\n    --query \"<question that anchors the family>\" \\\n    --playbook-file ~/playbooks/recipe.json \\\n    --notes-file ~/playbooks/recipe-notes.md\n\nFlags:\n      --db string              Database path (default: standard cache location)\n  -h, --help                   help for teach-playbook\n      --notes string           Free-text notes (gotchas, workarounds) -- mutually exclusive with --notes-file\n      --notes-file string      Path to a markdown file with the notes\n      --playbook-file string   Path to a JSON file with the playbook (steps, entity_slots, expected_tool_calls)\n      --playbook-json string   Inline playbook JSON (steps, entity_slots, expected_tool_calls) -- mutually exclusive with --playbook-file\n      --query string           Example query that anchors the family (required)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'greenhouse-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "teach-playbook",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "file fixture required: --playbook-file ~/playbooks/recipe.json"
+    },
+    {
+      "command": "teach-playbook",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "file fixture required: --playbook-file ~/playbooks/recipe.json"
+    },
+    {
+      "command": "teach-playbook",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "teach-playbook",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  greenhouse-pp-cli which [query] [flags]\n\nExamples:\n  greenhouse-pp-cli which \"stale tickets\"\n  greenhouse-pp-cli which \"bottleneck\"\n  greenhouse-pp-cli which --limit 1 \"send message\"\n  greenhouse-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'greenhouse-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: this CLI has no curated capability index; run '--help' to see every command\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show local archive status and sync state for all resources\n\nUsage:\n  greenhouse-pp-cli workflow status [flags]\n\nExamples:\n  # Show archive status\n  greenhouse-pp-cli workflow status\n\n  # Show status as JSON\n  greenhouse-pp-cli workflow status --json\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:<path>, webhook:<url>\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'greenhouse-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "No archived data. Add a site-specific sync command to populate the store.\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-08-10T04:31:30.0238382Z"
+}

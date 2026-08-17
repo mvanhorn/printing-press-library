@@ -12,49 +12,56 @@ import (
 )
 
 func newReactionsListCmd(flags *rootFlags) *cobra.Command {
-	var flagCount string
+	var flagCount int
 	var flagCursor string
 	var flagUser string
 
 	cmd := &cobra.Command{
-		Use:     "list",
-		Short:   "List reactions made by the authenticated user",
-		Example: "  slack-pp-cli reactions list",
+		Use:         "list",
+		Short:       "List reactions made by the authenticated user",
+		Example:     "  slack-pp-cli reactions list",
+		Annotations: map[string]string{"pp:endpoint": "reactions.list", "pp:method": "GET", "pp:path": "/reactions.list", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			path := "/reactions.list"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/reactions.list"
 			params := map[string]string{}
-			if flagCount != "" {
-				params["count"] = fmt.Sprintf("%v", flagCount)
+			if flagCount != 0 {
+				params["count"] = formatCLIParamValue(flagCount)
 			}
 			if flagCursor != "" {
-				params["cursor"] = fmt.Sprintf("%v", flagCursor)
+				params["cursor"] = formatCLIParamValue(flagCursor)
 			}
 			if flagUser != "" {
-				params["user"] = fmt.Sprintf("%v", flagUser)
+				params["user"] = formatCLIParamValue(flagUser)
 			}
-			data, prov, err := resolveRead(c, flags, "reactions", false, path, params)
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "reactions", true, path, params, nil, "items", cmd.ErrOrStderr())
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
+			// --plain) opt out of the auto-JSON path so piped consumers that asked for
+			// a non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -75,10 +82,10 @@ func newReactionsListCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
-	cmd.Flags().StringVar(&flagCount, "count", "", "Number of items per page")
+	cmd.Flags().IntVar(&flagCount, "count", 0, "Number of items per page")
 	cmd.Flags().StringVar(&flagCursor, "cursor", "", "Pagination cursor")
 	cmd.Flags().StringVar(&flagUser, "user", "", "Show reactions by this user (defaults to authed user)")
 

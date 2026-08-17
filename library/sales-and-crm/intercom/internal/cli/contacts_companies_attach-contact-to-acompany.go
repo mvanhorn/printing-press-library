@@ -13,29 +13,65 @@ import (
 )
 
 func newContactsCompaniesAttachContactToAcompanyCmd(flags *rootFlags) *cobra.Command {
+	var bodyId2 string
 	var stdinBody bool
 
 	cmd := &cobra.Command{
 		Use:         "attach-contact-to-acompany <id>",
 		Aliases:     []string{"create"},
 		Short:       "You can attach a company to a single contact.",
-		Example:     "  intercom-pp-cli contacts companies attach-contact-to-acompany 550e8400-e29b-41d4-a716-446655440000",
+		Example:     "  intercom-pp-cli contacts companies attach-contact-to-acompany 550e8400-e29b-41d4-a716-446655440000 --id-2 58a430d35458202d41b1e65b",
 		Annotations: map[string]string{"pp:endpoint": "companies.attach-contact-to-acompany", "pp:method": "POST", "pp:path": "/contacts/{id}/companies"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) == 0 {
+			// Bare invocation of a command with required input prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only read commands fall through so a bare call still executes.
+			// Machine callers (--json/--agent, which sets asJSON) get a usage
+			// error + exit 2 instead of silent exit-0 help, so an incomplete
+			// invocation is never mistaken for success.
+			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "requires input",
+						"usage": cmd.CommandPath() + " --help",
+					}, flags); printErr != nil {
+						return printErr
+					}
+					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
+				}
 				return cmd.Help()
 			}
-			if !stdinBody {
+			if len(args) == 0 {
+				// A missing required positional is a usage error in every output
+				// mode (matches command_promoted.go.tmpl). Machine callers
+				// (--json/--agent) also get a JSON error envelope on stdout;
+				// usageErr sets exit 2.
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "missing required argument",
+						"usage": fmt.Sprintf("%s%s", cmd.CommandPath(), " <id>"),
+					}, flags); printErr != nil {
+						return printErr
+					}
+				}
+				return usageErr(fmt.Errorf("missing required argument\nUsage: %s%s", cmd.CommandPath(), " <id>"))
 			}
+			if !stdinBody {
+				if !cmd.Flags().Changed("id-2") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "id-2")
+				}
+			}
+			path := "/contacts/{id}/companies"
+			if len(args) < 1 || args[0] == "" {
+				return usageErr(fmt.Errorf("id is required\nUsage: %s <%s>", cmd.CommandPath(), "id"))
+			}
+			path = replacePathParam(path, "id", args[0])
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/contacts/{id}/companies"
-			path = replacePathParam(path, "id", args[0])
 			params := map[string]string{}
-			var body map[string]any
+			var body any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
@@ -47,7 +83,11 @@ func newContactsCompaniesAttachContactToAcompanyCmd(flags *rootFlags) *cobra.Com
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
+				bodyMap := map[string]any{}
+				body = bodyMap
+				if bodyId2 != "" {
+					bodyMap["id"] = bodyId2
+				}
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
 			if err != nil {
@@ -116,6 +156,9 @@ func newContactsCompaniesAttachContactToAcompanyCmd(flags *rootFlags) *cobra.Com
 					"status":   statusCode,
 					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
 				}
+				if flags.agent {
+					envelope["meta"] = map[string]any{"source": "live"}
+				}
 				if partialFailure != nil {
 					envelope["partial_failure"] = partialFailure
 				}
@@ -154,7 +197,11 @@ func newContactsCompaniesAttachContactToAcompanyCmd(flags *rootFlags) *cobra.Com
 				if len(filtered) > 0 {
 					var parsed any
 					if err := json.Unmarshal(filtered, &parsed); err == nil {
-						envelope["data"] = parsed
+						if flags.agent {
+							envelope["results"] = parsed
+						} else {
+							envelope["data"] = parsed
+						}
 					}
 				}
 				envelopeJSON, err := json.Marshal(envelope)
@@ -185,6 +232,7 @@ func newContactsCompaniesAttachContactToAcompanyCmd(flags *rootFlags) *cobra.Com
 			return nil
 		},
 	}
+	cmd.Flags().StringVar(&bodyId2, "id-2", "", "The unique identifier for the company which is given by Intercom")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd

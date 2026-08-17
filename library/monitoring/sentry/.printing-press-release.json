@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "sentry",
   "cli_name": "sentry-pp-cli",
-  "version": "2026.7.2",
-  "released_at": "2026-07-16T22:09:11Z",
-  "source_commit": "5dd8f6da8021cb258ffefb0de74576dcc57c2b17",
+  "version": "2026.8.1",
+  "released_at": "2026-08-17T05:47:06Z",
+  "source_commit": "d6b74e6df2b2c66612e1f6e29433c0c0aae531e6",
   "printing_press_version": "3.4.3",
   "run_id": "20260502-124520",
   "changes": [
     {
-      "title": "fix(sentry): resolve live issue triage with which",
-      "pr": 1526,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1526",
-      "commit": "5dd8f6da8021cb258ffefb0de74576dcc57c2b17"
+      "title": "fix(cli): bump golang.org/x/text to v0.39.0 in affected published CLIs",
+      "pr": 1636,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1636",
+      "commit": "d6b74e6df2b2c66612e1f6e29433c0c0aae531e6"
     }
   ]
 }

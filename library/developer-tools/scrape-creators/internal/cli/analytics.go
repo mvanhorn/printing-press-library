@@ -45,7 +45,6 @@ Data must be synced first with the sync command.`,
 				return fmt.Errorf("opening local database: %w\nRun 'scrape-creators-pp-cli sync' first.", err)
 			}
 			defer db.Close()
-
 			maybeEmitSyncHints(cmd, db, resourceType, flags.maxAge)
 
 			if resourceType == "" {

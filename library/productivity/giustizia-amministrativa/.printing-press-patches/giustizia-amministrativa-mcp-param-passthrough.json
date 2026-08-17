@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "giustizia-amministrativa-mcp-param-passthrough",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260621-094103",
+  "base_printing_press_version": "4.24.0",
+  "summary": "makeCLIHandler ora passa alla CLI qualunque parametro l'agente invii che non e' nello schema dichiarato (bindings), invece di scartarlo in silenzio; una lista blockedExtraCLIParams (args/base-url/client/config/deliver/profile/token, la stessa di cobratree.blockedRootFlags) impedisce che passi un flag di configurazione/credenziali. Aggiunto anche 'phrase' allo schema di provvedimenti_cerca (locuzione esatta, riduce i falsi positivi di 'testo').",
+  "reason": "Scoperto testando dal vivo via Claude Desktop: la ricerca 'accesso civico generalizzato' includeva un falso positivo (un provvedimento che citava un numero civico, non l'istituto giuridico). Il fix corretto e' --phrase (locuzione esatta), gia' supportato dalla CLI (search/provvedimenti cerca) ma non dichiarato nello schema tipizzato del tool MCP -- e senza questo patch un agente che lo avesse provato lo avrebbe visto scartato senza errore, con la ricerca che gira senza quel filtro e un risultato qualunque che si legge come risposta valida. E' lo stesso difetto gia' descritto nel patch mcp-typed-via-cli di ars-sicilia; qui non era stato applicato nella prima versione di makeCLIHandler.",
+  "files": [
+    "internal/mcp/tools.go"
+  ],
+  "validated_outcome": "provvedimenti_cerca con phrase='accesso civico generalizzato' (senza dichiararlo esplicitamente nello schema prima del fix): con la sola binding list veniva ignorato; dopo il fix confermato di arrivare alla CLI e filtrare correttamente -- il falso positivo (13525/2026, un numero civico) sparisce dai risultati, restano solo provvedimenti che citano davvero l'istituto. go build/vet/test verdi."
+}

@@ -1,0 +1,99 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-21T18:00:00Z",
+  "printing_press_version": "4.29.0",
+  "api_name": "notebooklm",
+  "display_name": "Gemini Notebook (NotebookLM)",
+  "cli_name": "notebooklm-pp-cli",
+  "creator": {
+    "handle": "SomSamantray",
+    "name": "Som Samantray"
+  },
+  "owner": "SomSamantray",
+  "printer": "SomSamantray",
+  "printer_name": "Som Samantray",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "run_id": "20260721-notebooklm-full",
+  "category": "ai",
+  "description": "Unofficial Go CLI for Gemini Notebook — notebooks, sources, chat, Studio artifacts, SQLite cache, and MCP via batchexecute RPC with Chrome session auth.",
+  "mcp_binary": "notebooklm-pp-mcp",
+  "mcp_ready": "yes",
+  "api_version": "0.2.0",
+  "auth_type": "cookie",
+  "novel_features": [
+    {
+      "name": "Chrome session auth",
+      "command": "auth login",
+      "description": "Import Google session cookies from Chrome without manual DevTools copying."
+    },
+    {
+      "name": "Offline notebook search",
+      "command": "search",
+      "description": "Search synced notebooks locally by title or id without another API round-trip."
+    },
+    {
+      "name": "Grounded chat with citations",
+      "command": "chat ask",
+      "description": "Ask questions against notebook sources via streamed batchexecute RPC."
+    },
+    {
+      "name": "Studio quiz generation",
+      "command": "studio generate-quiz",
+      "description": "Kick off NotebookLM Studio quiz artifact generation and optionally wait for completion."
+    },
+    {
+      "name": "Doctor health gate",
+      "command": "doctor",
+      "description": "Validate config, cookie presence, and session bootstrap tokens before live calls."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Chrome session auth",
+      "command": "auth login",
+      "description": "Import Google session cookies from Chrome without manual DevTools copying.",
+      "rationale": "NotebookLM has no public API key; cookie auth is the only practical agent path.",
+      "example": "notebooklm-pp-cli auth login --chrome",
+      "why_it_matters": "Use once after logging into Google in Chrome to enable all live commands.",
+      "group": "Auth"
+    },
+    {
+      "name": "Offline notebook search",
+      "command": "search",
+      "description": "Search synced notebooks locally by title or id without another API round-trip.",
+      "rationale": "Requires local SQLite cache populated by sync.",
+      "example": "notebooklm-pp-cli sync --json && notebooklm-pp-cli search \"quarterly\" --json",
+      "why_it_matters": "Use when you need fast recall across many notebooks in scripts.",
+      "group": "Local cache"
+    },
+    {
+      "name": "Grounded chat with citations",
+      "command": "chat ask",
+      "description": "Ask questions against notebook sources via streamed batchexecute RPC.",
+      "rationale": "Mirrors notebooklm-py chat wire format in a static Go binary.",
+      "example": "notebooklm-pp-cli chat ask \"Research\" \"What are the main themes?\" --json",
+      "why_it_matters": "Use for agent loops that need cited answers from uploaded sources.",
+      "group": "Chat"
+    },
+    {
+      "name": "Studio quiz generation",
+      "command": "studio generate-quiz",
+      "description": "Kick off NotebookLM Studio quiz artifact generation and optionally wait for completion.",
+      "rationale": "Wraps undocumented Studio RPCs not exposed by curl.",
+      "example": "notebooklm-pp-cli studio generate-quiz \"Research\" --wait --json",
+      "why_it_matters": "Use to produce study materials from a notebook's sources.",
+      "group": "Studio"
+    },
+    {
+      "name": "Doctor health gate",
+      "command": "doctor",
+      "description": "Validate config, cookie presence, and session bootstrap tokens before live calls.",
+      "rationale": "Agents need a deterministic preflight when cookies expire silently.",
+      "example": "notebooklm-pp-cli doctor --json",
+      "why_it_matters": "Run after auth login or when list commands return empty results.",
+      "group": "Operations"
+    }
+  ]
+}

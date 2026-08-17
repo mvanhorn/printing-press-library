@@ -93,12 +93,13 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   fireflies-pp-cli digest --since 24h --agent
   ```
-- **`transcripts export`** — Export a transcript as markdown to a vault directory with auto-generated YYYY-MM-DD_title.md filename.
+- **`transcripts export`** — Export a transcript as markdown to a vault directory with auto-generated YYYY-MM-DD_title.md filename, or to an explicit file path with `--output` (`-o`) or its alias `--file`.
 
   _Use after a client meeting to save the formatted transcript directly to the right project folder._
 
   ```bash
   fireflies-pp-cli transcripts export abc123 --vault ~/vaults/VBT/Projects/1_Active/Ryder/transcripts/ --agent
+  fireflies-pp-cli transcripts export abc123 --file /tmp/dennis_1on1.md --agent
   ```
 
 ### Person-centric intelligence
@@ -127,7 +128,7 @@ These capabilities aren't available in any other tool for this API.
 - `fireflies-pp-cli transcripts recent` — Show recently processed transcripts
 - `fireflies-pp-cli transcripts status` — Show PROCESSED / PROCESSING / FAILED status
 - `fireflies-pp-cli transcripts pull <id>` — Fetch full transcript from API and store locally
-- `fireflies-pp-cli transcripts export <id>` — Export as markdown to file or vault path
+- `fireflies-pp-cli transcripts export <id>` — Export as markdown to file (`--output`/`-o`/`--file`) or vault path
 - `fireflies-pp-cli transcripts update <id>` — Update title or privacy
 - `fireflies-pp-cli transcripts share <id>` — Share with external email addresses
 - `fireflies-pp-cli transcripts delete <id>` — Delete a transcript

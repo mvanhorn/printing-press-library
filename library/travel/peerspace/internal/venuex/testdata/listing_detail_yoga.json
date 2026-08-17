@@ -1,0 +1,1506 @@
+{
+  "minimum_duration": "2",
+  "description": "L’espace comprend :\n\nSurface totale de 100 m², comprenant une salle principale de 72 m² ainsi qu’une entrée exploitable de 25m² ; l’entrée peut servir d’espace d’accueil ou de pause, et les sanitaires sont à disposition des invités.\n\nIdéal pour pratiquer de la méditation, ateliers, conférences ou événements privés. \n\nEntrée accueillante avec vestiaire pour recevoir vos participants dans les meilleures conditions\n\nSanitaires privés propres et entretenus\n\nEspace pause / gouter idéal pour prolonger les échanges, partager un thé ou créer un moment convivial\n\nAtouts majeurs :\n\nLumière naturelle exceptionnelle grâce à la verrière et au plafond lumineux\n\nMatériaux nobles et finitions soignées pour une ambiance chaleureuse et haut de gamme\n\nAtmosphère paisible propice à la concentration, la détente et aux événements intimistes\n\nÀ 1 minute du métro Place Monge pour une arrivée simple et rapide\n\nQuartier vivant et très bien desservi facilitant la venue de vos invités\n\nDescription du lieu\n\nCet espace lumineux et chaleureux offre un cadre unique pour accueillir aussi bien des activités de bien-être que des événements professionnels ou privés.  \n\nLa grande salle en bois, baignée d’une lumière douce grâce à son plafond lumineux, s’adapte facilement à tous les formats : ateliers, stages, conférences, réunions, anniversaires intimistes, banquets légers ou rencontres thématiques.\n\nTotalement modulable, l’espace peut être aménagé au sol avec tapis et coussins, en configuration conférence ou laissé dégagé pour créer une atmosphère conviviale et inspirante. L’ambiance zen, l’acoustique douce et la luminosité naturelle offrent un confort idéal pour vos invités, quels que soient vos besoins.\n\nUn lieu polyvalent, apaisant et élégant pour créer des expériences uniques et mémorables.",
+  "space_review_count": 3,
+  "structured_amenities": [
+    {
+      "default": false,
+      "localizedName": "Public Transportation",
+      "name": "Public Transportation",
+      "icon": "public_transit",
+      "subheader": "Features",
+      "sort_order": 14
+    },
+    {
+      "default": false,
+      "localizedName": "View",
+      "name": "View",
+      "icon": "view",
+      "subheader": "Features",
+      "sort_order": 5
+    },
+    {
+      "default": false,
+      "localizedName": "Speakers",
+      "name": "Speakers",
+      "icon": "stereo",
+      "subheader": "Amenities",
+      "sort_order": 3
+    },
+    {
+      "default": false,
+      "localizedName": "Projector",
+      "name": "Projector",
+      "icon": "projector",
+      "subheader": "Amenities",
+      "sort_order": 5
+    },
+    {
+      "default": false,
+      "localizedName": "Soundproof",
+      "name": "Soundproof",
+      "icon": "soundproof",
+      "subheader": "Features",
+      "missing": true,
+      "sort_order": 6
+    },
+    {
+      "default": false,
+      "localizedName": "Restrooms",
+      "name": "Restrooms",
+      "icon": "toilet",
+      "subheader": "Features",
+      "sort_order": 3
+    },
+    {
+      "default": false,
+      "localizedName": "Tables",
+      "name": "Tables",
+      "icon": "table",
+      "subheader": "Amenities",
+      "sort_order": 1
+    },
+    {
+      "default": true,
+      "localizedName": "WiFi",
+      "name": "WiFi",
+      "icon": "wifi",
+      "subheader": "Amenities",
+      "sort_order": 7
+    },
+    {
+      "default": false,
+      "localizedName": "Chairs",
+      "name": "Chairs",
+      "icon": "chair",
+      "subheader": "Amenities",
+      "sort_order": 2
+    },
+    {
+      "default": false,
+      "localizedName": "Kitchen",
+      "name": "Kitchen",
+      "icon": "kitchen",
+      "subheader": "Features",
+      "missing": true,
+      "sort_order": 1
+    },
+    {
+      "default": false,
+      "localizedName": "Street level access",
+      "name": "Street level access",
+      "icon": "street_access",
+      "subheader": "Features",
+      "sort_order": 8
+    },
+    {
+      "default": false,
+      "localizedName": "Wheelchair Accessible",
+      "name": "Wheelchair Accessible",
+      "icon": "handicap_access",
+      "subheader": "Features",
+      "missing": true,
+      "sort_order": 10
+    }
+  ],
+  "space_review_stars": 5,
+  "is_power_host": false,
+  "wifi_instructions": "Etre",
+  "venue_name": "Studio être",
+  "_id": "6935e6fea6e9ece7e99a40a1",
+  "duration_type": "HOURLY_RATE",
+  "sqm": 100,
+  "host_responsiveness": {
+    "metric": "HOST_RESPONSIVENESS",
+    "host_id": "6935c57966e9bf228cd5d8b8",
+    "minutes": 55,
+    "hours": 1,
+    "bucket": "within 1 hr",
+    "level": 1,
+    "level_label": "good"
+  },
+  "has_initial_type_tag": true,
+  "page_title": "Studio lumineux et apaisant au cœur de la ville - idéal pour ateliers & bien-être in Paris",
+  "city_google": "75005 Paris",
+  "timezone": "Central European Standard Time",
+  "day_rate_discount": {
+    "value": 0,
+    "obj_state": "DEACTIVATED",
+    "apply_as": "PERCENT_OFF"
+  },
+  "surveillance_info": {
+    "has_surveillance": false
+  },
+  "geoloc_date_modified": "2026-03-08T15:11:16.000Z",
+  "space_type_tag": "yoga_studio",
+  "availabilityPatterns": [],
+  "event_faq_details": {},
+  "number_guests": 50,
+  "cancellation_policy": {
+    "id": "flexible",
+    "name": "Flexible",
+    "description": [
+      "Les invités peuvent annuler leur réservation jusqu'à 7 jours avant l'heure de début de leur événement et recevoir un remboursement intégral (y compris tous les frais) du prix de leur réservation.",
+      "Les invités peuvent annuler leur réservation de 7 jours à 24 heures avant l'heure de début de leur événement et recevoir un remboursement de 50 % (frais non compris) du prix de leur réservation.",
+      "Les annulations de réservation soumises moins de 24 heures avant l'heure de début de l'événement ne sont pas remboursables."
+    ],
+    "short_description": [
+      "Les annulations effectuées dans les 24 heures après la confirmation d'une réservation seront intégralement remboursées. Cela exclut les événements commençant dans les 48 heures.",
+      "Les annulations effectuées 7 jours à l'avance recevront un remboursement intégral.",
+      "Les annulations effectuées 7 jours à 24 heures à l'avance recevront un remboursement de 50 % (frais non compris).",
+      "Les annulations d'événements commençant dans les 24 heures ne sont pas remboursables."
+    ],
+    "ts_active": 1554102000000,
+    "grace_period_applies": true
+  },
+  "initial_host_submitted_type_tag": "yoga_studio",
+  "ownerId": "6935c57966e9bf228cd5d8b8",
+  "images": [
+    {
+      "description": "The image shows an empty room with a wooden floor and walls, featuring a coffered ceiling and a small raised platform in the center.",
+      "tags": [
+        {
+          "name": "exterior",
+          "type": "OUTDOOR_FEATURE",
+          "relativeConfidence": 0.15488514999999992
+        },
+        {
+          "name": "simple",
+          "type": "THEME",
+          "relativeConfidence": 0.15812104999999999
+        },
+        {
+          "name": "living_area",
+          "type": "ROOM_TYPE",
+          "relativeConfidence": 0.19742872499999997
+        },
+        {
+          "name": "white",
+          "type": "COLOR",
+          "relativeConfidence": 0.15140420499999996
+        },
+        {
+          "name": "hotel",
+          "type": "SPACE",
+          "relativeConfidence": 0.21160382499999997
+        },
+        {
+          "name": "gold",
+          "type": "COLOR",
+          "relativeConfidence": 0.14999057500000001
+        }
+      ],
+      "_id": "69aee24369a88f1504530313",
+      "urlSmall": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_420,h_260,c_fill/agszvydzl4igqsycrlyr.jpg",
+      "ownerId": "6935c57966e9bf228cd5d8b8",
+      "sort_order": 1,
+      "__v": 0,
+      "external_id": "agszvydzl4igqsycrlyr",
+      "url": "https://res.cloudinary.com/peerspace-inc/image/upload/agszvydzl4igqsycrlyr.jpg",
+      "date_modified": "2026-03-11T12:03:32.426Z",
+      "quality": 0.51214087,
+      "date_created": "2026-03-09T15:07:47.044Z",
+      "parentId": "6935e6fea6e9ece7e99a40a1",
+      "manualOverrides": {
+        "quality": null,
+        "description": null,
+        "tags": []
+      },
+      "urlLarge": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_2048/agszvydzl4igqsycrlyr.jpg"
+    },
+    {
+      "description": "A spacious, well-lit studio with wooden walls and flooring features a woman seated on a yoga mat, while a photographer and an assistant prepare for a shoot.",
+      "tags": [
+        {
+          "name": "fitness",
+          "type": "THEME",
+          "relativeConfidence": 0.18347209999999992
+        },
+        {
+          "name": "living_area",
+          "type": "ROOM_TYPE",
+          "relativeConfidence": 0.19916240000000007
+        },
+        {
+          "name": "yoga_class",
+          "type": "ACTIVITY",
+          "relativeConfidence": 0.280327875
+        },
+        {
+          "name": "white",
+          "type": "COLOR",
+          "relativeConfidence": 0.15857444999999992
+        },
+        {
+          "name": "yoga",
+          "type": "THEME",
+          "relativeConfidence": 0.237375275
+        }
+      ],
+      "_id": "69ad99fb2fe4bf8fe3e1beea",
+      "urlSmall": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_420,h_260,c_fill/astu0fohsybltzp1a9cm.jpg",
+      "ownerId": "6935c57966e9bf228cd5d8b8",
+      "sort_order": 2,
+      "__v": 0,
+      "external_id": "astu0fohsybltzp1a9cm",
+      "url": "https://res.cloudinary.com/peerspace-inc/image/upload/astu0fohsybltzp1a9cm.jpg",
+      "date_modified": "2026-03-10T12:03:54.486Z",
+      "quality": 0.55641854,
+      "date_created": "2026-03-08T15:47:07.188Z",
+      "parentId": "6935e6fea6e9ece7e99a40a1",
+      "manualOverrides": {
+        "quality": null,
+        "description": null,
+        "tags": []
+      },
+      "urlLarge": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_2048/astu0fohsybltzp1a9cm.jpg"
+    },
+    {
+      "description": "The image shows a cozy reception area with a wooden bench, a globe on a stand, and soft lighting illuminating the walls decorated with the word \"être.\"",
+      "tags": [
+        {
+          "name": "kitchen",
+          "type": "ROOM_TYPE",
+          "relativeConfidence": 0.16767540000000003
+        },
+        {
+          "name": "dining_area",
+          "type": "ROOM_TYPE",
+          "relativeConfidence": 0.20629699999999995
+        },
+        {
+          "name": "exterior",
+          "type": "OUTDOOR_FEATURE",
+          "relativeConfidence": 0.1413475500000001
+        },
+        {
+          "name": "living_area",
+          "type": "ROOM_TYPE",
+          "relativeConfidence": 0.18640195000000004
+        },
+        {
+          "name": "hotel",
+          "type": "SPACE"
+        },
+        {
+          "name": "gold",
+          "type": "COLOR",
+          "relativeConfidence": 0.15485784999999996
+        }
+      ],
+      "_id": "69ad99fb69a88f1504519a98",
+      "urlSmall": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_420,h_260,c_fill/wqzkz5y9bgrvwcuonctd.jpg",
+      "ownerId": "6935c57966e9bf228cd5d8b8",
+      "sort_order": 3,
+      "__v": 0,
+      "external_id": "wqzkz5y9bgrvwcuonctd",
+      "url": "https://res.cloudinary.com/peerspace-inc/image/upload/wqzkz5y9bgrvwcuonctd.jpg",
+      "date_modified": "2026-03-10T12:03:16.200Z",
+      "quality": 0.51677984,
+      "date_created": "2026-03-08T15:47:07.190Z",
+      "parentId": "6935e6fea6e9ece7e99a40a1",
+      "manualOverrides": {
+        "quality": null,
+        "description": null,
+        "tags": []
+      },
+      "urlLarge": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_2048/wqzkz5y9bgrvwcuonctd.jpg"
+    },
+    {
+      "description": "The image shows a spacious, well-lit meditation room with neatly arranged mats on the wooden floor and a coffered ceiling.",
+      "tags": [
+        {
+          "name": "white",
+          "type": "COLOR",
+          "relativeConfidence": 0.14585985
+        },
+        {
+          "name": "yoga",
+          "type": "THEME",
+          "relativeConfidence": 0.23623766999999996
+        }
+      ],
+      "_id": "6935e8a3e2ccc4b24a1d6302",
+      "urlSmall": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_420,h_260,c_fill/wfvji0d1dq0jzykyzva1.jpg",
+      "ownerId": "6935c57966e9bf228cd5d8b8",
+      "sort_order": 4,
+      "__v": 0,
+      "external_id": "wfvji0d1dq0jzykyzva1",
+      "url": "https://res.cloudinary.com/peerspace-inc/image/upload/wfvji0d1dq0jzykyzva1.jpg",
+      "date_modified": "2026-03-09T15:07:57.920Z",
+      "quality": 0.6014824,
+      "date_created": "2025-12-07T20:50:43.698Z",
+      "parentId": "6935e6fea6e9ece7e99a40a1",
+      "manualOverrides": {
+        "quality": null,
+        "description": null,
+        "tags": []
+      },
+      "urlLarge": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_2048/wfvji0d1dq0jzykyzva1.jpg"
+    },
+    {
+      "description": "A large group of people is participating in a workout class with dumbbells in a well-lit studio.",
+      "tags": [
+        {
+          "name": "fitness_class",
+          "type": "ACTIVITY",
+          "relativeConfidence": 0.26125055499999994
+        },
+        {
+          "name": "fitness",
+          "type": "THEME",
+          "relativeConfidence": 0.19271363000000008
+        },
+        {
+          "name": "workout_class",
+          "type": "ACTIVITY",
+          "relativeConfidence": 0.2649919949999999
+        },
+        {
+          "name": "blue",
+          "type": "COLOR",
+          "relativeConfidence": 0.17995669999999997
+        },
+        {
+          "name": "yoga_class",
+          "type": "ACTIVITY",
+          "relativeConfidence": 0.269388465
+        },
+        {
+          "name": "yoga",
+          "type": "THEME",
+          "relativeConfidence": 0.24306479999999997
+        }
+      ],
+      "_id": "69ad9a3d2fe4bf8fe3e1bf50",
+      "urlSmall": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_420,h_260,c_fill/f9ggfnjyinil2jgcehbd.jpg",
+      "ownerId": "6935c57966e9bf228cd5d8b8",
+      "sort_order": 5,
+      "__v": 0,
+      "external_id": "f9ggfnjyinil2jgcehbd",
+      "url": "https://res.cloudinary.com/peerspace-inc/image/upload/f9ggfnjyinil2jgcehbd.jpg",
+      "date_modified": "2026-03-10T12:03:50.838Z",
+      "quality": 0.5037905,
+      "date_created": "2026-03-08T15:48:13.436Z",
+      "parentId": "6935e6fea6e9ece7e99a40a1",
+      "manualOverrides": {
+        "quality": null,
+        "description": null,
+        "tags": []
+      },
+      "urlLarge": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_2048/f9ggfnjyinil2jgcehbd.jpg"
+    },
+    {
+      "description": "The image shows a spacious, well-lit interior with wooden walls and flooring, featuring a coffered ceiling and minimal furniture.",
+      "tags": [
+        {
+          "name": "exterior",
+          "type": "OUTDOOR_FEATURE",
+          "relativeConfidence": 0.15655415000000006
+        },
+        {
+          "name": "simple",
+          "type": "THEME",
+          "relativeConfidence": 0.15086508499999995
+        },
+        {
+          "name": "white",
+          "type": "COLOR",
+          "relativeConfidence": 0.14625281499999998
+        },
+        {
+          "name": "hotel",
+          "type": "SPACE",
+          "relativeConfidence": 0.20886150000000003
+        },
+        {
+          "name": "gold",
+          "type": "COLOR",
+          "relativeConfidence": 0.13956301999999998
+        },
+        {
+          "name": "fitness",
+          "type": "THEME",
+          "relativeConfidence": 0.20826002
+        },
+        {
+          "name": "living_area",
+          "type": "ROOM_TYPE",
+          "relativeConfidence": 0.17670440499999995
+        },
+        {
+          "name": "yoga",
+          "type": "THEME",
+          "relativeConfidence": 0.2509412
+        }
+      ],
+      "_id": "69ad99fbbefe3530d99324d7",
+      "urlSmall": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_420,h_260,c_fill/ctmsmayyzfnmn2jhhih7.jpg",
+      "ownerId": "6935c57966e9bf228cd5d8b8",
+      "sort_order": 6,
+      "__v": 0,
+      "external_id": "ctmsmayyzfnmn2jhhih7",
+      "url": "https://res.cloudinary.com/peerspace-inc/image/upload/ctmsmayyzfnmn2jhhih7.jpg",
+      "date_modified": "2026-03-10T12:03:45.979Z",
+      "quality": 0.43793416,
+      "date_created": "2026-03-08T15:47:07.193Z",
+      "parentId": "6935e6fea6e9ece7e99a40a1",
+      "manualOverrides": {
+        "quality": null,
+        "description": null,
+        "tags": []
+      },
+      "urlLarge": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_2048/ctmsmayyzfnmn2jhhih7.jpg"
+    },
+    {
+      "description": "The image shows a spacious, well-lit studio with wooden walls and a wooden floor, where a woman is seated on a yoga mat while two individuals assist her.",
+      "tags": [
+        {
+          "name": "fitness",
+          "type": "THEME",
+          "relativeConfidence": 0.18486286500000004
+        },
+        {
+          "name": "interview",
+          "type": "ACTIVITY",
+          "relativeConfidence": 0.22376700000000005
+        }
+      ],
+      "_id": "69ad99fb69a88f1504519a90",
+      "urlSmall": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_420,h_260,c_fill/hiruliown4swscgwbxrl.jpg",
+      "ownerId": "6935c57966e9bf228cd5d8b8",
+      "sort_order": 7,
+      "__v": 0,
+      "external_id": "hiruliown4swscgwbxrl",
+      "url": "https://res.cloudinary.com/peerspace-inc/image/upload/hiruliown4swscgwbxrl.jpg",
+      "date_modified": "2026-03-10T12:03:44.415Z",
+      "quality": 0.53858924,
+      "date_created": "2026-03-08T15:47:07.182Z",
+      "parentId": "6935e6fea6e9ece7e99a40a1",
+      "manualOverrides": {
+        "quality": null,
+        "description": null,
+        "tags": []
+      },
+      "urlLarge": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_2048/hiruliown4swscgwbxrl.jpg"
+    },
+    {
+      "description": "The image shows a spacious room with wooden walls and a coffered ceiling, arranged with rows of chairs and decorative plants along the sides.",
+      "tags": [
+        {
+          "name": "forum",
+          "type": "ACTIVITY",
+          "relativeConfidence": 0.18948060499999997
+        },
+        {
+          "name": "green",
+          "type": "COLOR",
+          "relativeConfidence": 0.11978541499999995
+        },
+        {
+          "name": "simple",
+          "type": "THEME",
+          "relativeConfidence": 0.156663565
+        },
+        {
+          "name": "blue",
+          "type": "COLOR",
+          "relativeConfidence": 0.14526550000000005
+        },
+        {
+          "name": "white",
+          "type": "COLOR",
+          "relativeConfidence": 0.17649260499999997
+        },
+        {
+          "name": "hotel",
+          "type": "SPACE",
+          "relativeConfidence": 0.19873834999999995
+        },
+        {
+          "name": "gold",
+          "type": "COLOR",
+          "relativeConfidence": 0.17101663
+        },
+        {
+          "name": "meeting",
+          "type": "ACTIVITY",
+          "relativeConfidence": 0.21285401999999998
+        }
+      ],
+      "_id": "69ad99fb69a88f1504519a96",
+      "urlSmall": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_420,h_260,c_fill/ewszmvqdlyvrac9eilsa.jpg",
+      "ownerId": "6935c57966e9bf228cd5d8b8",
+      "sort_order": 8,
+      "__v": 0,
+      "external_id": "ewszmvqdlyvrac9eilsa",
+      "url": "https://res.cloudinary.com/peerspace-inc/image/upload/ewszmvqdlyvrac9eilsa.jpg",
+      "date_modified": "2026-03-10T12:03:55.972Z",
+      "quality": 0.5424828,
+      "date_created": "2026-03-08T15:47:07.188Z",
+      "parentId": "6935e6fea6e9ece7e99a40a1",
+      "manualOverrides": {
+        "quality": null,
+        "description": null,
+        "tags": []
+      },
+      "urlLarge": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_2048/ewszmvqdlyvrac9eilsa.jpg"
+    },
+    {
+      "description": "The image shows a spacious interior with wooden paneling, a grid-patterned ceiling, and a set of double doors at the end of the room, illuminated by wall-mounted lights.",
+      "tags": [
+        {
+          "name": "gold",
+          "type": "COLOR",
+          "relativeConfidence": 0.15495064999999997
+        },
+        {
+          "name": "exterior",
+          "type": "OUTDOOR_FEATURE",
+          "relativeConfidence": 0.15503901500000006
+        },
+        {
+          "name": "hotel",
+          "type": "SPACE",
+          "relativeConfidence": 0.20155765000000003
+        },
+        {
+          "name": "white",
+          "type": "COLOR",
+          "relativeConfidence": 0.14838200000000001
+        },
+        {
+          "name": "living_area",
+          "type": "ROOM_TYPE",
+          "relativeConfidence": 0.19094294999999994
+        },
+        {
+          "name": "simple",
+          "type": "THEME",
+          "relativeConfidence": 0.15219551500000006
+        }
+      ],
+      "_id": "6935e8a3e2ccc4b24a1d6303",
+      "urlSmall": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_420,h_260,c_fill/tf6pv2idiyckhwwcfcca.jpg",
+      "ownerId": "6935c57966e9bf228cd5d8b8",
+      "sort_order": 9,
+      "__v": 0,
+      "external_id": "tf6pv2idiyckhwwcfcca",
+      "url": "https://res.cloudinary.com/peerspace-inc/image/upload/tf6pv2idiyckhwwcfcca.jpg",
+      "date_modified": "2026-03-09T15:07:57.946Z",
+      "quality": 0.5537557,
+      "date_created": "2025-12-07T20:50:43.698Z",
+      "parentId": "6935e6fea6e9ece7e99a40a1",
+      "manualOverrides": {
+        "quality": null,
+        "description": null,
+        "tags": []
+      },
+      "urlLarge": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_2048/tf6pv2idiyckhwwcfcca.jpg"
+    },
+    {
+      "description": "A projector displays information on a wooden wall in a spacious, well-lit room with potted plants in the corners.",
+      "tags": [
+        {
+          "name": "simple",
+          "type": "THEME",
+          "relativeConfidence": 0.1617014
+        },
+        {
+          "name": "blue",
+          "type": "COLOR",
+          "relativeConfidence": 0.1433812
+        },
+        {
+          "name": "white",
+          "type": "COLOR",
+          "relativeConfidence": 0.14711675000000002
+        },
+        {
+          "name": "lecture",
+          "type": "ACTIVITY",
+          "relativeConfidence": 0.21511808500000007
+        },
+        {
+          "name": "gold",
+          "type": "COLOR",
+          "relativeConfidence": 0.16097644
+        },
+        {
+          "name": "presentation",
+          "type": "ACTIVITY",
+          "relativeConfidence": 0.20962638
+        },
+        {
+          "name": "meeting",
+          "type": "ACTIVITY",
+          "relativeConfidence": 0.21362448
+        },
+        {
+          "name": "lawn",
+          "type": "OUTDOOR_FEATURE",
+          "relativeConfidence": 0.18777203500000006
+        },
+        {
+          "name": "product_demo",
+          "type": "ACTIVITY",
+          "relativeConfidence": 0.2038995
+        },
+        {
+          "name": "performance",
+          "type": "ACTIVITY",
+          "relativeConfidence": 0.20687839500000005
+        }
+      ],
+      "_id": "69aec15669a88f150452da83",
+      "urlSmall": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_420,h_260,c_fill/xe9f5hiuvqejuzuidfvq.jpg",
+      "ownerId": "6935c57966e9bf228cd5d8b8",
+      "sort_order": 10,
+      "__v": 0,
+      "external_id": "xe9f5hiuvqejuzuidfvq",
+      "url": "https://res.cloudinary.com/peerspace-inc/image/upload/xe9f5hiuvqejuzuidfvq.jpg",
+      "date_modified": "2026-03-11T12:04:10.357Z",
+      "quality": 0.43303356,
+      "date_created": "2026-03-09T12:47:18.141Z",
+      "parentId": "6935e6fea6e9ece7e99a40a1",
+      "manualOverrides": {
+        "quality": null,
+        "description": null,
+        "tags": []
+      },
+      "urlLarge": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_2048/xe9f5hiuvqejuzuidfvq.jpg"
+    },
+    {
+      "description": "The image shows an empty room with wooden paneling, a textured ceiling, and a set of double doors at one end, illuminated by recessed lighting.",
+      "tags": [
+        {
+          "name": "gold",
+          "type": "COLOR",
+          "relativeConfidence": 0.16284068499999993
+        },
+        {
+          "name": "exterior",
+          "type": "OUTDOOR_FEATURE",
+          "relativeConfidence": 0.16897162499999996
+        },
+        {
+          "name": "fitness",
+          "type": "THEME",
+          "relativeConfidence": 0.17911790000000005
+        },
+        {
+          "name": "green",
+          "type": "COLOR",
+          "relativeConfidence": 0.12402749000000002
+        },
+        {
+          "name": "white",
+          "type": "COLOR",
+          "relativeConfidence": 0.17772737500000002
+        },
+        {
+          "name": "living_area",
+          "type": "ROOM_TYPE",
+          "relativeConfidence": 0.22596997500000005
+        }
+      ],
+      "_id": "6935e8a3e2ccc4b24a1d6304",
+      "urlSmall": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_420,h_260,c_fill/sruizuachfnjetwvtjxf.jpg",
+      "ownerId": "6935c57966e9bf228cd5d8b8",
+      "sort_order": 11,
+      "__v": 0,
+      "external_id": "sruizuachfnjetwvtjxf",
+      "url": "https://res.cloudinary.com/peerspace-inc/image/upload/sruizuachfnjetwvtjxf.jpg",
+      "date_modified": "2026-03-09T15:07:57.954Z",
+      "quality": 0.4912742,
+      "date_created": "2025-12-07T20:50:43.698Z",
+      "parentId": "6935e6fea6e9ece7e99a40a1",
+      "manualOverrides": {
+        "quality": null,
+        "description": null,
+        "tags": []
+      },
+      "urlLarge": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_2048/sruizuachfnjetwvtjxf.jpg"
+    },
+    {
+      "description": "The image shows a spacious, well-lit room with wooden walls and flooring, equipped with a video camera, lights, and a small stool positioned on a green mat.",
+      "tags": [
+        {
+          "name": "film_shoot",
+          "type": "ACTIVITY",
+          "relativeConfidence": 0.24778162999999997
+        },
+        {
+          "name": "green",
+          "type": "COLOR",
+          "relativeConfidence": 0.17656214999999997
+        },
+        {
+          "name": "photo_shoot",
+          "type": "ACTIVITY",
+          "relativeConfidence": 0.21564493000000007
+        },
+        {
+          "name": "simple",
+          "type": "THEME",
+          "relativeConfidence": 0.15333737999999997
+        },
+        {
+          "name": "documentary_shoot",
+          "type": "ACTIVITY",
+          "relativeConfidence": 0.283474075
+        },
+        {
+          "name": "audio_recording",
+          "type": "ACTIVITY",
+          "relativeConfidence": 0.21788922
+        },
+        {
+          "name": "commercial_photoshoot",
+          "type": "ACTIVITY",
+          "relativeConfidence": 0.26524385000000006
+        },
+        {
+          "name": "interview",
+          "type": "ACTIVITY",
+          "relativeConfidence": 0.20097976500000003
+        },
+        {
+          "name": "daylight_studio_production",
+          "type": "PRODUCTION_FEATURE",
+          "relativeConfidence": 0.2638951199999999
+        }
+      ],
+      "_id": "69ad99fbbefe3530d99324d3",
+      "urlSmall": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_420,h_260,c_fill/luy78mous2fhqh88jczr.jpg",
+      "ownerId": "6935c57966e9bf228cd5d8b8",
+      "sort_order": 12,
+      "__v": 0,
+      "external_id": "luy78mous2fhqh88jczr",
+      "url": "https://res.cloudinary.com/peerspace-inc/image/upload/luy78mous2fhqh88jczr.jpg",
+      "date_modified": "2026-03-10T12:03:48.723Z",
+      "quality": 0.5212955,
+      "date_created": "2026-03-08T15:47:07.190Z",
+      "parentId": "6935e6fea6e9ece7e99a40a1",
+      "manualOverrides": {
+        "quality": null,
+        "description": null,
+        "tags": []
+      },
+      "urlLarge": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_2048/luy78mous2fhqh88jczr.jpg"
+    },
+    {
+      "description": "The image shows a spacious indoor room with light wooden walls, a wooden floor, recessed lighting, and a double door at one end.",
+      "tags": [
+        {
+          "name": "exterior",
+          "type": "OUTDOOR_FEATURE",
+          "relativeConfidence": 0.150353925
+        },
+        {
+          "name": "hotel",
+          "type": "SPACE",
+          "relativeConfidence": 0.19215035000000003
+        },
+        {
+          "name": "white",
+          "type": "COLOR",
+          "relativeConfidence": 0.16384352999999996
+        },
+        {
+          "name": "living_area",
+          "type": "ROOM_TYPE",
+          "relativeConfidence": 0.20033109999999998
+        }
+      ],
+      "_id": "6935e8a3e2ccc4b24a1d6306",
+      "urlSmall": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_420,h_260,c_fill/oxw4dzzox5nf6qubr1c4.jpg",
+      "ownerId": "6935c57966e9bf228cd5d8b8",
+      "sort_order": 13,
+      "__v": 0,
+      "external_id": "oxw4dzzox5nf6qubr1c4",
+      "url": "https://res.cloudinary.com/peerspace-inc/image/upload/oxw4dzzox5nf6qubr1c4.jpg",
+      "date_modified": "2026-03-09T15:07:57.961Z",
+      "quality": 0.631503,
+      "date_created": "2025-12-07T20:50:43.698Z",
+      "parentId": "6935e6fea6e9ece7e99a40a1",
+      "manualOverrides": {
+        "quality": null,
+        "description": null,
+        "tags": []
+      },
+      "urlLarge": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_2048/oxw4dzzox5nf6qubr1c4.jpg"
+    },
+    {
+      "description": "The image shows a spacious, well-lit room with wooden walls and a light-colored floor, featuring neatly arranged meditation mats on the ground.",
+      "tags": [
+        {
+          "name": "white",
+          "type": "COLOR",
+          "relativeConfidence": 0.158838865
+        },
+        {
+          "name": "fitness",
+          "type": "THEME",
+          "relativeConfidence": 0.22759403
+        },
+        {
+          "name": "yoga",
+          "type": "THEME",
+          "relativeConfidence": 0.23853502999999998
+        }
+      ],
+      "_id": "6935e8a3e2ccc4b24a1d6307",
+      "urlSmall": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_420,h_260,c_fill/ynseh4onwpibijwxte49.jpg",
+      "ownerId": "6935c57966e9bf228cd5d8b8",
+      "sort_order": 14,
+      "__v": 0,
+      "external_id": "ynseh4onwpibijwxte49",
+      "url": "https://res.cloudinary.com/peerspace-inc/image/upload/ynseh4onwpibijwxte49.jpg",
+      "date_modified": "2026-03-09T15:07:57.980Z",
+      "quality": 0.45892784,
+      "date_created": "2025-12-07T20:50:43.698Z",
+      "parentId": "6935e6fea6e9ece7e99a40a1",
+      "manualOverrides": {
+        "quality": null,
+        "description": null,
+        "tags": []
+      },
+      "urlLarge": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_2048/ynseh4onwpibijwxte49.jpg"
+    },
+    {
+      "description": "The image shows a spacious wooden-floored room equipped with video recording equipment, including tripods and lights, along with a few chairs set up for a shoot.",
+      "tags": [
+        {
+          "name": "rehearsal_space",
+          "type": "ACTIVITY",
+          "relativeConfidence": 0.290295815
+        },
+        {
+          "name": "green",
+          "type": "COLOR",
+          "relativeConfidence": 0.1303648500000001
+        },
+        {
+          "name": "audio_recording",
+          "type": "ACTIVITY",
+          "relativeConfidence": 0.21669932999999997
+        }
+      ],
+      "_id": "69ad99fb2fe4bf8fe3e1bee8",
+      "urlSmall": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_420,h_260,c_fill/hk6lxsagqkw2ybtbgvme.jpg",
+      "ownerId": "6935c57966e9bf228cd5d8b8",
+      "sort_order": 15,
+      "__v": 0,
+      "external_id": "hk6lxsagqkw2ybtbgvme",
+      "url": "https://res.cloudinary.com/peerspace-inc/image/upload/hk6lxsagqkw2ybtbgvme.jpg",
+      "date_modified": "2026-03-10T12:03:34.832Z",
+      "quality": 0.57364404,
+      "date_created": "2026-03-08T15:47:07.186Z",
+      "parentId": "6935e6fea6e9ece7e99a40a1",
+      "manualOverrides": {
+        "quality": null,
+        "description": null,
+        "tags": []
+      },
+      "urlLarge": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_2048/hk6lxsagqkw2ybtbgvme.jpg"
+    },
+    {
+      "description": "The image shows a spacious, well-lit room with wooden walls, a patterned ceiling, and two doorways at one end.",
+      "tags": [
+        {
+          "name": "exterior",
+          "type": "OUTDOOR_FEATURE",
+          "relativeConfidence": 0.15009973
+        },
+        {
+          "name": "hotel",
+          "type": "SPACE",
+          "relativeConfidence": 0.20261344999999997
+        },
+        {
+          "name": "white",
+          "type": "COLOR",
+          "relativeConfidence": 0.14558902000000007
+        },
+        {
+          "name": "living_area",
+          "type": "ROOM_TYPE",
+          "relativeConfidence": 0.20629083999999998
+        }
+      ],
+      "_id": "69529c30ed8e8fb489f9a33b",
+      "urlSmall": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_420,h_260,c_fill/bsiqzesug7rx41unuhu9.jpg",
+      "ownerId": "6935c57966e9bf228cd5d8b8",
+      "sort_order": 16,
+      "__v": 0,
+      "external_id": "bsiqzesug7rx41unuhu9",
+      "url": "https://res.cloudinary.com/peerspace-inc/image/upload/bsiqzesug7rx41unuhu9.jpg",
+      "date_modified": "2026-03-09T15:07:57.968Z",
+      "quality": 0.631503,
+      "date_created": "2025-12-29T15:20:16.595Z",
+      "parentId": "6935e6fea6e9ece7e99a40a1",
+      "manualOverrides": {
+        "quality": null,
+        "description": null,
+        "tags": []
+      },
+      "urlLarge": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_2048/bsiqzesug7rx41unuhu9.jpg"
+    },
+    {
+      "description": "A diverse group of people is seated in a brightly lit wooden-paneled room, attentively facing a small stage at the front.",
+      "tags": [
+        {
+          "name": "green",
+          "type": "COLOR",
+          "relativeConfidence": 0.12748265000000003
+        },
+        {
+          "name": "blue",
+          "type": "COLOR",
+          "relativeConfidence": 0.1409743
+        },
+        {
+          "name": "white",
+          "type": "COLOR",
+          "relativeConfidence": 0.15185873500000002
+        },
+        {
+          "name": "lecture",
+          "type": "ACTIVITY"
+        },
+        {
+          "name": "press_conference",
+          "type": "ACTIVITY",
+          "relativeConfidence": 0.2228949950000001
+        },
+        {
+          "name": "meeting",
+          "type": "ACTIVITY",
+          "relativeConfidence": 0.21739795000000006
+        },
+        {
+          "name": "poetry_reading",
+          "type": "ACTIVITY",
+          "relativeConfidence": 0.2220932
+        },
+        {
+          "name": "seminar",
+          "type": "ACTIVITY"
+        },
+        {
+          "name": "meetup",
+          "type": "ACTIVITY",
+          "relativeConfidence": 0.21935738500000002
+        }
+      ],
+      "_id": "69ad99fb69a88f1504519aa0",
+      "urlSmall": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_420,h_260,c_fill/spgt2erhnzj8dmnixgbn.jpg",
+      "ownerId": "6935c57966e9bf228cd5d8b8",
+      "sort_order": 18,
+      "__v": 0,
+      "external_id": "spgt2erhnzj8dmnixgbn",
+      "url": "https://res.cloudinary.com/peerspace-inc/image/upload/spgt2erhnzj8dmnixgbn.jpg",
+      "date_modified": "2026-03-10T12:03:22.130Z",
+      "quality": 0.4179613,
+      "date_created": "2026-03-08T15:47:07.198Z",
+      "parentId": "6935e6fea6e9ece7e99a40a1",
+      "manualOverrides": {
+        "quality": null,
+        "description": null,
+        "tags": []
+      },
+      "urlLarge": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_2048/spgt2erhnzj8dmnixgbn.jpg"
+    },
+    {
+      "description": "A spacious room with wooden walls and floor features a grid-patterned skylight and potted plants in the corner.",
+      "tags": [
+        {
+          "name": "gold",
+          "type": "COLOR",
+          "relativeConfidence": 0.15836918499999997
+        },
+        {
+          "name": "exterior",
+          "type": "OUTDOOR_FEATURE",
+          "relativeConfidence": 0.14568680499999997
+        },
+        {
+          "name": "plants",
+          "type": "THEME",
+          "relativeConfidence": 0.170865225
+        },
+        {
+          "name": "simple",
+          "type": "THEME",
+          "relativeConfidence": 0.154826075
+        },
+        {
+          "name": "living_area",
+          "type": "ROOM_TYPE",
+          "relativeConfidence": 0.17844107500000006
+        },
+        {
+          "name": "fitness",
+          "type": "THEME",
+          "relativeConfidence": 0.20599996999999992
+        },
+        {
+          "name": "hotel",
+          "type": "SPACE",
+          "relativeConfidence": 0.20845924999999998
+        },
+        {
+          "name": "green",
+          "type": "COLOR",
+          "relativeConfidence": 0.13512575000000004
+        },
+        {
+          "name": "white",
+          "type": "COLOR",
+          "relativeConfidence": 0.1424681000000001
+        },
+        {
+          "name": "brown",
+          "type": "COLOR",
+          "relativeConfidence": 0.16792182499999997
+        },
+        {
+          "name": "beige",
+          "type": "COLOR",
+          "relativeConfidence": 0.16664187000000008
+        }
+      ],
+      "_id": "69529c30cf0d3feaf2c66bb8",
+      "urlSmall": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_420,h_260,c_fill/kqydf6bk12qjp1tp0e0y.jpg",
+      "ownerId": "6935c57966e9bf228cd5d8b8",
+      "sort_order": 19,
+      "__v": 0,
+      "external_id": "kqydf6bk12qjp1tp0e0y",
+      "url": "https://res.cloudinary.com/peerspace-inc/image/upload/kqydf6bk12qjp1tp0e0y.jpg",
+      "date_modified": "2026-03-09T15:07:58.004Z",
+      "quality": 0.5199544,
+      "date_created": "2025-12-29T15:20:16.607Z",
+      "parentId": "6935e6fea6e9ece7e99a40a1",
+      "manualOverrides": {
+        "quality": null,
+        "description": null,
+        "tags": []
+      },
+      "urlLarge": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_2048/kqydf6bk12qjp1tp0e0y.jpg"
+    },
+    {
+      "description": "The image shows a small bathroom with beige stone tiles, a wooden vanity with a sink, a circular decorative mirror, and a metal trash can.",
+      "tags": [
+        {
+          "name": "simple",
+          "type": "THEME",
+          "relativeConfidence": 0.15301005
+        },
+        {
+          "name": "gold",
+          "type": "COLOR",
+          "relativeConfidence": 0.15168668000000007
+        },
+        {
+          "name": "bathroom",
+          "type": "ROOM_TYPE",
+          "relativeConfidence": 0.22544180000000003
+        }
+      ],
+      "_id": "69ad99fb69a88f1504519aa4",
+      "urlSmall": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_420,h_260,c_fill/rma1r5urlgfibiyycnkf.jpg",
+      "ownerId": "6935c57966e9bf228cd5d8b8",
+      "sort_order": 20,
+      "__v": 0,
+      "external_id": "rma1r5urlgfibiyycnkf",
+      "url": "https://res.cloudinary.com/peerspace-inc/image/upload/rma1r5urlgfibiyycnkf.jpg",
+      "date_modified": "2026-03-10T12:03:34.467Z",
+      "quality": 0.4846186,
+      "date_created": "2026-03-08T15:47:07.205Z",
+      "parentId": "6935e6fea6e9ece7e99a40a1",
+      "manualOverrides": {
+        "quality": null,
+        "description": null,
+        "tags": []
+      },
+      "urlLarge": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_2048/rma1r5urlgfibiyycnkf.jpg"
+    },
+    {
+      "description": "The image shows a small bathroom featuring a toilet and a sink, with tan stone walls and a minimalistic design.",
+      "tags": [
+        {
+          "name": "simple",
+          "type": "THEME",
+          "relativeConfidence": 0.16218097500000006
+        },
+        {
+          "name": "white",
+          "type": "COLOR",
+          "relativeConfidence": 0.15712375
+        },
+        {
+          "name": "brown",
+          "type": "COLOR",
+          "relativeConfidence": 0.16838598000000005
+        },
+        {
+          "name": "gold",
+          "type": "COLOR",
+          "relativeConfidence": 0.149269675
+        },
+        {
+          "name": "bathroom",
+          "type": "ROOM_TYPE",
+          "relativeConfidence": 0.17229627999999997
+        },
+        {
+          "name": "bathtub",
+          "type": "AMENITY",
+          "relativeConfidence": 0.2242518
+        },
+        {
+          "name": "beige",
+          "type": "COLOR",
+          "relativeConfidence": 0.18645065000000005
+        }
+      ],
+      "_id": "69ad99fb2fe4bf8fe3e1bee4",
+      "urlSmall": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_420,h_260,c_fill/rsgpwc6ahfd8w3emfl1o.jpg",
+      "ownerId": "6935c57966e9bf228cd5d8b8",
+      "sort_order": 21,
+      "__v": 0,
+      "external_id": "rsgpwc6ahfd8w3emfl1o",
+      "url": "https://res.cloudinary.com/peerspace-inc/image/upload/rsgpwc6ahfd8w3emfl1o.jpg",
+      "date_modified": "2026-03-10T12:03:38.732Z",
+      "quality": 0.43126154,
+      "date_created": "2026-03-08T15:47:07.181Z",
+      "parentId": "6935e6fea6e9ece7e99a40a1",
+      "manualOverrides": {
+        "quality": null,
+        "description": null,
+        "tags": []
+      },
+      "urlLarge": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_2048/rsgpwc6ahfd8w3emfl1o.jpg"
+    },
+    {
+      "description": "The image shows the entrance of a small studio with a sign that reads \"studio etre\" and a large glass window displaying the interior.",
+      "tags": [
+        {
+          "name": "exterior",
+          "type": "OUTDOOR_FEATURE",
+          "relativeConfidence": 0.14191924999999994
+        },
+        {
+          "name": "hotel",
+          "type": "SPACE",
+          "relativeConfidence": 0.19243567500000003
+        }
+      ],
+      "_id": "69ad9a3dbefe3530d99324f4",
+      "urlSmall": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_420,h_260,c_fill/k1vpozi5wpuncqpn9uij.jpg",
+      "ownerId": "6935c57966e9bf228cd5d8b8",
+      "sort_order": 22,
+      "__v": 0,
+      "external_id": "k1vpozi5wpuncqpn9uij",
+      "url": "https://res.cloudinary.com/peerspace-inc/image/upload/k1vpozi5wpuncqpn9uij.jpg",
+      "date_modified": "2026-03-10T12:03:47.156Z",
+      "quality": 0.41881552,
+      "date_created": "2026-03-08T15:48:13.436Z",
+      "parentId": "6935e6fea6e9ece7e99a40a1",
+      "manualOverrides": {
+        "quality": null,
+        "description": null,
+        "tags": []
+      },
+      "urlLarge": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_2048/k1vpozi5wpuncqpn9uij.jpg"
+    },
+    {
+      "description": "A pair of wooden doors opens to reveal an empty, well-lit room with wooden paneling and a coffered ceiling.",
+      "tags": [
+        {
+          "name": "gold",
+          "type": "COLOR",
+          "relativeConfidence": 0.15033388000000003
+        },
+        {
+          "name": "exterior",
+          "type": "OUTDOOR_FEATURE",
+          "relativeConfidence": 0.15335520000000002
+        },
+        {
+          "name": "hotel",
+          "type": "SPACE",
+          "relativeConfidence": 0.20136946999999994
+        },
+        {
+          "name": "white",
+          "type": "COLOR",
+          "relativeConfidence": 0.16523978000000006
+        },
+        {
+          "name": "living_area",
+          "type": "ROOM_TYPE",
+          "relativeConfidence": 0.19742872499999997
+        }
+      ],
+      "_id": "6935e8a3e2ccc4b24a1d6305",
+      "urlSmall": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_420,h_260,c_fill/gq7oqccphibybftrpmte.jpg",
+      "ownerId": "6935c57966e9bf228cd5d8b8",
+      "sort_order": 23,
+      "__v": 0,
+      "external_id": "gq7oqccphibybftrpmte",
+      "url": "https://res.cloudinary.com/peerspace-inc/image/upload/gq7oqccphibybftrpmte.jpg",
+      "date_modified": "2026-03-09T15:07:57.996Z",
+      "quality": 0.56617737,
+      "date_created": "2025-12-07T20:50:43.698Z",
+      "parentId": "6935e6fea6e9ece7e99a40a1",
+      "manualOverrides": {
+        "quality": null,
+        "description": null,
+        "tags": []
+      },
+      "urlLarge": "https://res.cloudinary.com/peerspace-inc/image/upload/q_80,c_crop,g_custom/w_2048/gq7oqccphibybftrpmte.jpg"
+    }
+  ],
+  "has_add_ons": false,
+  "has_listings": false,
+  "min_age": 0,
+  "sort_order": 0,
+  "is_instant_book_active": false,
+  "city": "Paris",
+  "share_link": null,
+  "calendar_pricing": {
+    "prices": [],
+    "prices_by_group": []
+  },
+  "is_instant_book_enabled": false,
+  "longitude": "REDACTED",
+  "getting_there": "Prenez le métro jusqu’à la station Place Monge (ligne 7), située dans le 5ᵉ arrondissement de Paris. \n\nDepuis la sortie métro, comptez environ 2 minutes de marche jusqu’à la salle située au 50, rue de la Clef (75005).\n\nVous arrivez directement à l’entrée du bâtiment  pas de digicode ni d’interphone nécessaire.\n\nUne fois à l’intérieur, la clé vous sera remise par le responsable du lieu pour accéder à la salle principale.",
+  "state": "",
+  "pay_at_venue": {
+    "active": false
+  },
+  "rules": "⚠️ Règles Générales de la Salle\n•Respect de l'espace\n•Respecter l'intégrité de l'espace\n•Veiller au confort et à la sécurité physique et morale des participants\n•Respecter la propreté : garder la salle, toilettes et espaces communs comme ils ont été livrés, au contraire des charges pourront être appliquées\n•Ne pas changer ou modifier les éléments de la salle, à moins qu'ils soient des objets amovibles - toujours à consulter avec la direction\n🚫Interdictions\n✗Pas de nourriture à l'intérieur de la salle principale mais possible à l'accueil\n✗Pas de drogues ou d'alcool dans la salle\n✗Interdiction de fumer sur le trottoir en face de la salle\n👥Regroupements extérieurs\nPas de regroupements de personnes à l'extérieur de la salle sur le trottoir. Ceux qui le souhaitent peuvent se rendre à la Place Monge à 40 mètres en face.",
+  "ownerFirstName": "Sebastian",
+  "title": "Studio lumineux et apaisant au cœur de la ville - idéal pour ateliers & bien-être",
+  "ownerReviewStars": 5,
+  "concierge_disabled": false,
+  "cleaning_info": {
+    "description": "Nous veillons à maintenir un espace irréprochable grâce à un nettoyage complet après chaque utilisation, incluant les sols, sanitaires et surfaces de contact. Le lieu est entretenu quotidiennement pour garantir une atmosphère saine, agréable et accueillante pour tous les invités.\n\nSi la salle est laissée en désordre ou nécessite un nettoyage exceptionnel, des frais de ménage supplémentaires pourront être appliqués. Cela permet de préserver la propreté et le confort du lieu pour les prochains utilisateurs.",
+    "cleaning_measures": [
+      "cdc_guidelines",
+      "disinfecting_surfaces",
+      "cleaning_soft_materials",
+      "spacing_bookings"
+    ],
+    "signage": [],
+    "physical_distance": [
+      "outdoor_ventilation",
+      "reconfigured_space"
+    ],
+    "protective_gear": [
+      "hand_sanitizer",
+      "disinfectant_wipes"
+    ],
+    "has_enhanced_cleaning": false
+  },
+  "prices": [
+    {
+      "_id": "6935e6fea6e9ece7e99a40a3",
+      "value": 65,
+      "type": "HOURLY_RATE",
+      "currency": "EUR",
+      "parentId": "6935e6fea6e9ece7e99a40a1",
+      "ownerId": "6935c57966e9bf228cd5d8b8",
+      "date_created": "2025-12-07T20:43:42.482310606Z",
+      "date_modified": "2026-06-08T07:25:09.216Z"
+    }
+  ],
+  "zip_google": "75005",
+  "parentSpaceId": "6935c971f15db44f27f43199",
+  "ownerLastName": "L.",
+  "parking_info": {
+    "is_available": true,
+    "types": [
+      "04_metered_street",
+      "06_nearby_lot"
+    ],
+    "description": "\nStationnement payant dans la rue\n\nParking à proximité"
+  },
+  "status": "ACTIVATED",
+  "zip": "REDACTED",
+  "__v": 0,
+  "uses": [
+    {
+      "_id": "6935e6fea6e9ece7e99a40a2",
+      "name": "Event",
+      "ownerId": "6935c57966e9bf228cd5d8b8",
+      "parentId": "6935e6fea6e9ece7e99a40a1"
+    }
+  ],
+  "ownerACHAvailable": false,
+  "has_ophours": true,
+  "date_modified": "2026-07-16T17:07:48.365Z",
+  "price_currency": "EUR",
+  "latitude": "REDACTED",
+  "amenities": [
+    {
+      "_id": "6935e8abed8e8fb489dbcdb8",
+      "name": "WiFi",
+      "parentId": "6935e6fea6e9ece7e99a40a1",
+      "ownerId": "6935c57966e9bf228cd5d8b8",
+      "date_created": "2025-12-07T20:50:51.822Z",
+      "date_modified": "2025-12-07T20:50:51.822Z",
+      "__v": 0,
+      "localizedName": "WiFi"
+    },
+    {
+      "_id": "6935e8abed8e8fb489dbcdb9",
+      "name": "Chairs",
+      "parentId": "6935e6fea6e9ece7e99a40a1",
+      "ownerId": "6935c57966e9bf228cd5d8b8",
+      "date_created": "2025-12-07T20:50:51.822Z",
+      "date_modified": "2025-12-07T20:50:51.822Z",
+      "__v": 0,
+      "localizedName": "Chairs"
+    },
+    {
+      "_id": "6935e8abed8e8fb489dbcdba",
+      "name": "Tables",
+      "parentId": "6935e6fea6e9ece7e99a40a1",
+      "ownerId": "6935c57966e9bf228cd5d8b8",
+      "date_created": "2025-12-07T20:50:51.822Z",
+      "date_modified": "2025-12-07T20:50:51.822Z",
+      "__v": 0,
+      "localizedName": "Tables"
+    },
+    {
+      "_id": "6935e8abed8e8fb489dbcdbb",
+      "name": "Projector",
+      "parentId": "6935e6fea6e9ece7e99a40a1",
+      "ownerId": "6935c57966e9bf228cd5d8b8",
+      "date_created": "2025-12-07T20:50:51.822Z",
+      "date_modified": "2025-12-07T20:50:51.822Z",
+      "__v": 0,
+      "localizedName": "Projector"
+    },
+    {
+      "_id": "6935e8abed8e8fb489dbcdbc",
+      "name": "Public Transportation",
+      "parentId": "6935e6fea6e9ece7e99a40a1",
+      "ownerId": "6935c57966e9bf228cd5d8b8",
+      "date_created": "2025-12-07T20:50:51.822Z",
+      "date_modified": "2025-12-07T20:50:51.822Z",
+      "__v": 0,
+      "localizedName": "Public Transportation"
+    },
+    {
+      "_id": "6935e8abed8e8fb489dbcdbd",
+      "name": "View",
+      "parentId": "6935e6fea6e9ece7e99a40a1",
+      "ownerId": "6935c57966e9bf228cd5d8b8",
+      "date_created": "2025-12-07T20:50:51.822Z",
+      "date_modified": "2025-12-07T20:50:51.822Z",
+      "__v": 0,
+      "localizedName": "View"
+    },
+    {
+      "_id": "6935e8abed8e8fb489dbcdbe",
+      "name": "Restrooms",
+      "parentId": "6935e6fea6e9ece7e99a40a1",
+      "ownerId": "6935c57966e9bf228cd5d8b8",
+      "date_created": "2025-12-07T20:50:51.822Z",
+      "date_modified": "2025-12-07T20:50:51.822Z",
+      "__v": 0,
+      "localizedName": "Restrooms"
+    },
+    {
+      "_id": "6935e8abed8e8fb489dbcdbf",
+      "name": "Speakers",
+      "parentId": "6935e6fea6e9ece7e99a40a1",
+      "ownerId": "6935c57966e9bf228cd5d8b8",
+      "date_created": "2025-12-07T20:50:51.822Z",
+      "date_modified": "2025-12-07T20:50:51.822Z",
+      "__v": 0,
+      "localizedName": "Speakers"
+    },
+    {
+      "_id": "6935e8abed8e8fb489dbcdc0",
+      "name": "Street level access",
+      "parentId": "6935e6fea6e9ece7e99a40a1",
+      "ownerId": "6935c57966e9bf228cd5d8b8",
+      "date_created": "2025-12-07T20:50:51.822Z",
+      "date_modified": "2025-12-07T20:50:51.822Z",
+      "__v": 0,
+      "localizedName": "Street level access"
+    }
+  ],
+  "date_created": "2025-12-07T20:43:42.474Z",
+  "cleaning_fee": {
+    "obj_state": "DEACTIVATED",
+    "apply_as": "FLAT_RATE",
+    "value": 0
+  },
+  "overnight_stays": false,
+  "date_geoloc_modified": "2025-12-07T18:37:37.928Z",
+  "price_value": 90,
+  "sqft": 1076,
+  "use_type": "Event",
+  "space_type": "yoga_studio",
+  "canonical_loc_data": {
+    "locality": {
+      "long_name": "Paris",
+      "short_name": "Paris",
+      "types": [
+        "locality",
+        "political"
+      ]
+    },
+    "administrative_area_level_1": {
+      "long_name": "Île-de-France",
+      "short_name": "IDF",
+      "types": [
+        "administrative_area_level_1",
+        "political"
+      ]
+    },
+    "administrative_area_level_2": {
+      "long_name": "Paris",
+      "short_name": "Paris",
+      "types": [
+        "administrative_area_level_2",
+        "political"
+      ]
+    },
+    "neighborhood": {},
+    "country": {
+      "long_name": "France",
+      "short_name": "FR",
+      "types": [
+        "country",
+        "political"
+      ]
+    }
+  },
+  "attendee_pricing": null,
+  "neighborhood": "Jardin des Plantes",
+  "location": {
+    "type": "Point",
+    "coordinates": [
+      2.353443,
+      48.843478
+    ]
+  },
+  "ownerAvatarId": "qazu6fg1jr1dnvgfptmg",
+  "is_instant_book_eligible_host": true,
+  "country": "FR",
+  "listing_favorite_count": 78,
+  "ownerReviewCount": 3,
+  "awards": {},
+  "has_price_by_day": true,
+  "tz_offset": 1,
+  "metro": "PAR",
+  "neighborhood_google": "Jardin des Plantes",
+  "ownerAvatarUrl": "https://img.peerspace.com/image/upload/c_crop,g_custom/v1765140259/qazu6fg1jr1dnvgfptmg.jpg"
+}

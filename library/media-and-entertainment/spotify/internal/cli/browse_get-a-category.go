@@ -36,7 +36,7 @@ func newBrowseGetACategoryCmd(flags *rootFlags) *cobra.Command {
 			if flagLocale != "" {
 				params["locale"] = formatCLIParamValue(flagLocale)
 			}
-			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "browse", false, path, params, nil, "icons", cmd.ErrOrStderr())
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "browse", false, path, params, nil, "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

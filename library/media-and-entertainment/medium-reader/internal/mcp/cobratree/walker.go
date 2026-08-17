@@ -32,7 +32,15 @@ func RegisterAll(s *server.MCPServer, root *cobra.Command, cliPath func() (strin
 		}
 		options := []mcplib.ToolOption{mcplib.WithDescription(descriptionFor(cmd))}
 		options = append(options, toolOptionsForFlags(cmd)...)
-		if commandTakesArgs(cmd) {
+		// PATCH(medium-reader: surface named positional "query" for search/corpus)
+		// — expose a command's named positionals as first-class properties
+		// (finding N1); fall back to the generic "args" string only when the
+		// command has no named positional. See typemap.go / .printing-press-patches/.
+		positionals := namedPositionalsFor(path)
+		for _, p := range positionals {
+			options = append(options, toolOptionForPositional(p))
+		}
+		if commandTakesArgs(cmd) && len(positionals) == 0 {
 			options = append(options, mcplib.WithString("args", mcplib.Description("Additional positional arguments or raw CLI flags to append to the command.")))
 		}
 		if isMCPReadOnly(cmd) {

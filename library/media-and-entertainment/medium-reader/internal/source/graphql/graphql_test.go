@@ -5,8 +5,11 @@ package graphql
 import (
 	"context"
 	"errors"
+	"io"
+	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/medium-reader/internal/source"
@@ -115,6 +118,40 @@ func TestParseAuthorArchive(t *testing.T) {
 	}
 }
 
+// TestParseAuthorArchiveEngagement asserts the widened archive query's
+// engagement fields (clapCount/voterCount/readingTime/wordCount/postResponses/
+// tags) decode onto PostSummary — the data author-compare averages. Tag slugs
+// are flattened to []string and empty slugs skipped.
+func TestParseAuthorArchiveEngagement(t *testing.T) {
+	body := []byte(`{"data":{"user":{"id":"u1","name":"Quincy","homepagePostsConnection":{"posts":[{"id":"abcdef012345","title":"T","firstPublishedAt":1700000000000,"clapCount":4919,"voterCount":631,"readingTime":17.836,"wordCount":4382,"postResponses":{"count":18},"tags":[{"normalizedTagSlug":"writing"},{"normalizedTagSlug":""},{"normalizedTagSlug":"tech"}],"creator":{"id":"u1","username":"quincylarson"}}],"pagingInfo":{"next":null}}}}}`)
+	items, _, _, err := ParseAuthorArchive(body)
+	if err != nil {
+		t.Fatalf("ParseAuthorArchive: %v", err)
+	}
+	if len(items) != 1 {
+		t.Fatalf("got %d items, want 1", len(items))
+	}
+	p := items[0]
+	if p.Claps != 4919 {
+		t.Errorf("Claps = %d, want 4919", p.Claps)
+	}
+	if p.Voters != 631 {
+		t.Errorf("Voters = %d, want 631", p.Voters)
+	}
+	if p.Responses != 18 {
+		t.Errorf("Responses = %d, want 18", p.Responses)
+	}
+	if p.ReadingTime != 17.836 {
+		t.Errorf("ReadingTime = %v, want 17.836", p.ReadingTime)
+	}
+	if p.WordCount != 4382 {
+		t.Errorf("WordCount = %d, want 4382", p.WordCount)
+	}
+	if len(p.Tags) != 2 || p.Tags[0] != "writing" || p.Tags[1] != "tech" {
+		t.Errorf("Tags = %v, want [writing tech] (empty slug skipped)", p.Tags)
+	}
+}
+
 // TestParseSearchNoNext asserts that a final page (pagingInfo.next null) yields
 // next == -1, the loop-termination signal.
 func TestParseSearchNoNext(t *testing.T) {
@@ -210,6 +247,95 @@ func TestQueryConstantsMatchSpec(t *testing.T) {
 	}
 	if !contains(AuthorArchiveQuery, "pagingInfo{next{from limit}}") {
 		t.Error("AuthorArchiveQuery missing cursor pagingInfo")
+	}
+	// The widened archive query must request the engagement fields author-compare
+	// reports. The minimal fallback query intentionally omits them.
+	for _, f := range []string{"clapCount", "voterCount", "readingTime", "wordCount", "postResponses{count}", "tags{normalizedTagSlug}"} {
+		if !contains(AuthorArchiveQuery, f) {
+			t.Errorf("AuthorArchiveQuery missing engagement field %q", f)
+		}
+		if contains(authorArchiveQueryMinimal, f) {
+			t.Errorf("authorArchiveQueryMinimal should NOT contain engagement field %q (it is the resilient fallback)", f)
+		}
+	}
+	if !contains(authorArchiveQueryMinimal, "posts{id title firstPublishedAt creator{id username}}") {
+		t.Error("authorArchiveQueryMinimal missing the minimal post projection")
+	}
+}
+
+// roundTripFunc adapts a function to http.RoundTripper for hermetic transport
+// stubs — no real network, full control over the canned response per request.
+type roundTripFunc func(*http.Request) (*http.Response, error)
+
+func (f roundTripFunc) RoundTrip(r *http.Request) (*http.Response, error) { return f(r) }
+
+func jsonResponse(status int, body string) *http.Response {
+	return &http.Response{
+		StatusCode: status,
+		Body:       io.NopCloser(strings.NewReader(body)),
+		Header:     make(http.Header),
+	}
+}
+
+// TestAuthorArchiveFallsBackOnRejectedQuery is the F4 resilience guard: when the
+// engagement-widened query is REJECTED by the server (a renamed/removed field →
+// GraphQL "errors" block), AuthorArchive must re-issue the minimal query so core
+// mirroring still succeeds (engagement comes back zero), instead of failing the
+// whole archive.
+func TestAuthorArchiveFallsBackOnRejectedQuery(t *testing.T) {
+	var calls int
+	var sawMinimal bool
+	stub := roundTripFunc(func(r *http.Request) (*http.Response, error) {
+		calls++
+		buf, _ := io.ReadAll(r.Body)
+		if strings.Contains(string(buf), "clapCount") {
+			// Widened query — simulate Medium rejecting an engagement field.
+			return jsonResponse(200, `{"errors":[{"message":"Cannot query field \"clapCount\" on type \"Post\""}],"data":null}`), nil
+		}
+		// Minimal fallback query — return a valid single-post page.
+		sawMinimal = true
+		return jsonResponse(200, `{"data":{"user":{"id":"u1","name":"Solo","homepagePostsConnection":{"posts":[{"id":"abcdef012345","title":"T","firstPublishedAt":1700000000000,"creator":{"id":"u1","username":"solo"}}],"pagingInfo":{"next":null}}}}}`), nil
+	})
+	s := New(&http.Client{Transport: stub})
+
+	items, err := s.AuthorArchive(context.Background(), "u1", 10)
+	if err != nil {
+		t.Fatalf("AuthorArchive should succeed via fallback, got: %v", err)
+	}
+	if len(items) != 1 || items[0].ID != "abcdef012345" {
+		t.Fatalf("items = %+v, want one post abcdef012345 from the minimal fallback", items)
+	}
+	if items[0].Claps != 0 {
+		t.Errorf("Claps = %d, want 0 (the fallback query carries no engagement)", items[0].Claps)
+	}
+	if !sawMinimal {
+		t.Error("fallback never issued the minimal query")
+	}
+	if calls != 2 {
+		t.Errorf("HTTP calls = %d, want 2 (widened rejected, then minimal)", calls)
+	}
+}
+
+// TestAuthorArchiveNoRetryOnTransportError asserts the fallback does NOT fire on
+// a transport/HTTP outage — retrying the minimal query there is pointless and
+// would just double the requests. A 500 yields exactly one call and a typed error.
+func TestAuthorArchiveNoRetryOnTransportError(t *testing.T) {
+	var calls int
+	stub := roundTripFunc(func(r *http.Request) (*http.Response, error) {
+		calls++
+		return jsonResponse(500, `upstream boom`), nil
+	})
+	s := New(&http.Client{Transport: stub})
+
+	_, err := s.AuthorArchive(context.Background(), "u1", 10)
+	if err == nil {
+		t.Fatal("AuthorArchive err = nil, want ErrSurfaceUnavailable on HTTP 500")
+	}
+	if !errors.Is(err, source.ErrSurfaceUnavailable) {
+		t.Errorf("err = %v, want errors.Is ErrSurfaceUnavailable", err)
+	}
+	if calls != 1 {
+		t.Errorf("HTTP calls = %d, want 1 (no fallback on transport outage)", calls)
 	}
 }
 

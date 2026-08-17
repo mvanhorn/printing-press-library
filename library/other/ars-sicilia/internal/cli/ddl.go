@@ -36,6 +36,7 @@ Vocabolari controllati (valori ammessi):
 	cmd.AddCommand(newDdlGetCmd(flags))
 	cmd.AddCommand(newNovelDdlDriftCmd(flags))
 	cmd.AddCommand(newNovelDdlIterCmd(flags))
+	cmd.AddCommand(newNovelDdlStralciCmd(flags))
 	cmd.AddCommand(newDdlMaterieCmd(flags))
 	cmd.AddCommand(newDdlIniziativeCmd(flags))
 	cmd.AddCommand(newDdlFirmatariCmd(flags))

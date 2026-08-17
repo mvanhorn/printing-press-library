@@ -3,6 +3,7 @@
 package cli
 
 import (
+	"context"
 	"errors"
 	"os"
 	"path/filepath"
@@ -59,14 +60,16 @@ Emits ndjson one line per meeting: {id, status: new|skipped|duplicate|error|miss
 				if err != nil {
 					return usageErr(err)
 				}
-				c, err := openGranolaCache()
+				// PATCH(dual-path-store-read): store first, cache fallback.
+				c, err := openGranolaRead(cmd.Context())
 				if err != nil {
 					return err
 				}
 				ids = selectDocsInWindow(c, from, to, limit)
+				c.Close()
 			}
 			for _, id := range ids {
-				rec := runOneMemo(id, outDir, root, flags.dataSource != "local")
+				rec := runOneMemo(cmd.Context(), id, outDir, root, flags.dataSource != "local")
 				_ = emitNDJSONLine(w, rec)
 			}
 			return nil
@@ -90,14 +93,16 @@ type memoRecord struct {
 	Error       string   `json:"error,omitempty"`
 }
 
-func runOneMemo(id, outDir, root string, allowLive bool) memoRecord {
+func runOneMemo(ctx context.Context, id, outDir, root string, allowLive bool) memoRecord {
 	rec := memoRecord{ID: id}
-	c, err := openGranolaCache()
+	// PATCH(dual-path-store-read): store first, cache fallback.
+	c, err := openGranolaRead(ctx)
 	if err != nil {
 		rec.Status = "error"
 		rec.Error = err.Error()
 		return rec
 	}
+	defer c.Close()
 	d := c.DocumentByID(id)
 	if d == nil {
 		rec.Status = "error"
@@ -115,7 +120,7 @@ func runOneMemo(id, outDir, root string, allowLive bool) memoRecord {
 		rec.DuplicateOf = dup
 		return rec
 	}
-	res, err := runExtract(id, outDir, "", allowLive)
+	res, err := runExtract(ctx, id, outDir, "", allowLive)
 	if err != nil {
 		var ce *cliError
 		if errors.As(err, &ce) {
@@ -160,10 +165,12 @@ func newMemoQueueCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return usageErr(err)
 			}
-			c, err := openGranolaCache()
+			// PATCH(dual-path-store-read): store first, cache fallback.
+			c, err := openGranolaRead(cmd.Context())
 			if err != nil {
 				return err
 			}
+			defer c.Close()
 			w := cmd.OutOrStdout()
 			ids := selectDocsInWindow(c, from, to, 0)
 			emitted := 0

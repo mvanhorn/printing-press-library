@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "id": "nejm-openalex-replace-rss",
+  "applied_at": "2026-07-13",
+  "base_run_id": "20260620-035405-a2d4c231",
+  "base_printing_press_version": "4.24.0",
+  "summary": "OpenAlex (CC0) is the sole bulk data source for the article corpus: sync cursor-paginates api.openalex.org/works (ISSN 0028-4793, newest first, resumable, --max-pages bounded) and stores abstracts, authors, work type as article_type, primary-topic subfield as specialties, and is_oa as is_free; the RSS transport is deleted and its residual abstract-less rows are purged from all three storage surfaces (article, resources, FTS) on first OpenAlex sync.",
+  "reason": "The RSS transport (etoc/axatoc feeds plus Cloudflare-gated detail pages) delivered rows with no abstracts, citation data, or OA flags, leaving the corpus unusable, and the spec's single-API model cannot express a second base_url — so the OpenAlex source lives as hand-authored stdlib-HTTP code. Two contracts on that code (Greptile P1s, PR #1328): --timeout is per-request, so each sync page fetch gets its own context deadline — never a whole-run deadline, which would kill multi-minute full-corpus syncs; and the OpenAlex polite-pool mailto comes only from NEJM_OPENALEX_MAILTO (unset = anonymous pool) — never a hardcoded address, which ships personal data in every request URL. A regen must preserve: nejm_openalex_sync.go (store writer), nejm_store.go (shared corpus helpers relocated from the deleted nejm_feeds.go — the article --enrich meta extraction and query/print plumbing are NOT RSS code and must survive), store.PurgeArticlesByFeed in extras.go (FTS has no delete triggers; a raw domain-table DELETE orphans FTS rows), the openalex live-search command, and the current/digest 'newest publication week' window that replaced the retired feed='etoc' partition. OpenAlex DOIs are lowercase; the purge exists because mixed-case RSS DOIs would otherwise duplicate every re-synced article.",
+  "files": [
+    "internal/cli/nejm_feeds.go",
+    "internal/cli/nejm_store.go",
+    "internal/cli/nejm_openalex_sync.go",
+    "internal/cli/openalex.go",
+    "internal/cli/sync.go",
+    "internal/cli/nejm_commands.go",
+    "internal/cli/digest.go",
+    "internal/cli/root.go",
+    "internal/store/extras.go",
+    "SKILL.md"
+  ],
+  "validated_outcome": "Local verification 2026-07-13: go build/vet/test green across all packages; govulncheck 0 reachable findings; verify_skill.py all checks pass. Live: 'sync --max-pages 2 --json' purged 76 RSS rows and stored 100 OpenAlex articles with abstracts/specialties/types; a follow-up 'sync --max-pages 1' resumed from the saved cursor to 150 rows with no repeat purge (idempotent); search/current/recent/digest/trends all return the OpenAlex-populated data (digest groups by OpenAlex subfield, e.g. Internal Medicine); 'sync --dry-run' emits sync_dryrun without network; 'openalex search' live path unchanged (13,608-citation top hit). MCP tool counts unchanged: the command set is identical and mcp_tool_count/mcp_public_tool_count track only typed endpoint tools."
+}

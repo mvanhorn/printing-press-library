@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "giustizia-amministrativa-drop-import",
+  "applied_at": "2026-08-08",
+  "base_run_id": "20260621-094103",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Rimosso il comando `import` emesso dal generatore: eliminato internal/cli/import.go e la sua riga di registrazione in root.go, sostituita da un commento che spiega perche' non va reintrodotto. Una reprint deve rifare la rimozione.",
+  "reason": "`import` faceva POST su /<resource>, con il nome della risorsa preso da un argomento posizionale arbitrario. spec.yaml dichiara due soli endpoint, entrambi GET, e `auth: none`: il portale della Giustizia Amministrativa non ha alcuna superficie di scrittura da raggiungere, quindi ogni invocazione sarebbe finita in 404 o 405. Il 7 agosto il comando era gia' stato nascosto all'MCP (`mcp:hidden`) proprio per questo, ma restava nella CLI, dove poteva solo fallire: era l'unico fallimento critico di `cli-printing-press verify` (`resource-path:import` - *import derives paths from arbitrary resource names; use the emitted resource path map*). Non e' un difetto risolvibile mappando il path, perche' il path non esiste. La rimozione porta via anche il flag morto `--batch-size`, dichiarato e mai letto. Verify passa da 96% (24/25, 1 critico) a 100% (23/23, 0 critici).",
+  "files": [
+    "internal/cli/import.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "go build/vet/test verdi; `cli-printing-press verify --dir .` 100% (23/23), 0 fallimenti critici; nessun riferimento a `import` in README.md, SKILL.md o docs/."
+}

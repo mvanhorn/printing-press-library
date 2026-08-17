@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "pinecone-novel-annotations",
+  "applied_at": "2026-08-13",
+  "base_run_id": "20260813-214420-550eb813",
+  "base_printing_press_version": "4.30.2",
+  "summary": "Added pp:happy-args and pp:typed-exit-codes annotations to novel commands (text-query, snapshot, prune, check-vectors) so the publish phase5 live matrix exercises their happy paths.",
+  "reason": "Publish's phase5 gate rejects novel features whose live-dogfood happy paths are skipped (hollow coverage); the annotations give the matrix realistic fixtures.",
+  "files": ["internal/cli/text_query.go", "internal/cli/snapshot.go", "internal/cli/prune.go", "internal/cli/check_vectors.go"],
+  "validated_outcome": "publish validate phase5 check PASS after annotations; live dogfood 595 tests 0 failed"
+}

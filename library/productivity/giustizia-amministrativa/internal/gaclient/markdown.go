@@ -7,13 +7,32 @@ import (
 	"golang.org/x/net/html"
 )
 
-var rePubblicato = regexp.MustCompile(`Pubblicato il\s+(\d{2}/\d{2}/\d{4})`)
+// The portal states the filing date in two different wordings, and which one
+// appears depends on how the document was produced: "Pubblicato il GG/MM/AAAA"
+// (typical of the PDF originals) and "DEPOSITATA IN SEGRETERIA … Il
+// GG/MM/AAAA" (typical of the HTML rendering, where the two lines sit in
+// separate <p> tags). Matching only the first left the date empty for the vast
+// majority of provvedimenti — a field the manifest and the front matter
+// promise, and the second element of any citation after the number.
+var reDataDeposito = []*regexp.Regexp{
+	regexp.MustCompile(`(?i)Pubblicat[oa]\s+il\s+(\d{2}/\d{2}/\d{4})`),
+	regexp.MustCompile(`(?i)DEPOSITAT[AO]\s+IN\s+SEGRETERIA\s*(?:Il\s+)?(\d{2}/\d{2}/\d{4})`),
+}
 
-// ExtractDataDeposito returns the publication date ("Pubblicato il DD/MM/YYYY")
-// from a provvedimento document, or "" if absent.
-func ExtractDataDeposito(docHTML string) string {
-	if m := rePubblicato.FindStringSubmatch(docHTML); m != nil {
-		return m[1]
+// reTag strips markup so a wording split across elements still matches.
+var reTag = regexp.MustCompile(`<[^>]*>`)
+
+// ExtractDataDeposito returns the filing date of a provvedimento, from either
+// the HTML served by the portal or the text extracted from a PDF, or "" when
+// the document states none.
+func ExtractDataDeposito(doc string) string {
+	plain := reTag.ReplaceAllString(doc, " ")
+	plain = strings.ReplaceAll(plain, "&nbsp;", " ")
+	plain = strings.Join(strings.Fields(plain), " ")
+	for _, re := range reDataDeposito {
+		if m := re.FindStringSubmatch(plain); m != nil {
+			return m[1]
+		}
 	}
 	return ""
 }

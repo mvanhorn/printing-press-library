@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"reflect"
+	"strings"
 	"sync"
 	"time"
 
@@ -22,13 +24,43 @@ var (
 )
 
 type Credentials struct {
-	AuthHeaderVal        string    `toml:"auth_header,omitempty"`
-	AccessToken          string    `toml:"access_token,omitempty"`
-	RefreshToken         string    `toml:"refresh_token,omitempty"`
-	TokenExpiry          time.Time `toml:"token_expiry,omitempty"`
-	ClientID             string    `toml:"client_id,omitempty"`
-	ClientSecret         string    `toml:"client_secret,omitempty"`
-	ScrapecreatorsApiKey string    `toml:"api_key,omitempty"`
+	AuthHeaderVal        string    `toml:"auth_header"`
+	AccessToken          string    `toml:"access_token"`
+	RefreshToken         string    `toml:"refresh_token"`
+	TokenExpiry          time.Time `toml:"token_expiry"`
+	ClientID             string    `toml:"client_id"`
+	ClientSecret         string    `toml:"client_secret"`
+	ScrapecreatorsApiKey string    `toml:"api_key"`
+}
+
+func credentialsFileFrom(creds *Credentials) map[string]interface{} {
+	values := map[string]interface{}{}
+	if creds == nil {
+		return values
+	}
+	credsValue := reflect.ValueOf(*creds)
+	credsType := credsValue.Type()
+	for i := 0; i < credsType.NumField(); i++ {
+		key := credentialTomlKey(credsType.Field(i))
+		if key == "" {
+			continue
+		}
+		value := credsValue.Field(i)
+		if value.IsZero() {
+			continue
+		}
+		values[key] = value.Interface()
+	}
+	return values
+}
+
+func credentialTomlKey(field reflect.StructField) string {
+	tag := field.Tag.Get("toml")
+	key, _, _ := strings.Cut(tag, ",")
+	if key == "-" {
+		return ""
+	}
+	return key
 }
 
 func credentialsPath() (string, error) {
@@ -37,6 +69,26 @@ func credentialsPath() (string, error) {
 		return "", err
 	}
 	return filepath.Join(dir, credentialsFileName), nil
+}
+
+// CredentialsFilePathForConfig keeps explicit config homes isolated by resolving
+// the config path before locating its colocated data store.
+func CredentialsFilePathForConfig(configPath string) (string, error) {
+	configPath = strings.TrimSpace(configPath)
+	if configPath == "" {
+		return "", errors.New("config path must not be empty")
+	}
+	if resolved, err := filepath.EvalSymlinks(configPath); err == nil {
+		configPath = resolved
+	} else if errors.Is(err, os.ErrNotExist) {
+		resolvedDir, dirErr := filepath.EvalSymlinks(filepath.Dir(configPath))
+		if dirErr == nil {
+			configPath = filepath.Join(resolvedDir, filepath.Base(configPath))
+		}
+	} else {
+		return "", fmt.Errorf("resolving config path %s: %w", configPath, err)
+	}
+	return filepath.Join(filepath.Dir(configPath), "data", credentialsFileName), nil
 }
 
 func CredentialsFilePath() (string, error) {
@@ -48,17 +100,72 @@ func LoadCredentials() (*Credentials, bool, error) {
 	if err != nil {
 		return nil, false, err
 	}
-	data, err := os.ReadFile(path)
+	return loadCredentials(path, false)
+}
+
+func LoadCredentialsForConfig(configPath string) (*Credentials, bool, error) {
+	path, err := CredentialsFilePathForConfig(configPath)
+	if err != nil {
+		return nil, false, err
+	}
+	return loadCredentials(path, true)
+}
+
+func loadCredentials(path string, rejectInvalid bool) (*Credentials, bool, error) {
+	// Read-time credentials-perms guard (S1): this file holds a live token and,
+	// though written 0600, can later drift to group/world-readable (a stray
+	// chmod, a broad-umask copy, a loose-perms backup restore). Canonicalize
+	// first with filepath.EvalSymlinks so a symlink pointing at a loose-perms
+	// target is caught (and a missing/dangling path resolves to an error), then
+	// refuse an over-permissive file. The default LoadCredentials path preserves
+	// its existing soft-miss behavior for rejected files. The explicit-config
+	// path uses rejectInvalid so a rejected sibling cannot fall through to a
+	// different home's credentials. A missing/unresolvable path stays silent
+	// (matching the prior ErrNotExist branch); a resolvable-but-over-permissive
+	// file warns like the existing read/parse paths, with a message that names
+	// path + mode + remediation only, never the file contents (S3). This file is
+	// package cliutil, so VerifyCredsPerms is called in-package.
+	real, evalErr := filepath.EvalSymlinks(path)
+	if evalErr != nil {
+		if !errors.Is(evalErr, os.ErrNotExist) {
+			warnCredentialsIssue(path, "resolve", evalErr)
+			if rejectInvalid {
+				return nil, false, fmt.Errorf("resolving credentials %s: %w", path, evalErr)
+			}
+		} else if rejectInvalid {
+			if _, statErr := os.Lstat(path); statErr == nil || !errors.Is(statErr, os.ErrNotExist) {
+				return nil, false, fmt.Errorf("resolving credentials %s: %w", path, evalErr)
+			}
+		}
+		return nil, false, nil
+	}
+	if permErr := VerifyCredsPerms(real); permErr != nil {
+		warnCredentialsIssue(path, "perms", permErr)
+		if rejectInvalid {
+			return nil, false, fmt.Errorf("credentials permissions %s: %w", path, permErr)
+		}
+		return nil, false, nil
+	}
+	data, err := os.ReadFile(filepath.Clean(path)) // #nosec G304 -- app-owned credentials path from cliutil.DataDir.
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
+			if rejectInvalid {
+				return nil, false, fmt.Errorf("reading credentials %s: %w", path, err)
+			}
 			return nil, false, nil
 		}
 		warnCredentialsIssue(path, "read", err)
+		if rejectInvalid {
+			return nil, false, fmt.Errorf("reading credentials %s: %w", path, err)
+		}
 		return nil, false, nil
 	}
 	var creds Credentials
 	if err := toml.Unmarshal(data, &creds); err != nil {
 		warnCredentialsIssue(path, "parse", err)
+		if rejectInvalid {
+			return nil, false, fmt.Errorf("parsing credentials %s: %w", path, err)
+		}
 		return nil, false, nil
 	}
 	return &creds, true, nil
@@ -100,7 +207,7 @@ func SaveCredentials(creds *Credentials) error {
 	if err != nil {
 		return err
 	}
-	data, err := toml.Marshal(creds)
+	data, err := toml.Marshal(credentialsFileFrom(creds)) // #nosec G117 -- credentials are intentionally persisted to a 0600 private file.
 	if err != nil {
 		return fmt.Errorf("marshaling credentials: %w", err)
 	}

@@ -41,7 +41,7 @@ func newUsersPromotedCmd(flags *rootFlags) *cobra.Command {
 			}
 			path = replacePathParam(path, "user_id", args[0])
 			params := map[string]string{}
-			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "users", false, path, params, nil, "images", cmd.ErrOrStderr())
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "users", false, path, params, nil, "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

@@ -66,10 +66,17 @@ AGENTS.override.md
 # experimental skills live next to this checkout without being published from
 # this public repo. Already-tracked files remain tracked unless intentionally
 # removed from git later.
-.claude/skills/
-.skills/
-.agents/skills/
-.codex/skills/
-.cursor/skills/
-.gemini/skills/
+#
+# Deliberately no trailing slashes: a trailing slash matches directories only,
+# and git classifies a symlink as a file. Sharing one skill install across git
+# worktrees by symlinking these paths is common, and a slash-suffixed pattern
+# leaves that symlink untracked-but-not-ignored -- exactly what these rules
+# exist to prevent. Keep them slashless so both the real directory and a
+# symlink to it are ignored.
+.claude/skills
+.skills
+.agents/skills
+.codex/skills
+.cursor/skills
+.gemini/skills
 /skills-lock.json

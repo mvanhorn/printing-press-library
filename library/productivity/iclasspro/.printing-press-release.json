@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "iclasspro",
+  "cli_name": "iclasspro-pp-cli",
+  "version": "2026.8.1",
+  "released_at": "2026-08-17T04:57:10Z",
+  "source_commit": "dfe5ca2dde57b8767403425bf45eca381779d6d5",
+  "printing_press_version": "4.30.1",
+  "run_id": "20260805-132802-de816ded",
+  "changes": [
+    {
+      "title": "feat(iclasspro): add iclasspro",
+      "pr": 1713,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1713",
+      "commit": "dfe5ca2dde57b8767403425bf45eca381779d6d5"
+    }
+  ]
+}

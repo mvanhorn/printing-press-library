@@ -32,6 +32,7 @@ type ItemRow struct {
 	ID              string
 	ListID          string
 	Name            string
+	ProductUpc      string
 	Quantity        string
 	Details         string
 	Category        string
@@ -140,6 +141,21 @@ type Store struct {
 	db *sql.DB
 }
 
+// ErrListNotFound identifies an expected cache miss when resolving a list by
+// name. Callers can handle that case without treating database errors as an
+// empty list.
+var ErrListNotFound = errors.New("list not found")
+
+type listNotFoundError struct {
+	name string
+}
+
+func (e listNotFoundError) Error() string {
+	return fmt.Sprintf("list %q not found — run 'anylist-pp-cli sync' first", e.name)
+}
+
+func (e listNotFoundError) Unwrap() error { return ErrListNotFound }
+
 // DB exposes the raw database connection.
 func (s *Store) DB() *sql.DB {
 	return s.db
@@ -190,6 +206,7 @@ CREATE TABLE IF NOT EXISTS items (
     id TEXT PRIMARY KEY,
     list_id TEXT NOT NULL,
     name TEXT NOT NULL,
+    product_upc TEXT DEFAULT '',
     quantity TEXT DEFAULT '',
     details TEXT DEFAULT '',
     category TEXT DEFAULT '',
@@ -328,6 +345,9 @@ END;
 		return err
 	}
 	if err := s.ensureColumn("lists", "new_list_item_position", "INTEGER DEFAULT 0"); err != nil {
+		return err
+	}
+	if err := s.ensureColumn("items", "product_upc", "TEXT DEFAULT ''"); err != nil {
 		return err
 	}
 	_, err := s.db.Exec(fmt.Sprintf("PRAGMA user_version = %d", StoreSchemaVersion))
@@ -602,11 +622,12 @@ func upsertItem(tx *sql.Tx, item *pb.ListItem) error {
 	}
 	_, err = tx.Exec(
 		`INSERT OR REPLACE INTO items
-		 (id, list_id, name, quantity, details, category, category_match_id, checked, manual_sort_index, store_ids)
-		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		 (id, list_id, name, product_upc, quantity, details, category, category_match_id, checked, manual_sort_index, store_ids)
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		item.GetIdentifier(),
 		item.GetListId(),
 		item.GetName(),
+		item.GetProductUpc(),
 		item.GetQuantity(),
 		item.GetDetails(),
 		item.GetCategory(),
@@ -757,12 +778,12 @@ func (s *Store) FindListByName(name string) (*ListRow, error) {
 			return &all[i], nil
 		}
 	}
-	return nil, fmt.Errorf("list %q not found — run 'anylist-pp-cli sync' first", name)
+	return nil, listNotFoundError{name: name}
 }
 
 // GetItems returns items for a list, optionally filtered by checked state.
 func (s *Store) GetItems(listID string, checked *bool) ([]ItemRow, error) {
-	query := `SELECT id, list_id, name, quantity, details, category, category_match_id, checked, manual_sort_index, store_ids
+	query := `SELECT id, list_id, name, product_upc, quantity, details, category, category_match_id, checked, manual_sort_index, store_ids
 	          FROM items WHERE list_id = ?`
 	args := []any{listID}
 	if checked != nil {
@@ -786,7 +807,7 @@ func (s *Store) GetItems(listID string, checked *bool) ([]ItemRow, error) {
 func (s *Store) FindItemByName(listID, name string) (*ItemRow, error) {
 	lower := strings.ToLower(name)
 	rows, err := s.db.Query(
-		`SELECT id, list_id, name, quantity, details, category, category_match_id, checked, manual_sort_index, store_ids
+		`SELECT id, list_id, name, product_upc, quantity, details, category, category_match_id, checked, manual_sort_index, store_ids
 		 FROM items WHERE list_id = ?`, listID)
 	if err != nil {
 		return nil, err
@@ -822,7 +843,7 @@ func (s *Store) FindItemByName(listID, name string) (*ItemRow, error) {
 // FindItemByID finds an item in a list by exact item identifier.
 func (s *Store) FindItemByID(listID, itemID string) (*ItemRow, error) {
 	rows, err := s.db.Query(
-		`SELECT id, list_id, name, quantity, details, category, category_match_id, checked, manual_sort_index, store_ids
+		`SELECT id, list_id, name, product_upc, quantity, details, category, category_match_id, checked, manual_sort_index, store_ids
 		 FROM items WHERE list_id = ? AND id = ?`, listID, itemID)
 	if err != nil {
 		return nil, err
@@ -840,9 +861,9 @@ func (s *Store) FindItemByID(listID, itemID string) (*ItemRow, error) {
 
 // SearchItems searches items across all lists using FTS5.
 func (s *Store) SearchItems(query string) ([]ItemSearchResult, error) {
-	ftsQuery := query + "*"
+	ftsQuery := ftsPrefixQuery(query)
 	sqlQuery := `
-		SELECT i.id, i.list_id, i.name, i.quantity, i.details, i.category, i.category_match_id,
+		SELECT i.id, i.list_id, i.name, i.product_upc, i.quantity, i.details, i.category, i.category_match_id,
 		       i.checked, i.manual_sort_index, i.store_ids, l.name as list_name
 		FROM items i
 		JOIN lists l ON i.list_id = l.id
@@ -861,8 +882,8 @@ func (s *Store) SearchItems(query string) ([]ItemSearchResult, error) {
 		var checkedInt int
 		var storeIDsStr string
 		if err := rows.Scan(
-			&r.ID, &r.ListID, &r.Name, &r.Quantity, &r.Details, &r.Category,
-			&r.CategoryMatchID, &checkedInt, &r.SortIndex, &storeIDsStr, &r.ListName,
+			&r.ID, &r.ListID, &r.Name, &r.ProductUpc, &r.Quantity, &r.Details,
+			&r.Category, &r.CategoryMatchID, &checkedInt, &r.SortIndex, &storeIDsStr, &r.ListName,
 		); err != nil {
 			return nil, err
 		}
@@ -876,7 +897,7 @@ func (s *Store) SearchItems(query string) ([]ItemSearchResult, error) {
 // GetListsByStore returns unchecked items grouped by store for a list.
 func (s *Store) GetListsByStore(listID string) ([]StoreGroup, error) {
 	sqlQuery := `
-		SELECT i.id, i.list_id, i.name, i.quantity, i.details, i.category, i.category_match_id,
+		SELECT i.id, i.list_id, i.name, i.product_upc, i.quantity, i.details, i.category, i.category_match_id,
 		       i.checked, i.manual_sort_index, i.store_ids,
 		       COALESCE(s.name, 'Unassigned') as store_name, COALESCE(s.sort_index, 9999) as ssi
 		FROM items i
@@ -909,7 +930,7 @@ func (s *Store) GetListsByStore(listID string) ([]StoreGroup, error) {
 		var storeName string
 		var ssi int
 		if err := rows.Scan(
-			&item.ID, &item.ListID, &item.Name, &item.Quantity, &item.Details,
+			&item.ID, &item.ListID, &item.Name, &item.ProductUpc, &item.Quantity, &item.Details,
 			&item.Category, &item.CategoryMatchID, &checkedInt, &item.SortIndex,
 			&storeIDsStr, &storeName, &ssi,
 		); err != nil {
@@ -1081,7 +1102,7 @@ func (s *Store) SearchRecipesByIngredient(ingredient string) ([]RecipeIngredient
 
 // SearchRecipesByName searches recipes by name using FTS5.
 func (s *Store) SearchRecipesByName(query string) ([]RecipeRow, error) {
-	ftsQuery := query + "*"
+	ftsQuery := ftsPrefixQuery(query)
 	sqlQuery := `
 		SELECT r.id, r.name, r.note, r.source_name, r.source_url, r.rating, r.prep_time, r.cook_time,
 		       r.servings, r.timestamp, r.creation_timestamp
@@ -1095,6 +1116,23 @@ func (s *Store) SearchRecipesByName(query string) ([]RecipeRow, error) {
 	}
 	defer rows.Close()
 	return scanRecipes(rows)
+}
+
+// ftsPrefixQuery turns each whitespace-delimited search term into a quoted
+// FTS5 prefix phrase. Quoting keeps punctuation such as the hyphen in
+// "example-value" from being parsed as an operator or column name while
+// retaining prefix matching for every term.
+func ftsPrefixQuery(query string) string {
+	terms := strings.Fields(strings.TrimSpace(query))
+	if len(terms) == 0 {
+		return `""`
+	}
+	quoted := make([]string, len(terms))
+	for i, term := range terms {
+		term = strings.ReplaceAll(term, `"`, `""`)
+		quoted[i] = `"` + term + `"*`
+	}
+	return strings.Join(quoted, " AND ")
 }
 
 // FilterRecipes filters recipes by prep time, cook time, rating, servings, and collection.
@@ -1417,7 +1455,7 @@ func scanItems(rows *sql.Rows) ([]ItemRow, error) {
 		var checkedInt int
 		var storeIDsStr string
 		if err := rows.Scan(
-			&it.ID, &it.ListID, &it.Name, &it.Quantity, &it.Details,
+			&it.ID, &it.ListID, &it.Name, &it.ProductUpc, &it.Quantity, &it.Details,
 			&it.Category, &it.CategoryMatchID, &checkedInt, &it.SortIndex, &storeIDsStr,
 		); err != nil {
 			return nil, err

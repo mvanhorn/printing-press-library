@@ -1,0 +1,31 @@
+{
+  "timestamp": "2026-08-05T23:24:38.860832Z",
+  "cli_dir": "\u003ccli-dir\u003e/iclasspro-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated platform_client.go; 'List client profiles' is exact — the command takes no filters and returns the named tenant profiles from config, so there is nothing an agent could pass or expect that the four words omit."
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 691,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated teach.go; this is the shared learn-loop surface emitted identically into every printed CLI, so a per-CLI hand-edit is wiped on the next regen and would not compound. Retro candidate: raise the learn-loop Short in the generator template once."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-08-05T23:12:09.415576Z"
+  },
+  "progress": {
+    "last_processed_finding_id": "thin-short:teach.go:691"
+  }
+}

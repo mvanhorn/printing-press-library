@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "fireflies",
   "cli_name": "fireflies-pp-cli",
-  "version": "2026.7.1",
-  "released_at": "2026-07-08T18:21:21Z",
-  "source_commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0",
+  "version": "2026.7.2",
+  "released_at": "2026-07-22T23:47:18Z",
+  "source_commit": "1d8f5ec4082e340335925f347776a05c4e37e28d",
   "printing_press_version": "4.0.6",
   "run_id": "20260509-005754",
   "changes": [
     {
-      "title": "fix(catalog): require Go 1.26.5 across published modules",
-      "pr": 1467,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1467",
-      "commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0"
+      "title": "fix(fireflies): accept --file and -o as aliases for transcripts export output path",
+      "pr": 1156,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1156",
+      "commit": "1d8f5ec4082e340335925f347776a05c4e37e28d"
     }
   ]
 }

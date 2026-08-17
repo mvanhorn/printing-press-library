@@ -193,15 +193,23 @@ func newMeetingsGetCmd(flags *rootFlags) *cobra.Command {
 				return nil
 			}
 			id := args[0]
-			// Prefer cache for richness (notes, transcript flag).
-			c, err := openGranolaCache()
+			// PATCH(dual-path-store-read): store first, cache second. The
+			// merged document keeps the cache's richness (TipTap notes,
+			// calendar event) when a cache is readable, and still answers
+			// from the meetings table when it is not.
+			c, err := openGranolaRead(cmd.Context())
 			if err == nil {
+				var out map[string]any
 				if d := c.DocumentByID(id); d != nil {
-					out := flattenDocForJSON(c, d)
+					out = flattenDocForJSON(c.MeetingMetadataByID(id), d)
+				}
+				c.Close()
+				if out != nil {
 					return emitJSON(cmd, flags, out)
 				}
 			}
-			// Fallback: store.
+			// Fallback: the paged store projection, which carries the
+			// transcript_available / ended_at columns Document lacks.
 			s, err := openGranolaStoreRead(cmd.Context())
 			if err == nil && s != nil {
 				s.Close()
@@ -331,7 +339,10 @@ func newMeetingsRestoreCmd(flags *rootFlags) *cobra.Command {
 // flattenDocForJSON builds a public-shaped record for emission. Pass a
 // non-nil cache to include meetingsMetadata attendees; live-API records
 // already carry their attendees in doc.people.
-func flattenDocForJSON(c *granola.Cache, d *granola.Document) map[string]any {
+// PATCH(dual-path-store-read): takes resolved metadata rather than a
+// *granola.Cache so the attendee block can be sourced from the store's
+// attendees table as easily as from the cache's meetingsMetadata.
+func flattenDocForJSON(md *granola.MeetingMetadata, d *granola.Document) map[string]any {
 	out := map[string]any{
 		"id":              d.ID,
 		"title":           d.Title,
@@ -355,11 +366,9 @@ func flattenDocForJSON(c *granola.Cache, d *granola.Document) map[string]any {
 	if d.NotesMarkdown != "" {
 		out["notes_markdown"] = d.NotesMarkdown
 	}
-	// Attendees: prefer meetingsMetadata when we have a cache reference.
-	if c != nil {
-		if md := c.MeetingMetadataByID(d.ID); md != nil {
-			out["attendees"] = md.Attendees
-		}
+	// Attendees: prefer resolved metadata when the caller has it.
+	if md != nil && len(md.Attendees) > 0 {
+		out["attendees"] = md.Attendees
 	}
 	if _, hasAtt := out["attendees"]; !hasAtt && d.People != nil {
 		out["attendees"] = d.People.Attendees

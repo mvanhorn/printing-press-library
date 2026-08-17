@@ -1,0 +1,279 @@
+{
+  "api_name": "algolia",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "@algolia/cli",
+      "url": "https://github.com/algolia/cli",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 63,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "algoliasearch-client-go",
+      "url": "https://github.com/algolia/algoliasearch-client-go",
+      "language": "Go",
+      "install_method": "",
+      "stars": 200,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "algoliasearch-client-javascript",
+      "url": "https://github.com/algolia/algoliasearch-client-javascript",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 1385,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-13T17:30:00Z",
+  "novel_features": [
+    {
+      "name": "Cross-index search",
+      "command": "find",
+      "description": "Search across every synced index in one shot, with each hit labeled by its source index.",
+      "rationale": "No single Algolia API endpoint spans indices; only a local SQLite store can query multiple synced indices at once.",
+      "example": "algolia-pp-cli find --query \"dune\" --limit 20",
+      "why_it_matters": "Use this when you need to know which of your indices contains a record, without issuing N API calls.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Settings diff",
+      "command": "settings diff",
+      "description": "Field-level comparison of settings between two indices (or a settings file vs an index).",
+      "rationale": "Requires local snapshots of settings to compare; the API only returns one index's settings at a time.",
+      "example": "algolia-pp-cli settings diff algolia_movie_sample_dataset staging_movies",
+      "why_it_matters": "Use this to verify prod/staging parity before a release instead of exporting and eyeballing JSON.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Stale rules report",
+      "command": "rules stale",
+      "description": "Find rules that reference attributes missing from the index's searchable attributes or that can never match.",
+      "rationale": "Requires joining local rules with the index settings; no API endpoint cross-checks rules against settings.",
+      "example": "algolia-pp-cli rules stale --index algolia_movie_sample_dataset",
+      "why_it_matters": "Use this to find dead-weight relevance rules before they silently corrupt search results.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "API key ACL report",
+      "command": "apikeys report",
+      "description": "Audit all API keys: write-capable, unrestricted, and expired keys grouped by ACL, with last-use from synced logs.",
+      "rationale": "Requires local aggregation of keys plus log activity; the API returns keys and logs separately.",
+      "example": "algolia-pp-cli apikeys report",
+      "why_it_matters": "Use this for key rotation audits to catch write-capable keys that have gone unused for months.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Search regression check",
+      "command": "search check",
+      "description": "Assert that a query returns expected objectIDs, with a typed exit code for CI pipelines.",
+      "rationale": "Adds an assertion contract and exit-code semantics over the live search endpoint that no existing tool provides.",
+      "example": "algolia-pp-cli search check --index algolia_movie_sample_dataset --query \"dune\" --expect media-sample-data-438631",
+      "why_it_matters": "Use this after every rule or synonym change to catch relevance regressions before they reach users.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Unsearchable-records report",
+      "command": "objects gaps",
+      "description": "List records missing attributes required by the index's searchable settings — records search can never return.",
+      "rationale": "Requires joining local records with the index settings to find records with null/empty required attributes.",
+      "example": "algolia-pp-cli objects gaps --index algolia_movie_sample_dataset",
+      "why_it_matters": "Use this after catalog imports to find records that are silently unreachable by search.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Records diff between indices",
+      "command": "objects diff",
+      "description": "Compare records of two indices (added/removed/changed by objectID) to verify prod/staging parity.",
+      "rationale": "Requires local records tables for both indices joined on objectID; the API has no cross-index comparison.",
+      "example": "algolia-pp-cli objects diff algolia_movie_sample_dataset staging_movies",
+      "why_it_matters": "Use this to reconcile dev and prod copies after a copy/move operation instead of exporting and diffing files.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Logs error digest",
+      "command": "logs errors",
+      "description": "Aggregate synced log entries by error code and link failed tasks for a digest of what went wrong.",
+      "rationale": "Requires local aggregation of log entries joined with the tasks table; the API returns raw log lines only.",
+      "example": "algolia-pp-cli logs errors --since 24h",
+      "why_it_matters": "Use this for weekly error triage to see error spikes and affected indices at a glance.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cross-index search",
+      "command": "find",
+      "description": "Search across every synced index in one shot, with each hit labeled by its source index.",
+      "rationale": "No single Algolia API endpoint spans indices; only a local SQLite store can query multiple synced indices at once.",
+      "example": "algolia-pp-cli find --query \"dune\" --limit 20",
+      "why_it_matters": "Use this when you need to know which of your indices contains a record, without issuing N API calls.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Settings diff",
+      "command": "settings diff",
+      "description": "Field-level comparison of settings between two indices (or a settings file vs an index).",
+      "rationale": "Requires local snapshots of settings to compare; the API only returns one index's settings at a time.",
+      "example": "algolia-pp-cli settings diff algolia_movie_sample_dataset staging_movies",
+      "why_it_matters": "Use this to verify prod/staging parity before a release instead of exporting and eyeballing JSON.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Stale rules report",
+      "command": "rules stale",
+      "description": "Find rules that reference attributes missing from the index's searchable attributes or that can never match.",
+      "rationale": "Requires joining local rules with the index settings; no API endpoint cross-checks rules against settings.",
+      "example": "algolia-pp-cli rules stale --index algolia_movie_sample_dataset",
+      "why_it_matters": "Use this to find dead-weight relevance rules before they silently corrupt search results.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "API key ACL report",
+      "command": "apikeys report",
+      "description": "Audit all API keys: write-capable, unrestricted, and expired keys grouped by ACL, with last-use from synced logs.",
+      "rationale": "Requires local aggregation of keys plus log activity; the API returns keys and logs separately.",
+      "example": "algolia-pp-cli apikeys report",
+      "why_it_matters": "Use this for key rotation audits to catch write-capable keys that have gone unused for months.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Search regression check",
+      "command": "search check",
+      "description": "Assert that a query returns expected objectIDs, with a typed exit code for CI pipelines.",
+      "rationale": "Adds an assertion contract and exit-code semantics over the live search endpoint that no existing tool provides.",
+      "example": "algolia-pp-cli search check --index algolia_movie_sample_dataset --query \"dune\" --expect media-sample-data-438631",
+      "why_it_matters": "Use this after every rule or synonym change to catch relevance regressions before they reach users.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Unsearchable-records report",
+      "command": "objects gaps",
+      "description": "List records missing attributes required by the index's searchable settings — records search can never return.",
+      "rationale": "Requires joining local records with the index settings to find records with null/empty required attributes.",
+      "example": "algolia-pp-cli objects gaps --index algolia_movie_sample_dataset",
+      "why_it_matters": "Use this after catalog imports to find records that are silently unreachable by search.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Records diff between indices",
+      "command": "objects diff",
+      "description": "Compare records of two indices (added/removed/changed by objectID) to verify prod/staging parity.",
+      "rationale": "Requires local records tables for both indices joined on objectID; the API has no cross-index comparison.",
+      "example": "algolia-pp-cli objects diff algolia_movie_sample_dataset staging_movies",
+      "why_it_matters": "Use this to reconcile dev and prod copies after a copy/move operation instead of exporting and diffing files.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Logs error digest",
+      "command": "logs errors",
+      "description": "Aggregate synced log entries by error code and link failed tasks for a digest of what went wrong.",
+      "rationale": "Requires local aggregation of log entries joined with the tasks table; the API returns raw log lines only.",
+      "example": "algolia-pp-cli logs errors --since 24h",
+      "why_it_matters": "Use this for weekly error triage to see error spikes and affected indices at a glance.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "ALGOLIA_API_KEY"
+  },
+  "narrative": {
+    "display_name": "Algolia",
+    "headline": "Every Algolia feature, plus offline search and a local database no other Algolia tool has.",
+    "value_prop": "The Algolia CLI manages indices, records, search, rules, synonyms, API keys, and settings from the terminal — with a local SQLite mirror, cross-index search, settings diffing, and relevance regression checks that the official CLI cannot offer.",
+    "auth_narrative": "Algolia uses two credentials: your Application ID (ALGOLIA_APPLICATION_ID) and an API key (ALGOLIA_API_KEY), sent as x-algolia-application-id and x-algolia-api-key headers. Find both in the Algolia dashboard under Settings \u003e API Keys. Export them before running the CLI.",
+    "quickstart": [
+      {
+        "command": "algolia-pp-cli doctor",
+        "comment": "Verify your Algolia credentials are set and the API is reachable."
+      },
+      {
+        "command": "algolia-pp-cli indexes list-indices",
+        "comment": "See every index in your application with record counts and sizes."
+      },
+      {
+        "command": "algolia-pp-cli indexes query search-single-index algolia_movie_sample_dataset --body-json '{\"query\":\"dune\"}'",
+        "comment": "Search an index with the same parameters as the dashboard."
+      },
+      {
+        "command": "algolia-pp-cli sync --resources indexes",
+        "comment": "Mirror your index list into the local SQLite store for offline queries."
+      },
+      {
+        "command": "algolia-pp-cli find --query \"dune\"",
+        "comment": "Search across all synced indices at once."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "doctor reports missing credentials",
+        "fix": "export ALGOLIA_APPLICATION_ID=\u003cyour-app-id\u003e and ALGOLIA_API_KEY=\u003cyour-api-key\u003e"
+      },
+      {
+        "symptom": "HTTP 400 'Index not found'",
+        "fix": "Check the index name — list indices with: algolia-pp-cli indices list"
+      },
+      {
+        "symptom": "HTTP 403 'API key has no ACLs to perform this action'",
+        "fix": "Use a key with the required ACL (search, browse, settings, etc.) from the dashboard."
+      },
+      {
+        "symptom": "Rate limited (HTTP 429)",
+        "fix": "Algolia rate limits per key — retry after a few seconds or use a key with higher quota."
+      }
+    ],
+    "when_to_use": "Use this CLI when you manage Algolia indices, records, rules, synonyms, or API keys from the terminal, or when you need offline access to your Algolia data for scripts, CI, and agent workflows.",
+    "anti_triggers": [
+      "Do not use this CLI for Algolia Analytics or Recommend product APIs — those are separate products with their own hosts.",
+      "Do not use this CLI as a full dashboard replacement for complex merchandising visual workflows."
+    ],
+    "recipes": [
+      {
+        "title": "Verify a relevance change",
+        "command": "algolia-pp-cli search check --index algolia_movie_sample_dataset --query \"dune\" --expect media-sample-data-438631",
+        "explanation": "Assert that a query still returns an expected hit — run in CI after every rule or synonym change."
+      },
+      {
+        "title": "Find dead rules",
+        "command": "algolia-pp-cli rules stale --index algolia_movie_sample_dataset",
+        "explanation": "Surface rules that reference removed attributes or can never match."
+      },
+      {
+        "title": "Compare prod and staging settings",
+        "command": "algolia-pp-cli settings diff algolia_movie_sample_dataset staging_movies",
+        "explanation": "See exactly which settings differ between two indices before a release."
+      },
+      {
+        "title": "Cross-index lookup",
+        "command": "algolia-pp-cli find --query \"dune\" --select index,objectID,title --limit 10",
+        "explanation": "Find which synced index contains a record and narrow the output with --select."
+      },
+      {
+        "title": "Audit API keys",
+        "command": "algolia-pp-cli apikeys report",
+        "explanation": "Get a permission matrix of write-capable, unrestricted, and expired keys."
+      }
+    ],
+    "trigger_phrases": [
+      "search my Algolia index",
+      "list my Algolia indices",
+      "check Algolia API keys",
+      "find stale Algolia rules",
+      "compare Algolia index settings"
+    ]
+  }
+}

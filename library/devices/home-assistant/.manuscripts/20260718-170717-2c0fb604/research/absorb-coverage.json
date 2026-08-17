@@ -1,0 +1,667 @@
+{
+  "schema_version": 4,
+  "api_name": "home-assistant",
+  "run_id": "20260718-170717-2c0fb604",
+  "summary": {
+    "covered_rows": 41,
+    "partial_rows": 0,
+    "missing_rows": 0,
+    "total_rows": 41
+  },
+  "verification_contract": "Each command path must resolve through the current CLI help tree; routes/types are implemented in the listed handler file and exercised by the focused test or full Go suite.",
+  "rows": [
+    {
+      "row": 1,
+      "status": "covered",
+      "command_paths": [
+        "home-assistant-pp-cli doctor",
+        "home-assistant-pp-cli config get",
+        "home-assistant-pp-cli system info"
+      ],
+      "handler_files": [
+        "internal/cli/manifest_surface.go"
+      ],
+      "transport_kind": "Home Assistant REST/WebSocket or local self-hosted transport; exact dispatch documented in internal/cli/manifest_surface.go",
+      "capability_probe": "--help resolution; runtime capability response is only emitted after transport attempt",
+      "focused_test": "go test ./..."
+    },
+    {
+      "row": 2,
+      "status": "covered",
+      "command_paths": [
+        "home-assistant-pp-cli states list",
+        "home-assistant-pp-cli states get",
+        "home-assistant-pp-cli states set",
+        "home-assistant-pp-cli states delete"
+      ],
+      "handler_files": [
+        "internal/cli/manifest_surface.go"
+      ],
+      "transport_kind": "Home Assistant REST/WebSocket or local self-hosted transport; exact dispatch documented in internal/cli/manifest_surface.go",
+      "capability_probe": "--help resolution; runtime capability response is only emitted after transport attempt",
+      "focused_test": "go test ./..."
+    },
+    {
+      "row": 3,
+      "status": "covered",
+      "command_paths": [
+        "home-assistant-pp-cli history list",
+        "home-assistant-pp-cli statistics list",
+        "home-assistant-pp-cli logbook list"
+      ],
+      "handler_files": [
+        "internal/cli/manifest_surface.go"
+      ],
+      "transport_kind": "Home Assistant REST/WebSocket or local self-hosted transport; exact dispatch documented in internal/cli/manifest_surface.go",
+      "capability_probe": "--help resolution; runtime capability response is only emitted after transport attempt",
+      "focused_test": "go test ./..."
+    },
+    {
+      "row": 4,
+      "status": "covered",
+      "command_paths": [
+        "home-assistant-pp-cli services list",
+        "home-assistant-pp-cli services call"
+      ],
+      "handler_files": [
+        "internal/cli/manifest_surface.go"
+      ],
+      "transport_kind": "Home Assistant REST/WebSocket or local self-hosted transport; exact dispatch documented in internal/cli/manifest_surface.go",
+      "capability_probe": "--help resolution; runtime capability response is only emitted after transport attempt",
+      "focused_test": "go test ./..."
+    },
+    {
+      "row": 5,
+      "status": "covered",
+      "command_paths": [
+        "home-assistant-pp-cli events fire",
+        "home-assistant-pp-cli event watch"
+      ],
+      "handler_files": [
+        "internal/cli/manifest_surface.go"
+      ],
+      "transport_kind": "WebSocket subscribe_events via HomeAssistantWSWatchEvent",
+      "capability_probe": "--help resolution; runtime capability response is only emitted after transport attempt",
+      "focused_test": "internal/client/home_assistant_ws_test.go"
+    },
+    {
+      "row": 6,
+      "status": "covered",
+      "command_paths": [
+        "home-assistant-pp-cli template render",
+        "home-assistant-pp-cli config validate"
+      ],
+      "handler_files": [
+        "internal/cli/manifest_surface.go"
+      ],
+      "transport_kind": "Home Assistant REST/WebSocket or local self-hosted transport; exact dispatch documented in internal/cli/manifest_surface.go",
+      "capability_probe": "--help resolution; runtime capability response is only emitted after transport attempt",
+      "focused_test": "go test ./..."
+    },
+    {
+      "row": 7,
+      "status": "covered",
+      "command_paths": [
+        "home-assistant-pp-cli raw rest",
+        "home-assistant-pp-cli raw websocket"
+      ],
+      "handler_files": [
+        "internal/cli/manifest_surface.go"
+      ],
+      "transport_kind": "Home Assistant REST/WebSocket or local self-hosted transport; exact dispatch documented in internal/cli/manifest_surface.go",
+      "capability_probe": "--help resolution; runtime capability response is only emitted after transport attempt",
+      "focused_test": "go test ./..."
+    },
+    {
+      "row": 8,
+      "status": "covered",
+      "command_paths": [
+        "home-assistant-pp-cli agent-context",
+        "home-assistant-pp-cli completion"
+      ],
+      "handler_files": [
+        "internal/cli/manifest_surface.go"
+      ],
+      "transport_kind": "Home Assistant REST/WebSocket or local self-hosted transport; exact dispatch documented in internal/cli/manifest_surface.go",
+      "capability_probe": "--help resolution; runtime capability response is only emitted after transport attempt",
+      "focused_test": "go test ./..."
+    },
+    {
+      "row": 9,
+      "status": "covered",
+      "command_paths": [
+        "home-assistant-pp-cli floor list",
+        "home-assistant-pp-cli floor set",
+        "home-assistant-pp-cli floor remove",
+        "home-assistant-pp-cli area list",
+        "home-assistant-pp-cli area set",
+        "home-assistant-pp-cli area remove"
+      ],
+      "handler_files": [
+        "internal/cli/manifest_surface.go"
+      ],
+      "transport_kind": "Home Assistant REST/WebSocket or local self-hosted transport; exact dispatch documented in internal/cli/manifest_surface.go",
+      "capability_probe": "--help resolution; runtime capability response is only emitted after transport attempt",
+      "focused_test": "go test ./..."
+    },
+    {
+      "row": 10,
+      "status": "covered",
+      "command_paths": [
+        "home-assistant-pp-cli device list",
+        "home-assistant-pp-cli device get",
+        "home-assistant-pp-cli device set",
+        "home-assistant-pp-cli device remove",
+        "home-assistant-pp-cli device assign"
+      ],
+      "handler_files": [
+        "internal/cli/manifest_surface.go"
+      ],
+      "transport_kind": "Home Assistant REST/WebSocket or local self-hosted transport; exact dispatch documented in internal/cli/manifest_surface.go",
+      "capability_probe": "--help resolution; runtime capability response is only emitted after transport attempt",
+      "focused_test": "go test ./..."
+    },
+    {
+      "row": 11,
+      "status": "covered",
+      "command_paths": [
+        "home-assistant-pp-cli entity list",
+        "home-assistant-pp-cli entity get",
+        "home-assistant-pp-cli entity set",
+        "home-assistant-pp-cli entity remove"
+      ],
+      "handler_files": [
+        "internal/cli/manifest_surface.go"
+      ],
+      "transport_kind": "Home Assistant REST/WebSocket or local self-hosted transport; exact dispatch documented in internal/cli/manifest_surface.go",
+      "capability_probe": "--help resolution; runtime capability response is only emitted after transport attempt",
+      "focused_test": "go test ./..."
+    },
+    {
+      "row": 12,
+      "status": "covered",
+      "command_paths": [
+        "home-assistant-pp-cli label list",
+        "home-assistant-pp-cli label get",
+        "home-assistant-pp-cli label set",
+        "home-assistant-pp-cli label remove",
+        "home-assistant-pp-cli category list",
+        "home-assistant-pp-cli category get",
+        "home-assistant-pp-cli category set",
+        "home-assistant-pp-cli category remove"
+      ],
+      "handler_files": [
+        "internal/cli/manifest_surface.go"
+      ],
+      "transport_kind": "Home Assistant REST/WebSocket or local self-hosted transport; exact dispatch documented in internal/cli/manifest_surface.go",
+      "capability_probe": "--help resolution; runtime capability response is only emitted after transport attempt",
+      "focused_test": "go test ./..."
+    },
+    {
+      "row": 13,
+      "status": "covered",
+      "command_paths": [
+        "home-assistant-pp-cli zone list",
+        "home-assistant-pp-cli zone get",
+        "home-assistant-pp-cli zone set",
+        "home-assistant-pp-cli zone remove"
+      ],
+      "handler_files": [
+        "internal/cli/manifest_surface.go"
+      ],
+      "transport_kind": "Home Assistant REST/WebSocket or local self-hosted transport; exact dispatch documented in internal/cli/manifest_surface.go",
+      "capability_probe": "--help resolution; runtime capability response is only emitted after transport attempt",
+      "focused_test": "go test ./..."
+    },
+    {
+      "row": 14,
+      "status": "covered",
+      "command_paths": [
+        "home-assistant-pp-cli find",
+        "home-assistant-pp-cli overview"
+      ],
+      "handler_files": [
+        "internal/cli/manifest_surface.go"
+      ],
+      "transport_kind": "Home Assistant REST/WebSocket or local self-hosted transport; exact dispatch documented in internal/cli/manifest_surface.go",
+      "capability_probe": "--help resolution; runtime capability response is only emitted after transport attempt",
+      "focused_test": "go test ./..."
+    },
+    {
+      "row": 15,
+      "status": "covered",
+      "command_paths": [
+        "home-assistant-pp-cli bulk plan",
+        "home-assistant-pp-cli bulk apply",
+        "home-assistant-pp-cli bulk status"
+      ],
+      "handler_files": [
+        "internal/cli/manifest_surface.go"
+      ],
+      "transport_kind": "Home Assistant REST/WebSocket or local self-hosted transport; exact dispatch documented in internal/cli/manifest_surface.go",
+      "capability_probe": "--help resolution; runtime capability response is only emitted after transport attempt",
+      "focused_test": "go test ./..."
+    },
+    {
+      "row": 16,
+      "status": "covered",
+      "command_paths": [
+        "home-assistant-pp-cli automation get",
+        "home-assistant-pp-cli automation set",
+        "home-assistant-pp-cli automation remove",
+        "home-assistant-pp-cli automation run"
+      ],
+      "handler_files": [
+        "internal/cli/manifest_surface.go"
+      ],
+      "transport_kind": "Home Assistant REST/WebSocket or local self-hosted transport; exact dispatch documented in internal/cli/manifest_surface.go",
+      "capability_probe": "--help resolution; runtime capability response is only emitted after transport attempt",
+      "focused_test": "go test ./..."
+    },
+    {
+      "row": 17,
+      "status": "covered",
+      "command_paths": [
+        "home-assistant-pp-cli scene get",
+        "home-assistant-pp-cli scene set",
+        "home-assistant-pp-cli scene remove",
+        "home-assistant-pp-cli scene activate"
+      ],
+      "handler_files": [
+        "internal/cli/manifest_surface.go"
+      ],
+      "transport_kind": "Home Assistant REST/WebSocket or local self-hosted transport; exact dispatch documented in internal/cli/manifest_surface.go",
+      "capability_probe": "--help resolution; runtime capability response is only emitted after transport attempt",
+      "focused_test": "go test ./..."
+    },
+    {
+      "row": 18,
+      "status": "covered",
+      "command_paths": [
+        "home-assistant-pp-cli script get",
+        "home-assistant-pp-cli script set",
+        "home-assistant-pp-cli script remove",
+        "home-assistant-pp-cli script run"
+      ],
+      "handler_files": [
+        "internal/cli/manifest_surface.go"
+      ],
+      "transport_kind": "Home Assistant REST/WebSocket or local self-hosted transport; exact dispatch documented in internal/cli/manifest_surface.go",
+      "capability_probe": "--help resolution; runtime capability response is only emitted after transport attempt",
+      "focused_test": "go test ./..."
+    },
+    {
+      "row": 19,
+      "status": "covered",
+      "command_paths": [
+        "home-assistant-pp-cli trace list",
+        "home-assistant-pp-cli trace get"
+      ],
+      "handler_files": [
+        "internal/cli/manifest_surface.go"
+      ],
+      "transport_kind": "Home Assistant REST/WebSocket or local self-hosted transport; exact dispatch documented in internal/cli/manifest_surface.go",
+      "capability_probe": "--help resolution; runtime capability response is only emitted after transport attempt",
+      "focused_test": "go test ./..."
+    },
+    {
+      "row": 20,
+      "status": "covered",
+      "command_paths": [
+        "home-assistant-pp-cli integration list",
+        "home-assistant-pp-cli integration get",
+        "home-assistant-pp-cli integration flow",
+        "home-assistant-pp-cli integration options",
+        "home-assistant-pp-cli integration enable",
+        "home-assistant-pp-cli integration disable",
+        "home-assistant-pp-cli integration remove"
+      ],
+      "handler_files": [
+        "internal/cli/manifest_surface.go"
+      ],
+      "transport_kind": "Home Assistant REST/WebSocket or local self-hosted transport; exact dispatch documented in internal/cli/manifest_surface.go",
+      "capability_probe": "--help resolution; runtime capability response is only emitted after transport attempt",
+      "focused_test": "go test ./..."
+    },
+    {
+      "row": 21,
+      "status": "covered",
+      "command_paths": [
+        "home-assistant-pp-cli helper list",
+        "home-assistant-pp-cli helper get",
+        "home-assistant-pp-cli helper set",
+        "home-assistant-pp-cli helper remove"
+      ],
+      "handler_files": [
+        "internal/cli/manifest_surface.go"
+      ],
+      "transport_kind": "Home Assistant REST/WebSocket or local self-hosted transport; exact dispatch documented in internal/cli/manifest_surface.go",
+      "capability_probe": "--help resolution; runtime capability response is only emitted after transport attempt",
+      "focused_test": "go test ./..."
+    },
+    {
+      "row": 22,
+      "status": "covered",
+      "command_paths": [
+        "home-assistant-pp-cli group list",
+        "home-assistant-pp-cli group set",
+        "home-assistant-pp-cli group remove"
+      ],
+      "handler_files": [
+        "internal/cli/manifest_surface.go"
+      ],
+      "transport_kind": "Home Assistant REST/WebSocket or local self-hosted transport; exact dispatch documented in internal/cli/manifest_surface.go",
+      "capability_probe": "--help resolution; runtime capability response is only emitted after transport attempt",
+      "focused_test": "go test ./..."
+    },
+    {
+      "row": 23,
+      "status": "covered",
+      "command_paths": [
+        "home-assistant-pp-cli dashboard list",
+        "home-assistant-pp-cli dashboard get",
+        "home-assistant-pp-cli dashboard search",
+        "home-assistant-pp-cli dashboard set",
+        "home-assistant-pp-cli dashboard remove",
+        "home-assistant-pp-cli dashboard screenshot",
+        "home-assistant-pp-cli dashboard resource list",
+        "home-assistant-pp-cli dashboard resource get",
+        "home-assistant-pp-cli dashboard resource set",
+        "home-assistant-pp-cli dashboard resource remove"
+      ],
+      "handler_files": [
+        "internal/cli/manifest_surface.go"
+      ],
+      "transport_kind": "Home Assistant REST/WebSocket or local self-hosted transport; exact dispatch documented in internal/cli/manifest_surface.go",
+      "capability_probe": "--help resolution; runtime capability response is only emitted after transport attempt",
+      "focused_test": "go test ./..."
+    },
+    {
+      "row": 24,
+      "status": "covered",
+      "command_paths": [
+        "home-assistant-pp-cli blueprint list",
+        "home-assistant-pp-cli blueprint get",
+        "home-assistant-pp-cli blueprint import"
+      ],
+      "handler_files": [
+        "internal/cli/manifest_surface.go"
+      ],
+      "transport_kind": "Home Assistant REST/WebSocket or local self-hosted transport; exact dispatch documented in internal/cli/manifest_surface.go",
+      "capability_probe": "--help resolution; runtime capability response is only emitted after transport attempt",
+      "focused_test": "go test ./..."
+    },
+    {
+      "row": 25,
+      "status": "covered",
+      "command_paths": [
+        "home-assistant-pp-cli calendar events",
+        "home-assistant-pp-cli calendar create",
+        "home-assistant-pp-cli calendar update",
+        "home-assistant-pp-cli calendar remove"
+      ],
+      "handler_files": [
+        "internal/cli/manifest_surface.go"
+      ],
+      "transport_kind": "Home Assistant REST/WebSocket or local self-hosted transport; exact dispatch documented in internal/cli/manifest_surface.go",
+      "capability_probe": "--help resolution; runtime capability response is only emitted after transport attempt",
+      "focused_test": "go test ./..."
+    },
+    {
+      "row": 26,
+      "status": "covered",
+      "command_paths": [
+        "home-assistant-pp-cli todo list",
+        "home-assistant-pp-cli todo items",
+        "home-assistant-pp-cli todo add",
+        "home-assistant-pp-cli todo update",
+        "home-assistant-pp-cli todo remove"
+      ],
+      "handler_files": [
+        "internal/cli/manifest_surface.go"
+      ],
+      "transport_kind": "Home Assistant REST/WebSocket or local self-hosted transport; exact dispatch documented in internal/cli/manifest_surface.go",
+      "capability_probe": "--help resolution; runtime capability response is only emitted after transport attempt",
+      "focused_test": "go test ./..."
+    },
+    {
+      "row": 27,
+      "status": "covered",
+      "command_paths": [
+        "home-assistant-pp-cli camera snapshot"
+      ],
+      "handler_files": [
+        "internal/cli/manifest_surface.go"
+      ],
+      "transport_kind": "Home Assistant REST/WebSocket or local self-hosted transport; exact dispatch documented in internal/cli/manifest_surface.go",
+      "capability_probe": "--help resolution; runtime capability response is only emitted after transport attempt",
+      "focused_test": "go test ./..."
+    },
+    {
+      "row": 28,
+      "status": "covered",
+      "command_paths": [
+        "home-assistant-pp-cli energy get",
+        "home-assistant-pp-cli energy plan",
+        "home-assistant-pp-cli energy apply"
+      ],
+      "handler_files": [
+        "internal/cli/manifest_surface.go"
+      ],
+      "transport_kind": "Home Assistant REST/WebSocket or local self-hosted transport; exact dispatch documented in internal/cli/manifest_surface.go",
+      "capability_probe": "--help resolution; runtime capability response is only emitted after transport attempt",
+      "focused_test": "go test ./..."
+    },
+    {
+      "row": 29,
+      "status": "covered",
+      "command_paths": [
+        "home-assistant-pp-cli addon list",
+        "home-assistant-pp-cli addon get",
+        "home-assistant-pp-cli addon plan",
+        "home-assistant-pp-cli addon apply",
+        "home-assistant-pp-cli addon call"
+      ],
+      "handler_files": [
+        "internal/cli/manifest_surface.go"
+      ],
+      "transport_kind": "Supervisor REST via internal/client/supervisor.go",
+      "capability_probe": "--help resolution; runtime capability response is only emitted after transport attempt",
+      "focused_test": "go test ./..."
+    },
+    {
+      "row": 30,
+      "status": "covered",
+      "command_paths": [
+        "home-assistant-pp-cli hacs search",
+        "home-assistant-pp-cli hacs get",
+        "home-assistant-pp-cli hacs install",
+        "home-assistant-pp-cli hacs update",
+        "home-assistant-pp-cli hacs add-repository"
+      ],
+      "handler_files": [
+        "internal/cli/manifest_surface.go"
+      ],
+      "transport_kind": "Home Assistant REST/WebSocket or local self-hosted transport; exact dispatch documented in internal/cli/manifest_surface.go",
+      "capability_probe": "--help resolution; runtime capability response is only emitted after transport attempt",
+      "focused_test": "go test ./..."
+    },
+    {
+      "row": 31,
+      "status": "covered",
+      "command_paths": [
+        "home-assistant-pp-cli radio inspect",
+        "home-assistant-pp-cli radio plan",
+        "home-assistant-pp-cli radio apply"
+      ],
+      "handler_files": [
+        "internal/cli/manifest_surface.go"
+      ],
+      "transport_kind": "Home Assistant REST/WebSocket or local self-hosted transport; exact dispatch documented in internal/cli/manifest_surface.go",
+      "capability_probe": "--help resolution; runtime capability response is only emitted after transport attempt",
+      "focused_test": "go test ./..."
+    },
+    {
+      "row": 32,
+      "status": "covered",
+      "command_paths": [
+        "home-assistant-pp-cli assist pipeline list",
+        "home-assistant-pp-cli assist pipeline get",
+        "home-assistant-pp-cli assist pipeline set",
+        "home-assistant-pp-cli assist pipeline remove",
+        "home-assistant-pp-cli exposure list",
+        "home-assistant-pp-cli exposure set"
+      ],
+      "handler_files": [
+        "internal/cli/manifest_surface.go"
+      ],
+      "transport_kind": "Home Assistant REST/WebSocket or local self-hosted transport; exact dispatch documented in internal/cli/manifest_surface.go",
+      "capability_probe": "--help resolution; runtime capability response is only emitted after transport attempt",
+      "focused_test": "go test ./..."
+    },
+    {
+      "row": 33,
+      "status": "covered",
+      "command_paths": [
+        "home-assistant-pp-cli health hotspots",
+        "home-assistant-pp-cli logs",
+        "home-assistant-pp-cli diagnostics bundle"
+      ],
+      "handler_files": [
+        "internal/cli/manifest_surface.go"
+      ],
+      "transport_kind": "Home Assistant REST/WebSocket or local self-hosted transport; exact dispatch documented in internal/cli/manifest_surface.go",
+      "capability_probe": "--help resolution; runtime capability response is only emitted after transport attempt",
+      "focused_test": "go test ./..."
+    },
+    {
+      "row": 34,
+      "status": "covered",
+      "command_paths": [
+        "home-assistant-pp-cli file list",
+        "home-assistant-pp-cli file read",
+        "home-assistant-pp-cli file write",
+        "home-assistant-pp-cli file remove",
+        "home-assistant-pp-cli yaml get",
+        "home-assistant-pp-cli yaml plan",
+        "home-assistant-pp-cli yaml apply",
+        "home-assistant-pp-cli theme list",
+        "home-assistant-pp-cli theme get",
+        "home-assistant-pp-cli theme set",
+        "home-assistant-pp-cli theme remove"
+      ],
+      "handler_files": [
+        "internal/cli/manifest_surface.go"
+      ],
+      "transport_kind": "HASS_CONFIG_DIR local-config allowlist via internal/client/local_config.go",
+      "capability_probe": "--help resolution; runtime capability response is only emitted after transport attempt",
+      "focused_test": "internal/client/local_config_test.go"
+    },
+    {
+      "row": 35,
+      "status": "covered",
+      "command_paths": [
+        "home-assistant-pp-cli backup list",
+        "home-assistant-pp-cli backup get",
+        "home-assistant-pp-cli backup create",
+        "home-assistant-pp-cli backup restore",
+        "home-assistant-pp-cli backup remove"
+      ],
+      "handler_files": [
+        "internal/cli/manifest_surface.go"
+      ],
+      "transport_kind": "Supervisor REST via internal/client/supervisor.go",
+      "capability_probe": "--help resolution; runtime capability response is only emitted after transport attempt",
+      "focused_test": "go test ./..."
+    },
+    {
+      "row": 36,
+      "status": "covered",
+      "command_paths": [
+        "home-assistant-pp-cli update list",
+        "home-assistant-pp-cli update plan",
+        "home-assistant-pp-cli update apply",
+        "home-assistant-pp-cli update skip",
+        "home-assistant-pp-cli update unskip"
+      ],
+      "handler_files": [
+        "internal/cli/manifest_surface.go"
+      ],
+      "transport_kind": "Supervisor REST via internal/client/supervisor.go",
+      "capability_probe": "--help resolution; runtime capability response is only emitted after transport attempt",
+      "focused_test": "go test ./..."
+    },
+    {
+      "row": 37,
+      "status": "covered",
+      "command_paths": [
+        "home-assistant-pp-cli reload",
+        "home-assistant-pp-cli restart"
+      ],
+      "handler_files": [
+        "internal/cli/manifest_surface.go"
+      ],
+      "transport_kind": "Home Assistant REST/WebSocket or local self-hosted transport; exact dispatch documented in internal/cli/manifest_surface.go",
+      "capability_probe": "--help resolution; runtime capability response is only emitted after transport attempt",
+      "focused_test": "go test ./..."
+    },
+    {
+      "row": 38,
+      "status": "covered",
+      "command_paths": [
+        "home-assistant-pp-cli diagnostics bundle",
+        "home-assistant-pp-mcp --help"
+      ],
+      "handler_files": [
+        "internal/cli/manifest_surface.go"
+      ],
+      "transport_kind": "Home Assistant REST/WebSocket or local self-hosted transport; exact dispatch documented in internal/cli/manifest_surface.go",
+      "capability_probe": "--help resolution; runtime capability response is only emitted after transport attempt",
+      "focused_test": "go test ./..."
+    },
+    {
+      "row": 39,
+      "status": "covered",
+      "command_paths": [
+        "home-assistant-pp-cli raw rest",
+        "home-assistant-pp-cli raw websocket"
+      ],
+      "handler_files": [
+        "internal/cli/manifest_surface.go"
+      ],
+      "transport_kind": "Home Assistant REST/WebSocket or local self-hosted transport; exact dispatch documented in internal/cli/manifest_surface.go",
+      "capability_probe": "--help resolution; runtime capability response is only emitted after transport attempt",
+      "focused_test": "go test ./..."
+    },
+    {
+      "row": 40,
+      "status": "covered",
+      "command_paths": [
+        "home-assistant-pp-cli zone list",
+        "home-assistant-pp-cli config get"
+      ],
+      "handler_files": [
+        "internal/cli/manifest_surface.go"
+      ],
+      "transport_kind": "Home Assistant REST/WebSocket or local self-hosted transport; exact dispatch documented in internal/cli/manifest_surface.go",
+      "capability_probe": "--help resolution; runtime capability response is only emitted after transport attempt",
+      "focused_test": "go test ./..."
+    },
+    {
+      "row": 41,
+      "status": "covered",
+      "command_paths": [
+        "home-assistant-pp-cli sync",
+        "home-assistant-pp-cli search",
+        "home-assistant-pp-cli analytics",
+        "home-assistant-pp-cli tail"
+      ],
+      "handler_files": [
+        "internal/cli/manifest_surface.go"
+      ],
+      "transport_kind": "Home Assistant REST/WebSocket or local self-hosted transport; exact dispatch documented in internal/cli/manifest_surface.go",
+      "capability_probe": "--help resolution; runtime capability response is only emitted after transport attempt",
+      "focused_test": "go test ./..."
+    }
+  ]
+}
