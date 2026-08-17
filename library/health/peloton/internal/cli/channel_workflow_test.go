@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -93,11 +94,11 @@ func TestWorkflowArchiveActuallyArchivesData(t *testing.T) {
 	}
 }
 
-// TestWorkflowArchiveBoundingFlagsAccepted guards that --max-parents and
-// --stale-before (added so workflow_archive can inherit the same bounded,
-// resumable dependent fan-out `sync` already has) are real, wired flags —
-// not just present in --help with no effect. A cobra flag-parse failure
-// here would mean the flags were declared but never threaded into the
+// TestWorkflowArchiveBoundingFlagsAccepted guards that --max-pages,
+// --max-parents, and --stale-before (added so workflow_archive can inherit
+// the same bounded, resumable sync `sync` already has) are real, wired
+// flags — not just present in --help with no effect. A cobra flag-parse
+// failure here would mean a flag was declared but never threaded into the
 // delegated sync args.
 func TestWorkflowArchiveBoundingFlagsAccepted(t *testing.T) {
 	home := t.TempDir()
@@ -120,8 +121,77 @@ func TestWorkflowArchiveBoundingFlagsAccepted(t *testing.T) {
 	var out, stderr bytes.Buffer
 	root.SetOut(&out)
 	root.SetErr(&stderr)
-	root.SetArgs([]string{"workflow", "archive", "--db", dbPath, "--home", home, "--json", "--max-parents", "10", "--stale-before", "24h"})
+	root.SetArgs([]string{"workflow", "archive", "--db", dbPath, "--home", home, "--json", "--max-pages", "3", "--max-parents", "10", "--stale-before", "24h"})
 	if err := root.Execute(); err != nil {
-		t.Fatalf("workflow archive --max-parents --stale-before: %v\nstdout: %s\nstderr: %s", err, out.String(), stderr.String())
+		t.Fatalf("workflow archive --max-pages --max-parents --stale-before: %v\nstdout: %s\nstderr: %s", err, out.String(), stderr.String())
+	}
+}
+
+// TestWorkflowArchiveMaxPagesBoundsFlatPhase guards a round-10 live
+// verification finding: --max-parents bounds the per-workout dependent
+// fan-out (performance/workout_details), but nothing bounded the flat
+// classes/workouts phase that runs before it. classes in particular
+// declares no incremental filter, so a full pass paginates the account's
+// entire archived-class history every single call — confirmed live at
+// 48,742 items taking ~4.5 minutes, well past what an MCP tool call's
+// timeout tolerates, so no --max-parents value could make a real account's
+// archive call complete over MCP. This drives a fake classes list endpoint
+// that would paginate across 3 full pages (100 items each, the resource's
+// hardcoded page size) and asserts --max-pages 1 stops after page one with
+// a max_pages_cap_hit warning, rather than fetching everything.
+func TestWorkflowArchiveMaxPagesBoundsFlatPhase(t *testing.T) {
+	home := t.TempDir()
+	restore, err := cliutil.SetHomeOverride(home)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer restore()
+
+	fullPage := make([]byte, 0, 4096)
+	fullPage = append(fullPage, '[')
+	for i := 0; i < 100; i++ {
+		if i > 0 {
+			fullPage = append(fullPage, ',')
+		}
+		fullPage = append(fullPage, []byte(`{"id":"class-`+strconv.Itoa(i)+`","title":"Ride","duration":1800}`)...)
+	}
+	fullPage = append(fullPage, ']')
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.Contains(r.URL.Path, "/ride/archived") {
+			_, _ = w.Write(fullPage)
+			return
+		}
+		_, _ = w.Write([]byte(`[]`))
+	}))
+	defer server.Close()
+	t.Setenv("PELOTON_BASE_URL", server.URL)
+	t.Setenv("PELOTON_USER_ID", "u1")
+	seedValidOAuthBundleForLiveFetchTests(t)
+
+	dbPath := filepath.Join(home, "data", "data.db")
+	root := newRootCmd(&rootFlags{})
+	var out, stderr bytes.Buffer
+	root.SetOut(&out)
+	root.SetErr(&stderr)
+	root.SetArgs([]string{"workflow", "archive", "--db", dbPath, "--home", home, "--json", "--max-pages", "1"})
+	if err := root.Execute(); err != nil {
+		t.Fatalf("workflow archive --max-pages 1: %v\nstdout: %s\nstderr: %s", err, out.String(), stderr.String())
+	}
+	if !strings.Contains(out.String(), "max_pages_cap_hit") {
+		t.Fatalf("expected a max_pages_cap_hit warning bounding the classes phase at 1 page, got: %s", out.String())
+	}
+
+	db, err := store.Open(dbPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	count, err := db.Count("classes")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if count != 100 {
+		t.Fatalf("classes count = %d, want exactly 100 (one page) — --max-pages did not bound the flat phase", count)
 	}
 }

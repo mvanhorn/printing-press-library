@@ -42,6 +42,7 @@ func newWorkflowCmd(flags *rootFlags) *cobra.Command {
 func newWorkflowArchiveCmd(flags *rootFlags) *cobra.Command {
 	var dbPath string
 	var full bool
+	var maxPages int
 	var maxParents int
 	var staleBeforeFlag string
 
@@ -58,15 +59,23 @@ same flags. Use 'sync' directly for resource selection, --since, or
 
 A large account's dependent fan-out (one HTTP request per already-synced
 workout for performance/workout_details) will not complete in a single call;
-re-run archive to continue where --max-parents left off, same as sync.`,
+re-run archive to continue where --max-parents left off, same as sync.
+--max-parents alone does not bound the flat classes/workouts phase that runs
+before it -- classes in particular declares no incremental filter, so a full
+pass paginates every archived class on the account (tens of thousands on a
+long-lived one) and can take several minutes on its own, likely exceeding an
+MCP tool call's timeout. Pass --max-pages too to bound that phase as well;
+re-run archive (the resume cursor persists) to continue.`,
 		Example: `  # Archive all resources
   peloton-pp-cli workflow archive
 
   # Full re-archive (ignore previous sync state)
   peloton-pp-cli workflow archive --full
 
-  # Bound a large account's per-call fan-out, then re-run to continue
-  peloton-pp-cli workflow archive --max-parents 500
+  # Bound both the flat phase and the dependent fan-out per call, then
+  # re-run to continue -- needed to keep a single call inside an MCP
+  # tool call's timeout on a large account
+  peloton-pp-cli workflow archive --max-pages 5 --max-parents 500
 
   # Backfill only records fetched before a known cutoff (e.g. a fix's deploy time)
   peloton-pp-cli workflow archive --stale-before 2026-08-14T09:00:00Z --max-parents 500`,
@@ -90,6 +99,9 @@ re-run archive to continue where --max-parents left off, same as sync.`,
 			if full {
 				syncArgs = append(syncArgs, "--full")
 			}
+			if maxPages > 0 {
+				syncArgs = append(syncArgs, "--max-pages", strconv.Itoa(maxPages))
+			}
 			if maxParents > 0 {
 				syncArgs = append(syncArgs, "--max-parents", strconv.Itoa(maxParents))
 			}
@@ -105,6 +117,7 @@ re-run archive to continue where --max-parents left off, same as sync.`,
 
 	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite database file path (default: resolved data directory data.db)")
 	cmd.Flags().BoolVar(&full, "full", false, "Full re-archive (ignore previous sync state)")
+	cmd.Flags().IntVar(&maxPages, "max-pages", 0, "Bound how many pages the flat workouts/classes phase fetches per resource per call (0 = unlimited; cap-hit emits a sync_warning event). classes in particular has no incremental filter, so this is the only way to bound its cost -- without it, a full classes pass can take several minutes and will likely exceed an MCP tool call's timeout regardless of --max-parents. Same semantics as 'sync --max-pages'.")
 	cmd.Flags().IntVar(&maxParents, "max-parents", 0, "Bound how many performance/workout_details dependent fetches happen per call (0 = unbounded). Same semantics as 'sync --max-parents': a cap hit still exits 0, just re-run archive to continue.")
 	cmd.Flags().StringVar(&staleBeforeFlag, "stale-before", "", "Refetch performance/workout_details records last fetched before this timestamp or duration (e.g. 2026-08-14T09:00:00Z or 72h), without --full's \"redo literally everything\" cost. Same semantics as 'sync --stale-before'.")
 
