@@ -1,0 +1,911 @@
+name: dnsmadeeasy
+description: "DNS Made Easy V2.0 API CLI — managed & secondary DNS, records, templates, folders, failover, plus a local mirror for cross-zone search, drift, export, and bulk changes"
+version: "0.1.0"
+base_url: "https://api.dnsmadeeasy.com/V2.0"
+category: developer-tools
+cli_description: "Every DNS Made Easy operation, plus a local record store for cross-zone search, drift detection, and 'where is this IP used' — instant and offline."
+health_check_path: "/dns/managed"
+
+auth:
+  type: api_key
+  header: "x-dnsme-apiKey"
+  format: "{api_key}"
+  in: header
+  env_vars:
+    - DNSMADEEASY_API_KEY
+    - DNSMADEEASY_API_SECRET
+
+config:
+  format: toml
+  path: "~/.config/dnsmadeeasy-pp-cli/config.toml"
+
+mcp:
+  transport: [stdio, http]
+
+resources:
+  domains:
+    description: "Manage managed (primary) DNS domains"
+    endpoints:
+      list:
+        method: GET
+        path: "/dns/managed"
+        description: "List all managed domains"
+        example: "  dnsmadeeasy-pp-cli domains list"
+        response:
+          type: array
+          item: Domain
+        response_path: data
+      get:
+        method: GET
+        path: "/dns/managed/{id}"
+        description: "Get a managed domain by numeric id"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Numeric domain id"
+        response:
+          type: object
+          item: Domain
+      find:
+        method: GET
+        path: "/dns/managed/name"
+        description: "Look up a managed domain by its name"
+        params:
+          - name: domainname
+            type: string
+            required: true
+            description: "Fully qualified domain name, e.g. example.com"
+        response:
+          type: object
+          item: Domain
+      create:
+        method: POST
+        path: "/dns/managed"
+        description: "Create a managed domain"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Domain name to create, e.g. example.com"
+          - name: gtdEnabled
+            type: bool
+            description: "Enable Global Traffic Director (GTD)"
+          - name: soaId
+            type: string
+            description: "SOA record id to attach"
+          - name: templateId
+            type: string
+            description: "Template id to provision records from"
+          - name: vanityId
+            type: string
+            description: "Vanity DNS configuration id"
+          - name: transferAclId
+            type: string
+            description: "Transfer ACL id"
+          - name: folderId
+            type: string
+            description: "Folder id to place the domain in"
+        response:
+          type: object
+          item: Domain
+      update:
+        method: PUT
+        path: "/dns/managed/{id}"
+        description: "Update a managed domain's configuration"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Numeric domain id"
+        body:
+          - name: gtdEnabled
+            type: bool
+            description: "Enable Global Traffic Director (GTD)"
+          - name: soaId
+            type: string
+            description: "SOA record id to attach"
+          - name: templateId
+            type: string
+            description: "Template id"
+          - name: vanityId
+            type: string
+            description: "Vanity DNS configuration id"
+          - name: transferAclId
+            type: string
+            description: "Transfer ACL id"
+          - name: folderId
+            type: string
+            description: "Folder id"
+        response:
+          type: object
+          item: Domain
+      delete:
+        method: DELETE
+        path: "/dns/managed/{id}"
+        description: "Delete a managed domain and all its records"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Numeric domain id"
+
+  records:
+    description: "Manage DNS records within a managed domain"
+    endpoints:
+      list:
+        method: GET
+        path: "/dns/managed/{domainId}/records"
+        description: "List records in a domain, optionally filtered by type or name"
+        happy_args: "domainId=123456"
+        params:
+          - name: domainId
+            type: string
+            required: true
+            positional: true
+            description: "Numeric domain id"
+          - name: type
+            type: string
+            description: "Filter by record type (A, AAAA, CNAME, MX, TXT, SRV, NS, PTR, SPF, CAA, ANAME, HTTPRED)"
+          - name: recordName
+            type: string
+            description: "Filter by record name (host label, e.g. www)"
+        response:
+          type: array
+          item: Record
+        response_path: data
+      get:
+        method: GET
+        path: "/dns/managed/{domainId}/records/{recordId}"
+        description: "Get a single record by id"
+        params:
+          - name: domainId
+            type: string
+            required: true
+            positional: true
+            description: "Numeric domain id"
+          - name: recordId
+            type: string
+            required: true
+            positional: true
+            description: "Numeric record id"
+        response:
+          type: object
+          item: Record
+      create:
+        method: POST
+        path: "/dns/managed/{domainId}/records"
+        description: "Create a DNS record in a domain"
+        params:
+          - name: domainId
+            type: string
+            required: true
+            positional: true
+            description: "Numeric domain id"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Record name / host label (use empty string or @ for apex)"
+          - name: type
+            type: string
+            required: true
+            description: "Record type: A, AAAA, CNAME, MX, TXT, SRV, NS, PTR, SPF, CAA, ANAME, HTTPRED"
+          - name: value
+            type: string
+            required: true
+            description: "Record value / target (IP, hostname, text, etc.)"
+          - name: ttl
+            type: int
+            default: 1800
+            description: "Time to live in seconds"
+          - name: gtdLocation
+            type: string
+            description: "GTD location: DEFAULT, US_EAST, US_WEST, EUROPE, ASIA_PAC, OCEANIA, SOUTH_AMERICA"
+          - name: mxLevel
+            type: int
+            description: "MX preference (MX records)"
+          - name: priority
+            type: int
+            description: "Priority (SRV records)"
+          - name: weight
+            type: int
+            description: "Weight (SRV records)"
+          - name: port
+            type: int
+            description: "Port (SRV records)"
+          - name: dynamicDns
+            type: bool
+            description: "Mark record as dynamic DNS"
+          - name: password
+            type: string
+            description: "Dynamic DNS password"
+          - name: description
+            type: string
+            description: "Free-text description"
+          - name: keywords
+            type: string
+            description: "Keywords (HTTPRED records)"
+          - name: redirectType
+            type: string
+            description: "Redirect type (HTTPRED records)"
+          - name: hardLink
+            type: bool
+            description: "Hard link (HTTPRED records)"
+          - name: caaType
+            type: string
+            description: "CAA type: issue, issuewild, iodef"
+          - name: issuerCritical
+            type: int
+            description: "CAA issuer critical flag (0 or 1)"
+        response:
+          type: object
+          item: Record
+      update:
+        method: PUT
+        path: "/dns/managed/{domainId}/records/{recordId}"
+        description: "Update a DNS record"
+        params:
+          - name: domainId
+            type: string
+            required: true
+            positional: true
+            description: "Numeric domain id"
+          - name: recordId
+            type: string
+            required: true
+            positional: true
+            description: "Numeric record id"
+        body:
+          - name: name
+            type: string
+            description: "Record name / host label"
+          - name: type
+            type: string
+            description: "Record type"
+          - name: value
+            type: string
+            description: "Record value / target"
+          - name: ttl
+            type: int
+            description: "Time to live in seconds"
+          - name: gtdLocation
+            type: string
+            description: "GTD location"
+          - name: mxLevel
+            type: int
+            description: "MX preference"
+          - name: priority
+            type: int
+            description: "Priority (SRV)"
+          - name: weight
+            type: int
+            description: "Weight (SRV)"
+          - name: port
+            type: int
+            description: "Port (SRV)"
+        response:
+          type: object
+          item: Record
+      delete:
+        method: DELETE
+        path: "/dns/managed/{domainId}/records/{recordId}"
+        description: "Delete a single DNS record"
+        params:
+          - name: domainId
+            type: string
+            required: true
+            positional: true
+            description: "Numeric domain id"
+          - name: recordId
+            type: string
+            required: true
+            positional: true
+            description: "Numeric record id"
+
+  secondary:
+    description: "Manage secondary (slave) DNS domains"
+    endpoints:
+      list:
+        method: GET
+        path: "/dns/secondary"
+        description: "List all secondary DNS domains"
+        response:
+          type: array
+          item: SecondaryDomain
+        response_path: data
+      get:
+        method: GET
+        path: "/dns/secondary/{id}"
+        description: "Get a secondary DNS domain by id"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Numeric secondary domain id"
+        response:
+          type: object
+          item: SecondaryDomain
+      delete:
+        method: DELETE
+        path: "/dns/secondary/{id}"
+        description: "Delete a secondary DNS domain"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Numeric secondary domain id"
+
+  ipsets:
+    description: "Manage secondary DNS IP sets"
+    endpoints:
+      list:
+        method: GET
+        path: "/dns/secondary/ipSet"
+        description: "List secondary DNS IP sets"
+        response:
+          type: array
+          item: IPSet
+        response_path: data
+      get:
+        method: GET
+        path: "/dns/secondary/ipSet/{id}"
+        description: "Get a secondary DNS IP set by id"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Numeric IP set id"
+        response:
+          type: object
+          item: IPSet
+      create:
+        method: POST
+        path: "/dns/secondary/ipSet"
+        description: "Create a secondary DNS IP set"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "IP set name"
+        response:
+          type: object
+          item: IPSet
+      delete:
+        method: DELETE
+        path: "/dns/secondary/ipSet/{id}"
+        description: "Delete a secondary DNS IP set"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Numeric IP set id"
+
+  templates:
+    description: "Manage DNS record templates"
+    endpoints:
+      list:
+        method: GET
+        path: "/dns/template"
+        description: "List DNS templates"
+        response:
+          type: array
+          item: Template
+        response_path: data
+      get:
+        method: GET
+        path: "/dns/template/{id}"
+        description: "Get a DNS template by id"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Numeric template id"
+        response:
+          type: object
+          item: Template
+      create:
+        method: POST
+        path: "/dns/template"
+        description: "Create a DNS template"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Template name"
+          - name: publicTemplate
+            type: bool
+            description: "Whether the template is public"
+        response:
+          type: object
+          item: Template
+      update:
+        method: PUT
+        path: "/dns/template/{id}"
+        description: "Update a DNS template"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Numeric template id"
+        body:
+          - name: name
+            type: string
+            description: "Template name"
+          - name: publicTemplate
+            type: bool
+            description: "Whether the template is public"
+        response:
+          type: object
+          item: Template
+      delete:
+        method: DELETE
+        path: "/dns/template/{id}"
+        description: "Delete a DNS template"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Numeric template id"
+
+  template-records:
+    description: "Manage records within a DNS template"
+    endpoints:
+      list:
+        method: GET
+        path: "/dns/template/{templateId}/records"
+        description: "List records in a template"
+        params:
+          - name: templateId
+            type: string
+            required: true
+            positional: true
+            description: "Numeric template id"
+        response:
+          type: array
+          item: Record
+        response_path: data
+      create:
+        method: POST
+        path: "/dns/template/{templateId}/records"
+        description: "Create a record in a template"
+        params:
+          - name: templateId
+            type: string
+            required: true
+            positional: true
+            description: "Numeric template id"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Record name / host label"
+          - name: type
+            type: string
+            required: true
+            description: "Record type"
+          - name: value
+            type: string
+            required: true
+            description: "Record value / target"
+          - name: ttl
+            type: int
+            default: 1800
+            description: "Time to live in seconds"
+        response:
+          type: object
+          item: Record
+      delete:
+        method: DELETE
+        path: "/dns/template/{templateId}/records/{recordId}"
+        description: "Delete a record from a template"
+        params:
+          - name: templateId
+            type: string
+            required: true
+            positional: true
+            description: "Numeric template id"
+          - name: recordId
+            type: string
+            required: true
+            positional: true
+            description: "Numeric record id"
+
+  soa:
+    description: "Manage custom SOA records"
+    endpoints:
+      list:
+        method: GET
+        path: "/dns/soa"
+        description: "List custom SOA records"
+        response:
+          type: array
+          item: SOARecord
+        response_path: data
+      get:
+        method: GET
+        path: "/dns/soa/{id}"
+        description: "Get a custom SOA record by id"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Numeric SOA record id"
+        response:
+          type: object
+          item: SOARecord
+      create:
+        method: POST
+        path: "/dns/soa"
+        description: "Create a custom SOA record"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "SOA record name"
+          - name: email
+            type: string
+            description: "Administrator email"
+          - name: comment
+            type: string
+            description: "Comment"
+          - name: ttl
+            type: int
+            description: "TTL in seconds"
+        response:
+          type: object
+          item: SOARecord
+      delete:
+        method: DELETE
+        path: "/dns/soa/{id}"
+        description: "Delete a custom SOA record"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Numeric SOA record id"
+
+  vanity:
+    description: "Manage Vanity DNS configurations"
+    endpoints:
+      list:
+        method: GET
+        path: "/dns/vanity"
+        description: "List Vanity DNS configurations"
+        response:
+          type: array
+          item: Vanity
+        response_path: data
+      get:
+        method: GET
+        path: "/dns/vanity/{id}"
+        description: "Get a Vanity DNS configuration by id"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Numeric vanity config id"
+        response:
+          type: object
+          item: Vanity
+      delete:
+        method: DELETE
+        path: "/dns/vanity/{id}"
+        description: "Delete a Vanity DNS configuration"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Numeric vanity config id"
+
+  acl:
+    description: "Manage zone transfer ACLs"
+    endpoints:
+      list:
+        method: GET
+        path: "/dns/transferAcl"
+        description: "List transfer ACLs"
+        response:
+          type: array
+          item: TransferACL
+        response_path: data
+      get:
+        method: GET
+        path: "/dns/transferAcl/{id}"
+        description: "Get a transfer ACL by id"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Numeric ACL id"
+        response:
+          type: object
+          item: TransferACL
+      delete:
+        method: DELETE
+        path: "/dns/transferAcl/{id}"
+        description: "Delete a transfer ACL"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Numeric ACL id"
+
+  folders:
+    description: "Manage security folders"
+    endpoints:
+      list:
+        method: GET
+        path: "/security/folder"
+        description: "List security folders"
+        response:
+          type: array
+          item: Folder
+        response_path: data
+      get:
+        method: GET
+        path: "/security/folder/{id}"
+        description: "Get a security folder by id"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Numeric folder id"
+        response:
+          type: object
+          item: Folder
+
+  contact-lists:
+    description: "Manage failover contact lists"
+    endpoints:
+      list:
+        method: GET
+        path: "/contactList"
+        description: "List failover contact lists"
+        response:
+          type: array
+          item: ContactList
+        response_path: data
+      get:
+        method: GET
+        path: "/contactList/{id}"
+        description: "Get a contact list by id"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Numeric contact list id"
+        response:
+          type: object
+          item: ContactList
+
+  monitor:
+    description: "Manage per-record failover and system monitoring"
+    endpoints:
+      get:
+        method: GET
+        path: "/monitor/{recordId}"
+        description: "Get failover/monitor configuration for a record"
+        params:
+          - name: recordId
+            type: string
+            required: true
+            positional: true
+            description: "Numeric record id"
+        response:
+          type: object
+          item: Monitor
+      update:
+        method: PUT
+        path: "/monitor/{recordId}"
+        description: "Update failover/monitor configuration for a record"
+        params:
+          - name: recordId
+            type: string
+            required: true
+            positional: true
+            description: "Numeric record id"
+        body:
+          - name: monitor
+            type: bool
+            description: "Enable system monitoring"
+          - name: failover
+            type: bool
+            description: "Enable failover"
+          - name: autoFailover
+            type: bool
+            description: "Enable automatic failover"
+          - name: protocolId
+            type: int
+            description: "Monitoring protocol id"
+          - name: port
+            type: int
+            description: "Port to monitor"
+          - name: sensitivity
+            type: int
+            description: "Monitoring sensitivity"
+          - name: maxEmails
+            type: int
+            description: "Max notification emails"
+          - name: contactListId
+            type: string
+            description: "Contact list id for notifications"
+          - name: ip1
+            type: string
+            description: "Failover IP 1"
+          - name: ip2
+            type: string
+            description: "Failover IP 2"
+        response:
+          type: object
+          item: Monitor
+
+types:
+  Domain:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: gtdEnabled
+        type: bool
+      - name: created
+        type: int
+      - name: updated
+        type: int
+      - name: folderId
+        type: int
+      - name: soaId
+        type: int
+      - name: templateId
+        type: int
+      - name: vanityId
+        type: int
+      - name: nameServers
+        type: string
+      - name: processMulti
+        type: bool
+      - name: activeThirdParties
+        type: string
+  Record:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: type
+        type: string
+      - name: value
+        type: string
+      - name: ttl
+        type: int
+      - name: source
+        type: int
+      - name: sourceId
+        type: int
+      - name: dynamicDns
+        type: bool
+      - name: failover
+        type: bool
+      - name: monitor
+        type: bool
+      - name: gtdLocation
+        type: string
+      - name: mxLevel
+        type: int
+      - name: priority
+        type: int
+      - name: weight
+        type: int
+      - name: port
+        type: int
+      - name: description
+        type: string
+  SecondaryDomain:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: ipSetId
+        type: int
+      - name: folderId
+        type: int
+      - name: nameServers
+        type: string
+  IPSet:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: ips
+        type: string
+  Template:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: publicTemplate
+        type: bool
+  SOARecord:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: email
+        type: string
+      - name: comment
+        type: string
+      - name: ttl
+        type: int
+  Vanity:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: default
+        type: bool
+      - name: public
+        type: bool
+      - name: nameServerGroupId
+        type: int
+  TransferACL:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+  Folder:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: defaultFolder
+        type: bool
+  ContactList:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+  Monitor:
+    fields:
+      - name: monitor
+        type: bool
+      - name: failover
+        type: bool
+      - name: autoFailover
+        type: bool
+      - name: protocolId
+        type: int
+      - name: port
+        type: int
+      - name: sensitivity
+        type: int
+      - name: ip1
+        type: string
+      - name: ip2
+        type: string

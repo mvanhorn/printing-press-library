@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "withings-form-sync",
+  "applied_at": "2026-06-14",
+  "base_run_id": "20260614-181724-d301c9dc",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Hand-authored form-POST sync per resource; root.go routes 'sync' to it.",
+  "reason": "The generated GET+cursor sync is incompatible with Withings action-RPC + nested-body responses, so a WithingsForm-based sync replaces it (generated newSyncCmd left unwired).",
+  "files": [
+    "internal/cli/withings_sync.go",
+    "internal/cli/root.go"
+  ]
+}

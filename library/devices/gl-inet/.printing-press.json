@@ -1,0 +1,99 @@
+{
+  "api_name": "gl-inet",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "category": "devices",
+  "cli_name": "gl-inet-pp-cli",
+  "creator": {
+    "handle": "paulbockewitz",
+    "name": "Paul Bockewitz"
+  },
+  "description": "The first maintained CLI for GL.iNet travel routers — named config profiles, travel macros, and version-aware diagnostics no other GL.iNet tool ships.",
+  "display_name": "GL.iNet",
+  "generated_at": "2026-06-22T20:47:06.6794138Z",
+  "mcp_binary": "gl-inet-pp-mcp",
+  "mcp_public_tool_count": 6,
+  "mcp_ready": "full",
+  "mcp_tool_count": 6,
+  "novel_features": [
+    {
+      "name": "Named config profile capture",
+      "command": "snapshot save",
+      "description": "Capture your whole router config as a named, reusable profile."
+    },
+    {
+      "name": "Version+model-gated restore",
+      "command": "snapshot apply",
+      "description": "Restore a saved profile, with a safety check that it matches this device."
+    },
+    {
+      "name": "Option-level config diff",
+      "command": "snapshot diff",
+      "description": "See exactly which settings a venue changed vs your standard config."
+    },
+    {
+      "name": "WiFi region diagnose + fix",
+      "command": "wifi region diagnose",
+      "description": "Find out why a foreign network is invisible and fix the regulatory domain in one command."
+    },
+    {
+      "name": "Venue onboarding macro",
+      "command": "venue connect",
+      "description": "One command to get online at a new venue: scan, region-check, join, and prep for captive portals."
+    },
+    {
+      "name": "VPN toggle + egress verify",
+      "command": "vpn toggle",
+      "description": "Start a VPN tunnel, arm the kill-switch, and confirm your public IP actually changed."
+    },
+    {
+      "name": "Connection fidelity / leak check",
+      "command": "vpn verify",
+      "description": "Verify the VPN is up and your connection isn't leaking: egress country, DNS leaks, and STUN/UDP (WebRTC-style) leaks."
+    },
+    {
+      "name": "Connectivity troubleshooter",
+      "command": "troubleshoot",
+      "description": "Diagnose why the router has no internet and get the exact fix command."
+    },
+    {
+      "name": "Source-uplink quality + improvements",
+      "command": "uplink",
+      "description": "Diagnose a weak/slow venue WiFi uplink and get ranked ways to improve it."
+    },
+    {
+      "name": "Doctor / capability probe",
+      "command": "doctor",
+      "description": "Report this router's model, firmware, OpenWrt/LuCI versions, reachable surfaces, and per-feature availability."
+    },
+    {
+      "name": "Current-config summary",
+      "command": "config summary",
+      "description": "A structured, per-subsystem report of the router's current configuration."
+    },
+    {
+      "name": "Config option search",
+      "command": "config find",
+      "description": "Find any config option anywhere across the whole router config tree."
+    },
+    {
+      "name": "Raw passthrough escape hatch",
+      "command": "rpc call",
+      "description": "Call any GL RPC module/function or any UCI option directly."
+    },
+    {
+      "name": "WAN source switch",
+      "command": "wan mode",
+      "description": "Switch the router's WAN source and verify it reconnected."
+    }
+  ],
+  "owner": "paulbockewitz",
+  "printer": "paulbockewitz",
+  "printer_name": "Paul Bockewitz",
+  "printing_press_version": "4.25.0",
+  "run_id": "20260622-185850",
+  "schema_version": 1,
+  "spec_checksum": "sha256:61d5aee0a6f8f66a8034f77560d0a61449bbf0953341d680e5fa8bff20a9718a",
+  "spec_format": "internal",
+  "spec_kind": "synthetic"
+}

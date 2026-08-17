@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/inaturalist",
+  "research_dir": "\u003ccli-dir\u003e/20260724-125048-42f61ac7",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

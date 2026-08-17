@@ -3,6 +3,13 @@ display_name: War.gov UFO
 description: Browse, search, and download declassified UAP files from the War.gov PURSUE archive
 base_url: https://raw.githubusercontent.com/DenisSergeevitch/UFO-USA/main/metadata
 version: "1.0"
+# This CLI does not call the REST-style endpoints below directly; it syncs from a
+# CSV manifest (manifest.FetchManifest) and serves all reads from the local store.
+# The endpoint declarations document the conceptual resource shape. Hand-built
+# commands (manifest sync, release-tranche diff, batch-aware queries) intentionally
+# go beyond the declared paths, so this is a synthetic spec: dogfood and scorecard
+# relax path-validity accordingly rather than penalizing un-called REST paths.
+kind: synthetic
 
 auth:
   type: none

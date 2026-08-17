@@ -1,0 +1,35 @@
+{
+  "api_name": "greenhouse",
+  "novelty_score": 0,
+  "alternatives": null,
+  "gaps": null,
+  "patterns": null,
+  "recommendation": "",
+  "researched_at": "2026-07-19T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "Generic board_token",
+      "command": "jobs list <board_token>",
+      "description": "Greenhouse job-board endpoints are per-company: the board_token path segment identifies any employer's public career page, so the CLI works for every Greenhouse customer without per-company configuration.",
+      "rationale": ""
+    },
+    {
+      "name": "Engine Resource Rename",
+      "command": "jobs list <board_token>",
+      "description": "The generated resource surface renames the engine's default resource name to match Greenhouse's board vocabulary (jobs, departments, offices per board_token).",
+      "rationale": ""
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Generic board_token",
+      "command": "jobs list <board_token>",
+      "description": "Greenhouse job-board endpoints are per-company: the board_token path segment identifies any employer's public career page, so the CLI works for every Greenhouse customer without per-company configuration."
+    },
+    {
+      "name": "Engine Resource Rename",
+      "command": "jobs list <board_token>",
+      "description": "The generated resource surface renames the engine's default resource name to match Greenhouse's board vocabulary (jobs, departments, offices per board_token)."
+    }
+  ]
+}

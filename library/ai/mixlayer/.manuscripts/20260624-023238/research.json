@@ -1,0 +1,224 @@
+{
+  "api_name": "mixlayer",
+  "novelty_score": 9,
+  "alternatives": [],
+  "gaps": [
+    "No GitHub repositories were found for a dedicated Mixlayer CLI during research.",
+    "A plain OpenAI-compatible wrapper would miss Mixlayer's reasoning_content stream, homogeneous Qwen 3.5 ladder, seed determinism, and free guard-model tier."
+  ],
+  "patterns": [
+    "Mixlayer is OpenAI-compatible at https://models.mixlayer.ai/v1 and requires MIXLAYER_API_KEY bearer auth.",
+    "The documented model ladder uses Qwen rungs with 131K context and tool/reasoning support, while the console-visible catalog also includes Qwen 3.6 and Kimi Code IDs.",
+    "response_format json_schema cannot be combined with thinking mode, so privacy detection must use strict JSON without thinking while ladder reasoning uses thinking without json_schema."
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-24T02:32:38Z",
+  "novel_features": [
+    {
+      "name": "Large-data privacy ingest",
+      "command": "shield ingest",
+      "description": "Split large CSV/text inputs into deterministic tranches, redact each tranche through one shared local vault, and reassemble a masked corpus with a manifest.",
+      "rationale": "The free 4B tier is useful as a guard/worker before a frontier model sees data."
+    },
+    {
+      "name": "Shielded frontier ask",
+      "command": "shield ask",
+      "description": "Redact local data, run an outbound PII tripwire, send only the masked payload to a frontier model, rehydrate the answer locally, and save a privacy receipt.",
+      "rationale": "The local vault preserves utility while keeping raw values off the wire."
+    },
+    {
+      "name": "PII scan tripwire",
+      "command": "shield scan",
+      "description": "Detect high-risk PII locally with CI-friendly exit codes and no upstream model call.",
+      "rationale": "Files should be blockable before a frontier send."
+    },
+    {
+      "name": "Reversible redaction",
+      "command": "shield redact",
+      "description": "Write a masked copy of a file and populate the local token-to-value vault with stable pseudonyms.",
+      "rationale": "Cross-tranche consistency depends on one durable vault."
+    },
+    {
+      "name": "Shape coarsening",
+      "command": "shield restructure",
+      "description": "Drop columns, bucket numeric values, and coarsen dates to reduce re-identification risk before prompting.",
+      "rationale": "Masking alone does not remove all re-identification risk."
+    },
+    {
+      "name": "Local vault management",
+      "command": "vault",
+      "description": "List, rehydrate, rotate, or purge the local reversible pseudonym vault without sending values upstream.",
+      "rationale": "Rehydration and cleanup must remain local-only."
+    },
+    {
+      "name": "Privacy receipt ledger",
+      "command": "shield audit",
+      "description": "Inspect outbound payload hashes, byte counts, model IDs, masked entity counts, and residual leak counts for shielded sends.",
+      "rationale": "Operators need proof of what was sent."
+    },
+    {
+      "name": "Model ladder comparison",
+      "command": "ladder",
+      "description": "Run one prompt across selected Mixlayer model rungs, optionally comparing reasoning_content, latency, token usage, and cost.",
+      "rationale": "The same model family across rungs makes capability/cost comparisons meaningful."
+    },
+    {
+      "name": "Confidence-gated escalation",
+      "command": "escalate",
+      "description": "Start on a cheap rung and climb only when the prior answer appears insufficiently confident.",
+      "rationale": "The free/cheap rungs should absorb easy work."
+    },
+    {
+      "name": "Reasoning council",
+      "command": "council",
+      "description": "Fan out to member model rungs and ask a judge model to synthesize answers and flag disagreements.",
+      "rationale": "Reasoning traces are a useful judge input."
+    },
+    {
+      "name": "Everyday reasoning ask",
+      "command": "ask",
+      "description": "Ask Mixlayer, optionally request reasoning_content, and save prompt, answer, model, seed, token usage, cost, and raw response locally.",
+      "rationale": "The reasoning ledger compounds over repeated use."
+    },
+    {
+      "name": "Seed replay",
+      "command": "replay",
+      "description": "Re-run a saved prompt with its original model and seed to check determinism or drift.",
+      "rationale": "Mixlayer documents seed determinism as best-effort."
+    },
+    {
+      "name": "Reasoning grep",
+      "command": "grep",
+      "description": "Search saved prompts, answers, and reasoning traces through the local FTS ledger.",
+      "rationale": "Local FTS keeps prior reasoning usable without resending it."
+    },
+    {
+      "name": "Cached model DSL",
+      "command": "models query",
+      "description": "Query a local model cache with DSL terms like ctx\u003e=128k tools reasoning, seed it with documented and console-visible model IDs, and optionally refresh it from live /models.",
+      "rationale": "Agents need a compact model shortlist, not a pasted catalog."
+    },
+    {
+      "name": "Read-only ledger SQL",
+      "command": "sql",
+      "description": "Run SELECT-only SQLite queries over the local ledger, vault, audit, ladder, and model cache tables.",
+      "rationale": "Power users need direct local analysis."
+    },
+    {
+      "name": "Savings rollup",
+      "command": "savings",
+      "description": "Roll up saved ledger cost against static GPT or Claude frontier baselines.",
+      "rationale": "Cost claims should be grounded in the local ledger."
+    },
+    {
+      "name": "Cheap-vs-frontier compare",
+      "command": "compare",
+      "description": "Run a prompt through a cheap rung and frontier rung, report the cost delta, and attach a local-history quality note.",
+      "rationale": "The cost proof should compare actual saved runs."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Large-data privacy ingest",
+      "command": "shield ingest",
+      "description": "Split large CSV/text inputs into deterministic tranches, redact each tranche through one shared local vault, and reassemble a masked corpus with a manifest.",
+      "rationale": "The free 4B tier is useful as a guard/worker before a frontier model sees data."
+    },
+    {
+      "name": "Shielded frontier ask",
+      "command": "shield ask",
+      "description": "Redact local data, run an outbound PII tripwire, send only the masked payload to a frontier model, rehydrate the answer locally, and save a privacy receipt.",
+      "rationale": "The local vault preserves utility while keeping raw values off the wire."
+    },
+    {
+      "name": "PII scan tripwire",
+      "command": "shield scan",
+      "description": "Detect high-risk PII locally with CI-friendly exit codes and no upstream model call.",
+      "rationale": "Files should be blockable before a frontier send."
+    },
+    {
+      "name": "Reversible redaction",
+      "command": "shield redact",
+      "description": "Write a masked copy of a file and populate the local token-to-value vault with stable pseudonyms.",
+      "rationale": "Cross-tranche consistency depends on one durable vault."
+    },
+    {
+      "name": "Shape coarsening",
+      "command": "shield restructure",
+      "description": "Drop columns, bucket numeric values, and coarsen dates to reduce re-identification risk before prompting.",
+      "rationale": "Masking alone does not remove all re-identification risk."
+    },
+    {
+      "name": "Local vault management",
+      "command": "vault",
+      "description": "List, rehydrate, rotate, or purge the local reversible pseudonym vault without sending values upstream.",
+      "rationale": "Rehydration and cleanup must remain local-only."
+    },
+    {
+      "name": "Privacy receipt ledger",
+      "command": "shield audit",
+      "description": "Inspect outbound payload hashes, byte counts, model IDs, masked entity counts, and residual leak counts for shielded sends.",
+      "rationale": "Operators need proof of what was sent."
+    },
+    {
+      "name": "Model ladder comparison",
+      "command": "ladder",
+      "description": "Run one prompt across selected Mixlayer model rungs, optionally comparing reasoning_content, latency, token usage, and cost.",
+      "rationale": "The same model family across rungs makes capability/cost comparisons meaningful."
+    },
+    {
+      "name": "Confidence-gated escalation",
+      "command": "escalate",
+      "description": "Start on a cheap rung and climb only when the prior answer appears insufficiently confident.",
+      "rationale": "The free/cheap rungs should absorb easy work."
+    },
+    {
+      "name": "Reasoning council",
+      "command": "council",
+      "description": "Fan out to member model rungs and ask a judge model to synthesize answers and flag disagreements.",
+      "rationale": "Reasoning traces are a useful judge input."
+    },
+    {
+      "name": "Everyday reasoning ask",
+      "command": "ask",
+      "description": "Ask Mixlayer, optionally request reasoning_content, and save prompt, answer, model, seed, token usage, cost, and raw response locally.",
+      "rationale": "The reasoning ledger compounds over repeated use."
+    },
+    {
+      "name": "Seed replay",
+      "command": "replay",
+      "description": "Re-run a saved prompt with its original model and seed to check determinism or drift.",
+      "rationale": "Mixlayer documents seed determinism as best-effort."
+    },
+    {
+      "name": "Reasoning grep",
+      "command": "grep",
+      "description": "Search saved prompts, answers, and reasoning traces through the local FTS ledger.",
+      "rationale": "Local FTS keeps prior reasoning usable without resending it."
+    },
+    {
+      "name": "Cached model DSL",
+      "command": "models query",
+      "description": "Query a local model cache with DSL terms like ctx\u003e=128k tools reasoning, seed it with documented and console-visible model IDs, and optionally refresh it from live /models.",
+      "rationale": "Agents need a compact model shortlist, not a pasted catalog."
+    },
+    {
+      "name": "Read-only ledger SQL",
+      "command": "sql",
+      "description": "Run SELECT-only SQLite queries over the local ledger, vault, audit, ladder, and model cache tables.",
+      "rationale": "Power users need direct local analysis."
+    },
+    {
+      "name": "Savings rollup",
+      "command": "savings",
+      "description": "Roll up saved ledger cost against static GPT or Claude frontier baselines.",
+      "rationale": "Cost claims should be grounded in the local ledger."
+    },
+    {
+      "name": "Cheap-vs-frontier compare",
+      "command": "compare",
+      "description": "Run a prompt through a cheap rung and frontier rung, report the cost delta, and attach a local-history quality note.",
+      "rationale": "The cost proof should compare actual saved runs."
+    }
+  ]
+}

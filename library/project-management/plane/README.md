@@ -2,6 +2,8 @@
 
 A terminal CLI for [Plane](https://plane.so) — open-source project management for issues, cycles, modules, sub-issues, and workspaces; a self-hostable Jira / Linear / ClickUp alternative. Ships with offline SQLite sync for instant search and analytics, plus an MCP server (`plane-pp-mcp`) so agents can drive Plane directly.
 
+Pre-built binaries for Linux, macOS, and Windows ship in the [`plane-current`](https://github.com/mvanhorn/printing-press-library/releases/tag/plane-current) release, so you can install with no Go or Node toolchain — see [Install](#install).
+
 Visit the quick start guide and full API documentation at [developers.plane.so](https://developers.plane.so/api-reference/introduction).
 
 Learn more at [Plane](https://plane.so).
@@ -15,6 +17,8 @@ The recommended path installs both the `plane-pp-cli` binary and the `pp-plane` 
 ```bash
 npx -y @mvanhorn/printing-press-library install plane
 ```
+
+> **This path needs Go, not just Node.** The installer shells into `go install` under the hood, so a Go toolchain (1.26.3+) must be present — it does not download a pre-built binary. If you have no toolchain (an agent, CI, a sandbox), use the [pre-built binary](#pre-built-binary-no-node-no-go) below instead.
 
 For CLI only (no skill):
 
@@ -35,19 +39,32 @@ npx -y @mvanhorn/printing-press-library install plane --agent claude-code
 npx -y @mvanhorn/printing-press-library install plane --agent claude-code --agent codex
 ```
 
-### Without Node (Go fallback)
+### Pre-built binary (no Node, no Go)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+The simplest install when you have no toolchain — also the right path for agents, CI, and sandboxes. Download the asset for your platform from the rolling [`plane-current` release](https://github.com/mvanhorn/printing-press-library/releases/tag/plane-current) and put it on your `$PATH`. Assets are rebuilt on every push to `main`, so the URLs are stable:
+
+```
+plane-pp-cli-linux-amd64     plane-pp-cli-darwin-amd64     plane-pp-cli-windows-amd64.exe
+plane-pp-cli-linux-arm64     plane-pp-cli-darwin-arm64     plane-pp-cli-windows-arm64.exe
+```
+
+```bash
+# Example: Linux x86_64 (swap the asset name for your OS/arch)
+curl -fsSL -o plane-pp-cli \
+  https://github.com/mvanhorn/printing-press-library/releases/download/plane-current/plane-pp-cli-linux-amd64
+chmod +x plane-pp-cli && sudo mv plane-pp-cli /usr/local/bin/   # or any dir on $PATH
+plane-pp-cli --version
+```
+
+On macOS, also clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine plane-pp-cli`. This installs the CLI only — no skill.
+
+### Direct Go install (no Node, needs Go)
+
+If you have a Go toolchain (1.26.3+) but no Node, install the CLI directly — no skill:
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/project-management/plane/cmd/plane-pp-cli@latest
 ```
-
-This installs the CLI only — no skill.
-
-### Pre-built binary
-
-Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/plane-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
 <!-- pp-hermes-install-anchor -->
 ## Install for Hermes
@@ -144,7 +161,7 @@ Get your API key from your API provider's developer portal. The key typically lo
 export PLANE_API_KEY_AUTHENTICATION="<paste-your-key>"
 ```
 
-You can also persist this in your config file at `~/.config/plane-pp-cli/config.toml`.
+To persist credentials, use `plane-pp-cli auth set-token <token>`. Stored secrets live in `credentials.toml` under the data directory, not in `config.toml`.
 
 ### 3. Verify Setup
 
@@ -163,6 +180,55 @@ plane-pp-cli projects list
 ## Usage
 
 Run `plane-pp-cli --help` for the full command reference and flag list.
+
+## Paths & environment variables
+
+This CLI separates local files into four path kinds:
+
+| Kind | Contents |
+|------|----------|
+| `config` | User-editable settings such as `config.toml` and saved profiles |
+| `data` | Durable local data: `credentials.toml`, `data.db`, cookies, browser-session proof files, and other auth sidecars |
+| `state` | Runtime state such as persisted queries, jobs, and `teach.log` |
+| `cache` | Regenerable HTTP/cache files |
+
+Each kind resolves independently. The ladder is:
+
+1. Per-kind env var: `PLANE_CONFIG_DIR`, `PLANE_DATA_DIR`, `PLANE_STATE_DIR`, or `PLANE_CACHE_DIR`
+2. `--home <dir>` for this invocation
+3. `PLANE_HOME` for a flat relocated root
+4. XDG env vars: `XDG_CONFIG_HOME`, `XDG_DATA_HOME`, `XDG_STATE_HOME`, `XDG_CACHE_HOME`
+5. Platform defaults matching existing installs
+
+For containers and agent sandboxes, prefer a single relocated root:
+
+```bash
+export PLANE_HOME=/srv/plane
+plane-pp-cli doctor
+```
+
+Under `PLANE_HOME=/srv/plane`, the four dirs resolve to `/srv/plane/config`, `/srv/plane/data`, `/srv/plane/state`, and `/srv/plane/cache`.
+
+MCP servers do not receive CLI flags from the host. Put relocation in the host `env` block:
+
+```json
+{
+  "mcpServers": {
+    "plane": {
+      "command": "plane-pp-mcp",
+      "env": {
+        "PLANE_HOME": "/srv/plane"
+      }
+    }
+  }
+}
+```
+
+Precedence matters in fleets: an ambient per-kind variable such as `PLANE_DATA_DIR` overrides an explicit `--home` for that kind. Use `PLANE_HOME` or the per-kind variables for durable fleet relocation; treat `--home` as the weaker per-invocation lever.
+
+Relocation is one-way. Unsetting `PLANE_HOME` does not move files back to platform defaults, and `doctor` cannot find credentials left under a former root. Move the files manually before unsetting relocation variables.
+
+Existing installs keep working because the platform-default rung matches the legacy layout. On the first auth write, stored secrets leave `config.toml` and are consolidated into `credentials.toml` under the data directory. Run `plane-pp-cli doctor --fail-on warn` to check path and credential-location warnings in automation.
 
 ## Commands
 
@@ -304,7 +370,7 @@ Plane's issue API never returns module membership, so a plain `sync` leaves `mod
 
 - **`plane-pp-cli module sync`** - Walk modules → module-issues, populate a junction table, and patch each issue's `module_ids` (also runs automatically inside `sync`).
 - **`plane-pp-cli module of <issue>`** - Show which modules an issue belongs to (from the local cache).
-- **`plane-pp-cli module create-issue <module> <project> <slug> --name "..."`** - Create a work item and add it to a module in one step.
+- **`plane-pp-cli module create-issue <module> <project> <slug> --name "..."`** - Create a work item and add it to a module in one step. The positional `<slug>` is overridden by the global `--workspace` flag when both are given.
 
 ## Output Formats
 
@@ -333,7 +399,7 @@ This CLI is designed for AI agent consumption:
 - **Pipeable** - `--json` output to stdout, errors to stderr
 - **Filterable** - `--select id,name` returns only fields you need
 - **Previewable** - `--dry-run` shows the request without sending
-- **Explicit retries** - add `--idempotent` to create retries and `--ignore-missing` to delete retries when a no-op success is acceptable
+- **Explicit retries** - add `--idempotent` to create retries and add `--ignore-missing` to delete retries when a no-op success is acceptable
 - **Confirmable** - `--yes` for explicit confirmation of destructive actions
 - **Piped input** - write commands can accept structured input when their help lists `--stdin`
 - **Offline-friendly** - sync/search commands can use the local SQLite store when available
@@ -360,7 +426,7 @@ Verifies configuration, credentials, and connectivity to the API.
 
 ## Configuration
 
-Config file: `~/.config/plane-pp-cli/config.toml`
+Run `plane-pp-cli doctor` to see the resolved config, data, state, and cache directories. The platform-default config path is `~/.config/plane-pp-cli/config.toml`; `--home`, `PLANE_HOME`, and per-kind env vars can relocate it.
 
 Static request headers can be configured under `headers`; per-command header overrides take precedence.
 

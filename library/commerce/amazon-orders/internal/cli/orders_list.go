@@ -42,7 +42,7 @@ func newOrdersListCmd(flags *rootFlags) *cobra.Command {
 			if flagStartIndex != 0 {
 				params["startIndex"] = fmt.Sprintf("%v", flagStartIndex)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "orders", false, path, params, nil)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "orders", true, path, params, nil, "")
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -51,6 +51,12 @@ func newOrdersListCmd(flags *rootFlags) *cobra.Command {
 				// We skip the generic extractHTMLResponse helper because Amazon does not
 				// embed a __NEXT_DATA__ blob; the order data lives in .order-card divs.
 				_ = htmlRequestParams // silence unused-warning while we keep the variable for parity with sibling endpoints
+				// A logged-out/expired session is answered with HTTP 200 and an
+				// Amazon sign-in/claim page, not a 4xx. Fail with a re-auth hint
+				// instead of parsing zero order cards and returning [].
+				if ierr := parser.AuthInterstitialError(data); ierr != nil {
+					return ierr
+				}
 				page, perr := parser.ParseOrderList(data)
 				if perr != nil {
 					return fmt.Errorf("parsing Amazon order list HTML: %w", perr)

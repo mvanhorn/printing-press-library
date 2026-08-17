@@ -2,7 +2,22 @@
 
 This file is maintained by printing-press-library release automation. Do not hand-edit release sections in normal PRs.
 
+## 2026.8.1 - 2026-08-17
+
+- fix(catalog): align Go fallback docs with toolchain floor (#1735).
+
+## 2026.7.2 - 2026-07-24
+
+- feat(uk-train-goat): add walk-up fare lookup from RJFAF feed (#1341).
+
+## 2026.7.1 - 2026-07-08
+
+- fix(catalog): require Go 1.26.5 across published modules (#1467).
+
+## 2026.6.2 - 2026-06-17
+
+- docs(uk-train-goat): correct why command capability claims (#1070).
+
 ## 2026.6.1 - 2026-06-08
 
 - Baseline release metadata added for this published CLI.
-

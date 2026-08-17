@@ -1,0 +1,336 @@
+{
+  "api_name": "wordpress",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "wp-cli/restful",
+      "url": "https://github.com/wp-cli/restful",
+      "language": "PHP",
+      "install_method": "",
+      "stars": 155,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "claudeus-wp-mcp",
+      "url": "https://github.com/deus-h/claudeus-wp-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 155,
+      "last_updated": "",
+      "command_count": 145,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "sogko/go-wordpress",
+      "url": "https://github.com/sogko/go-wordpress",
+      "language": "Go",
+      "install_method": "",
+      "stars": 141,
+      "last_updated": "",
+      "command_count": 45,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "mcp-wordpress",
+      "url": "https://github.com/docdyhr/mcp-wordpress",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 102,
+      "last_updated": "",
+      "command_count": 71,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "server-wp-mcp",
+      "url": "https://github.com/emzimmer/server-wp-mcp",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 115,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "mcp-wp",
+      "url": "https://github.com/InstaWP/mcp-wp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 90,
+      "last_updated": "",
+      "command_count": 43,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "robbiet480/go-wordpress",
+      "url": "https://github.com/robbiet480/go-wordpress",
+      "language": "Go",
+      "install_method": "",
+      "stars": 19,
+      "last_updated": "",
+      "command_count": 60,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "claude-wp-cli",
+      "url": "https://github.com/thenguyenvn90/claude-wp-cli",
+      "language": "Python",
+      "install_method": "",
+      "stars": 14,
+      "last_updated": "",
+      "command_count": 60,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-21T06:40:00Z",
+  "novel_features": [
+    {
+      "name": "Fleet rollup",
+      "command": "fleet",
+      "description": "See core version, pending updates, admin-account count and sync age for every site you manage, in one table.",
+      "rationale": "WordPress has no concept of a fleet — there is no endpoint for 'all my sites'. Requires a cross-site join over per-site-keyed local stores.",
+      "example": "wordpress-pp-cli fleet --agent",
+      "why_it_matters": "Reach for this when the question spans more than one site. Every other command answers for a single site.",
+      "group": "Managing many sites at once"
+    },
+    {
+      "name": "REST reachability diagnosis",
+      "command": "diagnose",
+      "description": "Say in one command why a site's REST API is failing: path-based block, app-layer filter, bot challenge, renamed prefix, or stripped Authorization header.",
+      "rationale": "A probe of 39 live WordPress sites found 36% do not answer /wp-json on the first try, and 18% recover only via the ?rest_route= fallback. Classification needs four probes plus a transport fallback that no other tool performs.",
+      "example": "wordpress-pp-cli diagnose --agent",
+      "why_it_matters": "Run this first whenever a WordPress request fails. A 401 can mean bad credentials, a security plugin, or a host stripping the auth header, and the status code alone cannot tell you which.",
+      "group": "Diagnosing a real site"
+    },
+    {
+      "name": "Credential capability audit",
+      "command": "caps",
+      "description": "Report what your credentials are actually allowed to do on each route, with zero writes.",
+      "rationale": "WordPress's Allow response header reflects the current credential's permissions per route, so walking the live route table with and without auth yields a full permission map without mutating anything. No competitor reads this header.",
+      "example": "wordpress-pp-cli caps --agent",
+      "why_it_matters": "Use this before pointing an unattended job at a site, instead of discovering permissions by attempting a write in production.",
+      "group": "Diagnosing a real site"
+    },
+    {
+      "name": "REST visibility gap",
+      "command": "schema",
+      "description": "Find out why a post type, field, or meta key is missing from the REST surface.",
+      "rationale": "Set-differences the types registry against the live route table and the OPTIONS property schema against actual synced rows. Both abandoned Go clients model post types as fixed structs and silently drop custom ones.",
+      "example": "wordpress-pp-cli schema post --agent",
+      "why_it_matters": "This is the show_in_rest blind spot. Reach for it when content exists in wp-admin but never appears in an API response.",
+      "group": "Diagnosing a real site"
+    },
+    {
+      "name": "Editorial queue with age",
+      "command": "queue",
+      "description": "See drafts, pending, and scheduled posts bucketed by how long they have been sitting in that state.",
+      "rationale": "The API returns rows, not durations, and never across three statuses at once. Requires local duration math over synced timestamps.",
+      "example": "wordpress-pp-cli queue --agent",
+      "why_it_matters": "Answers 'what has been stuck in pending for three weeks', which wp-admin cannot express at all.",
+      "group": "Editorial hygiene from the local mirror"
+    },
+    {
+      "name": "Content hygiene audit",
+      "command": "audit",
+      "description": "Find posts and pages missing a featured image, a real category, an excerpt, or tags.",
+      "rationale": "Four completeness checks, three of which need a join across posts, media, and term links that the REST API cannot express in any single call.",
+      "example": "wordpress-pp-cli audit --agent",
+      "why_it_matters": "Use this for defects on content itself. It reports offending IDs, so the output feeds directly into a bulk fix.",
+      "group": "Editorial hygiene from the local mirror"
+    },
+    {
+      "name": "Orphaned media",
+      "command": "orphans",
+      "description": "List media files that no post or page references and that are nobody's featured image.",
+      "rationale": "WordPress has no unused-media endpoint. Requires scanning synced content for each media item's source URL and cross-checking featured_media.",
+      "example": "wordpress-pp-cli orphans --agent",
+      "why_it_matters": "Reach for this when auditing storage or preparing a migration; it is the only way to size unused uploads without shell access.",
+      "group": "Editorial hygiene from the local mirror"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Fleet rollup",
+      "command": "fleet",
+      "description": "See core version, pending updates, admin-account count and sync age for every site you manage, in one table.",
+      "rationale": "WordPress has no concept of a fleet — there is no endpoint for 'all my sites'. Requires a cross-site join over per-site-keyed local stores.",
+      "example": "wordpress-pp-cli fleet --agent",
+      "why_it_matters": "Reach for this when the question spans more than one site. Every other command answers for a single site.",
+      "group": "Managing many sites at once"
+    },
+    {
+      "name": "REST reachability diagnosis",
+      "command": "diagnose",
+      "description": "Say in one command why a site's REST API is failing: path-based block, app-layer filter, bot challenge, renamed prefix, or stripped Authorization header.",
+      "rationale": "A probe of 39 live WordPress sites found 36% do not answer /wp-json on the first try, and 18% recover only via the ?rest_route= fallback. Classification needs four probes plus a transport fallback that no other tool performs.",
+      "example": "wordpress-pp-cli diagnose --agent",
+      "why_it_matters": "Run this first whenever a WordPress request fails. A 401 can mean bad credentials, a security plugin, or a host stripping the auth header, and the status code alone cannot tell you which.",
+      "group": "Diagnosing a real site"
+    },
+    {
+      "name": "Credential capability audit",
+      "command": "caps",
+      "description": "Report what your credentials are actually allowed to do on each route, with zero writes.",
+      "rationale": "WordPress's Allow response header reflects the current credential's permissions per route, so walking the live route table with and without auth yields a full permission map without mutating anything. No competitor reads this header.",
+      "example": "wordpress-pp-cli caps --agent",
+      "why_it_matters": "Use this before pointing an unattended job at a site, instead of discovering permissions by attempting a write in production.",
+      "group": "Diagnosing a real site"
+    },
+    {
+      "name": "REST visibility gap",
+      "command": "schema",
+      "description": "Find out why a post type, field, or meta key is missing from the REST surface.",
+      "rationale": "Set-differences the types registry against the live route table and the OPTIONS property schema against actual synced rows. Both abandoned Go clients model post types as fixed structs and silently drop custom ones.",
+      "example": "wordpress-pp-cli schema post --agent",
+      "why_it_matters": "This is the show_in_rest blind spot. Reach for it when content exists in wp-admin but never appears in an API response.",
+      "group": "Diagnosing a real site"
+    },
+    {
+      "name": "Editorial queue with age",
+      "command": "queue",
+      "description": "See drafts, pending, and scheduled posts bucketed by how long they have been sitting in that state.",
+      "rationale": "The API returns rows, not durations, and never across three statuses at once. Requires local duration math over synced timestamps.",
+      "example": "wordpress-pp-cli queue --agent",
+      "why_it_matters": "Answers 'what has been stuck in pending for three weeks', which wp-admin cannot express at all.",
+      "group": "Editorial hygiene from the local mirror"
+    },
+    {
+      "name": "Content hygiene audit",
+      "command": "audit",
+      "description": "Find posts and pages missing a featured image, a real category, an excerpt, or tags.",
+      "rationale": "Four completeness checks, three of which need a join across posts, media, and term links that the REST API cannot express in any single call.",
+      "example": "wordpress-pp-cli audit --agent",
+      "why_it_matters": "Use this for defects on content itself. It reports offending IDs, so the output feeds directly into a bulk fix.",
+      "group": "Editorial hygiene from the local mirror"
+    },
+    {
+      "name": "Orphaned media",
+      "command": "orphans",
+      "description": "List media files that no post or page references and that are nobody's featured image.",
+      "rationale": "WordPress has no unused-media endpoint. Requires scanning synced content for each media item's source URL and cross-checking featured_media.",
+      "example": "wordpress-pp-cli orphans --agent",
+      "why_it_matters": "Reach for this when auditing storage or preparing a migration; it is the only way to size unused uploads without shell access.",
+      "group": "Editorial hygiene from the local mirror"
+    }
+  ],
+  "narrative": {
+    "display_name": "WordPress",
+    "headline": "WP-CLI-grade control over any WordPress site through plain HTTPS — no SSH, no server-side plugin, one static binary.",
+    "value_prop": "WP-CLI is the power tool but it runs on the server and needs SSH, which most shared hosting does not give you. The REST API reaches any site from anywhere with an Application Password, yet every existing client is abandoned, read-only, or hardcoded to a 2018 view of the API. This CLI covers the full modern core surface, adapts to the live route table of whatever site you point it at, and keeps a local SQLite mirror so cross-site and historical questions become one query instead of hundreds of paginated requests.",
+    "auth_narrative": "WordPress authenticates CLI clients with Application Passwords over HTTP Basic. Create one at Users -\u003e Profile -\u003e Application Passwords in wp-admin (the REST root also advertises the exact authorize-application.php URL for the site), then set WORDPRESS_USER and WORDPRESS_APP_PASSWORD. Public read endpoints work with no credentials at all, so posts, pages, and taxonomies are browsable immediately. Two things commonly break this and neither is a wrong password: Wordfence disables Application Passwords by default on its 5,000,000+ installs, and many Apache and CGI hosts strip the Authorization header entirely. Run 'diagnose' to tell those apart.",
+    "quickstart": [
+      {
+        "command": "wordpress-pp-cli doctor --dry-run",
+        "comment": "confirm the CLI is wired up before pointing it at a site"
+      },
+      {
+        "command": "wordpress-pp-cli posts list --per-page 5 --agent",
+        "comment": "public reads need no credentials, so this works with zero configuration"
+      },
+      {
+        "command": "wordpress-pp-cli diagnose --agent",
+        "comment": "the first thing to run against any new site — says whether REST is reachable and, if not, exactly why"
+      },
+      {
+        "command": "wordpress-pp-cli caps --agent",
+        "comment": "what your credentials may actually do here, discovered without a single write"
+      },
+      {
+        "command": "wordpress-pp-cli sync --resources posts,pages,media --since 30d",
+        "comment": "build the local mirror; incremental via modified_after, not a full re-pull"
+      },
+      {
+        "command": "wordpress-pp-cli queue --agent",
+        "comment": "what is stuck in the editorial pipeline and for how long"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 rest_forbidden even though the password is correct",
+        "fix": "Run 'wordpress-pp-cli diagnose'. The usual causes are Wordfence disabling Application Passwords site-side or the host stripping the Authorization header; the site-health authorization-header test distinguishes them."
+      },
+      {
+        "symptom": "404 rest_no_route on every endpoint",
+        "fix": "Permalinks are set to Plain, or an edge rule blocks the literal path. Both are handled by the ?rest_route= fallback, which 'diagnose' probes automatically."
+      },
+      {
+        "symptom": "403 with an HTML body instead of JSON",
+        "fix": "A bot-mitigation layer (commonly Cloudflare) is challenging the request above WordPress. This cannot be fixed client-side; the site owner must allowlist the path."
+      },
+      {
+        "symptom": "400 rest_invalid_param on a list command",
+        "fix": "Read data.details in the JSON error — it names the offending parameter and the accepted range. per_page is hard-capped at 100."
+      },
+      {
+        "symptom": "A custom post type or ACF field never appears in responses",
+        "fix": "It was registered without show_in_rest. Run 'wordpress-pp-cli schema \u003ctype\u003e' to see exactly which declared fields never carry data."
+      },
+      {
+        "symptom": "Editing a page turns it into one invalid block in the editor",
+        "fix": "Never write back content.rendered. Read with --context edit to get content.raw, which preserves the block markers, and write that."
+      },
+      {
+        "symptom": "batch run returns 403 or 404",
+        "fix": "Hosts and WAFs began blocking /wp-json/batch/v1 after CVE-2026-63030. Update WordPress to 6.9.5 or 7.0.2 and ask the host to allowlist the route, or let the command fall back to sequential requests."
+      }
+    ],
+    "when_to_use": "Use this CLI to read from or write to any WordPress site over HTTPS when you have a site URL and an Application Password. It is the right tool for content operations at scale (bulk publishing, editorial queue triage, taxonomy and media hygiene), for fleet maintenance across many client sites without SSH, and for diagnosing a WordPress REST API that is returning 401, 403, or rest_no_route. It is also the right tool when you need to know what a site's API actually exposes, since it reads the live route table rather than assuming a fixed endpoint list.",
+    "anti_triggers": [
+      "Do not use this CLI for database work — export, import, search-replace, or arbitrary SQL. WordPress exposes none of that over REST; use WP-CLI over SSH.",
+      "Do not use it to install, update, or activate a theme. The core themes controller is read-only over REST; theme activation is not possible, and tools that advertise it are overclaiming.",
+      "Do not use it to read or write arbitrary options. The settings endpoint exposes roughly twenty whitelisted core options under renamed keys; anything else needs register_setting with show_in_rest.",
+      "Do not use it for WP-Cron, transients, object cache, rewrite rules, wp-config.php, roles and capabilities, or multisite network administration — none have a core REST surface.",
+      "Do not use it to round-trip block-editor content through content.rendered; that strips the block markers and corrupts the page. Use --context edit and content.raw.",
+      "Do not use it as a WordPress.com or Jetpack client. This targets the self-hosted /wp-json surface."
+    ],
+    "recipes": [
+      {
+        "title": "Triage a site that just started failing",
+        "command": "wordpress-pp-cli diagnose --agent",
+        "explanation": "Classifies the failure as a path-based block, an app-layer filter, a bot challenge, a renamed REST prefix, or a stripped Authorization header, instead of leaving you with a bare 401."
+      },
+      {
+        "title": "Pull only the fields you need from a verbose endpoint",
+        "command": "wordpress-pp-cli posts list --per-page 20 --agent --select id,title.rendered,status,modified",
+        "explanation": "WordPress post objects carry 29 properties plus embedded links; narrowing with --select keeps large listings from flooding an agent's context."
+      },
+      {
+        "title": "Check what a credential may do before automating with it",
+        "command": "wordpress-pp-cli caps --agent",
+        "explanation": "Walks the live route table reading the Allow header with and without authentication, so permissions are discovered without performing a single write."
+      },
+      {
+        "title": "Find content defects across a synced site",
+        "command": "wordpress-pp-cli audit --agent",
+        "explanation": "Joins posts against media and term links locally to report missing featured images, categories, excerpts, and tags with the offending IDs."
+      },
+      {
+        "title": "See what this specific site actually exposes",
+        "command": "wordpress-pp-cli schema post --agent",
+        "explanation": "Reconciles the post-types registry, the live route table, and the OPTIONS schema against real rows, surfacing fields registered without show_in_rest."
+      }
+    ],
+    "trigger_phrases": [
+      "check my WordPress site",
+      "why is my wp-json returning 401",
+      "list posts from my WordPress site",
+      "publish this to WordPress",
+      "which of my WordPress sites need updates",
+      "find posts without a featured image",
+      "use wordpress",
+      "run wordpress-pp-cli"
+    ]
+  }
+}

@@ -1,0 +1,244 @@
+{
+  "api_name": "vehicle-safety",
+  "base_url": "https://api.nhtsa.gov",
+  "description": "Build source-attributed vehicle safety dossiers, honest comparisons, and recall-change reports from NHTSA data.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "complaints_list-by-vehicle",
+      "description": "List owner complaints for a model year, make, and model. Required: make, model, modelYear. Returns array of Complaint.",
+      "method": "GET",
+      "path": "/complaints/complaintsByVehicle",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "make",
+          "type": "string",
+          "location": "query",
+          "description": "Make",
+          "required": true
+        },
+        {
+          "name": "model",
+          "type": "string",
+          "location": "query",
+          "description": "Model",
+          "required": true
+        },
+        {
+          "name": "modelYear",
+          "type": "int",
+          "location": "query",
+          "description": "Model year",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "products_list-vehicle-makes",
+      "description": "List makes for a model year and issue type. Required: modelYear, issueType. Returns the ProductsListVehicleMakesResponse.",
+      "method": "GET",
+      "path": "/products/vehicle/makes",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "modelYear",
+          "type": "int",
+          "location": "query",
+          "description": "Model year",
+          "required": true
+        },
+        {
+          "name": "issueType",
+          "type": "string",
+          "location": "query",
+          "description": "r for recalls, c for complaints/communications, i for investigations when supported",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "products_list-vehicle-model-years",
+      "description": "List vehicle model years for an issue type. Required: issueType. Returns the ProductsListVehicleModelYearsResponse.",
+      "method": "GET",
+      "path": "/products/vehicle/modelYears",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "issueType",
+          "type": "string",
+          "location": "query",
+          "description": "r for recalls, c for complaints/communications, i for investigations when supported",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "products_list-vehicle-models",
+      "description": "List models for a make, model year, and issue type. Required: modelYear, make, issueType. Returns the ProductsListVehicleModelsResponse.",
+      "method": "GET",
+      "path": "/products/vehicle/models",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "modelYear",
+          "type": "int",
+          "location": "query",
+          "description": "Model year",
+          "required": true
+        },
+        {
+          "name": "make",
+          "type": "string",
+          "location": "query",
+          "description": "Make",
+          "required": true
+        },
+        {
+          "name": "issueType",
+          "type": "string",
+          "location": "query",
+          "description": "r for recalls, c for complaints/communications, i for investigations when supported",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "recalls_get-campaign",
+      "description": "Get a recall by NHTSA campaign number. Required: campaignNumber. Returns array of Recall.",
+      "method": "GET",
+      "path": "/recalls/campaignNumber",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "campaignNumber",
+          "type": "string",
+          "location": "query",
+          "description": "Campaign number",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "recalls_list-by-vehicle",
+      "description": "List recalls for a model year, make, and model. Required: make, model, modelYear. Returns array of Recall.",
+      "method": "GET",
+      "path": "/recalls/recallsByVehicle",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "make",
+          "type": "string",
+          "location": "query",
+          "description": "Make",
+          "required": true
+        },
+        {
+          "name": "model",
+          "type": "string",
+          "location": "query",
+          "description": "Model",
+          "required": true
+        },
+        {
+          "name": "modelYear",
+          "type": "int",
+          "location": "query",
+          "description": "Model year",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "safety-ratings_get",
+      "description": "Get crash ratings for a NHTSA vehicle ID. Required: vehicleId. Optional: format (default: json). Returns the SafetyRatingsGetResponse.",
+      "method": "GET",
+      "path": "/SafetyRatings/VehicleId/{vehicleId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "vehicleId",
+          "type": "int",
+          "location": "path",
+          "description": "Vehicle id",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Format"
+        }
+      ]
+    },
+    {
+      "name": "safety-ratings_list-by-vehicle",
+      "description": "List crash-rating vehicle variants. Required: modelYear, make, model. Optional: format (default: json). Returns the SafetyRatingsListByVehicleResponse.",
+      "method": "GET",
+      "path": "/SafetyRatings/modelyear/{modelYear}/make/{make}/model/{model}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "modelYear",
+          "type": "int",
+          "location": "path",
+          "description": "Model year",
+          "required": true
+        },
+        {
+          "name": "make",
+          "type": "string",
+          "location": "path",
+          "description": "Make",
+          "required": true
+        },
+        {
+          "name": "model",
+          "type": "string",
+          "location": "path",
+          "description": "Model",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Format"
+        }
+      ]
+    },
+    {
+      "name": "vehicles_decode-vin",
+      "description": "Decode a VIN into normalized vehicle attributes. Required: vin. Optional: modelyear, format (default: json). Returns the VehiclesDecodeVinResponse.",
+      "method": "GET",
+      "path": "/api/vehicles/DecodeVinValues/{vin}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "vin",
+          "type": "string",
+          "location": "path",
+          "description": "Vin",
+          "required": true
+        },
+        {
+          "name": "modelyear",
+          "type": "int",
+          "location": "query",
+          "description": "Modelyear"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Format"
+        }
+      ]
+    }
+  ]
+}

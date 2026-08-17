@@ -1,0 +1,29 @@
+{
+  "api_name": "1688",
+  "base_url": "https://h5api.m.1688.com",
+  "description": "The free, offline, agent-native 1688 wholesale sourcing CLI — keyword search with the signals the web UI buries (回头率 reorder rate, factory-verified status, supplier trade scores, price drift), persisted to a local store no scraper tracks over time.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "offers_detail",
+      "description": "Fetch a 1688 offer's public detail page by offer ID. Required: offer_id. Returns the Offer.",
+      "method": "GET",
+      "path": "/offer/{offer_id}.html",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "offer_id",
+          "type": "string",
+          "location": "path",
+          "description": "1688 offer ID (e.g. 927875250705)",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "api_name": "claude-agent-sdk-python-docs",
+  "base_url": "https://code.claude.com",
+  "description": "A source-grounded CLI for exploring and verifying the Claude Agent SDK Python docs.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "pages_custom_tools",
+      "description": "Fetch the Agent SDK custom tools guide. Returns the DocPage.",
+      "method": "GET",
+      "path": "/docs/en/agent-sdk/custom-tools.md",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "pages_index",
+      "description": "Fetch the Claude Code documentation index. Returns the DocPage.",
+      "method": "GET",
+      "path": "/docs/llms.txt",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "pages_mcp",
+      "description": "Fetch the Agent SDK MCP guide. Returns the DocPage.",
+      "method": "GET",
+      "path": "/docs/en/agent-sdk/mcp.md",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "pages_overview",
+      "description": "Fetch the Agent SDK overview. Returns the DocPage.",
+      "method": "GET",
+      "path": "/docs/en/agent-sdk/overview.md",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "pages_permissions",
+      "description": "Fetch the Agent SDK permissions guide. Returns the DocPage.",
+      "method": "GET",
+      "path": "/docs/en/agent-sdk/permissions.md",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "pages_python",
+      "description": "Fetch the Python Agent SDK reference. Returns the DocPage.",
+      "method": "GET",
+      "path": "/docs/en/agent-sdk/python.md",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "pages_quickstart",
+      "description": "Fetch the Agent SDK quickstart. Returns the DocPage.",
+      "method": "GET",
+      "path": "/docs/en/agent-sdk/quickstart.md",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "pages_sessions",
+      "description": "Fetch the Agent SDK sessions guide. Returns the DocPage.",
+      "method": "GET",
+      "path": "/docs/en/agent-sdk/sessions.md",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "pages_structured_outputs",
+      "description": "Fetch the Agent SDK structured output guide. Returns the DocPage.",
+      "method": "GET",
+      "path": "/docs/en/agent-sdk/structured-outputs.md",
+      "no_auth": true,
+      "params": []
+    }
+  ]
+}

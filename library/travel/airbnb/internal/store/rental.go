@@ -57,6 +57,20 @@ func (s *Store) UpsertWatchlistItem(item WatchlistItem) error {
 	return err
 }
 
+// PATCH: DeleteWatchlistItem removes a watchlist entry by its listing URL and
+// reports how many rows were deleted (0 when the URL was not watched). The
+// watchlist's listing_url column is UNIQUE, so this affects at most one row.
+// Runs under writeMu like the other mutators.
+func (s *Store) DeleteWatchlistItem(listingURL string) (int64, error) {
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	res, err := s.db.Exec(`DELETE FROM watchlist WHERE listing_url = ?`, listingURL)
+	if err != nil {
+		return 0, err
+	}
+	return res.RowsAffected()
+}
+
 func (s *Store) ListWatchlist(since int64) ([]WatchlistItem, error) {
 	query := `SELECT id, listing_url, listing_id, platform, max_price, checkin, checkout, added_at, last_checked_at, last_price, last_drop_at FROM watchlist`
 	args := []any{}

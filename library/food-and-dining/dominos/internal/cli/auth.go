@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/mvanhorn/printing-press-library/library/food-and-dining/dominos/internal/config"
 	"github.com/spf13/cobra"
 )
 
@@ -17,7 +16,6 @@ func newAuthCmd(flags *rootFlags) *cobra.Command {
 		Short: "Manage Domino's credentials (login, status, set-token, logout)",
 	}
 
-	cmd.AddCommand(newAuthLoginCmd(flags))
 	cmd.AddCommand(newAuthLoginCmd(flags))
 	cmd.AddCommand(newAuthStatusCmd(flags))
 	cmd.AddCommand(newAuthSetTokenCmd(flags))
@@ -32,7 +30,7 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 		Short:   "Show authentication status",
 		Example: "  dominos-pp-cli auth status",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cfg, err := config.Load(flags.configPath)
+			cfg, err := flags.loadConfig()
 			if err != nil {
 				return configErr(err)
 			}
@@ -47,6 +45,7 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 				out := map[string]any{
 					"authenticated": authed,
 					"source":        cfg.AuthSource,
+					"market":        cfg.Market,
 					"config":        cfg.Path,
 				}
 				if printErr := printJSONFiltered(w, out, flags); printErr != nil {
@@ -70,6 +69,7 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 
 			fmt.Fprintln(w, green("Authenticated"))
 			fmt.Fprintf(w, "  Source: %s\n", cfg.AuthSource)
+			fmt.Fprintf(w, "  Market: %s\n", cfg.Market)
 			fmt.Fprintf(w, "  Config: %s\n", cfg.Path)
 			return nil
 		},
@@ -83,7 +83,7 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 		Example: "  dominos-pp-cli auth set-token sk_live_abc123",
 		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cfg, err := config.Load(flags.configPath)
+			cfg, err := flags.loadConfig()
 			if err != nil {
 				return configErr(err)
 			}
@@ -98,9 +98,7 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 
 			// Save the token directly via the config's save mechanism.
 			// DOMINOS_TOKEN is the canonical name read by AuthHeader.
-			emptyClientID := ""
-			emptyRefresh := ""
-			if err := cfg.SaveTokens(emptyClientID, emptyClientID, args[0], emptyRefresh, cfg.TokenExpiry); err != nil {
+			if err := cfg.SaveManualToken(args[0]); err != nil {
 				return configErr(fmt.Errorf("saving token: %w", err))
 			}
 
@@ -123,7 +121,7 @@ func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 		Short:   "Clear stored credentials",
 		Example: "  dominos-pp-cli auth logout",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cfg, err := config.Load(flags.configPath)
+			cfg, err := flags.loadConfig()
 			if err != nil {
 				return configErr(err)
 			}

@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "ticktick-pp-mcp",
+  "display_name": "TickTick",
+  "version": "0.1.0",
+  "description": "Every TickTick surface — tasks, habits, focus, daily notes — with a corruption-proof daily-note contract and offline analytics no other TickTick tool has.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/ticktick-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/ticktick-pp-mcp",
+      "args": [],
+      "env": {
+        "TICKTICK_SESSION_TOKEN": "${user_config.ticktick_session_token}"
+      }
+    }
+  },
+  "user_config": {
+    "ticktick_session_token": {
+      "type": "string",
+      "title": "TICKTICK_SESSION_TOKEN",
+      "description": "Sets TICKTICK_SESSION_TOKEN for the TickTick MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

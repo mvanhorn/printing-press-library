@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "v0-pp-cli"
+display_name = "v0"
+description = "Generate and iterate on web apps with v0 from the terminal: create chats from prompts, stream agent output, sync history to a local SQLite mirror, and track credit spend across models."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/v0-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+V0_API_KEY = true

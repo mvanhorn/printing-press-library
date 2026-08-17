@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "techtwitter-pp-mcp",
+  "display_name": "Tech Twitter",
+  "version": "0.0.0",
+  "description": "Every Tech Twitter read endpoint, plus an offline-searchable local mirror and cited evidence bundles no other tool has.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/techtwitter-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/techtwitter-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -11,7 +11,7 @@ func newProjectsCyclesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "cycles",
 		Short:       "**Sprint & Development Cycles** Create and manage development cycles (sprints)",
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
 		RunE:        parentNoSubcommandRunE(flags),
 	}
 

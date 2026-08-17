@@ -1,0 +1,33 @@
+{
+  "timestamp": "2026-05-23T21:17:29.840583Z",
+  "cli_dir": "\u003ccli-dir\u003e/pangolin-pp-cli",
+  "findings": [
+    {
+      "kind": "missing-read-only",
+      "command": "health-check",
+      "file": "org_health-check.go",
+      "line": 11,
+      "evidence": "name matches read heuristic; no mcp:read-only annotation",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; parent grouper for create/update/delete subcommands routes via parentNoSubcommandRunE (prints help only, never mutates). Needs generator-template fix to either emit mcp:read-only on help-only parents or exempt parent-with-mutation-children from the read heuristic."
+    },
+    {
+      "kind": "missing-read-only",
+      "command": "health-checks",
+      "file": "org_health-checks.go",
+      "line": 11,
+      "evidence": "name matches read heuristic; no mcp:read-only annotation",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; pluralized parent grouper containing only a 'get' read subcommand. Same generator-template gap as the health-check parent: heuristic fires on the parent name though the parent itself is help-only and the operation lives in the get subcommand."
+    },
+    {
+      "kind": "thin-short",
+      "command": "version",
+      "file": "root.go",
+      "line": 342,
+      "evidence": "Print version",
+      "status": "accepted",
+      "note": "Standard 'version' command. 'Print version' is the conventional Short across Go CLIs; agents understand without elaboration. The reference docs list 'version' on the framework-skip list, so the audit firing here is likely a heuristic oversight rather than a real quality gap."
+    }
+  ]
+}

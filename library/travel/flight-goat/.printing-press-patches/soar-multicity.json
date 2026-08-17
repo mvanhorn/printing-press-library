@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "soar-multicity",
+  "applied_at": "2026-07-24",
+  "base_run_id": "20260712-220852",
+  "base_printing_press_version": "4.28.0",
+  "summary": "The soar command prices multi-city itineraries natively: >= 2 repeatable --segment values (the flights command's ORIG>DEST@YYYY-MM-DD form) POST a bare slices array to FlySoar's stream endpoint, and the deep link uses the GUI's trip=multicity&slices=ORIG-DEST-YYMMDD-<cabin>;... shape.",
+  "reason": "FlySoar's anonymous stream endpoint accepts a slices array with no top-level origin/destination and echoes is_multi_city=true (verified live), but the soar backend only modeled one-way/round-trip, so multi-city trips had no Duffel price source and no bookable deep link. One-way/round-trip keeps its verified payload untouched (a separate multi payload struct, not omitempty on the shared one), the cabin applies trip-wide because the GUI repeats a single cabin into every slice token, and a return date is rejected alongside slices (the return is just another slice).",
+  "files": [
+    "internal/soar/soar.go",
+    "internal/soar/soar_test.go",
+    "internal/cli/soar.go",
+    "internal/cli/soar_test.go"
+  ],
+  "validated_outcome": "go build/vet and go test ./internal/soar/ ./internal/cli/ pass. Dry-run builds https://flysoar.ai/flights/iah/sea/260927/?cabin=first&slices=IAH-FCO-260927-first%3BCAI-SEA-261004-first&trip=multicity matching the live GUI URL. Live IAH->FCO 2026-09-27 + CAI->SEA 2026-10-04 in first returned 497 offers (cheapest $10,970.53, slice_count 2, legs IAH-MIA MIA-FCO CAI-LHR LHR-SEA) with trip_type multi_city, query.slices echoed, and the booking request reading 'multi-city: IAH -> FCO on 2026-09-27, then CAI -> SEA on 2026-10-04, first class'. Classic one-way SEA->DEN regression unchanged (92 offers, no slices field in the query echo).",
+  "upstream_issue": ""
+}

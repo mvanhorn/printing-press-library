@@ -1,0 +1,9 @@
+{
+    "@context": {
+        "@version": "1.1"
+    },
+    "type": "FeatureCollection",
+    "features": [],
+    "title": "Current Hurricane Warning events",
+    "updated": "2026-06-16T05:41:25+00:00"
+}

@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "woot-pp-mcp",
+  "display_name": "Woot",
+  "version": "0.1.0",
+  "description": "Search Woot's live All Deals catalog with filters, prices, offline full-text search, and read-only GraphQL access.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/woot-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/woot-pp-mcp",
+      "args": [],
+      "env": {
+        "D24QG5ZSX8XDC4_CLOUDFRONT_API_KEY": "${user_config.d24qg5zsx8xdc4_cloudfront_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "d24qg5zsx8xdc4_cloudfront_api_key": {
+      "type": "string",
+      "title": "D24QG5ZSX8XDC4_CLOUDFRONT_API_KEY",
+      "description": "Sets D24QG5ZSX8XDC4_CLOUDFRONT_API_KEY for the Woot MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

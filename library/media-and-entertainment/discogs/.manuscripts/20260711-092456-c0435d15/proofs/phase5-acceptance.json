@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "api_name": "discogs",
+  "run_id": "20260711-092456-c0435d15",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 193,
+  "tests_passed": 193,
+  "tests_skipped": 182,
+  "auth_context": {
+    "type": "api_key",
+    "api_key_available": true
+  }
+}

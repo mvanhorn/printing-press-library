@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "reno-goat-pp-mcp",
+  "display_name": "Reno Goat",
+  "version": "4.14.0",
+  "description": "Search, compare, price-watch, model-enrich, and project-track homeowner-visible renovation selections across 33 active sources plus 5 tracked stubs, with category routing and model intelligence across appliances, plumbing, electrical, HVAC, flooring, hardware, materials, furniture, and decor. No API keys required.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/reno-goat-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/reno-goat-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

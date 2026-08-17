@@ -1,0 +1,45 @@
+{
+  "manifest_version": "0.3",
+  "name": "linq-pp-mcp",
+  "display_name": "Linq",
+  "version": "0.0.0",
+  "description": "Agent-native messaging API for chats, messages, attachments, phone numbers, contact cards, capability checks, and webhooks",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/linq-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/linq-pp-mcp",
+      "args": [],
+      "env": {
+        "LINQ_API_KEY": "${user_config.linq_api_key}",
+        "LINQ_API_V3_API_KEY": "${user_config.linq_api_v3_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "linq_api_key": {
+      "type": "string",
+      "title": "LINQ_API_KEY",
+      "description": "Optional. Sets LINQ_API_KEY for the Linq MCP server. Get a credential from https://dashboard.linqapp.com/sandbox-signup.",
+      "sensitive": true
+    },
+    "linq_api_v3_api_key": {
+      "type": "string",
+      "title": "LINQ_API_V3_API_KEY",
+      "description": "Optional. Sets LINQ_API_V3_API_KEY for the Linq MCP server. Get a credential from https://dashboard.linqapp.com/sandbox-signup.",
+      "sensitive": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

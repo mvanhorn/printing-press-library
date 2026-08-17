@@ -1,0 +1,281 @@
+{
+  "api_name": "airhint",
+  "base_url": "https://www.airhint.com",
+  "description": "AirHint flight price prediction API — buy/wait recommendations for airline tickets",
+  "mcp_ready": "full",
+  "http_transport": "browser-chrome-h2",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "airport-autocomplete_list_airport_autocomplete",
+      "description": "Search airports and cities by name or IATA code. Required: query. Optional: locale (default: en). Returns array of airport.",
+      "method": "GET",
+      "path": "/airport-autocomplete",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Airport name, city, or IATA code to search for",
+          "required": true
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "query",
+          "description": "Response language locale (e.g. en, de, fr)"
+        }
+      ]
+    },
+    {
+      "name": "airport-names_create_airport_names",
+      "description": "Get airport names for a list of IATA codes. Required: codes. Returns the new airport_names.",
+      "method": "POST",
+      "path": "/airport-names",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "codes",
+          "type": "array",
+          "location": "body",
+          "description": "List of IATA airport codes to look up",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "cheapest-airline-deal-month_get_cheapest_airline_deal_month",
+      "description": "Get cheapest fare for a specific airline on a route near a date. Required: airline, origin, destination, date, currency. Returns the cheapest_airline_deal.",
+      "method": "GET",
+      "path": "/cheapest-airline-deal-month/{airline}/{origin}/{destination}/{date}/{currency}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "airline",
+          "type": "string",
+          "location": "path",
+          "description": "IATA airline code (e.g. FR, U2, W6)",
+          "required": true
+        },
+        {
+          "name": "origin",
+          "type": "string",
+          "location": "path",
+          "description": "Origin airport IATA code",
+          "required": true
+        },
+        {
+          "name": "destination",
+          "type": "string",
+          "location": "path",
+          "description": "Destination airport IATA code",
+          "required": true
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "path",
+          "description": "Reference date in YYYY-MM-DD format",
+          "required": true
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "path",
+          "description": "Currency code (e.g. EUR, USD)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "cheapest-deal-month_get_cheapest_deal_month",
+      "description": "Get the cheapest one-way fare for a route in a given month. Required: origin, destination, month. Optional: maxPrice (default: 1000), currency (default: EUR), directOnly (default: true). Returns the cheapest_deal.",
+      "method": "GET",
+      "path": "/cheapest-deal-month/one-way/{origin}/{destination}/{month}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "origin",
+          "type": "string",
+          "location": "path",
+          "description": "Origin airport IATA code",
+          "required": true
+        },
+        {
+          "name": "destination",
+          "type": "string",
+          "location": "path",
+          "description": "Destination airport IATA code",
+          "required": true
+        },
+        {
+          "name": "month",
+          "type": "integer",
+          "location": "path",
+          "description": "Month number (1-12)",
+          "required": true
+        },
+        {
+          "name": "maxPrice",
+          "type": "integer",
+          "location": "query",
+          "description": "Maximum price filter"
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "query",
+          "description": "Currency code"
+        },
+        {
+          "name": "directOnly",
+          "type": "boolean",
+          "location": "query",
+          "description": "Show only direct flights"
+        }
+      ]
+    },
+    {
+      "name": "flights_create_search",
+      "description": "Initiate a flight search, returns a search_id for polling. Required: origin, destination, date. Optional: airline, currency (default: EUR), adults (default: 1) (plus 1 more).",
+      "method": "GET",
+      "path": "/search/{origin}/{destination}/{date}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "origin",
+          "type": "string",
+          "location": "path",
+          "description": "Origin airport IATA code",
+          "required": true
+        },
+        {
+          "name": "destination",
+          "type": "string",
+          "location": "path",
+          "description": "Destination airport IATA code",
+          "required": true
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "path",
+          "description": "Departure date in YYYY-MM-DD format",
+          "required": true
+        },
+        {
+          "name": "airline",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by airline name (e.g. ryanair, easyjet)"
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "query",
+          "description": "Currency for prices"
+        },
+        {
+          "name": "adults",
+          "type": "integer",
+          "location": "query",
+          "description": "Number of adult passengers"
+        },
+        {
+          "name": "direct",
+          "type": "boolean",
+          "location": "query",
+          "description": "Show only direct flights"
+        }
+      ]
+    },
+    {
+      "name": "flights_get_search",
+      "description": "Poll for search results using the search_id from create_search. Required: search_id. Returns array of flight_result.",
+      "method": "GET",
+      "path": "/search/{search_id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "search_id",
+          "type": "string",
+          "location": "path",
+          "description": "UUID returned by the initial search request",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "predict_get_prediction",
+      "description": "Get buy/wait recommendation for a flight at a given price. Required: airline, origin, destination, date, price. Optional: outboundPrice, currency (default: EUR), cabin_class (default: Y) (plus 1 more). Returns the prediction.",
+      "method": "GET",
+      "path": "/predict/{airline}/{origin}/{destination}/{date}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "airline",
+          "type": "string",
+          "location": "path",
+          "description": "IATA airline code (e.g. FR for Ryanair, U2 for easyJet)",
+          "required": true
+        },
+        {
+          "name": "origin",
+          "type": "string",
+          "location": "path",
+          "description": "Origin airport IATA code (e.g. STN, LHR)",
+          "required": true
+        },
+        {
+          "name": "destination",
+          "type": "string",
+          "location": "path",
+          "description": "Destination airport IATA code (e.g. DUB, BCN)",
+          "required": true
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "path",
+          "description": "Departure date in YYYY-MM-DD format",
+          "required": true
+        },
+        {
+          "name": "price",
+          "type": "number",
+          "location": "query",
+          "description": "Current flight price to evaluate",
+          "required": true
+        },
+        {
+          "name": "outboundPrice",
+          "type": "number",
+          "location": "query",
+          "description": "Outbound leg price (same as price for one-way)"
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "query",
+          "description": "Currency code (e.g. EUR, USD, GBP)"
+        },
+        {
+          "name": "cabin_class",
+          "type": "string",
+          "location": "query",
+          "description": "Cabin class code (Y=Economy, C=Business)"
+        },
+        {
+          "name": "passengers",
+          "type": "integer",
+          "location": "query",
+          "description": "Number of passengers"
+        }
+      ]
+    }
+  ]
+}

@@ -8,6 +8,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/supabase/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/supabase/internal/config"
@@ -31,6 +32,7 @@ type Client struct {
 	NoCache    bool
 	cacheDir   string
 	limiter    *cliutil.AdaptiveLimiter
+	removeAll  func(string) error
 }
 
 // APIError carries HTTP status information for structured exit codes.
@@ -40,6 +42,8 @@ type APIError struct {
 	StatusCode int
 	Body       string
 }
+
+var errAuthConfigRedirectBoundary = errors.New("redirect into protected auth-config endpoint refused")
 
 func (e *APIError) Error() string {
 	return fmt.Sprintf("%s %s returned HTTP %d: %s", e.Method, e.Path, e.StatusCode, e.Body)
@@ -59,6 +63,7 @@ func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 		HTTPClient: httpClient,
 		cacheDir:   cacheDir,
 		limiter:    cliutil.NewAdaptiveLimiter(rateLimit),
+		removeAll:  os.RemoveAll,
 	}
 }
 
@@ -72,14 +77,15 @@ func (c *Client) Get(path string, params map[string]string) (json.RawMessage, er
 }
 
 func (c *Client) GetWithHeaders(path string, params map[string]string, headers map[string]string) (json.RawMessage, error) {
+	protectedAuthConfig := IsAuthConfigPath(path)
 	// Check cache for GET requests
-	if !c.NoCache && !c.DryRun && c.cacheDir != "" {
+	if !protectedAuthConfig && !c.NoCache && !c.DryRun && c.cacheDir != "" {
 		if cached, ok := c.readCache(path, params); ok {
 			return cached, nil
 		}
 	}
 	result, _, err := c.do("GET", path, params, nil, headers)
-	if err == nil && !c.NoCache && !c.DryRun && c.cacheDir != "" {
+	if err == nil && !protectedAuthConfig && !c.NoCache && !c.DryRun && c.cacheDir != "" {
 		c.writeCache(path, params, result)
 	}
 	return result, err
@@ -129,19 +135,28 @@ func (c *Client) readCache(path string, params map[string]string) (json.RawMessa
 }
 
 func (c *Client) writeCache(path string, params map[string]string, data json.RawMessage) {
-	os.MkdirAll(c.cacheDir, 0o755)
+	if os.MkdirAll(c.cacheDir, 0o700) != nil {
+		return
+	}
+	_ = os.Chmod(c.cacheDir, 0o700)
 	cacheFile := filepath.Join(c.cacheDir, c.cacheKey(path, params)+".json")
-	os.WriteFile(cacheFile, []byte(data), 0o644)
+	if os.WriteFile(cacheFile, []byte(data), 0o600) == nil {
+		_ = os.Chmod(cacheFile, 0o600)
+	}
 }
 
 // invalidateCache wholesale-removes the cache directory so the next read
 // after a mutation cannot return a stale snapshot. Selective per-resource
 // invalidation rejected: cache keys are opaque sha256 hashes.
-func (c *Client) invalidateCache() {
+func (c *Client) invalidateCache() error {
 	if c.cacheDir == "" {
-		return
+		return nil
 	}
-	_ = os.RemoveAll(c.cacheDir)
+	removeAll := c.removeAll
+	if removeAll == nil {
+		removeAll = os.RemoveAll
+	}
+	return removeAll(c.cacheDir)
 }
 
 func (c *Client) Post(path string, body any) (json.RawMessage, int, error) {
@@ -274,6 +289,16 @@ func encodeFormBody(body formRequestBody) ([]byte, string, error) {
 // do executes an HTTP request. headerOverrides, when non-nil, override global
 // RequiredHeaders for this specific request (used for per-endpoint API versioning).
 func (c *Client) do(method, path string, params map[string]string, body any, headerOverrides map[string]string) (json.RawMessage, int, error) {
+	protectedAuthConfig := IsAuthConfigPath(path)
+	if protectedAuthConfig && (method == http.MethodGet || method == http.MethodPatch) {
+		// Pre-fix releases cached the raw AuthConfigResponse in owner-readable or
+		// world-readable files. Remove the entire opaque-key cache before every
+		// protected operation because individual legacy entries cannot be mapped
+		// back to their route safely.
+		if err := c.invalidateCache(); err != nil {
+			return nil, 0, fmt.Errorf("purging legacy auth-config cache: %w", err)
+		}
+	}
 	targetURL := c.BaseURL + path
 
 	var bodyBytes []byte
@@ -300,6 +325,11 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 			}
 			bodyBytes = b
 			contentType = "application/json"
+		}
+	}
+	if protectedAuthConfig && method == http.MethodPatch {
+		if err := ValidateAuthConfigRequest(bodyBytes); err != nil {
+			return nil, 0, fmt.Errorf("validating auth config request: %w", err)
 		}
 	}
 
@@ -376,8 +406,38 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 			req.Header.Set("Accept", "application/json")
 		}
 
-		resp, err := c.HTTPClient.Do(req)
+		// Install the boundary on a request-local client clone so concurrent
+		// calls cannot race on redirect policy. Protected auth-config requests
+		// never follow redirects: even a response that is later sanitized must
+		// not forward its Authorization header to another route or host. Other
+		// requests preserve the caller policy except that they cannot redirect
+		// into the protected endpoint after being classified as cacheable.
+		requestClient := *c.HTTPClient
+		callerCheckRedirect := requestClient.CheckRedirect
+		requestClient.CheckRedirect = func(redirected *http.Request, via []*http.Request) error {
+			if protectedAuthConfig || IsAuthConfigPath(redirected.URL.String()) {
+				return errAuthConfigRedirectBoundary
+			}
+			if callerCheckRedirect != nil {
+				return callerCheckRedirect(redirected, via)
+			}
+			if len(via) >= 10 {
+				return fmt.Errorf("stopped after 10 redirects")
+			}
+			return nil
+		}
+
+		resp, err := requestClient.Do(req)
 		if err != nil {
+			if errors.Is(err, errAuthConfigRedirectBoundary) {
+				if resp != nil && resp.Body != nil {
+					_ = resp.Body.Close()
+				}
+				// net/http wraps CheckRedirect errors in *url.Error, whose string
+				// contains the full rejected destination URL. Never wrap that value:
+				// a protected Location can itself carry a credential-bearing query.
+				return nil, 0, errors.New("redirect into protected auth-config endpoint refused")
+			}
 			lastErr = fmt.Errorf("%s %s: %w", method, path, err)
 			continue
 		}
@@ -392,17 +452,28 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 		// Success
 		if resp.StatusCode < 400 {
 			c.limiter.OnSuccess()
-			if method != http.MethodGet && !c.DryRun {
-				c.invalidateCache()
+			result := json.RawMessage(respBody)
+			if protectedAuthConfig {
+				result, err = SanitizeAuthConfigResponse(result)
+				if err != nil {
+					return nil, 0, fmt.Errorf("sanitizing auth config response: %w", err)
+				}
 			}
-			return json.RawMessage(respBody), resp.StatusCode, nil
+			if method != http.MethodGet && !c.DryRun {
+				_ = c.invalidateCache()
+			}
+			return result, resp.StatusCode, nil
+		}
+		errorBody := truncateBody(respBody)
+		if protectedAuthConfig {
+			errorBody = "response body redacted"
 		}
 
 		apiErr := &APIError{
 			Method:     method,
 			Path:       path,
 			StatusCode: resp.StatusCode,
-			Body:       truncateBody(respBody),
+			Body:       errorBody,
 		}
 
 		// Rate limited - adjust adaptive limiter and retry
@@ -456,6 +527,13 @@ func (c *Client) dryRun(method, targetURL, path string, params map[string]string
 	}
 	_ = queryPrinted
 	if body != nil {
+		if IsAuthConfigPath(path) {
+			var err error
+			body, err = sanitizeAuthConfigRequestPreview(body)
+			if err != nil {
+				return nil, 0, fmt.Errorf("sanitizing auth config dry-run body: %w", err)
+			}
+		}
 		var pretty json.RawMessage
 		if json.Unmarshal(body, &pretty) == nil {
 			enc := json.NewEncoder(os.Stderr)
@@ -465,7 +543,11 @@ func (c *Client) dryRun(method, targetURL, path string, params map[string]string
 		}
 	}
 	if authHeader != "" {
-		fmt.Fprintf(os.Stderr, "  %s: %s\n", "Authorization", maskToken(authHeader))
+		if IsAuthConfigPath(path) {
+			fmt.Fprintln(os.Stderr, "  Authorization: [REDACTED]")
+		} else {
+			fmt.Fprintf(os.Stderr, "  %s: %s\n", "Authorization", maskToken(authHeader))
+		}
 	}
 	fmt.Fprintf(os.Stderr, "\n(dry run - no request sent)\n")
 	return json.RawMessage(`{"dry_run": true}`), 0, nil

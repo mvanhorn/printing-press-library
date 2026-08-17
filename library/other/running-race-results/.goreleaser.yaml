@@ -1,0 +1,36 @@
+version: 2
+project_name: running-race-results-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: running-race-results-pp-cli
+    main: ./cmd/running-race-results-pp-cli
+    binary: running-race-results-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: running-race-results-pp-cli
+    repository:
+      owner: jiahongc
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Look up running race results across NYRR, Mika Timing, Athlinks, and RaceResult."
+    install: |
+      bin.install "running-race-results-pp-cli"

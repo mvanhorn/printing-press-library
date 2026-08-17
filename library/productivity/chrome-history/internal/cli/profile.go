@@ -7,7 +7,6 @@ import (
 
 	"github.com/mvanhorn/printing-press-library/library/productivity/chrome-history/internal/output"
 	"github.com/mvanhorn/printing-press-library/library/productivity/chrome-history/internal/source"
-	"github.com/mvanhorn/printing-press-library/library/productivity/chrome-history/internal/store"
 	"github.com/spf13/cobra"
 )
 
@@ -23,15 +22,8 @@ func newProfileCmd(opts *RootOptions) *cobra.Command {
 			if err != nil {
 				return errors.Join(ErrUsage, err)
 			}
-			snapshot, err := snapshotPath()
+			st, err := openSnapshotStore()
 			if err != nil {
-				return err
-			}
-			st, err := store.OpenExisting(snapshot)
-			if err != nil {
-				if errors.Is(err, store.ErrNoSnapshot) {
-					return ErrNoSnapshot
-				}
 				return err
 			}
 			defer st.Close()

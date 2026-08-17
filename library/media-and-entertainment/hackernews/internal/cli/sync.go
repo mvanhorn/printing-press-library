@@ -95,6 +95,7 @@ Exit codes & warnings:
 			if len(resources) == 0 {
 				resources = defaultSyncResources()
 			}
+			resources = expandSyncResources(resources)
 
 			// --full: clear all sync cursors before starting
 			if full {
@@ -276,6 +277,7 @@ func syncResource(c interface {
 	if err != nil {
 		return syncResult{Resource: resource, Err: err, Duration: time.Since(started)}
 	}
+	storeResource := canonicalStoreResource(resource)
 	var totalCount int
 
 	// Resume cursor from sync_state (unless --full cleared it)
@@ -345,7 +347,7 @@ func syncResource(c interface {
 
 		if len(items) == 0 {
 			// Single object response - try to store as-is
-			if err := upsertSingleObject(db, resource, data); err != nil {
+			if err := upsertSingleObject(db, storeResource, data); err != nil {
 				if !humanFriendly {
 					fmt.Fprintf(os.Stderr, `{"event":"sync_error","resource":"%s","error":"%s"}`+"\n", resource, strings.ReplaceAll(err.Error(), `"`, `\"`))
 				}
@@ -366,12 +368,15 @@ func syncResource(c interface {
 		// "primary_key_unresolved" the first time any single item
 		// fails, and the F4b "stored_count_zero_after_extraction"
 		// probe when extraction succeeded but rows still didn't land.
-		stored, extractFailures, err := upsertResourceBatch(db, resource, items)
+		stored, extractFailures, err := upsertResourceBatch(db, storeResource, items)
 		if err != nil {
 			if !humanFriendly {
 				fmt.Fprintf(os.Stderr, `{"event":"sync_error","resource":"%s","error":"%s"}`+"\n", resource, strings.ReplaceAll(err.Error(), `"`, `\"`))
 			}
 			return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("upserting batch for %s: %w", resource, err), Duration: time.Since(started)}
+		}
+		if pagesFetched == 0 {
+			recordStoryListSnapshot(db, resource, items)
 		}
 
 		consumedTotal += len(items)
@@ -791,9 +796,55 @@ func parseSinceDuration(s string) (time.Time, error) {
 
 func defaultSyncResources() []string {
 	return []string{
-		"stories",
+		"stories_top",
+		"stories_new",
+		"stories_best",
+		"stories_ask",
+		"stories_show",
+		"stories_job",
 		"updates",
 	}
+}
+
+func expandSyncResources(resources []string) []string {
+	expanded := make([]string, 0, len(resources))
+	seen := map[string]bool{}
+	add := func(resource string) {
+		resource = strings.TrimSpace(resource)
+		if resource == "" || seen[resource] {
+			return
+		}
+		seen[resource] = true
+		expanded = append(expanded, resource)
+	}
+	for _, resource := range resources {
+		if strings.TrimSpace(resource) == "stories" {
+			for _, storyResource := range storyListSyncResources() {
+				add(storyResource)
+			}
+			continue
+		}
+		add(resource)
+	}
+	return expanded
+}
+
+func storyListSyncResources() []string {
+	return []string{
+		"stories_top",
+		"stories_new",
+		"stories_best",
+		"stories_ask",
+		"stories_show",
+		"stories_job",
+	}
+}
+
+func canonicalStoreResource(resource string) string {
+	if storySnapshotList(resource) != "" {
+		return "stories"
+	}
+	return resource
 }
 
 // syncResourcePath maps resource names to their actual API endpoint paths.
@@ -801,13 +852,91 @@ func defaultSyncResources() []string {
 // this preserves the actual endpoint path like "/ISteamApps/GetAppList/v2".
 func syncResourcePath(resource string) (string, error) {
 	paths := map[string]string{
-		"stories": "/jobstories.json",
-		"updates": "/updates.json",
+		"stories_top":  "/topstories.json",
+		"stories_new":  "/newstories.json",
+		"stories_best": "/beststories.json",
+		"stories_ask":  "/askstories.json",
+		"stories_show": "/showstories.json",
+		"stories_job":  "/jobstories.json",
+		"updates":      "/updates.json",
 	}
 	if p, ok := paths[resource]; ok {
 		return p, nil
 	}
 	return "", fmt.Errorf("unknown sync resource %q", resource)
+}
+
+func storySnapshotList(resource string) string {
+	switch resource {
+	case "stories_top":
+		return "topstories"
+	case "stories_new":
+		return "newstories"
+	case "stories_best":
+		return "beststories"
+	case "stories_ask":
+		return "askstories"
+	case "stories_show":
+		return "showstories"
+	case "stories_job":
+		return "jobstories"
+	default:
+		return ""
+	}
+}
+
+func recordStoryListSnapshot(db *store.Store, resource string, items []json.RawMessage) {
+	list := storySnapshotList(resource)
+	if list == "" {
+		return
+	}
+	ids := storyIDsFromItems(items, 30)
+	if len(ids) == 0 {
+		return
+	}
+	if err := recordFrontPageSnapshot(db, list, ids); err != nil {
+		if humanFriendly {
+			fmt.Fprintf(os.Stderr, "\nwarning: failed to record %s snapshot: %v\n", list, err)
+		} else {
+			fmt.Fprintf(os.Stderr, `{"event":"snapshot_error","resource":"%s","error":"%s"}`+"\n", list, strings.ReplaceAll(err.Error(), `"`, `\"`))
+		}
+	}
+}
+
+func storyIDsFromItems(items []json.RawMessage, limit int) []string {
+	if limit <= 0 || limit > len(items) {
+		limit = len(items)
+	}
+	ids := make([]string, 0, limit)
+	for _, item := range items[:limit] {
+		id := storyIDFromRawItem(item)
+		if id == "" {
+			continue
+		}
+		ids = append(ids, id)
+	}
+	return ids
+}
+
+func storyIDFromRawItem(item json.RawMessage) string {
+	var obj map[string]any
+	if err := json.Unmarshal(item, &obj); err == nil {
+		return extractID("stories", obj)
+	}
+	dec := json.NewDecoder(strings.NewReader(string(item)))
+	dec.UseNumber()
+	var value any
+	if err := dec.Decode(&value); err != nil {
+		return ""
+	}
+	switch v := value.(type) {
+	case json.Number:
+		return v.String()
+	case string:
+		return v
+	default:
+		return ""
+	}
 }
 
 // resourceIDFieldOverrides projects per-resource IDField (set by the profiler

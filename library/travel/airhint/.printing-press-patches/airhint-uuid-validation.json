@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "airhint-uuid-validation",
+  "applied_at": "2026-06-17",
+  "base_run_id": "20260617-221742-db6c3453",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Add UUID format validation to flights get-search before API call.",
+  "reason": "AirHint returns 200 with empty results for any search_id value including invalid strings. Without format validation the error_path dogfood test fails because the CLI exits 0 for non-UUID inputs.",
+  "files": ["internal/cli/flights_get_search.go"],
+  "validated_outcome": "flights get-search __printing_press_invalid__ exits 1; valid UUID passes through to API.",
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/2999"
+}

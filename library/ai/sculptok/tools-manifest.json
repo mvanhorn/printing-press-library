@@ -1,0 +1,249 @@
+{
+  "api_name": "sculptok",
+  "base_url": "https://api.sculptok.com/api-open",
+  "description": "SculptOK AI depth-map, relief, STL and 3D generation CLI",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "apikey",
+    "format": "{SCULPTOK_API_KEY}",
+    "in": "header",
+    "env_vars": [
+      "SCULPTOK_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "SCULPTOK_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "credits_balance",
+      "description": "Get the current credit balance (free).",
+      "method": "GET",
+      "path": "/point/info",
+      "params": []
+    },
+    {
+      "name": "credits_history",
+      "description": "List credit-change history, newest first (free). Optional: page (default: 1), limit (default: 20). Returns array of CreditEvent.",
+      "method": "GET",
+      "path": "/point/page",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Items per page"
+        }
+      ]
+    },
+    {
+      "name": "draw_depthmap",
+      "description": "Submit a depth-map draw. Cost: 10 credits (style=pro 2k 15; style=pro + draw_hd=4k 30). Async: returns promptId; poll with 'draw status'. Required: image-url. Optional: style (default: normal), hd-fix (default: manual), optimal-size (default: true) (plus 3 more).",
+      "method": "POST",
+      "path": "/draw/prompt",
+      "params": [
+        {
+          "name": "image-url",
+          "wire_name": "imageUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Uploaded image URL (from the upload step / a SculptOK-hosted src URL)",
+          "required": true
+        },
+        {
+          "name": "style",
+          "type": "string",
+          "location": "body",
+          "description": "Depth-map style. pro unlocks version/draw_hd/exr. Default normal."
+        },
+        {
+          "name": "hd-fix",
+          "wire_name": "hd_fix",
+          "type": "string",
+          "location": "body",
+          "description": "AI optimization: auto to enable, manual to disable. Default manual."
+        },
+        {
+          "name": "optimal-size",
+          "wire_name": "optimal_size",
+          "type": "string",
+          "location": "body",
+          "description": "Enable optimal output size. Default true."
+        },
+        {
+          "name": "ext-info",
+          "wire_name": "extInfo",
+          "type": "string",
+          "location": "body",
+          "description": "Bit depth; when set, only one image is returned. exr requires style=pro."
+        },
+        {
+          "name": "version",
+          "type": "string",
+          "location": "body",
+          "description": "Model version, only effective when style=pro. Default 1.0."
+        },
+        {
+          "name": "draw-hd",
+          "wire_name": "draw_hd",
+          "type": "string",
+          "location": "body",
+          "description": "Resolution, only effective when style=pro. Default 2k. 4k costs 30 credits."
+        }
+      ]
+    },
+    {
+      "name": "draw_restore",
+      "description": "Submit background-removal and/or HD restoration. Cost: 2 credits. Async: returns promptId. Required: image-url. Optional: hd-fix, remove-back.",
+      "method": "POST",
+      "path": "/draw/hd/prompt",
+      "params": [
+        {
+          "name": "image-url",
+          "wire_name": "imageUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Uploaded image URL",
+          "required": true
+        },
+        {
+          "name": "hd-fix",
+          "wire_name": "hdFix",
+          "type": "string",
+          "location": "body",
+          "description": "Apply HD restoration."
+        },
+        {
+          "name": "remove-back",
+          "wire_name": "removeBack",
+          "type": "string",
+          "location": "body",
+          "description": "Background removal model; omit to skip background removal."
+        }
+      ]
+    },
+    {
+      "name": "draw_status",
+      "description": "Get the status of a submitted draw by promptId (free). status/currentStep/position and imgRecords on completion. Required: uuid.",
+      "method": "GET",
+      "path": "/draw/prompt",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "query",
+          "description": "The promptId returned by a draw submit",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "draw_stl",
+      "description": "Submit an image-to-STL job. Cost: 3 credits. Async: returns promptId. Required: image-url. Optional: width-mm (default: 120), min-thickness (default: 1.6), max-thickness (default: 5) (plus 2 more).",
+      "method": "POST",
+      "path": "/draw/stl/prompt",
+      "params": [
+        {
+          "name": "image-url",
+          "wire_name": "image_url",
+          "type": "string",
+          "location": "body",
+          "description": "Input image URL (png/jpg/jpeg/webp/bmp/exr)",
+          "required": true
+        },
+        {
+          "name": "width-mm",
+          "wire_name": "width_mm",
+          "type": "float",
+          "location": "body",
+          "description": "Output model width in mm (range 40-240). Default 120."
+        },
+        {
+          "name": "min-thickness",
+          "wire_name": "min_thickness",
+          "type": "float",
+          "location": "body",
+          "description": "Minimum thickness in mm for the brightest area (range 0.4-8). Default 1.6."
+        },
+        {
+          "name": "max-thickness",
+          "wire_name": "max_thickness",
+          "type": "float",
+          "location": "body",
+          "description": "Maximum thickness in mm for the darkest area (range 0.4-25). Default 5.0."
+        },
+        {
+          "name": "invert",
+          "type": "bool",
+          "location": "body",
+          "description": "Invert grayscale (black shallow, white deep). Default false."
+        },
+        {
+          "name": "scale-image",
+          "wire_name": "scale_image",
+          "type": "float",
+          "location": "body",
+          "description": "Image scale percent (0-100). Default 50."
+        }
+      ]
+    },
+    {
+      "name": "draw_threed",
+      "description": "Submit a 3D draw. Cost: 10 credits. Async: returns promptId. Required: image-url. Optional: hd-fix (default: basic).",
+      "method": "POST",
+      "path": "/draw/3d/prompt",
+      "params": [
+        {
+          "name": "image-url",
+          "wire_name": "imageUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Uploaded image URL",
+          "required": true
+        },
+        {
+          "name": "hd-fix",
+          "wire_name": "hd_fix",
+          "type": "string",
+          "location": "body",
+          "description": "Precision of the 3D draw. Default basic."
+        }
+      ]
+    },
+    {
+      "name": "drawings_list",
+      "description": "List your past generated images, newest first (free). Optional: page (default: 1), limit (default: 20). Returns array of Drawing.",
+      "method": "GET",
+      "path": "/image/page",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Items per page"
+        }
+      ]
+    }
+  ]
+}

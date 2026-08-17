@@ -20,17 +20,16 @@ func newSegmentsListCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  intercom-pp-cli segments list",
 		Annotations: map[string]string{"pp:endpoint": "segments.list", "pp:method": "GET", "pp:path": "/segments", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			path := "/segments"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/segments"
 			params := map[string]string{}
 			if flagIncludeCount != false {
-				params["include_count"] = fmt.Sprintf("%v", flagIncludeCount)
+				params["include_count"] = formatCLIParamValue(flagIncludeCount)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "segments", true, path, params, nil, cmd.ErrOrStderr())
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "segments", true, path, params, nil, "segments", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -75,7 +74,7 @@ func newSegmentsListCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().BoolVar(&flagIncludeCount, "include-count", false, "It includes the count of contacts that belong to each segment.")

@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "amazon-in-order-localization",
+  "applied_at": "2026-06-17",
+  "base_run_id": "20260510-105710",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Order-list parsing must read amazon.in (and other non-US marketplace) order cards correctly: day-first dates, marketplace-currency fallback, marketplace-absolute links, script-noise-free totals, and relative delivery ETAs.",
+  "reason": "Beyond INR symbol detection (see inr-order-list-totals), the published parser was shaped for amazon.com markup, so an authenticated amazon.in session still produced wrong structured data: (1) placedDate was empty because dateLikeRegex/ParseDate only accepted US month-first layouts, not day-first ('16 June 2026'); (2) order/track/invoice links were absolutized against a hardcoded https://www.amazon.com origin instead of the configured marketplace, so every link pointed at the wrong TLD; (3) Amazon inlines JSON/JS (tokens like '$0', 'total') inside order cards, which polluted money/label scans and corrupted totals until Text() skipped <script>/<style>/<noscript> subtrees; (4) delivery phrasing used by international marketplaces ('today', 'tomorrow', weekday names) never resolved to an ISO etaDate, leaving where-is-my-stuff/arriving-soon/late blank; (5) a marketplace-currency fallback (parser.MarketplaceCurrency / marketplaceCurrency() in root.go) is needed so amounts whose symbol is ambiguous fall back to the marketplace currency — '$' is intentionally left uncoded (returns \"\") because it spans USD/CAD/AUD/MXN, and pinning it to USD mislabeled amazon.ca/amazon.com.au orders.",
+  "files": [
+    "internal/parser/parser.go",
+    "internal/parser/orders_list.go",
+    "internal/parser/gift_cards.go",
+    "internal/cli/root.go",
+    "internal/parser/parser_test.go"
+  ],
+  "validated_outcome": "Parser tests cover day-first ParseDate, ambiguous-'$' currency fallback, weekday/relative ETA resolution, and script-subtree skipping; go build/vet/test ./... pass from the amazon-orders CLI directory. Verified live against a real amazon.in account: orders list returns correct INR totals, day-first placedDate, amazon.in-absolute links, and resolved etaDate across a full year-2026 walk."
+}

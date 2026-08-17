@@ -33,9 +33,13 @@ func NewAdaptiveLimiter(ratePerSec float64) *AdaptiveLimiter {
 	if ratePerSec <= 0 {
 		return nil
 	}
+	floor := 0.5
+	if ratePerSec < floor {
+		floor = ratePerSec
+	}
 	return &AdaptiveLimiter{
 		rate:      ratePerSec,
-		floor:     ratePerSec,
+		floor:     floor,
 		rampAfter: 10,
 	}
 }
@@ -47,13 +51,15 @@ func (l *AdaptiveLimiter) Wait() {
 	l.mu.Lock()
 	delay := time.Duration(float64(time.Second) / l.rate)
 	elapsed := time.Since(l.lastRequest)
-	l.mu.Unlock()
+	var sleep time.Duration
 	if elapsed < delay {
-		time.Sleep(delay - elapsed)
+		sleep = delay - elapsed
 	}
-	l.mu.Lock()
-	l.lastRequest = time.Now()
+	l.lastRequest = time.Now().Add(sleep)
 	l.mu.Unlock()
+	if sleep > 0 {
+		time.Sleep(sleep)
+	}
 }
 
 func (l *AdaptiveLimiter) OnSuccess() {
@@ -68,6 +74,9 @@ func (l *AdaptiveLimiter) OnSuccess() {
 		if l.ceiling > 0 && newRate > l.ceiling*0.9 {
 			newRate = l.ceiling * 0.9
 		}
+		if newRate < l.floor {
+			newRate = l.floor
+		}
 		l.rate = newRate
 		l.successes = 0
 	}
@@ -81,8 +90,8 @@ func (l *AdaptiveLimiter) OnRateLimit() {
 	defer l.mu.Unlock()
 	l.ceiling = l.rate
 	l.rate = l.rate / 2
-	if l.rate < 0.5 {
-		l.rate = 0.5
+	if l.rate < l.floor {
+		l.rate = l.floor
 	}
 	l.successes = 0
 }

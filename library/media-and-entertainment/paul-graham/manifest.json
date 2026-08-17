@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "paul-graham-pp-mcp",
+  "display_name": "Paul Graham Essays",
+  "version": "0.0.0",
+  "description": "Static public essay index for paulgraham.com.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/paul-graham-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/paul-graham-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

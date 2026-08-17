@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/mobbin-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260708-153634-73e98316",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

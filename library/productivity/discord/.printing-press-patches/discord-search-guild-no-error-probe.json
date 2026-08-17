@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "discord-search-guild-no-error-probe",
+  "base_run_id": "20260810-204427",
+  "reason": "guilds members search-guild requires a <guild_id> positional before its --query flag; the dogfood error-path probe invokes --query without the positional, so the command prints help text instead of JSON and fails the error_path cell. Annotate pp:no-error-path-probe: true (the canonical carve-out for this shape).",
+  "files": [
+    "internal/cli/guilds_members_search-guild.go"
+  ],
+  "validated_outcome": "live dogfood PASS 457/457 (run 2026-08-10, phase5-acceptance.json)",
+  "upstream_issue": "Candidate generator change: emit pp:no-error-path-probe automatically when a search-shaped command carries a required path positional."
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "sutra-fitness-tail-partner-scope",
+  "applied_at": "2026-06-15",
+  "base_run_id": "20260615-020029-7f8843b9",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Make the framework tail command partner-scoped and validate its resource argument.",
+  "reason": "Generated tail built path /{resource} (wrong for the /{partnerId}/{resource} model) and accepted any argument, exiting 0 on invalid input.",
+  "files": ["internal/cli/tail.go"],
+  "validated_outcome": "tail bogus -> exit 2; tail classes --follow=false -> exit 0 against live API; publish live gate 0 failures."
+}

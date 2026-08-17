@@ -1,0 +1,156 @@
+openapi: 3.0.3
+info:
+  title: GitHub Current Intelligence
+  version: 1.0.0
+  description: Public GitHub repository, release, search, and security advisory signals for agent research.
+servers:
+  - url: https://api.github.com
+paths:
+  /search/repositories:
+    get:
+      operationId: searchRepositories
+      summary: Search repositories
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [stars, forks, help-wanted-issues, updated]
+        - name: order
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        "200":
+          description: Repository search results
+          content:
+            application/json:
+              schema:
+                type: object
+  /repos/{owner}/{repo}:
+    get:
+      operationId: getRepository
+      summary: Get repository metadata
+      parameters:
+        - name: owner
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: repo
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Repository metadata
+          content:
+            application/json:
+              schema:
+                type: object
+  /repos/{owner}/{repo}/releases:
+    get:
+      operationId: listReleases
+      summary: List repository releases
+      parameters:
+        - name: owner
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: repo
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        "200":
+          description: Releases
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+  /advisories:
+    get:
+      operationId: listGlobalAdvisories
+      summary: List global security advisories
+      parameters:
+        - name: ghsa_id
+          in: query
+          schema:
+            type: string
+        - name: type
+          in: query
+          schema:
+            type: string
+        - name: cve_id
+          in: query
+          schema:
+            type: string
+        - name: ecosystem
+          in: query
+          schema:
+            type: string
+        - name: severity
+          in: query
+          schema:
+            type: string
+            enum: [unknown, low, medium, high, critical]
+        - name: affects
+          in: query
+          schema:
+            type: string
+        - name: published
+          in: query
+          schema:
+            type: string
+        - name: updated
+          in: query
+          schema:
+            type: string
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+      responses:
+        "200":
+          description: Global advisories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object

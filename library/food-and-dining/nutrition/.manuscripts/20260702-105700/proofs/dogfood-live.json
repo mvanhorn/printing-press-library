@@ -1,0 +1,1396 @@
+{
+  "dir": "/Users/mvanhorn/printing-press/.runstate/mvanhorn-eb6a05f2/runs/20260702-105700/working/nutrition-pp-cli",
+  "binary": "/Users/mvanhorn/printing-press/.runstate/mvanhorn-eb6a05f2/runs/20260702-105700/working/nutrition-pp-cli/nutrition-pp-cli",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 83,
+  "passed": 83,
+  "failed": 0,
+  "skipped": 60,
+  "commands": [
+    "api",
+    "cite",
+    "compare",
+    "doctor",
+    "enrich",
+    "feedback list",
+    "find",
+    "food",
+    "foods get",
+    "foods get-list",
+    "foods get-search",
+    "foods post",
+    "foods post-list",
+    "foods post-search",
+    "import",
+    "log add",
+    "log progress",
+    "log remove",
+    "log summary",
+    "log targets set",
+    "log today",
+    "meal",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "rank",
+    "search",
+    "sources list",
+    "sync",
+    "which",
+    "workflow archive",
+    "workflow status"
+  ],
+  "tests": [
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  nutrition-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  nutrition-pp-cli api\n\n  # Show methods for a specific interface\n  nutrition-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'nutrition-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'nutrition-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "cite",
+      "kind": "help",
+      "args": [
+        "cite",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Emit an APA or MLA citation for a USDA FoodData Central food record so agent output is verifiable and traceable to a real FDC id.\n\nUsage:\n  nutrition-pp-cli cite \u003cfdcId\u003e [flags]\n\nExamples:\n  nutrition-pp-cli cite 173414 --style apa\n\nFlags:\n  -h, --help           help for cite\n      --style string   Citation style: apa or mla (default \"apa\")\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'nutrition-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "cite",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [cite] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "cite",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [cite] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "cite",
+      "kind": "error_path",
+      "args": [
+        "cite",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 5,
+      "output_sample": "Error: GET /v1/food/__printing_press_invalid__ returned HTTP 400: {\"error\":\"Bad Request\",\"message\":\"Invalid request. Please try again.\"}\n"
+    },
+    {
+      "command": "compare",
+      "kind": "help",
+      "args": [
+        "compare",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Compare 2-5 foods side by side on a common basis: per 100 g, per serving, or per 100 kcal (protein density). Values come from USDA FoodData Central batch fetch plus local per-basis math.\n\nUse this command to compare foods on a common basis. Do NOT use it for a single food's cross-source detail; use 'enrich' instead.\n\nUsage:\n  nutrition-pp-cli compare \u003cfdcId\u003e \u003cfdcId\u003e [\u003cfdcId\u003e...] [flags]\n\nExamples:\n  nutrition-pp-cli compare 173414 171287 175167 --basis 100kcal --agent\n\nFlags:\n      --basis string   Comparison basis: 100g, serving, or 100kcal (default \"100g\")\n  -h, --help           help for compare\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'nutrition-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "compare",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [compare] has fewer segments than placeholders (3)"
+    },
+    {
+      "command": "compare",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [compare] has fewer segments than placeholders (3)"
+    },
+    {
+      "command": "compare",
+      "kind": "error_path",
+      "args": [
+        "compare",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Usage:\n  nutrition-pp-cli compare \u003cfdcId\u003e \u003cfdcId\u003e [\u003cfdcId\u003e...] [flags]\n\nExamples:\n  nutrition-pp-cli compare 173414 171287 175167 --basis 100kcal --agent\n\nFlags:\n      --basis string   Comparison basis: 100g, serving, or 100kcal (default \"100g\")\n  -h, --help           help for compare\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'nutrition-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\nError: compare needs at least 2 FDC ids\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  nutrition-pp-cli doctor [flags]\n\nExamples:\n  nutrition-pp-cli doctor\n  nutrition-pp-cli doctor --json\n  nutrition-pp-cli doctor --fail-on warn\n  nutrition-pp-cli doctor --fail-on stale\n\nFlags:\n      --fail-on string   Exit non-zero for selected health gates. stale: cache freshness plus errors; warn: credential/path warnings plus errors; error: errors only. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'nutrition-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  OK Auth: configured\n  OK Env Vars: OK credentials available from env:FDC_API_KEY\n  OK Verify Mode: normal operation\n  OK API: reachable (HTTP 404 at /)\n  INFO Credentials: present, not verified. Run `nutrition-pp-cli foods get` to confirm the token works end-to-end.\n  config_path: /var/folders/lm/p4mprl9924gc4rmdny458wf80000gn/T/printing-press-subprocess-2835938572/.config/nutrition-pp-cli/config.toml\n  base_url: https://api.nal.usda.gov/fdc\n  auth_source: env:FDC_API_KEY\n  credentials_location: env:FDC_API_KEY\n  version: 1.0.0\n  INFO Cache: empty\n    db_path: /var/folders/lm/p4mprl9924gc4rmdny458wf80000gn/T/printing-press-subprocess-2835938572/.local/share/nutrition-pp-cli/data.db\n    schema_version: 4\n    db_bytes: 57344\n    stale_after: 6h0m0s\n    hint: Cache is empty; run 'nutrition-pp-cli sync' to hydrate.\n  Paths:\n    config: /var/folders/lm/p4mprl9924gc4rmdny458wf80000gn/T/printing-press-subprocess-2835938572/.config/nutrition-pp-cli (XDG_CONFIG_HOME)\n    data: /var/folders/lm/p4mprl9924gc4rmdny458wf80000gn/T/printing-press-subprocess-2835938572/.local/share/nutrition-pp-cli (XDG_DATA_HOME)\n    state: /var/folders/lm/p4mprl9924gc4rmdny458wf80000gn/T/printing-press-subprocess-2835938572/.local/state/nutrition-pp-cli (XDG_STATE_HOME)\n    cache: /var/folders/lm/p4mprl9924gc4rmdny458wf80000gn/T/printing-press-subprocess-2835938572/.cache/nutrition-pp-cli (XDG_CACHE_HOME)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"agentcookie\": \"not detected (optional)\",\n  \"api\": \"reachable (HTTP 404 at /)\",\n  \"auth\": \"configured\",\n  \"auth_source\": \"env:FDC_API_KEY\",\n  \"base_url\": \"https://api.nal.usda.gov/fdc\",\n  \"cache\": {\n    \"db_bytes\": 57344,\n    \"db_path\": \"/var/folders/lm/p4mprl9924gc4rmdny458wf80000gn/T/printing-press-subprocess-2835938572/.local/share/nutrition-pp-cli/data.db\",\n    \"hint\": \"Cache is empty; run 'nutrition-pp-cli sync' to hydrate.\",\n    \"resources\": null,\n    \"schema_version\": 4,\n    \"stale_after\": \"6h0m0s\",\n    \"status\": \"empty\"\n  },\n  \"config\": \"ok\",\n  \"config_path\": \"/var/folders/lm/p4mprl9924gc4rmdny458wf80000gn/T/printing-press-subprocess-2835938572/.config/nutrition-pp-cli/config.toml\",\n  \"credentials\": \"present, not verified. Run `nutrition-pp-cli foods get` to confirm the token works end-to-end.\",\n  \"credentials_location\": \"env:FDC_API_KEY\",\n  \"env_vars\": \"OK credentials available from env:FDC_API_KEY\",\n  \"paths\": {\n    \"cache\": {\n      \"dir\": \"/var/folders/lm/p4mprl9924gc4rmdny458wf80000gn/T/printing-press-subprocess-2835938572/.cache/nutrition-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CACHE_HOME\"\n    },\n    \"config\": {\n      \"dir\": \"/var/folders/lm/p4mprl9924gc4rmdny458wf80000gn/T/printing-press-subprocess-2835938572/.config/nutrition-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CONFIG_HOME\"\n    },\n    \"data\": {\n      \"dir\": \"/var/folders/lm/p4mprl9924gc4rmdny458wf80000gn/T/printing-press-subprocess-2835938572/.local/share/nutrition-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_DATA_HOME\"\n    },\n    \"state\": {\n      \"dir\": \"/var/folders/lm/p4mprl9924gc4rmdny458wf80000gn/T/printing-press-subprocess-2835938572/.local/state/nutrition-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_STATE_HOME\"\n    },\n    \"status\": \"ok\"\n  },\n  \"verify_mode\": \"normal operation\",\n  \"version\": \"1.0.0\"\n}\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "enrich",
+      "kind": "help",
+      "args": [
+        "enrich",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Fetch a USDA FoodData Central record by FDC id and merge NutritionValue.org's derived analytics onto it: net carbs, omega-6/omega-3 ratio, and per-nutrient detail the USDA API does not expose. NutritionValue.org food ids are the same FDC ids, so the two sources join exactly.\n\nUse this command to get NutritionValue.org derived analytics (net carbs, omega ratio) merged onto one food. Do NOT use it for raw nutrient arrays or portion scaling; use 'food' instead.\n\nUsage:\n  nutrition-pp-cli enrich \u003cfdcId\u003e [flags]\n\nExamples:\n  nutrition-pp-cli enrich 173414 --agent\n\nFlags:\n  -h, --help   help for enrich\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'nutrition-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "enrich",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [enrich] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "enrich",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [enrich] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "enrich",
+      "kind": "error_path",
+      "args": [
+        "enrich",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 5,
+      "output_sample": "Error: GET /v1/food/__printing_press_invalid__ returned HTTP 400: {\"error\":\"Bad Request\",\"message\":\"Invalid request. Please try again.\"}\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  nutrition-pp-cli feedback list [flags]\n\nExamples:\n  nutrition-pp-cli feedback list\n  nutrition-pp-cli feedback list --limit 5\n  nutrition-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'nutrition-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "find",
+      "kind": "help",
+      "args": [
+        "find",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Find foods that satisfy multiple nutrient thresholds at once (e.g. protein \u003e= 20 g AND kcal \u003c= 165 per 100 g). Scans USDA FoodData Central and filters nutrient arrays locally. All thresholds are per 100 g.\n\nUse this command for multi-condition nutrient thresholds. Do NOT use it for a simple top-N by one nutrient; use 'rank' instead.\n\nUsage:\n  nutrition-pp-cli find [flags]\n\nExamples:\n  nutrition-pp-cli find --min protein=20 --max-kcal 165 --agent\n\nFlags:\n      --data-type string     Filter to a USDA dataType (Foundation, SR Legacy, Survey (FNDDS), Branded)\n  -h, --help                 help for find\n      --limit int            Maximum matching foods to return (default 25)\n      --max stringArray      Maximum threshold as nutrient=amount per 100g (repeatable), e.g. --max sugars=5\n      --max-kcal float       Convenience: maximum calories per 100g\n      --max-scan-pages int   Maximum foods-list pages to scan (200 foods/page) (default 5)\n      --min stringArray      Minimum threshold as nutrient=amount per 100g (repeatable), e.g. --min protein=20\n      --min-protein float    Convenience: minimum protein grams per 100g\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'nutrition-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "find",
+      "kind": "happy_path",
+      "args": [
+        "find",
+        "--min",
+        "protein=20",
+        "--max-kcal",
+        "165",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"count\": 0,\n    \"matches\": [],\n    \"max_scan_pages\": 1,\n    \"note\": \"scanned 200 foods across up to 1 pages without a match; raise --max-scan-pages to widen the search\",\n    \"scanned_foods\": 200,\n    \"source\": \"usda\"\n  }\n}\n"
+    },
+    {
+      "command": "find",
+      "kind": "json_fidelity",
+      "args": [
+        "find",
+        "--min",
+        "protein=20",
+        "--max-kcal",
+        "165",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"count\": 0,\n    \"matches\": [],\n    \"max_scan_pages\": 1,\n    \"note\": \"scanned 200 foods across up to 1 pages without a match; raise --max-scan-pages to widen the search\",\n    \"scanned_foods\": 200,\n    \"source\": \"usda\"\n  }\n}\n"
+    },
+    {
+      "command": "find",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "food",
+      "kind": "help",
+      "args": [
+        "food",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Retrieves a single food item by an FDC ID. Optional format and nutrients can be specified.\n\nUsage:\n  nutrition-pp-cli food \u003cfdcId\u003e [flags]\n\nExamples:\n  nutrition-pp-cli food 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n      --format string      Optional. 'abridged' for an abridged set of elements, 'full' for all elements (default). (one of: abridged, full)\n  -h, --help               help for food\n      --nutrients string   Optional. List of up to 25 nutrient numbers. Only the nutrient information for the specified nutrients will be returned.\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'nutrition-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "food",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [food] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "food",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [food] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "food",
+      "kind": "error_path",
+      "args": [
+        "food",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 5,
+      "output_sample": "Error: GET /v1/food/__printing_press_invalid__ returned HTTP 400: {\"error\":\"Bad Request\",\"message\":\"Invalid request. Please try again.\"}\n"
+    },
+    {
+      "command": "foods get",
+      "kind": "help",
+      "args": [
+        "foods",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Retrieves a list of food items by a list of up to 20 FDC IDs. Optional format and nutrients can be specified.\n\nUsage:\n  nutrition-pp-cli foods get [flags]\n\nAliases:\n  get, list\n\nExamples:\n  nutrition-pp-cli foods get --fdc-ids 534358\n\nFlags:\n      --fdc-ids string     List of multiple FDC ID's. Should be comma separated list (e.g. fdcIds=534358,373052) or repeating parameters (e.g.\n      --format string      Optional. 'abridged' for an abridged set of elements, 'full' for all elements (default). (one of: abridged, full)\n  -h, --help               help for get\n      --nutrients string   Optional. List of up to 25 nutrient numbers. Only the nutrient information for the specified nutrients will be returned.\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'nutrition-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "foods get",
+      "kind": "happy_path",
+      "args": [
+        "foods",
+        "get",
+        "--fdc-ids",
+        "534358"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":[{\"availableDate\":\"8/18/2018\",\"brandOwner\":\"Kar Nut Products Company\",\"brandedFoodCategory\":\"Popcorn, Peanuts, Seeds \u0026 Related Snacks\",\"dataSource\":\"LI\",\"dataType\":\"Branded\",\"description\":\"NUT 'N BERRY MIX\",\"discontinuedDate\":\"\",\"fdcId\":534358,\"foodAttributes\":[],\"foodClass\":\"Branded\",\"foodComponents\":[],\"foodNutrients\":[{\"amount\":0,\"foodNutrientDerivation\":{\"code\":\"LCCD\",\"description\":\"Calculated from a daily value percentage per serving size measure\",\"id\":75},\"id\":4056287,\"nutrient\":{\"id\":1104,\"name\":\"\u003credacted\u003e\",\"number\":\"318\",\"rank\":7500,\"unitName\":\"IU\"},\"type\":\"FoodNutrient\"},{\"amount\":71,\"foodNutrientDerivation\":{\"code\":\"LCCD\",\"description\":\"Calculated from a daily value percentage per serving size measure\",\"id\":75},\"id\":4056284,\"nutrient\":{\"id\":1087,\"name\":\"\u003credacted\u003e\",\"number\":\"301\",\"rank\":5300,\"unitName\":\"mg\"},\"type\":\"FoodNutrient\"},{\"amount\":2.57,\"foodNutrientDerivation\":{\"code\":\"LCCD\",\"description\":\"Calculated from a daily value percentage per serving size measure\",\"id\":75},\"id\":4056285,\"nutrient\":{\"id\":1089,\"name\":\"\u003credacted\u003e\",\"number\":\"303\",\"rank\":5400,\"unitName\":\"mg\"},\"type\":\"FoodNutrient\"},{\"amount\":0,\"foodNutrientDerivation\":{\"code\":\"LCCD\",\"description\":\"Calculated from a daily value percentage per serving size measure\",\"id\":75},\"id\":4056289,\"nutrient\":{\"id\":1253,\"name\":\"\u003credacted\u003e\",\"number\":\"601\",\"rank\":15700,\"unitName\":\"mg\"},\"type\":\"FoodNutrient\"},{\"amount\":0,\"foodNutrientDerivation\":{\"code\":\"LCCD\",\"description\":\"Calculated from a daily value percentage per serving size measure\",\"id\":75},\"id\":4056286,\"nutrient\":{\"id\":1093,\"name\":\"\u003credacted\u003e\",\"number\":\"307\",\"rank\":5800,\"unitName\":\"mg\"},\"type\":\"FoodNutrient\"},{\"amount\":0,\"foodNutrientDerivation\":{\"code\":\"LCCD\",\"description\":\"Calculated from a daily value percentage per serving size measure\",\"id\":75},\"id\":4056288,\"nutrient\":{\"id\":1162,\"name\":\"\u003credacted\u003e\",\"number\":\"401\",\"rank\":6300,\"unitName\":\"mg\"},\"type\":\"FoodNutrient\"},{\"amount\":32.14,\"foodNutrientDerivation\":{\"code\":\"LCCS\",\"description\":\"Calculated from value per serving size measure\",\"id\":70},\"id\":6000020,\"nutrient\":{\"id\":1004,\"name\":\"\u003credacted\u003e\",\"number\":\"204\",\"rank\":800,\"unitName\":\"g\"},\"type\":\"FoodNutrient\"},{\"amount\":500,\"foodNutrientDerivation\":{\"code\":\"LCCS\",\"description\":\"Calculated from value per serving size measure\",\"id\":70},\"id\":6000022,\"nutrient\":{\"id\":1008,\"name\":\"\u003credacted\u003e\",\"number\":\"208\",\"rank\":300,\"unitName\":\"kcal\"},\"type\":\"FoodNutrient\"},{\"amount\":14.29,\"foodNutrientDerivation\":{\"code\":\"LCCS\",\"description\":\"Calculated from value per serving size measure\",\"id\":70},\"id\":6000019,\"nutrient\":{\"id\":1003,\"name\":\"\u003credacted\u003e\",\"number\":\"203\",\"rank\":600,\"unitName\":\"g\"},\"type\":\"FoodNutrient\"},{\"amount\":7.1,\"foodNutrientDerivation\":{\"code\":\"LCCS\",\"description\":\"Calculated from value per serving size measure\",\"id\":70},\"id\":6000024,\"nutrient\":{\"id\":1079,\"name\":\"\u003credacted\u003e\",\"number\":\"291\",\"rank\":1200,\"unitName\":\"g\"},\"type\":\"FoodNutrient\"},{\"amount\":0,\"foodNutrientDerivation\":{\"code\":\"LCCS\",\"description\":\"Calculated from value per serving size measure\",\"id\":70},\"id\":6000026,\"nutrient\":{\"id\":1257,\"name\":\"\u003credacted\u003e\",\"number\":\"605\",\"rank\":15400,\"unitName\":\"g\"},\"type\":\"FoodNutrient\"},{\"amount\":28.57,\"foodNutrientDerivation\":{\"code\":\"LCCS\",\"description\":\"Calculated from value per serving size measure\",\"id\":70},\"id\":6000023,\"nutrient\":{\"id\":2000,\"name\":\"\u003credacted\u003e\",\"number\":\"269\",\"rank\":1510,\"unitName\":\"g\"},\"type\":\"FoodNutrient\"},{\"amount\":3.57,\"foodNutrientDerivation\":{\"code\":\"LCCS\",\"description\":\"Calculated from value per serving size measure\",\"id\":70},\"id\":6000027,\"nutrient\":{\"id\":1258,\"name\":\"\u003credacted\u003e\",\"number\":\"606\",\"rank\":9700,\"unitName\":\"g\"},\"type\":\"FoodNutrient\"},{\"amount\":42.86,\"foodNutrientDerivation\":{\"code\":\"LCCS\",\"description\":\"Calculated from value per serving size measure\",\"id\":70},\"id\":6000021,\"nutrient\":{\"id\":1005,\"name\":\"\u003credacted\u003e\",\"number\":\"205\",\"rank\":1110,\"unitName\":\"g\"},\"type\":\"FoodNutrient\"},{\"amount\":571,\"foodNutrientDerivation\":{\"code\":\"LCCS\",\"description\":\"Calculated from value per serving size measure\",\"id\":70},\"id\":6000025,\"nutrient\":{\"id\":10…[truncated]"
+    },
+    {
+      "command": "foods get",
+      "kind": "json_fidelity",
+      "args": [
+        "foods",
+        "get",
+        "--fdc-ids",
+        "534358",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":[{\"availableDate\":\"8/18/2018\",\"brandOwner\":\"Kar Nut Products Company\",\"brandedFoodCategory\":\"Popcorn, Peanuts, Seeds \u0026 Related Snacks\",\"dataSource\":\"LI\",\"dataType\":\"Branded\",\"description\":\"NUT 'N BERRY MIX\",\"discontinuedDate\":\"\",\"fdcId\":534358,\"foodAttributes\":[],\"foodClass\":\"Branded\",\"foodComponents\":[],\"foodNutrients\":[{\"amount\":0,\"foodNutrientDerivation\":{\"code\":\"LCCD\",\"description\":\"Calculated from a daily value percentage per serving size measure\",\"id\":75},\"id\":4056287,\"nutrient\":{\"id\":1104,\"name\":\"\u003credacted\u003e\",\"number\":\"318\",\"rank\":7500,\"unitName\":\"IU\"},\"type\":\"FoodNutrient\"},{\"amount\":71,\"foodNutrientDerivation\":{\"code\":\"LCCD\",\"description\":\"Calculated from a daily value percentage per serving size measure\",\"id\":75},\"id\":4056284,\"nutrient\":{\"id\":1087,\"name\":\"\u003credacted\u003e\",\"number\":\"301\",\"rank\":5300,\"unitName\":\"mg\"},\"type\":\"FoodNutrient\"},{\"amount\":2.57,\"foodNutrientDerivation\":{\"code\":\"LCCD\",\"description\":\"Calculated from a daily value percentage per serving size measure\",\"id\":75},\"id\":4056285,\"nutrient\":{\"id\":1089,\"name\":\"\u003credacted\u003e\",\"number\":\"303\",\"rank\":5400,\"unitName\":\"mg\"},\"type\":\"FoodNutrient\"},{\"amount\":0,\"foodNutrientDerivation\":{\"code\":\"LCCD\",\"description\":\"Calculated from a daily value percentage per serving size measure\",\"id\":75},\"id\":4056289,\"nutrient\":{\"id\":1253,\"name\":\"\u003credacted\u003e\",\"number\":\"601\",\"rank\":15700,\"unitName\":\"mg\"},\"type\":\"FoodNutrient\"},{\"amount\":0,\"foodNutrientDerivation\":{\"code\":\"LCCD\",\"description\":\"Calculated from a daily value percentage per serving size measure\",\"id\":75},\"id\":4056286,\"nutrient\":{\"id\":1093,\"name\":\"\u003credacted\u003e\",\"number\":\"307\",\"rank\":5800,\"unitName\":\"mg\"},\"type\":\"FoodNutrient\"},{\"amount\":0,\"foodNutrientDerivation\":{\"code\":\"LCCD\",\"description\":\"Calculated from a daily value percentage per serving size measure\",\"id\":75},\"id\":4056288,\"nutrient\":{\"id\":1162,\"name\":\"\u003credacted\u003e\",\"number\":\"401\",\"rank\":6300,\"unitName\":\"mg\"},\"type\":\"FoodNutrient\"},{\"amount\":32.14,\"foodNutrientDerivation\":{\"code\":\"LCCS\",\"description\":\"Calculated from value per serving size measure\",\"id\":70},\"id\":6000020,\"nutrient\":{\"id\":1004,\"name\":\"\u003credacted\u003e\",\"number\":\"204\",\"rank\":800,\"unitName\":\"g\"},\"type\":\"FoodNutrient\"},{\"amount\":500,\"foodNutrientDerivation\":{\"code\":\"LCCS\",\"description\":\"Calculated from value per serving size measure\",\"id\":70},\"id\":6000022,\"nutrient\":{\"id\":1008,\"name\":\"\u003credacted\u003e\",\"number\":\"208\",\"rank\":300,\"unitName\":\"kcal\"},\"type\":\"FoodNutrient\"},{\"amount\":14.29,\"foodNutrientDerivation\":{\"code\":\"LCCS\",\"description\":\"Calculated from value per serving size measure\",\"id\":70},\"id\":6000019,\"nutrient\":{\"id\":1003,\"name\":\"\u003credacted\u003e\",\"number\":\"203\",\"rank\":600,\"unitName\":\"g\"},\"type\":\"FoodNutrient\"},{\"amount\":7.1,\"foodNutrientDerivation\":{\"code\":\"LCCS\",\"description\":\"Calculated from value per serving size measure\",\"id\":70},\"id\":6000024,\"nutrient\":{\"id\":1079,\"name\":\"\u003credacted\u003e\",\"number\":\"291\",\"rank\":1200,\"unitName\":\"g\"},\"type\":\"FoodNutrient\"},{\"amount\":0,\"foodNutrientDerivation\":{\"code\":\"LCCS\",\"description\":\"Calculated from value per serving size measure\",\"id\":70},\"id\":6000026,\"nutrient\":{\"id\":1257,\"name\":\"\u003credacted\u003e\",\"number\":\"605\",\"rank\":15400,\"unitName\":\"g\"},\"type\":\"FoodNutrient\"},{\"amount\":28.57,\"foodNutrientDerivation\":{\"code\":\"LCCS\",\"description\":\"Calculated from value per serving size measure\",\"id\":70},\"id\":6000023,\"nutrient\":{\"id\":2000,\"name\":\"\u003credacted\u003e\",\"number\":\"269\",\"rank\":1510,\"unitName\":\"g\"},\"type\":\"FoodNutrient\"},{\"amount\":3.57,\"foodNutrientDerivation\":{\"code\":\"LCCS\",\"description\":\"Calculated from value per serving size measure\",\"id\":70},\"id\":6000027,\"nutrient\":{\"id\":1258,\"name\":\"\u003credacted\u003e\",\"number\":\"606\",\"rank\":9700,\"unitName\":\"g\"},\"type\":\"FoodNutrient\"},{\"amount\":42.86,\"foodNutrientDerivation\":{\"code\":\"LCCS\",\"description\":\"Calculated from value per serving size measure\",\"id\":70},\"id\":6000021,\"nutrient\":{\"id\":1005,\"name\":\"\u003credacted\u003e\",\"number\":\"205\",\"rank\":1110,\"unitName\":\"g\"},\"type\":\"FoodNutrient\"},{\"amount\":571,\"foodNutrientDerivation\":{\"code\":\"LCCS\",\"description\":\"Calculated from value per serving size measure\",\"id\":70},\"id\":6000025,\"nutrient\":{\"id\":10…[truncated]"
+    },
+    {
+      "command": "foods get",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "foods get-list",
+      "kind": "help",
+      "args": [
+        "foods",
+        "get-list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Retrieves a paged list of foods. Use the pageNumber parameter to page through the entire result set.\n\nUsage:\n  nutrition-pp-cli foods get-list [flags]\n\nExamples:\n  nutrition-pp-cli foods get-list\n\nFlags:\n      --all                 Fetch all pages\n      --data-type string    Optional. Filter on a specific data type; specify one or more values in an array.\n  -h, --help                help for get-list\n      --page-number int     Optional. Page number to retrieve. The offset into the overall result set is expressed as (pageNumber * pageSize)\n      --page-size int       Optional. Maximum number of results to return for the current page. Default is 50.\n      --sort-by string      Optional. Specify one of the possible values to sort by that field. Note, dataType. (one of: dataType.keyword, lowercaseDescription.keyword, fdcId, publishedDate)\n      --sort-order string   Optional. The sort direction for the results. Only applicable if sortBy is specified. (one of: asc, desc)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'nutrition-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "foods get-list",
+      "kind": "happy_path",
+      "args": [
+        "foods",
+        "get-list"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":[{\"dataType\":\"Experimental\",\"description\":\"A comprehensive characterization of phenolics, amino acids and other minor bioactives of selected honeys and identification of botanical origin markers\",\"fdcId\":2715733,\"foodNutrients\":[],\"publicationDate\":\"2024-10-31\"},{\"dataType\":\"Experimental\",\"description\":\"A Fast and Simple Solid Phase Extraction-Based Method for Glucosinolate Determination: An Alternative to the ISO-9167 Method\",\"fdcId\":2715727,\"foodNutrients\":[],\"publicationDate\":\"2024-10-31\"},{\"dataType\":\"Experimental\",\"description\":\"A Low-Starch and High-Fiber Diet Intervention Impacts the Microbial Community of Raw Bovine Milk\",\"fdcId\":2353623,\"foodNutrients\":[],\"publicationDate\":\"2022-10-28\"},{\"dataType\":\"Survey (FNDDS)\",\"description\":\"Abalone\",\"fdcId\":2706337,\"foodCode\":\"26301110\",\"foodNutrients\":[{\"amount\":21.2,\"name\":\"\u003credacted\u003e\",\"number\":\"203\",\"unitName\":\"G\"},{\"amount\":6.12,\"name\":\"\u003credacted\u003e\",\"number\":\"204\",\"unitName\":\"G\"},{\"amount\":7.46,\"name\":\"\u003credacted\u003e\",\"number\":\"205\",\"unitName\":\"G\"},{\"amount\":177,\"name\":\"\u003credacted\u003e\",\"number\":\"208\",\"unitName\":\"KCAL\"},{\"amount\":0,\"name\":\"\u003credacted\u003e\",\"number\":\"221\",\"unitName\":\"G\"},{\"amount\":62.7,\"name\":\"\u003credacted\u003e\",\"number\":\"255\",\"unitName\":\"G\"},{\"amount\":0,\"name\":\"\u003credacted\u003e\",\"number\":\"262\",\"unitName\":\"MG\"},{\"amount\":0,\"name\":\"\u003credacted\u003e\",\"number\":\"263\",\"unitName\":\"MG\"},{\"amount\":0,\"name\":\"\u003credacted\u003e\",\"number\":\"269\",\"unitName\":\"G\"},{\"amount\":0,\"name\":\"\u003credacted\u003e\",\"number\":\"291\",\"unitName\":\"G\"},{\"amount\":39,\"name\":\"\u003credacted\u003e\",\"number\":\"301\",\"unitName\":\"MG\"},{\"amount\":3.97,\"name\":\"\u003credacted\u003e\",\"number\":\"303\",\"unitName\":\"MG\"},{\"amount\":60,\"name\":\"\u003credacted\u003e\",\"number\":\"304\",\"unitName\":\"MG\"},{\"amount\":236,\"name\":\"\u003credacted\u003e\",\"number\":\"305\",\"unitName\":\"MG\"},{\"amount\":310,\"name\":\"\u003credacted\u003e\",\"number\":\"306\",\"unitName\":\"MG\"},{\"amount\":574,\"name\":\"\u003credacted\u003e\",\"number\":\"307\",\"unitName\":\"MG\"},{\"amount\":1.02,\"name\":\"\u003credacted\u003e\",\"number\":\"309\",\"unitName\":\"MG\"},{\"amount\":0.243,\"name\":\"\u003credacted\u003e\",\"number\":\"312\",\"unitName\":\"MG\"},{\"amount\":55.6,\"name\":\"\u003credacted\u003e\",\"number\":\"317\",\"unitName\":\"UG\"},{\"amount\":2,\"name\":\"\u003credacted\u003e\",\"number\":\"319\",\"unitName\":\"UG\"},{\"amount\":2,\"name\":\"\u003credacted\u003e\",\"number\":\"320\",\"unitName\":\"UG\"},{\"amount\":0,\"name\":\"\u003credacted\u003e\",\"number\":\"321\",\"unitName\":\"UG\"},{\"amount\":0,\"name\":\"\u003credacted\u003e\",\"number\":\"322\",\"unitName\":\"UG\"},{\"amount\":5.95,\"name\":\"\u003credacted\u003e\",\"number\":\"323\",\"unitName\":\"MG\"},{\"amount\":0,\"name\":\"\u003credacted\u003e\",\"number\":\"328\",\"unitName\":\"UG\"},{\"amount\":0,\"name\":\"\u003credacted\u003e\",\"number\":\"334\",\"unitName\":\"UG\"},{\"amount\":0,\"name\":\"\u003credacted\u003e\",\"number\":\"337\",\"unitName\":\"UG\"},{\"amount\":0,\"name\":\"\u003credacted\u003e\",\"number\":\"338\",\"unitName\":\"UG\"},{\"amount\":2,\"name\":\"\u003credacted\u003e\",\"number\":\"401\",\"unitName\":\"MG\"},{\"amount\":0.201,\"name\":\"\u003credacted\u003e\",\"number\":\"404\",\"unitName\":\"MG\"},{\"amount\":0.118,\"name\":\"\u003credacted\u003e\",\"number\":\"405\",\"unitName\":\"MG\"},{\"amount\":1.77,\"name\":\"\u003credacted\u003e\",\"number\":\"406\",\"unitName\":\"MG\"},{\"amount\":0.168,\"name\":\"\u003credacted\u003e\",\"number\":\"415\",\"unitName\":\"MG\"},{\"amount\":5,\"name\":\"\u003credacted\u003e\",\"number\":\"417\",\"unitName\":\"UG\"},{\"amount\":0.77,\"name\":\"\u003credacted\u003e\",\"number\":\"418\",\"unitName\":\"UG\"},{\"amount\":80.7,\"name\":\"\u003credacted\u003e\",\"number\":\"421\",\"unitName\":\"MG\"},{\"amount\":33.8,\"name\":\"\u003credacted\u003e\",\"number\":\"430\",\"unitName\":\"UG\"},{\"amount\":0,\"name\":\"\u003credacted\u003e\",\"number\":\"431\",\"unitName\":\"UG\"},{\"amount\":5,\"name\":\"\u003credacted\u003e\",\"number\":\"432\",\"unitName\":\"UG\"},{\"amount\":5,\"name\":\"\u003credacted\u003e\",\"number\":\"435\",\"unitName\":\"UG\"},{\"amount\":0,\"name\":\"\u003credacted\u003e\",\"number\":\"573\",\"unitName\":\"MG\"},{\"amount\":0,\"name\":\"\u003credacted\u003e\",\"number\":\"578\",\"unitName\":\"UG\"},{\"amount\":106,\"name\":\"\u003credacted\u003e\",\"number\":\"601\",\"unitName\":\"MG\"},{\"amount\":0.877,\"name\":\"\u003credacted\u003e\",\"number\":\"606\",\"unitName\":\"G\"},{\"amount\":0,\"name\":\"\u003credacted\u003e\",\"number\":\"607\",\"unitName\":\"G\"},{\"amount\":0,\"name\":\"\u003credacted\u003e\",\"number\":\"608\",\"unitName\":\"G\"},{\"amount\":0,\"name\":\"\u003credacted\u003e\",\"number\":\"609\",\"unitName\":\"G\"},{\"amount\":0,\"name\":\"\u003credacted\u003e\",\"number\":\"610\",\"unitName\":\"G\"},{\"amount\":0,\"name\":\"\u003credacted\u003e\",\"number\":\"611\",\"unitName\":\"G\"},{\"amount\":0.031,\"name\":\"\u003credacted\u003e\",\"number\":\"612\",\"un…[truncated]"
+    },
+    {
+      "command": "foods get-list",
+      "kind": "json_fidelity",
+      "args": [
+        "foods",
+        "get-list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":[{\"dataType\":\"Experimental\",\"description\":\"A comprehensive characterization of phenolics, amino acids and other minor bioactives of selected honeys and identification of botanical origin markers\",\"fdcId\":2715733,\"foodNutrients\":[],\"publicationDate\":\"2024-10-31\"},{\"dataType\":\"Experimental\",\"description\":\"A Fast and Simple Solid Phase Extraction-Based Method for Glucosinolate Determination: An Alternative to the ISO-9167 Method\",\"fdcId\":2715727,\"foodNutrients\":[],\"publicationDate\":\"2024-10-31\"},{\"dataType\":\"Experimental\",\"description\":\"A Low-Starch and High-Fiber Diet Intervention Impacts the Microbial Community of Raw Bovine Milk\",\"fdcId\":2353623,\"foodNutrients\":[],\"publicationDate\":\"2022-10-28\"},{\"dataType\":\"Survey (FNDDS)\",\"description\":\"Abalone\",\"fdcId\":2706337,\"foodCode\":\"26301110\",\"foodNutrients\":[{\"amount\":21.2,\"name\":\"\u003credacted\u003e\",\"number\":\"203\",\"unitName\":\"G\"},{\"amount\":6.12,\"name\":\"\u003credacted\u003e\",\"number\":\"204\",\"unitName\":\"G\"},{\"amount\":7.46,\"name\":\"\u003credacted\u003e\",\"number\":\"205\",\"unitName\":\"G\"},{\"amount\":177,\"name\":\"\u003credacted\u003e\",\"number\":\"208\",\"unitName\":\"KCAL\"},{\"amount\":0,\"name\":\"\u003credacted\u003e\",\"number\":\"221\",\"unitName\":\"G\"},{\"amount\":62.7,\"name\":\"\u003credacted\u003e\",\"number\":\"255\",\"unitName\":\"G\"},{\"amount\":0,\"name\":\"\u003credacted\u003e\",\"number\":\"262\",\"unitName\":\"MG\"},{\"amount\":0,\"name\":\"\u003credacted\u003e\",\"number\":\"263\",\"unitName\":\"MG\"},{\"amount\":0,\"name\":\"\u003credacted\u003e\",\"number\":\"269\",\"unitName\":\"G\"},{\"amount\":0,\"name\":\"\u003credacted\u003e\",\"number\":\"291\",\"unitName\":\"G\"},{\"amount\":39,\"name\":\"\u003credacted\u003e\",\"number\":\"301\",\"unitName\":\"MG\"},{\"amount\":3.97,\"name\":\"\u003credacted\u003e\",\"number\":\"303\",\"unitName\":\"MG\"},{\"amount\":60,\"name\":\"\u003credacted\u003e\",\"number\":\"304\",\"unitName\":\"MG\"},{\"amount\":236,\"name\":\"\u003credacted\u003e\",\"number\":\"305\",\"unitName\":\"MG\"},{\"amount\":310,\"name\":\"\u003credacted\u003e\",\"number\":\"306\",\"unitName\":\"MG\"},{\"amount\":574,\"name\":\"\u003credacted\u003e\",\"number\":\"307\",\"unitName\":\"MG\"},{\"amount\":1.02,\"name\":\"\u003credacted\u003e\",\"number\":\"309\",\"unitName\":\"MG\"},{\"amount\":0.243,\"name\":\"\u003credacted\u003e\",\"number\":\"312\",\"unitName\":\"MG\"},{\"amount\":55.6,\"name\":\"\u003credacted\u003e\",\"number\":\"317\",\"unitName\":\"UG\"},{\"amount\":2,\"name\":\"\u003credacted\u003e\",\"number\":\"319\",\"unitName\":\"UG\"},{\"amount\":2,\"name\":\"\u003credacted\u003e\",\"number\":\"320\",\"unitName\":\"UG\"},{\"amount\":0,\"name\":\"\u003credacted\u003e\",\"number\":\"321\",\"unitName\":\"UG\"},{\"amount\":0,\"name\":\"\u003credacted\u003e\",\"number\":\"322\",\"unitName\":\"UG\"},{\"amount\":5.95,\"name\":\"\u003credacted\u003e\",\"number\":\"323\",\"unitName\":\"MG\"},{\"amount\":0,\"name\":\"\u003credacted\u003e\",\"number\":\"328\",\"unitName\":\"UG\"},{\"amount\":0,\"name\":\"\u003credacted\u003e\",\"number\":\"334\",\"unitName\":\"UG\"},{\"amount\":0,\"name\":\"\u003credacted\u003e\",\"number\":\"337\",\"unitName\":\"UG\"},{\"amount\":0,\"name\":\"\u003credacted\u003e\",\"number\":\"338\",\"unitName\":\"UG\"},{\"amount\":2,\"name\":\"\u003credacted\u003e\",\"number\":\"401\",\"unitName\":\"MG\"},{\"amount\":0.201,\"name\":\"\u003credacted\u003e\",\"number\":\"404\",\"unitName\":\"MG\"},{\"amount\":0.118,\"name\":\"\u003credacted\u003e\",\"number\":\"405\",\"unitName\":\"MG\"},{\"amount\":1.77,\"name\":\"\u003credacted\u003e\",\"number\":\"406\",\"unitName\":\"MG\"},{\"amount\":0.168,\"name\":\"\u003credacted\u003e\",\"number\":\"415\",\"unitName\":\"MG\"},{\"amount\":5,\"name\":\"\u003credacted\u003e\",\"number\":\"417\",\"unitName\":\"UG\"},{\"amount\":0.77,\"name\":\"\u003credacted\u003e\",\"number\":\"418\",\"unitName\":\"UG\"},{\"amount\":80.7,\"name\":\"\u003credacted\u003e\",\"number\":\"421\",\"unitName\":\"MG\"},{\"amount\":33.8,\"name\":\"\u003credacted\u003e\",\"number\":\"430\",\"unitName\":\"UG\"},{\"amount\":0,\"name\":\"\u003credacted\u003e\",\"number\":\"431\",\"unitName\":\"UG\"},{\"amount\":5,\"name\":\"\u003credacted\u003e\",\"number\":\"432\",\"unitName\":\"UG\"},{\"amount\":5,\"name\":\"\u003credacted\u003e\",\"number\":\"435\",\"unitName\":\"UG\"},{\"amount\":0,\"name\":\"\u003credacted\u003e\",\"number\":\"573\",\"unitName\":\"MG\"},{\"amount\":0,\"name\":\"\u003credacted\u003e\",\"number\":\"578\",\"unitName\":\"UG\"},{\"amount\":106,\"name\":\"\u003credacted\u003e\",\"number\":\"601\",\"unitName\":\"MG\"},{\"amount\":0.877,\"name\":\"\u003credacted\u003e\",\"number\":\"606\",\"unitName\":\"G\"},{\"amount\":0,\"name\":\"\u003credacted\u003e\",\"number\":\"607\",\"unitName\":\"G\"},{\"amount\":0,\"name\":\"\u003credacted\u003e\",\"number\":\"608\",\"unitName\":\"G\"},{\"amount\":0,\"name\":\"\u003credacted\u003e\",\"number\":\"609\",\"unitName\":\"G\"},{\"amount\":0,\"name\":\"\u003credacted\u003e\",\"number\":\"610\",\"unitName\":\"G\"},{\"amount\":0,\"name\":\"\u003credacted\u003e\",\"number\":\"611\",\"unitName\":\"G\"},{\"amount\":0.031,\"name\":\"\u003credacted\u003e\",\"number\":\"612\",\"un…[truncated]"
+    },
+    {
+      "command": "foods get-list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "foods get-search",
+      "kind": "help",
+      "args": [
+        "foods",
+        "get-search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search for foods using keywords.\n\nUsage:\n  nutrition-pp-cli foods get-search [flags]\n\nExamples:\n  nutrition-pp-cli foods get-search --query example-value\n\nFlags:\n      --all                  Fetch all pages\n      --brand-owner string   Optional. Filter results based on the brand owner of the food. Only applies to Branded Foods\n      --data-type string     Optional. Filter on a specific data type; specify one or more values in an array.\n  -h, --help                 help for get-search\n      --page-number int      Optional. Page number to retrieve. The offset into the overall result set is expressed as (pageNumber * pageSize)\n      --page-size int        Optional. Maximum number of results to return for the current page. Default is 50.\n      --query string         One or more search terms. The string may include [search operators](https://fdc.nal.usda.gov/help.html#bkmk-2)\n      --sort-by string       Optional. Specify one of the possible values to sort by that field. Note, dataType. (one of: dataType.keyword, lowercaseDescription.keyword, fdcId, publishedDate)\n      --sort-order string    Optional. The sort direction for the results. Only applicable if sortBy is specified. (one of: asc, desc)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'nutrition-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "foods get-search",
+      "kind": "happy_path",
+      "args": [
+        "foods",
+        "get-search",
+        "--query",
+        "example-value"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"aggregations\":{\"dataType\":{\"Branded\":7089,\"Experimental\":2,\"SR Legacy\":36,\"Survey (FNDDS)\":2},\"nutrients\":{}},\"currentPage\":1,\"foodSearchCriteria\":{\"generalSearchInput\":\"example-value\",\"numberOfResultsPerPage\":50,\"pageNumber\":1,\"pageSize\":50,\"query\":\"example-value\",\"requireAllWords\":false},\"foods\":[{\"allHighlightFields\":\"\",\"dataType\":\"Experimental\",\"description\":\"Measured energy value of pistachios in the human diet\",\"fdcId\":1105901,\"finalFoodInputFoods\":[],\"foodAttributeTypes\":[],\"foodAttributes\":[],\"foodMeasures\":[],\"foodNutrients\":[],\"foodVersionIds\":[],\"microbes\":[],\"publishedDate\":\"2020-10-30\",\"score\":347.11865,\"tags\":[\"Methods\",\"Clinical\",\"USDA Research\"]},{\"allHighlightFields\":\"\",\"dataType\":\"Experimental\",\"description\":\"Discrepancy between the Atwater factor predicted and empirically measured energy values of almonds in human diets\",\"fdcId\":1105898,\"finalFoodInputFoods\":[],\"foodAttributeTypes\":[],\"foodAttributes\":[],\"foodMeasures\":[],\"foodNutrients\":[],\"foodVersionIds\":[],\"microbes\":[],\"publishedDate\":\"2020-10-30\",\"score\":246.17572,\"tags\":[\"Methods\",\"USDA Research\"]},{\"additionalDescriptions\":\"Swanson Turkey Breast Dinner;Banquet Value Turkey (Mostly White Meat) Meal\",\"allHighlightFields\":\"\u003cb\u003eIncludes\u003c/b\u003e: Swanson Turkey Breast Dinner;Banquet \u003cem\u003eValue\u003c/em\u003e Turkey (Mostly White Meat) Meal\",\"commonNames\":\"\",\"dataType\":\"Survey (FNDDS)\",\"description\":\"Turkey with gravy, dressing, potatoes, vegetable, frozen meal\",\"fdcId\":2707118,\"finalFoodInputFoods\":[{\"foodDescription\":\"Turkey, stuffing, mashed potatoes w/gravy, assorted vegetables, frozen, microwaved\",\"gramWeight\":100,\"id\":130920,\"portionCode\":\"0\",\"portionDescription\":\"NONE\",\"rank\":1,\"retentionCode\":0,\"srCode\":22957,\"unit\":\"GM\",\"value\":100}],\"foodAttributeTypes\":[{\"description\":\"Additional descriptions for the food.\",\"foodAttributes\":[{\"id\":3311808,\"sequenceNumber\":2,\"value\":\"Banquet Value Turkey (Mostly White Meat) Meal\"},{\"id\":3311809,\"sequenceNumber\":3,\"value\":\"Swanson Turkey Breast Dinner\"}],\"id\":1001,\"name\":\"\u003credacted\u003e\"},{\"description\":\"Adjustments made to foods, including moisture changes\",\"foodAttributes\":[{\"id\":3320558,\"value\":\"Moisture change: 0%\"}],\"id\":1002,\"name\":\"\u003credacted\u003e\"},{\"description\":\"Generic attributes\",\"foodAttributes\":[{\"id\":3301784,\"name\":\"\u003credacted\u003e\",\"value\":\"Poultry mixed dishes\"},{\"id\":3301783,\"name\":\"\u003credacted\u003e\",\"value\":\"3004\"}],\"id\":999,\"name\":\"\u003credacted\u003e\"}],\"foodAttributes\":[{\"id\":3311808,\"sequenceNumber\":2,\"value\":\"Banquet Value Turkey (Mostly White Meat) Meal\"},{\"id\":3301784,\"name\":\"\u003credacted\u003e\",\"value\":\"Poultry mixed dishes\"},{\"id\":3320558,\"value\":\"Moisture change: 0%\"},{\"id\":3301783,\"name\":\"\u003credacted\u003e\",\"value\":\"3004\"},{\"id\":3311809,\"sequenceNumber\":3,\"value\":\"Swanson Turkey Breast Dinner\"}],\"foodCategory\":\"Poultry mixed dishes\",\"foodCategoryId\":3301784,\"foodCode\":28145210,\"foodMeasures\":[{\"disseminationText\":\"1 Banquet meal (9.25 oz)\",\"gramWeight\":262,\"id\":297176,\"measureUnitAbbreviation\":\"undetermined\",\"measureUnitId\":9999,\"measureUnitName\":\"undetermined\",\"modifier\":\"64101\",\"rank\":3},{\"disseminationText\":\"1 Swanson meal (11.75 oz)\",\"gramWeight\":333,\"id\":297177,\"measureUnitAbbreviation\":\"undetermined\",\"measureUnitId\":9999,\"measureUnitName\":\"undetermined\",\"modifier\":\"64102\",\"rank\":4},{\"disseminationText\":\"Quantity not specified\",\"gramWeight\":262,\"id\":297175,\"measureUnitAbbreviation\":\"undetermined\",\"measureUnitId\":9999,\"measureUnitName\":\"undetermined\",\"modifier\":\"90000\",\"rank\":2}],\"foodNutrients\":[{\"foodNutrientId\":34248869,\"indentLevel\":1,\"nutrientId\":1003,\"nutrientName\":\"Protein\",\"nutrientNumber\":\"203\",\"rank\":600,\"unitName\":\"G\",\"value\":6.97},{\"foodNutrientId\":34248870,\"indentLevel\":1,\"nutrientId\":1004,\"nutrientName\":\"Total lipid (fat)\",\"nutrientNumber\":\"204\",\"rank\":800,\"unitName\":\"G\",\"value\":3.89},{\"foodNutrientId\":34248871,\"indentLevel\":2,\"nutrientId\":1005,\"nutrientName\":\"Carbohydrate, by difference\",\"nutrientNumber\":\"205\",\"rank\":1110,\"unitName\":\"G\",\"value\":16.32},{\"foodNutrientId\":34248872,\"indentLevel\":1,\"nutrientId\":1008,\"nutrientName\":\"Energy\",\"nutrientNumber\":\"208\",\"rank\":300,\"unitName\":\"K…[truncated]"
+    },
+    {
+      "command": "foods get-search",
+      "kind": "json_fidelity",
+      "args": [
+        "foods",
+        "get-search",
+        "--query",
+        "example-value",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"aggregations\":{\"dataType\":{\"Branded\":7089,\"Experimental\":2,\"SR Legacy\":36,\"Survey (FNDDS)\":2},\"nutrients\":{}},\"currentPage\":1,\"foodSearchCriteria\":{\"generalSearchInput\":\"example-value\",\"numberOfResultsPerPage\":50,\"pageNumber\":1,\"pageSize\":50,\"query\":\"example-value\",\"requireAllWords\":false},\"foods\":[{\"allHighlightFields\":\"\",\"dataType\":\"Experimental\",\"description\":\"Measured energy value of pistachios in the human diet\",\"fdcId\":1105901,\"finalFoodInputFoods\":[],\"foodAttributeTypes\":[],\"foodAttributes\":[],\"foodMeasures\":[],\"foodNutrients\":[],\"foodVersionIds\":[],\"microbes\":[],\"publishedDate\":\"2020-10-30\",\"score\":347.11865,\"tags\":[\"Methods\",\"Clinical\",\"USDA Research\"]},{\"allHighlightFields\":\"\",\"dataType\":\"Experimental\",\"description\":\"Discrepancy between the Atwater factor predicted and empirically measured energy values of almonds in human diets\",\"fdcId\":1105898,\"finalFoodInputFoods\":[],\"foodAttributeTypes\":[],\"foodAttributes\":[],\"foodMeasures\":[],\"foodNutrients\":[],\"foodVersionIds\":[],\"microbes\":[],\"publishedDate\":\"2020-10-30\",\"score\":246.17572,\"tags\":[\"Methods\",\"USDA Research\"]},{\"additionalDescriptions\":\"Swanson Turkey Breast Dinner;Banquet Value Turkey (Mostly White Meat) Meal\",\"allHighlightFields\":\"\u003cb\u003eIncludes\u003c/b\u003e: Swanson Turkey Breast Dinner;Banquet \u003cem\u003eValue\u003c/em\u003e Turkey (Mostly White Meat) Meal\",\"commonNames\":\"\",\"dataType\":\"Survey (FNDDS)\",\"description\":\"Turkey with gravy, dressing, potatoes, vegetable, frozen meal\",\"fdcId\":2707118,\"finalFoodInputFoods\":[{\"foodDescription\":\"Turkey, stuffing, mashed potatoes w/gravy, assorted vegetables, frozen, microwaved\",\"gramWeight\":100,\"id\":130920,\"portionCode\":\"0\",\"portionDescription\":\"NONE\",\"rank\":1,\"retentionCode\":0,\"srCode\":22957,\"unit\":\"GM\",\"value\":100}],\"foodAttributeTypes\":[{\"description\":\"Additional descriptions for the food.\",\"foodAttributes\":[{\"id\":3311808,\"sequenceNumber\":2,\"value\":\"Banquet Value Turkey (Mostly White Meat) Meal\"},{\"id\":3311809,\"sequenceNumber\":3,\"value\":\"Swanson Turkey Breast Dinner\"}],\"id\":1001,\"name\":\"\u003credacted\u003e\"},{\"description\":\"Adjustments made to foods, including moisture changes\",\"foodAttributes\":[{\"id\":3320558,\"value\":\"Moisture change: 0%\"}],\"id\":1002,\"name\":\"\u003credacted\u003e\"},{\"description\":\"Generic attributes\",\"foodAttributes\":[{\"id\":3301784,\"name\":\"\u003credacted\u003e\",\"value\":\"Poultry mixed dishes\"},{\"id\":3301783,\"name\":\"\u003credacted\u003e\",\"value\":\"3004\"}],\"id\":999,\"name\":\"\u003credacted\u003e\"}],\"foodAttributes\":[{\"id\":3311808,\"sequenceNumber\":2,\"value\":\"Banquet Value Turkey (Mostly White Meat) Meal\"},{\"id\":3301784,\"name\":\"\u003credacted\u003e\",\"value\":\"Poultry mixed dishes\"},{\"id\":3320558,\"value\":\"Moisture change: 0%\"},{\"id\":3301783,\"name\":\"\u003credacted\u003e\",\"value\":\"3004\"},{\"id\":3311809,\"sequenceNumber\":3,\"value\":\"Swanson Turkey Breast Dinner\"}],\"foodCategory\":\"Poultry mixed dishes\",\"foodCategoryId\":3301784,\"foodCode\":28145210,\"foodMeasures\":[{\"disseminationText\":\"1 Banquet meal (9.25 oz)\",\"gramWeight\":262,\"id\":297176,\"measureUnitAbbreviation\":\"undetermined\",\"measureUnitId\":9999,\"measureUnitName\":\"undetermined\",\"modifier\":\"64101\",\"rank\":3},{\"disseminationText\":\"1 Swanson meal (11.75 oz)\",\"gramWeight\":333,\"id\":297177,\"measureUnitAbbreviation\":\"undetermined\",\"measureUnitId\":9999,\"measureUnitName\":\"undetermined\",\"modifier\":\"64102\",\"rank\":4},{\"disseminationText\":\"Quantity not specified\",\"gramWeight\":262,\"id\":297175,\"measureUnitAbbreviation\":\"undetermined\",\"measureUnitId\":9999,\"measureUnitName\":\"undetermined\",\"modifier\":\"90000\",\"rank\":2}],\"foodNutrients\":[{\"foodNutrientId\":34248869,\"indentLevel\":1,\"nutrientId\":1003,\"nutrientName\":\"Protein\",\"nutrientNumber\":\"203\",\"rank\":600,\"unitName\":\"G\",\"value\":6.97},{\"foodNutrientId\":34248870,\"indentLevel\":1,\"nutrientId\":1004,\"nutrientName\":\"Total lipid (fat)\",\"nutrientNumber\":\"204\",\"rank\":800,\"unitName\":\"G\",\"value\":3.89},{\"foodNutrientId\":34248871,\"indentLevel\":2,\"nutrientId\":1005,\"nutrientName\":\"Carbohydrate, by difference\",\"nutrientNumber\":\"205\",\"rank\":1110,\"unitName\":\"G\",\"value\":16.32},{\"foodNutrientId\":34248872,\"indentLevel\":1,\"nutrientId\":1008,\"nutrientName\":\"Energy\",\"nutrientNumber\":\"208\",\"rank\":300,\"unitName\":\"K…[truncated]"
+    },
+    {
+      "command": "foods get-search",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "foods post",
+      "kind": "help",
+      "args": [
+        "foods",
+        "post",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Retrieves a list of food items by a list of up to 20 FDC IDs. Optional format and nutrients can be specified.\n\nUsage:\n  nutrition-pp-cli foods post [flags]\n\nAliases:\n  post, create\n\nExamples:\n  nutrition-pp-cli foods post\n\nFlags:\n      --fdc-ids string     List of multiple FDC ID's\n      --format string      Optional. 'abridged' for an abridged set of elements, 'full' for all elements (default).\n  -h, --help               help for post\n      --nutrients string   Optional. List of up to 25 nutrient numbers. Only the nutrient information for the specified nutrients will be returned.\n      --stdin              Read request body as JSON from stdin\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'nutrition-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "foods post",
+      "kind": "happy_path",
+      "args": [
+        "foods",
+        "post",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/v1/foods\",\n  \"resource\": \"foods\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://api.nal.usda.gov/fdc/v1/foods\n  ?api_key=****1eXz\n  Body:\n{}\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "foods post",
+      "kind": "json_fidelity",
+      "args": [
+        "foods",
+        "post",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/v1/foods\",\n  \"resource\": \"foods\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://api.nal.usda.gov/fdc/v1/foods\n  ?api_key=****1eXz\n  Body:\n{}\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "foods post",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "foods post",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "foods post-list",
+      "kind": "help",
+      "args": [
+        "foods",
+        "post-list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Retrieves a paged list of foods. Use the pageNumber parameter to page through the entire result set.\n\nUsage:\n  nutrition-pp-cli foods post-list [flags]\n\nExamples:\n  nutrition-pp-cli foods post-list\n\nFlags:\n      --data-type string    Optional. Filter on a specific data type; specify one or more values in an array.\n  -h, --help                help for post-list\n      --page-number int     Optional. Page number to retrieve. The offset into the overall result set is expressed as (pageNumber * pageSize)\n      --page-size int       Optional. Maximum number of results to return for the current page. Default is 50.\n      --sort-by string      Optional. Specify one of the possible values to sort by that field. Note, dataType.\n      --sort-order string   Optional. The sort direction for the results. Only applicable if sortBy is specified.\n      --stdin               Read request body as JSON from stdin\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'nutrition-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "foods post-list",
+      "kind": "happy_path",
+      "args": [
+        "foods",
+        "post-list",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/v1/foods/list\",\n  \"resource\": \"foods\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://api.nal.usda.gov/fdc/v1/foods/list\n  ?api_key=****1eXz\n  Body:\n{}\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "foods post-list",
+      "kind": "json_fidelity",
+      "args": [
+        "foods",
+        "post-list",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/v1/foods/list\",\n  \"resource\": \"foods\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://api.nal.usda.gov/fdc/v1/foods/list\n  ?api_key=****1eXz\n  Body:\n{}\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "foods post-list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "foods post-list",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "foods post-search",
+      "kind": "help",
+      "args": [
+        "foods",
+        "post-search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search for foods using keywords.\n\nUsage:\n  nutrition-pp-cli foods post-search [flags]\n\nExamples:\n  nutrition-pp-cli foods post-search\n\nFlags:\n      --brand-owner string   Optional. Filter results based on the brand owner of the food. Only applies to Branded Foods.\n      --data-type string     Optional. Filter on a specific data type; specify one or more values in an array.\n  -h, --help                 help for post-search\n      --page-number int      Optional. Page number to retrieve. The offset into the overall result set is expressed as (pageNumber * pageSize)\n      --page-size int        Optional. Maximum number of results to return for the current page. Default is 50.\n      --query string         Search terms to use in the search. The string may also include standard [search operators](https://fdc.nal.usda.\n      --sort-by string       Optional. Specify one of the possible values to sort by that field. Note, dataType.\n      --sort-order string    Optional. The sort direction for the results. Only applicable if sortBy is specified.\n      --stdin                Read request body as JSON from stdin\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'nutrition-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "foods post-search",
+      "kind": "happy_path",
+      "args": [
+        "foods",
+        "post-search",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/v1/foods/search\",\n  \"resource\": \"foods\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://api.nal.usda.gov/fdc/v1/foods/search\n  ?api_key=****1eXz\n  Body:\n{}\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "foods post-search",
+      "kind": "json_fidelity",
+      "args": [
+        "foods",
+        "post-search",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/v1/foods/search\",\n  \"resource\": \"foods\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://api.nal.usda.gov/fdc/v1/foods/search\n  ?api_key=****1eXz\n  Body:\n{}\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "foods post-search",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "foods post-search",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "import",
+      "kind": "help",
+      "args": [
+        "import",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Import data from a JSONL file by issuing POST requests for each record.\nEach line must be a valid JSON object. Failed records are logged to stderr\nbut do not stop the import.\n\nUsage:\n  nutrition-pp-cli import \u003cresource\u003e [flags]\n\nExamples:\n  # Import from a JSONL file\n  nutrition-pp-cli import \u003cresource\u003e --input data.jsonl\n\n  # Dry-run to preview without sending\n  nutrition-pp-cli import \u003cresource\u003e --input data.jsonl --dry-run\n\n  # Import from stdin\n  cat data.jsonl | nutrition-pp-cli import \u003cresource\u003e --input -\n\nFlags:\n      --batch-size int   Records per batch (future: batch API support) (default 1)\n      --dry-run          Preview import without sending requests\n  -h, --help             help for import\n  -i, --input string     Input JSONL file path (use - for stdin)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'nutrition-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "import",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "error_path",
+      "args": [
+        "import",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: required flag(s) \"input\" not set\n"
+    },
+    {
+      "command": "log add",
+      "kind": "help",
+      "args": [
+        "log",
+        "add",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Log a food to the diary (fetches macros from USDA once)\n\nUsage:\n  nutrition-pp-cli log add \u003cfdcId\u003e [flags]\n\nExamples:\n  nutrition-pp-cli log add 173414 --grams 150\n\nFlags:\n      --date string   Date (YYYY-MM-DD); defaults to today\n      --grams float   Grams consumed\n  -h, --help          help for add\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'nutrition-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "log add",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "log add",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "log add",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "log add",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "log progress",
+      "kind": "help",
+      "args": [
+        "log",
+        "progress",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show today's intake versus configured targets\n\nUsage:\n  nutrition-pp-cli log progress [flags]\n\nExamples:\n  nutrition-pp-cli log progress --agent\n\nFlags:\n      --date string   Date (YYYY-MM-DD); defaults to today\n  -h, --help          help for progress\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'nutrition-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "log progress",
+      "kind": "happy_path",
+      "args": [
+        "log",
+        "progress",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"date\": \"2026-07-02\",\n    \"note\": \"no targets set; use 'log targets set --calories N --protein N ...'\",\n    \"progress\": [],\n    \"totals\": {\n      \"calories_kcal\": 0,\n      \"carbs_g\": 0,\n      \"fat_g\": 0,\n      \"fiber_g\": 0,\n      \"protein_g\": 0\n    }\n  }\n}\n"
+    },
+    {
+      "command": "log progress",
+      "kind": "json_fidelity",
+      "args": [
+        "log",
+        "progress",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"date\": \"2026-07-02\",\n    \"note\": \"no targets set; use 'log targets set --calories N --protein N ...'\",\n    \"progress\": [],\n    \"totals\": {\n      \"calories_kcal\": 0,\n      \"carbs_g\": 0,\n      \"fat_g\": 0,\n      \"fiber_g\": 0,\n      \"protein_g\": 0\n    }\n  }\n}\n"
+    },
+    {
+      "command": "log progress",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "log remove",
+      "kind": "help",
+      "args": [
+        "log",
+        "remove",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a diary entry by id\n\nUsage:\n  nutrition-pp-cli log remove \u003centryId\u003e [flags]\n\nExamples:\n  nutrition-pp-cli log remove 3\n\nFlags:\n  -h, --help   help for remove\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'nutrition-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "log remove",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "log remove",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "log remove",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "log remove",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "log summary",
+      "kind": "help",
+      "args": [
+        "log",
+        "summary",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Summarize diary totals and daily averages over N days\n\nUsage:\n  nutrition-pp-cli log summary [flags]\n\nExamples:\n  nutrition-pp-cli log summary --days 7 --agent\n\nFlags:\n      --days int   Number of days to summarize (default 7)\n  -h, --help       help for summary\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'nutrition-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "log summary",
+      "kind": "happy_path",
+      "args": [
+        "log",
+        "summary",
+        "--days",
+        "7",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"daily_average\": {\n      \"calories_kcal\": 0,\n      \"carbs_g\": 0,\n      \"fat_g\": 0,\n      \"fiber_g\": 0,\n      \"protein_g\": 0\n    },\n    \"days\": 7,\n    \"entry_count\": 0,\n    \"since\": \"2026-06-26\",\n    \"totals\": {\n      \"calories_kcal\": 0,\n      \"carbs_g\": 0,\n      \"fat_g\": 0,\n      \"fiber_g\": 0,\n      \"protein_g\": 0\n    }\n  }\n}\n"
+    },
+    {
+      "command": "log summary",
+      "kind": "json_fidelity",
+      "args": [
+        "log",
+        "summary",
+        "--days",
+        "7",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"daily_average\": {\n      \"calories_kcal\": 0,\n      \"carbs_g\": 0,\n      \"fat_g\": 0,\n      \"fiber_g\": 0,\n      \"protein_g\": 0\n    },\n    \"days\": 7,\n    \"entry_count\": 0,\n    \"since\": \"2026-06-26\",\n    \"totals\": {\n      \"calories_kcal\": 0,\n      \"carbs_g\": 0,\n      \"fat_g\": 0,\n      \"fiber_g\": 0,\n      \"protein_g\": 0\n    }\n  }\n}\n"
+    },
+    {
+      "command": "log summary",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "log targets set",
+      "kind": "help",
+      "args": [
+        "log",
+        "targets",
+        "set",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Set daily nutrient targets\n\nUsage:\n  nutrition-pp-cli log targets set [flags]\n\nExamples:\n  nutrition-pp-cli log targets set --calories 2200 --protein 180\n\nFlags:\n      --calories float   Daily calorie target (kcal)\n      --carbs float      Daily carbs target (g)\n      --fat float        Daily fat target (g)\n      --fiber float      Daily fiber target (g)\n  -h, --help             help for set\n      --protein float    Daily protein target (g)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'nutrition-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "log targets set",
+      "kind": "happy_path",
+      "args": [
+        "log",
+        "targets",
+        "set",
+        "--calories",
+        "2200",
+        "--protein",
+        "180",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "would set targets\n"
+    },
+    {
+      "command": "log targets set",
+      "kind": "json_fidelity",
+      "args": [
+        "log",
+        "targets",
+        "set",
+        "--calories",
+        "2200",
+        "--protein",
+        "180",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"dry_run\": true,\n  \"would\": \"would set targets\"\n}\n"
+    },
+    {
+      "command": "log targets set",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "log targets set",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "log today",
+      "kind": "help",
+      "args": [
+        "log",
+        "today",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show diary entries and totals for a day\n\nUsage:\n  nutrition-pp-cli log today [flags]\n\nExamples:\n  nutrition-pp-cli log today --agent\n\nFlags:\n      --date string   Date (YYYY-MM-DD); defaults to today\n  -h, --help          help for today\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'nutrition-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "log today",
+      "kind": "happy_path",
+      "args": [
+        "log",
+        "today",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"date\": \"2026-07-02\",\n    \"entries\": [],\n    \"totals\": {\n      \"calories_kcal\": 0,\n      \"carbs_g\": 0,\n      \"fat_g\": 0,\n      \"fiber_g\": 0,\n      \"protein_g\": 0\n    }\n  }\n}\n"
+    },
+    {
+      "command": "log today",
+      "kind": "json_fidelity",
+      "args": [
+        "log",
+        "today",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"date\": \"2026-07-02\",\n    \"entries\": [],\n    \"totals\": {\n      \"calories_kcal\": 0,\n      \"carbs_g\": 0,\n      \"fat_g\": 0,\n      \"fiber_g\": 0,\n      \"protein_g\": 0\n    }\n  }\n}\n"
+    },
+    {
+      "command": "log today",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "meal",
+      "kind": "help",
+      "args": [
+        "meal",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Total nutrition across several foods in one stateless call. Each argument is \u003cfdcId\u003e:\u003cquantity\u003e, where quantity is grams (e.g. 150g or 150) or servings (e.g. 1serving, using the food's USDA serving size).\n\nUse this command for a one-shot nutrition total of several foods at given quantities. Do NOT use it to record what you ate; use 'log' instead.\n\nUsage:\n  nutrition-pp-cli meal \u003cfdcId\u003e:\u003cqty\u003e [\u003cfdcId\u003e:\u003cqty\u003e...] [flags]\n\nExamples:\n  nutrition-pp-cli meal 173414:50g 173944:120g --agent\n\nFlags:\n  -h, --help   help for meal\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'nutrition-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "meal",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [meal] has fewer segments than placeholders (4)"
+    },
+    {
+      "command": "meal",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [meal] has fewer segments than placeholders (4)"
+    },
+    {
+      "command": "meal",
+      "kind": "error_path",
+      "args": [
+        "meal",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: no valid \u003cfdcId\u003e:\u003cqty\u003e pairs\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  nutrition-pp-cli profile delete \u003cname\u003e [flags]\n\nExamples:\n  nutrition-pp-cli profile delete my-defaults --yes\n  nutrition-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'nutrition-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  nutrition-pp-cli profile list [flags]\n\nExamples:\n  nutrition-pp-cli profile list\n  nutrition-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'nutrition-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under \u003cname\u003e. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile, --config, and --home, which are never\ncaptured: they control profile/config resolution and would never apply).\n\nUsage:\n  nutrition-pp-cli profile save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...] [flags]\n\nExamples:\n  nutrition-pp-cli profile save my-defaults --json --compact\n  nutrition-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'nutrition-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  nutrition-pp-cli profile show \u003cname\u003e [flags]\n\nExamples:\n  nutrition-pp-cli profile show my-defaults\n  nutrition-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'nutrition-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  nutrition-pp-cli profile use \u003cname\u003e [flags]\n\nExamples:\n  nutrition-pp-cli profile use my-defaults\n  nutrition-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'nutrition-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "rank",
+      "kind": "help",
+      "args": [
+        "rank",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List the top (or bottom) foods by a single nutrient, ingested from NutritionValue.org's precomputed ranking pages (~60 nutrients).\n\nUse this command for top or bottom foods by one nutrient. Do NOT use it for compound thresholds like high protein under N kcal; use 'find' instead.\n\nUsage:\n  nutrition-pp-cli rank \u003cnutrient\u003e [flags]\n\nExamples:\n  nutrition-pp-cli rank potassium --order lowest --limit 15 --agent\n\nFlags:\n      --category string   Optional category label (recorded in output; NutritionValue.org ranking pages are cross-category)\n  -h, --help              help for rank\n      --limit int         Maximum foods to return (default 20)\n      --order string      Ranking order: highest or lowest (default \"highest\")\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'nutrition-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "rank",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [rank] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "rank",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [rank] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "rank",
+      "kind": "error_path",
+      "args": [
+        "rank",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: nutritionvalue.org returned HTTP 404 for https://www.nutritionvalue.org/foods_by___printing_press_invalid___content.html\n"
+    },
+    {
+      "command": "search",
+      "kind": "help",
+      "args": [
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search data using FTS5 full-text search on locally synced data,\nor hit the API's search endpoint when available.\n\nIn auto mode (default): uses the API search endpoint if the API has one,\notherwise searches local data. Falls back to local on network failure.\nIn live mode: uses the API search endpoint only.\nIn local mode: searches locally synced data only.\n\nUsage:\n  nutrition-pp-cli search \u003cquery\u003e [flags]\n\nExamples:\n  # Search (uses API endpoint if available, local FTS otherwise)\n  nutrition-pp-cli search \"error timeout\"\n\n  # Force local search only\n  nutrition-pp-cli search \"status\" --data-source local\n  # Search a specific resource type locally\n  nutrition-pp-cli search \"status\" --type food --data-source local\n  # JSON output for piping\n  nutrition-pp-cli search \"critical\" --json --limit 20\n\nFlags:\n      --db string     SQLite database file path (default: resolved data directory data.db)\n  -h, --help          help for search\n      --limit int     Maximum results to return (default 50)\n      --type string   Filter by resource type\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'nutrition-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "search",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "error_path",
+      "args": [
+        "search",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": [\n    {\n      \"totalHits\": 0,\n      \"currentPage\": 1,\n      \"totalPages\": 0,\n      \"pageList\": [],\n      \"foodSearchCriteria\": {\n        \"query\": \"__printing_press_invalid__\",\n        \"generalSearchInput\": \"__printing_press_invalid__\",\n        \"pageNumber\": 1,\n        \"numberOfResultsPerPage\": 50,\n        \"pageSize\": 50,\n        \"requireAllWords\": false\n      },\n      \"foods\": [],\n      \"aggregations\": {\n        \"dataType\": {},\n        \"nutrients\": {}\n      }\n    }\n  ]\n}\n"
+    },
+    {
+      "command": "sources list",
+      "kind": "help",
+      "args": [
+        "sources",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List registered data sources\n\nUsage:\n  nutrition-pp-cli sources list [flags]\n\nExamples:\n  nutrition-pp-cli sources list --agent\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'nutrition-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "sources list",
+      "kind": "happy_path",
+      "args": [
+        "sources",
+        "list",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"local\"},\"results\":{\"count\":2,\"sources\":[{\"auth_note\":\"No key required.\",\"auth_required\":false,\"base_url\":\"https://www.nutritionvalue.org\",\"name\":\"\u003credacted\u003e\"},{\"auth_note\":\"Free api.data.gov key via FDC_API_KEY or USDA_API_KEY; falls back to public DEMO_KEY (rate-limited ~30/hr).\",\"auth_required\":true,\"base_url\":\"https://api.nal.usda.gov/fdc\",\"name\":\"\u003credacted\u003e\"}]}}"
+    },
+    {
+      "command": "sources list",
+      "kind": "json_fidelity",
+      "args": [
+        "sources",
+        "list",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"local\"},\"results\":{\"count\":2,\"sources\":[{\"auth_note\":\"No key required.\",\"auth_required\":false,\"base_url\":\"https://www.nutritionvalue.org\",\"name\":\"\u003credacted\u003e\"},{\"auth_note\":\"Free api.data.gov key via FDC_API_KEY or USDA_API_KEY; falls back to public DEMO_KEY (rate-limited ~30/hr).\",\"auth_required\":true,\"base_url\":\"https://api.nal.usda.gov/fdc\",\"name\":\"\u003credacted\u003e\"}]}}"
+    },
+    {
+      "command": "sources list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "sync",
+      "kind": "help",
+      "args": [
+        "sync",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Sync data from the API into a local SQLite database. This API does\nnot declare temporal sync filters, so sync performs full pagination unless an\nexplicit resource declares its own incremental filter.\nOnce synced, use the 'search' command for instant full-text search.\n\nExit codes \u0026 warnings:\n  Resources the API denies access to (HTTP 403, or HTTP 400 with an\n  access-policy body) are reported as warnings rather than failing the\n  run. In --json mode each is emitted as a {\"event\":\"sync_warning\",...}\n  line carrying status, reason, and message fields, and a final\n  {\"event\":\"sync_summary\",...} aggregates the run.\n\n  Exit 0 when at least one resource synced and no resource flagged in\n  the spec as critical (x-critical: true) failed; non-critical failures\n  emit {\"event\":\"sync_warning\",\"reason\":\"exit_policy_default_changed\",\n  ...} so callers can detect that a partial failure was tolerated. Pass\n  --strict to exit non-zero on any per-resource failure. Exit is always\n  non-zero when every selected resource failed, regardless of --strict.\n\nResource scoping:\n  --resources runs the named top-level resources, plus any parent-keyed\n  dependent whose own name is listed OR whose parent table is listed.\n  Naming a parent therefore cascades to its dependents (so \"sync this\n  parent and its children\" works without listing every nested resource\n  by hand). There is no flag today to suppress the cascade for a named\n  parent. To run a dependent without re-syncing its parent, list only\n  the dependent by name; the parent table must already be populated\n  from a prior sync.\n\nUsage:\n  nutrition-pp-cli sync [flags]\n\nExamples:\n  # Sync all resources\n  nutrition-pp-cli sync\n\n  # Sync specific resources only\n  nutrition-pp-cli sync --resources channels,messages\n\n  # Full resync (ignore previous checkpoint)\n  nutrition-pp-cli sync --full\n\n  # Incremental sync: only records from the last 7 days\n  nutrition-pp-cli sync --since 7d\n\n  # Parallel sync with 8 workers\n  nutrition-pp-cli sync --concurrency 8\n\n  # Latest-only: refresh head of each resource, no historical backfill\n  nutrition-pp-cli sync --latest-only\n\nFlags:\n      --concurrency int              Number of parallel sync workers (default 4)\n      --db string                    SQLite database file path (default: resolved data directory data.db)\n      --full                         Full resync (ignore previous checkpoint)\n      --global-param stringArray     Extra query param to inject into every sync request including dependent path-scoped calls (repeatable, key=value). Use when an API requires a scope on every call regardless of path nesting.\n  -h, --help                         help for sync\n      --latest-only                  Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).\n      --max-pages int                Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)\n      --no-prune                     Disable deletion reconciliation on --full (by default a full sync prunes local rows the API no longer returns for a fully-enumerated parent partition)\n      --param stringArray            Extra query param to inject into flat-list sync requests (repeatable, key=value). Skipped on path-scoped dependent requests so a top-level scope like workspace=\u003cid\u003e does not double up on /parents/\u003cid\u003e/children calls. Use --global-param to inject everywhere. Avoid pagination keys (limit/since/cursor) — overriding them corrupts resume state.\n      --resource-param stringArray   Per-resource extra query param (repeatable, resource:key=value). Wins over --param and --global-param when keys conflict.\n      --resources strings            Comma-separated resource types to sync. Naming a parent also runs its parent-keyed dependents (see Long help for scoping).\n      --since string                 Incremental sync duration (e.g. 7d, 24h, 1w, 30m)\n      --strict                       Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).\n\nGlobal Fla…[truncated]"
+    },
+    {
+      "command": "sync",
+      "kind": "happy_path",
+      "args": [
+        "sync"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_warning\",\"reason\":\"no_bulk_list_endpoints\",\"detail\":\"no default sync resources in spec; use --resources for explicit sync targets or populate the store via single-fetch commands\"}\n{\"event\":\"sync_summary\",\"total_records\":0,\"resources\":0,\"success\":0,\"warned\":0,\"errored\":0,\"duration_ms\":0}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "json_fidelity",
+      "args": [
+        "sync",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_warning\",\"reason\":\"no_bulk_list_endpoints\",\"detail\":\"no default sync resources in spec; use --resources for explicit sync targets or populate the store via single-fetch commands\"}\n{\"event\":\"sync_summary\",\"total_records\":0,\"resources\":0,\"success\":0,\"warned\":0,\"errored\":0,\"duration_ms\":0}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  nutrition-pp-cli which [query] [flags]\n\nExamples:\n  nutrition-pp-cli which \"stale tickets\"\n  nutrition-pp-cli which \"bottleneck\"\n  nutrition-pp-cli which --limit 1 \"send message\"\n  nutrition-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'nutrition-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"matches\": []\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "archive",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Archive fetches all syncable resources from the API and stores them in a\nlocal SQLite database. Supports incremental sync (only new data since last run)\nand full resync. After archiving, use 'search' for instant full-text search.\n\nUsage:\n  nutrition-pp-cli workflow archive [flags]\n\nExamples:\n  # Archive all resources\n  nutrition-pp-cli workflow archive\n\n  # Full re-archive (ignore previous sync state)\n  nutrition-pp-cli workflow archive --full\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n      --full        Full re-archive (ignore previous sync state)\n  -h, --help        help for archive\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'nutrition-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "archive"
+      ],
+      "status": "pass",
+      "output_sample": "Archived 0 items across 0 resources to /var/folders/lm/p4mprl9924gc4rmdny458wf80000gn/T/printing-press-subprocess-2835938572/.local/share/nutrition-pp-cli/data.db\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "archive",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"resources_synced\": 0,\n  \"store_path\": \"/var/folders/lm/p4mprl9924gc4rmdny458wf80000gn/T/printing-press-subprocess-2835938572/.local/share/nutrition-pp-cli/data.db\",\n  \"timestamp\": \"2026-07-02T21:40:03Z\",\n  \"total_items\": 0\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show local archive status and sync state for all resources\n\nUsage:\n  nutrition-pp-cli workflow status [flags]\n\nExamples:\n  # Show archive status\n  nutrition-pp-cli workflow status\n\n  # Show status as JSON\n  nutrition-pp-cli workflow status --json\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'nutrition-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "Archive Status:\n  foods                          51 items\n\n  Total: 51 items\n  Store: /var/folders/lm/p4mprl9924gc4rmdny458wf80000gn/T/printing-press-subprocess-2835938572/.local/share/nutrition-pp-cli/data.db\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"foods\": 51\n}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-07-02T21:39:58.749495Z"
+}

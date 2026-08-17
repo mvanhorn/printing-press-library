@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/peerspace-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260716-123216-7a9be8d4",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

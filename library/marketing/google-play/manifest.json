@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "google-play-pp-mcp",
+  "display_name": "Google Play",
+  "version": "0.0.0",
+  "description": "Every public Google Play surface in one Go binary, plus a local SQLite mirror for rank history and listing change detection that no other Play tool keeps.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/google-play-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/google-play-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

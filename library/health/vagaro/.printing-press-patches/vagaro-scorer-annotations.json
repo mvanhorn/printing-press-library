@@ -1,0 +1,10 @@
+{
+  "schema_version": 2,
+  "id": "vagaro-scorer-annotations",
+  "applied_at": "2026-07-07",
+  "base_run_id": "20260701-143117-d22a0c47",
+  "base_printing_press_version": "4.27.1",
+  "summary": "Added pp:no-error-path-probe to find/market/menu-diff/price-check (unknown service/city is a valid empty result, not an error) and raised the default --rate-limit to 4 so fan-out commands return promptly.",
+  "reason": "Novel scan/filter commands return empty (exit 0) for unmatched queries; and the conservative 2 req/s default made cross-business scans exceed the live probe budget.",
+  "files": ["internal/cli/find.go", "internal/cli/market.go", "internal/cli/menu_diff.go", "internal/cli/price_check.go", "internal/cli/root.go"]
+}

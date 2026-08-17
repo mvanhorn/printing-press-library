@@ -1,4 +1,4 @@
-// Copyright 2026 Rob Zehner and contributors. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 rob-coco. Licensed under Apache-2.0. See LICENSE.
 
 // T6 — Cross-entity track lookup.
 //
@@ -11,6 +11,7 @@
 package cli
 
 import (
+	"fmt"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/spotify/internal/cliutil"
 	"github.com/spf13/cobra"
 )
@@ -26,6 +27,9 @@ func newTracksWhereCmd(flags *rootFlags) *cobra.Command {
 				return cmd.Help()
 			}
 			trackID := bareID(args[0])
+			if !validSpotifyID(trackID) {
+				return usageErr(fmt.Errorf("%q is not a Spotify track ID or URI (expected 22 base62 chars, e.g. spotify:track:11dFghVXANMlKmJXsNCbNl)", args[0]))
+			}
 
 			db, err := openTranscendenceStore(cmd.Context())
 			if err != nil {

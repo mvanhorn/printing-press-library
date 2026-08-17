@@ -91,7 +91,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				if header == "" {
 					report["auth"] = "not configured"
 					report["auth_hint"] = "export APIFY_TOKEN=<your-key>"
-					report["auth_key_url"] = "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Authorization"
+					report["auth_key_url"] = "https://console.apify.com/settings/integrations"
 				} else {
 					authConfigured = true
 					report["auth"] = "configured"

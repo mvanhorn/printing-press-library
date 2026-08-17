@@ -29,11 +29,13 @@ func newAccountsExternalAccountsGetAccountsAccountIdCmd(flags *rootFlags) *cobra
 			}
 
 			path := "/v1/accounts/{account}/external_accounts/{id}"
+
+			// PATCH: Bind path placeholders from Cobra positional args in Use order.
 			path = replacePathParam(path, "account", args[0])
-			if len(args) < 3 {
+			if len(args) < 2 {
 				return usageErr(fmt.Errorf("id is required\nUsage: %s <%s>", cmd.CommandPath(), "id"))
 			}
-			path = replacePathParam(path, "id", args[2])
+			path = replacePathParam(path, "id", args[1])
 			params := map[string]string{}
 			if flagExpand != "" {
 				params["expand"] = fmt.Sprintf("%v", flagExpand)

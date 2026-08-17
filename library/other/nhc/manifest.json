@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "nhc-pp-mcp",
+  "display_name": "National Hurricane Center",
+  "version": "0.0.0",
+  "description": "Credible, real-time National Hurricane Center data for AI agents: active storms, parsed advisories, and tropical outlooks, text-first with link-outs for everything else.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/nhc-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/nhc-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

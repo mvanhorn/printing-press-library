@@ -1,0 +1,316 @@
+{
+  "api_name": "v0",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "v0-cli (community)",
+      "url": "https://www.npmjs.com/package/v0-cli",
+      "language": "JavaScript",
+      "install_method": "npm",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": true,
+      "has_auth_support": true
+    },
+    {
+      "name": "v0 npm SDK",
+      "url": "https://www.npmjs.com/package/v0",
+      "language": "TypeScript",
+      "install_method": "npm",
+      "stars": 510,
+      "last_updated": "",
+      "command_count": 31,
+      "has_json_output": true,
+      "has_auth_support": true
+    },
+    {
+      "name": "v0 MCP server",
+      "url": "https://v0.app/docs/api/v2/guides/mcp-server",
+      "language": "TypeScript",
+      "install_method": "npm",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": true,
+      "has_auth_support": true
+    },
+    {
+      "name": "v0 web UI",
+      "url": "https://v0.app",
+      "language": "Web",
+      "install_method": "browser",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": true
+    }
+  ],
+  "gaps": [
+    "No CLI or SDK offers offline search over chat history",
+    "No tool tracks credit spend or token usage across chats",
+    "No tool captures SSE streams for scripting",
+    "v1-era chats are not served by the v2 API (422 API v2 does not support this chat)"
+  ],
+  "patterns": [
+    "Bearer token auth via V0_API_KEY (Authorization: Bearer)",
+    "Cursor pagination on /chats and /chats/{chatId}/messages (limit 1-100)",
+    "Blocking create/send endpoints plus /async (poll messageId) and /stream (SSE) variants",
+    "Usage object with tokens + creditsCost on every generation response"
+  ],
+  "recommendation": "Generate a v2-native CLI with sync-to-SQLite, offline search, spend analytics, and streaming capture",
+  "researched_at": "2026-08-04T23:28:00Z",
+  "novel_features": [
+    {
+      "name": "Credit spend analytics",
+      "command": "spend",
+      "description": "Aggregate v0 credit cost and token usage from the synced message mirror, grouped by chat, day, or model.",
+      "rationale": "Every v0 generation bills credits (usage.creditsCost); no existing tool tracks burn across chats.",
+      "example": "v0-pp-cli spend --since 7d --by chat --json",
+      "why_it_matters": "Use this when an agent needs to know where v0 credits went, which chats are expensive, or a daily burn rate.",
+      "group": "Cost intelligence"
+    },
+    {
+      "name": "Streaming capture",
+      "command": "chats stream",
+      "description": "Create a chat and stream the SSE response live, rendering each event and recording model attribution for spend analytics.",
+      "rationale": "Blocking create returns only after the model finishes; streaming shows thinking, file edits, and usage as they happen.",
+      "example": "v0-pp-cli chats stream \"Say hello\" --model v0-mini",
+      "why_it_matters": "Use this when an agent needs to see generation progress live or capture the event stream for later analysis.",
+      "group": "Streaming"
+    },
+    {
+      "name": "Tail chat generation",
+      "command": "messages tail",
+      "description": "Poll a chat until the newest assistant message finishes, with --follow for continuous watching.",
+      "rationale": "Async endpoints return a messageId; tailing removes the need to hand-poll for completion.",
+      "example": "v0-pp-cli messages tail ft7dqhYEX8n --interval 3s --timeout 10m",
+      "why_it_matters": "Use this when an agent kicked off an async generation and needs to wait for it deterministically.",
+      "group": "Streaming"
+    },
+    {
+      "name": "Chat file tree",
+      "command": "chats files",
+      "description": "Render a chat's generated source files as an indented directory tree.",
+      "rationale": "Downloading and unzipping files to see structure is slow; a tree is instant and diff-able.",
+      "example": "v0-pp-cli chats files ft7dqhYEX8n --tree",
+      "why_it_matters": "Use this when an agent needs to understand a generated app's layout before editing.",
+      "group": "Files"
+    },
+    {
+      "name": "Preview URL helper",
+      "command": "chats preview",
+      "description": "Print only the live preview URL for a chat, ready for embedding or scripting.",
+      "rationale": "The preview response carries url + short-lived token; --url strips everything else.",
+      "example": "v0-pp-cli chats preview ft7dqhYEX8n --url",
+      "why_it_matters": "Use this when an agent needs the preview URL for CI, screenshots, or quick checks.",
+      "group": "Files"
+    },
+    {
+      "name": "Offline search",
+      "command": "search",
+      "description": "Full-text search over synced chats and messages without hitting the API.",
+      "rationale": "The v2 API has no search endpoint; FTS over the local mirror makes history greppable.",
+      "example": "v0-pp-cli search \"kanban\" --json",
+      "why_it_matters": "Use this when an agent needs to find a past chat or message without paging the API.",
+      "group": "Offline"
+    },
+    {
+      "name": "Local sync mirror",
+      "command": "sync",
+      "description": "Cursor-paginated sync of chats and messages into a local SQLite mirror for offline search and spend analytics.",
+      "rationale": "Powers every offline capability; the API has no bulk export.",
+      "example": "v0-pp-cli sync --resources chats,messages",
+      "why_it_matters": "Run once before offline search or spend commands.",
+      "group": "Offline"
+    },
+    {
+      "name": "Auth diagnostics",
+      "command": "doctor",
+      "description": "Validate V0_API_KEY and API reachability with a live check.",
+      "rationale": "Fail-fast diagnostics before scripting against the API.",
+      "example": "v0-pp-cli doctor",
+      "why_it_matters": "Use this when a script 401s and you need to know why.",
+      "group": "Ops"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Credit spend analytics",
+      "command": "spend",
+      "description": "Aggregate v0 credit cost and token usage from the synced message mirror, grouped by chat, day, or model.",
+      "rationale": "Every v0 generation bills credits (usage.creditsCost); no existing tool tracks burn across chats.",
+      "example": "v0-pp-cli spend --since 7d --by chat --json",
+      "why_it_matters": "Use this when an agent needs to know where v0 credits went, which chats are expensive, or a daily burn rate.",
+      "group": "Cost intelligence"
+    },
+    {
+      "name": "Streaming capture",
+      "command": "chats stream",
+      "description": "Create a chat and stream the SSE response live, rendering each event and recording model attribution for spend analytics.",
+      "rationale": "Blocking create returns only after the model finishes; streaming shows thinking, file edits, and usage as they happen.",
+      "example": "v0-pp-cli chats stream \"Create a kanban dashboard\" --model v0-pro",
+      "why_it_matters": "Use this when an agent needs to see generation progress live or capture the event stream for later analysis.",
+      "group": "Streaming"
+    },
+    {
+      "name": "Tail chat generation",
+      "command": "messages tail",
+      "description": "Poll a chat until the newest assistant message finishes, with --follow for continuous watching.",
+      "rationale": "Async endpoints return a messageId; tailing removes the need to hand-poll for completion.",
+      "example": "v0-pp-cli messages tail ft7dqhYEX8n --interval 3s --timeout 10m",
+      "why_it_matters": "Use this when an agent kicked off an async generation and needs to wait for it deterministically.",
+      "group": "Streaming"
+    },
+    {
+      "name": "Chat file tree",
+      "command": "chats files",
+      "description": "Render a chat's generated source files as an indented directory tree.",
+      "rationale": "Downloading and unzipping files to see structure is slow; a tree is instant and diff-able.",
+      "example": "v0-pp-cli chats files ft7dqhYEX8n --tree",
+      "why_it_matters": "Use this when an agent needs to understand a generated app's layout before editing.",
+      "group": "Files"
+    },
+    {
+      "name": "Preview URL helper",
+      "command": "chats preview",
+      "description": "Print only the live preview URL for a chat, ready for embedding or scripting.",
+      "rationale": "The preview response carries url + short-lived token; --url strips everything else.",
+      "example": "v0-pp-cli chats preview ft7dqhYEX8n --url",
+      "why_it_matters": "Use this when an agent needs the preview URL for CI, screenshots, or quick checks.",
+      "group": "Files"
+    },
+    {
+      "name": "Offline search",
+      "command": "search",
+      "description": "Full-text search over synced chats and messages without hitting the API.",
+      "rationale": "The v2 API has no search endpoint; FTS over the local mirror makes history greppable.",
+      "example": "v0-pp-cli search \"kanban\" --json",
+      "why_it_matters": "Use this when an agent needs to find a past chat or message without paging the API.",
+      "group": "Offline"
+    },
+    {
+      "name": "Local sync mirror",
+      "command": "sync",
+      "description": "Cursor-paginated sync of chats and messages into a local SQLite mirror for offline search and spend analytics.",
+      "rationale": "Powers every offline capability; the API has no bulk export.",
+      "example": "v0-pp-cli sync --resources chats,messages",
+      "why_it_matters": "Run once before offline search or spend commands.",
+      "group": "Offline"
+    },
+    {
+      "name": "Auth diagnostics",
+      "command": "doctor",
+      "description": "Validate V0_API_KEY and API reachability with a live check.",
+      "rationale": "Fail-fast diagnostics before scripting against the API.",
+      "example": "v0-pp-cli doctor",
+      "why_it_matters": "Use this when a script 401s and you need to know why.",
+      "group": "Ops"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "V0_API_KEY"
+  },
+  "narrative": {
+    "display_name": "v0",
+    "headline": "Generate and iterate on web apps with v0 from the terminal: create chats from prompts, stream agent output, sync history to a local SQLite mirror, and track credit spend across models.",
+    "value_prop": "The v0 API v2 CLI with offline search, streaming capture, and credit-spend analytics \u2014 no other tool tracks where your v0 credits go.",
+    "auth_narrative": "Requires a v0 API key (create one at https://v0.app/settings/keys). Set V0_API_KEY in your environment, or use auth set-token. The CLI sends Authorization: Bearer <key>.",
+    "quickstart": [
+      {
+        "command": "v0-pp-cli doctor --dry-run",
+        "comment": "Verify the CLI and API key are configured correctly"
+      },
+      {
+        "command": "v0-pp-cli chats list --limit 5",
+        "comment": "List your most recent chats"
+      },
+      {
+        "command": "v0-pp-cli chats get ft7dqhYEX8n --json",
+        "comment": "Get chat details as JSON"
+      },
+      {
+        "command": "v0-pp-cli chats stream \"Create a landing page\" --model v0-mini",
+        "comment": "Create a chat and stream the generation live"
+      },
+      {
+        "command": "v0-pp-cli sync --resources chats,messages",
+        "comment": "Sync chats and messages into the local mirror"
+      },
+      {
+        "command": "v0-pp-cli search \"dashboard\" --json",
+        "comment": "Search your synced history offline"
+      },
+      {
+        "command": "v0-pp-cli spend --since 7d --by chat",
+        "comment": "See where your v0 credits went this week"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized",
+        "fix": "V0_API_KEY is missing, invalid, or expired; create a key at https://v0.app/settings/keys"
+      },
+      {
+        "symptom": "422 \"API v2 does not support this chat\"",
+        "fix": "The chat was created through the v1 API; v2 only serves v2-created chats"
+      },
+      {
+        "symptom": "Script failures with unclear cause",
+        "fix": "Run doctor to verify auth and connectivity before debugging"
+      }
+    ],
+    "when_to_use": "Use v0-pp-cli to generate and iterate on web apps via the v0 API: creating chats from prompts, sending follow-up messages, fetching generated files and previews, deploying to Vercel, managing MCP servers and webhooks, and tracking credit spend.",
+    "anti_triggers": [
+      "Do not use this CLI for editing files inside a generated app's sandbox directly; fetch files and edit locally instead.",
+      "Do not use this CLI to manage Vercel infrastructure outside v0 chats; that is Vercel's own API surface.",
+      "Do not use this CLI as a general-purpose coding agent; it generates apps through v0, not in the current directory."
+    ],
+    "recipes": [
+      {
+        "title": "Create a chat and wait for it",
+        "command": "v0-pp-cli chats create --message \"A minimal landing page\" --title Landing --privacy private --json",
+        "explanation": "Blocking create returns the chat plus token/credit usage once the model finishes."
+      },
+      {
+        "title": "Stream a generation and record the model",
+        "command": "v0-pp-cli chats stream \"A pricing page\" --model v0-pro --privacy private",
+        "explanation": "Streams SSE events live and records model attribution so spend --by model works."
+      },
+      {
+        "title": "Send a follow-up asynchronously and tail it",
+        "command": "v0-pp-cli messages send-async ft7dqhYEX8n --message \"Add dark mode\" --json",
+        "explanation": "Async send returns a messageId; poll it with messages tail until finishReason is set."
+      },
+      {
+        "title": "Inspect generated files as a tree",
+        "command": "v0-pp-cli chats files ft7dqhYEX8n --tree",
+        "explanation": "Renders the generated app's file layout without downloading the archive."
+      },
+      {
+        "title": "Track weekly credit spend by chat",
+        "command": "v0-pp-cli spend --since 7d --by chat --json",
+        "explanation": "After sync, aggregates usage.creditsCost and tokens from the local mirror."
+      },
+      {
+        "title": "Embed a live preview",
+        "command": "v0-pp-cli chats preview ft7dqhYEX8n --url",
+        "explanation": "Prints just the preview URL for embedding or scripting."
+      }
+    ],
+    "trigger_phrases": [
+      "create a v0 chat",
+      "generate a web app with v0",
+      "stream a v0 generation",
+      "v0 spend",
+      "v0 credits",
+      "v0 preview",
+      "fetch v0 chat files",
+      "send a message to a v0 chat",
+      "v0 mcp server",
+      "v0 webhook",
+      "deploy a v0 chat"
+    ]
+  }
+}

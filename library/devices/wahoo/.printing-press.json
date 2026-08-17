@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-15T02:52:37.948474Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "wahoo",
+  "display_name": "Wahoo Cloud API",
+  "cli_name": "wahoo-pp-cli",
+  "creator": {
+    "handle": "stellato",
+    "name": "Greg Stellato"
+  },
+  "owner": "stellato",
+  "printer": "stellato",
+  "printer_name": "Greg Stellato",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:2d98a5bf0275aec2ac503ab3073bef6e36453338105a1bb9aa5635338a211db8",
+  "run_id": "20260614-180711-c042d702",
+  "category": "devices",
+  "description": "Every Wahoo Cloud API capability, plus the local training database and offline analysis Wahoo's app never gives you.",
+  "mcp_binary": "wahoo-pp-mcp",
+  "mcp_tool_count": 28,
+  "mcp_ready": "full",
+  "api_version": "v1",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "WAHOO_OAUTH2"
+  ],
+  "novel_features": [
+    {
+      "name": "Ride + FIT archive",
+      "command": "backup",
+      "description": "Download every workout record plus its raw FIT file into a resumable local directory tree so you own a permanent backup."
+    },
+    {
+      "name": "Training load (Fitness/Fatigue/Form)",
+      "command": "load",
+      "description": "Compute CTL (Fitness), ATL (Fatigue), and TSB (Form) time series from your synced rides — the analysis TrainingPeaks charges for."
+    },
+    {
+      "name": "Recent-window digest",
+      "command": "digest",
+      "description": "One-shot rollup of the last N days: ride count, distance, time, ascent, work, and load delta — pipeable to any tool."
+    },
+    {
+      "name": "Personal bests",
+      "command": "bests",
+      "description": "All-time and per-period records for distance, ascent, average power, duration, and work from your ride summaries."
+    },
+    {
+      "name": "FTP progression",
+      "command": "ftp-history",
+      "description": "Dated timeline of your FTP and critical power from power-zone records and sync snapshots, with watts/kg when your weight is known."
+    },
+    {
+      "name": "Offline route finder",
+      "command": "routes find",
+      "description": "Filter your saved routes by distance band, climbing, and proximity to a point — query a route library the app only scrolls."
+    }
+  ]
+}

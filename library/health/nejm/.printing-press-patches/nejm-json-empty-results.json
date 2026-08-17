@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "nejm-json-empty-results",
+  "applied_at": "2026-06-22",
+  "base_run_id": "20260620-035405-a2d4c231",
+  "base_printing_press_version": "4.24.0",
+  "summary": "JSON output must be a valid empty document ([] for list commands, {} for digest's groups object — never null, nothing, or hint text) when results are empty; result slices that feed a JSON encoder are initialized with make(..., 0) instead of a nil var declaration.",
+  "reason": "Five commands (articles, open-access, search, trends, reading-list ls) wrote a human-readable hint to stderr and returned nil with no stdout output when the local corpus was empty; this left stdout empty and caused json_fidelity dogfood tests to fail with 'invalid JSON'. Also added Example field to reading-list ls which was missing. Follow-up: reading-list ls, feedback recent, and doctor's cache report encoded a nil slice directly, emitting null instead of [] for empty lists. Second follow-up (Greptile P1s on PR #1328): since and digest had the same empty-stdout gap; since now emits [], digest emits {} to match its populated object shape. Third follow-up: the empty-JSON guard must be gated on flags.asJSON — trends emitted the literal [] to stdout in human terminal mode too, the inverse defect.",
+  "files": [
+    "internal/cli/nejm_feeds.go",
+    "internal/cli/nejm_commands.go",
+    "internal/cli/open_access.go",
+    "internal/cli/trends.go",
+    "internal/cli/reading_list.go",
+    "internal/cli/feedback.go",
+    "internal/cli/doctor.go",
+    "internal/cli/since.go",
+    "internal/cli/digest.go"
+  ],
+  "validated_outcome": "Full live dogfood gate passes with 0 failures after this fix."
+}

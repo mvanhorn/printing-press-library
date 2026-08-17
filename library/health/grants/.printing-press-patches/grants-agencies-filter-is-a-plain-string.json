@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "grants-agencies-filter-is-a-plain-string",
+  "applied_at": "2026-07-06",
+  "base_run_id": "20260705-183000",
+  "base_printing_press_version": "4.25.0",
+  "summary": "The Grants.gov search2 'agencies' field must be sent as a plain string agency code; the JSON-array form is accepted with errorcode 0 but silently matches nothing.",
+  "reason": "Live-verified 2026-07-06: agencies:[\"HHS-NIH11\"] returns hitCount 0 while agencies:\"HHS-NIH11\" returns real hits. Any regen or 'fix' that switches this to an array silently breaks the --agency filter with no error.",
+  "files": ["internal/sources/grantsgov.go"],
+  "validated_outcome": "search cancer --agency HHS-NIH11 returns 80 hits (all agencyCode HHS-NIH11) with the string form; 0 hits with the array form."
+}

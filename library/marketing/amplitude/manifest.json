@@ -1,0 +1,47 @@
+{
+  "manifest_version": "0.3",
+  "name": "amplitude-pp-mcp",
+  "display_name": "Amplitude Read",
+  "version": "0.0.0",
+  "description": "Read-first Amplitude Analytics API surface for exports, cohorts, events, users, and chart-style analytics queries.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/amplitude-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/amplitude-pp-mcp",
+      "args": [],
+      "env": {
+        "AMPLITUDE_PASSWORD": "${user_config.amplitude_password}",
+        "AMPLITUDE_USERNAME": "${user_config.amplitude_username}"
+      }
+    }
+  },
+  "user_config": {
+    "amplitude_password": {
+      "type": "string",
+      "title": "AMPLITUDE_PASSWORD",
+      "description": "Sets AMPLITUDE_PASSWORD for the Amplitude Read MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "amplitude_username": {
+      "type": "string",
+      "title": "AMPLITUDE_USERNAME",
+      "description": "Sets AMPLITUDE_USERNAME for the Amplitude Read MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

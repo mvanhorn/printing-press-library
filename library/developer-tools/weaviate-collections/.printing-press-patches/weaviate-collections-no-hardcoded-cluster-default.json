@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "weaviate-collections-no-hardcoded-cluster-default",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260807-100645-wvc1",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Removed the printer's personal Weaviate Cloud cluster hostname as the default base_url; the CLI now requires explicit configuration.",
+  "reason": "The spec used for generation set servers[0].url to the printer's own test cluster so live reachability could be verified during the print. That value flowed into the generated config default, which would have silently pointed every other installer of this public-library CLI at the printer's private cluster. Every Weaviate Cloud cluster has a unique per-customer hostname, so there is no shared default host that is correct for more than one user; config.Load now leaves BaseURL empty and doctor reports \"not configured\" until WEAVIATE_COLLECTIONS_BASE_URL (or base_url in the config file) is set.",
+  "files": ["internal/config/config.go", "internal/cli/doctor.go", "spec.json", "tools-manifest.json"],
+  "validated_outcome": "Confirmed with no env vars set: `doctor` reports base_url as not configured instead of silently defaulting to the printer's cluster; setting WEAVIATE_COLLECTIONS_BASE_URL still overrides correctly.",
+  "upstream_issue": ""
+}

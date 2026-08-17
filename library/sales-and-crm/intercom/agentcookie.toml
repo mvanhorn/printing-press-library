@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "intercom-pp-cli"
+display_name = "Intercom"
+description = "Every Intercom resource as a typed CLI with offline sync and EU/AU regions."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/intercom-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+INTERCOM_ACCESS_TOKEN = true

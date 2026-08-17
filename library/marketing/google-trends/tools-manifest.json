@@ -1,0 +1,63 @@
+{
+  "api_name": "google-trends",
+  "base_url": "https://trends.google.com",
+  "description": "Every Google Trends workflow pytrends offered, plus the local history and rate-limit resilience that archived, frozen wrapper never had.",
+  "mcp_ready": "partial",
+  "http_transport": "browser-chrome",
+  "auth": {
+    "type": "cookie",
+    "cookie_domain": ".google.com",
+    "cookies": [
+      "NID"
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "trends_pickers_category",
+      "description": "Full category id-to-name lookup tree. Openly accessible, no clearance cookie required. Required: hl, tz. Returns the category.",
+      "method": "GET",
+      "path": "/trends/api/explore/pickers/category",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "hl",
+          "type": "string",
+          "location": "query",
+          "description": "UI language, e.g. en-US",
+          "required": true
+        },
+        {
+          "name": "tz",
+          "type": "integer",
+          "location": "query",
+          "description": "Timezone offset in minutes",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "trends_pickers_geo",
+      "description": "Full geo code-to-name lookup tree (country/region/DMA/city). Openly accessible, no clearance cookie required. Required: hl, tz. Returns the geo.",
+      "method": "GET",
+      "path": "/trends/api/explore/pickers/geo",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "hl",
+          "type": "string",
+          "location": "query",
+          "description": "UI language, e.g. en-US",
+          "required": true
+        },
+        {
+          "name": "tz",
+          "type": "integer",
+          "location": "query",
+          "description": "Timezone offset in minutes",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

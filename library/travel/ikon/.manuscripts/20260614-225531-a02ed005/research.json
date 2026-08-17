@@ -1,0 +1,229 @@
+{
+  "api_name": "ikon",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "ikon-reservations-chrome-extension",
+      "url": "https://github.com/evanjohnso/ikon-reservations-chrome-extension",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ikon",
+      "url": "https://github.com/ninamutty/ikon",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ski-reservation-bot",
+      "url": "https://github.com/jjohnson5253/ski-reservation-bot",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "dude_wheres_my_lift_ticket",
+      "url": "https://github.com/jeffgebhardt/dude_wheres_my_lift_ticket",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-14T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "Most-visited resorts (multi-season)",
+      "command": "most-visited",
+      "description": "Rank the resorts you ski most across every season you've held an Ikon Pass, with per-season day counts.",
+      "rationale": "The API exposes usage only per single-season pass id, and those ids rotate yearly; only a tool that enumerates all your passes and joins their redemption histories can show lifetime totals.",
+      "example": "ikon-pp-cli most-visited --agent",
+      "why_it_matters": "Reach for this when the user asks where they ski most, how many days they've used over the years, or for a season-by-season breakdown.",
+      "group": "History that compounds"
+    },
+    {
+      "name": "Cross-resort trip planner",
+      "command": "plan",
+      "description": "Across every reservation-required resort, show which have your target dates open — one call instead of checking four resorts by hand.",
+      "rationale": "Requires fanning out the per-resort availability endpoint and joining the results against a date window locally; no single upstream call does this.",
+      "example": "ikon-pp-cli plan --from 2026-01-10 --to 2026-01-20",
+      "why_it_matters": "Use this when the user wants to ski a date range and doesn't care which of the reservable mountains it is.",
+      "group": "Reservation intelligence"
+    },
+    {
+      "name": "Availability calendar",
+      "command": "calendar",
+      "description": "Month grid of open vs full vs blackout vs closed days for a reservable resort.",
+      "rationale": "The API returns flat date arrays; rendering them as a navigable month view is local presentation the upstream UI gates behind login clicks.",
+      "example": "ikon-pp-cli calendar 14 --month 2026-01",
+      "why_it_matters": "Use this to eyeball a whole month of reservation openings for one resort at a glance.",
+      "group": "Reservation intelligence"
+    },
+    {
+      "name": "Reservation watch",
+      "command": "watch",
+      "description": "Poll a resort+date and alert the moment a currently-full day frees up.",
+      "rationale": "Requires repeated local polling and diffing of the availability endpoint against a target date — stateful behavior no single API call provides.",
+      "example": "ikon-pp-cli watch 14 2026-01-17",
+      "why_it_matters": "Use this when a desired reservation date is full and the user wants to grab it if someone cancels.",
+      "group": "Reservation intelligence"
+    },
+    {
+      "name": "Availability drift",
+      "command": "changes",
+      "description": "After each sync, report which dates opened or closed at your watched resorts since the last snapshot.",
+      "rationale": "Requires a local SQLite history of availability snapshots to diff against; the API is stateless and never reports change-over-time.",
+      "example": "ikon-pp-cli changes",
+      "why_it_matters": "Use this to see what reservation availability shifted day-over-day without re-reading every resort manually.",
+      "group": "History that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Most-visited resorts (multi-season)",
+      "command": "most-visited",
+      "description": "Rank the resorts you ski most across every season you've held an Ikon Pass, with per-season day counts.",
+      "rationale": "The API exposes usage only per single-season pass id, and those ids rotate yearly; only a tool that enumerates all your passes and joins their redemption histories can show lifetime totals.",
+      "example": "ikon-pp-cli most-visited --agent",
+      "why_it_matters": "Reach for this when the user asks where they ski most, how many days they've used over the years, or for a season-by-season breakdown.",
+      "group": "History that compounds"
+    },
+    {
+      "name": "Cross-resort trip planner",
+      "command": "plan",
+      "description": "Across every reservation-required resort, show which have your target dates open — one call instead of checking four resorts by hand.",
+      "rationale": "Requires fanning out the per-resort availability endpoint and joining the results against a date window locally; no single upstream call does this.",
+      "example": "ikon-pp-cli plan --from 2026-01-10 --to 2026-01-20",
+      "why_it_matters": "Use this when the user wants to ski a date range and doesn't care which of the reservable mountains it is.",
+      "group": "Reservation intelligence"
+    },
+    {
+      "name": "Availability calendar",
+      "command": "calendar",
+      "description": "Month grid of open vs full vs blackout vs closed days for a reservable resort.",
+      "rationale": "The API returns flat date arrays; rendering them as a navigable month view is local presentation the upstream UI gates behind login clicks.",
+      "example": "ikon-pp-cli calendar 14 --month 2026-01",
+      "why_it_matters": "Use this to eyeball a whole month of reservation openings for one resort at a glance.",
+      "group": "Reservation intelligence"
+    },
+    {
+      "name": "Reservation watch",
+      "command": "watch",
+      "description": "Poll a resort+date and alert the moment a currently-full day frees up.",
+      "rationale": "Requires repeated local polling and diffing of the availability endpoint against a target date — stateful behavior no single API call provides.",
+      "example": "ikon-pp-cli watch 14 2026-01-17",
+      "why_it_matters": "Use this when a desired reservation date is full and the user wants to grab it if someone cancels.",
+      "group": "Reservation intelligence"
+    },
+    {
+      "name": "Availability drift",
+      "command": "changes",
+      "description": "After each sync, report which dates opened or closed at your watched resorts since the last snapshot.",
+      "rationale": "Requires a local SQLite history of availability snapshots to diff against; the API is stateless and never reports change-over-time.",
+      "example": "ikon-pp-cli changes",
+      "why_it_matters": "Use this to see what reservation availability shifted day-over-day without re-reading every resort manually.",
+      "group": "History that compounds"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "Ikon Pass",
+    "headline": "Ikon Pass CLI for reservation availability, pass and voucher lookup, multi-season usage history, and offline change tracking.",
+    "value_prop": "Check reservation availability at the resorts that require it, see your passes and Friends \u0026 Family vouchers, and rank the mountains you've skied most across every season you've held a pass. Reads the same private API the Ikon account site uses, with a local SQLite mirror so history and change-tracking work offline.",
+    "auth_narrative": "Ikon uses cookie-session auth minted through Auth0 SSO — there's no API key. The public `resorts` command needs nothing. Everything tied to your account (availability, passes, vouchers, usage) reads your `.ikonpass.com` session cookie: run `ikon-pp-cli auth login --chrome` to import it from Chrome, or install the `press-auth` companion for a controlled one-window capture that survives session expiry. Sessions last roughly a day; re-import when commands start returning 401.",
+    "quickstart": [
+      {
+        "command": "ikon-pp-cli doctor --dry-run",
+        "comment": "confirm the API is reachable — no login needed"
+      },
+      {
+      "command": "ikon-pp-cli resorts",
+        "comment": "browse every Ikon destination and its numeric id"
+      },
+      {
+        "command": "ikon-pp-cli availability 14",
+        "comment": "reservation availability for Jackson Hole (id 14) once you're logged in"
+      },
+      {
+        "command": "ikon-pp-cli most-visited",
+        "comment": "rank the resorts you've skied most across all your seasons"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Commands return 401 / 'must be authenticated'",
+        "fix": "Your session expired or wasn't imported — run `ikon-pp-cli auth login --chrome` (or `press-auth login ikonpass.com`)."
+      },
+      {
+        "symptom": "'must be authenticated' even right after logging in",
+        "fix": "Ikon keeps the session cookie where the basic reader can't see it; install the press-auth companion: 'go install github.com/mvanhorn/cli-printing-press/v4/cmd/press-auth@latest' then 'press-auth login ikonpass.com --login-url https://account.ikonpass.com/login'."
+      },
+      {
+        "symptom": "Requests blocked / HTML 'Incapsula incident' page",
+        "fix": "The default browser-like User-Agent clears Incapsula; if you overrode it, restore a normal Chrome UA."
+      },
+      {
+        "symptom": "'ikon-pp-cli most-visited' is empty in summer",
+        "fix": "Expected off-season — usage populates once the season's redemptions begin; past seasons appear immediately if their passes are on your account."
+      }
+    ],
+    "when_to_use": "Use this CLI for anything tied to an Ikon Pass account: checking whether a reservation-required resort (Deer Valley, Jackson Hole, Loon, Snoqualmie) has open days, reviewing your passes and Friends \u0026 Family voucher balance, and analyzing your ski history across seasons. It is read-only and offline-first — it mirrors the account API into local SQLite so history, calendars, and change-tracking work without re-fetching.",
+    "anti_triggers": [
+      "Do not use this CLI to BOOK, modify, or cancel reservations — it is read-only by design.",
+      "Do not use it to share or send Friends \u0026 Family vouchers — it reports remaining/used counts only.",
+      "Do not use it for resorts that don't require reservations — most Ikon destinations are walk-on and won't appear in availability.",
+      "Do not use it to buy or renew a pass — purchasing happens on ikonpass.com."
+    ],
+    "recipes": [
+      {
+        "title": "Lifetime resort ranking for an agent",
+        "command": "ikon-pp-cli most-visited --agent",
+        "explanation": "Returns season-joined day counts per resort as JSON an agent can summarize directly."
+      },
+      {
+        "title": "Trip planning across reservable resorts",
+        "command": "ikon-pp-cli plan --from 2026-01-10 --to 2026-01-20",
+        "explanation": "Shows which of the reservation-required resorts have open days in the window."
+      },
+      {
+        "title": "Narrow resort data with field selection",
+      "command": "ikon-pp-cli resorts --agent --select name,id,reservations_enabled",
+        "explanation": "The resorts payload is large; --select trims it to just the fields an agent needs to resolve a name to an id."
+      },
+      {
+        "title": "Watch a full date for openings",
+        "command": "ikon-pp-cli watch 14 2026-01-17",
+        "explanation": "Polls Jackson Hole for 2026-01-17 and alerts when the date frees up."
+      }
+    ],
+    "trigger_phrases": [
+      "check ikon-pp-cli availability",
+      "is jackson hole open for reservations",
+      "how many days have I skied this season",
+      "what resorts do I ski most",
+      "ikon friends and family vouchers left",
+      "use ikon",
+      "run ikon"
+    ]
+  }
+}

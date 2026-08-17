@@ -95,8 +95,12 @@ reading source. Schema is versioned via schema_version.`,
 }
 
 func buildAgentContext(rootCmd *cobra.Command) agentContext {
+	// The env vars config.Load actually reads (audit 2026-06-09: the old
+	// generated name was never consulted by anything).
 	envVars := []string{
-		"KALSHI_TRADE_MANUAL_KALSHI_ACCESS_KEY",
+		"KALSHI_API_KEY",
+		"KALSHI_PRIVATE_KEY_PATH",
+		"KALSHI_PRIVATE_KEY",
 	}
 	authMode := "api_key"
 	if authMode == "" {

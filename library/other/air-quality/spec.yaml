@@ -1,0 +1,28 @@
+openapi: 3.1.0
+info:
+  title: Air Quality Public Data Plan
+  version: 0.1.0
+  description: >
+    Plan-driven first print for source-aware air-quality workflows using OpenAQ API v3
+    for physical pollutant measurements and AirNow API web services for AQI observations.
+servers:
+  - url: https://api.openaq.org
+    description: OpenAQ API v3
+  - url: https://www.airnowapi.org
+    description: AirNow API web services
+paths:
+  /v3/locations:
+    get:
+      summary: Search OpenAQ locations near coordinates
+  /v3/locations/{locationId}:
+    get:
+      summary: Fetch an OpenAQ location
+  /v3/locations/{locationId}/latest:
+    get:
+      summary: Fetch latest OpenAQ measurements for a location
+  /v3/sensors/{sensorId}/measurements:
+    get:
+      summary: Fetch OpenAQ measurements for a sensor
+  /aq/observation/zipCode/current/:
+    get:
+      summary: Fetch AirNow current AQI observations by ZIP code

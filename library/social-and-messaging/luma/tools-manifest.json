@@ -1,0 +1,188 @@
+{
+  "api_name": "luma",
+  "base_url": "https://api.luma.com",
+  "description": "Browse, search, and export public Luma events from one Go binary — no account, no API key, plus offline full-text search the public API doesn't have.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (compatible; luma-pp-cli)"
+    },
+    {
+      "name": "Accept",
+      "value": "application/json"
+    }
+  ],
+  "tools": [
+    {
+      "name": "calendars_get",
+      "description": "Get a calendar (community) by its api_id (cal-...). Required: calendar-id. Returns the CalendarDetail.",
+      "method": "GET",
+      "path": "/calendar/get",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "calendar-id",
+          "wire_name": "api_id",
+          "type": "string",
+          "location": "query",
+          "description": "Calendar api_id (cal-...), from event detail or place calendars",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "discover_categories",
+      "description": "List event categories (AI, Crypto, Tech, Arts, ...) with upcoming-event counts. Optional: limit (default: 50), cursor. Returns array of Category.",
+      "method": "GET",
+      "path": "/discover/category/list-categories",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "limit",
+          "wire_name": "pagination_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max categories to return"
+        },
+        {
+          "name": "cursor",
+          "wire_name": "pagination_cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor returned by a previous page (next_cursor)"
+        }
+      ]
+    },
+    {
+      "name": "discover_home",
+      "description": "Featured place, popular places, categories, and calendars on the Luma discover home. Returns the DiscoverHome.",
+      "method": "GET",
+      "path": "/discover/bootstrap-page",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "events_get",
+      "description": "Get full details for an event by its api_id (evt-...). Required: event-id. Returns the EventDetail.",
+      "method": "GET",
+      "path": "/event/get",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "event-id",
+          "wire_name": "event_api_id",
+          "type": "string",
+          "location": "query",
+          "description": "Event api_id (evt-...), from `events list`",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_list",
+      "description": "List upcoming events filtered by city (--city/--place-id) or category (--category). Optional: city, place-id, category (plus 2 more). Returns array of EventEntry.",
+      "method": "GET",
+      "path": "/discover/get-paginated-events",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "city",
+          "wire_name": "slug",
+          "type": "string",
+          "location": "query",
+          "description": "City slug, e.g. sf, nyc, miami (filter by place)"
+        },
+        {
+          "name": "place-id",
+          "wire_name": "discover_place_api_id",
+          "type": "string",
+          "location": "query",
+          "description": "Place api_id (discplace-...), alternative to --city"
+        },
+        {
+          "name": "category",
+          "wire_name": "category_api_id",
+          "type": "string",
+          "location": "query",
+          "description": "Category api_id (cat-tech, cat-ai, ...) from `discover categories`"
+        },
+        {
+          "name": "limit",
+          "wire_name": "pagination_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max events per page"
+        },
+        {
+          "name": "cursor",
+          "wire_name": "pagination_cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor returned by a previous page (next_cursor)"
+        }
+      ]
+    },
+    {
+      "name": "places_calendars",
+      "description": "List calendars (communities) active in a place. Required: place-id. Returns array of Calendar.",
+      "method": "GET",
+      "path": "/discover/get-calendars",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "place-id",
+          "wire_name": "discover_place_api_id",
+          "type": "string",
+          "location": "query",
+          "description": "Place api_id (discplace-...), from `places get`",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "places_get",
+      "description": "Get a place (city) by slug (sf, nyc, miami, ...) or place api_id. Optional: city, place-id. Returns the PlaceDetail.",
+      "method": "GET",
+      "path": "/discover/get-place",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "city",
+          "wire_name": "slug",
+          "type": "string",
+          "location": "query",
+          "description": "City slug, e.g. sf, nyc, miami, london (one of --city or --place-id)"
+        },
+        {
+          "name": "place-id",
+          "wire_name": "discover_place_api_id",
+          "type": "string",
+          "location": "query",
+          "description": "Place api_id (discplace-...), alternative to --city"
+        }
+      ]
+    },
+    {
+      "name": "places_map",
+      "description": "Geographic points for events in a place, for mapping. Required: place-id. Returns the MapPoints.",
+      "method": "GET",
+      "path": "/discover/place/get-points-for-mini-map",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "place-id",
+          "wire_name": "discover_place_api_id",
+          "type": "string",
+          "location": "query",
+          "description": "Place api_id (discplace-...)",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

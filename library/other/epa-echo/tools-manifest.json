@@ -1,0 +1,138 @@
+{
+  "api_name": "epa-echo",
+  "base_url": "https://echodata.epa.gov/echo",
+  "description": "Resolve EPA-regulated facilities, inspect transparent compliance evidence, and retain change history without opaque scores.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "dfr-rest-services-get-dfr_get-detailed-facility-report",
+      "description": "Get a detailed multi-program facility report. Required: p_id. Optional: output (default: JSON). Returns the DfrRestServicesGetDfrGetDetailedFacilityReportResponse.",
+      "method": "GET",
+      "path": "/dfr_rest_services.get_dfr",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "output",
+          "type": "string",
+          "location": "query",
+          "description": "Output"
+        },
+        {
+          "name": "p_id",
+          "type": "string",
+          "location": "query",
+          "description": "P id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "echo-rest-services-get-facilities_search-facilities",
+      "description": "Start an all-media facility search. Optional: output (default: JSON), p_fn, p_fntype (default: CONTAINS) (plus 8 more). Returns the EchoRestServicesGetFacilitiesSearchFacilitiesResponse.",
+      "method": "GET",
+      "path": "/echo_rest_services.get_facilities",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "output",
+          "type": "string",
+          "location": "query",
+          "description": "Output"
+        },
+        {
+          "name": "p_fn",
+          "type": "string",
+          "location": "query",
+          "description": "P fn"
+        },
+        {
+          "name": "p_fntype",
+          "type": "string",
+          "location": "query",
+          "description": "P fntype"
+        },
+        {
+          "name": "p_frs",
+          "type": "string",
+          "location": "query",
+          "description": "P frs"
+        },
+        {
+          "name": "p_st",
+          "type": "string",
+          "location": "query",
+          "description": "P st"
+        },
+        {
+          "name": "p_ct",
+          "type": "string",
+          "location": "query",
+          "description": "P ct"
+        },
+        {
+          "name": "p_zip",
+          "type": "string",
+          "location": "query",
+          "description": "P zip"
+        },
+        {
+          "name": "p_lat",
+          "type": "float",
+          "location": "query",
+          "description": "P lat"
+        },
+        {
+          "name": "p_long",
+          "type": "float",
+          "location": "query",
+          "description": "P long"
+        },
+        {
+          "name": "p_radius",
+          "type": "float",
+          "location": "query",
+          "description": "P radius"
+        },
+        {
+          "name": "responseset",
+          "type": "int",
+          "location": "query",
+          "description": "Responseset"
+        }
+      ]
+    },
+    {
+      "name": "echo-rest-services-get-qid_get-facility-search-results",
+      "description": "Retrieve a page of facility results by query ID. Required: qid. Optional: output (default: JSON), pageno (default: 1). Returns the EchoRestServicesGetQidGetFacilitySearchResultsResponse.",
+      "method": "GET",
+      "path": "/echo_rest_services.get_qid",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "output",
+          "type": "string",
+          "location": "query",
+          "description": "Output"
+        },
+        {
+          "name": "qid",
+          "type": "string",
+          "location": "query",
+          "description": "Qid",
+          "required": true
+        },
+        {
+          "name": "pageno",
+          "type": "int",
+          "location": "query",
+          "description": "Pageno"
+        }
+      ]
+    }
+  ]
+}

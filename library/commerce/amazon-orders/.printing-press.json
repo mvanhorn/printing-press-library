@@ -26,7 +26,7 @@
     "AMAZON_COOKIES"
   ],
   "auth_title": "Amazon buyer session",
-  "auth_description": "Amazon does not publish a buyer-side API for order history. This CLI imports\ncookies from your logged-in Chrome / Firefox / Safari / Brave browser session,\nthen makes authenticated HTTPS GETs to the same HTML pages you see on\namazon.com. Log in to amazon.com in your browser, then run:\n\n  amazon-orders-pp-cli auth login --chrome\n\nCookies live under the .amazon.com domain. The CLI persists them locally and\nrefreshes the session-id cookie automatically when amazon.com rotates it.\n",
+  "auth_description": "Amazon does not publish a buyer-side API for order history. This CLI imports cookies from your logged-in Chrome / Firefox / Safari / Brave browser session, then makes authenticated HTTPS GETs to the same HTML pages you see on your configured Amazon marketplace. Log in to that marketplace in your browser, then run:\n\n  amazon-orders-pp-cli auth login --chrome\n\nFor India or another non-US marketplace, pass the domain, e.g.:\n\n  amazon-orders-pp-cli auth login --chrome --domain amazon.in\n\nThe CLI persists cookies locally and refreshes the session-id cookie automatically when Amazon rotates it.\n",
   "novel_features": [
     {
       "name": "Where Is My Stuff",

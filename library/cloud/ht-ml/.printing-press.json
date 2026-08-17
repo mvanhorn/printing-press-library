@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-26T11:14:53.617358Z",
+  "printing_press_version": "4.26.0",
+  "api_name": "ht-ml",
+  "display_name": "ht-ml.app",
+  "cli_name": "ht-ml-pp-cli",
+  "creator": {
+    "handle": "bobeglz",
+    "name": "bobe"
+  },
+  "owner": "bobeglz",
+  "printer": "bobeglz",
+  "printer_name": "bobe",
+  "spec_path": "ht-ml-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:8a6d8b3c5385149a80b7d688efd6007f6b791b2a185a0d59efa0d22e75a27158",
+  "run_id": "20260625-202846-acc7c150",
+  "category": "cloud",
+  "description": "The only ht-ml.app tool that remembers what you published, a local registry of every site, its once-only update_key, and full version history, plus one-command publish-with-assets.",
+  "mcp_binary": "ht-ml-pp-mcp",
+  "mcp_tool_count": 1,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Site registry inventory",
+      "command": "list",
+      "description": "See every site you've ever published, with health flags for orphaned sites and broken assets."
+    },
+    {
+      "name": "Key vault \u0026 recovery",
+      "command": "keys export",
+      "description": "Reveal a single write key, or export/import a passphrase-sealed vault of all your update_keys for disaster recovery and a second machine."
+    },
+    {
+      "name": "One-shot asset reconcile",
+      "command": "assets sync",
+      "description": "Parse a site's HTML, find every referenced-but-missing image or video, and upload them all in one pass."
+    },
+    {
+      "name": "Broken-asset audit",
+      "command": "assets audit",
+      "description": "Across all your sites, list the ones with publicly-visible broken or missing images."
+    },
+    {
+      "name": "Version rollback",
+      "command": "rollback",
+      "description": "Revert a live site to any prior HTML version stored locally, with the update_key resolved for you."
+    },
+    {
+      "name": "Living-doc republish by alias",
+      "command": "republish",
+      "description": "Publish a recurring document under a stable local alias: update in place if the alias exists, or create it once and bind it."
+    },
+    {
+      "name": "Pre-publish secret/PII scan",
+      "command": "scan",
+      "description": "Mechanically scan HTML for leaked secrets and PII before it becomes a public, permanent URL."
+    }
+  ]
+}

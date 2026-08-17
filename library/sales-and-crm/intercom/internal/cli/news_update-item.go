@@ -9,6 +9,7 @@ import (
 	"io"
 	"os"
 
+	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/intercom/internal/cliutil"
 	"github.com/spf13/cobra"
 )
 
@@ -18,7 +19,7 @@ func newNewsUpdateItemCmd(flags *rootFlags) *cobra.Command {
 	var bodyLabels string
 	var bodyNewsfeedAssignments string
 	var bodyReactions string
-	var bodySenderId int
+	var bodySenderId string
 	var bodyState string
 	var bodyTitle string
 	var stdinBody bool
@@ -27,11 +28,41 @@ func newNewsUpdateItemCmd(flags *rootFlags) *cobra.Command {
 		Use:         "update-item <id>",
 		Aliases:     []string{"update"},
 		Short:       "Update a news item",
-		Example:     "  intercom-pp-cli news update-item 550e8400-e29b-41d4-a716-446655440000 --title example-resource",
+		Example:     "  intercom-pp-cli news update-item 123 --title example-resource",
 		Annotations: map[string]string{"pp:endpoint": "news.update-item", "pp:method": "PUT", "pp:path": "/news/news_items/{id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) == 0 {
+			// Bare invocation of a command with required input prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only read commands fall through so a bare call still executes.
+			// Machine callers (--json/--agent, which sets asJSON) get a usage
+			// error + exit 2 instead of silent exit-0 help, so an incomplete
+			// invocation is never mistaken for success.
+			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "requires input",
+						"usage": cmd.CommandPath() + " --help",
+					}, flags); printErr != nil {
+						return printErr
+					}
+					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
+				}
 				return cmd.Help()
+			}
+			if len(args) == 0 {
+				// A missing required positional is a usage error in every output
+				// mode (matches command_promoted.go.tmpl). Machine callers
+				// (--json/--agent) also get a JSON error envelope on stdout;
+				// usageErr sets exit 2.
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "missing required argument",
+						"usage": fmt.Sprintf("%s%s", cmd.CommandPath(), " <id>"),
+					}, flags); printErr != nil {
+						return printErr
+					}
+				}
+				return usageErr(fmt.Errorf("missing required argument\nUsage: %s%s", cmd.CommandPath(), " <id>"))
 			}
 			if !stdinBody {
 				if !cmd.Flags().Changed("sender-id") && !flags.dryRun {
@@ -41,15 +72,17 @@ func newNewsUpdateItemCmd(flags *rootFlags) *cobra.Command {
 					return fmt.Errorf("required flag \"%s\" not set", "title")
 				}
 			}
+			path := "/news/news_items/{id}"
+			if len(args) < 1 || args[0] == "" {
+				return usageErr(fmt.Errorf("id is required\nUsage: %s <%s>", cmd.CommandPath(), "id"))
+			}
+			path = replacePathParam(path, "id", args[0])
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/news/news_items/{id}"
-			path = replacePathParam(path, "id", args[0])
 			params := map[string]string{}
-			var body map[string]any
+			var body any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
@@ -61,42 +94,47 @@ func newNewsUpdateItemCmd(flags *rootFlags) *cobra.Command {
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
+				bodyMap := map[string]any{}
+				body = bodyMap
 				if bodyBody != "" {
-					body["body"] = bodyBody
+					bodyMap["body"] = bodyBody
 				}
 				if cmd.Flags().Changed("deliver-silently") {
-					body["deliver_silently"] = bodyDeliverSilently
+					bodyMap["deliver_silently"] = bodyDeliverSilently
 				}
-				if bodyLabels != "" {
-					var parsedLabels any
-					if err := json.Unmarshal([]byte(bodyLabels), &parsedLabels); err != nil {
-						return fmt.Errorf("parsing --labels JSON: %w", err)
+				if cmd.Flags().Changed("labels") {
+					parsedLabels, parseErr := cliutil.ParseStringList(bodyLabels)
+					if parseErr != nil {
+						return fmt.Errorf("parsing --labels list: %w", parseErr)
 					}
-					body["labels"] = parsedLabels
+					bodyMap["labels"] = parsedLabels
 				}
 				if bodyNewsfeedAssignments != "" {
 					var parsedNewsfeedAssignments any
 					if err := json.Unmarshal([]byte(bodyNewsfeedAssignments), &parsedNewsfeedAssignments); err != nil {
 						return fmt.Errorf("parsing --newsfeed-assignments JSON: %w", err)
 					}
-					body["newsfeed_assignments"] = parsedNewsfeedAssignments
-				}
-				if bodyReactions != "" {
-					var parsedReactions any
-					if err := json.Unmarshal([]byte(bodyReactions), &parsedReactions); err != nil {
-						return fmt.Errorf("parsing --reactions JSON: %w", err)
+					asArray, ok := parsedNewsfeedAssignments.([]any)
+					if !ok {
+						return fmt.Errorf("--newsfeed-assignments must be a JSON array, got JSON %T", parsedNewsfeedAssignments)
 					}
-					body["reactions"] = parsedReactions
+					bodyMap["newsfeed_assignments"] = asArray
 				}
-				if bodySenderId != 0 {
-					body["sender_id"] = bodySenderId
+				if cmd.Flags().Changed("reactions") {
+					parsedReactions, parseErr := cliutil.ParseStringList(bodyReactions)
+					if parseErr != nil {
+						return fmt.Errorf("parsing --reactions list: %w", parseErr)
+					}
+					bodyMap["reactions"] = parsedReactions
+				}
+				if bodySenderId != "" {
+					bodyMap["sender_id"] = bodySenderId
 				}
 				if bodyState != "" {
-					body["state"] = bodyState
+					bodyMap["state"] = bodyState
 				}
 				if bodyTitle != "" {
-					body["title"] = bodyTitle
+					bodyMap["title"] = bodyTitle
 				}
 			}
 			data, statusCode, err := c.PutWithParams(cmd.Context(), path, params, body)
@@ -166,6 +204,9 @@ func newNewsUpdateItemCmd(flags *rootFlags) *cobra.Command {
 					"status":   statusCode,
 					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
 				}
+				if flags.agent {
+					envelope["meta"] = map[string]any{"source": "live"}
+				}
 				if partialFailure != nil {
 					envelope["partial_failure"] = partialFailure
 				}
@@ -204,7 +245,11 @@ func newNewsUpdateItemCmd(flags *rootFlags) *cobra.Command {
 				if len(filtered) > 0 {
 					var parsed any
 					if err := json.Unmarshal(filtered, &parsed); err == nil {
-						envelope["data"] = parsed
+						if flags.agent {
+							envelope["results"] = parsed
+						} else {
+							envelope["data"] = parsed
+						}
 					}
 				}
 				envelopeJSON, err := json.Marshal(envelope)
@@ -240,7 +285,7 @@ func newNewsUpdateItemCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyLabels, "labels", "", "Label names displayed to users to categorize the news item.")
 	cmd.Flags().StringVar(&bodyNewsfeedAssignments, "newsfeed-assignments", "", "A list of newsfeed_assignments to assign to the specified newsfeed.")
 	cmd.Flags().StringVar(&bodyReactions, "reactions", "", "Ordered list of emoji reactions to the news item. When empty, reactions are disabled.")
-	cmd.Flags().IntVar(&bodySenderId, "sender-id", 0, "The id of the sender of the news item. Must be a teammate on the workspace.")
+	cmd.Flags().StringVar(&bodySenderId, "sender-id", "", "The id of the sender of the news item. Must be a teammate on the workspace.")
 	cmd.Flags().StringVar(&bodyState, "state", "", "News items will not be visible to your users in the assigned newsfeeds until they are set live.")
 	cmd.Flags().StringVar(&bodyTitle, "title", "", "The title of the news item.")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")

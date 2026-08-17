@@ -9,8 +9,10 @@ import (
 
 func newFilesNodesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "nodes",
-		Short: "Manage nodes",
+		Use:         "nodes",
+		Short:       "Get nodes for files",
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newFilesNodesGetFileCmd(flags))

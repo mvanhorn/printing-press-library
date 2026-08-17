@@ -1,0 +1,755 @@
+{
+  "version": "1",
+  "summary": {
+    "target_url": "https://region1.analytics.google.com/g/collect?v=2\u0026tid=G-NQFPZRDG2G\u0026gtm=45je66g1v875153330za20gzb831598687zd831598687\u0026_p=1781731655926\u0026gcd=13l3lPl2l1l1\u0026npa=1\u0026dma_cps=a\u0026dma=1\u0026_eu=AAACAGQC\u0026are=1\u0026cid=372335162.1781731656\u0026frm=0\u0026pscdl=noapi\u0026rcb=3\u0026sr=800x600\u0026uaa=arm\u0026uab=64\u0026uafvl=Chromium%3B149.0.7827.54%7CNot)A%253BBrand%3B24.0.0.0\u0026uam=\u0026uamb=0\u0026uap=macOS\u0026uapv=26.5.1\u0026uaw=0\u0026ul=en-us\u0026gaf=2\u0026_s=2\u0026tag_exp=115616985~115938465~115938468~118395335~119348851~119392696~119392704~119456239~119456247\u0026sid=1781731656\u0026sct=1\u0026seg=1\u0026dl=https%3A%2F%2Fwww.airhint.com%2Fryanair-predictor\u0026dt=AirHint%20%7C%20hints%20when%20to%20buy%20cheap%20Ryanair%20tickets\u0026en=page_view\u0026_ee=1\u0026tfd=5737",
+    "entry_count": 16,
+    "api_entry_count": 8,
+    "noise_entry_count": 8,
+    "host_distribution": {
+      "ad.doubleclick.net": 1,
+      "pics.avs.io": 1,
+      "region1.analytics.google.com": 2,
+      "www.airhint.com": 10,
+      "www.google.com": 1,
+      "www.google.pt": 1
+    },
+    "http_version_distribution": {
+      "h2": 11,
+      "h3": 4,
+      "http/1.1": 1
+    },
+    "time_start": "2026-06-17T21:27:41.21362304Z",
+    "time_end": "2026-06-17T21:31:36.986539008Z"
+  },
+  "reachability": {
+    "mode": "browser_http",
+    "confidence": 0.78,
+    "reasons": [
+      "bot-protection signals observed; use browser-like HTTP transport"
+    ],
+    "evidence": [
+      {
+        "entry_index": 1,
+        "method": "GET",
+        "host": "www.airhint.com",
+        "path": "/airport-autocomplete",
+        "status": 200,
+        "content_type": "application/json",
+        "reason": "Cloudflare header or challenge marker"
+      },
+      {
+        "entry_index": 2,
+        "method": "GET",
+        "host": "www.airhint.com",
+        "path": "/airport-autocomplete",
+        "status": 200,
+        "content_type": "application/json",
+        "reason": "Cloudflare header or challenge marker"
+      },
+      {
+        "entry_index": 3,
+        "method": "GET",
+        "host": "www.airhint.com",
+        "path": "/kayak-location-lookup",
+        "status": 200,
+        "content_type": "application/json",
+        "reason": "Cloudflare header or challenge marker"
+      },
+      {
+        "entry_index": 4,
+        "method": "GET",
+        "host": "www.airhint.com",
+        "path": "/search/STN/DUB/2026-08-16",
+        "status": 200,
+        "content_type": "text/html",
+        "reason": "Cloudflare header or challenge marker"
+      },
+      {
+        "entry_index": 5,
+        "method": "GET",
+        "host": "www.airhint.com",
+        "path": "/inline-ads",
+        "status": 200,
+        "content_type": "application/json",
+        "reason": "Cloudflare header or challenge marker"
+      },
+      {
+        "entry_index": 6,
+        "method": "GET",
+        "host": "www.airhint.com",
+        "path": "/cheapest-deal-month/one-way/STN/DUB/8",
+        "status": 200,
+        "content_type": "application/json",
+        "reason": "Cloudflare header or challenge marker"
+      },
+      {
+        "entry_index": 7,
+        "method": "GET",
+        "host": "www.airhint.com",
+        "path": "/search/c7fa65f9-a457-4acb-b55f-70193933d745",
+        "status": 200,
+        "content_type": "application/json",
+        "reason": "Cloudflare header or challenge marker"
+      },
+      {
+        "entry_index": 8,
+        "method": "GET",
+        "host": "www.airhint.com",
+        "path": "/cheapest-airline-deal-month/FR/STN/DUB/2026-08-16/EUR",
+        "status": 200,
+        "content_type": "text/html",
+        "reason": "Cloudflare header or challenge marker"
+      }
+    ]
+  },
+  "protocols": [
+    {
+      "label": "rest_json",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "www.airhint.com",
+          "path": "/airport-autocomplete",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "www.airhint.com",
+          "path": "/airport-autocomplete",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 3,
+          "method": "GET",
+          "host": "www.airhint.com",
+          "path": "/kayak-location-lookup",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 5,
+          "method": "GET",
+          "host": "www.airhint.com",
+          "path": "/inline-ads",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 6,
+          "method": "GET",
+          "host": "www.airhint.com",
+          "path": "/cheapest-deal-month/one-way/STN/DUB/8",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 7,
+          "method": "GET",
+          "host": "www.airhint.com",
+          "path": "/search/c7fa65f9-a457-4acb-b55f-70193933d745",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 11,
+          "method": "GET",
+          "host": "www.airhint.com",
+          "path": "/predict/FR/STN/DUB/2026-08-16",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 15,
+          "method": "POST",
+          "host": "www.airhint.com",
+          "path": "/airport-names",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        }
+      ]
+    }
+  ],
+  "auth": {},
+  "protections": [
+    {
+      "label": "cloudflare",
+      "confidence": 0.9,
+      "evidence": [
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "www.airhint.com",
+          "path": "/airport-autocomplete",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "www.airhint.com",
+          "path": "/airport-autocomplete",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 3,
+          "method": "GET",
+          "host": "www.airhint.com",
+          "path": "/kayak-location-lookup",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 4,
+          "method": "GET",
+          "host": "www.airhint.com",
+          "path": "/search/STN/DUB/2026-08-16",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 5,
+          "method": "GET",
+          "host": "www.airhint.com",
+          "path": "/inline-ads",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 6,
+          "method": "GET",
+          "host": "www.airhint.com",
+          "path": "/cheapest-deal-month/one-way/STN/DUB/8",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 7,
+          "method": "GET",
+          "host": "www.airhint.com",
+          "path": "/search/c7fa65f9-a457-4acb-b55f-70193933d745",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 8,
+          "method": "GET",
+          "host": "www.airhint.com",
+          "path": "/cheapest-airline-deal-month/FR/STN/DUB/2026-08-16/EUR",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 11,
+          "method": "GET",
+          "host": "www.airhint.com",
+          "path": "/predict/FR/STN/DUB/2026-08-16",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        },
+        {
+          "entry_index": 15,
+          "method": "POST",
+          "host": "www.airhint.com",
+          "path": "/airport-names",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "Cloudflare header or challenge marker"
+        }
+      ]
+    }
+  ],
+  "endpoint_clusters": [
+    {
+      "host": "www.airhint.com",
+      "method": "GET",
+      "path": "/airport-autocomplete",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "normalization_flags": [
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "www.airhint.com",
+          "path": "/airport-autocomplete",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "www.airhint.com",
+          "path": "/airport-autocomplete",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www.airhint.com",
+      "method": "POST",
+      "path": "/airport-names",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "codes",
+            "type": "array",
+            "required": true
+          }
+        ]
+      },
+      "response_shape": {},
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 15,
+          "method": "POST",
+          "host": "www.airhint.com",
+          "path": "/airport-names",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www.airhint.com",
+      "method": "GET",
+      "path": "/cheapest-deal-month/one-way/STN/DUB/{dub_id}",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 6,
+          "method": "GET",
+          "host": "www.airhint.com",
+          "path": "/cheapest-deal-month/one-way/STN/DUB/8",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www.airhint.com",
+      "method": "GET",
+      "path": "/inline-ads",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 5,
+          "method": "GET",
+          "host": "www.airhint.com",
+          "path": "/inline-ads",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www.airhint.com",
+      "method": "GET",
+      "path": "/kayak-location-lookup",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 3,
+          "method": "GET",
+          "host": "www.airhint.com",
+          "path": "/kayak-location-lookup",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www.airhint.com",
+      "method": "GET",
+      "path": "/predict/FR/STN/DUB/2026-08-16",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 11,
+          "method": "GET",
+          "host": "www.airhint.com",
+          "path": "/predict/FR/STN/DUB/2026-08-16",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www.airhint.com",
+      "method": "GET",
+      "path": "/search/{search_id}",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "normalization_flags": [
+        "single-sample",
+        "single-status"
+      ],
+      "confidence": "low",
+      "evidence": [
+        {
+          "entry_index": 7,
+          "method": "GET",
+          "host": "www.airhint.com",
+          "path": "/search/c7fa65f9-a457-4acb-b55f-70193933d745",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    }
+  ],
+  "request_sequences": [
+    {
+      "label": "observed_api_flow",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "www.airhint.com",
+          "path": "/airport-autocomplete",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "www.airhint.com",
+          "path": "/airport-autocomplete",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 3,
+          "method": "GET",
+          "host": "www.airhint.com",
+          "path": "/kayak-location-lookup",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 5,
+          "method": "GET",
+          "host": "www.airhint.com",
+          "path": "/inline-ads",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 6,
+          "method": "GET",
+          "host": "www.airhint.com",
+          "path": "/cheapest-deal-month/one-way/STN/DUB/8",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 7,
+          "method": "GET",
+          "host": "www.airhint.com",
+          "path": "/search/c7fa65f9-a457-4acb-b55f-70193933d745",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 11,
+          "method": "GET",
+          "host": "www.airhint.com",
+          "path": "/predict/FR/STN/DUB/2026-08-16",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 15,
+          "method": "POST",
+          "host": "www.airhint.com",
+          "path": "/airport-names",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        }
+      ],
+      "notes": [
+        "HAR timing available for at least one request."
+      ]
+    }
+  ],
+  "candidate_commands": [
+    {
+      "name": "create_airport_names",
+      "resource": "airport_names",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /airport-names traffic.",
+      "evidence": [
+        {
+          "entry_index": 15,
+          "method": "POST",
+          "host": "www.airhint.com",
+          "path": "/airport-names",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "get_DUB",
+      "resource": "DUB",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /cheapest-deal-month/one-way/STN/DUB/{dub_id} traffic.",
+      "evidence": [
+        {
+          "entry_index": 6,
+          "method": "GET",
+          "host": "www.airhint.com",
+          "path": "/cheapest-deal-month/one-way/STN/DUB/8",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "get_search",
+      "resource": "search",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /search/{search_id} traffic.",
+      "evidence": [
+        {
+          "entry_index": 7,
+          "method": "GET",
+          "host": "www.airhint.com",
+          "path": "/search/c7fa65f9-a457-4acb-b55f-70193933d745",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_2026_08_16",
+      "resource": "2026_08_16",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /predict/FR/STN/DUB/2026-08-16 traffic.",
+      "evidence": [
+        {
+          "entry_index": 11,
+          "method": "GET",
+          "host": "www.airhint.com",
+          "path": "/predict/FR/STN/DUB/2026-08-16",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_airport_autocomplete",
+      "resource": "airport_autocomplete",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /airport-autocomplete traffic.",
+      "evidence": [
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "www.airhint.com",
+          "path": "/airport-autocomplete",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "www.airhint.com",
+          "path": "/airport-autocomplete",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_inline_ads",
+      "resource": "inline_ads",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /inline-ads traffic.",
+      "evidence": [
+        {
+          "entry_index": 5,
+          "method": "GET",
+          "host": "www.airhint.com",
+          "path": "/inline-ads",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_kayak_location_lookup",
+      "resource": "kayak_location_lookup",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /kayak-location-lookup traffic.",
+      "evidence": [
+        {
+          "entry_index": 3,
+          "method": "GET",
+          "host": "www.airhint.com",
+          "path": "/kayak-location-lookup",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    }
+  ],
+  "generation_hints": [
+    "browser_http_transport",
+    "requires_protected_client",
+    "weak_schema_confidence"
+  ],
+  "warnings": [
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 10,
+          "method": "POST",
+          "host": "ad.doubleclick.net",
+          "path": "/ccm/s/collect",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    }
+  ]
+}

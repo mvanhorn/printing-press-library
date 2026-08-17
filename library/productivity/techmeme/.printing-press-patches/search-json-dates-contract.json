@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "search-json-dates-contract",
+  "applied_at": "2026-07-04",
+  "base_run_id": "20260509-193944",
+  "base_printing_press_version": "4.0.3",
+  "summary": "search JSON output is a hard contract: stdout is always a valid JSON array (an empty [] on zero hits, never prose or null), every record carries a date parsed from the results page's per-item iinf block, and only story anchors — never the bare publication-name anchors or post-prevnext page noise — become records, and the search contract is reachable by MCP agents: the cobra-tree walker must register `search` as a shell-out tool (it is NOT covered by the typed techmeme-search_rss tool, which returns the raw archive-search HTML).",
+  "reason": "search scrapes Techmeme's live archive results page (back to ~2005), whose per-item shape is publication anchor + headline anchor + iinf date block; a flat anchor sweep emits publication names as headlines and undated multi-year-old stories, and printing 'No results' prose before the JSON branch broke every piped agent consumer with a JSON decode failure. A regen must keep structural anchor/date pairing bounded to the results region, the --days recency filter, and the empty-array zero-hit path (a nil Go slice marshals to null, not []). The MCP frameworkCommands skip-list previously classified search as covered-by-typed-tool, hiding the parsed/dated JSON surface from every MCP consumer.",
+  "files": [
+    "internal/cli/search.go",
+    "internal/cli/search_test.go",
+    "internal/cli/testdata/search_kanye_west.html",
+    "internal/mcp/cobratree/classify.go"
+  ],
+  "validated_outcome": "Against the trimmed live-capture fixture the old sweep parser returned 6 records including 'Leaderboard' and 'Wall Street Journal' rows with no dates; the structural parser returns exactly the 4 dated stories, and a live zero-hit query pipes `[]` through python3 -m json.tool cleanly."
+}

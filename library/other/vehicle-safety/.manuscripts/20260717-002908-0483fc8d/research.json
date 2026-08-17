@@ -1,0 +1,198 @@
+{
+  "api_name": "vehicle-safety",
+  "novelty_score": 10,
+  "alternatives": [
+    {
+      "name": "Autobot",
+      "url": "https://github.com/slkjain/autobot",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [
+    "NHTSA investigation and manufacturer-communication JSON routes returned Missing Authentication Token during research; use published ODI flat-file sources for those datasets."
+  ],
+  "patterns": [
+    "Preserve source scope and observation timestamps.",
+    "Never derive rates without exposure denominators."
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-17T04:30:00Z",
+  "novel_features": [
+    {
+      "name": "Safety dossier",
+      "command": "dossier",
+      "description": "See identity, recall and complaint summaries, and available crash ratings in one source-attributed report; add --include-records for complete source records.",
+      "rationale": "Requires joining multiple NHTSA surfaces and local history while preserving scope caveats.",
+      "example": "vehicle-safety-pp-cli dossier --year 2020 --make Honda --model Civic --agent",
+      "why_it_matters": "Use this instead of stitching several NHTSA responses together manually.",
+      "group": "Evidence-first vehicle research"
+    },
+    {
+      "name": "Garage recall watch",
+      "command": "watch",
+      "description": "Report newly observed recall campaigns and remedy changes for saved vehicles.",
+      "rationale": "Requires first-seen and last-seen local snapshots.",
+      "example": "vehicle-safety-pp-cli watch --garage vehicles.csv --agent",
+      "why_it_matters": "Use this for finite, auditable fleet change detection.",
+      "group": "Local history that compounds"
+    },
+    {
+      "name": "Defect signal timeline",
+      "command": "signals",
+      "description": "Place complaint and recall events on one normalized timeline and identify the official flat-file sources required for investigations and communications.",
+      "rationale": "Requires cross-record chronology unavailable from one endpoint.",
+      "example": "vehicle-safety-pp-cli signals --year 2020 --make Honda --model Civic --agent",
+      "why_it_matters": "Use this to inspect structured precursor signals without causal or rate claims.",
+      "group": "Evidence-first vehicle research"
+    },
+    {
+      "name": "Honest model comparison",
+      "command": "compare",
+      "description": "Compare two model years while keeping raw complaint counts and missing denominators explicit.",
+      "rationale": "Requires normalized identities and cross-source caveats.",
+      "example": "vehicle-safety-pp-cli compare '2020 Honda Civic' '2020 Toyota Corolla' --agent",
+      "why_it_matters": "Use this for a defensible comparison rather than a synthetic risk score.",
+      "group": "Evidence-first vehicle research"
+    },
+    {
+      "name": "Recall coverage reconciliation",
+      "command": "recall-coverage",
+      "description": "Decode one VIN, list matching model-level campaigns, and keep VIN eligibility and repair status explicitly unverified with a link to NHTSA's official lookup.",
+      "rationale": "Only a joined view can expose records present on one NHTSA surface but not the other.",
+      "example": "vehicle-safety-pp-cli recall-coverage 1HGCV1F34LA000001 --agent",
+      "why_it_matters": "Use this when model recall eligibility and VIN open-recall status must not be conflated.",
+      "group": "Evidence-first vehicle research"
+    },
+    {
+      "name": "Complaint-to-bulletin bridge",
+      "command": "bulletin-bridge",
+      "description": "Show structured complaint and manufacturer-communication co-occurrence candidates.",
+      "rationale": "Requires local component, vehicle, and time joins.",
+      "example": "vehicle-safety-pp-cli bulletin-bridge --year 2020 --make Honda --model Civic --communications-file communications.tsv --agent",
+      "why_it_matters": "Use this for auditable overlap without semantic or causal inference.",
+      "group": "Local history that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Safety dossier",
+      "command": "dossier",
+      "description": "See identity, recall and complaint summaries, and available crash ratings in one source-attributed report; add --include-records for complete source records.",
+      "rationale": "Requires joining multiple NHTSA surfaces and local history while preserving scope caveats.",
+      "example": "vehicle-safety-pp-cli dossier --year 2020 --make Honda --model Civic --agent",
+      "why_it_matters": "Use this instead of stitching several NHTSA responses together manually.",
+      "group": "Evidence-first vehicle research"
+    },
+    {
+      "name": "Garage recall watch",
+      "command": "watch",
+      "description": "Report newly observed recall campaigns and remedy changes for saved vehicles.",
+      "rationale": "Requires first-seen and last-seen local snapshots.",
+      "example": "vehicle-safety-pp-cli watch --garage vehicles.csv --agent",
+      "why_it_matters": "Use this for finite, auditable fleet change detection.",
+      "group": "Local history that compounds"
+    },
+    {
+      "name": "Defect signal timeline",
+      "command": "signals",
+      "description": "Place complaint and recall events on one normalized timeline and identify the official flat-file sources required for investigations and communications.",
+      "rationale": "Requires cross-record chronology unavailable from one endpoint.",
+      "example": "vehicle-safety-pp-cli signals --year 2020 --make Honda --model Civic --agent",
+      "why_it_matters": "Use this to inspect structured precursor signals without causal or rate claims.",
+      "group": "Evidence-first vehicle research"
+    },
+    {
+      "name": "Honest model comparison",
+      "command": "compare",
+      "description": "Compare two model years while keeping raw complaint counts and missing denominators explicit.",
+      "rationale": "Requires normalized identities and cross-source caveats.",
+      "example": "vehicle-safety-pp-cli compare '2020 Honda Civic' '2020 Toyota Corolla' --agent",
+      "why_it_matters": "Use this for a defensible comparison rather than a synthetic risk score.",
+      "group": "Evidence-first vehicle research"
+    },
+    {
+      "name": "Recall coverage reconciliation",
+      "command": "recall-coverage",
+      "description": "Decode one VIN, list matching model-level campaigns, and keep VIN eligibility and repair status explicitly unverified with a link to NHTSA's official lookup.",
+      "rationale": "Only a joined view can expose records present on one NHTSA surface but not the other.",
+      "example": "vehicle-safety-pp-cli recall-coverage 1HGCV1F34LA000001 --agent",
+      "why_it_matters": "Use this when model recall eligibility and VIN open-recall status must not be conflated.",
+      "group": "Evidence-first vehicle research"
+    },
+    {
+      "name": "Complaint-to-bulletin bridge",
+      "command": "bulletin-bridge",
+      "description": "Show structured complaint and manufacturer-communication co-occurrence candidates.",
+      "rationale": "Requires local component, vehicle, and time joins.",
+      "example": "vehicle-safety-pp-cli bulletin-bridge --year 2020 --make Honda --model Civic --communications-file communications.tsv --agent",
+      "why_it_matters": "Use this for auditable overlap without semantic or causal inference.",
+      "group": "Local history that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "Vehicle Safety",
+    "headline": "Build source-attributed vehicle safety dossiers, honest comparisons, and recall-change reports from NHTSA data.",
+    "value_prop": "Query NHTSA recalls, complaints, ratings, product catalogs, and VIN decoding, then preserve observations locally. Compound commands distinguish raw reports from rates and model-wide campaigns from VIN-specific open recalls.",
+    "quickstart": [
+      {
+        "command": "vehicle-safety-pp-cli doctor",
+        "comment": "Verify local configuration and data-source reachability."
+      },
+      {
+        "command": "vehicle-safety-pp-cli recalls list-by-vehicle --make Honda --model Civic --model-year 2020 --agent --select results.NHTSACampaignNumber,results.Component",
+        "comment": "Inspect source recall records with narrowed agent output."
+      },
+      {
+        "command": "vehicle-safety-pp-cli dossier --year 2020 --make Honda --model Civic --agent",
+        "comment": "Build the complete model-year dossier."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "VIN lookup is throttled",
+        "fix": "Retry later and keep garage checks small; NHTSA prohibits bulk VIN lookup through this API."
+      },
+      {
+        "symptom": "Complaint totals differ between vehicles",
+        "fix": "Treat totals as raw published reports, not incidence rates; NHTSA does not provide an exposure denominator here."
+      }
+    ],
+    "when_to_use": "Use this CLI for vehicle recall, complaint, crash-rating, and VIN research that benefits from reproducible local history. Prefer its compound commands when an agent needs evidence and caveats, not merely one raw response.",
+    "anti_triggers": [
+      "Do not use it for bulk commercial VIN sweeps.",
+      "Do not treat complaint counts as failure rates or the compound output as a safety certification.",
+      "Do not use it to file complaints or perform vehicle repairs."
+    ],
+    "recipes": [
+      {
+        "title": "Narrow a recall response",
+        "command": "vehicle-safety-pp-cli recalls list-by-vehicle --make Honda --model Civic --model-year 2020 --agent --select results.NHTSACampaignNumber,results.Component,results.Remedy",
+        "explanation": "Return only campaign, component, and remedy evidence."
+      },
+      {
+        "title": "Compare two model years",
+        "command": "vehicle-safety-pp-cli compare '2020 Honda Civic' '2020 Toyota Corolla' --agent",
+        "explanation": "Compare source records without inventing a risk score."
+      },
+      {
+        "title": "Reconcile recall coverage",
+        "command": "vehicle-safety-pp-cli recall-coverage 1HGCV1F34LA000001 --agent",
+        "explanation": "Decode the VIN and list model-level campaigns while linking to the official lookup for unverified VIN repair status."
+      }
+    ],
+    "trigger_phrases": [
+      "check this VIN",
+      "compare two cars for safety",
+      "watch my fleet for recalls",
+      "show NHTSA complaints",
+      "use vehicle safety",
+      "run vehicle safety"
+    ]
+  }
+}

@@ -12,6 +12,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/commerce/blacklane/internal/cliutil"
 	"github.com/spf13/cobra"
 )
 
@@ -23,7 +24,7 @@ func newTailCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "tail [resource]",
 		Short:       "Stream live changes by polling the API at regular intervals",
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:no-error-path-probe": "true"},
 		Long: `Tail streams live data changes by polling the API at configurable intervals.
 Events are emitted as NDJSON to stdout for piping to other tools.
 Gracefully shuts down on SIGTERM/SIGINT.
@@ -55,29 +56,52 @@ native streaming instead of polling.`,
 			if resource == "" {
 				return fmt.Errorf("resource name required (e.g., 'tail messages')")
 			}
+			// Reject a resource this CLI does not expose before binding the poll
+			// loop: an unknown name only ever 404s, so failing fast with a
+			// non-zero exit (and the valid set) beats warning once per poll
+			// forever. Also satisfies the invalid-argument contract the dogfood
+			// error-path probe checks.
+			knownResource := false
+			for _, r := range tailKnownResources() {
+				if r == resource {
+					knownResource = true
+					break
+				}
+			}
+			if !knownResource {
+				return fmt.Errorf("unknown resource %q; known resources: %v", resource, tailKnownResources())
+			}
 
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 			c.NoCache = true
+			if cliutil.IsDogfoodEnv() {
+				follow = false
+			}
 
 			path := "/" + resource
 
 			sig := make(chan os.Signal, 1)
 			signal.Notify(sig, syscall.SIGTERM, syscall.SIGINT)
 
-			ticker := time.NewTicker(interval)
-			defer ticker.Stop()
-
 			enc := json.NewEncoder(os.Stdout)
 
-			fmt.Fprintf(os.Stderr, "Tailing %s every %s (Ctrl+C to stop)\n", resource, interval)
+			if follow {
+				fmt.Fprintf(os.Stderr, "Tailing %s every %s (Ctrl+C to stop)\n", resource, interval)
+			}
 
 			// Initial fetch
 			if err := fetchAndEmit(cmd.Context(), c, path, enc); err != nil {
 				fmt.Fprintf(os.Stderr, "warning: initial fetch failed: %v\n", err)
 			}
+			if !follow {
+				return nil
+			}
+
+			ticker := time.NewTicker(interval)
+			defer ticker.Stop()
 
 			for {
 				select {

@@ -1,0 +1,5 @@
+{
+  "descriptions": {
+    "workflow": "Router for the generated data workflows; calling it bare only lists them. Use workflow_archive to sync the central substack.com discovery resources (categories) into the local SQLite store, and workflow_status to see per-resource row counts and last-sync state. To mirror a publication's posts into the searchable corpus, use the archive tool instead."
+  }
+}

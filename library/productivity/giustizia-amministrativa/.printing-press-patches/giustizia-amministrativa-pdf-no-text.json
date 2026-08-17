@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "giustizia-amministrativa-pdf-no-text",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260621-094103",
+  "base_printing_press_version": "4.24.0",
+  "summary": "get e corpus build riconoscono i provvedimenti privi di testo estraibile (il portale ne pubblica una parte come PDF, che HTMLToMarkdown non converte). Prima veniva scritto un documento vuoto senza dire nulla; ora il corpo riporta una nota esplicita con il formato reale e l'URL dell'originale, un avviso va su stderr, e corpus build conta i casi nel campo 'senza_testo' del risultato JSON. documentFormat deduce il formato dall'estensione quando i metadati mancano (fetch diretto --sede/--nrg/--file).",
+  "reason": "Trovato verificando su disco l'output di un corpus costruito da Claude Desktop: due degli otto .md pesavano 307 byte, cioe' solo il front-matter, contro i 14-95 KB degli altri. Erano ECLI:IT:CDS:2026:3396SENT e 4297SENT, entrambi con formato 'pdf'. Nessun errore, nessun avviso: il file esisteva, il manifest lo elencava come archiviato e l'agente aveva riferito '8 file .md' come esito positivo. Per un utente che archivia giurisprudenza e' il difetto peggiore possibile -- non una mancanza visibile, ma una sentenza che sembra esserci e non c'e', scoperta solo aprendo il file, o mai.",
+  "files": [
+    "internal/cli/ga_core.go",
+    "internal/cli/corpus_build.go"
+  ],
+  "validated_outcome": "get --sede cds --nrg 202506126 --file 202603396_11.pdf: prima corpo vuoto e nessun messaggio; ora 'Attenzione: 202603396_11.pdf non ha testo estraibile (formato PDF): scaricare l'originale da <url>' su stderr e, nel documento, la nota con formato e link. go build/vet/test verdi; gofmt riallineato sui file il cui ordine di import era cambiato con la riscrittura del module path."
+}

@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-07-30T04:35:18.8961011Z",
+  "cli_dir": "\u003ccli-dir\u003e\\cookunity-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 692,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file (teach.go); Short is brief but precise for the learnings list subcommand. Needs generator-template fix; retro candidate."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-07-30T04:24:13.7275543Z"
+  }
+}

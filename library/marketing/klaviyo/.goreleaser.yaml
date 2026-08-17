@@ -45,7 +45,7 @@ brews:
       owner: cathryn-lavery
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "The Klaviyo REST API. Please visit https://developers.klaviyo.com for more details."
+    description: "Work with Klaviyo profiles, events, campaigns, flows, segments, templates, and local performance analytics for marketing automation."
     install: |
       bin.install "klaviyo-pp-cli"
       bin.install "klaviyo-pp-mcp"

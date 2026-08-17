@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "opensky-time-window-defaults",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260807-162902",
+  "base_printing_press_version": "4.28.0",
+  "summary": "flights get-departures and get-aircraft-trajectory default begin to now-1h and end to now when omitted, via a PATCH(opensky-time-window-defaults) block in each command.",
+  "reason": "OpenSky requires begin/end on every /flights/* endpoint and rejects bare calls with HTTP 400, but anonymous access caps the window at 1 hour (a 2-hour window 404s). Generated help text already promised the defaults; the code never delivered them. Defaulting to the last hour makes `flights get-departures --airport KJFK` work as documented.",
+  "files": [
+    "internal/cli/flights_get-departures.go",
+    "internal/cli/flights_get-aircraft-trajectory.go"
+  ],
+  "validated_outcome": "go build ./... and go vet ./... pass; live smoke: get-departures --airport KJFK with no window returned 23 flights; dry-run shows begin/end injected as now-1h..now.",
+  "upstream_issue": null
+}

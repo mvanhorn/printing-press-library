@@ -10,7 +10,8 @@ import (
 func newLeggiCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "leggi",
-		Short:       "Leggi della Regione Siciliana (archivio 201): testo storico delle leggi regionali.",
+		Short:       "Leggi della Regione Siciliana (archivio 201): cerca e scarica le leggi regionali.",
+		Long:        "Cerca e scarica le leggi regionali (archivio 201). Per risalire da una legge promulgata al DDL d'origine e ai passaggi parlamentari usa il gruppo legge (cronologia).",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE:        parentNoSubcommandRunE(flags),
 	}

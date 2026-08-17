@@ -1,0 +1,16 @@
+{
+  "run_id": "20260724-125048-42f61ac7",
+  "command": "cli-printing-press shipcheck --strict --no-fix --json",
+  "passed": true,
+  "exit_code": 0,
+  "legs": {
+    "verify": 0,
+    "validate_narrative": 0,
+    "dogfood": 0,
+    "workflow_verify": 0,
+    "apify_audit": 0,
+    "verify_skill": 0,
+    "scorecard": 0
+  },
+  "notes": "The scorecard leg included the live novel-feature check; all five live feature examples passed."
+}

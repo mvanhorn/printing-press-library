@@ -36,10 +36,12 @@ func newCustomersBalanceTransactionsGetCustomersCustomerCmd(flags *rootFlags) *c
 			}
 
 			path := "/v1/customers/{customer}/balance_transactions"
-			if len(args) < 2 {
+
+			// PATCH: Bind path placeholders from Cobra positional args in Use order.
+			if len(args) < 1 {
 				return usageErr(fmt.Errorf("customer is required\nUsage: %s <%s>", cmd.CommandPath(), "customer"))
 			}
-			path = replacePathParam(path, "customer", args[1])
+			path = replacePathParam(path, "customer", args[0])
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "balance-transactions", path, map[string]string{
 				"created":        fmt.Sprintf("%v", flagCreated),
 				"ending_before":  fmt.Sprintf("%v", flagEndingBefore),

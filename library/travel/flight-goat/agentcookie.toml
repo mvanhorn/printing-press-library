@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "flight-goat-pp-cli"
+display_name = "Flight GOAT"
+description = "AeroAPI is a simple, query-based API that gives software developers access to a variety of FlightAware's flight data."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/flight-goat-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+FLIGHT_GOAT_API_KEY = true

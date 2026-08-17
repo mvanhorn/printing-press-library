@@ -25,7 +25,11 @@ This skill drives the `uk-train-goat-pp-cli` binary. **You must verify the CLI i
 2. Verify: `uk-train-goat-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
 
-If the `npx` install fails before this CLI has a public-library category, install Node or use the category-specific Go fallback after publish.
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.6 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/travel/uk-train-goat/cmd/uk-train-goat-pp-cli@latest
+```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
@@ -33,7 +37,7 @@ uk-train-goat wraps the free National Rail OpenLDBWS API with a Cobra command tr
 
 ## When to Use This CLI
 
-Use uk-train-goat for any UK National Rail question an agent or terminal user has: live departures, live arrivals, journey planning between two stations on today or a future date, and service-status / delay-reason lookups. The local SQLite store gives every command offline CRS resolution and supports saved-commute features (`go`, `saved status`, `recent`) that a thin API wrapper cannot. Do not use uk-train-goat for booking, fare comparisons against Trainline, EU/Eurostar trains, or real-time push notifications; those are explicit non-goals for v0.1.
+Use uk-train-goat for any UK National Rail question an agent or terminal user has: live departures, live arrivals, journey planning between two stations on today or a future date, service-status / delay-reason lookups, and walk-up adult fare lookups between stations. The local SQLite store gives every command offline CRS resolution and supports saved-commute features (`go`, `saved status`, `recent`) that a thin API wrapper cannot. Do not use uk-train-goat for booking, fare comparisons against Trainline, advance fares, railcard discounts, EU/Eurostar trains, or real-time push notifications; those are explicit non-goals for v0.1.
 
 ## When Not to Use This CLI
 
@@ -108,6 +112,28 @@ These capabilities aren't available in any other tool for this API.
   uk-train-goat-pp-cli journey RDG PAD --rank --json --select journeys.std,journeys.delay,journeys.platform
   ```
 
+### Fares (walk-up, RJFAF feed)
+
+- **`fare <from-crs> <to-crs>`** — Looks up walk-up adult fares between two stations from the official National Rail RJFAF static fares feed stored locally. Returns results sorted by price, with ticket name, route code, restriction description, and single/return flag. Requires `fare sync` to have been run first.
+
+  _Pick this when the user asks what a walk-up ticket costs between two stations; not for advance or railcard-discounted fares._
+
+  ```bash
+  uk-train-goat-pp-cli fare PAD RDG --json
+  uk-train-goat-pp-cli fare PAD RDG --date 2026-07-01 --json
+  uk-train-goat-pp-cli fare PAD RDG --offline --json  # skip freshness probe
+  ```
+
+- **`fare sync`** — Downloads and loads the RJFAF fares feed from National Rail Open Data into the local SQLite store. Requires `NR_OPENDATA_USERNAME` and `NR_OPENDATA_PASSWORD`. Re-run when fares data is stale (feed has a 35-day freshness backstop).
+
+  _Run once before using `fare`; re-run when the freshness warning appears._
+
+  ```bash
+  NR_OPENDATA_USERNAME=user NR_OPENDATA_PASSWORD=pass uk-train-goat-pp-cli fare sync --json
+  ```
+
+  **Not supported by `fare`:** railcard discounts, advance fares, operator-specific/split fares, booking.
+
 ## Command Reference
 
 **status** — Internal placeholder resource. Real commands are hand-authored against the OpenLDBWS wrapper.
@@ -147,10 +173,10 @@ Multi-origin fan-out + dotted-path field selection; tight payload for an LLM con
 ### Why is my train late
 
 ```bash
-uk-train-goat-pp-cli why $SERVICE_ID --json
+uk-train-goat-pp-cli why "$SERVICE_ID" --json
 ```
 
-Composes service detail with NRCC operator alerts so the user sees the reason, not just the delay.
+Surfaces one service's scheduled vs expected times, platform, operator, and calling points, with a plain-prose status line (on time, running late, or cancelled). The delay-reason text and NRCC operator alerts (including strike notices) live on the live board, not the service-detail payload. See `board`/`arrivals`, where `messages[]` carries the alert banners and `delay_reason` carries the cause.
 
 ### Iterative trip planning
 
@@ -176,6 +202,15 @@ export LDBWS_API_TOKEN="<your-key>"
 ```
 
 Or persist it in `~/.config/uk-train-goat-pp-cli/config.toml`.
+
+For fares commands (`fare`, `fare sync`), also set your National Rail Open Data credentials:
+
+```bash
+export NR_OPENDATA_USERNAME="<your-username>"
+export NR_OPENDATA_PASSWORD="<your-password>"
+```
+
+Register at nationalrail.co.uk/developers. These credentials are only required for `fare sync`; `fare <from> <to>` reads from the local store and only needs them if the freshness probe triggers a re-sync.
 
 Run `uk-train-goat-pp-cli doctor` to verify setup.
 

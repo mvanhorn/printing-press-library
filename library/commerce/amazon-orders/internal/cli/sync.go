@@ -6,6 +6,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/commerce/amazon-orders/internal/parser"
 	"github.com/mvanhorn/printing-press-library/library/commerce/amazon-orders/internal/store"
 	"github.com/spf13/cobra"
 	"net/url"
@@ -180,7 +181,7 @@ Exit codes & warnings:
 						fmt.Fprintf(os.Stderr, "  %s: error: %v\n", res.Resource, res.Err)
 					}
 					errCount++
-					if criticalResources[res.Resource] {
+					if criticalResources[res.Resource] || parser.IsAuthInterstitialError(res.Err) {
 						criticalErrCount++
 					}
 				} else if res.Warn != nil {
@@ -307,6 +308,12 @@ func syncResource(c interface {
 	var extractFailureTotal int
 	var consumedTotal int
 	anomalyEmitted := false
+	returnFetchError := func(err error) syncResult {
+		if !humanFriendly {
+			fmt.Fprintf(os.Stdout, `{"event":"sync_error","resource":"%s","error":"%s"}`+"\n", resource, strings.ReplaceAll(err.Error(), `"`, `\"`))
+		}
+		return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("fetching %s: %w", resource, err), Duration: time.Since(started)}
+	}
 
 	for {
 		params := map[string]string{}
@@ -333,10 +340,10 @@ func syncResource(c interface {
 				}
 				return syncResult{Resource: resource, Count: totalCount, Warn: fmt.Errorf("skipped %s: %s", resource, w.Reason), Duration: time.Since(started)}
 			}
-			if !humanFriendly {
-				fmt.Fprintf(os.Stdout, `{"event":"sync_error","resource":"%s","error":"%s"}`+"\n", resource, strings.ReplaceAll(err.Error(), `"`, `\"`))
-			}
-			return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("fetching %s: %w", resource, err), Duration: time.Since(started)}
+			return returnFetchError(err)
+		}
+		if err := parser.AuthInterstitialError(data); err != nil {
+			return returnFetchError(err)
 		}
 
 		// Try to extract items from the response.

@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "scrape-creators-estimate-live-balance-shape",
+  "applied_at": "2026-08-09",
+  "base_run_id": "20260808-150822-3ff3183d",
+  "base_printing_press_version": "4.30.1",
+  "summary": "account estimate now reads the live creditCount balance field (like account budget), errors on an unreadable balance instead of reporting a spurious over-budget exit 7, and its Example plans a run that fits a healthy account balance.",
+  "reason": "The live /v1/account/credit-balance envelope carries creditCount; estimate parsed only balance/credits, so every live run resolved the balance to 0 and exited 7 ('over budget') regardless of the real balance. Found by the publish live gate: the fresh full dogfood failed the estimate probes while the account really held ~13.9k credits. Durable rule: a zero parsed balance is indistinguishable from an unrecognized envelope shape and must be an explicit error, never a budget verdict; and command Examples double as live dogfood probes, so they must plan runs that pass on a healthy account.",
+  "files": [
+    "internal/cli/account_estimate.go"
+  ],
+  "validated_outcome": "Live: 'account estimate --posts 950 --with-replies flat' now reports balance 13906 and a legitimate over-budget exit 7 (14250 > 13906); '--posts 40' and '--posts 10' exit 0. Full unit suite green."
+}

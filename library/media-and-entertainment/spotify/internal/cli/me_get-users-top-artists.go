@@ -23,22 +23,25 @@ func newMeGetUsersTopArtistsCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  spotify-pp-cli me get-users-top-artists",
 		Annotations: map[string]string{"pp:endpoint": "me.get-users-top-artists", "pp:method": "GET", "pp:path": "/me/top/artists", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			path := "/me/top/artists"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/me/top/artists"
-			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "me", path, map[string]string{
-				"time_range": fmt.Sprintf("%v", flagTimeRange),
-				"limit":      fmt.Sprintf("%v", flagLimit),
-				"offset":     fmt.Sprintf("%v", flagOffset),
-			}, nil, flagAll, "offset", "", "")
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "me", path, map[string]string{
+				"time_range": formatCLIParamValue(flagTimeRange),
+				"limit":      formatCLIParamValue(flagLimit),
+				"offset":     formatCLIParamValue(flagOffset),
+			}, nil, flagAll, "offset", "offset", "limit", "", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
@@ -74,7 +77,7 @@ func newMeGetUsersTopArtistsCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagTimeRange, "time-range", "medium_term", "Time range")

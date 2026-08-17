@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "uuid-validation-lenient",
+  "applied_at": "2026-07-11",
+  "base_run_id": "pp-pp-local-2026-07-11",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Added isLikelyID(v) helper alongside isValidUUID. Returns true for canonical UUIDs and for paperclip local-dev slug-shaped IDs; rejects sentinels and arbitrary strings.",
+  "reason": "The default generator emits isValidUUID(args[0]) on path-parameter args for {uuid} slots. Local-dev instances return slug-shaped IDs (e.g. local-board); the strict guard rejected legit IDs with exit 2 BEFORE the HTTP call.",
+  "files": [
+    "internal/cli/helpers.go",
+    "internal/cli/admin_get.go",
+    "internal/cli/companies_environments_get.go",
+    "internal/cli/companies_environments_get-companies.go",
+    "internal/cli/companies_search_get.go",
+    "internal/cli/companies_secret-providers_get.go",
+    "internal/cli/companies_secret-providers_get-companies.go"
+  ],
+  "validated_outcome": "shipcheck green; dogfood matrix PASS after switching six pre-checks from isValidUUID to isLikelyID."
+}

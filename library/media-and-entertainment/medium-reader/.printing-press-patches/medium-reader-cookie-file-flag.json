@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "medium-reader-cookie-file-flag",
+  "applied_at": "2026-06-16",
+  "base_run_id": "20260616-pp-medium-8f59d2cb",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Hand-added Tier-1 --cookie-file persistent root flag (loads a flat-JSON Medium session cookie) during the keyless build.",
+  "reason": "The keyless (Tier 0) fork hand-adds an optional Tier-1 path so a user-supplied session cookie unlocks member full bodies. The generator never emits a credential flag, so this customization lives only in this fork's root.go. Recorded retroactively (originally commit b8deed4, 2026-06-16) so a future reprint would preserve it, and so its MCP-exposure fix (medium-reader-mcp-block-cookie-file) has documented provenance.",
+  "files": [
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "Flag present and functional at Tier 1; build, vet, and tests green at Tier 0 with MEDIUM_API_KEY unset."
+}

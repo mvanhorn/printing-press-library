@@ -9,8 +9,10 @@ import (
 
 func newFlightsIntentsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "intents",
-		Short: "Manage intents",
+		Use:         "intents",
+		Short:       "Create intents for flights",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newFlightsIntentsPostFlightsByIdentCmd(flags))

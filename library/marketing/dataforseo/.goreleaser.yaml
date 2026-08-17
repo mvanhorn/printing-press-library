@@ -1,0 +1,51 @@
+version: 2
+project_name: dataforseo-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: dataforseo-pp-cli
+    main: ./cmd/dataforseo-pp-cli
+    binary: dataforseo-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/marketing/dataforseo/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: dataforseo-pp-mcp
+    main: ./cmd/dataforseo-pp-mcp
+    binary: dataforseo-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: dataforseo-pp-cli
+    repository:
+      owner: mazzsterr
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every DataForSEO endpoint, plus auto-mode routing, cost estimates, keyword pre-cleaning, and a local SQLite store no..."
+    install: |
+      bin.install "dataforseo-pp-cli"
+      bin.install "dataforseo-pp-mcp"

@@ -1,0 +1,51 @@
+version: 2
+project_name: unifi-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: unifi-pp-cli
+    main: ./cmd/unifi-pp-cli
+    binary: unifi-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/devices/unifi/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: unifi-pp-mcp
+    main: ./cmd/unifi-pp-mcp
+    binary: unifi-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: unifi-pp-cli
+    repository:
+      owner: phoenix-server
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every UniFi Network API operation, plus drift detection, topology, and rule prediction no other UniFi tool has."
+    install: |
+      bin.install "unifi-pp-cli"
+      bin.install "unifi-pp-mcp"

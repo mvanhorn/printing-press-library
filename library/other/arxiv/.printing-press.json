@@ -9,6 +9,12 @@
     "handle": "hnshah",
     "name": "Hiten Shah"
   },
+  "contributors": [
+    {
+      "handle": "sdhilip200",
+      "name": "Dhilip Subramanian"
+    }
+  ],
   "owner": "hiten-shah",
   "printer": "hnshah",
   "printer_name": "Hiten Shah",
@@ -41,5 +47,5 @@
     }
   ],
   "category": "other",
-  "description": "Free public arXiv paper search and metadata CLI with Atom-to-JSON output for agents and scripts."
+  "description": "Public Atom API for searching and fetching arXiv e-print metadata."
 }

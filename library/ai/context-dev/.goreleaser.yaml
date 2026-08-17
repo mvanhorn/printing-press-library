@@ -1,0 +1,51 @@
+version: 2
+project_name: context-dev-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: context-dev-pp-cli
+    main: ./cmd/context-dev-pp-cli
+    binary: context-dev-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X context-dev-pp-cli/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: context-dev-pp-mcp
+    main: ./cmd/context-dev-pp-mcp
+    binary: context-dev-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: context-dev-pp-cli
+    repository:
+      owner: cathrynlavery
+      name: homebrew-tap
+    homepage: "https://github.com/cathrynlavery/context-dev-pp-cli"
+    description: "API for retrieving context data from any website"
+    install: |
+      bin.install "context-dev-pp-cli"
+      bin.install "context-dev-pp-mcp"

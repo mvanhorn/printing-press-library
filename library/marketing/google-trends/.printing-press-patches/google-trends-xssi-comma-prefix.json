@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "google-trends-xssi-comma-prefix",
+  "applied_at": "2026-07-13",
+  "base_run_id": "20260713-105453-29114a9d",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Fixed generated sanitizeJSONResponse to strip the comma-suffixed XSSI prefix (\")]}',\") before the shorter no-comma variant, so widget/picker responses parse.",
+  "reason": "Google's widget/picker endpoints prefix responses with \")]}',\" (5 bytes, includes a trailing comma), not just \")]}'\" (4 bytes) like /api/explore. The generated sanitizeJSONResponse only checked the 4-byte variants; since \")]}'\" is itself a byte-prefix of \")]}',\", it matched first and stripped only 4 bytes, leaving a stray leading comma that broke every json.Unmarshal call on widget/picker data (\"invalid character ',' looking for beginning of value\"). This is a bug in the printing-press generator's own sanitizeJSONResponse template, not specific to this CLI; confirmed live by dumping the raw response body.",
+  "files": ["internal/client/client.go"],
+  "validated_outcome": "Live: trends interest/region/related/geo-gap all return real parsed data from a clean cookie/cache state after this fix.",
+  "upstream_issue": null
+}

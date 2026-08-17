@@ -34,13 +34,19 @@ func fetchOrderListPages(ctx context.Context, c *client.Client, timeFilter strin
 		if startIndex > 0 {
 			params["startIndex"] = fmt.Sprintf("%d", startIndex)
 		}
-		raw, err := c.Get("/your-orders/orders", params)
+		raw, err := authenticatedGet(c, "/your-orders/orders", params)
 		if err != nil {
 			// If the first page fails, surface; if a later page fails, stop and return what we have.
 			if page == 0 {
 				return nil, err
 			}
 			break
+		}
+		// A logged-out/expired session is answered with HTTP 200 and an Amazon
+		// sign-in/claim page. Surface it on any page so a mid-walk reauth does
+		// not look like a complete order-history scan.
+		if ierr := parser.AuthInterstitialError(raw); ierr != nil {
+			return nil, authErr(ierr)
 		}
 		listPage, perr := parser.ParseOrderList(raw)
 		if perr != nil {

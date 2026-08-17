@@ -20,10 +20,10 @@
   "printer_name": "Greg Ceccarelli",
   "spec_path": "https://www.tella.com/docs/openapi.json",
   "spec_format": "openapi3",
-  "spec_checksum": "sha256:26b92970081ae7bb683930ad21170445517c02d954222715c5d4add6731be90d",
+  "spec_checksum": "sha256:6e09f33f3e0411033e6dcf286f0edff6e13052042b573c0cfb4f7bf3823f990b",
   "run_id": "20260509-180956",
   "mcp_binary": "tella-pp-mcp",
-  "mcp_tool_count": 51,
+  "mcp_tool_count": 55,
   "mcp_ready": "full",
   "api_version": "1.0.0",
   "auth_type": "bearer_token",
@@ -49,12 +49,17 @@
     {
       "name": "Bulk standard edit pass",
       "command": "clips edit-pass",
-      "description": "Apply a chained set of edits (remove-fillers, trim-silences-gt N, blur preset) across every clip in a playlist in one command."
+      "description": "Apply a chained set of edits (remove-fillers, remove-buffers, trim-edges, trim-silences-gt N, find-mistakes [unofficial]) across every clip in a playlist in one command."
     },
     {
       "name": "Transcript diff (cut vs uncut)",
       "command": "clips transcript-diff",
       "description": "Diff a clip's cut transcript against its uncut transcript to surface every word that editing removed (filler, silence, hand-edit) with timecodes."
+    },
+    {
+      "name": "Upload-to-edit workflow",
+      "command": "sources upload-file + videos clips add",
+      "description": "Create a Tella source, upload local video bytes to the pre-signed URL, then add the source as a new clip without leaving the CLI."
     },
     {
       "name": "Exports waitlist",
@@ -70,6 +75,41 @@
       "name": "Workspace stats",
       "command": "workspace stats",
       "description": "Local aggregate of video count, clip count, total duration, transcript word count, and export count by month across the cached workspace."
+    },
+    {
+      "name": "Declarative video storyboard",
+      "command": "videos storyboard + videos apply-storyboard",
+      "description": "Export a full editable timeline and apply a reviewed JSON edit plan across video settings, clips, cuts, and transcript cuts."
+    },
+    {
+      "name": "One-shot media insertion",
+      "command": "videos clips insert-file / add-broll",
+      "description": "Upload local media into a Tella source and attach it as a clip or B-roll layout media from one workflow command."
+    },
+    {
+      "name": "Transcript-driven repairs",
+      "command": "videos clips cut-words / replace-word-ranges",
+      "description": "Plan and apply transcript-index cuts, optionally inserting replacement media for surgical corrections."
+    },
+    {
+      "name": "Pre-publish edit QA",
+      "command": "videos audit",
+      "description": "Scan a video timeline for likely issues such as long silences before export or sharing."
+    },
+    {
+      "name": "Playlist-scale edit planning",
+      "command": "playlists edit-pass",
+      "description": "Plan a standard remove-fillers/remove-buffers/trim-edges/export recipe across every video in a playlist."
+    },
+    {
+      "name": "Safe clip clean workflow",
+      "command": "videos clips clean",
+      "description": "Plan/apply a standard per-clip cleanup pass (remove-fillers, remove-buffers, trim-edges, optional AI mistakes) with automatic pre-apply cut snapshots."
+    },
+    {
+      "name": "Cut rollback workflow",
+      "command": "videos clips undo-last-cuts / restore-cuts",
+      "description": "Restore the latest saved cuts snapshot or an explicit cuts JSON body so compound edit passes are reversible."
     }
   ]
 }

@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strconv"
 
 	"github.com/spf13/cobra"
 )
@@ -15,9 +16,18 @@ import (
 func newAlertsUpdateCmd(flags *rootFlags) *cobra.Command {
 	var bodyAircraftType string
 	var bodyDestination string
-	var bodyEnabled bool
+	var bodyEnabled string
 	var bodyEnd string
 	var bodyEta int
+	var bodyEventsArrival string
+	var bodyEventsCancelled string
+	var bodyEventsDeparture string
+	var bodyEventsDiverted string
+	var bodyEventsFiled string
+	var bodyEventsIn string
+	var bodyEventsOff string
+	var bodyEventsOn string
+	var bodyEventsOut string
 	var bodyIdent string
 	var bodyMaxWeekly int
 	var bodyOrigin string
@@ -26,11 +36,18 @@ func newAlertsUpdateCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:         "update <id>",
-		Short:       "Modifies the configuration for an alert with the specified ID. If a target URL address is provided, then the alert...",
+		Use:   "update <id>",
+		Short: "Modifies the configuration for an alert with the specified ID.",
+		// TODO: replace placeholder example values before relying on this for live dogfood.
 		Example:     "  flight-goat-pp-cli alerts update 550e8400-e29b-41d4-a716-446655440000 --aircraft-type example-value",
-		Annotations: map[string]string{"pp:endpoint": "alerts.update"},
+		Annotations: map[string]string{"pp:endpoint": "alerts.update", "pp:method": "PUT", "pp:path": "/alerts/{id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Bare invocation of a command with required input prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only read commands fall through so a bare call still executes.
+			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
+				return cmd.Help()
+			}
 			if len(args) == 0 {
 				return cmd.Help()
 			}
@@ -47,8 +64,32 @@ func newAlertsUpdateCmd(flags *rootFlags) *cobra.Command {
 				if !cmd.Flags().Changed("end") && !flags.dryRun {
 					return fmt.Errorf("required flag \"%s\" not set", "end")
 				}
-				if !cmd.Flags().Changed("eta") && !flags.dryRun {
-					return fmt.Errorf("required flag \"%s\" not set", "eta")
+				if !cmd.Flags().Changed("events-arrival") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "events-arrival")
+				}
+				if !cmd.Flags().Changed("events-cancelled") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "events-cancelled")
+				}
+				if !cmd.Flags().Changed("events-departure") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "events-departure")
+				}
+				if !cmd.Flags().Changed("events-diverted") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "events-diverted")
+				}
+				if !cmd.Flags().Changed("events-filed") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "events-filed")
+				}
+				if !cmd.Flags().Changed("events-in") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "events-in")
+				}
+				if !cmd.Flags().Changed("events-off") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "events-off")
+				}
+				if !cmd.Flags().Changed("events-on") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "events-on")
+				}
+				if !cmd.Flags().Changed("events-out") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "events-out")
 				}
 				if !cmd.Flags().Changed("ident") && !flags.dryRun {
 					return fmt.Errorf("required flag \"%s\" not set", "ident")
@@ -63,14 +104,17 @@ func newAlertsUpdateCmd(flags *rootFlags) *cobra.Command {
 					return fmt.Errorf("required flag \"%s\" not set", "target-url")
 				}
 			}
+			path := "/alerts/{id}"
+			if len(args) < 1 || args[0] == "" {
+				return usageErr(fmt.Errorf("id is required\nUsage: %s <%s>", cmd.CommandPath(), "id"))
+			}
+			path = replacePathParam(path, "id", args[0])
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/alerts/{id}"
-			path = replacePathParam(path, "id", args[0])
-			var body map[string]any
+			params := map[string]string{}
+			var body any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
@@ -82,41 +126,136 @@ func newAlertsUpdateCmd(flags *rootFlags) *cobra.Command {
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
+				bodyMap := map[string]any{}
+				body = bodyMap
 				if bodyAircraftType != "" {
-					body["aircraft_type"] = bodyAircraftType
+					bodyMap["aircraft_type"] = bodyAircraftType
 				}
 				if bodyDestination != "" {
-					body["destination"] = bodyDestination
+					bodyMap["destination"] = bodyDestination
 				}
-				if bodyEnabled != false {
-					body["enabled"] = bodyEnabled
+				if bodyEnabled != "" {
+					parsedEnabled, err := strconv.ParseBool(bodyEnabled)
+					if err != nil {
+						return fmt.Errorf("parsing --enabled as bool: %w", err)
+					}
+					bodyMap["enabled"] = parsedEnabled
 				}
 				if bodyEnd != "" {
-					body["end"] = bodyEnd
+					bodyMap["end"] = bodyEnd
 				}
 				if bodyEta != 0 {
-					body["eta"] = bodyEta
+					bodyMap["eta"] = bodyEta
+				}
+				{
+					nestedEvents := map[string]any{}
+					if bodyEventsArrival != "" {
+						parsedEventsArrival, err := strconv.ParseBool(bodyEventsArrival)
+						if err != nil {
+							return fmt.Errorf("parsing --events-arrival as bool: %w", err)
+						}
+						nestedEvents["arrival"] = parsedEventsArrival
+					}
+					if bodyEventsCancelled != "" {
+						parsedEventsCancelled, err := strconv.ParseBool(bodyEventsCancelled)
+						if err != nil {
+							return fmt.Errorf("parsing --events-cancelled as bool: %w", err)
+						}
+						nestedEvents["cancelled"] = parsedEventsCancelled
+					}
+					if bodyEventsDeparture != "" {
+						parsedEventsDeparture, err := strconv.ParseBool(bodyEventsDeparture)
+						if err != nil {
+							return fmt.Errorf("parsing --events-departure as bool: %w", err)
+						}
+						nestedEvents["departure"] = parsedEventsDeparture
+					}
+					if bodyEventsDiverted != "" {
+						parsedEventsDiverted, err := strconv.ParseBool(bodyEventsDiverted)
+						if err != nil {
+							return fmt.Errorf("parsing --events-diverted as bool: %w", err)
+						}
+						nestedEvents["diverted"] = parsedEventsDiverted
+					}
+					if bodyEventsFiled != "" {
+						parsedEventsFiled, err := strconv.ParseBool(bodyEventsFiled)
+						if err != nil {
+							return fmt.Errorf("parsing --events-filed as bool: %w", err)
+						}
+						nestedEvents["filed"] = parsedEventsFiled
+					}
+					if bodyEventsIn != "" {
+						parsedEventsIn, err := strconv.ParseBool(bodyEventsIn)
+						if err != nil {
+							return fmt.Errorf("parsing --events-in as bool: %w", err)
+						}
+						nestedEvents["in"] = parsedEventsIn
+					}
+					if bodyEventsOff != "" {
+						parsedEventsOff, err := strconv.ParseBool(bodyEventsOff)
+						if err != nil {
+							return fmt.Errorf("parsing --events-off as bool: %w", err)
+						}
+						nestedEvents["off"] = parsedEventsOff
+					}
+					if bodyEventsOn != "" {
+						parsedEventsOn, err := strconv.ParseBool(bodyEventsOn)
+						if err != nil {
+							return fmt.Errorf("parsing --events-on as bool: %w", err)
+						}
+						nestedEvents["on"] = parsedEventsOn
+					}
+					if bodyEventsOut != "" {
+						parsedEventsOut, err := strconv.ParseBool(bodyEventsOut)
+						if err != nil {
+							return fmt.Errorf("parsing --events-out as bool: %w", err)
+						}
+						nestedEvents["out"] = parsedEventsOut
+					}
+					if len(nestedEvents) > 0 {
+						bodyMap["events"] = nestedEvents
+					}
 				}
 				if bodyIdent != "" {
-					body["ident"] = bodyIdent
+					bodyMap["ident"] = bodyIdent
 				}
 				if bodyMaxWeekly != 0 {
-					body["max_weekly"] = bodyMaxWeekly
+					bodyMap["max_weekly"] = bodyMaxWeekly
 				}
 				if bodyOrigin != "" {
-					body["origin"] = bodyOrigin
+					bodyMap["origin"] = bodyOrigin
 				}
 				if bodyStart != "" {
-					body["start"] = bodyStart
+					bodyMap["start"] = bodyStart
 				}
 				if bodyTargetUrl != "" {
-					body["target_url"] = bodyTargetUrl
+					bodyMap["target_url"] = bodyTargetUrl
 				}
 			}
-			data, statusCode, err := c.Put(path, body)
+			data, statusCode, err := c.PutWithParams(cmd.Context(), path, params, body)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
+			}
+			// Inspect the mutate response body for a partial-failure-shaped
+			// field (e.g. Google Ads `partialFailureError`). Several Google
+			// APIs return 200 OK with a partial-failure field when some
+			// operations in the batch failed; ignoring it silently swallows
+			// real failures. Detection runs before output-mode selection so
+			// the exit code is consistent regardless of how stdout is
+			// rendered. --dry-run short-circuits because no real request
+			// was sent.
+			var partialFailure *partialFailureReport
+			if !flags.dryRun && statusCode >= 200 && statusCode < 300 {
+				partialFailure = detectPartialFailure(data)
+				if partialFailure != nil {
+					fmt.Fprintf(os.Stderr, "warning: partial failure detected in %s response: %s\n", "alerts", partialFailure.Message)
+					if len(partialFailure.ResourceNames) > 0 {
+						fmt.Fprintf(os.Stderr, "         succeeded: %d operation(s)\n", len(partialFailure.ResourceNames))
+					}
+				}
+			}
+			if !flags.dryRun && statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure) {
+				writeMutationResponseToStore(cmd.Context(), "alerts", data, "")
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")
@@ -125,6 +264,9 @@ func newAlertsUpdateCmd(flags *rootFlags) *cobra.Command {
 					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
 						fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)
 					} else {
+						if partialFailure != nil && !flags.allowPartialFailure {
+							return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "alerts", partialFailure.Message))
+						}
 						return nil
 					}
 				} else {
@@ -135,14 +277,55 @@ func newAlertsUpdateCmd(flags *rootFlags) *cobra.Command {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)
 						} else {
+							if partialFailure != nil && !flags.allowPartialFailure {
+								return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "alerts", partialFailure.Message))
+							}
 							return nil
 						}
 					}
 				}
 			}
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				if flags.quiet {
+					if partialFailure != nil && !flags.allowPartialFailure {
+						return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "alerts", partialFailure.Message))
+					}
 					return nil
+				}
+				envelope := map[string]any{
+					"action":   "put",
+					"resource": "alerts",
+					"path":     path,
+					"status":   statusCode,
+					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
+				}
+				if flags.agent {
+					envelope["meta"] = map[string]any{"source": "live"}
+				}
+				if partialFailure != nil {
+					envelope["partial_failure"] = partialFailure
+				}
+				if flags.dryRun {
+					envelope["dry_run"] = true
+					envelope["status"] = 0
+					envelope["success"] = false
+				}
+				// Verify-mode synthetic envelope detection runs against RAW data
+				// (before --compact/--select filtering) so the sentinel field is
+				// guaranteed to be visible even if the operator passes a filter
+				// flag that would otherwise strip it. Surfaces a top-level
+				// verify_noop signal + flips success to false. Mirrors the dry_run
+				// shape above.
+				if len(data) > 0 {
+					var rawParsed any
+					if err := json.Unmarshal(data, &rawParsed); err == nil {
+						if m, ok := rawParsed.(map[string]any); ok {
+							if v, ok := m["__pp_verify_synthetic__"].(bool); ok && v {
+								envelope["verify_noop"] = true
+								envelope["success"] = false
+							}
+						}
+					}
 				}
 				// Apply --compact and --select to the API response before wrapping.
 				// --select wins when both are set: explicit field choice trumps the
@@ -154,43 +337,63 @@ func newAlertsUpdateCmd(flags *rootFlags) *cobra.Command {
 				} else if flags.compact {
 					filtered = compactFields(filtered)
 				}
-				envelope := map[string]any{
-					"action":   "put",
-					"resource": "alerts",
-					"path":     path,
-					"status":   statusCode,
-					"success":  statusCode >= 200 && statusCode < 300,
-				}
-				if flags.dryRun {
-					envelope["dry_run"] = true
-					envelope["status"] = 0
-					envelope["success"] = false
-				}
 				if len(filtered) > 0 {
 					var parsed any
 					if err := json.Unmarshal(filtered, &parsed); err == nil {
-						envelope["data"] = parsed
+						if flags.agent {
+							envelope["results"] = parsed
+						} else {
+							envelope["data"] = parsed
+						}
 					}
 				}
 				envelopeJSON, err := json.Marshal(envelope)
 				if err != nil {
 					return err
 				}
-				return printOutput(cmd.OutOrStdout(), json.RawMessage(envelopeJSON), true)
+				if perr := printOutput(cmd.OutOrStdout(), json.RawMessage(envelopeJSON), true); perr != nil {
+					return perr
+				}
+				if partialFailure != nil && !flags.allowPartialFailure {
+					return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "alerts", partialFailure.Message))
+				}
+				return nil
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			// Fall-through for mutate paths that did not hit the table or
+			// asJSON branches: --quiet, --csv, --plain, and default terminal
+			// raw output. printOutputWithFlags renders the body, then the
+			// typed partial-failure exit fires unless --allow-partial-failure
+			// downgrades it. Without this guard a partial failure would exit
+			// 0 for these output modes — the exact silent-swallow regression
+			// the surrounding patch is preventing for asJSON / piped output.
+			if perr := printOutputWithFlags(cmd.OutOrStdout(), data, flags); perr != nil {
+				return perr
+			}
+			if partialFailure != nil && !flags.allowPartialFailure {
+				return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "alerts", partialFailure.Message))
+			}
+			return nil
 		},
 	}
 	cmd.Flags().StringVar(&bodyAircraftType, "aircraft-type", "", "Aircraft type ICAO code to alert on.")
 	cmd.Flags().StringVar(&bodyDestination, "destination", "", "Destination airport ICAO, IATA, or LID code to alert on.")
-	cmd.Flags().BoolVar(&bodyEnabled, "enabled", false, "Whether alert is enabled.")
+	cmd.Flags().StringVar(&bodyEnabled, "enabled", "", "Whether alert is enabled.")
 	cmd.Flags().StringVar(&bodyEnd, "end", "", "End date of alert (inclusive). Should be in departure airport's timezone.")
-	cmd.Flags().IntVar(&bodyEta, "eta", 0, "How many minutes before a flight's ETA that an alert should be delivered. Alerts will only be delivered after the...")
-	cmd.Flags().StringVar(&bodyIdent, "ident", "", "Ident to alert on. This value may be modified based on codeshare resolution. If that occurs, the originally provided...")
-	cmd.Flags().IntVar(&bodyMaxWeekly, "max-weekly", 0, "Reject the new alert if the estimated number of triggered alerts per week based on historical flight trends would...")
+	cmd.Flags().IntVar(&bodyEta, "eta", 0, "How many minutes before a flight's ETA that an alert should be delivered.")
+	cmd.Flags().StringVar(&bodyEventsArrival, "events-arrival", "", "Whether alerts should be delivered on arrival.")
+	cmd.Flags().StringVar(&bodyEventsCancelled, "events-cancelled", "", "Whether alerts should be delivered on cancellation by the airline")
+	cmd.Flags().StringVar(&bodyEventsDeparture, "events-departure", "", "Whether alerts should be delivered on departure.")
+	cmd.Flags().StringVar(&bodyEventsDiverted, "events-diverted", "", "Whether alerts should be delivered on diversion")
+	cmd.Flags().StringVar(&bodyEventsFiled, "events-filed", "", "Whether alerts should be delivered on filing")
+	cmd.Flags().StringVar(&bodyEventsIn, "events-in", "", "Whether alerts should be delivered when aircraft enters arrival gate")
+	cmd.Flags().StringVar(&bodyEventsOff, "events-off", "", "Whether alerts should be delivered when aircraft leaves the runway")
+	cmd.Flags().StringVar(&bodyEventsOn, "events-on", "", "Whether alerts should be delivered when aircraft touches down on runway")
+	cmd.Flags().StringVar(&bodyEventsOut, "events-out", "", "Whether alerts should be delivered when aircraft leaves departure gate")
+	cmd.Flags().StringVar(&bodyIdent, "ident", "", "Ident to alert on. This value may be modified based on codeshare resolution.")
+	cmd.Flags().IntVar(&bodyMaxWeekly, "max-weekly", 0, "Reject the new alert if the estimated number of triggered alerts per week based on historical flight trends would")
 	cmd.Flags().StringVar(&bodyOrigin, "origin", "", "Origin airport ICAO, IATA, or LID code to alert on.")
 	cmd.Flags().StringVar(&bodyStart, "start", "", "Start date of alert. Should be in departure airport's timezone.")
-	cmd.Flags().StringVar(&bodyTargetUrl, "target-url", "", "Alert specific URL to deliver to. If null, then the alert will be delivered to the configured account-wide alert URL...")
+	cmd.Flags().StringVar(&bodyTargetUrl, "target-url", "", "Alert specific URL to deliver to.")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd

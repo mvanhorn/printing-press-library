@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"sync"
 	"testing"
@@ -184,7 +185,7 @@ func TestUpsertBatch_GenericFallbackList(t *testing.T) {
 	}
 	defer s.Close()
 
-	for _, key := range []string{"id", "ID", "name", "uuid", "slug", "key", "code", "uid"} {
+	for _, key := range []string{"id", "ID", "gid", "sid", "uid", "uuid", "guid", "api_id", "name", "slug", "key", "code"} {
 		t.Run(key, func(t *testing.T) {
 			rt := "fallback_" + key
 			items := []json.RawMessage{
@@ -226,6 +227,149 @@ func TestUpsertBatch_GenericFallbackList(t *testing.T) {
 	}
 }
 
+func TestUpsertBatch_SuffixFallbackAcceptsScopedCamelCaseID(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	items := []json.RawMessage{
+		json.RawMessage(`{"deploymentId": "dep-1", "status": "running"}`),
+	}
+	stored, extractFailures, err := s.UpsertBatch("deployments", items)
+	if err != nil {
+		t.Fatalf("UpsertBatch: %v", err)
+	}
+	if stored != 1 || extractFailures != 0 {
+		t.Fatalf("deploymentId fallback stored=%d extractFailures=%d, want stored=1 extractFailures=0", stored, extractFailures)
+	}
+	row, err := s.Get("deployments", "dep-1")
+	if err != nil {
+		t.Fatalf("Get deployment row: %v", err)
+	}
+	if !strings.Contains(string(row), `"deploymentId"`) || !strings.Contains(string(row), `"dep-1"`) {
+		t.Fatalf("cached row should preserve original object, got %s", row)
+	}
+
+	stored, extractFailures, err = s.UpsertBatch("deployments", []json.RawMessage{
+		json.RawMessage(`{"parentId": "parent-1", "status": "foreign-key-only"}`),
+	})
+	if err != nil {
+		t.Fatalf("UpsertBatch parentId: %v", err)
+	}
+	if stored != 0 || extractFailures != 1 {
+		t.Fatalf("parentId must not be promoted for deployments: stored=%d extractFailures=%d", stored, extractFailures)
+	}
+}
+
+func TestUpsertBatch_UnwrapsIDBearingEnvelopeItems(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	items := []json.RawMessage{
+		json.RawMessage(`{"customer":{"id":"cust-1","name":"Ada"}}`),
+		json.RawMessage(`{"kind":"customer","data":{"id":"cust-2","name":"Grace"}}`),
+		json.RawMessage(`{"customer":{"id":"cust-large","external_id":9007199254740993,"name":"Big"}}`),
+		json.RawMessage(`{"kind":"customer","data":{"description":"missing-id"}}`),
+		json.RawMessage(`{"kind":"customer","data":{"id":"cust-3"},"alternate":{"id":"other-1"}}`),
+	}
+	stored, extractFailures, err := s.UpsertBatch("customers", items)
+	if err != nil {
+		t.Fatalf("UpsertBatch: %v", err)
+	}
+	if stored != 3 || extractFailures != 2 {
+		t.Fatalf("envelope unwrap stored=%d extractFailures=%d, want stored=3 extractFailures=2", stored, extractFailures)
+	}
+
+	row, err := s.Get("customers", "cust-1")
+	if err != nil {
+		t.Fatalf("Get cust-1: %v", err)
+	}
+	if strings.Contains(string(row), `"customer"`) || !strings.Contains(string(row), `"name":"Ada"`) {
+		t.Fatalf("single-key envelope should store the flat inner object, got %s", row)
+	}
+
+	row, err = s.Get("customers", "cust-2")
+	if err != nil {
+		t.Fatalf("Get cust-2: %v", err)
+	}
+	if strings.Contains(string(row), `"kind"`) || !strings.Contains(string(row), `"name":"Grace"`) {
+		t.Fatalf("tagged envelope should store the flat inner object, got %s", row)
+	}
+
+	row, err = s.Get("customers", "cust-large")
+	if err != nil {
+		t.Fatalf("Get cust-large: %v", err)
+	}
+	if !strings.Contains(string(row), `"external_id":9007199254740993`) || strings.Contains(string(row), `9007199254740992`) {
+		t.Fatalf("envelope unwrap should preserve original large integer bytes, got %s", row)
+	}
+}
+
+func TestUpsertBatch_PreservesLargeIntegerResourceIDs(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	items := []json.RawMessage{
+		json.RawMessage(`{"id": 55043301, "name": "large"}`),
+		json.RawMessage(`{"id": 100, "name": "small"}`),
+		json.RawMessage(`{"id": 7, "name": "tiny"}`),
+	}
+	stored, extractFailures, err := s.UpsertBatch("numeric_ids", items)
+	if err != nil {
+		t.Fatalf("UpsertBatch: %v", err)
+	}
+	if stored != len(items) {
+		t.Fatalf("stored = %d, want %d", stored, len(items))
+	}
+	if extractFailures != 0 {
+		t.Fatalf("extractFailures = %d, want 0", extractFailures)
+	}
+
+	rows, err := s.DB().Query(`SELECT id FROM resources WHERE resource_type = ? ORDER BY CAST(id AS INTEGER)`, "numeric_ids")
+	if err != nil {
+		t.Fatalf("query resources: %v", err)
+	}
+	defer rows.Close()
+
+	var got []string
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			t.Fatalf("scan id: %v", err)
+		}
+		got = append(got, id)
+	}
+	if err := rows.Err(); err != nil {
+		t.Fatalf("rows: %v", err)
+	}
+	want := []string{"7", "100", "55043301"}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("resource ids = %v, want %v", got, want)
+	}
+
+	var literalMatches int
+	if err := s.DB().QueryRow(
+		`SELECT COUNT(*) FROM resources WHERE resource_type = ? AND id IN ('55043301', '100', '7')`,
+		"numeric_ids",
+	).Scan(&literalMatches); err != nil {
+		t.Fatalf("count literal id matches: %v", err)
+	}
+	if literalMatches != len(items) {
+		t.Fatalf("literal id matches = %d, want %d", literalMatches, len(items))
+	}
+}
+
 // TestUpsertBatch_ExtractFailuresReturnedForPerItemMisses pins the third
 // return value: items that survive JSON unmarshal but have no extractable
 // PK (templated override AND generic fallback both miss) bump
@@ -255,6 +399,48 @@ func TestUpsertBatch_ExtractFailuresReturnedForPerItemMisses(t *testing.T) {
 	}
 	if extractFailures != 2 {
 		t.Fatalf("extractFailures = %d, want 2 (two items have no extractable PK)", extractFailures)
+	}
+}
+
+func TestSearchQuotesFTSQuerySyntax(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	items := []json.RawMessage{
+		json.RawMessage(`{"id": "ip", "value": "10.0.0.1"}`),
+		json.RawMessage(`{"id": "cidr", "value": "172.16.192.0/18"}`),
+		json.RawMessage(`{"id": "host", "value": "host.example.com"}`),
+		json.RawMessage(`{"id": "email", "value": "user@example.com"}`),
+		json.RawMessage(`{"id": "mac", "value": "aa:bb:cc:dd:ee:ff"}`),
+		json.RawMessage(`{"id": "hyphen", "value": "some-name"}`),
+		json.RawMessage(`{"id": "multi", "value": "error with extra words before timeout"}`),
+	}
+	if stored, failed, err := s.UpsertBatch("search-regression", items); err != nil {
+		t.Fatalf("UpsertBatch: %v", err)
+	} else if failed != 0 || stored != len(items) {
+		t.Fatalf("UpsertBatch stored=%d failed=%d, want stored=%d failed=0", stored, failed, len(items))
+	}
+
+	for _, query := range []string{
+		"10.0.0.1",
+		"172.16.192.0/18",
+		"host.example.com",
+		"user@example.com",
+		"aa:bb:cc:dd:ee:ff",
+		"some-name",
+		"error timeout",
+	} {
+		results, err := s.Search(query, 10)
+		if err != nil {
+			t.Fatalf("Search(%q): %v", query, err)
+		}
+		if len(results) == 0 {
+			t.Fatalf("Search(%q) returned no results", query)
+		}
 	}
 }
 
@@ -339,6 +525,40 @@ func TestUpsertBatch_PopulatesExperiencesTable(t *testing.T) {
 	}
 	if typed != len(items) {
 		t.Fatalf("experiences count = %d, want %d (typed table not populated by UpsertBatch)", typed, len(items))
+	}
+}
+
+func TestSearchExperiencesQuotesFTSQuerySyntax(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	items := []json.RawMessage{
+		json.RawMessage(`{"id": "typed-ip", "name": "10.0.0.1"}`),
+		json.RawMessage(`{"id": "typed-host", "name": "host.example.com"}`),
+		json.RawMessage(`{"id": "typed-multi", "name": "error with extra words before timeout"}`),
+	}
+	if stored, failed, err := s.UpsertBatch("experiences", items); err != nil {
+		t.Fatalf("UpsertBatch: %v", err)
+	} else if failed != 0 || stored != len(items) {
+		t.Fatalf("UpsertBatch stored=%d failed=%d, want stored=%d failed=0", stored, failed, len(items))
+	}
+
+	for _, query := range []string{
+		"10.0.0.1",
+		"host.example.com",
+		"error timeout",
+	} {
+		results, err := s.SearchExperiences(query, 10)
+		if err != nil {
+			t.Fatalf("SearchExperiences(%q): %v", query, err)
+		}
+		if len(results) == 0 {
+			t.Fatalf("SearchExperiences(%q) returned no results", query)
+		}
 	}
 }
 

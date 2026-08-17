@@ -1,0 +1,23 @@
+{
+  "run_id": "20260721-105814-1da3c401",
+  "sources": [
+    {
+      "source_name": "printables",
+      "decision": "declined",
+      "reason": "hand-author from research (user chose to skip browser-sniff; confirmed live-tested GraphQL queries for search/detail/files/download already in hand from Phase 1 research)",
+      "asked_at": "2026-07-21T15:33:47Z"
+    },
+    {
+      "source_name": "thingiverse",
+      "decision": "skip-silent",
+      "reason": "spec-complete: official OpenAPI 3.0 spec at thingiverse.com/swagger/docs/openapi.yaml is live and fully resolvable",
+      "asked_at": "2026-07-21T15:33:47Z"
+    },
+    {
+      "source_name": "cults3d",
+      "decision": "declined",
+      "reason": "hand-author from official docs (user chose to skip browser-sniff; official GraphQL docs page + CTO-maintained example gist already researched, introspection blocked without Basic Auth handle)",
+      "asked_at": "2026-07-21T15:33:47Z"
+    }
+  ]
+}

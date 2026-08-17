@@ -1,0 +1,215 @@
+{
+  "api_name": "vagaro",
+  "novelty_score": 9,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-01T21:55:00Z",
+  "novel_features": [
+    {
+      "name": "Cross-business availability search",
+      "command": "find",
+      "description": "Find nearby businesses with a service open soonest, filtered by price, rating, and a date/time window.",
+      "rationale": "Requires joining businesses, services, and per-provider availability in the local store — a marketplace-wide slot query Vagaro's per-business booking funnel cannot answer.",
+      "example": "vagaro-pp-cli find massage --max-price 120 --min-rating 4.5 --from thu --to sat --agent",
+      "why_it_matters": "Reach for this when a user wants any open slot matching constraints across many businesses, not a specific known place.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Business comparison",
+      "command": "compare",
+      "description": "Compare named businesses side by side: rating, review count, price range, matching-service price, and next-available.",
+      "rationale": "Joins businesses, services, and reviews in the local store — no single Vagaro page compares businesses.",
+      "example": "vagaro-pp-cli compare centralbarber rudysbarbershop --agent",
+      "why_it_matters": "Use when the user already has 2-3 businesses in mind and wants a decision table.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Service price distribution",
+      "command": "price-check",
+      "description": "Show the price spread (min/median/max) for a service across a metro and flag who's below median.",
+      "rationale": "Aggregates synced service prices across businesses — Vagaro exposes no fair-price view.",
+      "example": "vagaro-pp-cli price-check haircut --city seattle --agent",
+      "why_it_matters": "Use to judge whether a quoted price is fair or to find below-median providers.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Market overview",
+      "command": "market",
+      "description": "One-shot landscape of a metro: business count, rating distribution, and price ranges by category.",
+      "rationale": "Aggregates the whole local store for a location — orienting to a metro is impossible on Vagaro's per-listing scroll.",
+      "example": "vagaro-pp-cli market seattle --agent",
+      "why_it_matters": "Use when someone is new to an area and wants the lay of the land before picking a regular spot.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "History-driven rebook",
+      "command": "me rebook",
+      "description": "Re-run your usual: reads your past appointment (business + service + provider) and lists that provider's open slots in a window so you can pick and book.",
+      "rationale": "Cross-source join of your authenticated appointment history with current per-provider availability — surfaces options, never a guaranteed identical slot.",
+      "example": "vagaro-pp-cli me rebook --last --from thu --to sat --agent",
+      "why_it_matters": "Use to quickly rebook the same service with the same provider at a place you've been; picks a time from what's open.",
+      "group": "Booking that remembers you"
+    },
+    {
+      "name": "Service-menu diff over time",
+      "command": "menu-diff",
+      "description": "Diff a business's service menu across synced snapshots to catch price changes and added/removed services.",
+      "rationale": "Compares timestamped local snapshots — Vagaro shows only the current menu, never the delta.",
+      "example": "vagaro-pp-cli menu-diff centralbarber --agent",
+      "why_it_matters": "Use to detect silent price hikes or menu changes at a business you follow.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Availability watch",
+      "command": "watch",
+      "description": "Check one business/provider's next-available against a stored baseline and report if a slot opened up sooner.",
+      "rationale": "Diffs a live availability fetch against the local baseline — a targeted single-business slot check.",
+      "example": "vagaro-pp-cli watch centralbarber --service haircut --before 2026-07-05 --agent",
+      "why_it_matters": "Use when waiting on a booked-out provider to open a sooner slot.",
+      "group": "Booking that remembers you"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cross-business availability search",
+      "command": "find",
+      "description": "Find nearby businesses with a service open soonest, filtered by price, rating, and a date/time window.",
+      "rationale": "Requires joining businesses, services, and per-provider availability in the local store — a marketplace-wide slot query Vagaro's per-business booking funnel cannot answer.",
+      "example": "vagaro-pp-cli find massage --max-price 120 --min-rating 4.5 --from thu --to sat --agent",
+      "why_it_matters": "Reach for this when a user wants any open slot matching constraints across many businesses, not a specific known place.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Business comparison",
+      "command": "compare",
+      "description": "Compare named businesses side by side: rating, review count, price range, matching-service price, and next-available.",
+      "rationale": "Joins businesses, services, and reviews in the local store — no single Vagaro page compares businesses.",
+      "example": "vagaro-pp-cli compare centralbarber rudysbarbershop --agent",
+      "why_it_matters": "Use when the user already has 2-3 businesses in mind and wants a decision table.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Service price distribution",
+      "command": "price-check",
+      "description": "Show the price spread (min/median/max) for a service across a metro and flag who's below median.",
+      "rationale": "Aggregates synced service prices across businesses — Vagaro exposes no fair-price view.",
+      "example": "vagaro-pp-cli price-check haircut --city seattle --agent",
+      "why_it_matters": "Use to judge whether a quoted price is fair or to find below-median providers.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Market overview",
+      "command": "market",
+      "description": "One-shot landscape of a metro: business count, rating distribution, and price ranges by category.",
+      "rationale": "Aggregates the whole local store for a location — orienting to a metro is impossible on Vagaro's per-listing scroll.",
+      "example": "vagaro-pp-cli market seattle --agent",
+      "why_it_matters": "Use when someone is new to an area and wants the lay of the land before picking a regular spot.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "History-driven rebook",
+      "command": "me rebook",
+      "description": "Re-run your usual: reads your past appointment (business + service + provider) and lists that provider's open slots in a window so you can pick and book.",
+      "rationale": "Cross-source join of your authenticated appointment history with current per-provider availability — surfaces options, never a guaranteed identical slot.",
+      "example": "vagaro-pp-cli me rebook --last --from thu --to sat --agent",
+      "why_it_matters": "Use to quickly rebook the same service with the same provider at a place you've been; picks a time from what's open.",
+      "group": "Booking that remembers you"
+    },
+    {
+      "name": "Service-menu diff over time",
+      "command": "menu-diff",
+      "description": "Diff a business's service menu across synced snapshots to catch price changes and added/removed services.",
+      "rationale": "Compares timestamped local snapshots — Vagaro shows only the current menu, never the delta.",
+      "example": "vagaro-pp-cli menu-diff centralbarber --agent",
+      "why_it_matters": "Use to detect silent price hikes or menu changes at a business you follow.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Availability watch",
+      "command": "watch",
+      "description": "Check one business/provider's next-available against a stored baseline and report if a slot opened up sooner.",
+      "rationale": "Diffs a live availability fetch against the local baseline — a targeted single-business slot check.",
+      "example": "vagaro-pp-cli watch centralbarber --service haircut --before 2026-07-05 --agent",
+      "why_it_matters": "Use when waiting on a booked-out provider to open a sooner slot.",
+      "group": "Booking that remembers you"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "Vagaro",
+    "headline": "Every Vagaro discovery feature, plus the marketplace-wide availability search, price comparison, and local database no Vagaro tool has.",
+    "value_prop": "Vagaro's website is a per-business click-through funnel with no way to ask a question across the whole marketplace. This CLI syncs businesses, services, providers, reviews, and availability into a local SQLite store, so you can find any open slot matching your constraints (find), compare businesses head to head (compare), check whether a price is fair (price-check), and rebook your usual with the same provider (me rebook) — all with agent-native --json output.",
+    "auth_narrative": "Public discovery (search, business detail, services, reviews, classes) needs no auth. For your own bookings and profile, run 'vagaro-pp-cli auth login --chrome' to import your logged-in Vagaro session from Chrome (a JWT plus session cookies). Booking is a real action: `vagaro-pp-cli book \u003cslug\u003e --confirm` places the appointment, while `book` on its own prints what it would do by default.",
+    "quickstart": [
+      {
+        "command": "vagaro-pp-cli doctor --dry-run",
+        "comment": "Health check — confirms the CLI is wired up before any network calls."
+      },
+      {
+        "command": "vagaro-pp-cli business get centralbarber",
+        "comment": "Look up a business by its vagaro.com/\u003cslug\u003e handle."
+      },
+      {
+        "command": "vagaro-pp-cli business services centralbarber --json",
+        "comment": "See that business's service menu with prices as JSON."
+      },
+      {
+        "command": "vagaro-pp-cli classes --page-size 10 --json",
+        "comment": "Browse upcoming livestream classes."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Search always returns businesses from the wrong city",
+        "fix": "Vagaro geo-scopes by your IP; pass an explicit location slug like 'search listings barber seattle--washington' or use 'find --city \u003ccity\u003e'."
+      },
+      {
+        "symptom": "me appointments / book returns unauthorized",
+        "fix": "Run 'vagaro-pp-cli auth login --chrome' to import your Vagaro session; the token expires after ~30 days, so re-run it if it lapses."
+      },
+      {
+        "symptom": "book says the business requires prepayment",
+        "fix": "That business takes payment up front; complete it at the printed book-now URL (payment is out of scope for the CLI)."
+      }
+    ],
+    "when_to_use": "Use this CLI when a user wants to discover salon/spa/barber/fitness businesses, compare them by price or rating, check availability across many businesses at once, or manage and rebook their own Vagaro appointments from the command line or an agent. It shines at cross-business questions the Vagaro website makes tedious.",
+    "anti_triggers": [
+      "Do not use this CLI for Vagaro Pro / business-owner operations (POS, payroll, staff management) — that is a different, paid API.",
+      "Do not use it to manage payment methods or edit your Vagaro profile — those are intentionally out of scope.",
+      "Do not use it to complete a prepaid/deposit booking — payment happens on Vagaro's site, not here."
+    ],
+    "recipes": [
+      {
+        "title": "Find an open massage this weekend under budget",
+        "command": "vagaro-pp-cli find massage --max-price 120 --min-rating 4.5 --from sat --to sun --agent",
+        "explanation": "Fans out across nearby businesses and ranks those with an open slot in the window under your price and rating floor."
+      },
+      {
+        "title": "Compare two barbers before committing",
+        "command": "vagaro-pp-cli compare centralbarber rudysbarbershop --agent --select name,rating,priceRange,nextAvailable",
+        "explanation": "Side-by-side decision table narrowed to the fields an agent needs, avoiding the verbose full payload."
+      },
+      {
+        "title": "Rebook your usual haircut in a window",
+        "command": "vagaro-pp-cli me rebook --last --from thu --to sat --agent",
+        "explanation": "Reads your last appointment's business/service/provider and lists that provider's open times so you can pick one."
+      },
+      {
+        "title": "Check if a haircut price is fair in your city",
+        "command": "vagaro-pp-cli price-check haircut --city seattle --agent",
+        "explanation": "Shows the metro price distribution and flags below-median providers."
+      }
+    ],
+    "trigger_phrases": [
+      "find a massage near me",
+      "book a haircut at my barber",
+      "compare these salons on vagaro",
+      "is this spa price fair",
+      "rebook my usual appointment",
+      "use vagaro",
+      "run vagaro"
+    ]
+  }
+}

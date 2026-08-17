@@ -1,0 +1,51 @@
+version: 2
+project_name: vercel-admin-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: vercel-admin-pp-cli
+    main: ./cmd/vercel-admin-pp-cli
+    binary: vercel-admin-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/cloud/vercel-admin/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: vercel-admin-pp-mcp
+    main: ./cmd/vercel-admin-pp-mcp
+    binary: vercel-admin-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: vercel-admin-pp-cli
+    repository:
+      owner: hnshah
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Vercel combines the best developer experience with an obsessive focus on end-user performance."
+    install: |
+      bin.install "vercel-admin-pp-cli"
+      bin.install "vercel-admin-pp-mcp"

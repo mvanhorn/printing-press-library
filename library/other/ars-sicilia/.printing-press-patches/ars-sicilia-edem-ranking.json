@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "ars-sicilia-edem-ranking",
+  "applied_at": "2026-07-23",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.18.0",
+  "summary": "analytics --type ddl --group-by proponente|gruppo: classifiche dei disegni di legge pre-calcolate dal portale, lette con UNA sola richiesta dalle viste /edem/channel.jsp (channel=6 proponente, channel=7 gruppo). Nuovo client icaroclient/edem.go (DDLRanking + parseEdemRanking, riusa gli helper HTML del parser /bd/: il nome viene dall'anchor showDDL, il conteggio dalla label simobile 'N. DDL'). Percorso LIVE runDDLRankingLive in analytics.go, richiede --type ddl. Nessun hardcode della legislatura corrente: --legisl non viene validato contro un numero (le viste /edem/ coprono solo la legislatura corrente e non sono filtrabili); se passato viene ignorato con un avviso su stderr.",
+  "reason": "La classifica dei DDL per proponente/gruppo prima richiedeva un deep-sync (una richiesta per ddl) o non era disponibile. Il portale espone le stesse classifiche gia' aggregate in /edem/: una GET restituisce la vista completa (non paginata), abbattendo il costo a 1 richiesta. Il conteggio e' per primo firmatario (verificato: le viste per anno, per proponente e per gruppo sommano tutte allo stesso totale, quindi ogni ddl e' contato una volta).",
+  "files": [
+    "internal/icaroclient/edem.go",
+    "internal/cli/analytics.go"
+  ],
+  "validated_outcome": "analytics --type ddl --group-by proponente -> Figuccia 114, Venezia 105, Assenza 72, Dipasquale 58, Gennuso 49. --group-by gruppo -> Partito Democratico 314, Lega 129, Forza Italia 114, Fratelli d'Italia 103, M5S 98. --legisl 17 -> stessa classifica (legislatura corrente) con avviso su stderr che --legisl e' ignorato. --group-by proponente --type resoconti -> errore chiaro (richiede --type ddl)."
+}

@@ -1,0 +1,53 @@
+{
+  "api_name": "aol-puglia",
+  "api_version": "1.0.0",
+  "auth_type": "auto-oauth2",
+  "category": "other",
+  "cli_name": "aol-puglia-pp-cli",
+  "creator": {
+    "handle": "aborruso",
+    "name": "aborruso"
+  },
+  "description": "Accesso pubblico all'Albo Pretorio Online delle 13 aziende sanitarie pugliesi: ricerca atti, download allegati, esportazione CSV. Zero config: autenticazione OAuth2 automatica.",
+  "display_name": "Albo Online Sanità Puglia",
+  "generated_at": "2026-06-17T16:06:48Z",
+  "mcp_binary": "aol-puglia-pp-mcp",
+  "mcp_public_tool_count": 7,
+  "mcp_ready": "full",
+  "mcp_tool_count": 7,
+  "novel_features": [
+    {
+      "name": "Auto-auth OAuth2",
+      "command": "doctor",
+      "description": "Il CLI ottiene automaticamente un token OAuth2 client_credentials pubblico senza che l'utente debba configurare credenziali."
+    },
+    {
+      "name": "Elenco aziende sanitarie",
+      "command": "orgs",
+      "description": "Lista le 13 aziende sanitarie pugliesi con i valori esatti da usare nei flag --azienda."
+    },
+    {
+      "name": "Ricerca atti paginata",
+      "command": "atti search",
+      "description": "Ricerca per parola chiave, data, proponente, CIG su bandi, concorsi, delibere e determine."
+    },
+    {
+      "name": "Download allegati",
+      "command": "atti download-allegato",
+      "description": "Scarica PDF e altri allegati decodificando automaticamente il base64 restituito dall'API."
+    },
+    {
+      "name": "Esportazione CSV",
+      "command": "fileexport",
+      "description": "Esporta i risultati di una ricerca come file CSV lato server (fino a 500 record)."
+    }
+  ],
+  "owner": "aborruso",
+  "printer": "aborruso",
+  "printer_name": "aborruso",
+  "printing_press_version": "4.24.0",
+  "run_id": "20260617-160648",
+  "schema_version": 1,
+  "spec_format": "internal",
+  "spec_source": "internal-yaml"
+}

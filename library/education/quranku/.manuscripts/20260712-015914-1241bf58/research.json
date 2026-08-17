@@ -1,0 +1,205 @@
+{
+  "api_name": "quranku",
+  "novelty_score": 8,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-11T19:15:40Z",
+  "novel_features": [
+    {
+      "name": "Offline full-text search",
+      "command": "find",
+      "description": "Search the Qur'an offline by word or meaning across Arabic and the Indonesian Tafsiriyah.",
+      "rationale": "Requires a local SQLite FTS index over synced verses; the Tafsiriyah server's own search endpoint returns 404.",
+      "example": "quranku-pp-cli find \"kasih sayang\" --json",
+      "why_it_matters": "Reach for this when you need to locate verses by meaning without a live search API.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cross-source verse lookup",
+      "command": "verse",
+      "description": "Get a single verse (e.g. 2:255) with Arabic and the Tafsiriyah translation joined together.",
+      "rationale": "Joins the Tafsiriyah translation with Quran.com Arabic/metadata from the local store in one call.",
+      "example": "quranku-pp-cli verse 2:255 --json",
+      "why_it_matters": "Use for a precise ayah lookup instead of fetching a whole surah.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Verse of the day",
+      "command": "daily",
+      "description": "A stable, date-seeded verse of the day with its Tafsiriyah translation.",
+      "rationale": "Deterministic date-seeded pick from the local store; no network call.",
+      "example": "quranku-pp-cli daily --json",
+      "why_it_matters": "Use for a reproducible daily reflection verse.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Khatam reading plan",
+      "command": "plan",
+      "description": "Build and follow a plan to finish the Qur'an in N days, tracking progress locally.",
+      "rationale": "Computes daily ranges and persists progress in SQLite — no API offers this.",
+      "example": "quranku-pp-cli plan start --days 30",
+      "why_it_matters": "Use to pace and track a full Qur'an reading over time.",
+      "group": "Personal practice tracking"
+    },
+    {
+      "name": "Hifz memorization tracker",
+      "command": "hifz",
+      "description": "Mark and review Qur'an memorization progress per surah or verse.",
+      "rationale": "Local per-verse memorization state that no upstream API stores.",
+      "example": "quranku-pp-cli hifz mark 1 --json",
+      "why_it_matters": "Use to track what you have memorized across sessions.",
+      "group": "Personal practice tracking"
+    },
+    {
+      "name": "Bookmarks with notes",
+      "command": "bookmark",
+      "description": "Save verses with personal notes for later, offline.",
+      "rationale": "Local verse bookmarks with notes; the corpus APIs are read-only and stateless.",
+      "example": "quranku-pp-cli bookmark add 2:255 --note \"Ayat Kursi\"",
+      "why_it_matters": "Use to keep a personal, portable set of saved verses.",
+      "group": "Personal practice tracking"
+    },
+    {
+      "name": "Random ayah",
+      "command": "random",
+      "description": "A random verse with its Tafsiriyah translation for reflection.",
+      "rationale": "Local random selection from the synced store, works offline.",
+      "example": "quranku-pp-cli random --json",
+      "why_it_matters": "Use for a spontaneous verse for study or reflection.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Offline full-text search",
+      "command": "find",
+      "description": "Search the Qur'an offline by word or meaning across Arabic and the Indonesian Tafsiriyah.",
+      "rationale": "Requires a local SQLite FTS index over synced verses; the Tafsiriyah server's own search endpoint returns 404.",
+      "example": "quranku-pp-cli find \"kasih sayang\" --json",
+      "why_it_matters": "Reach for this when you need to locate verses by meaning without a live search API.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cross-source verse lookup",
+      "command": "verse",
+      "description": "Get a single verse (e.g. 2:255) with Arabic and the Tafsiriyah translation joined together.",
+      "rationale": "Joins the Tafsiriyah translation with Quran.com Arabic/metadata from the local store in one call.",
+      "example": "quranku-pp-cli verse 2:255 --json",
+      "why_it_matters": "Use for a precise ayah lookup instead of fetching a whole surah.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Verse of the day",
+      "command": "daily",
+      "description": "A stable, date-seeded verse of the day with its Tafsiriyah translation.",
+      "rationale": "Deterministic date-seeded pick from the local store; no network call.",
+      "example": "quranku-pp-cli daily --json",
+      "why_it_matters": "Use for a reproducible daily reflection verse.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Khatam reading plan",
+      "command": "plan",
+      "description": "Build and follow a plan to finish the Qur'an in N days, tracking progress locally.",
+      "rationale": "Computes daily ranges and persists progress in SQLite — no API offers this.",
+      "example": "quranku-pp-cli plan start --days 30",
+      "why_it_matters": "Use to pace and track a full Qur'an reading over time.",
+      "group": "Personal practice tracking"
+    },
+    {
+      "name": "Hifz memorization tracker",
+      "command": "hifz",
+      "description": "Mark and review Qur'an memorization progress per surah or verse.",
+      "rationale": "Local per-verse memorization state that no upstream API stores.",
+      "example": "quranku-pp-cli hifz mark 1 --json",
+      "why_it_matters": "Use to track what you have memorized across sessions.",
+      "group": "Personal practice tracking"
+    },
+    {
+      "name": "Bookmarks with notes",
+      "command": "bookmark",
+      "description": "Save verses with personal notes for later, offline.",
+      "rationale": "Local verse bookmarks with notes; the corpus APIs are read-only and stateless.",
+      "example": "quranku-pp-cli bookmark add 2:255 --note \"Ayat Kursi\"",
+      "why_it_matters": "Use to keep a personal, portable set of saved verses.",
+      "group": "Personal practice tracking"
+    },
+    {
+      "name": "Random ayah",
+      "command": "random",
+      "description": "A random verse with its Tafsiriyah translation for reflection.",
+      "rationale": "Local random selection from the synced store, works offline.",
+      "example": "quranku-pp-cli random --json",
+      "why_it_matters": "Use for a spontaneous verse for study or reflection.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "QuranKu",
+    "headline": "Every Al-Qur'an feature the app has, plus the Indonesian Tarjamah Tafsiriyah offline, a local database, offline search, a khatam plan, and a hifz tracker no other Qur'an tool has.",
+    "value_prop": "QuranKu carries Ustadz Muhammad Thalib's Tarjamah Tafsiriyah translation alongside Quran.com's metadata and audio, all in a local SQLite store. Read any surah, look up any verse, search offline with `find`, follow a `plan` to finish the Qur'an, and track memorization with `hifz`.",
+    "quickstart": [
+      {
+        "command": "quranku-pp-cli doctor --dry-run",
+        "comment": "Verify the sources are reachable before syncing."
+      },
+      {
+        "command": "quranku-pp-cli sync",
+        "comment": "Pull all 114 surahs (Arabic + Tafsiriyah) into the local store once."
+      },
+      {
+        "command": "quranku-pp-cli surah get 1 --json",
+        "comment": "Read Al-Fatihah with the Tafsiriyah translation."
+      },
+      {
+        "command": "quranku-pp-cli find \"kasih sayang\" --json",
+        "comment": "Search offline across Arabic and the Tafsiriyah."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "find returns nothing",
+        "fix": "Run `quranku-pp-cli sync` first to populate the local store."
+      },
+      {
+        "symptom": "surah get is slow or fails offline",
+        "fix": "After `sync`, reads come from the local store; check the Tafsiriyah source with `doctor` if a fresh fetch fails."
+      }
+    ],
+    "when_to_use": "Use QuranKu when an agent or user needs Qur'an text with the Indonesian Tarjamah Tafsiriyah, offline verse search, precise ayah lookups, or personal reading/memorization tracking. It is the only tool that carries this specific translation with a local database.",
+    "anti_triggers": [
+      "Do not use for hadith, fiqh rulings, or non-Qur'an Islamic texts.",
+      "Do not use for prayer times or qibla direction.",
+      "Do not use to modify or publish Qur'an content upstream — it is read-only plus local personal state."
+    ],
+    "recipes": [
+      {
+        "title": "Read a surah with translation",
+        "command": "quranku-pp-cli surah get 36 --json --select data.verses.translations.terjemahTafsiriyah",
+        "explanation": "Fetch Yasin and narrow the payload to just the Tafsiriyah translation lines."
+      },
+      {
+        "title": "Offline meaning search",
+        "command": "quranku-pp-cli find \"sabar\" --json",
+        "explanation": "Find verses mentioning patience across the local Arabic + Tafsiriyah index."
+      },
+      {
+        "title": "Start a 30-day khatam",
+        "command": "quranku-pp-cli plan start --days 30",
+        "explanation": "Create a reading plan that finishes the Qur'an in 30 days and tracks progress."
+      }
+    ],
+    "trigger_phrases": [
+      "read surah",
+      "tarjamah tafsiriyah",
+      "cari ayat",
+      "verse of the day",
+      "khatam plan",
+      "use quranku",
+      "run quranku"
+    ]
+  }
+}

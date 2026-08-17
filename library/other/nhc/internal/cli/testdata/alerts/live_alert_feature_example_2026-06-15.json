@@ -1,0 +1,119 @@
+{
+  "id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.c4e7e87010b542a90c2eac61ec505274fe4d55d5.001.1",
+  "type": "Feature",
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          -95.92,
+          29.4
+        ],
+        [
+          -95.84,
+          29.3
+        ],
+        [
+          -95.66,
+          29.13
+        ],
+        [
+          -95.77,
+          29.13
+        ],
+        [
+          -95.95,
+          29.3
+        ],
+        [
+          -96.05,
+          29.4
+        ],
+        [
+          -95.92,
+          29.4
+        ]
+      ]
+    ]
+  },
+  "properties": {
+    "@id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.c4e7e87010b542a90c2eac61ec505274fe4d55d5.001.1",
+    "@type": "wx:Alert",
+    "id": "urn:oid:2.49.0.1.840.0.c4e7e87010b542a90c2eac61ec505274fe4d55d5.001.1",
+    "areaDesc": "Brazoria, TX; Fort Bend, TX; Wharton, TX",
+    "geocode": {
+      "SAME": [
+        "048039",
+        "048157",
+        "048481"
+      ],
+      "UGC": [
+        "TXC039",
+        "TXC157",
+        "TXC481"
+      ]
+    },
+    "affectedZones": [
+      "https://api.weather.gov/zones/county/TXC039",
+      "https://api.weather.gov/zones/county/TXC157",
+      "https://api.weather.gov/zones/county/TXC481"
+    ],
+    "references": [],
+    "sent": "2026-06-15T22:31:00-05:00",
+    "effective": "2026-06-15T22:31:00-05:00",
+    "onset": "2026-06-16T01:20:00-05:00",
+    "expires": "2026-06-16T16:45:00-05:00",
+    "ends": "2026-06-18T16:42:00-05:00",
+    "status": "Actual",
+    "messageType": "Alert",
+    "category": "Met",
+    "severity": "Severe",
+    "certainty": "Likely",
+    "urgency": "Expected",
+    "event": "Flood Warning",
+    "sender": "noaa-webmaster@example.com",
+    "senderName": "NWS Houston/Galveston TX",
+    "headline": "Flood Warning issued June 15 at 10:31PM CDT until June 18 at 4:42PM CDT by NWS Houston/Galveston TX",
+    "description": "...The National Weather Service in Houston/Galveston TX has issued a\nFlood Warning for the following rivers in Texas...\n\nSan Bernard River near Boling affecting Fort Bend, Wharton and\nBrazoria Counties.\n\nFor the San Bernard River...including Boling...Minor flooding is\nforecast.\n\n* WHAT...Minor flooding is forecast.\n\n* WHERE...San Bernard River near Boling.\n\n* WHEN...Until Thursday afternoon.\n\n* IMPACTS...At 18.0 feet, Minor lowland flooding begins upstream\nfrom gage. Minor backwater flooding up Peach Creek in Wharton\nCounty threatens low-lying areas.\n\n* ADDITIONAL DETAILS...\n- At 9:15 PM CDT Monday the stage was 16.2 feet.\n- Bankfull stage is 14.0 feet.\n- Forecast...The river will rise above flood stage late tonight\nto 18.6 feet early tomorrow afternoon. It will then fall to\nflood stage early Wednesday morning. It will rise to 19.8\nfeet Wednesday evening. It will then fall below flood stage\nearly Thursday morning.\n- Flood stage is 18.0 feet.\n- Flood History...This crest compares to a previous crest of\n19.7 feet on 03/06/2017.\n- http://www.weather.gov/safety/flood",
+    "instruction": "Turn around, don't drown when encountering flooded roads. Most flood\ndeaths occur in vehicles.\n\nMotorists should not attempt to drive around barricades or drive\ncars through flooded areas.\n\nAdditional information is available at www.weather.gov/hgx.\n\nThe next statement will be issued by Tuesday afternoon at 445 PM CDT.",
+    "response": "Avoid",
+    "note": null,
+    "parameters": {
+      "AWIPSidentifier": [
+        "FLWHGX"
+      ],
+      "WMOidentifier": [
+        "WGUS44 KHGX 160331"
+      ],
+      "NWSheadline": [
+        "FLOOD WARNING IN EFFECT UNTIL THURSDAY AFTERNOON"
+      ],
+      "BLOCKCHANNEL": [
+        "EAS",
+        "NWEM",
+        "CMAS"
+      ],
+      "EAS-ORG": [
+        "WXR"
+      ],
+      "VTEC": [
+        "/O.NEW.KHGX.FL.W.0006.260616T0620Z-260618T2142Z/"
+      ],
+      "eventEndingTime": [
+        "2026-06-18T16:42:00-05:00"
+      ]
+    },
+    "scope": "Public",
+    "code": "IPAWSv1.0",
+    "language": "en-US",
+    "web": "http://www.weather.gov",
+    "eventCode": {
+      "SAME": [
+        "FLW"
+      ],
+      "NationalWeatherService": [
+        "FLW"
+      ]
+    }
+  }
+}

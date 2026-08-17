@@ -173,9 +173,12 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 						report["credentials"] = "skipped (API unreachable)"
 					} else {
 						verifyPath := "/"
+						// Let the client inject Authorization so an expired OAuth access
+						// token can be refreshed before the probe is sent. Passing the
+						// header captured above as an override would replay the stale
+						// token after refresh and make doctor report a false auth failure.
 						authParams := map[string]string{}
 						authHeaders := map[string]string{}
-						authHeaders["Authorization"] = authHeader
 						authHeaders["User-Agent"] = "whoop-pp-cli"
 						_, authErr := c.GetWithHeaders(verifyPath, authParams, authHeaders)
 						var authAPIErr *client.APIError

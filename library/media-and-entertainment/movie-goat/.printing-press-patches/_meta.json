@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "upstream_tracking": [
+    "https://github.com/mvanhorn/cli-printing-press/issues/2913"
+  ],
+  "deferred_to_upstream": [
+    {
+      "summary": "Generator support for secondary credentials: config schema and auth command group should model every credential the spec declares, not just the primary one.",
+      "reason": "Same gap as cli-printing-press#2913 cascade item 2 \u2014 generated auth status/set-token only know the primary token. Any printed CLI whose API needs a second key hits it; the local patch supersedes once the generator emits a per-credential config slot."
+    }
+  ]
+}

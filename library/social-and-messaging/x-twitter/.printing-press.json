@@ -13,10 +13,6 @@
     {
       "handle": "tmchow",
       "name": "Trevin Chow"
-    },
-    {
-      "handle": "mvanhorn",
-      "name": "Matt Van Horn"
     }
   ],
   "owner": "cathryn-lavery",
@@ -27,7 +23,7 @@
   "spec_checksum": "sha256:0dfd4f3560f7cdf014e5d2e8a34cfb669f8a7141aad29b9a8df594b85c26baf8",
   "run_id": "20260603-230951",
   "category": "social-and-messaging",
-  "description": "The only X CLI with an offline, searchable local mirror — full-text search and analytics over your archived posts without re-spending per-read API credits — plus a full-surface MCP server and honest tier/reachability diagnostics.",
+  "description": "Use X/Twitter with local searchable archives, post and conversation resolvers, collections, analytics, MCP tools, and tier diagnostics.",
   "mcp_binary": "x-twitter-pp-mcp",
   "mcp_tool_count": 163,
   "mcp_ready": "full",
@@ -119,7 +115,13 @@
       "name": "Offline bookmark search",
       "command": "users bookmarks find",
       "description": "Search your synced bookmarks by keyword and/or author, offline — X has no bookmark search and its API exposes no bookmark timestamp, so the local store rebuilds the missing retrieval layer without re-spending read credits."
+    },
+    {
+      "name": "Top posts ranking",
+      "command": "top-posts",
+      "description": "Compose /2/users/me with the user-timeline read into one ranked leaderboard of your recent posts by engagement (likes + reposts + replies + quotes), or by a single metric via --metric. Paginates the timeline up to --max-fetch, ranks client-side, and degrades gracefully when impression_count is unavailable below Basic tier. Read-only."
     }
   ],
-  "owner_name": null
+  "owner_name": null,
+  "catalog_description": "Use X/Twitter with local searchable archives, post and conversation resolvers, collections, analytics, MCP tools, and tier diagnostics."
 }

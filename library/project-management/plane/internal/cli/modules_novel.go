@@ -39,6 +39,19 @@ import (
 	"github.com/spf13/cobra"
 )
 
+func init() {
+	// module_issues is keyed by module_id. A module reconciled away from EITHER the
+	// active `modules` list or the `archived_modules` list must drop its junction
+	// rows, so register the cascade under both per_parent resources — otherwise an
+	// archived module swept by the archived_modules sweep (e.g. when the active
+	// `modules` sweep was skipped for that project on a 403/incomplete page) would
+	// leave its module_issues rows orphaned. The delete is keyed by module_id, so
+	// registering on archived_modules is a harmless no-op when no such rows exist.
+	mi := store.CascadeJunction{Table: "module_issues", FKColumn: "module_id"}
+	store.RegisterCascadeJunction("modules", mi)
+	store.RegisterCascadeJunction("archived_modules", mi)
+}
+
 // applyClientSlug honors an explicit --slug / positional slug by writing it into
 // the client's endpoint TemplateVars. PATCH(slug-env-align): the reprinted client
 // puts the workspace scope in BaseURL (/api/v1/workspaces/{slug}) and resolves
@@ -71,7 +84,7 @@ type moduleGetter interface {
 	Get(context.Context, string, map[string]string) (json.RawMessage, error)
 }
 
-func newModuleCmd(flags *rootFlags) *cobra.Command {
+func newNovelModuleCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "module",
 		Short: "Module-membership helpers: cache enrichment (sync) and assign-on-create.",
@@ -119,13 +132,21 @@ type moduleRow struct {
 }
 
 // localModules reads modules from the synced store, optionally scoped to one
-// project. Name comes out of the data JSON.
-func localModules(db *store.Store, projectFilter string) ([]moduleRow, error) {
+// project or to the active workspace. Name comes out of the data JSON.
+func localModules(db *store.Store, projectFilter, workspaceID string) ([]moduleRow, error) {
 	q := `SELECT id, projects_id, COALESCE(json_extract(data, '$.name'), '') FROM modules`
 	var args []any
 	if projectFilter != "" {
 		q += ` WHERE projects_id = ?`
 		args = append(args, projectFilter)
+	} else if workspaceID != "" {
+		// PATCH(tenant-resolver-seam): modules carry no workspace column, so
+		// scope via the parent project's workspace to avoid enumerating (and
+		// 403-ing on) other workspaces' modules during the post-sync enrichment.
+		// The local store is multi-tenant; an unscoped walk dials
+		// /workspaces/<active-slug>/projects/<foreign-project>/modules/... → 403.
+		q += ` WHERE projects_id IN (SELECT id FROM projects WHERE workspace = ?)`
+		args = append(args, workspaceID)
 	}
 	rows, err := db.Query(q, args...)
 	if err != nil {
@@ -138,9 +159,109 @@ func localModules(db *store.Store, projectFilter string) ([]moduleRow, error) {
 		if err := rows.Scan(&m.id, &m.projectID, &m.name); err != nil {
 			return nil, err
 		}
+		// PATCH(engine-4.27): dependent resources (modules) now store a
+		// NUL-composite parent-keyed storage id ("<id>\x00<projects_id>"). The
+		// enrichment builds API paths (/projects/{p}/modules/{id}/module-issues/)
+		// and module_issues junction rows from m.id, and downstream consumers
+		// (module_of / MCP) expect the BARE API id — strip the composite suffix
+		// so a NUL byte never leaks into a URL or a junction key.
+		m.id = store.BareResourceID(m.id)
 		out = append(out, m)
 	}
 	return out, rows.Err()
+}
+
+// moduleNameKey pairs a project with a bare module id. modules rows are stored
+// under a NUL-composite key, so the parent has to travel alongside the bare id
+// to identify a module unambiguously; the "/" separator keeps this lookup key
+// visibly distinct from an actual storage id.
+func moduleNameKey(projectID, moduleID string) string {
+	return projectID + "/" + moduleID
+}
+
+// moduleNamesByBareID reads module display names keyed by bare module id and,
+// when the parent is known, by moduleNameKey(project, module).
+//
+// PATCH(engine-4.27 NUL-composite id): modules are a dependent resource, so
+// `modules.id` in the store is `<uuid>\x00<projects_id>` while module_issues
+// junction rows carry the BARE uuid (localModules strips the suffix before the
+// insert). A SQL `JOIN ... ON modules.id = module_issues.module_id` therefore
+// never matches and every name comes back empty. The mapping is built in Go for
+// the same reason as the enrichment's storedByBare map: SQLite string funcs
+// mis-handle the embedded NUL (see store.BareResourceID).
+func moduleNamesByBareID(db *store.Store) (map[string]string, error) {
+	rows, err := db.Query(`SELECT id, COALESCE(projects_id, ''), COALESCE(json_extract(data, '$.name'), '') FROM modules`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	names := map[string]string{}
+	for rows.Next() {
+		var storageID, projectID, name string
+		if err := rows.Scan(&storageID, &projectID, &name); err != nil {
+			return nil, err
+		}
+		bare := store.BareResourceID(storageID)
+		if projectID != "" {
+			names[moduleNameKey(projectID, bare)] = name
+		}
+		// Bare-id fallback for junction rows written without a project (the
+		// column is nullable) — a module uuid is unique across projects.
+		if _, seen := names[bare]; !seen {
+			names[bare] = name
+		}
+	}
+	return names, rows.Err()
+}
+
+// modRef is one module an issue belongs to, as reported by `module of`.
+type modRef struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
+// modulesForIssue resolves the modules an issue belongs to from the local
+// junction table, ordered by name then id.
+func modulesForIssue(db *store.Store, issueID string) ([]modRef, error) {
+	rows, err := db.Query(`SELECT module_id, COALESCE(project_id, '') FROM module_issues WHERE issue_id = ?`, issueID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	type link struct{ moduleID, projectID string }
+	var links []link
+	for rows.Next() {
+		var l link
+		if err := rows.Scan(&l.moduleID, &l.projectID); err != nil {
+			return nil, err
+		}
+		links = append(links, l)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	if len(links) == 0 {
+		return nil, nil
+	}
+	names, err := moduleNamesByBareID(db)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]modRef, 0, len(links))
+	for _, l := range links {
+		name, ok := names[moduleNameKey(l.projectID, l.moduleID)]
+		if !ok {
+			name = names[l.moduleID]
+		}
+		out = append(out, modRef{ID: l.moduleID, Name: name})
+	}
+	sort.Slice(out, func(i, j int) bool {
+		if out[i].Name != out[j].Name {
+			return out[i].Name < out[j].Name
+		}
+		return out[i].ID < out[j].ID
+	})
+	return out, nil
 }
 
 // moduleEnrichResult summarizes one enrichment pass.
@@ -154,12 +275,12 @@ type moduleEnrichResult struct {
 // `module sync` command and the post-sync hook. It rebuilds the module_issues
 // junction table and patches issues.data.module_ids for the given scope.
 // Returns errNoLocalModules when the modules table is empty.
-func enrichModuleMembership(ctx context.Context, get moduleGetter, db *store.Store, slug, projectFilter string) (moduleEnrichResult, error) {
+func enrichModuleMembership(ctx context.Context, get moduleGetter, db *store.Store, slug, projectFilter, workspaceID string) (moduleEnrichResult, error) {
 	var res moduleEnrichResult
 	if err := ensureModuleIssuesTable(db); err != nil {
 		return res, fmt.Errorf("creating module_issues table: %w", err)
 	}
-	modules, err := localModules(db, projectFilter)
+	modules, err := localModules(db, projectFilter, workspaceID)
 	if err != nil {
 		return res, fmt.Errorf("reading local modules: %w", err)
 	}
@@ -168,7 +289,10 @@ func enrichModuleMembership(ctx context.Context, get moduleGetter, db *store.Sto
 	}
 	res.Modules = len(modules)
 
-	pg := determinePaginationDefaults()
+	// PATCH(engine-4.27): determinePaginationDefaults is now per-resource; the
+	// module-issues endpoint's defaults match the old global default
+	// (cursor/per_page/100) the novel enrichment relied on.
+	pg := determinePaginationDefaults("modules/modules_module_issues")
 	issueToModules := map[string][]string{}
 
 	tx, err := db.DB().Begin()
@@ -193,15 +317,18 @@ func enrichModuleMembership(ctx context.Context, get moduleGetter, db *store.Sto
 	if projectFilter != "" {
 		resetSQL += ` WHERE projects_id = ?`
 		resetArgs = append(resetArgs, projectFilter)
+	} else if workspaceID != "" {
+		// PATCH(tenant-resolver-seam): keep the reset within the active
+		// workspace so a bbm enrichment never wipes another workspace's
+		// issues' module_ids.
+		resetSQL += ` WHERE projects_id IN (SELECT id FROM projects WHERE workspace = ?)`
+		resetArgs = append(resetArgs, workspaceID)
 	}
 	if _, err := tx.Exec(resetSQL, resetArgs...); err != nil {
 		return res, fmt.Errorf("resetting module_ids: %w", err)
 	}
 
 	for _, m := range modules {
-		if _, err := tx.Exec(`DELETE FROM module_issues WHERE module_id = ?`, m.id); err != nil {
-			return res, fmt.Errorf("clearing module_issues for %s: %w", m.id, err)
-		}
 		// PATCH(slug-env-align): workspace-relative path; BaseURL + TemplateVars[slug] supply
 		// /api/v1/workspaces/{slug}. The slug param is retained for caller intent/messages.
 		path := fmt.Sprintf(
@@ -209,6 +336,7 @@ func enrichModuleMembership(ctx context.Context, get moduleGetter, db *store.Sto
 			m.projectID, m.id,
 		)
 		cursor := ""
+		cleared := false
 		for {
 			params := map[string]string{pg.limitParam: "100"}
 			if cursor != "" {
@@ -216,7 +344,26 @@ func enrichModuleMembership(ctx context.Context, get moduleGetter, db *store.Sto
 			}
 			data, gerr := get.Get(ctx, path, params)
 			if gerr != nil {
+				// PATCH(tenant-resolver-seam): an access denial on a single
+				// module (e.g. a foreign-workspace module that slipped through
+				// when the active workspace UUID was unknown and scoping fell
+				// back to all modules) must not abort enrichment for every other
+				// module. Skip this module's pages and continue. Because the
+				// stale-link DELETE below runs only after the first SUCCESSFUL
+				// page, a 403 here leaves the module's cached membership intact
+				// instead of wiping it (we never reached the delete).
+				if _, ok := isSyncAccessWarning(gerr); ok {
+					break
+				}
 				return res, gerr
+			}
+			// Clear stale links once, only after a successful response, so an
+			// access denial before the first page can't wipe cached membership.
+			if !cleared {
+				if _, err := tx.Exec(`DELETE FROM module_issues WHERE module_id = ?`, m.id); err != nil {
+					return res, fmt.Errorf("clearing module_issues for %s: %w", m.id, err)
+				}
+				cleared = true
 			}
 			items, next, hasMore := extractPageItems(data, pg.cursorParam)
 			for _, raw := range items {
@@ -242,12 +389,52 @@ func enrichModuleMembership(ctx context.Context, get moduleGetter, db *store.Sto
 		}
 	}
 
+	// PATCH(engine-4.27 NUL-composite id): the reprinted dependent sync stores
+	// projects_issues rows under a NUL-composite storage id (`<uuid>\x00<parent>`),
+	// while the module-issues API returns bare uuids. Map each bare id back to its
+	// stored key before the per-issue UPDATE, or `WHERE id = <bare>` matches zero
+	// rows and no issue is patched. The mapping is built in Go — SQLite string
+	// funcs mis-handle the embedded NUL (see store.BareResourceID) — and scoped
+	// exactly like the reset above so another workspace's issues are never read.
+	storedByBare := map[string]string{}
+	idSQL := `SELECT id FROM projects_issues`
+	var idArgs []any
+	if projectFilter != "" {
+		idSQL += ` WHERE projects_id = ?`
+		idArgs = append(idArgs, projectFilter)
+	} else if workspaceID != "" {
+		idSQL += ` WHERE projects_id IN (SELECT id FROM projects WHERE workspace = ?)`
+		idArgs = append(idArgs, workspaceID)
+	}
+	idRows, qerr := tx.Query(idSQL, idArgs...)
+	if qerr != nil {
+		return res, fmt.Errorf("reading issue ids: %w", qerr)
+	}
+	for idRows.Next() {
+		var sid string
+		if err := idRows.Scan(&sid); err != nil {
+			idRows.Close()
+			return res, fmt.Errorf("scanning issue id: %w", err)
+		}
+		storedByBare[store.BareResourceID(sid)] = sid
+	}
+	idRows.Close()
+	if err := idRows.Err(); err != nil {
+		return res, fmt.Errorf("iterating issue ids: %w", err)
+	}
+
 	for issueID, mods := range issueToModules {
 		sort.Strings(mods)
 		blob, _ := json.Marshal(uniqueStrings(mods))
+		storedID, ok := storedByBare[issueID]
+		if !ok {
+			// The API linked an issue that isn't cached locally (e.g. filtered
+			// out of this sync's scope); nothing to patch.
+			continue
+		}
 		r, uerr := tx.Exec(
 			`UPDATE projects_issues SET data = json_set(data, '$.module_ids', json(?)) WHERE id = ?`,
-			string(blob), issueID,
+			string(blob), storedID,
 		)
 		if uerr != nil {
 			return res, fmt.Errorf("patching issue %s: %w", issueID, uerr)
@@ -283,8 +470,8 @@ func withModuleEnrichment(syncCmd *cobra.Command, flags *rootFlags) *cobra.Comma
 			return nil
 		}
 		slug := resolveSlugFromConfig(flags)
-		if slug == "" {
-			return nil // sync itself would have failed without a slug
+		if slug == "" || slug == "my-workspace" {
+			return nil // sync itself would have failed without a real slug
 		}
 		c, err := flags.newClient()
 		if err != nil {
@@ -302,7 +489,14 @@ func withModuleEnrichment(syncCmd *cobra.Command, flags *rootFlags) *cobra.Comma
 			return nil
 		}
 		defer db.Close()
-		res, err := enrichModuleMembership(cmd.Context(), c, db, slug, "")
+		// PATCH(tenant-resolver-seam): scope enrichment to the active
+		// workspace's projects so the post-sync pass doesn't 403 (and abort) on
+		// other workspaces' modules in the shared store. Empty => unscoped.
+		workspaceID := ""
+		if c.Config != nil {
+			workspaceID = resolveActiveWorkspaceID(slug, c.Config.Workspaces)
+		}
+		res, err := enrichModuleMembership(cmd.Context(), c, db, slug, "", workspaceID)
 		if err != nil {
 			if errors.Is(err, errNoLocalModules) {
 				return nil
@@ -335,9 +529,9 @@ re-run it on its own or scope it to a single project.`,
 		Example: `  plane-pp-cli module sync
   plane-pp-cli module sync --project 8feda17c-6680-4f9d-a485-5cae321cd0cc`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			slug = resolveSlug(slug)
-			if slug == "" {
-				return usageErr(fmt.Errorf("workspace slug not set: pass --slug or export %s", envWorkspaceSlug))
+			slug = effectiveSlug(flags, slug)
+			if slug == "" || slug == "my-workspace" {
+				return usageErr(fmt.Errorf("workspace not set: pass --workspace <slug>, --slug <slug>, export %s, or run 'plane-pp-cli workspaces use <slug>'", envWorkspaceSlug))
 			}
 			if dbPath == "" {
 				dbPath = defaultDBPath("plane-pp-cli")
@@ -353,7 +547,14 @@ re-run it on its own or scope it to a single project.`,
 			}
 			defer db.Close()
 
-			res, err := enrichModuleMembership(cmd.Context(), c, db, slug, projectFilter)
+			// PATCH(tenant-resolver-seam): scope to the active workspace's
+			// projects (unless a single --project is given) so a standalone
+			// `module sync` doesn't 403 on other workspaces' modules.
+			workspaceID := ""
+			if c.Config != nil {
+				workspaceID = resolveActiveWorkspaceID(slug, c.Config.Workspaces)
+			}
+			res, err := enrichModuleMembership(cmd.Context(), c, db, slug, projectFilter, workspaceID)
 			if err != nil {
 				if errors.Is(err, errNoLocalModules) {
 					// No modules cached yet (sync not run, or none in scope): a
@@ -384,7 +585,7 @@ re-run it on its own or scope it to a single project.`,
 			return nil
 		},
 	}
-	cmd.Flags().StringVar(&slug, "slug", "", "Workspace slug (defaults to $"+envWorkspaceSlug+")")
+	cmd.Flags().StringVar(&slug, "slug", "", "Workspace slug; overridden by the global --workspace (defaults to $"+envWorkspaceSlug+")")
 	cmd.Flags().StringVar(&projectFilter, "project", "", "Limit to one project UUID (default: all synced projects)")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
 	return cmd
@@ -416,27 +617,9 @@ func newModuleOfCmd(flags *rootFlags) *cobra.Command {
 			if err := ensureModuleIssuesTable(db); err != nil {
 				return fmt.Errorf("preparing module_issues table: %w", err)
 			}
-			rows, err := db.Query(`
-				SELECT mi.module_id, COALESCE(json_extract(m.data, '$.name'), '')
-				FROM module_issues mi
-				LEFT JOIN modules m ON m.id = mi.module_id
-				WHERE mi.issue_id = ?
-				ORDER BY 2`, args[0])
+			out, err := modulesForIssue(db, args[0])
 			if err != nil {
 				return err
-			}
-			defer rows.Close()
-			type modRef struct {
-				ID   string `json:"id"`
-				Name string `json:"name"`
-			}
-			var out []modRef
-			for rows.Next() {
-				var r modRef
-				if err := rows.Scan(&r.ID, &r.Name); err != nil {
-					return err
-				}
-				out = append(out, r)
 			}
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				return flags.printJSON(cmd, map[string]any{"issue": args[0], "modules": out})
@@ -475,6 +658,10 @@ cache (module_issues) if the issue store is present.`,
 			if name == "" && !flags.dryRun {
 				return usageErr(fmt.Errorf("--name is required"))
 			}
+			// The global --workspace flag tops the precedence chain and overrides
+			// the positional <slug>; effectiveSlug returns novelWorkspace when set,
+			// otherwise the (required) positional arg.
+			slug = effectiveSlug(flags, slug)
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -585,20 +772,51 @@ cache (module_issues) if the issue store is present.`,
 	return cmd
 }
 
-// resolveSlugFromConfig mirrors the generated sync command's slug resolution:
-// the config file's TemplateVars["slug"] first (populated from PLANE_SLUG at
-// load time), then a live PLANE_SLUG env override. PATCH(slug-env-align): the
-// reprinted client stores the workspace {slug} in Config.TemplateVars rather
-// than a dedicated WorkspaceSlug field.
-func resolveSlugFromConfig(flags *rootFlags) string {
+// effectiveSlug resolves the workspace slug for the novel commands following the
+// global precedence:
+//
+//	--workspace (global flag) > --slug / positional slug (local) > $PLANE_SLUG > default_workspace (config)
+//
+// localSlug is the command's explicit slug ("" when the command has none or it
+// was left unset). It returns "" or the "my-workspace" sentinel only when nothing
+// is configured anywhere; callers reject that with a --workspace-aware message.
+//
+// This exists because the earlier resolveSlug()/resolveSlugFromConfig() helpers
+// stopped at $PLANE_SLUG and never consulted the global --workspace flag, so
+// `applyClientSlug(c, resolveSlug(...))` clobbered the slug newClient() had
+// already resolved from --workspace, issuing a cross-workspace request the API
+// rejects with 403 (see plane-pp-cli feedback, 2026-06-11). This mirrors the
+// attach-file fix (commit 954b5b34e).
+func effectiveSlug(flags *rootFlags, localSlug string) string {
 	slug := ""
-	if cfg, err := config.Load(flags.configPath); err == nil {
-		slug = cfg.TemplateVars["slug"]
+	switch {
+	case novelWorkspace != "":
+		slug = novelWorkspace
+	case localSlug != "":
+		slug = localSlug
+	default:
+		// PATCH(slug-env-align): the reprinted client stores the workspace {slug}
+		// in Config.TemplateVars (seeded from default_workspace at load) rather
+		// than a dedicated WorkspaceSlug field; a live PLANE_SLUG still wins over
+		// that.
+		if cfg, err := config.Load(flags.configPath); err == nil {
+			slug = cfg.TemplateVars["slug"]
+		}
+		if v := os.Getenv(envWorkspaceSlug); v != "" {
+			slug = v
+		}
 	}
-	if v := os.Getenv(envWorkspaceSlug); v != "" {
-		slug = v
-	}
-	return slug
+	// Normalize on the way out so --workspace and a raw PLANE_SLUG tolerate a
+	// pasted browser URL / API base exactly like newClient() and config.Load do
+	// (a slug already stored normalized is unchanged — the op is idempotent).
+	return config.NormalizeWorkspaceSlug(slug)
+}
+
+// resolveSlugFromConfig resolves the slug for the commands that carry no local
+// --slug flag (the post-sync enrichment wrapper). It delegates to effectiveSlug
+// so it too honors the global --workspace flag.
+func resolveSlugFromConfig(flags *rootFlags) string {
+	return effectiveSlug(flags, "")
 }
 
 // extractCreatedIssueID pulls the id out of an issueCreate response, tolerating

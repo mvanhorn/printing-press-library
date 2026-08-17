@@ -45,7 +45,7 @@ brews:
       owner: cathrynlavery
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Read, render"
+    description: "Read, preview, render, and write Vestaboard messages from the terminal, including character-code lookup for precise board output."
     install: |
       bin.install "vestaboard-pp-cli"
       bin.install "vestaboard-pp-mcp"

@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "inaturalist-pp-mcp",
+  "display_name": "iNaturalist",
+  "version": "1.3.0",
+  "description": "Explore iNaturalist's full API, plus privacy-safe field briefings and identification progress that ordinary endpoint wrappers miss.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/inaturalist-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/inaturalist-pp-mcp",
+      "args": [],
+      "env": {
+        "INATURALIST_API_TOKEN": "${user_config.inaturalist_api_token}"
+      }
+    }
+  },
+  "user_config": {
+    "inaturalist_api_token": {
+      "type": "string",
+      "title": "INATURALIST_API_TOKEN",
+      "description": "Sets INATURALIST_API_TOKEN for the iNaturalist MCP server. Get a credential from https://api.inaturalist.org/v1/.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

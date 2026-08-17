@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "drug-enforcement-recall-commands",
+  "applied_at": "2026-07-07",
+  "base_run_id": "20260707-200719-bf61d987",
+  "base_printing_press_version": "4.25.0",
+  "summary": "Added novel check/firm/recent/reference commands wrapping the openFDA enforcement search with the safety contract.",
+  "reason": "The generated endpoint surface exposes raw openFDA search; these commands pre-build the common recall-lookup queries and enforce the health-data safety contract — cite the recall_number, print the FDA class legend and disclaimer, and report 'no recall records found' (never 'safe') on a 404 no-match. They carry pp:no-error-path-probe because an unknown drug/firm/recall-number is indistinguishable from a valid one with no recalls.",
+  "files": [
+    "internal/cli/recalls.go",
+    "internal/cli/recalls_test.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "go test ./internal/cli passes; live check/firm/recent/reference verified against openFDA; dogfood full 46/46 pass."
+}

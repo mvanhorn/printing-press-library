@@ -64,5 +64,11 @@
       "command": "transcripts export",
       "description": "Export a transcript as markdown to a vault directory with auto-generated YYYY-MM-DD_title.md filename."
     }
+  ],
+  "contributors": [
+    {
+      "handle": "shanegardner405-arch",
+      "name": "Shane Gardner"
+    }
   ]
 }

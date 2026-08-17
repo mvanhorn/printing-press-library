@@ -1,9 +1,13 @@
 {
   "api_name": "shopper",
   "base_url": "https://siteapi.shopper.com.br",
-  "description": "The first CLI for Shopper — every catalog, cart, and delivery surface plus a local price/basket history the web app throws away each cycle.",
+  "description": "Every Shopper storefront in one CLI — catalog, cart, delivery schedule, charge calendar, and spend analytics no web UI surfaces.",
   "mcp_ready": "full",
   "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
   "auth": {
     "type": "bearer_token",
     "header": "Authorization",
@@ -26,7 +30,7 @@
   "tools": [
     {
       "name": "address_list_address",
-      "description": "GET /address/. Returns the address.",
+      "description": "List delivery addresses and which stores are available at each address. Returns the address.",
       "method": "GET",
       "path": "/address/",
       "params": []
@@ -61,7 +65,7 @@
     },
     {
       "name": "cart_list_summary",
-      "description": "GET /cart/summary. Returns the summary.",
+      "description": "Show current basket: items, quantities, totals, cashback, and minimum-order status. Returns the summary.",
       "method": "GET",
       "path": "/cart/summary",
       "params": []
@@ -90,110 +94,109 @@
     },
     {
       "name": "catalog_create_count",
-      "description": "POST /catalog/search/count. Required: brands, metadata, types. Optional: query. Returns the new count.",
+      "description": "Count products matching a search query and optional filters. Optional: query, brands, metadata (plus 1 more). Returns the new count.",
       "method": "POST",
       "path": "/catalog/search/count",
       "params": [
         {
           "name": "query",
           "type": "string",
-          "location": "query"
+          "location": "query",
+          "description": "Search query"
         },
         {
           "name": "brands",
           "type": "array",
           "location": "body",
-          "required": true
+          "description": "Brand filter list"
         },
         {
           "name": "metadata",
           "type": "array",
           "location": "body",
-          "required": true
+          "description": "Metadata filter list"
         },
         {
           "name": "types",
           "type": "array",
           "location": "body",
-          "required": true
+          "description": "Product type filter list"
         }
       ]
     },
     {
       "name": "catalog_create_filters",
-      "description": "POST /catalog/search/filters. Required: brands, metadata, types. Optional: query. Returns the new filters.",
+      "description": "Get available filter options for a search query. Optional: query, brands, metadata (plus 1 more). Returns the new filters.",
       "method": "POST",
       "path": "/catalog/search/filters",
       "params": [
         {
           "name": "query",
           "type": "string",
-          "location": "query"
+          "location": "query",
+          "description": "Search query"
         },
         {
           "name": "brands",
           "type": "array",
           "location": "body",
-          "required": true
+          "description": "Brand filter list"
         },
         {
           "name": "metadata",
           "type": "array",
           "location": "body",
-          "required": true
+          "description": "Metadata filter list"
         },
         {
           "name": "types",
           "type": "array",
           "location": "body",
-          "required": true
+          "description": "Product type filter list"
         }
       ]
     },
     {
       "name": "catalog_create_search",
-      "description": "POST /catalog/search. Required: brands, metadata, types. Optional: page, query, size. Returns the new search.",
+      "description": "Search the product catalog by query with optional brand/type/metadata filters. Optional: page, query, brands (plus 2 more). Returns the new search.",
       "method": "POST",
       "path": "/catalog/search",
       "params": [
         {
           "name": "page",
           "type": "integer",
-          "location": "query"
+          "location": "query",
+          "description": "Page number"
         },
         {
           "name": "query",
           "type": "string",
-          "location": "query"
-        },
-        {
-          "name": "size",
-          "type": "integer",
-          "location": "query"
+          "location": "query",
+          "description": "Search query"
         },
         {
           "name": "brands",
           "type": "array",
           "location": "body",
-          "required": true
+          "description": "Brand filter list (optional)"
         },
         {
           "name": "metadata",
           "type": "array",
           "location": "body",
-          "required": true
+          "description": "Metadata filter list (optional)"
         },
         {
           "name": "types",
           "type": "array",
           "location": "body",
-          "required": true
+          "description": "Product type filter list (optional)"
         }
       ]
     },
     {
       "name": "catalog_get_view",
-      "description": "GET /catalog/banners/{banner_id}/view. Required: banner_id. Returns the view.",
+      "description": "Get details for a specific catalog banner. Required: banner_id. Returns the view.",
       "method": "GET",
       "path": "/catalog/banners/{banner_id}/view",
       "params": [
@@ -201,68 +204,64 @@
           "name": "banner_id",
           "type": "string",
           "location": "path",
-          "description": "The banner_id path segment",
+          "description": "Banner ID",
           "required": true
         }
       ]
     },
     {
       "name": "catalog_list_banners",
-      "description": "GET /catalog/banners. Optional: imageSize. Returns the banners.",
+      "description": "List promotional banners for the current store. Returns the banners.",
       "method": "GET",
       "path": "/catalog/banners",
-      "params": [
-        {
-          "name": "imageSize",
-          "type": "string",
-          "location": "query"
-        }
-      ]
+      "params": []
     },
     {
       "name": "catalog_list_departments",
-      "description": "GET /catalog/departments. Returns the departments.",
+      "description": "List product departments/categories for the current store. Returns the departments.",
       "method": "GET",
       "path": "/catalog/departments",
       "params": []
     },
     {
       "name": "catalog_list_news",
-      "description": "GET /catalog/products/news. Returns the news.",
+      "description": "List new product arrivals for the current store. Returns the news.",
       "method": "GET",
       "path": "/catalog/products/news",
       "params": []
     },
     {
       "name": "catalog_list_suggest",
-      "description": "GET /catalog/search/suggest. Optional: query. Returns the suggest.",
+      "description": "Get search suggestions for a query prefix. Required: query. Returns the suggest.",
       "method": "GET",
       "path": "/catalog/search/suggest",
       "params": [
         {
           "name": "query",
           "type": "string",
-          "location": "query"
+          "location": "query",
+          "description": "Partial search query for suggestions",
+          "required": true
         }
       ]
     },
     {
       "name": "delivery_list_calendar",
-      "description": "GET /delivery/v2/calendar. Returns the calendar.",
+      "description": "Get delivery reschedule calendar — allowed date range and disabled days. Returns the calendar.",
       "method": "GET",
       "path": "/delivery/v2/calendar",
       "params": []
     },
     {
       "name": "delivery_list_summary",
-      "description": "GET /delivery/summary. Returns the summary.",
+      "description": "Show scheduled delivery date, current delivery status, and store message. Returns the summary.",
       "method": "GET",
       "path": "/delivery/summary",
       "params": []
     },
     {
       "name": "features_create_select",
-      "description": "POST /features/stores/select. Required: store_id. Returns the new select.",
+      "description": "Select active store (sets session context; no-op for header-scoped reads). Required: store_id. Returns the new select.",
       "method": "POST",
       "path": "/features/stores/select",
       "params": [
@@ -270,13 +269,14 @@
           "name": "store_id",
           "type": "integer",
           "location": "body",
+          "description": "Store ID to select",
           "required": true
         }
       ]
     },
     {
       "name": "features_create_start",
-      "description": "POST /features/timer/start. Required: name. Returns the new start.",
+      "description": "Start a named feature timer. Required: name. Returns the new start.",
       "method": "POST",
       "path": "/features/timer/start",
       "params": [
@@ -284,13 +284,14 @@
           "name": "name",
           "type": "string",
           "location": "body",
+          "description": "Timer name",
           "required": true
         }
       ]
     },
     {
       "name": "features_create_view",
-      "description": "POST /features/toggle/view. Required: toggle. Returns the new view.",
+      "description": "Mark a feature toggle as viewed. Required: toggle. Returns the new view.",
       "method": "POST",
       "path": "/features/toggle/view",
       "params": [
@@ -298,40 +299,56 @@
           "name": "toggle",
           "type": "string",
           "location": "body",
+          "description": "Toggle name",
           "required": true
         }
       ]
     },
     {
       "name": "features_list_stores",
-      "description": "GET /features/stores. Optional: toggles. Returns the stores.",
+      "description": "List all available storefronts with store IDs, cluster IDs, payment parameters, and feature flags. Optional: toggles. Returns the stores.",
       "method": "GET",
       "path": "/features/stores",
       "params": [
         {
           "name": "toggles",
           "type": "string",
-          "location": "query"
+          "location": "query",
+          "description": "Comma-separated toggle names to include"
         }
       ]
     },
     {
       "name": "features_list_tick",
-      "description": "GET /features/timer/tick. Returns the tick.",
+      "description": "Get current timer state. Returns the tick.",
       "method": "GET",
       "path": "/features/timer/tick",
       "params": []
     },
     {
       "name": "features_list_toggle",
-      "description": "GET /features/toggle. Returns the toggle.",
+      "description": "Get active feature toggles for the current store. Returns the toggle.",
       "method": "GET",
       "path": "/features/toggle",
       "params": []
     },
     {
+      "name": "orders_list_orders",
+      "description": "List past orders for the active store (newest-first, paginated by size). Optional: size. Returns the orders.",
+      "method": "GET",
+      "path": "/orders/orders",
+      "params": [
+        {
+          "name": "size",
+          "type": "integer",
+          "location": "query",
+          "description": "Number of orders to return (default 20)"
+        }
+      ]
+    },
+    {
       "name": "session_list_social",
-      "description": "GET /auth/validation/social. Returns the social.",
+      "description": "Validate social-login session status. Returns the social.",
       "method": "GET",
       "path": "/auth/validation/social",
       "params": []

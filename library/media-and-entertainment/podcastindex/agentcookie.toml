@@ -1,0 +1,17 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "podcastindex-pp-cli"
+display_name = "PodcastIndex"
+description = "The only PodcastIndex tool that is agent-native and works offline: search, resolve, and analyse any podcast from one signed binary with a local mirror you can FTS and SQL."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/podcastindex-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+PODCASTINDEX_KEY = true
+PODCASTINDEX_ORG_API_KEY = true

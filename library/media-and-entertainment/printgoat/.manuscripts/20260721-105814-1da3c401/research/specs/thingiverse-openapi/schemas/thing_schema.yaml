@@ -1,0 +1,223 @@
+type: object
+required:
+  - id
+  - name
+properties:
+  id:
+    type: integer
+    format: int
+    example: 763622
+  name:
+    type: string
+    example: "#3DBenchy - The jolly 3D printing torture-test by CreativeTools.se"
+  thumbnail:
+    type: string
+    example: https://cdn.thingiverse.com/renders/62/ab/d7/e3/ea/1_3D-printed_3DBenchy_by_Creative-Tools.com_display_large.JPG
+  url:
+    type: string
+    example: https://api.thingiverse.com/things/763622
+  public_url:
+    type: string
+    example: https://wwww.thingiverse.com/thing:763622
+  creator:
+    $ref: './user_summary_schema.yaml'
+  added: 
+    type: string
+    format: date-time
+    example: "2015-04-09T12:57:28+00:00"
+  modified: 
+    type: string
+    format: date-time
+    example: "2015-04-09T12:57:28+00:00"
+  is_published:
+    type: integer
+    example: 1
+    minimum: 0
+    maximum: 1
+  is_wip:
+    type: integer
+    example: 1
+    minimum: 0
+    maximum: 1
+  is_featured:
+    type: boolean
+    example: true
+  is_nsfw:
+    type: boolean
+    example: false
+    nullable: true
+  is_ai:
+    type: boolean
+    example: false
+    nullable: true
+  like_count:
+    type: integer
+    format: int
+    example: 80855
+  is_liked:
+    type: boolean
+    example: true
+  collect_count:
+    type: integer
+    format: int
+    example: 135811
+  is_collected:
+    type: boolean
+    example: false
+  comment_count:
+    type: integer
+    format: int
+    example: 808
+  is_watched:
+    type: boolean
+    example: false
+  default_image:
+    $ref: './image_summary_schema.yaml'
+    nullable: true
+  description:
+    type: string
+    example: Creative Tools](https:\/\/www.creativetools.se\/) Creative Tools supplies 3D printer and 3D scanner products incl filaments, accessories and support and also 3D software for leading CAD, modeling, animation, and rendering.
+  instructions:
+    type: string
+    example: 
+  description_html:
+    type: string
+    example: <div><p><a rel=\"ugc nofollow\" href=\"https://www.creativetools.se/\">Creative Tools</a> Creative Tools supplies 3D printer and 3D scanner products incl filaments, accessories and support and also 3D software for leading CAD, modeling, animation, and rendering.</p></div>
+  instructions_html:
+    type: string
+    example: <div><\/div>\n
+  details:
+    type: string
+  details_parts:
+    type: array
+    items:
+      type: object
+  edu_details:
+    type: string
+    example: 
+  edu_details_parts:
+    type: array
+    nullable: true
+    items:
+      type: object
+  license:
+    type: string
+    example: Creative Commons - Attribution - No Derivatives
+  allows_derivatives:
+    type: boolean
+    example: false
+  files_url:
+    type: string
+    example: https://api.thingiverse.com/things/763622/files
+  images_url:
+    type: string
+    example: https://api.thingiverse.com/things/763622/images
+  likes_url:
+    type: string
+    example: https://api.thingiverse.com/things/763622/likes
+  ancestors_url:
+    type: string
+    example: https://api.thingiverse.com/things/763622/ancestors
+  derivatives_url:
+    type: string
+    example: https://api.thingiverse.com/things/763622/derivatives
+  tags_url:
+    type: string
+  tags:
+    type: array
+    items:
+      $ref: './tag_schema.yaml'
+  categories_url:
+    type: string
+    example: https://api.thingiverse.com/things/763622/categories
+  file_count:
+    type: integer
+    format: int
+    example: 24
+  is_purchased:
+    type: integer
+    example: 1
+    minimum: 0
+    maximum: 1
+  app_id:
+    type: integer
+    format: int
+    nullable: true
+    example: null
+  download_count:
+    type: integer
+    format: int
+    example: 3169879
+  view_count:
+    type: integer
+    format: int
+    example: 4065156
+  education:
+    type: object
+    properties:
+      grades:
+        type: array
+      subjects:
+        type: array
+  remix_count:
+    type: integer
+    format: int
+    example: 0
+  make_count:
+    type: integer
+    format: int
+    example: 4518
+  app_count:
+    type: integer
+    format: int
+    example: 3
+  root_comment_count:
+    type: integer
+    format: int
+    example: 535
+  moderation:
+    type: string
+    example:
+    nullable: true
+  is_derivative:
+    type: boolean
+    example: false
+  ancestors:
+    type: array
+    example: []
+  can_comment:
+    type: boolean
+    example: true
+  type_name:
+    type: string
+    example: Thing
+  is_banned:
+    type: boolean
+    example: false
+  is_comments_disabled:
+    type: boolean
+    example: false
+  needs_moderation:
+    type: integer
+    example: 0
+    minimum: 0
+    maximum: 1
+  is_decoy:
+    type: integer
+    example: 0
+    minimum: 0
+    maximum: 1
+  zip_data:
+    type: object
+    properties:
+      files: 
+        type: array
+        items:
+          type: object
+          properties:
+            name:
+              type: string
+              example: 3DBenchy_Broschure_3DBenchy.com.pdf
+            url:
+              type: string
+              example: https://cdn.thingiverse.com/assets/a7/2c/bd/ba/ea/3DBenchy_Broschure_3DBenchy.com.pdf

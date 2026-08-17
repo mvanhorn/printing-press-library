@@ -1,12 +1,21 @@
 {
   "api_name": "jimmy-johns",
   "base_url": "https://www.jimmyjohns.com/api",
-  "description": "CLI for the Jimmy John's ordering API. Browse stores, menus, and product\nmodifiers; manage your cart; place orders; view rewards and saved payments.\nBacked by Jimmy John's proprietary API at www.jimmyjohns.com/api and\nauthenticated via cookies imported from a logged-in Chrome session\n(PerimeterX clearance + JJ session cookies).",
+  "description": "Order Jimmy John's from the terminal — Freaky Fast Rewards stacking, half-order builder, and one-shot reorder.",
   "mcp_ready": "partial",
   "http_transport": "browser-chrome",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
   "auth": {
     "type": "cookie",
-    "cookie_domain": "jimmyjohns.com"
+    "cookie_domain": "jimmyjohns.com",
+    "cookies": [
+      "_px3",
+      "PXGHzDhy7F_px",
+      "JJ_SESSION"
+    ]
   },
   "required_headers": [
     {

@@ -20,6 +20,7 @@ import (
 
 	"github.com/mvanhorn/printing-press-library/library/commerce/amazon-orders/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/commerce/amazon-orders/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/commerce/amazon-orders/internal/parser"
 	"github.com/mvanhorn/printing-press-library/library/commerce/amazon-orders/internal/store"
 	"github.com/spf13/cobra"
 )
@@ -100,7 +101,12 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 					authConfigured = true
 					report["auth"] = "configured (browser session)"
 					report["auth_source"] = cfg.AuthSource
-					report["auth_domain"] = ".amazon.com"
+					domain, domainErr := cookieDomainFromConfig(cfg)
+					if domainErr != nil {
+						report["auth"] = fmt.Sprintf("error: invalid base_url: %s", domainErr)
+					} else {
+						report["auth_domain"] = domain
+					}
 					if proofOK, proofDetail := browserSessionProofStatus(cfg, header); proofOK {
 						report["browser_session_proof"] = "valid"
 						report["browser_session_proof_detail"] = proofDetail
@@ -209,8 +215,13 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 					if authHeader == "" {
 						// No auth configured — skip credential validation
 					} else if proofOK, proofDetail := browserSessionProofStatus(cfg, authHeader); proofOK {
-						report["credentials"] = "valid"
-						report["credentials_detail"] = proofDetail
+						if liveOK, liveDetail := doctorLiveCredentialStatus(c); liveOK {
+							report["credentials"] = "valid"
+							report["credentials_detail"] = proofDetail + "; " + liveDetail
+						} else {
+							report["credentials"] = "invalid (live authenticated probe failed)"
+							report["credentials_detail"] = liveDetail + "; " + proofDetail
+						}
 					} else {
 						report["credentials"] = "invalid (browser-session proof missing or stale)"
 						report["credentials_detail"] = proofDetail
@@ -293,6 +304,25 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 	return cmd
 }
 
+func doctorLiveCredentialStatus(c *client.Client) (bool, string) {
+	noCacheClient := *c
+	noCacheClient.NoCache = true
+	status, err := validateBrowserSession(&noCacheClient, browserSessionValidationPath)
+	if err != nil {
+		if status != 0 && (status < 200 || status >= 300) {
+			return false, fmt.Sprintf("live credential probe returned HTTP %d", status)
+		}
+		if parser.IsAuthInterstitialError(err) {
+			return false, err.Error()
+		}
+		return false, fmt.Sprintf("live credential probe failed: %v", err)
+	}
+	if status < 200 || status >= 300 {
+		return false, fmt.Sprintf("live credential probe returned HTTP %d", status)
+	}
+	return true, fmt.Sprintf("GET %s returned authenticated content (HTTP %d)", browserSessionValidationPath, status)
+}
+
 type doctorBrowserSessionProof struct {
 	APIName               string `json:"api_name"`
 	CookieDomain          string `json:"cookie_domain"`
@@ -320,10 +350,17 @@ func browserSessionProofStatus(cfg *config.Config, authHeader string) (bool, str
 	if proof.APIName != "amazon-orders" {
 		return false, "proof belongs to a different CLI"
 	}
-	if proof.CookieDomain != ".amazon.com" {
+	domain, err := cookieDomainFromConfig(cfg)
+	if err != nil {
+		return false, fmt.Sprintf("invalid base_url: %v", err)
+	}
+	if proof.CookieDomain != domain {
 		return false, "proof belongs to a different cookie domain"
 	}
-	if proof.ValidationPath != "/gp/your-account/order-history" {
+	if proof.ValidationPath == "/gp/your-account/order-history" {
+		return false, "proof was written against an older validation endpoint; re-run amazon-orders-pp-cli auth login --chrome to refresh it"
+	}
+	if proof.ValidationPath != "/your-orders/orders" {
 		return false, "proof was captured for a different validation endpoint"
 	}
 	if authHeader != "" && proof.CredentialFingerprint != doctorFingerprintCredential(authHeader) {
@@ -417,6 +454,12 @@ func collectCacheReport(ctx context.Context, staleAfterSpec string) map[string]a
 	if v, verr := s.SchemaVersion(); verr == nil {
 		report["schema_version"] = v
 	}
+	taintedRows, taintErr := cacheAuthInterstitialRows(s)
+	if taintErr != nil {
+		report["status"] = "error"
+		report["error"] = "checking cache for sign-in/interstitial HTML: " + taintErr.Error()
+		return report
+	}
 
 	staleAfter := 6 * time.Hour
 	if staleAfterSpec != "" {
@@ -427,6 +470,10 @@ func collectCacheReport(ctx context.Context, staleAfterSpec string) map[string]a
 
 	rows, qerr := s.DB().Query(`SELECT resource_type, COALESCE(total_count, 0), last_synced_at FROM sync_state ORDER BY resource_type`)
 	if qerr != nil {
+		if len(taintedRows) > 0 {
+			markTaintedCacheReport(report, taintedRows)
+			return report
+		}
 		// sync_state may not exist on a fresh DB that has migrated but not
 		// yet had any sync runs — treat as unknown rather than error.
 		report["status"] = "unknown"
@@ -468,6 +515,8 @@ func collectCacheReport(ctx context.Context, staleAfterSpec string) map[string]a
 	report["stale_after"] = staleAfter.String()
 
 	switch {
+	case len(taintedRows) > 0:
+		markTaintedCacheReport(report, taintedRows)
 	case !haveAny && len(resources) == 0:
 		report["status"] = "unknown"
 		report["hint"] = "sync_state is empty; run 'amazon-orders-pp-cli sync' to hydrate."
@@ -479,6 +528,48 @@ func collectCacheReport(ctx context.Context, staleAfterSpec string) map[string]a
 		report["hint"] = "Some resources are older than stale_after; run 'amazon-orders-pp-cli sync' to refresh."
 	}
 	return report
+}
+
+func markTaintedCacheReport(report map[string]any, taintedRows []map[string]any) {
+	report["status"] = "error"
+	report["tainted_resources"] = taintedRows
+	report["hint"] = "Local cache contains Amazon sign-in/interstitial HTML; run 'amazon-orders-pp-cli auth login --chrome', then refresh with 'amazon-orders-pp-cli sync --full'."
+}
+
+func cacheAuthInterstitialRows(s *store.Store) ([]map[string]any, error) {
+	rows, err := s.DB().Query(`
+SELECT r.resource_type, r.id, r.data
+FROM resources_fts f
+JOIN resources r ON r.id = f.id
+WHERE resources_fts MATCH ?
+ORDER BY rank
+LIMIT 200`, `"sign in" OR signin OR signinsubmit OR ap_password OR ap_signin OR "ap signin" OR iniciar OR sesion OR sesión OR "robot check" OR captcha OR captchacharacters OR validatecaptcha OR cvf OR "ax claim"`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var tainted []map[string]any
+	for rows.Next() {
+		var resourceType, id, data string
+		if err := rows.Scan(&resourceType, &id, &data); err != nil {
+			continue
+		}
+		if parser.AuthInterstitialError([]byte(data)) == nil {
+			continue
+		}
+		tainted = append(tainted, map[string]any{
+			"type": resourceType,
+			"id":   id,
+		})
+		if len(tainted) >= 20 {
+			break
+		}
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return tainted, nil
 }
 
 func renderCacheReport(w io.Writer, rep map[string]any) {

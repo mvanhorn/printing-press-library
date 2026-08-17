@@ -1,0 +1,26 @@
+{
+  "timestamp": "2026-08-13T18:11:35.34562Z",
+  "cli_dir": "\u003ccli-dir\u003e/browserbase-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted"
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 691,
+      "evidence": "List recorded learnings",
+      "status": "accepted"
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 7,
+    "captured": "2026-08-13T18:09:53.159947Z"
+  }
+}

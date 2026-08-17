@@ -1,0 +1,2961 @@
+{
+  "dir": "\u003ccli-dir\u003e/pipedrive",
+  "spec_path": "\u003ccli-dir\u003e/spec.yaml",
+  "spec_source": "bundled",
+  "verdict": "FAIL",
+  "path_check": {
+    "tested": 5,
+    "valid": 5,
+    "valid_pct": 100
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "unknown",
+    "match": true,
+    "detail": "no bot/bearer/basic scheme detected"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "oauth_scope_coverage_check": {
+    "checked": 210,
+    "covered": 0,
+    "violations": [
+      {
+        "endpoint": "GET /activityFields",
+        "operation_id": "getActivityFields",
+        "required_scopes": [
+          "activities:full",
+          "activities:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "activities:full",
+            "activities:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /activityTypes",
+        "operation_id": "getActivityTypes",
+        "required_scopes": [
+          "activities:full",
+          "activities:read",
+          "admin"
+        ],
+        "required_scope_alternatives": [
+          [
+            "activities:full",
+            "activities:read",
+            "admin"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /activityTypes",
+        "operation_id": "addActivityType",
+        "required_scopes": [
+          "admin"
+        ],
+        "required_scope_alternatives": [
+          [
+            "admin"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /activityTypes/{id}",
+        "operation_id": "deleteActivityType",
+        "required_scopes": [
+          "admin"
+        ],
+        "required_scope_alternatives": [
+          [
+            "admin"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /activityTypes/{id}",
+        "operation_id": "updateActivityType",
+        "required_scopes": [
+          "admin"
+        ],
+        "required_scope_alternatives": [
+          [
+            "admin"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /billing/subscriptions/addons",
+        "operation_id": "getCompanyAddons",
+        "required_scopes": [
+          "users:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "users:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /callLogs",
+        "operation_id": "getUserCallLogs",
+        "required_scopes": [
+          "phone-integration"
+        ],
+        "required_scope_alternatives": [
+          [
+            "phone-integration"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /callLogs",
+        "operation_id": "addCallLog",
+        "required_scopes": [
+          "phone-integration"
+        ],
+        "required_scope_alternatives": [
+          [
+            "phone-integration"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /callLogs/{id}",
+        "operation_id": "deleteCallLog",
+        "required_scopes": [
+          "phone-integration"
+        ],
+        "required_scope_alternatives": [
+          [
+            "phone-integration"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /callLogs/{id}",
+        "operation_id": "getCallLog",
+        "required_scopes": [
+          "phone-integration"
+        ],
+        "required_scope_alternatives": [
+          [
+            "phone-integration"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /callLogs/{id}/recordings",
+        "operation_id": "addCallLogAudioFile",
+        "required_scopes": [
+          "phone-integration"
+        ],
+        "required_scope_alternatives": [
+          [
+            "phone-integration"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /channels",
+        "operation_id": "addChannel",
+        "required_scopes": [
+          "messengers-integration"
+        ],
+        "required_scope_alternatives": [
+          [
+            "messengers-integration"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /channels/messages/receive",
+        "operation_id": "receiveMessage",
+        "required_scopes": [
+          "messengers-integration"
+        ],
+        "required_scope_alternatives": [
+          [
+            "messengers-integration"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /channels/{channel-id}/conversations/{conversation-id}",
+        "operation_id": "deleteConversation",
+        "required_scopes": [
+          "messengers-integration"
+        ],
+        "required_scope_alternatives": [
+          [
+            "messengers-integration"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /channels/{id}",
+        "operation_id": "deleteChannel",
+        "required_scopes": [
+          "messengers-integration"
+        ],
+        "required_scope_alternatives": [
+          [
+            "messengers-integration"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /currencies",
+        "operation_id": "getCurrencies",
+        "required_scopes": [
+          "base"
+        ],
+        "required_scope_alternatives": [
+          [
+            "base"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /dealFields",
+        "operation_id": "deleteDealFields",
+        "required_scopes": [
+          "admin",
+          "deal-fields:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "admin",
+            "deal-fields:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /dealFields",
+        "operation_id": "getDealFields",
+        "required_scopes": [
+          "admin",
+          "deal-fields:full",
+          "deals:full",
+          "deals:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "admin",
+            "deal-fields:full",
+            "deals:full",
+            "deals:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /dealFields",
+        "operation_id": "addDealField",
+        "required_scopes": [
+          "admin",
+          "deal-fields:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "admin",
+            "deal-fields:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /dealFields/{id}",
+        "operation_id": "deleteDealField",
+        "required_scopes": [
+          "admin",
+          "deal-fields:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "admin",
+            "deal-fields:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /dealFields/{id}",
+        "operation_id": "getDealField",
+        "required_scopes": [
+          "admin",
+          "deal-fields:full",
+          "deals:full",
+          "deals:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "admin",
+            "deal-fields:full",
+            "deals:full",
+            "deals:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /dealFields/{id}",
+        "operation_id": "updateDealField",
+        "required_scopes": [
+          "admin",
+          "deal-fields:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "admin",
+            "deal-fields:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /deals/archived",
+        "operation_id": "getArchivedDeals",
+        "required_scopes": [
+          "deals:full",
+          "deals:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "deals:full",
+            "deals:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /deals/summary",
+        "operation_id": "getDealsSummary",
+        "required_scopes": [
+          "deals:full",
+          "deals:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "deals:full",
+            "deals:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /deals/summary/archived",
+        "operation_id": "getArchivedDealsSummary",
+        "required_scopes": [
+          "deals:full",
+          "deals:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "deals:full",
+            "deals:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /deals/timeline",
+        "operation_id": "getDealsTimeline",
+        "required_scopes": [
+          "deals:full",
+          "deals:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "deals:full",
+            "deals:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /deals/timeline/archived",
+        "operation_id": "getArchivedDealsTimeline",
+        "required_scopes": [
+          "deals:full",
+          "deals:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "deals:full",
+            "deals:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /deals/{id}/changelog",
+        "operation_id": "getDealChangelog",
+        "required_scopes": [
+          "recents:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "recents:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /deals/{id}/duplicate",
+        "operation_id": "duplicateDeal",
+        "required_scopes": [
+          "deals:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "deals:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /deals/{id}/files",
+        "operation_id": "getDealFiles",
+        "required_scopes": [
+          "deals:full",
+          "deals:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "deals:full",
+            "deals:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /deals/{id}/flow",
+        "operation_id": "getDealUpdates",
+        "required_scopes": [
+          "recents:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "recents:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /deals/{id}/followers",
+        "operation_id": "getDealFollowers",
+        "required_scopes": [
+          "deals:full",
+          "deals:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "deals:full",
+            "deals:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /deals/{id}/followers",
+        "operation_id": "addDealFollower",
+        "required_scopes": [
+          "deals:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "deals:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /deals/{id}/followers/{follower_id}",
+        "operation_id": "deleteDealFollower",
+        "required_scopes": [
+          "deals:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "deals:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /deals/{id}/mailMessages",
+        "operation_id": "getDealMailMessages",
+        "required_scopes": [
+          "mail:full",
+          "mail:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "mail:full",
+            "mail:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /deals/{id}/merge",
+        "operation_id": "mergeDeals",
+        "required_scopes": [
+          "deals:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "deals:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /deals/{id}/participants",
+        "operation_id": "getDealParticipants",
+        "required_scopes": [
+          "deals:full",
+          "deals:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "deals:full",
+            "deals:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /deals/{id}/participants",
+        "operation_id": "addDealParticipant",
+        "required_scopes": [
+          "deals:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "deals:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /deals/{id}/participants/{deal_participant_id}",
+        "operation_id": "deleteDealParticipant",
+        "required_scopes": [
+          "deals:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "deals:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /deals/{id}/participantsChangelog",
+        "operation_id": "getDealParticipantsChangelog",
+        "required_scopes": [
+          "deals:full",
+          "deals:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "deals:full",
+            "deals:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /deals/{id}/permittedUsers",
+        "operation_id": "getDealUsers",
+        "required_scopes": [
+          "deals:full",
+          "deals:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "deals:full",
+            "deals:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /files",
+        "operation_id": "getFiles",
+        "required_scopes": [
+          "activities:full",
+          "activities:read",
+          "contacts:full",
+          "contacts:read",
+          "deals:full",
+          "deals:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "activities:full",
+            "activities:read",
+            "contacts:full",
+            "contacts:read",
+            "deals:full",
+            "deals:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /files",
+        "operation_id": "addFile",
+        "required_scopes": [
+          "activities:full",
+          "contacts:full",
+          "deals:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "activities:full",
+            "contacts:full",
+            "deals:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /files/remote",
+        "operation_id": "addFileAndLinkIt",
+        "required_scopes": [
+          "activities:full",
+          "contacts:full",
+          "deals:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "activities:full",
+            "contacts:full",
+            "deals:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /files/remoteLink",
+        "operation_id": "linkFileToItem",
+        "required_scopes": [
+          "activities:full",
+          "contacts:full",
+          "deals:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "activities:full",
+            "contacts:full",
+            "deals:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /files/{id}",
+        "operation_id": "deleteFile",
+        "required_scopes": [
+          "activities:full",
+          "contacts:full",
+          "deals:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "activities:full",
+            "contacts:full",
+            "deals:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /files/{id}",
+        "operation_id": "getFile",
+        "required_scopes": [
+          "activities:full",
+          "activities:read",
+          "contacts:full",
+          "contacts:read",
+          "deals:full",
+          "deals:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "activities:full",
+            "activities:read",
+            "contacts:full",
+            "contacts:read",
+            "deals:full",
+            "deals:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /files/{id}",
+        "operation_id": "updateFile",
+        "required_scopes": [
+          "activities:full",
+          "contacts:full",
+          "deals:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "activities:full",
+            "contacts:full",
+            "deals:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /files/{id}/download",
+        "operation_id": "downloadFile",
+        "required_scopes": [
+          "activities:full",
+          "activities:read",
+          "contacts:full",
+          "contacts:read",
+          "deals:full",
+          "deals:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "activities:full",
+            "activities:read",
+            "contacts:full",
+            "contacts:read",
+            "deals:full",
+            "deals:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /filters",
+        "operation_id": "deleteFilters",
+        "required_scopes": [
+          "activities:full",
+          "contacts:full",
+          "deals:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "activities:full",
+            "contacts:full",
+            "deals:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /filters",
+        "operation_id": "getFilters",
+        "required_scopes": [
+          "activities:full",
+          "activities:read",
+          "contacts:full",
+          "contacts:read",
+          "deals:full",
+          "deals:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "activities:full",
+            "activities:read",
+            "contacts:full",
+            "contacts:read",
+            "deals:full",
+            "deals:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /filters",
+        "operation_id": "addFilter",
+        "required_scopes": [
+          "activities:full",
+          "contacts:full",
+          "deals:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "activities:full",
+            "contacts:full",
+            "deals:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /filters/helpers",
+        "operation_id": "getFilterHelpers",
+        "required_scopes": [
+          "activities:full",
+          "activities:read",
+          "contacts:full",
+          "contacts:read",
+          "deals:full",
+          "deals:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "activities:full",
+            "activities:read",
+            "contacts:full",
+            "contacts:read",
+            "deals:full",
+            "deals:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /filters/{id}",
+        "operation_id": "deleteFilter",
+        "required_scopes": [
+          "activities:full",
+          "contacts:full",
+          "deals:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "activities:full",
+            "contacts:full",
+            "deals:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /filters/{id}",
+        "operation_id": "getFilter",
+        "required_scopes": [
+          "activities:full",
+          "activities:read",
+          "contacts:full",
+          "contacts:read",
+          "deals:full",
+          "deals:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "activities:full",
+            "activities:read",
+            "contacts:full",
+            "contacts:read",
+            "deals:full",
+            "deals:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /filters/{id}",
+        "operation_id": "updateFilter",
+        "required_scopes": [
+          "activities:full",
+          "contacts:full",
+          "deals:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "activities:full",
+            "contacts:full",
+            "deals:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /goals",
+        "operation_id": "addGoal",
+        "required_scopes": [
+          "goals:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "goals:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /goals/find",
+        "operation_id": "getGoals",
+        "required_scopes": [
+          "goals:full",
+          "goals:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "goals:full",
+            "goals:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /goals/{id}",
+        "operation_id": "deleteGoal",
+        "required_scopes": [
+          "goals:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "goals:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /goals/{id}",
+        "operation_id": "updateGoal",
+        "required_scopes": [
+          "goals:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "goals:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /goals/{id}/results",
+        "operation_id": "getGoalResult",
+        "required_scopes": [
+          "goals:full",
+          "goals:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "goals:full",
+            "goals:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /leadFields",
+        "operation_id": "getLeadFields",
+        "required_scopes": [
+          "admin",
+          "leads:full",
+          "leads:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "admin",
+            "leads:full",
+            "leads:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /leadLabels",
+        "operation_id": "getLeadLabels",
+        "required_scopes": [
+          "leads:full",
+          "leads:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "leads:full",
+            "leads:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /leadLabels",
+        "operation_id": "addLeadLabel",
+        "required_scopes": [
+          "leads:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "leads:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /leadLabels/{id}",
+        "operation_id": "deleteLeadLabel",
+        "required_scopes": [
+          "leads:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "leads:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PATCH /leadLabels/{id}",
+        "operation_id": "updateLeadLabel",
+        "required_scopes": [
+          "leads:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "leads:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /leadSources",
+        "operation_id": "getLeadSources",
+        "required_scopes": [
+          "leads:full",
+          "leads:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "leads:full",
+            "leads:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /leads",
+        "operation_id": "getLeads",
+        "required_scopes": [
+          "leads:full",
+          "leads:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "leads:full",
+            "leads:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /leads",
+        "operation_id": "addLead",
+        "required_scopes": [
+          "leads:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "leads:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /leads/archived",
+        "operation_id": "getArchivedLeads",
+        "required_scopes": [
+          "leads:full",
+          "leads:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "leads:full",
+            "leads:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /leads/search",
+        "operation_id": "searchLeads",
+        "required_scopes": [
+          "leads:full",
+          "leads:read",
+          "search:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "leads:full",
+            "leads:read",
+            "search:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /leads/{id}",
+        "operation_id": "deleteLead",
+        "required_scopes": [
+          "leads:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "leads:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /leads/{id}",
+        "operation_id": "getLead",
+        "required_scopes": [
+          "leads:full",
+          "leads:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "leads:full",
+            "leads:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PATCH /leads/{id}",
+        "operation_id": "updateLead",
+        "required_scopes": [
+          "leads:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "leads:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /leads/{id}/permittedUsers",
+        "operation_id": "getLeadUsers",
+        "required_scopes": [
+          "leads:full",
+          "leads:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "leads:full",
+            "leads:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /legacyTeams",
+        "operation_id": "getTeams",
+        "required_scopes": [
+          "users:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "users:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /legacyTeams",
+        "operation_id": "addTeam",
+        "required_scopes": [
+          "admin"
+        ],
+        "required_scope_alternatives": [
+          [
+            "admin"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /legacyTeams/user/{id}",
+        "operation_id": "getUserTeams",
+        "required_scopes": [
+          "users:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "users:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /legacyTeams/{id}",
+        "operation_id": "getTeam",
+        "required_scopes": [
+          "users:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "users:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /legacyTeams/{id}",
+        "operation_id": "updateTeam",
+        "required_scopes": [
+          "admin"
+        ],
+        "required_scope_alternatives": [
+          [
+            "admin"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /legacyTeams/{id}/users",
+        "operation_id": "deleteTeamUser",
+        "required_scopes": [
+          "admin"
+        ],
+        "required_scope_alternatives": [
+          [
+            "admin"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /legacyTeams/{id}/users",
+        "operation_id": "getTeamUsers",
+        "required_scopes": [
+          "users:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "users:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /legacyTeams/{id}/users",
+        "operation_id": "addTeamUser",
+        "required_scopes": [
+          "admin"
+        ],
+        "required_scope_alternatives": [
+          [
+            "admin"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /mailbox/mailMessages/{id}",
+        "operation_id": "getMailMessage",
+        "required_scopes": [
+          "mail:full",
+          "mail:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "mail:full",
+            "mail:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /mailbox/mailThreads",
+        "operation_id": "getMailThreads",
+        "required_scopes": [
+          "mail:full",
+          "mail:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "mail:full",
+            "mail:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /mailbox/mailThreads/{id}",
+        "operation_id": "deleteMailThread",
+        "required_scopes": [
+          "mail:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "mail:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /mailbox/mailThreads/{id}",
+        "operation_id": "getMailThread",
+        "required_scopes": [
+          "mail:full",
+          "mail:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "mail:full",
+            "mail:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /mailbox/mailThreads/{id}",
+        "operation_id": "updateMailThreadDetails",
+        "required_scopes": [
+          "mail:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "mail:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /mailbox/mailThreads/{id}/mailMessages",
+        "operation_id": "getMailThreadMessages",
+        "required_scopes": [
+          "mail:full",
+          "mail:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "mail:full",
+            "mail:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /meetings/userProviderLinks",
+        "operation_id": "saveUserProviderLink",
+        "required_scopes": [
+          "video-calls"
+        ],
+        "required_scope_alternatives": [
+          [
+            "video-calls"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /meetings/userProviderLinks/{id}",
+        "operation_id": "deleteUserProviderLink",
+        "required_scopes": [
+          "video-calls"
+        ],
+        "required_scope_alternatives": [
+          [
+            "video-calls"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /noteFields",
+        "operation_id": "getNoteFields",
+        "required_scopes": [
+          "contacts:full",
+          "contacts:read",
+          "deals:full",
+          "deals:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "contacts:full",
+            "contacts:read",
+            "deals:full",
+            "deals:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /notes",
+        "operation_id": "getNotes",
+        "required_scopes": [
+          "contacts:full",
+          "contacts:read",
+          "deals:full",
+          "deals:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "contacts:full",
+            "contacts:read",
+            "deals:full",
+            "deals:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /notes",
+        "operation_id": "addNote",
+        "required_scopes": [
+          "contacts:full",
+          "deals:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "contacts:full",
+            "deals:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /notes/{id}",
+        "operation_id": "deleteNote",
+        "required_scopes": [
+          "contacts:full",
+          "deals:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "contacts:full",
+            "deals:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /notes/{id}",
+        "operation_id": "getNote",
+        "required_scopes": [
+          "contacts:full",
+          "contacts:read",
+          "deals:full",
+          "deals:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "contacts:full",
+            "contacts:read",
+            "deals:full",
+            "deals:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /notes/{id}",
+        "operation_id": "updateNote",
+        "required_scopes": [
+          "contacts:full",
+          "deals:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "contacts:full",
+            "deals:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /notes/{id}/comments",
+        "operation_id": "getNoteComments",
+        "required_scopes": [
+          "contacts:full",
+          "contacts:read",
+          "deals:full",
+          "deals:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "contacts:full",
+            "contacts:read",
+            "deals:full",
+            "deals:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /notes/{id}/comments",
+        "operation_id": "addNoteComment",
+        "required_scopes": [
+          "contacts:full",
+          "deals:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "contacts:full",
+            "deals:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /notes/{id}/comments/{commentId}",
+        "operation_id": "deleteComment",
+        "required_scopes": [
+          "contacts:full",
+          "deals:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "contacts:full",
+            "deals:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /notes/{id}/comments/{commentId}",
+        "operation_id": "getComment",
+        "required_scopes": [
+          "contacts:full",
+          "contacts:read",
+          "deals:full",
+          "deals:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "contacts:full",
+            "contacts:read",
+            "deals:full",
+            "deals:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /notes/{id}/comments/{commentId}",
+        "operation_id": "updateCommentForNote",
+        "required_scopes": [
+          "contacts:full",
+          "deals:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "contacts:full",
+            "deals:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /organizationFields",
+        "operation_id": "deleteOrganizationFields",
+        "required_scopes": [
+          "admin",
+          "contact-fields:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "admin",
+            "contact-fields:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /organizationFields",
+        "operation_id": "getOrganizationFields",
+        "required_scopes": [
+          "admin",
+          "contact-fields:full",
+          "contacts:full",
+          "contacts:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "admin",
+            "contact-fields:full",
+            "contacts:full",
+            "contacts:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /organizationFields",
+        "operation_id": "addOrganizationField",
+        "required_scopes": [
+          "admin",
+          "contact-fields:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "admin",
+            "contact-fields:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /organizationFields/{id}",
+        "operation_id": "deleteOrganizationField",
+        "required_scopes": [
+          "admin",
+          "contact-fields:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "admin",
+            "contact-fields:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /organizationFields/{id}",
+        "operation_id": "getOrganizationField",
+        "required_scopes": [
+          "admin",
+          "contact-fields:full",
+          "contacts:full",
+          "contacts:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "admin",
+            "contact-fields:full",
+            "contacts:full",
+            "contacts:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /organizationFields/{id}",
+        "operation_id": "updateOrganizationField",
+        "required_scopes": [
+          "admin",
+          "contact-fields:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "admin",
+            "contact-fields:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /organizationRelationships",
+        "operation_id": "getOrganizationRelationships",
+        "required_scopes": [
+          "contacts:full",
+          "contacts:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "contacts:full",
+            "contacts:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /organizationRelationships",
+        "operation_id": "addOrganizationRelationship",
+        "required_scopes": [
+          "contacts:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "contacts:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /organizationRelationships/{id}",
+        "operation_id": "deleteOrganizationRelationship",
+        "required_scopes": [
+          "contacts:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "contacts:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /organizationRelationships/{id}",
+        "operation_id": "getOrganizationRelationship",
+        "required_scopes": [
+          "contacts:full",
+          "contacts:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "contacts:full",
+            "contacts:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /organizationRelationships/{id}",
+        "operation_id": "updateOrganizationRelationship",
+        "required_scopes": [
+          "contacts:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "contacts:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /organizations/{id}/changelog",
+        "operation_id": "getOrganizationChangelog",
+        "required_scopes": [
+          "recents:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "recents:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /organizations/{id}/files",
+        "operation_id": "getOrganizationFiles",
+        "required_scopes": [
+          "contacts:full",
+          "contacts:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "contacts:full",
+            "contacts:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /organizations/{id}/flow",
+        "operation_id": "getOrganizationUpdates",
+        "required_scopes": [
+          "recents:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "recents:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /organizations/{id}/followers",
+        "operation_id": "getOrganizationFollowers",
+        "required_scopes": [
+          "contacts:full",
+          "contacts:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "contacts:full",
+            "contacts:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /organizations/{id}/followers",
+        "operation_id": "addOrganizationFollower",
+        "required_scopes": [
+          "contacts:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "contacts:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /organizations/{id}/followers/{follower_id}",
+        "operation_id": "deleteOrganizationFollower",
+        "required_scopes": [
+          "contacts:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "contacts:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /organizations/{id}/mailMessages",
+        "operation_id": "getOrganizationMailMessages",
+        "required_scopes": [
+          "mail:full",
+          "mail:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "mail:full",
+            "mail:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /organizations/{id}/merge",
+        "operation_id": "mergeOrganizations",
+        "required_scopes": [
+          "contacts:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "contacts:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /organizations/{id}/permittedUsers",
+        "operation_id": "getOrganizationUsers",
+        "required_scopes": [
+          "contacts:full",
+          "contacts:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "contacts:full",
+            "contacts:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /permissionSets",
+        "operation_id": "getPermissionSets",
+        "required_scopes": [
+          "admin"
+        ],
+        "required_scope_alternatives": [
+          [
+            "admin"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /permissionSets/{id}",
+        "operation_id": "getPermissionSet",
+        "required_scopes": [
+          "admin"
+        ],
+        "required_scope_alternatives": [
+          [
+            "admin"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /permissionSets/{id}/assignments",
+        "operation_id": "getPermissionSetAssignments",
+        "required_scopes": [
+          "admin"
+        ],
+        "required_scope_alternatives": [
+          [
+            "admin"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /personFields",
+        "operation_id": "deletePersonFields",
+        "required_scopes": [
+          "admin",
+          "contact-fields:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "admin",
+            "contact-fields:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /personFields",
+        "operation_id": "getPersonFields",
+        "required_scopes": [
+          "admin",
+          "contact-fields:full",
+          "contacts:full",
+          "contacts:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "admin",
+            "contact-fields:full",
+            "contacts:full",
+            "contacts:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /personFields",
+        "operation_id": "addPersonField",
+        "required_scopes": [
+          "admin",
+          "contact-fields:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "admin",
+            "contact-fields:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /personFields/{id}",
+        "operation_id": "deletePersonField",
+        "required_scopes": [
+          "admin",
+          "contact-fields:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "admin",
+            "contact-fields:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /personFields/{id}",
+        "operation_id": "getPersonField",
+        "required_scopes": [
+          "admin",
+          "contact-fields:full",
+          "contacts:full",
+          "contacts:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "admin",
+            "contact-fields:full",
+            "contacts:full",
+            "contacts:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /personFields/{id}",
+        "operation_id": "updatePersonField",
+        "required_scopes": [
+          "admin",
+          "contact-fields:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "admin",
+            "contact-fields:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /persons/{id}/changelog",
+        "operation_id": "getPersonChangelog",
+        "required_scopes": [
+          "recents:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "recents:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /persons/{id}/files",
+        "operation_id": "getPersonFiles",
+        "required_scopes": [
+          "contacts:full",
+          "contacts:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "contacts:full",
+            "contacts:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /persons/{id}/flow",
+        "operation_id": "getPersonUpdates",
+        "required_scopes": [
+          "recents:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "recents:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /persons/{id}/followers",
+        "operation_id": "getPersonFollowers",
+        "required_scopes": [
+          "contacts:full",
+          "contacts:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "contacts:full",
+            "contacts:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /persons/{id}/followers",
+        "operation_id": "addPersonFollower",
+        "required_scopes": [
+          "contacts:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "contacts:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /persons/{id}/followers/{follower_id}",
+        "operation_id": "deletePersonFollower",
+        "required_scopes": [
+          "contacts:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "contacts:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /persons/{id}/mailMessages",
+        "operation_id": "getPersonMailMessages",
+        "required_scopes": [
+          "mail:full",
+          "mail:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "mail:full",
+            "mail:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /persons/{id}/merge",
+        "operation_id": "mergePersons",
+        "required_scopes": [
+          "contacts:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "contacts:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /persons/{id}/permittedUsers",
+        "operation_id": "getPersonUsers",
+        "required_scopes": [
+          "contacts:full",
+          "contacts:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "contacts:full",
+            "contacts:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /persons/{id}/picture",
+        "operation_id": "deletePersonPicture",
+        "required_scopes": [
+          "contacts:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "contacts:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /persons/{id}/picture",
+        "operation_id": "addPersonPicture",
+        "required_scopes": [
+          "contacts:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "contacts:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /persons/{id}/products",
+        "operation_id": "getPersonProducts",
+        "required_scopes": [
+          "contacts:full",
+          "contacts:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "contacts:full",
+            "contacts:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /pipelines/{id}/conversion_statistics",
+        "operation_id": "getPipelineConversionStatistics",
+        "required_scopes": [
+          "deals:full",
+          "deals:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "deals:full",
+            "deals:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /pipelines/{id}/deals",
+        "operation_id": "getPipelineDeals",
+        "required_scopes": [
+          "deals:full",
+          "deals:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "deals:full",
+            "deals:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /pipelines/{id}/movement_statistics",
+        "operation_id": "getPipelineMovementStatistics",
+        "required_scopes": [
+          "deals:full",
+          "deals:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "deals:full",
+            "deals:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /productFields",
+        "operation_id": "deleteProductFields",
+        "required_scopes": [
+          "product-fields:full",
+          "products:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "product-fields:full",
+            "products:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /productFields",
+        "operation_id": "getProductFields",
+        "required_scopes": [
+          "product-fields:full",
+          "products:full",
+          "products:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "product-fields:full",
+            "products:full",
+            "products:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /productFields",
+        "operation_id": "addProductField",
+        "required_scopes": [
+          "product-fields:full",
+          "products:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "product-fields:full",
+            "products:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /productFields/{id}",
+        "operation_id": "deleteProductField",
+        "required_scopes": [
+          "product-fields:full",
+          "products:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "product-fields:full",
+            "products:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /productFields/{id}",
+        "operation_id": "getProductField",
+        "required_scopes": [
+          "product-fields:full",
+          "products:full",
+          "products:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "product-fields:full",
+            "products:full",
+            "products:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /productFields/{id}",
+        "operation_id": "updateProductField",
+        "required_scopes": [
+          "product-fields:full",
+          "products:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "product-fields:full",
+            "products:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /products/{id}/deals",
+        "operation_id": "getProductDeals",
+        "required_scopes": [
+          "deals:full",
+          "deals:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "deals:full",
+            "deals:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /products/{id}/files",
+        "operation_id": "getProductFiles",
+        "required_scopes": [
+          "products:full",
+          "products:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "products:full",
+            "products:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /products/{id}/followers",
+        "operation_id": "getProductFollowers",
+        "required_scopes": [
+          "products:full",
+          "products:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "products:full",
+            "products:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /products/{id}/followers",
+        "operation_id": "addProductFollower",
+        "required_scopes": [
+          "products:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "products:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /products/{id}/followers/{follower_id}",
+        "operation_id": "deleteProductFollower",
+        "required_scopes": [
+          "products:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "products:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /products/{id}/permittedUsers",
+        "operation_id": "getProductUsers",
+        "required_scopes": [
+          "products:full",
+          "products:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "products:full",
+            "products:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /projectTemplates",
+        "operation_id": "getProjectTemplates",
+        "required_scopes": [
+          "projects:full",
+          "projects:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "projects:full",
+            "projects:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /projectTemplates/{id}",
+        "operation_id": "getProjectTemplate",
+        "required_scopes": [
+          "projects:full",
+          "projects:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "projects:full",
+            "projects:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /projects",
+        "operation_id": "getProjects",
+        "required_scopes": [
+          "projects:full",
+          "projects:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "projects:full",
+            "projects:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /projects",
+        "operation_id": "addProject",
+        "required_scopes": [
+          "projects:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "projects:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /projects/boards",
+        "operation_id": "getProjectsBoards",
+        "required_scopes": [
+          "projects:full",
+          "projects:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "projects:full",
+            "projects:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /projects/boards/{id}",
+        "operation_id": "getProjectsBoard",
+        "required_scopes": [
+          "projects:full",
+          "projects:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "projects:full",
+            "projects:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /projects/phases",
+        "operation_id": "getProjectsPhases",
+        "required_scopes": [
+          "projects:full",
+          "projects:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "projects:full",
+            "projects:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /projects/phases/{id}",
+        "operation_id": "getProjectsPhase",
+        "required_scopes": [
+          "projects:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "projects:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /projects/{id}",
+        "operation_id": "deleteProject",
+        "required_scopes": [
+          "projects:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "projects:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /projects/{id}",
+        "operation_id": "getProject",
+        "required_scopes": [
+          "projects:full",
+          "projects:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "projects:full",
+            "projects:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /projects/{id}",
+        "operation_id": "updateProject",
+        "required_scopes": [
+          "projects:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "projects:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /projects/{id}/activities",
+        "operation_id": "getProjectActivities",
+        "required_scopes": [
+          "projects:full",
+          "projects:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "projects:full",
+            "projects:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /projects/{id}/archive",
+        "operation_id": "archiveProject",
+        "required_scopes": [
+          "projects:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "projects:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /projects/{id}/groups",
+        "operation_id": "getProjectGroups",
+        "required_scopes": [
+          "projects:full",
+          "projects:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "projects:full",
+            "projects:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /projects/{id}/plan",
+        "operation_id": "getProjectPlan",
+        "required_scopes": [
+          "projects:full",
+          "projects:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "projects:full",
+            "projects:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /projects/{id}/plan/activities/{activityId}",
+        "operation_id": "putProjectPlanActivity",
+        "required_scopes": [
+          "projects:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "projects:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /projects/{id}/plan/tasks/{taskId}",
+        "operation_id": "putProjectPlanTask",
+        "required_scopes": [
+          "projects:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "projects:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /projects/{id}/tasks",
+        "operation_id": "getProjectTasks",
+        "required_scopes": [
+          "projects:full",
+          "projects:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "projects:full",
+            "projects:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /recents",
+        "operation_id": "getRecents",
+        "required_scopes": [
+          "recents:read",
+          "search:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "recents:read",
+            "search:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /roles",
+        "operation_id": "getRoles",
+        "required_scopes": [
+          "admin"
+        ],
+        "required_scope_alternatives": [
+          [
+            "admin"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /roles",
+        "operation_id": "addRole",
+        "required_scopes": [
+          "admin"
+        ],
+        "required_scope_alternatives": [
+          [
+            "admin"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /roles/{id}",
+        "operation_id": "deleteRole",
+        "required_scopes": [
+          "admin"
+        ],
+        "required_scope_alternatives": [
+          [
+            "admin"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /roles/{id}",
+        "operation_id": "getRole",
+        "required_scopes": [
+          "admin"
+        ],
+        "required_scope_alternatives": [
+          [
+            "admin"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /roles/{id}",
+        "operation_id": "updateRole",
+        "required_scopes": [
+          "admin"
+        ],
+        "required_scope_alternatives": [
+          [
+            "admin"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /roles/{id}/assignments",
+        "operation_id": "deleteRoleAssignment",
+        "required_scopes": [
+          "admin"
+        ],
+        "required_scope_alternatives": [
+          [
+            "admin"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /roles/{id}/assignments",
+        "operation_id": "getRoleAssignments",
+        "required_scopes": [
+          "admin"
+        ],
+        "required_scope_alternatives": [
+          [
+            "admin"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /roles/{id}/assignments",
+        "operation_id": "addRoleAssignment",
+        "required_scopes": [
+          "admin"
+        ],
+        "required_scope_alternatives": [
+          [
+            "admin"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /roles/{id}/pipelines",
+        "operation_id": "getRolePipelines",
+        "required_scopes": [
+          "admin"
+        ],
+        "required_scope_alternatives": [
+          [
+            "admin"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /roles/{id}/pipelines",
+        "operation_id": "updateRolePipelines",
+        "required_scopes": [
+          "admin"
+        ],
+        "required_scope_alternatives": [
+          [
+            "admin"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /roles/{id}/settings",
+        "operation_id": "getRoleSettings",
+        "required_scopes": [
+          "admin"
+        ],
+        "required_scope_alternatives": [
+          [
+            "admin"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /roles/{id}/settings",
+        "operation_id": "addOrUpdateRoleSetting",
+        "required_scopes": [
+          "admin"
+        ],
+        "required_scope_alternatives": [
+          [
+            "admin"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /stages/{id}/deals",
+        "operation_id": "getStageDeals",
+        "required_scopes": [
+          "deals:full",
+          "deals:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "deals:full",
+            "deals:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /tasks",
+        "operation_id": "getTasks",
+        "required_scopes": [
+          "projects:full",
+          "projects:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "projects:full",
+            "projects:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /tasks",
+        "operation_id": "addTask",
+        "required_scopes": [
+          "projects:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "projects:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /tasks/{id}",
+        "operation_id": "deleteTask",
+        "required_scopes": [
+          "projects:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "projects:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /tasks/{id}",
+        "operation_id": "getTask",
+        "required_scopes": [
+          "projects:full",
+          "projects:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "projects:full",
+            "projects:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /tasks/{id}",
+        "operation_id": "updateTask",
+        "required_scopes": [
+          "projects:full"
+        ],
+        "required_scope_alternatives": [
+          [
+            "projects:full"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /userConnections",
+        "operation_id": "getUserConnections",
+        "required_scopes": [
+          "base"
+        ],
+        "required_scope_alternatives": [
+          [
+            "base"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /userSettings",
+        "operation_id": "getUserSettings",
+        "required_scopes": [
+          "base"
+        ],
+        "required_scope_alternatives": [
+          [
+            "base"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /users",
+        "operation_id": "getUsers",
+        "required_scopes": [
+          "users:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "users:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /users",
+        "operation_id": "addUser",
+        "required_scopes": [
+          "admin"
+        ],
+        "required_scope_alternatives": [
+          [
+            "admin"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /users/find",
+        "operation_id": "findUsersByName",
+        "required_scopes": [
+          "users:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "users:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /users/me",
+        "operation_id": "getCurrentUser",
+        "required_scopes": [
+          "base"
+        ],
+        "required_scope_alternatives": [
+          [
+            "base"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /users/{id}",
+        "operation_id": "getUser",
+        "required_scopes": [
+          "users:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "users:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "PUT /users/{id}",
+        "operation_id": "updateUser",
+        "required_scopes": [
+          "admin"
+        ],
+        "required_scope_alternatives": [
+          [
+            "admin"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /users/{id}/followers",
+        "operation_id": "getUserFollowers",
+        "required_scopes": [
+          "users:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "users:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /users/{id}/permissions",
+        "operation_id": "getUserPermissions",
+        "required_scopes": [
+          "users:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "users:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /users/{id}/roleAssignments",
+        "operation_id": "getUserRoleAssignments",
+        "required_scopes": [
+          "users:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "users:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /users/{id}/roleSettings",
+        "operation_id": "getUserRoleSettings",
+        "required_scopes": [
+          "users:read"
+        ],
+        "required_scope_alternatives": [
+          [
+            "users:read"
+          ]
+        ]
+      },
+      {
+        "endpoint": "GET /webhooks",
+        "operation_id": "getWebhooks",
+        "required_scopes": [
+          "admin"
+        ],
+        "required_scope_alternatives": [
+          [
+            "admin"
+          ]
+        ]
+      },
+      {
+        "endpoint": "POST /webhooks",
+        "operation_id": "addWebhook",
+        "required_scopes": [
+          "admin"
+        ],
+        "required_scope_alternatives": [
+          [
+            "admin"
+          ]
+        ]
+      },
+      {
+        "endpoint": "DELETE /webhooks/{id}",
+        "operation_id": "deleteWebhook",
+        "required_scopes": [
+          "admin"
+        ],
+        "required_scope_alternatives": [
+          [
+            "admin"
+          ]
+        ]
+      }
+    ],
+    "detail": "generated auth.go declares no OAuth scopes"
+  },
+  "dead_flags": {
+    "total": 21,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 72,
+    "dead": 0
+  },
+  "pipeline_check": {
+    "sync_calls_domain": true,
+    "search_calls_domain": true,
+    "domain_tables": 1,
+    "sync_file_emitted": true,
+    "sync_resources_present": true,
+    "detail": "sync uses domain-specific Upsert methods; search uses domain-specific Search methods; 1 domain tables found"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 10,
+    "valid_examples": 10,
+    "detail": "10/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 329,
+      "registered": 329
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 0,
+    "found": 0,
+    "skipped": true
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 0,
+    "exempted_via_store": 0,
+    "skipped": true
+  },
+  "source_client_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "print_json_filtered_check": {
+    "checked": 319
+  },
+  "test_presence": {
+    "checked": 0
+  },
+  "naming_check": {
+    "checked": 319
+  },
+  "sync_param_drop_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "issues": [
+    "OAuth scope coverage missing for 210 endpoint(s)"
+  ]
+}

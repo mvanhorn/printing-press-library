@@ -12,7 +12,7 @@
   "owner": "conduyt",
   "owner_name": "Conduyt",
   "category": "sales-and-crm",
-  "description": "Manage Conduyt CRM contacts, deals, pipelines, automations, campaigns, invoices, and local insight reports from the terminal.",
+  "description": "AI-native CRM for the terminal — manage contacts, deals, pipelines, automations, email sequences, SMS drip campaigns, invoices, and 70+ resource types. Local SQLite sync, compound insight queries (pipeline health, deal velocity, email stats), and MCP code-orchestration for agent integration.",
   "mcp_binary": "conduyt-crm-pp-mcp",
   "mcp_ready": "full",
   "auth_type": "bearer",
@@ -41,9 +41,10 @@
     {
       "name": "Email Stats",
       "command": "email-stats",
-      "description": "Email performance analytics \u2014 open rates, click rates, reply rates, and per-template breakdown"
+      "description": "Email performance analytics — open rates, click rates, reply rates, and per-template breakdown"
     }
   ],
   "printer": "ptaramona",
-  "printer_name": "Conduyt"
+  "printer_name": "Conduyt",
+  "mcp_tool_count": 321
 }

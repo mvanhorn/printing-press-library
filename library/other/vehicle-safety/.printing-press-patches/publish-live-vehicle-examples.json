@@ -1,0 +1,24 @@
+{
+  "schema_version": 2,
+  "id": "publish-live-vehicle-examples",
+  "applied_at": "2026-07-18",
+  "base_run_id": "20260717-002908-0483fc8d",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Keep every publish-live example runnable and validate typed vehicle identifiers before contacting NHTSA.",
+  "reason": "Placeholder values and non-runnable examples made the full live matrix fail, while unconstrained identifiers made invalid-input probes look successful.",
+  "files": [
+    "examples/vehicles.csv",
+    "internal/cli/bulletin_bridge.go",
+    "internal/cli/compare.go",
+    "internal/cli/dossier.go",
+    "internal/cli/products_list-vehicle-models.go",
+    "internal/cli/promoted_vehicles.go",
+    "internal/cli/recall_coverage.go",
+    "internal/cli/recalls_list-by-vehicle.go",
+    "internal/cli/safety-ratings_get.go",
+    "internal/cli/signals.go",
+    "internal/cli/sync.go",
+    "internal/cli/watch.go"
+  ],
+  "validated_outcome": "The full publish-time live dogfood matrix passes with real bounded NHTSA queries and non-zero invalid identifier paths."
+}

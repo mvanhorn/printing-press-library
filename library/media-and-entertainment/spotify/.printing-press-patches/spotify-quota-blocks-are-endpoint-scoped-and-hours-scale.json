@@ -1,0 +1,34 @@
+{
+  "schema_version": 2,
+  "id": "spotify-quota-blocks-are-endpoint-scoped-and-hours-scale",
+  "applied_at": "2026-08-08",
+  "base_run_id": "20260707-145126",
+  "base_printing_press_version": "4.27.1",
+  "summary": "Spotify 429s carry hours-scale Retry-After values scoped to endpoint classes; treat those as persisted quota blocks (fail fast with the wall-clock reset, zero retries), key the response cache on the stable refresh token with per-class TTLs and scoped invalidation, and pace requests by default.",
+  "reason": "The generated defaults lost the quota game four ways at once: the retry loop clamped an 18.7h Retry-After to three futile 60s sleeps and re-burned them in every new process; the cache keyed on the hourly-rotating access token, orphaning itself each rotation under a flat 5-minute TTL with RemoveAll-on-any-mutation; the adaptive limiter was dead code at the default --rate-limit 0; and auth status looked healthy (/me returns 200) while /search was blocked for hours. New machinery lives in cliutil/quota.go and client/cachepolicy.go; generated files only gained call-site hooks.",
+  "files": [
+    "internal/cliutil/quota.go",
+    "internal/cliutil/quota_test.go",
+    "internal/client/cachepolicy.go",
+    "internal/client/cachepolicy_test.go",
+    "internal/client/client.go",
+    "internal/cli/root.go",
+    "internal/cli/helpers.go",
+    "internal/cli/auth.go",
+    "internal/cli/doctor.go",
+    "internal/cli/transcendence_discover.go"
+  ],
+  "patch_count": 15,
+  "validated_outcome": "publish validate passes; go test ./... passes with new coverage for unclamped Retry-After parse, quota-block persistence/expiry/class-scoping, tiered TTLs, scoped invalidation (catalog survives a library mutation; legacy flat-format files swept), cache-key stability across access-token rotation, and limiter ceiling seed.",
+  "deferred_to_upstream": [
+    {
+      "feature": "Generator retry-loop template should distinguish quota blocks (Retry-After beyond minutes-scale) from rate limits instead of clamping every Retry-After to MaxRetryWait, and should surface the real reset time.",
+      "reason": "internal/client/client.go and the ratelimit template are shared generator output; every printed CLI against a quota-metered API repeats this failure mode."
+    },
+    {
+      "feature": "Generator cache template should key on a stable credential identity (refresh token when present) and support per-path-class TTLs plus scoped invalidation instead of a flat 5-minute TTL with RemoveAll on any mutation.",
+      "reason": "Any OAuth API with rotating access tokens silently orphans the generated cache; catalog-vs-user-data TTL tiers generalize across printed CLIs."
+    }
+  ],
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/4036"
+}

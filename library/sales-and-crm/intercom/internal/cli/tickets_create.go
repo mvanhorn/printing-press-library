@@ -24,9 +24,27 @@ func newTicketsCreateCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "create",
 		Short:       "You can create a new ticket.",
-		Example:     "  intercom-pp-cli tickets create --ticket-type-id 550e8400-e29b-41d4-a716-446655440000",
+		Example:     "  intercom-pp-cli tickets create --ticket-type-id 1234",
 		Annotations: map[string]string{"pp:endpoint": "tickets.create", "pp:method": "POST", "pp:path": "/tickets"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Bare invocation of a command with required input prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only read commands fall through so a bare call still executes.
+			// Machine callers (--json/--agent, which sets asJSON) get a usage
+			// error + exit 2 instead of silent exit-0 help, so an incomplete
+			// invocation is never mistaken for success.
+			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "requires input",
+						"usage": cmd.CommandPath() + " --help",
+					}, flags); printErr != nil {
+						return printErr
+					}
+					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
+				}
+				return cmd.Help()
+			}
 			if !stdinBody {
 				if !cmd.Flags().Changed("contacts") && !flags.dryRun {
 					return fmt.Errorf("required flag \"%s\" not set", "contacts")
@@ -35,14 +53,13 @@ func newTicketsCreateCmd(flags *rootFlags) *cobra.Command {
 					return fmt.Errorf("required flag \"%s\" not set", "ticket-type-id")
 				}
 			}
+			path := "/tickets"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/tickets"
 			params := map[string]string{}
-			var body map[string]any
+			var body any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
@@ -54,32 +71,41 @@ func newTicketsCreateCmd(flags *rootFlags) *cobra.Command {
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
+				bodyMap := map[string]any{}
+				body = bodyMap
 				if bodyCompanyId != "" {
-					body["company_id"] = bodyCompanyId
+					bodyMap["company_id"] = bodyCompanyId
 				}
 				if bodyContacts != "" {
 					var parsedContacts any
 					if err := json.Unmarshal([]byte(bodyContacts), &parsedContacts); err != nil {
 						return fmt.Errorf("parsing --contacts JSON: %w", err)
 					}
-					body["contacts"] = parsedContacts
+					asArray, ok := parsedContacts.([]any)
+					if !ok {
+						return fmt.Errorf("--contacts must be a JSON array, got JSON %T", parsedContacts)
+					}
+					bodyMap["contacts"] = asArray
 				}
 				if bodyCreatedAt != 0 {
-					body["created_at"] = bodyCreatedAt
+					bodyMap["created_at"] = bodyCreatedAt
 				}
 				if cmd.Flags().Changed("skip-notifications") {
-					body["skip_notifications"] = bodySkipNotifications
+					bodyMap["skip_notifications"] = bodySkipNotifications
 				}
 				if bodyTicketAttributes != "" {
 					var parsedTicketAttributes any
 					if err := json.Unmarshal([]byte(bodyTicketAttributes), &parsedTicketAttributes); err != nil {
 						return fmt.Errorf("parsing --ticket-attributes JSON: %w", err)
 					}
-					body["ticket_attributes"] = parsedTicketAttributes
+					asMap, ok := parsedTicketAttributes.(map[string]any)
+					if !ok {
+						return fmt.Errorf("--ticket-attributes must be a JSON object, got JSON %T", parsedTicketAttributes)
+					}
+					bodyMap["ticket_attributes"] = asMap
 				}
 				if bodyTicketTypeId != "" {
-					body["ticket_type_id"] = bodyTicketTypeId
+					bodyMap["ticket_type_id"] = bodyTicketTypeId
 				}
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
@@ -149,6 +175,9 @@ func newTicketsCreateCmd(flags *rootFlags) *cobra.Command {
 					"status":   statusCode,
 					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
 				}
+				if flags.agent {
+					envelope["meta"] = map[string]any{"source": "live"}
+				}
 				if partialFailure != nil {
 					envelope["partial_failure"] = partialFailure
 				}
@@ -187,7 +216,11 @@ func newTicketsCreateCmd(flags *rootFlags) *cobra.Command {
 				if len(filtered) > 0 {
 					var parsed any
 					if err := json.Unmarshal(filtered, &parsed); err == nil {
-						envelope["data"] = parsed
+						if flags.agent {
+							envelope["results"] = parsed
+						} else {
+							envelope["data"] = parsed
+						}
 					}
 				}
 				envelopeJSON, err := json.Marshal(envelope)

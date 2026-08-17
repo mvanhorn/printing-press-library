@@ -1,0 +1,52 @@
+{
+  "manifest_version": "0.3",
+  "name": "peloton-pp-mcp",
+  "display_name": "Peloton",
+  "version": "0.1.0",
+  "description": "Read-only Peloton workout, class, and structural-provider facts in a private local store.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/peloton-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/peloton-pp-mcp",
+      "args": [],
+      "env": {
+        "PELOTON_OAUTH_PASSWORD": "${user_config.peloton_oauth_password}",
+        "PELOTON_OAUTH_USERNAME": "${user_config.peloton_oauth_username}",
+        "PELOTON_USER_ID": "${user_config.peloton_user_id}"
+      }
+    }
+  },
+  "user_config": {
+    "peloton_oauth_password": {
+      "type": "string",
+      "title": "PELOTON_OAUTH_PASSWORD",
+      "description": "Optional. Private bootstrap password supplied by the caller's credential wrapper.",
+      "sensitive": true
+    },
+    "peloton_oauth_username": {
+      "type": "string",
+      "title": "PELOTON_OAUTH_USERNAME",
+      "description": "Optional. Private bootstrap username supplied by the caller's credential wrapper.",
+      "sensitive": true
+    },
+    "peloton_user_id": {
+      "type": "string",
+      "title": "PELOTON_USER_ID",
+      "description": "Sets PELOTON_USER_ID for the endpoint template variable {user_id}.",
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

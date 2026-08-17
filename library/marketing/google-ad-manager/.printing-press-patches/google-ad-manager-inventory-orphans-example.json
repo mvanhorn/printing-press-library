@@ -1,0 +1,10 @@
+{
+  "schema_version": 2,
+  "id": "google-ad-manager-inventory-orphans-example",
+  "applied_at": "2026-06-16",
+  "base_run_id": "20260616-124304-8944dbb7",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Add an Example (and Long help) to 'inventory orphans' so its --help renders an Examples section.",
+  "reason": "Live dogfood [help] check flagged 'inventory orphans' for a missing Examples section.",
+  "files": ["internal/cli/inventory_orphans.go"]
+}

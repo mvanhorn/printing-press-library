@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "printgoat",
+  "run_id": "20260721-105814-1da3c401",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 150,
+  "tests_passed": 150,
+  "tests_skipped": 121,
+  "auth_context": {
+    "type": "none"
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-06T15:49:40.311842Z",
+  "printing_press_version": "4.27.1",
+  "api_name": "ticketdata",
+  "display_name": "TicketData",
+  "cli_name": "ticketdata-pp-cli",
+  "creator": {
+    "handle": "mvanhorn",
+    "name": "Matt Van Horn"
+  },
+  "owner": "mvanhorn",
+  "printer": "mvanhorn",
+  "printer_name": "Matt Van Horn",
+  "spec_path": "ticketdata-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:6f797cbcce3df86040208c7127133895b35a7fcae0b72736d77450ad2adc818d",
+  "run_id": "20260706-072414",
+  "category": "media-and-entertainment",
+  "description": "Every TicketData price signal for any event, performer, or venue, plus a local price-history store for trend math, drift alerts, and cross-event comparisons no ticket tool ships.",
+  "mcp_binary": "ticketdata-pp-mcp",
+  "mcp_tool_count": 7,
+  "mcp_public_tool_count": 7,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Watchlist management",
+      "command": "watch",
+      "description": "Track a set of events locally so one sync re-fetches all their current prices."
+    },
+    {
+      "name": "Watchlist price board",
+      "command": "board",
+      "description": "One sortable table of every watched event: get-in price, N-day change, forecast direction, and where today sits in its own history."
+    },
+    {
+      "name": "Drift and target alerts",
+      "command": "drift",
+      "description": "Diff the two most recent snapshots per watched event, flag floors that moved past a threshold, and fire price-target hits."
+    },
+    {
+      "name": "History stats and best time to buy",
+      "command": "stats",
+      "description": "Historical low/high, median, current percentile, volatility, and the weekday the floor is typically lowest, from the local price series."
+    },
+    {
+      "name": "Cross-event comparison",
+      "command": "compare",
+      "description": "Rank multiple watched events, or all of one performer's watched events, by get-in price and percent change."
+    },
+    {
+      "name": "Best-zone opportunity finder",
+      "command": "zones",
+      "description": "Rank an event's zones by current get-in price and by each zone's drop versus its own history to surface the underpriced section."
+    },
+    {
+      "name": "Offline multi-result search",
+      "command": "search",
+      "description": "Local full-text search across synced events, performers, and venues, returning multiple matches."
+    }
+  ]
+}

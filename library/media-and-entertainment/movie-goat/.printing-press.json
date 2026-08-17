@@ -9,6 +9,12 @@
     "handle": "tmchow",
     "name": "Trevin Chow"
   },
+  "contributors": [
+    {
+      "handle": "giuseppebisemi",
+      "name": "Giuseppe Bisemi"
+    }
+  ],
   "printer": "tmchow",
   "printer_name": "Trevin Chow",
   "spec_format": "internal",
@@ -81,5 +87,6 @@
       "command": "collaborators",
       "description": "List people who appear in 2+ of a person's credits, with count and titles."
     }
-  ]
+  ],
+  "description": "The movie CLI that combines TMDb's discovery engine with OMDb's multi-source ratings — and ships a SQLite watchlist that flags what's streaming on your services right now."
 }

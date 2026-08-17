@@ -3,6 +3,7 @@
 package cli
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -39,7 +40,7 @@ Exit codes: 0 success, 1 IO error, 2 missing transcript, 3 duplicate.`,
 				return nil
 			}
 			id := args[0]
-			res, err := runExtract(id, outDir, panelTemplate, flags.dataSource != "local")
+			res, err := runExtract(cmd.Context(), id, outDir, panelTemplate, flags.dataSource != "local")
 			if err != nil {
 				return err
 			}
@@ -60,7 +61,7 @@ type extractResult struct {
 
 // runExtract produces the three MEMO files. Used by extract.go and
 // memo.go.
-func runExtract(id, outDir, panelTemplate string, allowLive bool) (extractResult, error) {
+func runExtract(ctx context.Context, id, outDir, panelTemplate string, allowLive bool) (extractResult, error) {
 	res := extractResult{ID: id}
 	if err := os.MkdirAll(outDir, 0o755); err != nil {
 		return res, ioErr(err)
@@ -69,7 +70,7 @@ func runExtract(id, outDir, panelTemplate string, allowLive bool) (extractResult
 	if _, err := os.Stat(fullPath); err == nil {
 		return res, &cliError{code: 3, err: fmt.Errorf("full_%s.md already exists in %s", id, outDir)}
 	}
-	a, err := buildArtifacts(id, allowLive, panelTemplate)
+	a, err := buildArtifacts(ctx, id, allowLive, panelTemplate)
 	if err != nil {
 		return res, err
 	}

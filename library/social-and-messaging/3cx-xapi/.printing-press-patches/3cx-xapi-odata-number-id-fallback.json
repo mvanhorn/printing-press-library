@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "3cx-xapi-odata-number-id-fallback",
+  "applied_at": "2026-06-28",
+  "base_run_id": "20260627-211721-11cc9df1",
+  "base_printing_press_version": "4.27.0",
+  "summary": "Added 'number' to genericIDFieldFallbacks so OData Number-keyed entities (DidNumber, etc.) cache instead of dropping silently.",
+  "reason": "OData/Microsoft.OpenApi.OData specs key some entities on PascalCase Number with no id; the default fallback list lacked 'number', so sync stored 0 rows with no error.",
+  "files": [
+    "internal/store/store.go",
+    "internal/cli/sync.go"
+  ],
+  "validated_outcome": "did-numbers synced 35 rows after the fix (0 before)."
+}

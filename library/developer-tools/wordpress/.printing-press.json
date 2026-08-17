@@ -1,0 +1,67 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-21T18:53:06.305764Z",
+  "printing_press_version": "4.29.0",
+  "api_name": "wordpress",
+  "display_name": "WordPress",
+  "cli_name": "wordpress-pp-cli",
+  "creator": {
+    "handle": "bobeglz",
+    "name": "bobe"
+  },
+  "owner": "bobeglz",
+  "printer": "bobeglz",
+  "printer_name": "bobe",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:f374a364048a68f46eb3b36586e85f95a8dc4cb2a5a9c51ea37a6c37e5a88c8b",
+  "run_id": "20260720-234423-04493e9c",
+  "category": "developer-tools",
+  "description": "WP-CLI-grade control over any WordPress site through plain HTTPS — no SSH, no server-side plugin, one static binary.",
+  "mcp_binary": "wordpress-pp-mcp",
+  "mcp_tool_count": 174,
+  "mcp_public_tool_count": 32,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "WORDPRESS_USER",
+    "WORDPRESS_APP_PASSWORD"
+  ],
+  "novel_features": [
+    {
+      "name": "Fleet rollup",
+      "command": "fleet",
+      "description": "See core version, pending updates, admin-account count and sync age for every site you manage, in one table."
+    },
+    {
+      "name": "REST reachability diagnosis",
+      "command": "diagnose",
+      "description": "Say in one command why a site's REST API is failing: path-based block, app-layer filter, bot challenge, renamed prefix, or stripped Authorization header."
+    },
+    {
+      "name": "Credential capability audit",
+      "command": "caps",
+      "description": "Report what your credentials are actually allowed to do on each route, with zero writes."
+    },
+    {
+      "name": "REST visibility gap",
+      "command": "schema",
+      "description": "Find out why a post type, field, or meta key is missing from the REST surface."
+    },
+    {
+      "name": "Editorial queue with age",
+      "command": "queue",
+      "description": "See drafts, pending, and scheduled posts bucketed by how long they have been sitting in that state."
+    },
+    {
+      "name": "Content hygiene audit",
+      "command": "audit",
+      "description": "Find posts and pages missing a featured image, a real category, an excerpt, or tags."
+    },
+    {
+      "name": "Orphaned media",
+      "command": "orphans",
+      "description": "List media files that no post or page references and that are nobody's featured image."
+    }
+  ]
+}

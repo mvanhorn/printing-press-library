@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "giustizia-amministrativa-empty-search-json",
+  "applied_at": "2026-08-08",
+  "base_run_id": "20260621-094103",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Una ricerca senza risultati restituisce ora `[]` e non `null`: i tre `&SearchResult{}` in internal/gaclient/client.go inizializzano `Items` con `make([]Provvedimento, 0)`. Aggiunta inoltre l'annotazione `pp:no-error-path-probe` su `search` e `provvedimenti cerca`.",
+  "reason": "Il posizionale dei due comandi di ricerca e' `[testo]`, una query full-text libera: non esiste una stringa invalida. La sonda `error_path` del dogfood live passa `__printing_press_invalid__` e pretende un exit non-zero, ma qui e' una ricerca legittima che non trova nulla, quindi exit 0 e' il comportamento giusto — due fallimenti su 53 nella matrice live, entrambi artefatti della sonda. Indagandoli e' pero' emerso un difetto reale accanto: `Items` restava nil quando nessun risultato veniva accodato, e `--json` stampava `null`. Per un chiamante macchina `null` non e' una lista vuota — va gestito come caso a parte prima di poter iterare — ed e' l'anti-pattern che la guida del generatore vieta esplicitamente (stessa famiglia dell'issue #3972 sul `--csv` vuoto). `applySnippetDedup` esce prima su lista vuota, quindi il nil nasceva solo dai tre siti di costruzione. `internal/gaclient/parse.go` risulta fuori formato a `gofmt` ma era gia' cosi': non riformattato, perche' non appartiene a questo diff.",
+  "files": [
+    "internal/gaclient/client.go",
+    "internal/cli/search.go",
+    "internal/cli/provvedimenti_cerca.go"
+  ],
+  "validated_outcome": "go build/vet/test verdi; `search __printing_press_invalid__ --json` restituisce `[]` (prima `null`); dogfood live full 53 test."
+}

@@ -1,0 +1,154 @@
+{
+  "api_name": "vagaro",
+  "base_url": "https://www.vagaro.com",
+  "description": "Every Vagaro discovery feature, plus the marketplace-wide availability search, price comparison, and local database no Vagaro tool has.",
+  "mcp_ready": "partial",
+  "http_transport": "standard",
+  "auth": {
+    "type": "composed",
+    "header": "s_utkn",
+    "format": "{s_utkn}",
+    "in": "header",
+    "cookie_domain": ".vagaro.com",
+    "cookies": [
+      "s_utkn",
+      "VagaroUID",
+      "s_encuid",
+      "eU_2",
+      "isLoginValue",
+      "loginTypeValue"
+    ]
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+    }
+  ],
+  "tools": [
+    {
+      "name": "business_availability",
+      "description": "Get a business's next-available booking summary. Required: slug.",
+      "method": "GET",
+      "path": "/{slug}/book-now",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Business slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "business_get",
+      "description": "Get a business profile (name, rating, address, categories). Required: slug.",
+      "method": "GET",
+      "path": "/{slug}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Business slug (the path segment on vagaro.com/\u003cslug\u003e)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "business_services",
+      "description": "List a business's services with prices and durations. Required: slug.",
+      "method": "GET",
+      "path": "/{slug}/services",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Business slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "classes_list",
+      "description": "List upcoming livestream classes. Optional: StartDate, IsCalledFrom (default: 1), page-size (default: 20) (plus 4 more).",
+      "method": "POST",
+      "path": "/websiteapi/homepage/getupcominglivestreamclasses",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "StartDate",
+          "type": "string",
+          "location": "body",
+          "description": "Start date filter (null for now)"
+        },
+        {
+          "name": "IsCalledFrom",
+          "type": "int",
+          "location": "body",
+          "description": "Caller context flag"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "pageSize",
+          "type": "int",
+          "location": "body",
+          "description": "Results per page"
+        },
+        {
+          "name": "page",
+          "wire_name": "pageIndex",
+          "type": "int",
+          "location": "body",
+          "description": "Page number"
+        },
+        {
+          "name": "loginUserID",
+          "type": "string",
+          "location": "body",
+          "description": "Logged-in user id (blank for anonymous)"
+        },
+        {
+          "name": "strLoginUserId",
+          "type": "string",
+          "location": "body",
+          "description": "Logged-in user id string"
+        },
+        {
+          "name": "TimeOffSet",
+          "type": "string",
+          "location": "body",
+          "description": "Timezone offset name"
+        }
+      ]
+    },
+    {
+      "name": "listings_get",
+      "description": "List businesses for a service in a city (city--state slug). Required: service, location.",
+      "method": "GET",
+      "path": "/listings/{service}/{location}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "service",
+          "type": "string",
+          "location": "path",
+          "description": "Service slug, e.g. barber, massage, nails, haircut",
+          "required": true
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "location": "path",
+          "description": "City slug as \u003ccity\u003e--\u003cstate\u003e, e.g. seattle--washington",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

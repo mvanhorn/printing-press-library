@@ -1,0 +1,187 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-29T22:21:56.5939216Z",
+  "printing_press_version": "4.29.0",
+  "api_name": "zillow",
+  "display_name": "Zillow",
+  "cli_name": "zillow-pp-cli",
+  "creator": {
+    "handle": "veltri-23",
+    "name": "Hunter Veltri"
+  },
+  "owner": "veltri-23",
+  "printer": "veltri-23",
+  "printer_name": "Hunter Veltri",
+  "spec_url": "https://www.zillow.com/research/data/",
+  "spec_path": "zillow-spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "official",
+  "spec_checksum": "sha256:3d088627fc7c8973cfd4a6e3add5b3e698cde0dae2e355bf90253661aafd9a9e",
+  "run_id": "20260729-222156",
+  "category": "other",
+  "description": "Official Zillow Research data, normalized for explainable housing-market decisions.",
+  "mcp_binary": "zillow-pp-mcp",
+  "mcp_tool_count": 17,
+  "mcp_public_tool_count": 17,
+  "mcp_ready": "full",
+  "api_version": "0.2.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Client affordability gap",
+      "command": "affordability gap",
+      "description": "Compare household income with Zillow's regional homeowner-income-needed estimate."
+    },
+    {
+      "name": "Rent/value yield proxy",
+      "command": "yield-proxy",
+      "description": "Join ZORI and ZHVI on a common date for a transparent gross rent-to-value proxy."
+    },
+    {
+      "name": "Supply absorption ratio",
+      "command": "supply-ratio",
+      "description": "Join inventory and sales nowcast into an approximate months-of-inventory ratio."
+    },
+    {
+      "name": "Market turning points",
+      "command": "turning-points",
+      "description": "Find dated slope sign reversals across temperature, inventory, days pending, and ZHVI."
+    },
+    {
+      "name": "Weighted regional shortlist",
+      "command": "shortlist",
+      "description": "Rank regions with explicit user weights and visible min-max-normalized components."
+    },
+    {
+      "name": "Sync quality audit",
+      "command": "quality audit",
+      "description": "Detect missing observations, duplicate regions, coverage gaps, and large monthly jumps."
+    },
+    {
+      "name": "Market breadth",
+      "command": "breadth",
+      "description": "Measure rising, falling, and unchanged regions by state or geography type."
+    },
+    {
+      "name": "Buy versus rent break-even",
+      "command": "buy-vs-rent",
+      "description": "Run a visible-assumption ownership-versus-rent cash-flow scenario."
+    },
+    {
+      "name": "Negotiation leverage",
+      "command": "negotiation",
+      "description": "Combine price cuts, sale-to-list ratio, days pending, and inventory into an explainable score."
+    },
+    {
+      "name": "Price-tier spread",
+      "command": "tier-spread",
+      "description": "Compare bottom-, middle-, and top-tier ZHVI growth."
+    },
+    {
+      "name": "Demand pressure",
+      "command": "demand-pressure",
+      "description": "Combine rental demand and for-sale market momentum with component-level evidence."
+    },
+    {
+      "name": "New-construction gap",
+      "command": "new-build-gap",
+      "description": "Compare new-construction pricing and sales activity with typical regional home value."
+    },
+    {
+      "name": "Client-ready market brief",
+      "command": "client-brief",
+      "description": "Compose deterministic Markdown or JSON briefs from sourced regional metrics."
+    },
+    {
+      "name": "Formula and provenance explainer",
+      "command": "explain",
+      "description": "Show formulas, datasets, freshness behavior, and caveats for compound commands."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Client affordability gap",
+      "command": "affordability gap",
+      "description": "Compare household income with Zillow's regional homeowner-income-needed estimate."
+    },
+    {
+      "name": "Rent/value yield proxy",
+      "command": "yield-proxy",
+      "description": "Join ZORI and ZHVI on a common date for a transparent gross rent-to-value proxy."
+    },
+    {
+      "name": "Supply absorption ratio",
+      "command": "supply-ratio",
+      "description": "Join inventory and sales nowcast into an approximate months-of-inventory ratio."
+    },
+    {
+      "name": "Market turning points",
+      "command": "turning-points",
+      "description": "Find dated slope sign reversals across temperature, inventory, days pending, and ZHVI."
+    },
+    {
+      "name": "Weighted regional shortlist",
+      "command": "shortlist",
+      "description": "Rank regions with explicit user weights and visible min-max-normalized components."
+    },
+    {
+      "name": "Sync quality audit",
+      "command": "quality audit",
+      "description": "Detect missing observations, duplicate regions, coverage gaps, and large monthly jumps."
+    },
+    {
+      "name": "Market breadth",
+      "command": "breadth",
+      "description": "Measure rising, falling, and unchanged regions by state or geography type."
+    },
+    {
+      "name": "Buy versus rent break-even",
+      "command": "buy-vs-rent",
+      "description": "Run a visible-assumption ownership-versus-rent cash-flow scenario."
+    },
+    {
+      "name": "Negotiation leverage",
+      "command": "negotiation",
+      "description": "Combine price cuts, sale-to-list ratio, days pending, and inventory into an explainable score."
+    },
+    {
+      "name": "Price-tier spread",
+      "command": "tier-spread",
+      "description": "Compare bottom-, middle-, and top-tier ZHVI growth."
+    },
+    {
+      "name": "Demand pressure",
+      "command": "demand-pressure",
+      "description": "Combine rental demand and for-sale market momentum with component-level evidence."
+    },
+    {
+      "name": "New-construction gap",
+      "command": "new-build-gap",
+      "description": "Compare new-construction pricing and sales activity with typical regional home value."
+    },
+    {
+      "name": "Client-ready market brief",
+      "command": "client-brief",
+      "description": "Compose deterministic Markdown or JSON briefs from sourced regional metrics."
+    },
+    {
+      "name": "Formula and provenance explainer",
+      "command": "explain",
+      "description": "Show formulas, datasets, freshness behavior, and caveats for compound commands."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 56,
+    "total": 56,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 87,
+      "grade": "A",
+      "total": 87
+    }
+  }
+}

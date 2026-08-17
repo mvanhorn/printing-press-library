@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "id": "buildid-404-self-heal",
+  "applied_at": "2026-08-12",
+  "base_run_id": "20260510-114931",
+  "base_printing_press_version": "4.0.6",
+  "summary": "Drop and re-resolve a stale Next.js buildId on HTTP 404, and report the resolved request path in APIError instead of the raw template.",
+  "reason": "skoolclient.Resolver caches the rotating Next.js buildId for 4h on disk, but Skool rotates it on every deploy. InvalidateBuildID existed with a doc comment naming HTTP 404 as its trigger and was never called from anywhere, so a rotation inside the TTL window made every {buildId} data route answer 404 {\"notFound\":true} until the cache aged out, with no self-heal. Compounding it, APIError carried the un-substituted template path, so the user-facing error printed a literal {buildId} and read like a substitution bug rather than a stale-cache 404. The two export commands also hand-concatenated their paths instead of using replacePathParam, and classroom export pinned the `md` query param (a module id per the spec) to the course slug, which Skool answers with notFound.",
+  "files": [
+    "internal/client/client.go",
+    "internal/cli/classroom_export.go",
+    "internal/cli/calendar_export.go"
+  ],
+  "validated_outcome": "`go build ./...`, `go vet ./...`, and `go test ./...` clean; `cli-printing-press publish validate` passes. Error strings now carry the resolved path; a 404 on a {buildId} route invalidates the cached id and retries once.",
+  "findings_addressed": ["F1"],
+  "deferred_to_upstream": [
+    {
+      "feature": "Generator-level stale-path-token invalidation hook",
+      "reason": "Any printed CLI whose base path embeds a rotating deploy token (Next.js buildId, Nuxt build hash, versioned CDN prefix) needs the same drop-and-retry-once behavior. Today each CLI hand-rolls it."
+    },
+    {
+      "feature": "APIError should report the resolved request path by default",
+      "reason": "The generated client template stores the template path on APIError, so every printed CLI with path template vars prints unresolved {placeholders} in its errors."
+    }
+  ]
+}

@@ -9,8 +9,10 @@ import (
 
 func newPlaylistsTracksCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "tracks",
-		Short: "Manage tracks",
+		Use:         "tracks",
+		Short:       "Get, add, update, and remove tracks for playlists",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newPlaylistsTracksAddToPlaylistCmd(flags))

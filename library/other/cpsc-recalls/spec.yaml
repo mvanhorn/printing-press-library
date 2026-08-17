@@ -1,0 +1,17 @@
+openapi: 3.0.3
+info: {title: CPSC Recall Retrieval API, version: 1.0.0, description: Query US Consumer Product Safety Commission recall records., x-cli-name: cpsc-recalls}
+servers: [{url: https://www.saferproducts.gov/RestWebServices}]
+paths:
+  /Recall:
+    get:
+      operationId: listRecalls
+      summary: Query CPSC recall records
+      parameters:
+        - {name: format, in: query, schema: {type: string, default: json}}
+        - {name: RecallID, in: query, schema: {type: integer}}
+        - {name: RecallTitle, in: query, schema: {type: string}}
+        - {name: ProductName, in: query, schema: {type: string}}
+        - {name: Manufacturer, in: query, schema: {type: string}}
+        - {name: RecallDateStart, in: query, schema: {type: string, format: date}}
+        - {name: RecallDateEnd, in: query, schema: {type: string, format: date}}
+      responses: {'200': {description: Recall array, content: {application/json: {schema: {type: array, items: {type: object, additionalProperties: true}}}}}}

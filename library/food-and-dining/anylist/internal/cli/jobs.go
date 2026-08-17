@@ -48,6 +48,7 @@ func newJobsListCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:         "list",
 		Short:       "List all tracked background jobs",
+		Example:     "  anylist-pp-cli jobs list --json",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			dir := jobsDir()
@@ -100,6 +101,7 @@ func newJobsStatusCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:         "status <id>",
 		Short:       "Show status of a specific job",
+		Example:     "  anylist-pp-cli jobs status <id> --json",
 		Args:        cobra.ExactArgs(1),
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -134,9 +136,10 @@ func newJobsWaitCmd(flags *rootFlags) *cobra.Command {
 	var interval time.Duration
 
 	cmd := &cobra.Command{
-		Use:   "wait <id>",
-		Short: "Block until a job reaches done or failed status",
-		Args:  cobra.ExactArgs(1),
+		Use:     "wait <id>",
+		Short:   "Block until a job reaches done or failed status",
+		Example: "  anylist-pp-cli jobs wait <id> --timeout 60s",
+		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			id := args[0]
 			path := filepath.Join(jobsDir(), id+".json")

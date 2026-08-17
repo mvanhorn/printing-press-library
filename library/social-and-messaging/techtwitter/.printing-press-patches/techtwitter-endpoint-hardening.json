@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "techtwitter-endpoint-hardening",
+  "applied_at": "2026-06-14",
+  "base_run_id": "20260614-151701-381d1e6b",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Hardened two generated endpoint commands for input validation.",
+  "reason": "tweets get returned ~100KB of homepage HTML for non-UUID ids (site allowlist 307->/); added UUID validation. tweets monthly got a realistic example + pp:happy-args so dogfood stops synthesizing an invalid month 42.",
+  "files": ["internal/cli/tweets_get.go", "internal/cli/tweets_monthly.go"],
+  "validated_outcome": "tweets get <bad-id> -> exit 2 usage error; tweets monthly happy-path passes live dogfood."
+}

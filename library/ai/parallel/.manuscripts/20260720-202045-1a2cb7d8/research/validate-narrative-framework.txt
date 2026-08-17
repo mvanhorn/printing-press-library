@@ -1,0 +1,1 @@
+OK: 2 framework-command narrative examples passed static checks

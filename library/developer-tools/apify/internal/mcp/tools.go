@@ -221,19 +221,19 @@ func makeAPIHandler(method, pathTemplate string, binaryResponse bool, bindings [
 				return mcplib.NewToolResultError("authentication error: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: the API rejected the request — this usually means auth is missing or invalid." +
 					"\n      Set your API key: export APIFY_TOKEN=<your-key>" +
-					"\n      Get a key at: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Authorization" +
+					"\n      Get a key at: https://console.apify.com/settings/integrations" +
 					"\n      Run 'apify-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 401"):
 				return mcplib.NewToolResultError("authentication failed: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: check your token." +
 					"\n      Set it with: export APIFY_TOKEN=<your-key>" +
-					"\n      Get a key at: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Authorization" +
+					"\n      Get a key at: https://console.apify.com/settings/integrations" +
 					"\n      Run 'apify-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 403"):
 				return mcplib.NewToolResultError("permission denied: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: your credentials are valid but lack access to this resource." +
 					"\n      Set it with: export APIFY_TOKEN=<your-key>" +
-					"\n      Get a key at: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Authorization" +
+					"\n      Get a key at: https://console.apify.com/settings/integrations" +
 					"\n      Run 'apify-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 404"):
 				if method == "DELETE" {
@@ -442,7 +442,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 					"description": "Set to your API credential.",
 				},
 			},
-			"key_url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Authorization",
+			"key_url": "https://console.apify.com/settings/integrations",
 		},
 		"resources": []map[string]any{
 			{

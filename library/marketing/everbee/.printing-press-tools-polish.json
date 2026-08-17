@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-07-12T12:58:42.887425Z",
+  "cli_dir": "\u003ccli-dir\u003e/everbee-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 692,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "Generator-emitted learn-loop command (learnings list). 'List recorded learnings' is accurate and complete for a local-store listing; the Example block and mcp:read-only annotation carry the agent-facing detail. Hand-editing generator-owned teach.go was ruled out for this run."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-07-12T12:57:29.948823Z"
+  }
+}

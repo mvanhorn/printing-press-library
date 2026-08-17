@@ -13,6 +13,29 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// PATCH: emptyOnNoSession lets account reads degrade gracefully. When the
+// Blacklane Auth0 session is missing or expired, agent/json callers get an
+// empty result and exit 0 (the printed-CLI missing-mirror convention) while
+// humans still see the re-auth hint on stderr. Returns handled=true when it
+// consumed the error. This keeps `me`/`bookings`/`wallet` agent-friendly and
+// non-fatal in unauthenticated environments (e.g. live-dogfood sandboxes).
+func emptyOnNoSession(cmd *cobra.Command, flags *rootFlags, err error, empty string) (bool, error) {
+	if err == nil {
+		return false, nil
+	}
+	msg := err.Error()
+	if !strings.Contains(msg, "session expired") &&
+		!strings.Contains(msg, "not authenticated") &&
+		!strings.Contains(msg, "not logged in") {
+		return false, nil
+	}
+	fmt.Fprintln(cmd.ErrOrStderr(), msg)
+	if flags.asJSON || flags.agent {
+		fmt.Fprintln(cmd.OutOrStdout(), empty)
+	}
+	return true, nil
+}
+
 // Compact GraphQL documents (full field sets live in the web bundle; these keep
 // the high-gravity fields agents and users actually need).
 const gqlGetNewBookings = `query getNewBookings($filter: BookingFilters!, $limit: Int = 25, $offset: Int = 0) {
@@ -54,6 +77,9 @@ func newNovelMeCmd(flags *rootFlags) *cobra.Command {
 			}
 			data, err := authedGuestGet("/api/v1/users/me", flags.timeout)
 			if err != nil {
+				if handled, e := emptyOnNoSession(cmd, flags, err, "{}"); handled {
+					return e
+				}
 				return err
 			}
 			return emitDomainList(cmd, flags, json.RawMessage(data))
@@ -89,6 +115,9 @@ func newNovelBookingsCmd(flags *rootFlags) *cobra.Command {
 				"filter": filter, "limit": limit, "offset": offset,
 			}, flags.timeout)
 			if err != nil {
+				if handled, e := emptyOnNoSession(cmd, flags, err, "[]"); handled {
+					return e
+				}
 				return err
 			}
 			// Unwrap { bookings: { items: [...] } } to the items array.
@@ -130,6 +159,9 @@ func newNovelWalletCmd(flags *rootFlags) *cobra.Command {
 			}
 			data, err := authedGraphQL("Wallet", gqlWallet, map[string]any{"input": input}, flags.timeout)
 			if err != nil {
+				if handled, e := emptyOnNoSession(cmd, flags, err, "[]"); handled {
+					return e
+				}
 				return err
 			}
 			var wrap struct {

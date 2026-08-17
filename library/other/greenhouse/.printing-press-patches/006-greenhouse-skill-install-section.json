@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "greenhouse-skill-install-section",
+  "applied_at": "2026-08-07",
+  "base_run_id": "greenhouse-job-board-2026-07-19",
+  "base_printing_press_version": "4.0.x",
+  "summary": "Replaces the stale SKILL.md install fallback paragraph (\"install Node or use the category-specific Go fallback after publish\") with the current canonical shape: direct `go install github.com/mvanhorn/printing-press-library/library/other/greenhouse/cmd/greenhouse-pp-cli@latest` fallback.",
+  "reason": "verify-skill canonical-sections check failed: install section drift (hand-edit detected in a generated file). The 07-19 print predates the canonical install-section template.",
+  "files": ["SKILL.md"],
+  "validated_outcome": "publish validate verify-skill check PASS.",
+  "upstream_issue": null
+}

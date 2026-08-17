@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "google-ad-manager-pp-mcp",
+  "display_name": "Google Ad Manager",
+  "version": "0.0.0",
+  "description": "The only REST-native Google Ad Manager CLI: report, search, and manage publisher inventory from the terminal, backed by a local mirror the web console can't match.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/google-ad-manager-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/google-ad-manager-pp-mcp",
+      "args": [],
+      "env": {
+        "GOOGLE_AD_MANAGER_ACCESS_TOKEN": "${user_config.google_ad_manager_access_token}"
+      }
+    }
+  },
+  "user_config": {
+    "google_ad_manager_access_token": {
+      "type": "string",
+      "title": "GOOGLE_AD_MANAGER_ACCESS_TOKEN",
+      "description": "Sets GOOGLE_AD_MANAGER_ACCESS_TOKEN for the Google Ad Manager MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

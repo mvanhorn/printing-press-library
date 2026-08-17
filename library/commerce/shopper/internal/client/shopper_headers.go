@@ -9,6 +9,14 @@
 // process, the active store must be chosen per-request via these headers. This
 // file is the single source of truth for that mapping; the --store global flag
 // and the SHOPPER_STORE env var both route through ResolveStore.
+//
+// Store map confirmed live via GET /features/stores (2026-08-03):
+//   programada (mensal):  store_id=1, cluster_id=1, with_recurrence=true
+//   fresh:                store_id=2, cluster_id=1, with_recurrence=true
+//   unica (pontual):      store_id=3, cluster_id=3, with_recurrence=false
+//   pet:                  store_id=5, cluster_id=3, with_recurrence=true
+//   now:                  store_id=6, cluster_id=11, with_recurrence=false, ultra_fast=true
+//   now-bebidas:          store_id=8, cluster_id=11, with_recurrence=false, ultra_fast=true
 
 package client
 
@@ -21,46 +29,69 @@ import (
 // Store identifies one Shopper storefront by its API store/cluster id pair.
 // Values come from GET /features/stores (the `number` and `cluster_id` fields).
 type Store struct {
-	StoreID   string
-	ClusterID string
+	StoreID        string
+	ClusterID      string
+	Subdomain      string
+	WithRecurrence bool
+	UltraFast      bool
 }
 
 // shopperStores maps the human-facing store name (the storefront subdomain) to
 // its API id pair. Keep in sync with GET /features/stores.
 var shopperStores = map[string]Store{
-	"programada": {StoreID: "1", ClusterID: "1"}, // Compra Programada (mensal)
-	"fresh":      {StoreID: "2", ClusterID: "1"}, // Programada Fresh
-	"unica":      {StoreID: "3", ClusterID: "1"}, // Compra Única (pontual)
-	"pet":        {StoreID: "5", ClusterID: "3"}, // Pet.Shopper
+	"programada":  {StoreID: "1", ClusterID: "1", Subdomain: "programada", WithRecurrence: true, UltraFast: false},
+	"fresh":       {StoreID: "2", ClusterID: "1", Subdomain: "fresh", WithRecurrence: true, UltraFast: false},
+	"unica":       {StoreID: "3", ClusterID: "3", Subdomain: "unica", WithRecurrence: false, UltraFast: false},
+	"pet":         {StoreID: "5", ClusterID: "3", Subdomain: "pet", WithRecurrence: true, UltraFast: false},
+	"now":         {StoreID: "6", ClusterID: "11", Subdomain: "now", WithRecurrence: false, UltraFast: true},
+	"now-bebidas": {StoreID: "8", ClusterID: "11", Subdomain: "now-bebidas", WithRecurrence: false, UltraFast: true},
 }
 
 // storeAliases lets callers use the friendlier label the app shows.
 var storeAliases = map[string]string{
-	"mensal":  "programada",
-	"monthly": "programada",
-	"pontual": "unica",
-	"única":   "unica",
+	"mensal":      "programada",
+	"monthly":     "programada",
+	"pontual":     "unica",
+	"única":       "unica",
+	"bebidas":     "now-bebidas",
+	"now bebidas": "now-bebidas",
+	"nowbebidas":  "now-bebidas",
 }
 
 // StoreNames returns the canonical selectable store names (for help text and
 // flag validation) in display order.
 func StoreNames() []string {
-	return []string{"programada", "fresh", "unica", "pet"}
+	return []string{"programada", "fresh", "unica", "pet", "now", "now-bebidas"}
 }
 
-// SpendStoreNames returns every storefront to report on by default, grouped
-// like the Shopper store picker: the three recurring stores (programada,
-// fresh, pet) followed by the one-off store (unica). Reporting all four keeps
-// the tool complete for any account, not just the two grocery stores.
+// SubscriptionStoreNames returns stores that operate on a recurring-basket model.
+func SubscriptionStoreNames() []string {
+	return []string{"programada", "fresh", "pet"}
+}
+
+// SpendStoreNames returns every storefront to report on by default.
+// Ordered: subscription stores first, then one-off, then ultra-fast.
 func SpendStoreNames() []string {
-	return []string{"programada", "fresh", "pet", "unica"}
+	return []string{"programada", "fresh", "pet", "unica", "now", "now-bebidas"}
+}
+
+// StorefrontURL returns the base web URL for the given store (subdomain.shopper.com.br).
+// Used by browser-handoff commands to open the correct storefront.
+func StorefrontURL(sel string) string {
+	s := strings.ToLower(strings.TrimSpace(sel))
+	if canon, ok := storeAliases[s]; ok {
+		s = canon
+	}
+	if st, ok := shopperStores[s]; ok {
+		return "https://" + st.Subdomain + ".shopper.com.br"
+	}
+	// Default to programada subdomain when store is unknown.
+	return "https://programada.shopper.com.br"
 }
 
 // ResolveStore turns a user-supplied store selector into its header id pair.
-// It accepts a canonical name (programada/fresh/unica/pet), a known alias
-// (mensal, pontual, ...), or a raw numeric store id. The bool is false when the
-// selector matches nothing, so callers can surface a clear error instead of
-// silently querying the wrong store.
+// It accepts a canonical name, a known alias, or a raw numeric store id.
+// The bool is false when the selector matches nothing.
 func ResolveStore(sel string) (Store, bool) {
 	s := strings.ToLower(strings.TrimSpace(sel))
 	if s == "" {
@@ -72,8 +103,7 @@ func ResolveStore(sel string) (Store, bool) {
 	if st, ok := shopperStores[s]; ok {
 		return st, true
 	}
-	// Raw numeric store id: keep the matching cluster when we know it,
-	// otherwise default cluster 1 (every storefront except pet is cluster 1).
+	// Raw numeric store id.
 	if _, err := strconv.Atoi(s); err == nil {
 		for _, st := range shopperStores {
 			if st.StoreID == s {
@@ -109,24 +139,23 @@ func ShopperRequiredHeaders() map[string]string {
 		store.ClusterID = v
 	}
 	return map[string]string{
-		"app-os-x-version": "web:1002",
-		"x-store-id":       store.StoreID,
-		"x-cluster-id":     store.ClusterID,
+		"app-os-x-version":             "web:1002",
+		"x-store-id":                   store.StoreID,
+		"x-cluster-id":                 store.ClusterID,
+		// Cache-key sentinel: canonicalRepresentationHeaders includes headers
+		// whose normalized name contains "api-version", making responses from
+		// different storefronts hash to different cache files.
+		"x-shopper-store-api-version":  "store=" + store.StoreID + "/cluster=" + store.ClusterID,
 	}
 }
 
 // init registers the Shopper required headers as default Config.Headers so
 // every client.New() call includes them without any per-command overhead.
-// The init hook runs exactly once per process and merges into Config.Headers
-// after config.Load(), so explicit env/config overrides still win.
 func init() {
-	// Inject defaults via the global default-headers hook.
-	// We store in a package-level variable so New() can merge them.
 	shopperDefaultHeaders = ShopperRequiredHeaders()
 }
 
 // shopperDefaultHeaders holds the injected Shopper-specific headers.
-// Merged into every new Client by patchShopperHeaders().
 var shopperDefaultHeaders map[string]string
 
 // PatchShopperHeaders merges Shopper-required headers into c.Config.Headers.
@@ -140,7 +169,6 @@ func PatchShopperHeaders(c *Client) {
 		c.Config.Headers = make(map[string]string)
 	}
 	for k, v := range shopperDefaultHeaders {
-		// Don't override headers the user set explicitly in config.
 		if _, exists := c.Config.Headers[k]; !exists {
 			c.Config.Headers[k] = v
 		}
@@ -148,9 +176,10 @@ func PatchShopperHeaders(c *Client) {
 }
 
 // SetStoreHeaders forces the active store on a client's Config.Headers,
-// overriding any default/env value. Used by the --store global flag so an
-// explicit per-invocation selection always wins. Safe to call before or after
-// PatchShopperHeaders.
+// overriding any default/env value. Used by the --store global flag.
+// Also sets x-shopper-store-ver so the generated cache key (which includes
+// headers containing "api-version") is store-scoped — preventing responses
+// from different storefronts from colliding in the local response cache.
 func SetStoreHeaders(c *Client, st Store) {
 	if c == nil || c.Config == nil {
 		return
@@ -160,4 +189,8 @@ func SetStoreHeaders(c *Client, st Store) {
 	}
 	c.Config.Headers["x-store-id"] = st.StoreID
 	c.Config.Headers["x-cluster-id"] = st.ClusterID
+	// Cache-key disambiguation: canonicalRepresentationHeaders includes any
+	// header whose normalized name contains "api-version". This sentinel makes
+	// the cache key unique per storefront without affecting API routing.
+	c.Config.Headers["x-shopper-store-api-version"] = "store=" + st.StoreID + "/cluster=" + st.ClusterID
 }

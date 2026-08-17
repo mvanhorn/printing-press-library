@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "fred",
+  "run_id": "20260615-012908",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 110,
+  "tests_passed": 110,
+  "tests_skipped": 84,
+  "auth_context": {
+    "type": "api_key"
+  }
+}

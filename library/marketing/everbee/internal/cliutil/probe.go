@@ -66,16 +66,11 @@ const (
 //   - err is non-nil only for network-layer failures. A 4xx or 5xx
 //     response is reported via status/code with err == nil.
 func ProbeReachable(ctx context.Context, client *http.Client, url string) (status string, code int, err error) {
-	if _, ok := ctx.Deadline(); !ok {
-		var cancel context.CancelFunc
-		ctx, cancel = context.WithTimeout(ctx, defaultProbeTimeout)
-		defer cancel()
-	}
 	if client == nil {
 		// Build a copy of DefaultClient with a bounded timeout — the
 		// global DefaultClient has none, so a nil-client probe against
 		// a slow host would hang. Callers passing their own client are
-		// still bounded by the context deadline above.
+		// expected to set Timeout themselves.
 		client = &http.Client{Timeout: defaultProbeTimeout}
 	}
 	req, reqErr := http.NewRequestWithContext(ctx, "GET", url, nil)
@@ -96,7 +91,7 @@ func ProbeReachable(ctx context.Context, client *http.Client, url string) (statu
 	// the 1024-byte Range hint to cover hosts that ignored it.
 	_, _ = io.Copy(io.Discard, io.LimitReader(resp.Body, 2048))
 	switch {
-	case resp.StatusCode >= 200 && resp.StatusCode < 400:
+	case resp.StatusCode >= 200 && resp.StatusCode < 300:
 		return ReachabilityReachable, resp.StatusCode, nil
 	case resp.StatusCode == http.StatusRequestedRangeNotSatisfiable:
 		// 416 means the host doesn't support Range. We still got

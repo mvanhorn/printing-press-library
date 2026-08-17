@@ -161,7 +161,7 @@ func newAttendeeBriefCmd(flags *rootFlags) *cobra.Command {
 			rows.Close()
 			w := cmd.OutOrStdout()
 			for _, id := range ids {
-				a, err := buildArtifacts(id, flags.dataSource != "local", panel)
+				a, err := buildArtifacts(cmd.Context(), id, flags.dataSource != "local", panel)
 				if err != nil {
 					_ = emitNDJSONLine(w, map[string]any{"id": id, "title": titles[id], "started_at": starteds[id], "error": err.Error()})
 					continue

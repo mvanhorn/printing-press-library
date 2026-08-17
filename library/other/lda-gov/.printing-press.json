@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-15T01:42:38.639686Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "lda-gov",
+  "display_name": "LDA.gov",
+  "cli_name": "lda-gov-pp-cli",
+  "creator": {
+    "handle": "mherzog4",
+    "name": "Mherzog4"
+  },
+  "owner": "mherzog4",
+  "printer": "mherzog4",
+  "printer_name": "Mherzog4",
+  "spec_path": "lda-gov-openapi.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:8f60f6f49337cc72a05b0b46728327db38ee13e7850074cdac1c37c2facfbbbf",
+  "run_id": "20260614-204724-5aa6a87d",
+  "category": "other",
+  "description": "Lobbying disclosure records with local sync, entity resolution, and evidence-grade exports.",
+  "mcp_binary": "lda-gov-pp-mcp",
+  "mcp_tool_count": 18,
+  "mcp_public_tool_count": 18,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Filing Anomaly Audit",
+      "command": "audit filings",
+      "description": "Flag amendments, terminations, duplicate-risk filings, client/registrant conflicts, and missing source URLs."
+    },
+    {
+      "name": "Entity Resolve Dossier",
+      "command": "entities resolve",
+      "description": "Rank matching registrants, clients, and lobbyists with official IDs, counts, last activity, and source URLs."
+    },
+    {
+      "name": "Lobbying Spend Timeline",
+      "command": "audit spend",
+      "description": "Aggregate disclosed lobbying income and expenses by client, registrant, issue, year, and quarter."
+    },
+    {
+      "name": "Relationship Graph Export",
+      "command": "graph export",
+      "description": "Export client-registrant-lobbyist-issue-government entity edges for graph analysis."
+    },
+    {
+      "name": "Contribution Counterparty Totals",
+      "command": "contributions totals",
+      "description": "Aggregate LD-203 contribution items by contributor, recipient, payee, item type, year, and report."
+    },
+    {
+      "name": "Quarterly Activity Report",
+      "command": "reports quarter",
+      "description": "Produce quarter stats for filings, amendments, terminations, top issues, top entities, spend, and LD-203 totals."
+    },
+    {
+      "name": "Covered Positions Map",
+      "command": "lobbyists covered-positions",
+      "description": "List lobbyists' covered government positions connected to clients, registrants, and filing periods."
+    }
+  ]
+}

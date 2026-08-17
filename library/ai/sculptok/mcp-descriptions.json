@@ -1,0 +1,5 @@
+{
+  "descriptions": {
+    "credits_balance": "Fetch the authenticated account's current SculptOK credit balance. Takes no parameters; this is a free read that does not consume credits. Returns the remaining credit total. Call this before submitting a draw (depthmap, stl, threed, restore) to confirm there are enough credits, or use the 'cost' command to compare a planned draw's cost against this balance."
+  }
+}

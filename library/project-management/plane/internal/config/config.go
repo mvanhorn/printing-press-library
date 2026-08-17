@@ -10,26 +10,54 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/project-management/plane/internal/cliutil"
 	"github.com/pelletier/go-toml/v2"
 )
 
+// WorkspaceEntry is one enrolled workspace in the local registry. Slug is the
+// user-supplied workspace identifier (from the browser URL); ID caches the
+// workspace UUID discovered during the enrollment probe (best-effort, may be
+// empty). PATCH(workspace-registry): hand-added; re-apply after regen.
+type WorkspaceEntry struct {
+	Slug string `toml:"slug" json:"slug"`
+	ID   string `toml:"id,omitempty" json:"id,omitempty"`
+}
+
 type Config struct {
-	BaseURL                   string            `toml:"base_url"`
-	AuthHeaderVal             string            `toml:"auth_header"`
-	Headers                   map[string]string `toml:"headers,omitempty"`
-	AuthSource                string            `toml:"-"`
-	AccessToken               string            `toml:"access_token"`
-	RefreshToken              string            `toml:"refresh_token"`
-	TokenExpiry               time.Time         `toml:"token_expiry"`
-	ClientID                  string            `toml:"client_id"`
-	ClientSecret              string            `toml:"client_secret"`
-	Path                      string            `toml:"-"`
-	PlaneApiKeyAuthentication string            `toml:"api_key_authentication"`
+	BaseURL            string            `toml:"base_url"`
+	AuthHeaderVal      string            `toml:"auth_header"`
+	Headers            map[string]string `toml:"headers,omitempty"`
+	AuthSource         string            `toml:"-"`
+	CredentialSource   string            `toml:"-"`
+	AgentcookieManaged bool              `toml:"-"`
+	// configOwner records which on-disk file parseConfigData populated this
+	// config from ("config-kind path" or "legacy config path") so the
+	// credential-source fallback below reports where config-stored
+	// credentials actually live. Unexported: never persisted.
+	configOwner string
+	// legacySourcePath records the legacy config path when Load fell
+	// back to it. Used by save() to scrub credential fields from the
+	// old location after relocation. Unexported: never persisted.
+	legacySourcePath          string
+	AccessToken               string          `toml:"access_token"`
+	RefreshToken              string          `toml:"refresh_token"`
+	TokenExpiry               time.Time       `toml:"token_expiry"`
+	ClientID                  string          `toml:"client_id"`
+	ClientSecret              string          `toml:"client_secret"`
+	Path                      string          `toml:"-"`
+	envOverrides              map[string]bool `toml:"-"`
+	fileConfig                *Config         `toml:"-"`
+	PlaneApiKeyAuthentication string          `toml:"api_key_authentication"`
 	// TemplateVars holds the runtime values for {placeholder} markers in
 	// BaseURL and the request path (e.g. Shopify's {shop}/{version}). Populated
 	// at Load() time from env vars; consumed by the client's buildURL helper.
 	// Stored as a serializable map so non-default values survive a config save.
 	TemplateVars map[string]string `toml:"template_vars,omitempty"`
+	// PATCH(workspace-registry): default_workspace seeds {slug} when PLANE_SLUG
+	// is unset; workspaces is the locally-enrolled registry shown by
+	// `workspaces list` (the public API cannot enumerate workspaces by key).
+	DefaultWorkspace string           `toml:"default_workspace,omitempty"`
+	Workspaces       []WorkspaceEntry `toml:"workspaces,omitempty"`
 }
 
 func Load(configPath string) (*Config, error) {
@@ -38,30 +66,91 @@ func Load(configPath string) (*Config, error) {
 	}
 
 	// Resolve config path
-	path := configPath
-	if path == "" {
-		path = os.Getenv("PLANE_CONFIG")
-	}
-	if path == "" {
-		home, _ := os.UserHomeDir()
-		path = filepath.Join(home, ".config", "plane-pp-cli", "config.toml")
+	path, explicitConfigFile, err := resolveConfigPath(configPath)
+	if err != nil {
+		return nil, err
 	}
 	cfg.Path = path
 
-	// Try to load config file
-	data, err := os.ReadFile(path)
-	if err == nil {
-		if err := toml.Unmarshal(data, cfg); err != nil {
-			return nil, fmt.Errorf("parsing config %s: %w", path, err)
+	if explicitConfigFile {
+		// Keep non-secret settings from a readable config even when its permissions
+		// have drifted, but never trust credentials from that file. Canonicalizing
+		// first also makes a symlink inherit the target's permission verdict.
+		if real, evalErr := filepath.EvalSymlinks(path); evalErr == nil {
+			credentialsTrusted := cliutil.VerifyCredsPerms(real) == nil
+			parsed := *cfg
+			if err := readConfigFile(path, &parsed, "config-kind path"); err != nil {
+				if !os.IsNotExist(err) {
+					return nil, err
+				}
+			} else {
+				if !credentialsTrusted {
+					parsed.clearCredentialFields()
+				}
+				*cfg = parsed
+			}
+		}
+	} else {
+		legacyPath, err := LegacyConfigPath()
+		if err != nil {
+			return nil, err
+		}
+		data, sourcePath, err := cliutil.ReadFileWithLegacyFallback(path, legacyPath)
+		if err != nil {
+			if !os.IsNotExist(err) {
+				return nil, err
+			}
+		} else if real, evalErr := filepath.EvalSymlinks(sourcePath); evalErr == nil {
+			credentialsTrusted := cliutil.VerifyCredsPerms(real) == nil
+			owner := "config-kind path"
+			if sourcePath == legacyPath {
+				owner = "legacy config path"
+			}
+			parsed := *cfg
+			if err := parseConfigData(data, &parsed, sourcePath, owner); err != nil {
+				if sourcePath == legacyPath {
+					fmt.Fprintf(os.Stderr, "warning: legacy config parse skipped for %s: %v\n", sourcePath, err)
+				} else {
+					return nil, err
+				}
+			} else {
+				if !credentialsTrusted {
+					parsed.clearCredentialFields()
+				}
+				*cfg = parsed
+				if sourcePath == legacyPath {
+					cfg.legacySourcePath = legacyPath
+				}
+			}
 		}
 	}
+	cfg.Path = path
+	if cfg.AgentcookieManagedByExternalStore() {
+		cfg.markAgentcookieManaged()
+	} else {
+		creds, ok, err := cliutil.LoadCredentials()
+		if err != nil {
+			return nil, err
+		}
+		if ok && creds.HasValues() {
+			cfg.clearCredentialFields()
+			cfg.applyCredentials(creds)
+			if cfg.hasCredentialFields() {
+				cfg.AuthSource = "config"
+				cfg.CredentialSource = "credentials file"
+			}
+		}
+	}
+
+	cfg.snapshotFileConfig()
 
 	// Env var overrides
 	if v := os.Getenv("PLANE_API_KEY_AUTHENTICATION"); v != "" {
 		cfg.PlaneApiKeyAuthentication = v
+		cfg.markEnvOverride("PlaneApiKeyAuthentication")
 		cfg.AuthSource = "env:PLANE_API_KEY_AUTHENTICATION"
+		cfg.CredentialSource = "env:PLANE_API_KEY_AUTHENTICATION"
 	}
-
 	// Label config-file-derived credentials so doctor can distinguish
 	// "credentials persisted on disk" from "no credentials at all" — without
 	// this, users who saved via set-token without an env var see a blank
@@ -70,11 +159,18 @@ func Load(configPath string) (*Config, error) {
 	// config file path is exposed separately as report["config_path"], and
 	// embedding it in auth_source leaks the user's home directory through
 	// doctor's JSON envelope.
-	if cfg.AuthSource == "" && (cfg.AuthHeaderVal != "" || cfg.AccessToken != "") {
+	if cfg.AuthSource == "" && cfg.hasCredentialFields() {
 		cfg.AuthSource = "config"
 	}
-	if cfg.AuthSource == "" && cfg.PlaneApiKeyAuthentication != "" {
-		cfg.AuthSource = "config"
+	if cfg.CredentialSource == "" && cfg.AuthSource == "config" {
+		// Label config-stored credentials with the file they were parsed
+		// from: the resolved config-kind path (covers --home and per-kind
+		// env relocation as well as explicit --config files) or the legacy
+		// config path when the read fell back to the pre-paths layout.
+		cfg.CredentialSource = cfg.configOwner
+		if cfg.CredentialSource == "" {
+			cfg.CredentialSource = "legacy config path"
+		}
 	}
 
 	// Soft agentcookie integration: if the agentcookie daemon manages this
@@ -89,6 +185,7 @@ func Load(configPath string) (*Config, error) {
 		marker := filepath.Join(filepath.Dir(cfg.Path), ".agentcookie-managed")
 		if _, err := os.Stat(marker); err == nil {
 			cfg.AuthSource = "agentcookie"
+			cfg.markAgentcookieManaged()
 		}
 	}
 
@@ -111,12 +208,62 @@ func Load(configPath string) (*Config, error) {
 	if cfg.TemplateVars == nil {
 		cfg.TemplateVars = map[string]string{}
 	}
+	// PATCH(workspace-registry): precedence PLANE_SLUG env > default_workspace
+	// (persisted) > "my-workspace" sentinel. The flag layer (--workspace) sits
+	// above this and overrides TemplateVars["slug"] via the novel client hook.
 	if v := strings.TrimSpace(os.Getenv("PLANE_SLUG")); v != "" {
-		cfg.TemplateVars["slug"] = normalizeEndpointTemplateValue(v)
+		cfg.TemplateVars["slug"] = normalizeWorkspaceSlug(v)
+	} else if cfg.DefaultWorkspace != "" {
+		cfg.TemplateVars["slug"] = normalizeWorkspaceSlug(cfg.DefaultWorkspace)
 	} else {
 		cfg.TemplateVars["slug"] = "my-workspace"
 	}
 	return cfg, nil
+}
+
+func resolveConfigPath(configPath string) (string, bool, error) {
+	if strings.TrimSpace(configPath) != "" {
+		return configPath, true, nil
+	}
+	if path := os.Getenv("PLANE_CONFIG"); path != "" {
+		return path, true, nil
+	}
+	dir, err := cliutil.ConfigDir()
+	if err != nil {
+		return "", false, err
+	}
+	return filepath.Join(dir, "config.toml"), false, nil
+}
+
+func LegacyConfigPath() (string, error) {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "", fmt.Errorf("resolve legacy config path: %w", err)
+	}
+	return filepath.Join(home, ".config", "plane-pp-cli", "config.toml"), nil
+}
+
+func readConfigFile(path string, cfg *Config, owner string) error {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return err
+	}
+	return parseConfigData(data, cfg, path, owner)
+}
+
+func parseConfigData(data []byte, cfg *Config, path string, owner string) error {
+	if err := toml.Unmarshal(data, cfg); err != nil {
+		return fmt.Errorf("parsing %s %s: %w", owner, path, err)
+	}
+	cfg.configOwner = owner
+	return nil
+}
+func FileHasCredentialFields(path string) (bool, error) {
+	var cfg Config
+	if err := readConfigFile(path, &cfg, "credential probe"); err != nil {
+		return false, err
+	}
+	return cfg.hasCredentialFields(), nil
 }
 
 // normalizeEndpointTemplateValue cleans up a server-URL template value the
@@ -138,6 +285,51 @@ func normalizeEndpointTemplateValue(v string) string {
 	}
 	return strings.TrimRight(v, "/")
 }
+
+// normalizeWorkspaceSlug extracts a bare Plane workspace slug from whatever the
+// user supplied. A Plane workspace slug is a single URL path segment (no scheme,
+// host, or slashes), but people routinely paste more than that into PLANE_SLUG /
+// default_workspace:
+//   - a bare slug          → "acme"                                  → "acme"
+//   - a stray trailing slash → "acme/"                               → "acme"
+//   - a full browser URL   → "https://app.plane.so/acme/projects/…"  → "acme"
+//   - the API base prefix   → "https://host/api/v1/workspaces/acme"  → "acme"
+//
+// A domain-style normalizer (strip scheme + trailing slash) is wrong here: for a
+// browser URL it would yield "app.plane.so/acme/projects/…" instead of "acme".
+// So we strip the scheme, then resolve the slug positionally: prefer the segment
+// after a "workspaces" path element (the API-base form), otherwise drop a leading
+// host-like segment (one containing a dot, e.g. "app.plane.so") and take the
+// first remaining segment.
+func normalizeWorkspaceSlug(v string) string {
+	v = strings.TrimSpace(v)
+	if i := strings.Index(v, "://"); i >= 0 {
+		v = v[i+3:]
+	}
+	v = strings.Trim(v, "/")
+	if v == "" {
+		return ""
+	}
+	parts := strings.Split(v, "/")
+	// API-base paste: .../workspaces/<slug>[/...] — the slug is the next segment.
+	for i := 0; i+1 < len(parts); i++ {
+		if parts[i] == "workspaces" {
+			return parts[i+1]
+		}
+	}
+	// Browser-URL paste: <host>/<slug>/... — drop the leading host-like segment.
+	if len(parts) > 1 && strings.Contains(parts[0], ".") {
+		parts = parts[1:]
+	}
+	return parts[0]
+}
+
+// NormalizeWorkspaceSlug exposes the workspace-slug normalizer to sibling
+// packages. PATCH(mcp-workspace): the MCP execute handlers reuse it to honor a
+// per-call "workspace" argument (overriding $PLANE_SLUG / default_workspace),
+// so a slug pasted as a bare segment, a browser URL, or the API base prefix all
+// resolve identically to the CLI's --workspace flag.
+func NormalizeWorkspaceSlug(v string) string { return normalizeWorkspaceSlug(v) }
 
 func (c *Config) AuthHeader() string {
 	if c.AuthHeaderVal != "" {
@@ -166,12 +358,106 @@ func applyAuthFormat(format string, replacements map[string]string) string {
 	return format
 }
 
+func (c *Config) AgentcookieManagedByExternalStore() bool {
+	if c.AgentcookieManaged || c.AuthSource == "agentcookie" || c.CredentialSource == "agentcookie" {
+		return true
+	}
+	if c.Path == "" {
+		return false
+	}
+	marker := filepath.Join(filepath.Dir(c.Path), ".agentcookie-managed")
+	if _, err := os.Stat(marker); err == nil {
+		return true
+	}
+	return false
+}
+
+func (c *Config) markAgentcookieManaged() {
+	c.AgentcookieManaged = true
+	c.CredentialSource = "agentcookie"
+}
+
+func (c *Config) hasCredentialFields() bool {
+	if c.AuthHeaderVal != "" ||
+		c.AccessToken != "" ||
+		c.RefreshToken != "" ||
+		c.ClientID != "" ||
+		c.ClientSecret != "" {
+		return true
+	}
+	if c.PlaneApiKeyAuthentication != "" {
+		return true
+	}
+	return false
+}
+
+func (c *Config) clearCredentialFields() {
+	c.AuthHeaderVal = ""
+	c.AccessToken = ""
+	c.RefreshToken = ""
+	c.TokenExpiry = time.Time{}
+	c.ClientID = ""
+	c.ClientSecret = ""
+	c.PlaneApiKeyAuthentication = ""
+}
+
+func (c *Config) credentials() *cliutil.Credentials {
+	return &cliutil.Credentials{
+		AuthHeaderVal:             c.AuthHeaderVal,
+		AccessToken:               c.AccessToken,
+		RefreshToken:              c.RefreshToken,
+		TokenExpiry:               c.TokenExpiry,
+		ClientID:                  c.ClientID,
+		ClientSecret:              c.ClientSecret,
+		PlaneApiKeyAuthentication: c.PlaneApiKeyAuthentication,
+	}
+}
+
+func (c *Config) applyCredentials(creds *cliutil.Credentials) {
+	if creds == nil {
+		return
+	}
+	c.AuthHeaderVal = creds.AuthHeaderVal
+	c.AccessToken = creds.AccessToken
+	c.RefreshToken = creds.RefreshToken
+	c.TokenExpiry = creds.TokenExpiry
+	c.ClientID = creds.ClientID
+	c.ClientSecret = creds.ClientSecret
+	c.PlaneApiKeyAuthentication = creds.PlaneApiKeyAuthentication
+}
+
+func (c *Config) saveCredentialsFirst() error {
+	if c.AgentcookieManagedByExternalStore() {
+		c.markAgentcookieManaged()
+		return nil
+	}
+	persisted := c.configForSave()
+	if err := cliutil.SaveCredentials(persisted.credentials()); err != nil {
+		return err
+	}
+	c.CredentialSource = "credentials file"
+	return nil
+}
+
 func (c *Config) SaveTokens(clientID, clientSecret, accessToken, refreshToken string, expiry time.Time) error {
 	c.ClientID = clientID
 	c.ClientSecret = clientSecret
 	c.AccessToken = accessToken
 	c.RefreshToken = refreshToken
 	c.TokenExpiry = expiry
+	delete(c.envOverrides, "ClientID")
+	delete(c.envOverrides, "ClientSecret")
+	delete(c.envOverrides, "AccessToken")
+	delete(c.envOverrides, "RefreshToken")
+	delete(c.envOverrides, "TokenExpiry")
+	c.updateFileConfigField("ClientID")
+	c.updateFileConfigField("ClientSecret")
+	c.updateFileConfigField("AccessToken")
+	c.updateFileConfigField("RefreshToken")
+	c.updateFileConfigField("TokenExpiry")
+	if err := c.saveCredentialsFirst(); err != nil {
+		return err
+	}
 	return c.save()
 }
 
@@ -186,7 +472,20 @@ func (c *Config) SaveTokens(clientID, clientSecret, accessToken, refreshToken st
 func (c *Config) SaveCredential(token string) error {
 	c.AuthHeaderVal = ""
 	c.AccessToken = ""
+	// Pair each builtin-field zeroing with an envOverrides delete, like
+	// ClearTokens/SaveBearerToken: if an env var's placeholder collides with the
+	// AuthHeaderVal/AccessToken builtin tag, the override would otherwise survive
+	// and configForSave would restore the stale on-disk value instead of "".
+	delete(c.envOverrides, "AuthHeaderVal")
+	delete(c.envOverrides, "AccessToken")
+	c.updateFileConfigField("AuthHeaderVal")
+	c.updateFileConfigField("AccessToken")
 	c.PlaneApiKeyAuthentication = token
+	delete(c.envOverrides, "PlaneApiKeyAuthentication")
+	c.updateFileConfigField("PlaneApiKeyAuthentication")
+	if err := c.saveCredentialsFirst(); err != nil {
+		return err
+	}
 	return c.save()
 }
 
@@ -203,20 +502,184 @@ func (c *Config) ClearTokens() error {
 	c.TokenExpiry = time.Time{}
 	c.ClientID = ""
 	c.ClientSecret = ""
+	delete(c.envOverrides, "AuthHeaderVal")
+	delete(c.envOverrides, "AccessToken")
+	delete(c.envOverrides, "RefreshToken")
+	delete(c.envOverrides, "TokenExpiry")
+	delete(c.envOverrides, "ClientID")
+	delete(c.envOverrides, "ClientSecret")
+	c.updateFileConfigField("AuthHeaderVal")
+	c.updateFileConfigField("AccessToken")
+	c.updateFileConfigField("RefreshToken")
+	c.updateFileConfigField("TokenExpiry")
+	c.updateFileConfigField("ClientID")
+	c.updateFileConfigField("ClientSecret")
 	c.PlaneApiKeyAuthentication = ""
+	delete(c.envOverrides, "PlaneApiKeyAuthentication")
+	c.updateFileConfigField("PlaneApiKeyAuthentication")
+	if c.AgentcookieManagedByExternalStore() {
+		c.markAgentcookieManaged()
+		// save() persists the full config (credential fields included) for
+		// agentcookie-managed stores, so the zeroed fields must be written
+		// back; returning early would leave the secrets on disk.
+		return c.save()
+	}
+	if err := cliutil.RemoveCredentials(); err != nil {
+		return err
+	}
 	return c.save()
 }
 
-func (c *Config) save() error {
-	dir := filepath.Dir(c.Path)
-	if err := os.MkdirAll(dir, 0o700); err != nil {
-		return fmt.Errorf("creating config dir: %w", err)
+func (c *Config) markEnvOverride(field string) {
+	if c.envOverrides == nil {
+		c.envOverrides = map[string]bool{}
 	}
-	data, err := toml.Marshal(c)
+	c.envOverrides[field] = true
+}
+
+// cloneStringMap returns an independent copy of m (nil stays nil). The fileConfig
+// snapshot must not share reference-type map fields (such as Headers) with the
+// live config, or a later mutation to one would silently track in the other.
+func cloneStringMap(m map[string]string) map[string]string {
+	if m == nil {
+		return nil
+	}
+	out := make(map[string]string, len(m))
+	for k, v := range m {
+		out[k] = v
+	}
+	return out
+}
+
+func (c *Config) snapshotFileConfig() {
+	snapshot := *c
+	snapshot.envOverrides = nil
+	snapshot.fileConfig = nil
+	// *c is a shallow copy: map fields are reference types, so the snapshot would
+	// share them with c and silently track later mutations, defeating the
+	// isolation this snapshot exists to provide. Clone them.
+	snapshot.Headers = cloneStringMap(c.Headers)
+	snapshot.TemplateVars = cloneStringMap(c.TemplateVars)
+	c.fileConfig = &snapshot
+}
+
+func (c *Config) configForSave() Config {
+	out := *c
+	if c.fileConfig != nil {
+		if c.envOverrides["PlaneApiKeyAuthentication"] {
+			out.PlaneApiKeyAuthentication = c.fileConfig.PlaneApiKeyAuthentication
+		}
+	}
+	out.envOverrides = nil
+	out.fileConfig = nil
+	return out
+}
+
+func (c *Config) updateFileConfigField(field string) {
+	if c.fileConfig == nil || c.envOverrides[field] {
+		return
+	}
+	switch field {
+	case "AuthHeaderVal":
+		c.fileConfig.AuthHeaderVal = c.AuthHeaderVal
+	case "AccessToken":
+		c.fileConfig.AccessToken = c.AccessToken
+	case "RefreshToken":
+		c.fileConfig.RefreshToken = c.RefreshToken
+	case "TokenExpiry":
+		c.fileConfig.TokenExpiry = c.TokenExpiry
+	case "ClientID":
+		c.fileConfig.ClientID = c.ClientID
+	case "ClientSecret":
+		c.fileConfig.ClientSecret = c.ClientSecret
+	case "PlaneApiKeyAuthentication":
+		c.fileConfig.PlaneApiKeyAuthentication = c.PlaneApiKeyAuthentication
+	}
+}
+
+func (c *Config) save() error {
+	persisted := c.configForSave()
+	var persist any = persisted
+	if !c.AgentcookieManagedByExternalStore() {
+		persist = persisted.persisted()
+	}
+	data, err := toml.Marshal(persist)
 	if err != nil {
 		return fmt.Errorf("marshaling config: %w", err)
 	}
-	return os.WriteFile(c.Path, data, 0o600)
+	if err := cliutil.AtomicWritePrivateFile(c.Path, data, 0o600, 0o700); err != nil {
+		return err
+	}
+	c.scrubLegacyCredentials()
+	if !c.AgentcookieManagedByExternalStore() {
+		persisted.clearCredentialFields()
+	}
+	c.fileConfig = &persisted
+	c.fileConfig.envOverrides = nil
+	c.fileConfig.fileConfig = nil
+	// persisted shares its map fields with c (configForSave shallow-copies *c),
+	// so isolate the stored fileConfig the same way snapshotFileConfig does;
+	// otherwise later mutations to c's maps leak into the on-disk snapshot.
+	c.fileConfig.Headers = cloneStringMap(c.fileConfig.Headers)
+	c.fileConfig.TemplateVars = cloneStringMap(c.fileConfig.TemplateVars)
+	return nil
+}
+
+// Save persists the config to disk. PATCH(workspace-registry): exposes the
+// private save() so novel workspace commands can mutate DefaultWorkspace /
+// Workspaces and write back without duplicating the toml round-trip.
+func (c *Config) Save() error { return c.save() }
+func (c *Config) scrubLegacyCredentials() {
+	if c.legacySourcePath == "" || c.legacySourcePath == c.Path {
+		return
+	}
+	if c.AgentcookieManagedByExternalStore() {
+		return
+	}
+	data, err := os.ReadFile(c.legacySourcePath)
+	if err != nil {
+		if !os.IsNotExist(err) {
+			fmt.Fprintf(os.Stderr, "warning: cannot read legacy config to scrub credentials: %v\n", err)
+		}
+		return
+	}
+	var legacy Config
+	if err := toml.Unmarshal(data, &legacy); err != nil {
+		fmt.Fprintf(os.Stderr, "warning: cannot parse legacy config to scrub credentials: %v\n", err)
+		return
+	}
+	legacy.clearCredentialFields()
+	scrubbed := legacy.persisted()
+	scrubbedData, err := toml.Marshal(scrubbed)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "warning: cannot marshal scrubbed legacy config: %v\n", err)
+		return
+	}
+	if err := cliutil.AtomicWritePrivateFile(c.legacySourcePath, scrubbedData, 0o600, 0o700); err != nil {
+		fmt.Fprintf(os.Stderr, "warning: cannot write scrubbed legacy config: %v\n", err)
+	}
+}
+
+type persistedConfig struct {
+	BaseURL      string            `toml:"base_url"`
+	Headers      map[string]string `toml:"headers,omitempty"`
+	TemplateVars map[string]string `toml:"template_vars,omitempty"`
+	// PATCH(workspace-registry): the non-agentcookie save path marshals this
+	// subset struct, not the full Config — the workspace registry fields MUST
+	// round-trip here or `workspaces add` / default-workspace selection is lost
+	// on the next save.
+	DefaultWorkspace string           `toml:"default_workspace,omitempty"`
+	Workspaces       []WorkspaceEntry `toml:"workspaces,omitempty"`
+}
+
+func (c *Config) persisted() persistedConfig {
+	return persistedConfig{
+		BaseURL:          c.BaseURL,
+		Headers:          c.Headers,
+		TemplateVars:     c.TemplateVars,
+		DefaultWorkspace: c.DefaultWorkspace,
+		Workspaces:       c.Workspaces,
+	}
 }
 
 // Ensure strings import is used

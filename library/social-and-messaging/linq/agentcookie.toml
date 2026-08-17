@@ -1,0 +1,17 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "linq-pp-cli"
+display_name = "Linq"
+description = "Agent-native messaging API for chats, messages, attachments, phone numbers, contact cards, capability checks, and webhooks"
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/linq-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+LINQ_API_KEY = true
+LINQ_API_V3_API_KEY = true

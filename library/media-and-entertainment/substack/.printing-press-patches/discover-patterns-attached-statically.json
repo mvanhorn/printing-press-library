@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "discover-patterns-attached-statically",
+  "applied_at": "2026-07-26",
+  "base_run_id": "20260531-014452",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Hand-authored subcommands must be attached to their parent through the parent's own variable, before the parent is added to rootCmd. Attaching by searching rootCmd.Commands() for a name at runtime works at execution time but is invisible to any tool that reads the AddCommand graph statically.",
+  "reason": "`discover patterns` was attached by looping over rootCmd.Commands() and matching on the literal name \"discover\". The CLI behaved correctly, but verify_skill.py resolves each documented command by walking AddCommand call sites in source, and a loop variable receiver is not resolvable that way. The subcommand never entered the tree, so its own --niche/--sort/--since flags were reported as declared-elsewhere-but-not-on-discover and its name was parsed as a positional argument of `discover`. Binding the parent to a variable first is both simpler and statically analyzable; the failure mode is a docs-vs-source verification error, not a runtime one, so it is only visible when CI runs the verifier against this CLI.",
+  "files": [
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "verify_skill.py went from 6 errors plus 2 likely-false-positive positional-arg reports to 'All checks passed'. `discover --help` still lists the patterns subcommand and `discover patterns --help` still shows --niche/--sort/--since, so the command tree is unchanged."
+}

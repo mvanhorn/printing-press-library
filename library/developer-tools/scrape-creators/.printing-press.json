@@ -1,7 +1,7 @@
 {
-  "schema_version": 1,
-  "generated_at": "2026-05-02T02:46:24.688866Z",
-  "printing_press_version": "3.2.1",
+  "schema_version": 2,
+  "generated_at": "2026-08-08T14:45:27.843381Z",
+  "printing_press_version": "4.30.1",
   "api_name": "scrape-creators",
   "display_name": "Scrape Creators",
   "cli_name": "scrape-creators-pp-cli",
@@ -9,84 +9,199 @@
     "handle": "adrianhorning08",
     "name": "Adrian Horning"
   },
+  "contributors": [
+    {
+      "handle": "tmchow",
+      "name": "Trevin Chow"
+    },
+    {
+      "handle": "giuseppebisemi",
+      "name": "Giuseppe Bisemi"
+    }
+  ],
+  "owner": "adrianhorning08",
   "printer": "adrianhorning08",
   "printer_name": "Adrian Horning",
-  "spec_path": "https://docs.scrapecreators.com/openapi.json",
+  "spec_path": "spec.json",
   "spec_format": "openapi3",
-  "spec_checksum": "sha256:84d94e42d427fc09a88d36afa5f0524d824f4a6e69e7aa138e69bed51f99121d",
-  "run_id": "20260501-171858",
+  "spec_checksum": "sha256:6607865c9a98e1059d43a838b39adda2c301aee11e0a320c0d877d39a9867953",
+  "run_id": "20260808-150822-3ff3183d",
+  "category": "developer-tools",
+  "description": "Every Scrape Creators endpoint across 28 platforms, with credit-aware comment mining and a local corpus no other Scrape Creators tool has.",
   "mcp_binary": "scrape-creators-pp-mcp",
-  "mcp_tool_count": 114,
+  "mcp_tool_count": 178,
   "mcp_ready": "full",
+  "api_version": "1.0.0",
   "auth_type": "api_key",
+  "auth_preference": "apiKeyAuth",
   "auth_env_vars": [
-    "SCRAPE_CREATORS_API_KEY_AUTH"
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
   ],
   "novel_features": [
     {
+      "name": "Cost-aware thread completion",
+      "command": "comments thread",
+      "description": "Fetch one post's complete comment threads, automatically picking the cheaper route between the 15-credit flat include_replies call and 1-credit per-comment reply calls (don't trust child_comment_count to decide: it's unreliable)."
+    },
+    {
+      "name": "Reply-gap audit",
+      "command": "comments coverage",
+      "description": "Rank synced posts by how many comments the API reported versus how many actually landed in your local store — ground truth where the API's child_comment_count is unreliable as a thread filter."
+    },
+    {
+      "name": "Pre-flight credit estimator",
+      "command": "account estimate",
+      "description": "Project the credit cost of a planned run against your live balance and exit non-zero if it would exhaust the budget."
+    },
+    {
       "name": "Cross-platform presence matrix",
       "command": "creator find",
-      "description": "Given a single handle, see which of 11+ platforms the creator is on, with follower counts side-by-side."
+      "description": "Given one handle, see which of 12 creator platforms the creator is on with follower counts side-by-side."
     },
     {
-      "name": "Trend triangulation across platforms",
-      "command": "trends triangulate",
-      "description": "Snapshot a hashtag or keyword on TikTok, YouTube, Reddit, and Threads in one call to see which platform it's rising fastest on."
-    },
-    {
-      "name": "Transcript full-text search across 5 platforms",
+      "name": "Transcript full-text search",
       "command": "transcripts search",
-      "description": "FTS5-indexed search across all transcripts you've synced — TikTok, YouTube, Instagram, Facebook, and Twitter videos."
-    },
-    {
-      "name": "Ad library unified search",
-      "command": "ads search",
-      "description": "Search Facebook, Google, and LinkedIn ad libraries in one query — see every ad a brand is currently running."
-    },
-    {
-      "name": "Engagement spike detector",
-      "command": "content spikes",
-      "description": "Find videos that performed significantly above a creator's average — the ones that actually went viral."
-    },
-    {
-      "name": "Multi-creator comparison",
-      "command": "creator compare",
-      "description": "Compare two or more creators side-by-side on follower count, engagement rate, posting cadence, and content volume."
-    },
-    {
-      "name": "Follower growth tracker",
-      "command": "creator track",
-      "description": "Snapshot a creator's follower count daily across every platform; chart their growth trajectory over time."
-    },
-    {
-      "name": "Content cadence analysis",
-      "command": "content cadence",
-      "description": "See when a creator posts — by day of week and hour — across every platform you've synced for them."
-    },
-    {
-      "name": "Engagement rate ranker",
-      "command": "content analyze",
-      "description": "Rank a creator's synced content by engagement rate (not raw likes) so you see their true best performers."
-    },
-    {
-      "name": "Trend delta tracker",
-      "command": "trends delta",
-      "description": "Track whether a hashtag is growing or shrinking by comparing video counts across snapshot intervals."
+      "description": "FTS5 full-text search across every platform transcript you've synced — nine resource types spanning YouTube, TikTok, Instagram, Facebook, LinkedIn, Rumble, and more."
     },
     {
       "name": "Brand ad campaign monitor",
       "command": "ads monitor",
-      "description": "Snapshot a brand's ads on Facebook, Google, and LinkedIn into SQLite; on rerun, diff new ads vs ones that disappeared."
+      "description": "Snapshot a brand's live ads across Facebook, TikTok, Google, and LinkedIn ad libraries; on rerun, diff new ads versus ones that disappeared."
     },
     {
-      "name": "Link-in-bio universal resolver",
-      "command": "bio resolve",
-      "description": "Paste any linktree.ee, komi.io, pillar.io, linkbio, or linkme URL and get the unified destination list."
+      "name": "Bulk comment sweep",
+      "command": "comments sweep",
+      "description": "Pull recent posts for a handle and their comments in one command, stopping cleanly at a credit budget you set."
     },
     {
-      "name": "Credit burn rate monitor",
+      "name": "Comment corpus FTS",
+      "command": "comments search",
+      "description": "Full-text search across every synced comment and reply, offline."
+    },
+    {
+      "name": "Credit burn projection",
       "command": "account budget",
-      "description": "See how fast you're spending API credits and how many days remain at current pace, fused with the API's own usage history."
+      "description": "See how fast you're spending API credits and how many days remain at the current pace."
+    },
+    {
+      "name": "Multi-creator comparison",
+      "command": "creator compare",
+      "description": "Compare two or more creators side-by-side on follower count, engagement rate, and content volume."
+    },
+    {
+      "name": "Engagement spike detector",
+      "command": "content spikes",
+      "description": "Surface the videos that performed far above a creator's own baseline — the ones that actually went viral."
+    },
+    {
+      "name": "Trend triangulation",
+      "command": "trends triangulate",
+      "description": "Snapshot a hashtag or topic across platforms in one call to see which platform it is biggest on."
+    },
+    {
+      "name": "Follower growth tracker",
+      "command": "creator track",
+      "description": "Append a follower snapshot per run on a chosen platform, then read the growth trajectory over time."
+    },
+    {
+      "name": "UGC tag watcher",
+      "command": "creator tagged",
+      "description": "Snapshot the posts a creator or brand is tagged in and diff new mentions on rerun."
     }
-  ]
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cost-aware thread completion",
+      "command": "comments thread",
+      "description": "Fetch one post's complete comment threads, automatically picking the cheaper route between the 15-credit flat include_replies call and 1-credit per-comment reply calls (don't trust child_comment_count to decide: it's unreliable)."
+    },
+    {
+      "name": "Reply-gap audit",
+      "command": "comments coverage",
+      "description": "Rank synced posts by how many comments the API reported versus how many actually landed in your local store — ground truth where the API's child_comment_count is unreliable as a thread filter."
+    },
+    {
+      "name": "Pre-flight credit estimator",
+      "command": "account estimate",
+      "description": "Project the credit cost of a planned run against your live balance and exit non-zero if it would exhaust the budget."
+    },
+    {
+      "name": "Cross-platform presence matrix",
+      "command": "creator find",
+      "description": "Given one handle, see which of 12 creator platforms the creator is on with follower counts side-by-side."
+    },
+    {
+      "name": "Transcript full-text search",
+      "command": "transcripts search",
+      "description": "FTS5 full-text search across every platform transcript you've synced — nine resource types spanning YouTube, TikTok, Instagram, Facebook, LinkedIn, Rumble, and more."
+    },
+    {
+      "name": "Brand ad campaign monitor",
+      "command": "ads monitor",
+      "description": "Snapshot a brand's live ads across Facebook, TikTok, Google, and LinkedIn ad libraries; on rerun, diff new ads versus ones that disappeared."
+    },
+    {
+      "name": "Bulk comment sweep",
+      "command": "comments sweep",
+      "description": "Pull recent posts for a handle and their comments in one command, stopping cleanly at a credit budget you set."
+    },
+    {
+      "name": "Comment corpus FTS",
+      "command": "comments search",
+      "description": "Full-text search across every synced comment and reply, offline."
+    },
+    {
+      "name": "Credit burn projection",
+      "command": "account budget",
+      "description": "See how fast you're spending API credits and how many days remain at the current pace."
+    },
+    {
+      "name": "Multi-creator comparison",
+      "command": "creator compare",
+      "description": "Compare two or more creators side-by-side on follower count, engagement rate, and content volume."
+    },
+    {
+      "name": "Engagement spike detector",
+      "command": "content spikes",
+      "description": "Surface the videos that performed far above a creator's own baseline — the ones that actually went viral."
+    },
+    {
+      "name": "Trend triangulation",
+      "command": "trends triangulate",
+      "description": "Snapshot a hashtag or topic across platforms in one call to see which platform it is biggest on."
+    },
+    {
+      "name": "Follower growth tracker",
+      "command": "creator track",
+      "description": "Append a follower snapshot per run on a chosen platform, then read the growth trajectory over time."
+    },
+    {
+      "name": "UGC tag watcher",
+      "command": "creator tagged",
+      "description": "Snapshot the posts a creator or brand is tagged in and diff new mentions on rerun."
+    }
+  ],
+  "verify": {
+    "mode": "live",
+    "pass_rate": 100,
+    "passed": 79,
+    "total": 79,
+    "data_pipeline": true,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 93,
+      "grade": "A",
+      "total": 93
+    }
+  }
 }

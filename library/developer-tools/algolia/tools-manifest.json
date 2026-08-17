@@ -1,0 +1,2446 @@
+{
+  "api_name": "algolia",
+  "base_url": "https://{appId}.algolia.net",
+  "description": "Every Algolia feature, plus offline search and a local database no other Algolia tool has.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "api_key",
+    "header": "x-algolia-api-key",
+    "in": "header",
+    "env_vars": [
+      "ALGOLIA_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "ALGOLIA_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "key_url": "https://dashboard.algolia.com/infra"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "clusters_assign-user-id",
+      "description": "Assigns or moves a user ID to a cluster. The time it takes to move a user is proportional to the amount of data linked to the user ID. Required: X-Algolia-User-ID, cluster. Returns the new CreatedAtResponse.",
+      "method": "POST",
+      "path": "/1/clusters/mapping",
+      "params": [
+        {
+          "name": "X-Algolia-User-ID",
+          "type": "string",
+          "location": "query",
+          "description": "Unique identifier of the user who makes the search request.",
+          "required": true
+        },
+        {
+          "name": "cluster",
+          "type": "string",
+          "location": "body",
+          "description": "Cluster name.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "clusters_batch-assign-user-ids",
+      "description": "Assigns multiple user IDs to a cluster. **You can't move users with this operation**. Required: X-Algolia-User-ID, cluster, users. Returns the new CreatedAtResponse.",
+      "method": "POST",
+      "path": "/1/clusters/mapping/batch",
+      "params": [
+        {
+          "name": "X-Algolia-User-ID",
+          "type": "string",
+          "location": "query",
+          "description": "Unique identifier of the user who makes the search request.",
+          "required": true
+        },
+        {
+          "name": "cluster",
+          "type": "string",
+          "location": "body",
+          "description": "Cluster name.",
+          "required": true
+        },
+        {
+          "name": "users",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "User IDs to assign.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "clusters_get-top-user-ids",
+      "description": "Get the IDs of the 10 users with the highest number of records per cluster. Since it can take a few seconds to get the data from the different clusters, the response isn't real-time. Returns array of ClustersGetTopUserIdsItem.",
+      "method": "GET",
+      "path": "/1/clusters/mapping/top",
+      "params": []
+    },
+    {
+      "name": "clusters_get-user-id",
+      "description": "Returns the user ID data stored in the mapping. Since it can take a few seconds to get the data from the different clusters, the response isn't real-time. Required: userID.",
+      "method": "GET",
+      "path": "/1/clusters/mapping/{userID}",
+      "params": [
+        {
+          "name": "userID",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier of the user who makes the search request.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "clusters_has-pending-mappings",
+      "description": "To determine when the time-consuming process of creating a large batch of users or migrating users from one cluster to another is complete, this operation retrieves the status of the process. Optional: getClusters. Returns the HasPendingMappingsResponse.",
+      "method": "GET",
+      "path": "/1/clusters/mapping/pending",
+      "params": [
+        {
+          "name": "getClusters",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether to include the cluster's pending mapping state in the response."
+        }
+      ]
+    },
+    {
+      "name": "clusters_list",
+      "description": "Lists the available clusters in a multi-cluster setup. Returns array of ClusterName.",
+      "method": "GET",
+      "path": "/1/clusters",
+      "params": []
+    },
+    {
+      "name": "clusters_list-user-ids",
+      "description": "Lists the userIDs assigned to a multi-cluster application. Since it can take a few seconds to get the data from the different clusters, the response isn't real-time. Optional: page, hitsPerPage (default: 100). Returns array of UserId.",
+      "method": "GET",
+      "path": "/1/clusters/mapping",
+      "params": [
+        {
+          "name": "page",
+          "type": "string",
+          "location": "query",
+          "description": "Requested page of the API response. If `null`, the API response is not paginated."
+        },
+        {
+          "name": "hitsPerPage",
+          "type": "int",
+          "location": "query",
+          "description": "Number of hits per page."
+        }
+      ]
+    },
+    {
+      "name": "clusters_remove-user-id",
+      "description": "Deletes a user ID and its associated data from the clusters. Required: userID. Returns the RemoveUserIdResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/1/clusters/mapping/{userID}",
+      "params": [
+        {
+          "name": "userID",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier of the user who makes the search request.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "clusters_search-user-ids",
+      "description": "Since it can take a few seconds to get the data from the different clusters, the response isn't real-time. To ensure rapid updates, the user IDs index isn't built at the same time as the mapping. Instead, it's built every 12 hours, at the same time as the update of user ID usage. For example, if you add or move a user ID, the search will show an old value until the next time the mapping is rebuilt (every 12 hours). Required: query. Optional: clusterName, hitsPerPage (default: 20), page (default: 0). Returns array of UserHit.",
+      "method": "POST",
+      "path": "/1/clusters/mapping/search",
+      "params": [
+        {
+          "name": "clusterName",
+          "type": "string",
+          "location": "body",
+          "description": "Cluster name."
+        },
+        {
+          "name": "hitsPerPage",
+          "type": "int",
+          "location": "body",
+          "description": "Number of hits per page."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "body",
+          "description": "Page of search results to retrieve."
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "Query",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "dictionaries_get-dictionary-languages",
+      "description": "Lists supported languages with their supported dictionary types and number of custom entries. Returns the GetDictionaryLanguagesResponse.",
+      "method": "GET",
+      "path": "/1/dictionaries/*/languages",
+      "params": []
+    },
+    {
+      "name": "dictionaries_get-dictionary-settings",
+      "description": "Retrieves the languages for which standard dictionary entries are turned off. Returns the GetDictionarySettingsResponse.",
+      "method": "GET",
+      "path": "/1/dictionaries/*/settings",
+      "params": []
+    },
+    {
+      "name": "dictionaries_set-dictionary-settings",
+      "description": "Turns standard stop word dictionary entries on or off for a given language. Required: disableStandardEntries. Returns the updated UpdatedAtResponse.",
+      "method": "PUT",
+      "path": "/1/dictionaries/*/settings",
+      "params": [
+        {
+          "name": "disable-standard-entries-compounds",
+          "wire_name": "disableStandardEntries.compounds",
+          "type": "string",
+          "location": "body",
+          "description": "Compounds"
+        },
+        {
+          "name": "disable-standard-entries-plurals",
+          "wire_name": "disableStandardEntries.plurals",
+          "type": "string",
+          "location": "body",
+          "description": "Plurals"
+        },
+        {
+          "name": "disable-standard-entries-stopwords",
+          "wire_name": "disableStandardEntries.stopwords",
+          "type": "string",
+          "location": "body",
+          "description": "Stopwords"
+        }
+      ]
+    },
+    {
+      "name": "dictionaries_batch_dictionary-entries",
+      "description": "Adds or deletes multiple entries from your plurals, segmentation, or stop word dictionaries. Required: dictionaryName (default: plurals), requests. Optional: clearExistingDictionaryEntries (default: false). Returns the new UpdatedAtResponse.",
+      "method": "POST",
+      "path": "/1/dictionaries/{dictionaryName}/batch",
+      "params": [
+        {
+          "name": "dictionaryName",
+          "type": "string",
+          "location": "path",
+          "description": "Dictionary type in which to search.",
+          "required": true
+        },
+        {
+          "name": "clearExistingDictionaryEntries",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to replace all custom entries in the dictionary with the ones sent with this request."
+        },
+        {
+          "name": "requests",
+          "type": "array",
+          "location": "body",
+          "description": "List of additions and deletions to your dictionaries.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "dictionaries_search_dictionary-entries",
+      "description": "Searches for standard and custom dictionary entries. Required: dictionaryName (default: plurals), query. Optional: hitsPerPage (default: 20), language, page (default: 0). Returns array of DictionaryEntry.",
+      "method": "POST",
+      "path": "/1/dictionaries/{dictionaryName}/search",
+      "params": [
+        {
+          "name": "dictionaryName",
+          "type": "string",
+          "location": "path",
+          "description": "Dictionary type in which to search.",
+          "required": true
+        },
+        {
+          "name": "hitsPerPage",
+          "type": "int",
+          "location": "body",
+          "description": "Number of hits per page."
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "body",
+          "description": "ISO code for a supported language."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "body",
+          "description": "Page of search results to retrieve."
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "Search query.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "indexes_add-or-update-object",
+      "description": "If a record with the specified object ID exists, the existing record is replaced. Otherwise, a new record is added to the index. If you want to use auto-generated object IDs, use the [`saveObject` operation](https://www.algolia.com/doc/rest-api/search/save-object). To update _some_ attributes of an existing record, use the [`partial` operation](https://www.algolia.com/doc/rest-api/search/partial-update-object) instead. To add, update, or replace multiple records, use the [`batch` operation](https://www.algolia.com/doc/rest-api/search/batch). Required: indexName, objectID. Returns the updated UpdatedAtWithObjectIdResponse.",
+      "method": "PUT",
+      "path": "/1/indexes/{indexName}/{objectID}",
+      "params": [
+        {
+          "name": "indexName",
+          "type": "string",
+          "location": "path",
+          "description": "Name of the index on which to perform the operation.",
+          "required": true
+        },
+        {
+          "name": "objectID",
+          "type": "string",
+          "location": "path",
+          "description": "Unique record identifier.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "indexes_delete-index",
+      "description": "Deletes an index and all its settings. - Deleting an index doesn't delete its analytics data. - If you try to delete a non-existing index, the operation is ignored without warning. - If the index you want to delete has replica indices, the replicas become independent indices. - If the index you want to delete is a replica index, you must first unlink it from its primary index before you can delete it. For more information, see [Delete replica indices](https://www.algolia.com/doc/guides/managing-results/refine-results/sorting/how-to/deleting-replicas). Required: indexName. Returns the DeletedAtResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/1/indexes/{indexName}",
+      "params": [
+        {
+          "name": "indexName",
+          "type": "string",
+          "location": "path",
+          "description": "Name of the index on which to perform the operation.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "indexes_delete-object",
+      "description": "Deletes a record by its object ID. To delete more than one record, use the [`batch` operation](https://www.algolia.com/doc/rest-api/search/batch). To delete records matching a query, use the [`deleteBy` operation](https://www.algolia.com/doc/rest-api/search/delete-by). Required: indexName, objectID. Returns the DeletedAtResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/1/indexes/{indexName}/{objectID}",
+      "params": [
+        {
+          "name": "indexName",
+          "type": "string",
+          "location": "path",
+          "description": "Name of the index on which to perform the operation.",
+          "required": true
+        },
+        {
+          "name": "objectID",
+          "type": "string",
+          "location": "path",
+          "description": "Unique record identifier.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "indexes_get-object",
+      "description": "Retrieves one record by its object ID. To retrieve more than one record, use the [`objects` operation](https://www.algolia.com/doc/rest-api/search/get-objects). Required: indexName, objectID. Optional: attributesToRetrieve. Returns the IndexesGetObjectResponse.",
+      "method": "GET",
+      "path": "/1/indexes/{indexName}/{objectID}",
+      "params": [
+        {
+          "name": "indexName",
+          "type": "string",
+          "location": "path",
+          "description": "Name of the index on which to perform the operation.",
+          "required": true
+        },
+        {
+          "name": "objectID",
+          "type": "string",
+          "location": "path",
+          "description": "Unique record identifier.",
+          "required": true
+        },
+        {
+          "name": "attributesToRetrieve",
+          "type": "array",
+          "location": "query",
+          "description": "Attributes to include with the records in the response. This is useful to reduce the size of the API response. By default, all retrievable attributes are returned. `objectID` is always retrieved. Attributes included in `unretrievableAttributes` won't be retrieved unless the request is authenticated with the admin API key."
+        }
+      ]
+    },
+    {
+      "name": "indexes_get-objects",
+      "description": "Retrieves one or more records, potentially from different indices. Records are returned in the same order as the requests. Required: requests. Returns array of IndexesGetObjectsItem.",
+      "method": "POST",
+      "path": "/1/indexes/*/objects",
+      "params": [
+        {
+          "name": "requests",
+          "type": "array",
+          "location": "body",
+          "description": "Requests",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "indexes_list-indices",
+      "description": "Lists all indices in the current Algolia application. The request follows any index restrictions of the API key you use to make the request. Optional: page, hitsPerPage (default: 100). Returns array of FetchedIndex.",
+      "method": "GET",
+      "path": "/1/indexes",
+      "params": [
+        {
+          "name": "page",
+          "type": "string",
+          "location": "query",
+          "description": "Requested page of the API response. If `null`, the API response is not paginated."
+        },
+        {
+          "name": "hitsPerPage",
+          "type": "int",
+          "location": "query",
+          "description": "Number of hits per page."
+        }
+      ]
+    },
+    {
+      "name": "indexes_multiple-batch",
+      "description": "Adds, updates, or deletes records in multiple indices with a single API request. - Actions are applied in the order they are specified. - Actions are equivalent to the individual API requests of the same name. This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia). Required: requests. Returns array of string.",
+      "method": "POST",
+      "path": "/1/indexes/*/batch",
+      "params": [
+        {
+          "name": "requests",
+          "type": "array",
+          "location": "body",
+          "description": "Requests",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "indexes_save-object",
+      "description": "Adds a record to an index or replaces it. - If the record doesn't have an object ID, a new record with an auto-generated object ID is added to your index. - If a record with the specified object ID exists, the existing record is replaced. - If a record with the specified object ID doesn't exist, a new record is added to your index. - If you add a record to an index that doesn't exist yet, a new index is created. To update _some_ attributes of a record, use the [`partial` operation](https://www.algolia.com/doc/rest-api/search/partial-update-object). To add, update, or replace multiple records, use the [`batch` operation](https://www.algolia.com/doc/rest-api/search/batch). This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia). Required: indexName. Returns the new SaveObjectResponse.",
+      "method": "POST",
+      "path": "/1/indexes/{indexName}",
+      "params": [
+        {
+          "name": "indexName",
+          "type": "string",
+          "location": "path",
+          "description": "Name of the index on which to perform the operation.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "indexes_search",
+      "description": "Runs multiple search queries against one or more indices in a single API request. Use cases include: - Searching different indices, such as products and marketing content. - Run multiple queries on the same index with different parameters or filters. If you know the expected result type, use the `searchForHits` or `searchForFacets` helper to simplify the response format. Required: requests. Optional: strategy. Returns array of SearchResult.",
+      "method": "POST",
+      "path": "/1/indexes/*/queries",
+      "params": [
+        {
+          "name": "requests",
+          "type": "array",
+          "location": "body",
+          "description": "Requests",
+          "required": true
+        },
+        {
+          "name": "strategy",
+          "type": "string",
+          "location": "body",
+          "description": "Strategy for multiple search queries: - `none`. Run all queries. - `stopIfEnoughMatches`. Run the queries one by one, stopping as soon as a query matches at least the `hitsPerPage` number of results."
+        }
+      ]
+    },
+    {
+      "name": "indexes_batch_batch",
+      "description": "Adds, updates, or deletes records in one index with a single API request. Batching index updates reduces latency and increases data integrity. - Actions are applied in the order they're specified. - Actions are equivalent to the individual API requests of the same name. This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia). Required: indexName, requests. Returns array of string.",
+      "method": "POST",
+      "path": "/1/indexes/{indexName}/batch",
+      "params": [
+        {
+          "name": "indexName",
+          "type": "string",
+          "location": "path",
+          "description": "Name of the index on which to perform the operation.",
+          "required": true
+        },
+        {
+          "name": "requests",
+          "type": "array",
+          "location": "body",
+          "description": "Requests",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "indexes_browse_browse",
+      "description": "Retrieves records from an index, up to 1,000 per request. Searching returns _hits_ (records augmented with highlighting and ranking details). Browsing returns matching records only. Use browse to export your indices. - The Analytics API doesn't collect data when using `browse`. - Records are ranked by attributes and custom ranking. - There's no ranking for typo tolerance, number of matched words, proximity, or geo distance. Browse requests automatically apply these settings: - `advancedSyntax`: `false` - `attributesToHighlight`: `[]` - `attributesToSnippet`: `[]` - `distinct`: `false` - `enablePersonalization`: `false` - `enableRules`: `false` - `facets`: `[]` - `getRankingInfo`: `false` - `ignorePlurals`: `false` - `optionalFilters`: `[]` - `typoTolerance`: `true` or `false` (`min` and `strict` evaluate to `true`) If you send these parameters with your browse requests, they're ignored. Required: indexName.",
+      "method": "POST",
+      "path": "/1/indexes/{indexName}/browse",
+      "params": [
+        {
+          "name": "indexName",
+          "type": "string",
+          "location": "path",
+          "description": "Name of the index on which to perform the operation.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "indexes_clear_objects",
+      "description": "Deletes only the records from an index while keeping settings, synonyms, and rules. This operation is resource-intensive and subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia). Required: indexName. Returns the new UpdatedAtResponse.",
+      "method": "POST",
+      "path": "/1/indexes/{indexName}/clear",
+      "params": [
+        {
+          "name": "indexName",
+          "type": "string",
+          "location": "path",
+          "description": "Name of the index on which to perform the operation.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "indexes_delete-by-query_delete-by",
+      "description": "This operation doesn't accept empty filters. This operation is resource-intensive. Use it only if you can't get the object IDs of the records you want to delete. It's more efficient to get a list of object IDs with the [`browse` operation](https://www.algolia.com/doc/rest-api/search/browse), and then delete the records using the [`batch` operation](https://www.algolia.com/doc/rest-api/search/batch). This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia). Required: indexName. Optional: aroundLatLng, aroundRadius, facetFilters (plus 5 more). Returns the new UpdatedAtResponse.",
+      "method": "POST",
+      "path": "/1/indexes/{indexName}/deleteByQuery",
+      "params": [
+        {
+          "name": "indexName",
+          "type": "string",
+          "location": "path",
+          "description": "Name of the index on which to perform the operation.",
+          "required": true
+        },
+        {
+          "name": "aroundLatLng",
+          "type": "string",
+          "location": "body",
+          "description": "Coordinates for the center of a circle, expressed as a comma-separated string of latitude and longitude. Only records included within a circle around this central location are included in the results. The radius of the circle is determined by the `aroundRadius` and `minimumAroundRadius` settings. This parameter is ignored if you also specify `insidePolygon` or `insideBoundingBox`."
+        },
+        {
+          "name": "aroundRadius",
+          "type": "string",
+          "location": "body",
+          "description": "Maximum radius for a search around a central location. This parameter works in combination with the `aroundLatLng` and `aroundLatLngViaIP` parameters. By default, the search radius is determined automatically from the density of hits around the central location. The search radius is small if there are many hits close to the central coordinates."
+        },
+        {
+          "name": "facetFilters",
+          "type": "string",
+          "location": "body",
+          "description": "Filter the search by facet values, so that only records with the same facet values are retrieved. **Prefer using the `filters` parameter, which supports all filter types and combinations with boolean operators.** - `[filter1, filter2]` is interpreted as `filter1 AND filter2`. - `[[filter1, filter2], filter3]` is interpreted as `filter1 OR filter2 AND filter3`. - `facet:-value` is interpreted as `NOT facet:value`. While it's best to avoid attributes that start with a `-`, you can still filter them by escaping with a backslash: `facet:-value`."
+        },
+        {
+          "name": "filters",
+          "type": "string",
+          "location": "body",
+          "description": "Filter expression to only include items that match the filter criteria in the response. You can use these filter expressions: - **Numeric filters.** `\u003cfacet\u003e \u003cop\u003e \u003cnumber\u003e`, where `\u003cop\u003e` is one of `\u003c`, `\u003c=`, `=`, `!=`, `\u003e`, `\u003e=`. - **Ranges.** `\u003cfacet\u003e:\u003clower\u003e TO \u003cupper\u003e`, where `\u003clower\u003e` and `\u003cupper\u003e` are the lower and upper limits of the range (inclusive). - **Facet filters.** `\u003cfacet\u003e:\u003cvalue\u003e`, where `\u003cfacet\u003e` is a facet attribute (case-sensitive) and `\u003cvalue\u003e` a facet value. - **Tag filters.** `_tags:\u003cvalue\u003e` or just `\u003cvalue\u003e` (case-sensitive). - **Boolean filters.** `\u003cfacet\u003e: true | false`. You can combine filters with `AND`, `OR`, and `NOT` operators with the following restrictions: - You can only combine filters of the same type with `OR`. **Not supported:** `facet:value OR num \u003e 3`. - You can't use `NOT` with combinations of filters. **Not supported:** `NOT(facet:value OR facet:value)` - You can't combine conjunctions (`AND`) with `OR`. **Not supported:** `facet:value OR (facet:value AND facet:value)` Use quotes if the facet attribute name or facet value contains spaces, keywords (`OR`, `AND`, `NOT`), or quotes. If a facet attribute is an array, the filter matches if it matches at least one element of the array. For more information, see [Filters](https://www.algolia.com/doc/guides/managing-results/refine-results/filtering)."
+        },
+        {
+          "name": "insideBoundingBox",
+          "type": "string",
+          "location": "body",
+          "description": "Inside bounding box"
+        },
+        {
+          "name": "insidePolygon",
+          "type": "array",
+          "location": "body",
+          "description": "Coordinates of a polygon in which to search. Polygons are defined by 3 to 10,000 points. Each point is represented by its latitude and longitude. Provide multiple polygons as nested arrays. For more information, see [filtering inside polygons](https://www.algolia.com/doc/guides/managing-results/refine-results/geolocation/#filtering-inside-rectangular-or-polygonal-areas). This parameter is ignored if you also specify `insideBoundingBox`."
+        },
+        {
+          "name": "numericFilters",
+          "type": "string",
+          "location": "body",
+          "description": "Filter by numeric facets. **Prefer using the `filters` parameter, which supports all filter types and combinations with boolean operators.** You can use numeric comparison operators: `\u003c`, `\u003c=`, `=`, `!=`, `\u003e`, `\u003e=`. Comparisons are precise up to 3 decimals. You can also provide ranges: `facet:\u003clower\u003e TO \u003cupper\u003e`. The range includes the lower and upper boundaries. The same combination rules apply as for `facetFilters`."
+        },
+        {
+          "name": "tagFilters",
+          "type": "string",
+          "location": "body",
+          "description": "Filter the search by values of the special `_tags` attribute. **Prefer using the `filters` parameter, which supports all filter types and combinations with boolean operators.** Different from regular facets, `_tags` can only be used for filtering (including or excluding records). You won't get a facet count. The same combination and escaping rules apply as for `facetFilters`."
+        }
+      ]
+    },
+    {
+      "name": "indexes_facets_search-for-values",
+      "description": "Searches for values of a specified facet attribute. - By default, facet values are sorted by decreasing count. You can adjust this with the `sortFacetValueBy` parameter. - Searching for facet values doesn't work if you have **more than 65 searchable facets and searchable attributes combined**. Required: indexName, facetName. Optional: facetQuery, maxFacetHits (default: 10), params. Returns array of FacetHits.",
+      "method": "POST",
+      "path": "/1/indexes/{indexName}/facets/{facetName}/query",
+      "params": [
+        {
+          "name": "indexName",
+          "type": "string",
+          "location": "path",
+          "description": "Name of the index on which to perform the operation.",
+          "required": true
+        },
+        {
+          "name": "facetName",
+          "type": "string",
+          "location": "path",
+          "description": "Facet attribute in which to search for values. This attribute must be included in the `attributesForFaceting` index setting with the `searchable()` modifier.",
+          "required": true
+        },
+        {
+          "name": "facetQuery",
+          "type": "string",
+          "location": "body",
+          "description": "Text to search inside the facet's values."
+        },
+        {
+          "name": "maxFacetHits",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of facet values to return when [searching for facet values](https://www.algolia.com/doc/guides/managing-results/refine-results/faceting/#search-for-facet-values)."
+        },
+        {
+          "name": "params",
+          "type": "string",
+          "location": "body",
+          "description": "Search parameters as a URL-encoded query string."
+        }
+      ]
+    },
+    {
+      "name": "indexes_operation_index",
+      "description": "Copies or moves (renames) an index within the same Algolia application. Notes: - Existing destination indices are overwritten, except for their analytics data. - If the destination index doesn't exist yet, it's created. - This operation is resource-intensive. **Copy** - If the source index doesn't exist, copying creates a new index with 0 records and default settings. - API keys from the source index are merged with the existing keys in the destination index. - You can't copy the `enableReRanking`, `mode`, and `replicas` settings. - You can't copy to a destination index that already has replicas. - Be aware of the [size limits](https://www.algolia.com/doc/guides/scaling/algolia-service-limits/#application-record-and-index-limits). - For more information, see [Copy indices](https://www.algolia.com/doc/guides/sending-and-managing-data/manage-indices-and-apps/manage-indices/how-to/copy-indices). **Move** - If the source index doesn't exist, moving is ignored without returning an error. - When moving an index, the analytics data keeps its original name, and a new set of analytics data is started for the new name. To access the original analytics in the dashboard, create an index with the original name. - If the destination index has replicas, moving will overwrite the existing index and copy the data to the replica indices. - For more information, see [Move indices](https://www.algolia.com/doc/guides/sending-and-managing-data/manage-indices-and-apps/manage-indices/how-to/move-indices). This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia). Required: indexName, destination, operation. Optional: scope. Returns the new UpdatedAtResponse.",
+      "method": "POST",
+      "path": "/1/indexes/{indexName}/operation",
+      "params": [
+        {
+          "name": "indexName",
+          "type": "string",
+          "location": "path",
+          "description": "Name of the index on which to perform the operation.",
+          "required": true
+        },
+        {
+          "name": "destination",
+          "type": "string",
+          "location": "body",
+          "description": "Index name (case-sensitive).",
+          "required": true
+        },
+        {
+          "name": "operation",
+          "type": "string",
+          "location": "body",
+          "description": "Operation to perform on the index.",
+          "required": true
+        },
+        {
+          "name": "scope",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "**Only for copying.** If you specify a scope, only the selected scopes are copied. Records and the other scopes are left unchanged. If you omit the `scope` parameter, everything is copied: records, settings, synonyms, and rules."
+        }
+      ]
+    },
+    {
+      "name": "indexes_partial_update-object",
+      "description": "Adds new attributes to a record, or updates existing ones. - If a record with the specified object ID doesn't exist, a new record is added to the index **if** `createIfNotExists` is true. - If the index doesn't exist yet, this method creates a new index. - Use first-level attributes only. Nested attributes aren't supported. If you specify a nested attribute, this operation replaces its first-level ancestor. To update attributes without replacing the full record, use these built-in operations. These operations are useful when the initial data isn't available. - `Increment`: increment a numeric attribute. - `Decrement`: decrement a numeric attribute. - `Add`: append a number or string element to an array attribute. - `Remove`: remove all matching number or string elements from an array attribute made of numbers or strings. - `AddUnique`: add a number or string element to an array attribute made of numbers or strings only if it's not already present. - `IncrementFrom`: increment a numeric integer attribute only if the provided value matches the current value. Otherwise, the update is ignored. Example: If you pass an `IncrementFrom` value of 2 for the `version` attribute but the current value is 1, the API ignores the update. If the object doesn't exist, the API only creates it if you pass an `IncrementFrom` value of 0. - `IncrementSet`: increment a numeric integer attribute only if the provided value is greater than the current value. Otherwise, the update is ignored. Example: If you pass an `IncrementSet` value of 2 for the `version` attribute and the current value is 1, the API updates the object. If the object doesn't exist yet, the API only creates it if you pass an `IncrementSet` value greater than 0. Specify an operation by providing an object with the attribute to update as the key and its value as an object with these properties: - `_operation`: the operation to apply on the attribute. - `value`: the right-hand side argument to the operation, for example, increment or decrement step, or a value to add or remove. When updating multiple attributes or using multiple operations targeting the same record, use a single partial update for faster processing. This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia). Required: indexName, objectID. Optional: createIfNotExists (default: true). Returns the new UpdatedAtWithObjectIdResponse.",
+      "method": "POST",
+      "path": "/1/indexes/{indexName}/{objectID}/partial",
+      "params": [
+        {
+          "name": "indexName",
+          "type": "string",
+          "location": "path",
+          "description": "Name of the index on which to perform the operation.",
+          "required": true
+        },
+        {
+          "name": "objectID",
+          "type": "string",
+          "location": "path",
+          "description": "Unique record identifier.",
+          "required": true
+        },
+        {
+          "name": "createIfNotExists",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether to create a new record if it doesn't exist."
+        }
+      ]
+    },
+    {
+      "name": "indexes_query_search-single-index",
+      "description": "Searches a single index and returns matching search results as hits. This method lets you retrieve up to 1,000 hits. If you need more, use the [`browse` operation](https://www.algolia.com/doc/rest-api/search/browse) or increase the `paginatedLimitedTo` index setting. Required: indexName.",
+      "method": "POST",
+      "path": "/1/indexes/{indexName}/query",
+      "params": [
+        {
+          "name": "indexName",
+          "type": "string",
+          "location": "path",
+          "description": "Name of the index on which to perform the operation.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "indexes_rules_clear",
+      "description": "Deletes all rules from the index. Required: indexName. Optional: forwardToReplicas. Returns the new UpdatedAtResponse.",
+      "method": "POST",
+      "path": "/1/indexes/{indexName}/rules/clear",
+      "params": [
+        {
+          "name": "indexName",
+          "type": "string",
+          "location": "path",
+          "description": "Name of the index on which to perform the operation.",
+          "required": true
+        },
+        {
+          "name": "forwardToReplicas",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether changes are applied to replica indices."
+        }
+      ]
+    },
+    {
+      "name": "indexes_rules_delete",
+      "description": "Deletes a rule by its ID. To find the object ID for rules, use the [`search` operation](https://www.algolia.com/doc/rest-api/search/search-rules). Required: indexName, objectID. Optional: forwardToReplicas. Returns the UpdatedAtResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/1/indexes/{indexName}/rules/{objectID}",
+      "params": [
+        {
+          "name": "indexName",
+          "type": "string",
+          "location": "path",
+          "description": "Name of the index on which to perform the operation.",
+          "required": true
+        },
+        {
+          "name": "objectID",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier of a rule object.",
+          "required": true
+        },
+        {
+          "name": "forwardToReplicas",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether changes are applied to replica indices."
+        }
+      ]
+    },
+    {
+      "name": "indexes_rules_get",
+      "description": "Retrieves a rule by its ID. To find the object ID of rules, use the [`search` operation](https://www.algolia.com/doc/rest-api/search/search-rules). Required: indexName, objectID. Returns the Rule.",
+      "method": "GET",
+      "path": "/1/indexes/{indexName}/rules/{objectID}",
+      "params": [
+        {
+          "name": "indexName",
+          "type": "string",
+          "location": "path",
+          "description": "Name of the index on which to perform the operation.",
+          "required": true
+        },
+        {
+          "name": "objectID",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier of a rule object.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "indexes_rules_save",
+      "description": "Create or update multiple rules. If a rule with the specified object ID doesn't exist, Algolia creates a new one. Otherwise, existing rules are replaced. This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia). Required: indexName. Optional: forwardToReplicas, clearExistingRules. Returns the new UpdatedAtResponse.",
+      "method": "POST",
+      "path": "/1/indexes/{indexName}/rules/batch",
+      "params": [
+        {
+          "name": "indexName",
+          "type": "string",
+          "location": "path",
+          "description": "Name of the index on which to perform the operation.",
+          "required": true
+        },
+        {
+          "name": "forwardToReplicas",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether changes are applied to replica indices."
+        },
+        {
+          "name": "clearExistingRules",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether existing rules should be deleted before adding this batch."
+        }
+      ]
+    },
+    {
+      "name": "indexes_rules_save-indexes",
+      "description": "If a rule with the specified object ID doesn't exist, it's created. Otherwise, the existing rule is replaced. To create or update more than one rule, use the [`batch` operation](https://www.algolia.com/doc/rest-api/search/save-rules). Required: indexName, objectID, consequence, object-id-2. Optional: forwardToReplicas, condition, conditions (plus 5 more). Returns the updated UpdatedAtResponse.",
+      "method": "PUT",
+      "path": "/1/indexes/{indexName}/rules/{objectID}",
+      "params": [
+        {
+          "name": "indexName",
+          "type": "string",
+          "location": "path",
+          "description": "Name of the index on which to perform the operation.",
+          "required": true
+        },
+        {
+          "name": "objectID",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier of a rule object.",
+          "required": true
+        },
+        {
+          "name": "forwardToReplicas",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether changes are applied to replica indices."
+        },
+        {
+          "name": "condition-alternatives",
+          "wire_name": "condition.alternatives",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the pattern should match plurals, synonyms, and typos."
+        },
+        {
+          "name": "condition-anchoring",
+          "wire_name": "condition.anchoring",
+          "type": "string",
+          "location": "body",
+          "description": "Which part of the search query the pattern should match: - `startsWith`. The pattern must match the beginning of the query. - `endsWith`. The pattern must match the end of the query. - `is`. The pattern must match the query exactly. - `contains`. The pattern must match anywhere in the query. Empty queries are only allowed as patterns with `anchoring: is`."
+        },
+        {
+          "name": "condition-context",
+          "wire_name": "condition.context",
+          "type": "string",
+          "location": "body",
+          "description": "An additional restriction that only triggers the rule, when the search has the same value as `ruleContexts` parameter. For example, if `context: mobile`, the rule is only triggered when the search request has a matching `ruleContexts: mobile`. A rule context must only contain alphanumeric characters."
+        },
+        {
+          "name": "condition-filters",
+          "wire_name": "condition.filters",
+          "type": "string",
+          "location": "body",
+          "description": "Filters that trigger the rule. You can add filters using the syntax `facet:value` so that the rule is triggered, when the specific filter is selected. You can use `filters` on its own or combine it with the `pattern` parameter. You can't combine multiple filters with `OR` and you can't use numeric filters."
+        },
+        {
+          "name": "condition-pattern",
+          "wire_name": "condition.pattern",
+          "type": "string",
+          "location": "body",
+          "description": "Query pattern that triggers the rule. You can use either a literal string, or a special pattern `{facet:ATTRIBUTE}`, where `ATTRIBUTE` is a facet name. The rule is triggered if the query matches the literal string or a value of the specified facet. For example, with `pattern: {facet:genre}`, the rule is triggered when users search for a genre, such as 'comedy'."
+        },
+        {
+          "name": "conditions",
+          "type": "array",
+          "location": "body",
+          "description": "Conditions that trigger a rule. Some consequences require specific conditions or don't require any condition. For more information, see [Conditions](https://www.algolia.com/doc/guides/managing-results/rules/rules-overview/#conditions)."
+        },
+        {
+          "name": "consequence-filter-promotes",
+          "wire_name": "consequence.filterPromotes",
+          "type": "bool",
+          "location": "body",
+          "description": "Determines whether promoted records must also match active filters for the consequence to apply. This ensures user-applied filters take priority and irrelevant matches aren't shown. For example, if you promote a record with `color: red` but the user filters for `color: blue`, the 'red' record won't be shown. \u003e In the Algolia dashboard, when you use the **Pin an item** consequence, `filterPromotes` appears as the checkbox: **Pinned items must match active filters to be displayed.** For examples, see [Promote results with rules](https://www.algolia.com/doc/guides/managing-results/rules/merchandising-and-promoting/how-to/promote-hits/#promote-results-matching-active-filters)."
+        },
+        {
+          "name": "consequence-hide",
+          "wire_name": "consequence.hide",
+          "type": "array",
+          "location": "body",
+          "description": "Records you want to hide from the search results."
+        },
+        {
+          "name": "consequence-params-advanced-syntax",
+          "wire_name": "consequence.params.advancedSyntax",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to support phrase matching and excluding words from search queries Use the `advancedSyntaxFeatures` parameter to control which feature is supported."
+        },
+        {
+          "name": "consequence-params-advanced-syntax-features",
+          "wire_name": "consequence.params.advancedSyntaxFeatures",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Advanced search syntax features you want to support - `exactPhrase`. Phrases in quotes must match exactly. For example, `sparkly blue 'iPhone case'` only returns records with the exact string 'iPhone case' - `excludeWords`. Query words prefixed with a `-` must not occur in a record. For example, `search -engine` matches records that contain 'search' but not 'engine' This setting only has an effect if `advancedSyntax` is true."
+        },
+        {
+          "name": "consequence-params-allow-typos-on-numeric-tokens",
+          "wire_name": "consequence.params.allowTyposOnNumericTokens",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to allow typos on numbers in the search query Turn off this setting to reduce the number of irrelevant matches when searching in large sets of similar numbers."
+        },
+        {
+          "name": "consequence-params-alternatives-as-exact",
+          "wire_name": "consequence.params.alternativesAsExact",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Determine which plurals and synonyms should be considered an exact matches By default, Algolia treats singular and plural forms of a word, and single-word synonyms, as [exact](https://www.algolia.com/doc/guides/managing-results/relevance-overview/in-depth/ranking-criteria/#exact) matches when searching. For example - 'swimsuit' and 'swimsuits' are treated the same - 'swimsuit' and 'swimwear' are treated the same (if they are [synonyms](https://www.algolia.com/doc/guides/managing-results/optimize-search-results/adding-synonyms/#regular-synonyms)) - `ignorePlurals`. Plurals and similar declensions added by the `ignorePlurals` setting are considered exact matches - `singleWordSynonym`. Single-word synonyms, such as 'NY' = 'NYC', are considered exact matches - `multiWordsSynonym`. Multi-word synonyms, such as 'NY' = 'New York', are considered exact matches."
+        },
+        {
+          "name": "consequence-params-analytics",
+          "wire_name": "consequence.params.analytics",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether this search will be included in Analytics."
+        },
+        {
+          "name": "consequence-params-analytics-tags",
+          "wire_name": "consequence.params.analyticsTags",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Tags to apply to the query for [segmenting analytics data](https://www.algolia.com/doc/guides/search-analytics/guides/segments)."
+        },
+        {
+          "name": "consequence-params-around-lat-lng",
+          "wire_name": "consequence.params.aroundLatLng",
+          "type": "string",
+          "location": "body",
+          "description": "Coordinates for the center of a circle, expressed as a comma-separated string of latitude and longitude. Only records included within a circle around this central location are included in the results. The radius of the circle is determined by the `aroundRadius` and `minimumAroundRadius` settings. This parameter is ignored if you also specify `insidePolygon` or `insideBoundingBox`."
+        },
+        {
+          "name": "consequence-params-around-lat-lng-via-ip",
+          "wire_name": "consequence.params.aroundLatLngViaIP",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to obtain the coordinates from the request's IP address."
+        },
+        {
+          "name": "consequence-params-around-precision",
+          "wire_name": "consequence.params.aroundPrecision",
+          "type": "string",
+          "location": "body",
+          "description": "Precision of a coordinate-based search in meters to group results with similar distances. The Geo ranking criterion considers all matches within the same range of distances to be equal."
+        },
+        {
+          "name": "consequence-params-around-radius",
+          "wire_name": "consequence.params.aroundRadius",
+          "type": "string",
+          "location": "body",
+          "description": "Maximum radius for a search around a central location. This parameter works in combination with the `aroundLatLng` and `aroundLatLngViaIP` parameters. By default, the search radius is determined automatically from the density of hits around the central location. The search radius is small if there are many hits close to the central coordinates."
+        },
+        {
+          "name": "consequence-params-attribute-criteria-computed-by-min-proximity",
+          "wire_name": "consequence.params.attributeCriteriaComputedByMinProximity",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the best matching attribute should be determined by minimum proximity This setting only affects ranking if the Attribute ranking criterion comes before Proximity in the `ranking` setting. If true, the best matching attribute is selected based on the minimum proximity of multiple matches. Otherwise, the best matching attribute is determined by the order in the `searchableAttributes` setting."
+        },
+        {
+          "name": "consequence-params-attributes-to-highlight",
+          "wire_name": "consequence.params.attributesToHighlight",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Attributes to highlight By default, all searchable attributes are highlighted. Use `*` to highlight all attributes or use an empty array `[]` to turn off highlighting. Attribute names are case-sensitive With highlighting, strings that match the search query are surrounded by HTML tags defined by `highlightPreTag` and `highlightPostTag`. You can use this to visually highlight matching parts of a search query in your UI For more information, see [Highlighting and snippeting](https://www.algolia.com/doc/guides/building-search-ui/ui-and-ux-patterns/highlighting-snippeting/js)."
+        },
+        {
+          "name": "consequence-params-attributes-to-retrieve",
+          "wire_name": "consequence.params.attributesToRetrieve",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Attributes to include in the API response To reduce the size of your response, you can retrieve only some of the attributes. Attribute names are case-sensitive - `*` retrieves all attributes, except attributes included in the `customRanking` and `unretrievableAttributes` settings. - To retrieve all attributes except a specific one, prefix the attribute with a dash and combine it with the `*`: `['*', '-ATTRIBUTE']`. - The `objectID` attribute is always included."
+        },
+        {
+          "name": "consequence-params-attributes-to-snippet",
+          "wire_name": "consequence.params.attributesToSnippet",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Attributes for which to enable snippets. Attribute names are case-sensitive Snippets provide additional context to matched words. If you enable snippets, they include 10 words, including the matched word. The matched word will also be wrapped by HTML tags for highlighting. You can adjust the number of words with the following notation: `ATTRIBUTE:NUMBER`, where `NUMBER` is the number of words to be extracted."
+        },
+        {
+          "name": "consequence-params-automatic-facet-filters",
+          "wire_name": "consequence.params.automaticFacetFilters",
+          "type": "string",
+          "location": "body",
+          "description": "Filter to be applied to the search. You can use this to respond to search queries that match a facet value. For example, if users search for 'comedy', which matches a facet value of the 'genre' facet, you can filter the results to show the top-ranked comedy movies."
+        },
+        {
+          "name": "consequence-params-automatic-optional-facet-filters",
+          "wire_name": "consequence.params.automaticOptionalFacetFilters",
+          "type": "string",
+          "location": "body",
+          "description": "Filter to be applied to the search. You can use this to respond to search queries that match a facet value. For example, if users search for 'comedy', which matches a facet value of the 'genre' facet, you can filter the results to show the top-ranked comedy movies."
+        },
+        {
+          "name": "consequence-params-click-analytics",
+          "wire_name": "consequence.params.clickAnalytics",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to include a `queryID` attribute in the response The query ID is a unique identifier for a search query and is required for tracking [click and conversion events](https://www.algolia.com/doc/guides/sending-events/getting-started)."
+        },
+        {
+          "name": "consequence-params-decompound-query",
+          "wire_name": "consequence.params.decompoundQuery",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to split compound words in the query into their building blocks For more information, see [Word segmentation](https://www.algolia.com/doc/guides/managing-results/optimize-search-results/handling-natural-languages-nlp/in-depth/language-specific-configurations/#splitting-compound-words). Word segmentation is supported for these languages: German, Dutch, Finnish, Swedish, and Norwegian. Decompounding doesn't work for words with [non-spacing mark Unicode characters](https://www.charactercodes.net/category/non-spacing_mark). For example, `Gartenstühle` won't be decompounded if the `ü` consists of `u` (U+0075) and `◌̈` (U+0308)."
+        },
+        {
+          "name": "consequence-params-disable-exact-on-attributes",
+          "wire_name": "consequence.params.disableExactOnAttributes",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Searchable attributes for which you want to [turn off the Exact ranking criterion](https://www.algolia.com/doc/guides/managing-results/optimize-search-results/override-search-engine-defaults/in-depth/adjust-exact-settings/#turn-off-exact-for-some-attributes). Attribute names are case-sensitive This can be useful for attributes with long values, where the likelihood of an exact match is high, such as product descriptions. Turning off the Exact ranking criterion for these attributes favors exact matching on other attributes. This reduces the impact of individual attributes with a lot of content on ranking."
+        },
+        {
+          "name": "consequence-params-disable-typo-tolerance-on-attributes",
+          "wire_name": "consequence.params.disableTypoToleranceOnAttributes",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Attributes for which you want to turn off [typo tolerance](https://www.algolia.com/doc/guides/managing-results/optimize-search-results/typo-tolerance). Attribute names are case-sensitive Returning only exact matches can help when - [Searching in hyphenated attributes](https://www.algolia.com/doc/guides/managing-results/optimize-search-results/typo-tolerance/how-to/how-to-search-in-hyphenated-attributes). - Reducing the number of matches when you have too many. This can happen with attributes that are long blocks of text, such as product descriptions Consider alternatives such as `disableTypoToleranceOnWords` or adding synonyms if your attributes have intentional unusual spellings that might look like typos."
+        },
+        {
+          "name": "consequence-params-distinct",
+          "wire_name": "consequence.params.distinct",
+          "type": "string",
+          "location": "body",
+          "description": "Determines how many records of a group are included in the search results. Records with the same value for the `attributeForDistinct` attribute are considered a group. The `distinct` setting controls how many members of the group are returned. This is useful for [deduplication and grouping](https://www.algolia.com/doc/guides/managing-results/refine-results/grouping/#introducing-algolias-distinct-feature). The `distinct` setting is ignored if `attributeForDistinct` is not set."
+        },
+        {
+          "name": "consequence-params-enable-ab-test",
+          "wire_name": "consequence.params.enableABTest",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to enable A/B testing for this search."
+        },
+        {
+          "name": "consequence-params-enable-personalization",
+          "wire_name": "consequence.params.enablePersonalization",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to enable Personalization."
+        },
+        {
+          "name": "consequence-params-enable-re-ranking",
+          "wire_name": "consequence.params.enableReRanking",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether this search will use [Dynamic Re-Ranking](https://www.algolia.com/doc/guides/algolia-ai/re-ranking) This setting only has an effect if you activated Dynamic Re-Ranking for this index in the Algolia dashboard."
+        },
+        {
+          "name": "consequence-params-enable-rules",
+          "wire_name": "consequence.params.enableRules",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to enable rules."
+        },
+        {
+          "name": "consequence-params-exact-on-single-word-query",
+          "wire_name": "consequence.params.exactOnSingleWordQuery",
+          "type": "string",
+          "location": "body",
+          "description": "Determines how the [Exact ranking criterion](https://www.algolia.com/doc/guides/managing-results/optimize-search-results/override-search-engine-defaults/in-depth/adjust-exact-settings/#turn-off-exact-for-some-attributes) is computed when the search query has only one word. - `attribute`. The Exact ranking criterion is 1 if the query word and attribute value are the same. For example, a search for 'road' will match the value 'road', but not 'road trip'. - `none`. The Exact ranking criterion is ignored on single-word searches. - `word`. The Exact ranking criterion is 1 if the query word is found in the attribute value. The query word must have at least 3 characters and must not be a stop word. Only exact matches will be highlighted, partial and prefix matches won't."
+        },
+        {
+          "name": "consequence-params-facet-filters",
+          "wire_name": "consequence.params.facetFilters",
+          "type": "string",
+          "location": "body",
+          "description": "Filter the search by facet values, so that only records with the same facet values are retrieved. **Prefer using the `filters` parameter, which supports all filter types and combinations with boolean operators.** - `[filter1, filter2]` is interpreted as `filter1 AND filter2`. - `[[filter1, filter2], filter3]` is interpreted as `filter1 OR filter2 AND filter3`. - `facet:-value` is interpreted as `NOT facet:value`. While it's best to avoid attributes that start with a `-`, you can still filter them by escaping with a backslash: `facet:-value`."
+        },
+        {
+          "name": "consequence-params-faceting-after-distinct",
+          "wire_name": "consequence.params.facetingAfterDistinct",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether faceting should be applied after deduplication with `distinct` This leads to accurate facet counts when using faceting in combination with `distinct`. It's usually better to use `afterDistinct` modifiers in the `attributesForFaceting` setting, as `facetingAfterDistinct` only computes correct facet counts if all records have the same facet values for the `attributeForDistinct`."
+        },
+        {
+          "name": "consequence-params-facets",
+          "wire_name": "consequence.params.facets",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Facets for which to retrieve facet values that match the search criteria and the number of matching facet values To retrieve all facets, use the wildcard character `*`. For more information, see [facets](https://www.algolia.com/doc/guides/managing-results/refine-results/faceting/#contextual-facet-values-and-counts)."
+        },
+        {
+          "name": "consequence-params-filters",
+          "wire_name": "consequence.params.filters",
+          "type": "string",
+          "location": "body",
+          "description": "Filter expression to only include items that match the filter criteria in the response. You can use these filter expressions: - **Numeric filters.** `\u003cfacet\u003e \u003cop\u003e \u003cnumber\u003e`, where `\u003cop\u003e` is one of `\u003c`, `\u003c=`, `=`, `!=`, `\u003e`, `\u003e=`. - **Ranges.** `\u003cfacet\u003e:\u003clower\u003e TO \u003cupper\u003e`, where `\u003clower\u003e` and `\u003cupper\u003e` are the lower and upper limits of the range (inclusive). - **Facet filters.** `\u003cfacet\u003e:\u003cvalue\u003e`, where `\u003cfacet\u003e` is a facet attribute (case-sensitive) and `\u003cvalue\u003e` a facet value. - **Tag filters.** `_tags:\u003cvalue\u003e` or just `\u003cvalue\u003e` (case-sensitive). - **Boolean filters.** `\u003cfacet\u003e: true | false`. You can combine filters with `AND`, `OR`, and `NOT` operators with the following restrictions: - You can only combine filters of the same type with `OR`. **Not supported:** `facet:value OR num \u003e 3`. - You can't use `NOT` with combinations of filters. **Not supported:** `NOT(facet:value OR facet:value)` - You can't combine conjunctions (`AND`) with `OR`. **Not supported:** `facet:value OR (facet:value AND facet:value)` Use quotes if the facet attribute name or facet value contains spaces, keywords (`OR`, `AND`, `NOT`), or quotes. If a facet attribute is an array, the filter matches if it matches at least one element of the array. For more information, see [Filters](https://www.algolia.com/doc/guides/managing-results/refine-results/filtering)."
+        },
+        {
+          "name": "consequence-params-get-ranking-info",
+          "wire_name": "consequence.params.getRankingInfo",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the search response should include detailed ranking information."
+        },
+        {
+          "name": "consequence-params-highlight-post-tag",
+          "wire_name": "consequence.params.highlightPostTag",
+          "type": "string",
+          "location": "body",
+          "description": "HTML tag to insert after the highlighted parts in all highlighted results and snippets."
+        },
+        {
+          "name": "consequence-params-highlight-pre-tag",
+          "wire_name": "consequence.params.highlightPreTag",
+          "type": "string",
+          "location": "body",
+          "description": "HTML tag to insert before the highlighted parts in all highlighted results and snippets."
+        },
+        {
+          "name": "consequence-params-hits-per-page",
+          "wire_name": "consequence.params.hitsPerPage",
+          "type": "int",
+          "location": "body",
+          "description": "Number of hits per page."
+        },
+        {
+          "name": "consequence-params-ignore-plurals",
+          "wire_name": "consequence.params.ignorePlurals",
+          "type": "string",
+          "location": "body",
+          "description": "Treat singular, plurals, and other forms of declensions as equivalent. Only use this feature for the languages used in your index."
+        },
+        {
+          "name": "consequence-params-inside-bounding-box",
+          "wire_name": "consequence.params.insideBoundingBox",
+          "type": "string",
+          "location": "body",
+          "description": "Inside bounding box"
+        },
+        {
+          "name": "consequence-params-inside-polygon",
+          "wire_name": "consequence.params.insidePolygon",
+          "type": "array",
+          "location": "body",
+          "description": "Coordinates of a polygon in which to search. Polygons are defined by 3 to 10,000 points. Each point is represented by its latitude and longitude. Provide multiple polygons as nested arrays. For more information, see [filtering inside polygons](https://www.algolia.com/doc/guides/managing-results/refine-results/geolocation/#filtering-inside-rectangular-or-polygonal-areas). This parameter is ignored if you also specify `insideBoundingBox`."
+        },
+        {
+          "name": "consequence-params-length",
+          "wire_name": "consequence.params.length",
+          "type": "int",
+          "location": "body",
+          "description": "Number of hits to retrieve (used in combination with `offset`)."
+        },
+        {
+          "name": "consequence-params-max-values-per-facet",
+          "wire_name": "consequence.params.maxValuesPerFacet",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of facet values to return for each facet."
+        },
+        {
+          "name": "consequence-params-min-proximity",
+          "wire_name": "consequence.params.minProximity",
+          "type": "int",
+          "location": "body",
+          "description": "Minimum proximity score for two matching words This adjusts the [Proximity ranking criterion](https://www.algolia.com/doc/guides/managing-results/relevance-overview/in-depth/ranking-criteria/#proximity) by equally scoring matches that are farther apart For example, if `minProximity` is 2, neighboring matches and matches with one word between them would have the same score."
+        },
+        {
+          "name": "consequence-params-min-word-sizefor1-typo",
+          "wire_name": "consequence.params.minWordSizefor1Typo",
+          "type": "int",
+          "location": "body",
+          "description": "Minimum number of characters a word in the search query must contain to accept matches with [one typo](https://www.algolia.com/doc/guides/managing-results/optimize-search-results/typo-tolerance/in-depth/configuring-typo-tolerance/#configuring-word-length-for-typos)."
+        },
+        {
+          "name": "consequence-params-min-word-sizefor2-typos",
+          "wire_name": "consequence.params.minWordSizefor2Typos",
+          "type": "int",
+          "location": "body",
+          "description": "Minimum number of characters a word in the search query must contain to accept matches with [two typos](https://www.algolia.com/doc/guides/managing-results/optimize-search-results/typo-tolerance/in-depth/configuring-typo-tolerance/#configuring-word-length-for-typos)."
+        },
+        {
+          "name": "consequence-params-minimum-around-radius",
+          "wire_name": "consequence.params.minimumAroundRadius",
+          "type": "int",
+          "location": "body",
+          "description": "Minimum radius (in meters) for a search around a location when `aroundRadius` isn't set."
+        },
+        {
+          "name": "consequence-params-mode",
+          "wire_name": "consequence.params.mode",
+          "type": "string",
+          "location": "body",
+          "description": "Search mode the index will use to query for results. This setting only applies to indices, for which Algolia enabled NeuralSearch for you."
+        },
+        {
+          "name": "consequence-params-natural-languages",
+          "wire_name": "consequence.params.naturalLanguages",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "ISO language codes that adjust settings that are useful for processing natural language queries (as opposed to keyword searches) - Sets `removeStopWords` and `ignorePlurals` to the list of provided languages. - Sets `removeWordsIfNoResults` to `allOptional`. - Adds a `natural_language` attribute to `ruleContexts` and `analyticsTags`."
+        },
+        {
+          "name": "consequence-params-numeric-filters",
+          "wire_name": "consequence.params.numericFilters",
+          "type": "string",
+          "location": "body",
+          "description": "Filter by numeric facets. **Prefer using the `filters` parameter, which supports all filter types and combinations with boolean operators.** You can use numeric comparison operators: `\u003c`, `\u003c=`, `=`, `!=`, `\u003e`, `\u003e=`. Comparisons are precise up to 3 decimals. You can also provide ranges: `facet:\u003clower\u003e TO \u003cupper\u003e`. The range includes the lower and upper boundaries. The same combination rules apply as for `facetFilters`."
+        },
+        {
+          "name": "consequence-params-offset",
+          "wire_name": "consequence.params.offset",
+          "type": "int",
+          "location": "body",
+          "description": "Position of the first hit to retrieve."
+        },
+        {
+          "name": "consequence-params-optional-filters",
+          "wire_name": "consequence.params.optionalFilters",
+          "type": "string",
+          "location": "body",
+          "description": "Filters to promote or demote records in the search results. Optional filters work like facet filters, but they don't exclude records from the search results. Records that match the optional filter rank before records that don't match. If you're using a negative filter `facet:-value`, matching records rank after records that don't match. - Optional filters are applied _after_ sort-by attributes. - Optional filters are applied _before_ custom ranking attributes (in the default [ranking](https://www.algolia.com/doc/guides/managing-results/relevance-overview/in-depth/ranking-criteria)). - Optional filters don't work with numeric attributes. - On virtual replicas, optional filters are applied _after_ the replica's [relevant sort](https://www.algolia.com/doc/guides/managing-results/refine-results/sorting/in-depth/relevant-sort)."
+        },
+        {
+          "name": "consequence-params-optional-words",
+          "wire_name": "consequence.params.optionalWords",
+          "type": "string",
+          "location": "body",
+          "description": "Words that should be considered optional when found in the query. By default, records must match all words in the search query to be included in the search results. Adding optional words can increase the number of search results by running an additional search query that doesn't include the optional words. For example, if the search query is 'action video' and 'video' is optional, the search engine runs two queries: one for 'action video' and one for 'action'. Records that match all words are ranked higher. For a search query with 4 or more words **and** all its words are optional, the number of matched words required for a record to be included in the search results increases for every 1,000 records: - If `optionalWords` has fewer than 10 words, the required number of matched words increases by 1: results 1 to 1,000 require 1 matched word; results 1,001 to 2,000 need 2 matched words. - If `optionalWords` has 10 or more words, the required number of matched words increases by the number of optional words divided by 5 (rounded down). Example: with 18 optional words, results 1 to 1,000 require 1 matched word; results 1,001 to 2,000 need 4 matched words. For more information, see [Optional words](https://www.algolia.com/doc/guides/managing-results/optimize-search-results/empty-or-insufficient-results/#creating-a-list-of-optional-words)."
+        },
+        {
+          "name": "consequence-params-page",
+          "wire_name": "consequence.params.page",
+          "type": "int",
+          "location": "body",
+          "description": "Page of search results to retrieve."
+        },
+        {
+          "name": "consequence-params-percentile-computation",
+          "wire_name": "consequence.params.percentileComputation",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to include this search when calculating processing-time percentiles."
+        },
+        {
+          "name": "consequence-params-personalization-impact",
+          "wire_name": "consequence.params.personalizationImpact",
+          "type": "int",
+          "location": "body",
+          "description": "Impact that Personalization should have on this search The higher this value is, the more Personalization determines the ranking compared to other factors. For more information, see [Understanding Personalization impact](https://www.algolia.com/doc/guides/personalization/personalizing-results/in-depth/configuring-personalization/#understanding-personalization-impact)."
+        },
+        {
+          "name": "consequence-params-query",
+          "wire_name": "consequence.params.query",
+          "type": "string",
+          "location": "body",
+          "description": "Replace or edit the search query. If `consequenceQuery` is a string, the entire search query is replaced with that string. If `consequenceQuery` is an object, it describes incremental edits made to the query."
+        },
+        {
+          "name": "consequence-params-query-languages",
+          "wire_name": "consequence.params.queryLanguages",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Languages for language-specific query processing steps such as plurals, stop-word removal, and word-detection dictionaries. This setting sets a default list of languages used by the `removeStopWords` and `ignorePlurals` settings. This setting also sets a dictionary for word detection in the logogram-based [CJK](https://www.algolia.com/doc/guides/managing-results/optimize-search-results/handling-natural-languages-nlp/in-depth/normalization/#normalization-for-logogram-based-languages-cjk) languages. To support this, place the CJK language **first**. **Always specify a query language.** If you don't specify an indexing language, the search engine uses all [supported languages](https://www.algolia.com/doc/guides/managing-results/optimize-search-results/handling-natural-languages-nlp/in-depth/supported-languages), or the languages you specified with the `ignorePlurals` or `removeStopWords` parameters. This can lead to unexpected search results. For more information, see [Language-specific configuration](https://www.algolia.com/doc/guides/managing-results/optimize-search-results/handling-natural-languages-nlp/in-depth/language-specific-configurations)."
+        },
+        {
+          "name": "consequence-params-query-type",
+          "wire_name": "consequence.params.queryType",
+          "type": "string",
+          "location": "body",
+          "description": "Determines if and how query words are interpreted as prefixes. By default, only the last query word is treated as a prefix (`prefixLast`). To turn off prefix search, use `prefixNone`. Avoid `prefixAll`, which treats all query words as prefixes. This might lead to counterintuitive results and makes your search slower. For more information, see [Prefix searching](https://www.algolia.com/doc/guides/managing-results/optimize-search-results/override-search-engine-defaults/in-depth/prefix-searching)."
+        },
+        {
+          "name": "consequence-params-ranking",
+          "wire_name": "consequence.params.ranking",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Determines the order in which Algolia returns your results. By default, each entry corresponds to a [ranking criteria](https://www.algolia.com/doc/guides/managing-results/relevance-overview/in-depth/ranking-criteria). The tie-breaking algorithm sequentially applies each criterion in the order they're specified. If you configure a replica index for [sorting by an attribute](https://www.algolia.com/doc/guides/managing-results/refine-results/sorting/how-to/sort-by-attribute), you put the sorting attribute at the top of the list. **Modifiers** - `asc('ATTRIBUTE')`. Sort the index by the values of an attribute, in ascending order. - `desc('ATTRIBUTE')`. Sort the index by the values of an attribute, in descending order. Before you modify the default setting, test your changes in the dashboard, and by [A/B testing](https://www.algolia.com/doc/guides/ab-testing/what-is-ab-testing)."
+        },
+        {
+          "name": "consequence-params-re-ranking-apply-filter",
+          "wire_name": "consequence.params.reRankingApplyFilter",
+          "type": "string",
+          "location": "body",
+          "description": "Re ranking apply filter"
+        },
+        {
+          "name": "consequence-params-relevancy-strictness",
+          "wire_name": "consequence.params.relevancyStrictness",
+          "type": "int",
+          "location": "body",
+          "description": "Relevancy threshold below which less relevant results aren't included in the results You can only set `relevancyStrictness` on [virtual replica indices](https://www.algolia.com/doc/guides/managing-results/refine-results/sorting/in-depth/replicas/#what-are-virtual-replicas). Use this setting to strike a balance between the relevance and number of returned results."
+        },
+        {
+          "name": "consequence-params-remove-stop-words",
+          "wire_name": "consequence.params.removeStopWords",
+          "type": "string",
+          "location": "body",
+          "description": "Removes stop words from the search query. Stop words are common words like articles, conjunctions, prepositions, or pronouns that have little or no meaning on their own. In English, 'the', 'a', or 'and' are stop words. Only use this feature for the languages used in your index."
+        },
+        {
+          "name": "consequence-params-remove-words-if-no-results",
+          "wire_name": "consequence.params.removeWordsIfNoResults",
+          "type": "string",
+          "location": "body",
+          "description": "Strategy for removing words from the query when it doesn't return any results. This helps to avoid returning empty search results. - `none`. No words are removed when a query doesn't return results. - `lastWords`. Treat the last (then second to last, then third to last) word as optional, until there are results or at most 5 words have been removed. - `firstWords`. Treat the first (then second, then third) word as optional, until there are results or at most 5 words have been removed. - `allOptional`. Treat all words as optional. For more information, see [Remove words to improve results](https://www.algolia.com/doc/guides/managing-results/optimize-search-results/empty-or-insufficient-results/in-depth/why-use-remove-words-if-no-results)."
+        },
+        {
+          "name": "consequence-params-replace-synonyms-in-highlight",
+          "wire_name": "consequence.params.replaceSynonymsInHighlight",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to replace a highlighted word with the matched synonym By default, the original words are highlighted even if a synonym matches. For example, with `home` as a synonym for `house` and a search for `home`, records matching either 'home' or 'house' are included in the search results, and either 'home' or 'house' are highlighted With `replaceSynonymsInHighlight` set to `true`, a search for `home` still matches the same records, but all occurrences of 'house' are replaced by 'home' in the highlighted response."
+        },
+        {
+          "name": "consequence-params-response-fields",
+          "wire_name": "consequence.params.responseFields",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Properties to include in the API response of search and browse requests By default, all response properties are included. To reduce the response size, you can select which properties should be included An empty list may lead to an empty API response (except properties you can't exclude) You can't exclude these properties: `message`, `warning`, `cursor`, `abTestVariantID`, or any property added by setting `getRankingInfo` to true Your search depends on the `hits` field. If you omit this field, searches won't return any results. Your UI might also depend on other properties, for example, for pagination. Before restricting the response size, check the impact on your search experience."
+        },
+        {
+          "name": "consequence-params-restrict-highlight-and-snippet-arrays",
+          "wire_name": "consequence.params.restrictHighlightAndSnippetArrays",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to restrict highlighting and snippeting to items that at least partially matched the search query. By default, all items are highlighted and snippeted."
+        },
+        {
+          "name": "consequence-params-restrict-searchable-attributes",
+          "wire_name": "consequence.params.restrictSearchableAttributes",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Restricts a search to a subset of your searchable attributes. Attribute names are case-sensitive."
+        },
+        {
+          "name": "consequence-params-rule-contexts",
+          "wire_name": "consequence.params.ruleContexts",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Assigns a rule context to the search query [Rule contexts](https://www.algolia.com/doc/guides/managing-results/rules/rules-overview/how-to/customize-search-results-by-platform/#whats-a-context) are strings that you can use to trigger matching rules."
+        },
+        {
+          "name": "consequence-params-similar-query",
+          "wire_name": "consequence.params.similarQuery",
+          "type": "string",
+          "location": "body",
+          "description": "Keywords to be used instead of the search query to conduct a more broader search Using the `similarQuery` parameter changes other settings - `queryType` is set to `prefixNone`. - `removeStopWords` is set to true. - `words` is set as the first ranking criterion. - All remaining words are treated as `optionalWords` Since the `similarQuery` is supposed to do a broad search, they usually return many results. Combine it with `filters` to narrow down the list of results."
+        },
+        {
+          "name": "consequence-params-snippet-ellipsis-text",
+          "wire_name": "consequence.params.snippetEllipsisText",
+          "type": "string",
+          "location": "body",
+          "description": "String used as an ellipsis indicator when a snippet is truncated."
+        },
+        {
+          "name": "consequence-params-sort-facet-values-by",
+          "wire_name": "consequence.params.sortFacetValuesBy",
+          "type": "string",
+          "location": "body",
+          "description": "Order in which to retrieve facet values - `count`. Facet values are retrieved by decreasing count. The count is the number of matching records containing this facet value - `alpha`. Retrieve facet values alphabetically This setting doesn't influence how facet values are displayed in your UI (see `renderingContent`). For more information, see [facet value display](https://www.algolia.com/doc/guides/building-search-ui/ui-and-ux-patterns/facet-display/js)."
+        },
+        {
+          "name": "consequence-params-sum-or-filters-scores",
+          "wire_name": "consequence.params.sumOrFiltersScores",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to sum all filter scores If true, all filter scores are summed. Otherwise, the maximum filter score is kept. For more information, see [filter scores](https://www.algolia.com/doc/guides/managing-results/refine-results/filtering/in-depth/filter-scoring/#accumulating-scores-with-sumorfiltersscores)."
+        },
+        {
+          "name": "consequence-params-synonyms",
+          "wire_name": "consequence.params.synonyms",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to take into account an index's synonyms for this search."
+        },
+        {
+          "name": "consequence-params-tag-filters",
+          "wire_name": "consequence.params.tagFilters",
+          "type": "string",
+          "location": "body",
+          "description": "Filter the search by values of the special `_tags` attribute. **Prefer using the `filters` parameter, which supports all filter types and combinations with boolean operators.** Different from regular facets, `_tags` can only be used for filtering (including or excluding records). You won't get a facet count. The same combination and escaping rules apply as for `facetFilters`."
+        },
+        {
+          "name": "consequence-params-typo-tolerance",
+          "wire_name": "consequence.params.typoTolerance",
+          "type": "string",
+          "location": "body",
+          "description": "Whether [typo tolerance](https://www.algolia.com/doc/guides/managing-results/optimize-search-results/typo-tolerance) is enabled and how it is applied. If typo tolerance is true, `min`, or `strict`, [word splitting and concatenation](https://www.algolia.com/doc/guides/managing-results/optimize-search-results/handling-natural-languages-nlp/in-depth/splitting-and-concatenation) are also active."
+        },
+        {
+          "name": "consequence-params-user-token",
+          "wire_name": "consequence.params.userToken",
+          "type": "string",
+          "location": "body",
+          "description": "Unique pseudonymous or anonymous user identifier. This helps with analytics and click and conversion events. For more information, see [user token](https://www.algolia.com/doc/guides/sending-events/concepts/usertoken)."
+        },
+        {
+          "name": "consequence-promote",
+          "wire_name": "consequence.promote",
+          "type": "array",
+          "location": "body",
+          "description": "Records you want to pin to a specific position in the search results. You can promote up to 300 records, either individually, or as groups of up to 100 records each."
+        },
+        {
+          "name": "consequence-redirect-index-name",
+          "wire_name": "consequence.redirect.indexName",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the virtual replica index to redirect searches to.",
+          "required": true
+        },
+        {
+          "name": "consequence-user-data",
+          "wire_name": "consequence.userData",
+          "type": "object",
+          "location": "body",
+          "description": "A JSON object with custom data that will be appended to the `userData` array in the response. This object isn't interpreted by the API and is limited to 1\u0026nbsp;kB of minified JSON."
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description of the rule's purpose to help you distinguish between different rules."
+        },
+        {
+          "name": "enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the rule is active."
+        },
+        {
+          "name": "object-id-2",
+          "wire_name": "objectID",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier of a rule object.",
+          "required": true
+        },
+        {
+          "name": "scope",
+          "type": "string",
+          "location": "body",
+          "description": "Scope"
+        },
+        {
+          "name": "tags",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Tags"
+        },
+        {
+          "name": "validity",
+          "type": "array",
+          "location": "body",
+          "description": "Time periods when the rule is active."
+        }
+      ]
+    },
+    {
+      "name": "indexes_rules_search",
+      "description": "Searches for rules in your index. Required: indexName. Optional: anchoring, context, enabled (plus 3 more). Returns array of Rule.",
+      "method": "POST",
+      "path": "/1/indexes/{indexName}/rules/search",
+      "params": [
+        {
+          "name": "indexName",
+          "type": "string",
+          "location": "path",
+          "description": "Name of the index on which to perform the operation.",
+          "required": true
+        },
+        {
+          "name": "anchoring",
+          "type": "string",
+          "location": "body",
+          "description": "Which part of the search query the pattern should match: - `startsWith`. The pattern must match the beginning of the query. - `endsWith`. The pattern must match the end of the query. - `is`. The pattern must match the query exactly. - `contains`. The pattern must match anywhere in the query. Empty queries are only allowed as patterns with `anchoring: is`."
+        },
+        {
+          "name": "context",
+          "type": "string",
+          "location": "body",
+          "description": "Only return rules that match the context (exact match)."
+        },
+        {
+          "name": "enabled",
+          "type": "string",
+          "location": "body",
+          "description": "Enabled"
+        },
+        {
+          "name": "hitsPerPage",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of hits per page. Algolia uses `page` and `hitsPerPage` to control how search results are displayed ([paginated](https://www.algolia.com/doc/guides/building-search-ui/ui-and-ux-patterns/pagination/js)). - `hitsPerPage`: sets the number of search results (_hits_) displayed per page. - `page`: specifies the page number of the search results you want to retrieve. Page numbering starts at 0, so the first page is `page=0`, the second is `page=1`, and so on. For example, to display 10 results per page starting from the third page, set `hitsPerPage` to 10 and `page` to 2."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "body",
+          "description": "Requested page of the API response. Algolia uses `page` and `hitsPerPage` to control how search results are displayed ([paginated](https://www.algolia.com/doc/guides/building-search-ui/ui-and-ux-patterns/pagination/js)). - `hitsPerPage`: sets the number of search results (_hits_) displayed per page. - `page`: specifies the page number of the search results you want to retrieve. Page numbering starts at 0, so the first page is `page=0`, the second is `page=1`, and so on. For example, to display 10 results per page starting from the third page, set `hitsPerPage` to 10 and `page` to 2."
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "Search query for rules."
+        }
+      ]
+    },
+    {
+      "name": "indexes_settings_get",
+      "description": "Retrieves an object with non-null index settings. Required: indexName. Optional: getVersion (default: 1). Returns the SettingsResponse.",
+      "method": "GET",
+      "path": "/1/indexes/{indexName}/settings",
+      "params": [
+        {
+          "name": "indexName",
+          "type": "string",
+          "location": "path",
+          "description": "Name of the index on which to perform the operation.",
+          "required": true
+        },
+        {
+          "name": "getVersion",
+          "type": "int",
+          "location": "query",
+          "description": "When set to 2, the endpoint will not include `synonyms` in the response. This parameter is here for backward compatibility."
+        }
+      ]
+    },
+    {
+      "name": "indexes_settings_set",
+      "description": "Update the specified index settings. Index settings that you don't specify are left unchanged. Specify `null` to reset a setting to its default value. For best performance, update the index settings before you add new records to your index. Required: indexName. Optional: forwardToReplicas, advancedSyntax (default: false), advancedSyntaxFeatures (default: [exactPhrase excludeWords]) (plus 59 more). Returns the updated UpdatedAtResponse.",
+      "method": "PUT",
+      "path": "/1/indexes/{indexName}/settings",
+      "params": [
+        {
+          "name": "indexName",
+          "type": "string",
+          "location": "path",
+          "description": "Name of the index on which to perform the operation.",
+          "required": true
+        },
+        {
+          "name": "forwardToReplicas",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether changes are applied to replica indices."
+        },
+        {
+          "name": "advancedSyntax",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to support phrase matching and excluding words from search queries Use the `advancedSyntaxFeatures` parameter to control which feature is supported."
+        },
+        {
+          "name": "advancedSyntaxFeatures",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Advanced search syntax features you want to support - `exactPhrase`. Phrases in quotes must match exactly. For example, `sparkly blue 'iPhone case'` only returns records with the exact string 'iPhone case' - `excludeWords`. Query words prefixed with a `-` must not occur in a record. For example, `search -engine` matches records that contain 'search' but not 'engine' This setting only has an effect if `advancedSyntax` is true."
+        },
+        {
+          "name": "allowCompressionOfIntegerArray",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether arrays with exclusively non-negative integers should be compressed for better performance. If true, the compressed arrays may be reordered."
+        },
+        {
+          "name": "allowTyposOnNumericTokens",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to allow typos on numbers in the search query Turn off this setting to reduce the number of irrelevant matches when searching in large sets of similar numbers."
+        },
+        {
+          "name": "alternativesAsExact",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Determine which plurals and synonyms should be considered an exact matches By default, Algolia treats singular and plural forms of a word, and single-word synonyms, as [exact](https://www.algolia.com/doc/guides/managing-results/relevance-overview/in-depth/ranking-criteria/#exact) matches when searching. For example - 'swimsuit' and 'swimsuits' are treated the same - 'swimsuit' and 'swimwear' are treated the same (if they are [synonyms](https://www.algolia.com/doc/guides/managing-results/optimize-search-results/adding-synonyms/#regular-synonyms)) - `ignorePlurals`. Plurals and similar declensions added by the `ignorePlurals` setting are considered exact matches - `singleWordSynonym`. Single-word synonyms, such as 'NY' = 'NYC', are considered exact matches - `multiWordsSynonym`. Multi-word synonyms, such as 'NY' = 'New York', are considered exact matches."
+        },
+        {
+          "name": "attributeCriteriaComputedByMinProximity",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the best matching attribute should be determined by minimum proximity This setting only affects ranking if the Attribute ranking criterion comes before Proximity in the `ranking` setting. If true, the best matching attribute is selected based on the minimum proximity of multiple matches. Otherwise, the best matching attribute is determined by the order in the `searchableAttributes` setting."
+        },
+        {
+          "name": "attributeForDistinct",
+          "type": "string",
+          "location": "body",
+          "description": "Attribute that should be used to establish groups of results. Attribute names are case-sensitive. All records with the same value for this attribute are considered a group. You can combine `attributeForDistinct` with the `distinct` search parameter to control how many items per group are included in the search results. If you want to use the same attribute also for faceting, use the `afterDistinct` modifier of the `attributesForFaceting` setting. This applies faceting _after_ deduplication, which will result in accurate facet counts."
+        },
+        {
+          "name": "attributesForFaceting",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Attributes used for [faceting](https://www.algolia.com/doc/guides/managing-results/refine-results/faceting). Facets are attributes that let you categorize search results. They can be used for filtering search results. By default, no attribute is used for faceting. Attribute names are case-sensitive. **Modifiers** - `filterOnly('ATTRIBUTE')`. Allows the attribute to be used as a filter but doesn't evaluate the facet values. - `searchable('ATTRIBUTE')`. Allows searching for facet values. - `afterDistinct('ATTRIBUTE')`. Evaluates the facet count _after_ deduplication with `distinct`. This ensures accurate facet counts. You can apply this modifier to searchable facets: `afterDistinct(searchable(ATTRIBUTE))`."
+        },
+        {
+          "name": "attributesToHighlight",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Attributes to highlight By default, all searchable attributes are highlighted. Use `*` to highlight all attributes or use an empty array `[]` to turn off highlighting. Attribute names are case-sensitive With highlighting, strings that match the search query are surrounded by HTML tags defined by `highlightPreTag` and `highlightPostTag`. You can use this to visually highlight matching parts of a search query in your UI For more information, see [Highlighting and snippeting](https://www.algolia.com/doc/guides/building-search-ui/ui-and-ux-patterns/highlighting-snippeting/js)."
+        },
+        {
+          "name": "attributesToRetrieve",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Attributes to include in the API response To reduce the size of your response, you can retrieve only some of the attributes. Attribute names are case-sensitive - `*` retrieves all attributes, except attributes included in the `customRanking` and `unretrievableAttributes` settings. - To retrieve all attributes except a specific one, prefix the attribute with a dash and combine it with the `*`: `['*', '-ATTRIBUTE']`. - The `objectID` attribute is always included."
+        },
+        {
+          "name": "attributesToSnippet",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Attributes for which to enable snippets. Attribute names are case-sensitive Snippets provide additional context to matched words. If you enable snippets, they include 10 words, including the matched word. The matched word will also be wrapped by HTML tags for highlighting. You can adjust the number of words with the following notation: `ATTRIBUTE:NUMBER`, where `NUMBER` is the number of words to be extracted."
+        },
+        {
+          "name": "attributesToTransliterate",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Attributes, for which you want to support [Japanese transliteration](https://www.algolia.com/doc/guides/managing-results/optimize-search-results/handling-natural-languages-nlp/in-depth/language-specific-configurations/#japanese-transliteration-and-type-ahead). Transliteration supports searching in any of the Japanese writing systems. To support transliteration, you must set the indexing language to Japanese. Attribute names are case-sensitive."
+        },
+        {
+          "name": "camelCaseAttributes",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Attributes for which to split [camel case](https://wikipedia.org/wiki/Camel_case) words. Attribute names are case-sensitive."
+        },
+        {
+          "name": "customNormalization",
+          "type": "object",
+          "location": "body",
+          "description": "Characters and their normalized replacements. This overrides Algolia's default [normalization](https://www.algolia.com/doc/guides/managing-results/optimize-search-results/handling-natural-languages-nlp/in-depth/normalization)."
+        },
+        {
+          "name": "customRanking",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Attributes to use as [custom ranking](https://www.algolia.com/doc/guides/managing-results/must-do/custom-ranking). Attribute names are case-sensitive. The custom ranking attributes decide which items are shown first if the other ranking criteria are equal. Records with missing values for your selected custom ranking attributes are always sorted last. Boolean attributes are sorted based on their alphabetical order. **Modifiers** - `asc('ATTRIBUTE')`. Sort the index by the values of an attribute, in ascending order. - `desc('ATTRIBUTE')`. Sort the index by the values of an attribute, in descending order. If you use two or more custom ranking attributes, [reduce the precision](https://www.algolia.com/doc/guides/managing-results/must-do/custom-ranking/how-to/controlling-custom-ranking-metrics-precision) of your first attributes, or the other attributes will never be applied."
+        },
+        {
+          "name": "decompoundQuery",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to split compound words in the query into their building blocks For more information, see [Word segmentation](https://www.algolia.com/doc/guides/managing-results/optimize-search-results/handling-natural-languages-nlp/in-depth/language-specific-configurations/#splitting-compound-words). Word segmentation is supported for these languages: German, Dutch, Finnish, Swedish, and Norwegian. Decompounding doesn't work for words with [non-spacing mark Unicode characters](https://www.charactercodes.net/category/non-spacing_mark). For example, `Gartenstühle` won't be decompounded if the `ü` consists of `u` (U+0075) and `◌̈` (U+0308)."
+        },
+        {
+          "name": "decompoundedAttributes",
+          "type": "object",
+          "location": "body",
+          "description": "Searchable attributes to which Algolia should apply [word segmentation](https://www.algolia.com/doc/guides/managing-results/optimize-search-results/handling-natural-languages-nlp/how-to/customize-segmentation) (decompounding). Attribute names are case-sensitive. Compound words are formed by combining two or more individual words, and are particularly prevalent in Germanic languages—for example, 'firefighter'. With decompounding, the individual components are indexed separately. You can specify different lists for different languages. Decompounding is supported for these languages: Dutch (`nl`), German (`de`), Finnish (`fi`), Danish (`da`), Swedish (`sv`), and Norwegian (`no`). Decompounding doesn't work for words with [non-spacing mark Unicode characters](https://www.charactercodes.net/category/non-spacing_mark). For example, `Gartenstühle` won't be decompounded if the `ü` consists of `u` (U+0075) and `◌̈` (U+0308)."
+        },
+        {
+          "name": "disableExactOnAttributes",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Searchable attributes for which you want to [turn off the Exact ranking criterion](https://www.algolia.com/doc/guides/managing-results/optimize-search-results/override-search-engine-defaults/in-depth/adjust-exact-settings/#turn-off-exact-for-some-attributes). Attribute names are case-sensitive This can be useful for attributes with long values, where the likelihood of an exact match is high, such as product descriptions. Turning off the Exact ranking criterion for these attributes favors exact matching on other attributes. This reduces the impact of individual attributes with a lot of content on ranking."
+        },
+        {
+          "name": "disablePrefixOnAttributes",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Searchable attributes for which you want to turn off [prefix matching](https://www.algolia.com/doc/guides/managing-results/optimize-search-results/override-search-engine-defaults/#adjusting-prefix-search). Attribute names are case-sensitive."
+        },
+        {
+          "name": "disableTypoToleranceOnAttributes",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Attributes for which you want to turn off [typo tolerance](https://www.algolia.com/doc/guides/managing-results/optimize-search-results/typo-tolerance). Attribute names are case-sensitive Returning only exact matches can help when - [Searching in hyphenated attributes](https://www.algolia.com/doc/guides/managing-results/optimize-search-results/typo-tolerance/how-to/how-to-search-in-hyphenated-attributes). - Reducing the number of matches when you have too many. This can happen with attributes that are long blocks of text, such as product descriptions Consider alternatives such as `disableTypoToleranceOnWords` or adding synonyms if your attributes have intentional unusual spellings that might look like typos."
+        },
+        {
+          "name": "disableTypoToleranceOnWords",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Creates a list of [words which require exact matches](https://www.algolia.com/doc/guides/managing-results/optimize-search-results/typo-tolerance/in-depth/configuring-typo-tolerance/#turn-off-typo-tolerance-for-certain-words). This also turns off [word splitting and concatenation](https://www.algolia.com/doc/guides/managing-results/optimize-search-results/handling-natural-languages-nlp/in-depth/splitting-and-concatenation) for the specified words."
+        },
+        {
+          "name": "distinct",
+          "type": "string",
+          "location": "body",
+          "description": "Determines how many records of a group are included in the search results. Records with the same value for the `attributeForDistinct` attribute are considered a group. The `distinct` setting controls how many members of the group are returned. This is useful for [deduplication and grouping](https://www.algolia.com/doc/guides/managing-results/refine-results/grouping/#introducing-algolias-distinct-feature). The `distinct` setting is ignored if `attributeForDistinct` is not set."
+        },
+        {
+          "name": "enablePersonalization",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to enable Personalization."
+        },
+        {
+          "name": "enableReRanking",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether this search will use [Dynamic Re-Ranking](https://www.algolia.com/doc/guides/algolia-ai/re-ranking) This setting only has an effect if you activated Dynamic Re-Ranking for this index in the Algolia dashboard."
+        },
+        {
+          "name": "enableRules",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to enable rules."
+        },
+        {
+          "name": "exactOnSingleWordQuery",
+          "type": "string",
+          "location": "body",
+          "description": "Determines how the [Exact ranking criterion](https://www.algolia.com/doc/guides/managing-results/optimize-search-results/override-search-engine-defaults/in-depth/adjust-exact-settings/#turn-off-exact-for-some-attributes) is computed when the search query has only one word. - `attribute`. The Exact ranking criterion is 1 if the query word and attribute value are the same. For example, a search for 'road' will match the value 'road', but not 'road trip'. - `none`. The Exact ranking criterion is ignored on single-word searches. - `word`. The Exact ranking criterion is 1 if the query word is found in the attribute value. The query word must have at least 3 characters and must not be a stop word. Only exact matches will be highlighted, partial and prefix matches won't."
+        },
+        {
+          "name": "highlightPostTag",
+          "type": "string",
+          "location": "body",
+          "description": "HTML tag to insert after the highlighted parts in all highlighted results and snippets."
+        },
+        {
+          "name": "highlightPreTag",
+          "type": "string",
+          "location": "body",
+          "description": "HTML tag to insert before the highlighted parts in all highlighted results and snippets."
+        },
+        {
+          "name": "hitsPerPage",
+          "type": "int",
+          "location": "body",
+          "description": "Number of hits per page."
+        },
+        {
+          "name": "ignorePlurals",
+          "type": "string",
+          "location": "body",
+          "description": "Treat singular, plurals, and other forms of declensions as equivalent. Only use this feature for the languages used in your index."
+        },
+        {
+          "name": "indexLanguages",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Languages for language-specific processing steps, such as word detection and dictionary settings. **Always specify an indexing language.** If you don't specify an indexing language, the search engine uses all [supported languages](https://www.algolia.com/doc/guides/managing-results/optimize-search-results/handling-natural-languages-nlp/in-depth/supported-languages), or the languages you specified with the `ignorePlurals` or `removeStopWords` parameters. This can lead to unexpected search results. For more information, see [Language-specific configuration](https://www.algolia.com/doc/guides/managing-results/optimize-search-results/handling-natural-languages-nlp/in-depth/language-specific-configurations)."
+        },
+        {
+          "name": "keepDiacriticsOnCharacters",
+          "type": "string",
+          "location": "body",
+          "description": "Characters for which diacritics should be preserved. By default, Algolia removes diacritics from letters. For example, `é` becomes `e`. If this causes issues in your search, you can specify characters that should keep their diacritics."
+        },
+        {
+          "name": "maxFacetHits",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of facet values to return when [searching for facet values](https://www.algolia.com/doc/guides/managing-results/refine-results/faceting/#search-for-facet-values)."
+        },
+        {
+          "name": "maxValuesPerFacet",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of facet values to return for each facet."
+        },
+        {
+          "name": "minProximity",
+          "type": "int",
+          "location": "body",
+          "description": "Minimum proximity score for two matching words This adjusts the [Proximity ranking criterion](https://www.algolia.com/doc/guides/managing-results/relevance-overview/in-depth/ranking-criteria/#proximity) by equally scoring matches that are farther apart For example, if `minProximity` is 2, neighboring matches and matches with one word between them would have the same score."
+        },
+        {
+          "name": "minWordSizefor1Typo",
+          "type": "int",
+          "location": "body",
+          "description": "Minimum number of characters a word in the search query must contain to accept matches with [one typo](https://www.algolia.com/doc/guides/managing-results/optimize-search-results/typo-tolerance/in-depth/configuring-typo-tolerance/#configuring-word-length-for-typos)."
+        },
+        {
+          "name": "minWordSizefor2Typos",
+          "type": "int",
+          "location": "body",
+          "description": "Minimum number of characters a word in the search query must contain to accept matches with [two typos](https://www.algolia.com/doc/guides/managing-results/optimize-search-results/typo-tolerance/in-depth/configuring-typo-tolerance/#configuring-word-length-for-typos)."
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "location": "body",
+          "description": "Search mode the index will use to query for results. This setting only applies to indices, for which Algolia enabled NeuralSearch for you."
+        },
+        {
+          "name": "numericAttributesForFiltering",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Numeric attributes that can be used as [numerical filters](https://www.algolia.com/doc/guides/managing-results/rules/detecting-intent/how-to/applying-a-custom-filter-for-a-specific-query/#numerical-filters). Attribute names are case-sensitive. By default, all numeric attributes are available as numerical filters. For faster indexing, reduce the number of numeric attributes. To turn off filtering for all numeric attributes, specify an attribute that doesn't exist in your index, such as `NO_NUMERIC_FILTERING`. **Modifier** - `equalOnly('ATTRIBUTE')`. Support only filtering based on equality comparisons `=` and `!=`."
+        },
+        {
+          "name": "optionalWords",
+          "type": "string",
+          "location": "body",
+          "description": "Words that should be considered optional when found in the query. By default, records must match all words in the search query to be included in the search results. Adding optional words can increase the number of search results by running an additional search query that doesn't include the optional words. For example, if the search query is 'action video' and 'video' is optional, the search engine runs two queries: one for 'action video' and one for 'action'. Records that match all words are ranked higher. For a search query with 4 or more words **and** all its words are optional, the number of matched words required for a record to be included in the search results increases for every 1,000 records: - If `optionalWords` has fewer than 10 words, the required number of matched words increases by 1: results 1 to 1,000 require 1 matched word; results 1,001 to 2,000 need 2 matched words. - If `optionalWords` has 10 or more words, the required number of matched words increases by the number of optional words divided by 5 (rounded down). Example: with 18 optional words, results 1 to 1,000 require 1 matched word; results 1,001 to 2,000 need 4 matched words. For more information, see [Optional words](https://www.algolia.com/doc/guides/managing-results/optimize-search-results/empty-or-insufficient-results/#creating-a-list-of-optional-words)."
+        },
+        {
+          "name": "paginationLimitedTo",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of search results that can be obtained through pagination. Higher pagination limits might slow down your search. For pagination limits above 1,000, the sorting of results beyond the 1,000th hit can't be guaranteed."
+        },
+        {
+          "name": "queryLanguages",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Languages for language-specific query processing steps such as plurals, stop-word removal, and word-detection dictionaries. This setting sets a default list of languages used by the `removeStopWords` and `ignorePlurals` settings. This setting also sets a dictionary for word detection in the logogram-based [CJK](https://www.algolia.com/doc/guides/managing-results/optimize-search-results/handling-natural-languages-nlp/in-depth/normalization/#normalization-for-logogram-based-languages-cjk) languages. To support this, place the CJK language **first**. **Always specify a query language.** If you don't specify an indexing language, the search engine uses all [supported languages](https://www.algolia.com/doc/guides/managing-results/optimize-search-results/handling-natural-languages-nlp/in-depth/supported-languages), or the languages you specified with the `ignorePlurals` or `removeStopWords` parameters. This can lead to unexpected search results. For more information, see [Language-specific configuration](https://www.algolia.com/doc/guides/managing-results/optimize-search-results/handling-natural-languages-nlp/in-depth/language-specific-configurations)."
+        },
+        {
+          "name": "queryType",
+          "type": "string",
+          "location": "body",
+          "description": "Determines if and how query words are interpreted as prefixes. By default, only the last query word is treated as a prefix (`prefixLast`). To turn off prefix search, use `prefixNone`. Avoid `prefixAll`, which treats all query words as prefixes. This might lead to counterintuitive results and makes your search slower. For more information, see [Prefix searching](https://www.algolia.com/doc/guides/managing-results/optimize-search-results/override-search-engine-defaults/in-depth/prefix-searching)."
+        },
+        {
+          "name": "ranking",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Determines the order in which Algolia returns your results. By default, each entry corresponds to a [ranking criteria](https://www.algolia.com/doc/guides/managing-results/relevance-overview/in-depth/ranking-criteria). The tie-breaking algorithm sequentially applies each criterion in the order they're specified. If you configure a replica index for [sorting by an attribute](https://www.algolia.com/doc/guides/managing-results/refine-results/sorting/how-to/sort-by-attribute), you put the sorting attribute at the top of the list. **Modifiers** - `asc('ATTRIBUTE')`. Sort the index by the values of an attribute, in ascending order. - `desc('ATTRIBUTE')`. Sort the index by the values of an attribute, in descending order. Before you modify the default setting, test your changes in the dashboard, and by [A/B testing](https://www.algolia.com/doc/guides/ab-testing/what-is-ab-testing)."
+        },
+        {
+          "name": "reRankingApplyFilter",
+          "type": "string",
+          "location": "body",
+          "description": "Re ranking apply filter"
+        },
+        {
+          "name": "relevancyStrictness",
+          "type": "int",
+          "location": "body",
+          "description": "Relevancy threshold below which less relevant results aren't included in the results You can only set `relevancyStrictness` on [virtual replica indices](https://www.algolia.com/doc/guides/managing-results/refine-results/sorting/in-depth/replicas/#what-are-virtual-replicas). Use this setting to strike a balance between the relevance and number of returned results."
+        },
+        {
+          "name": "removeStopWords",
+          "type": "string",
+          "location": "body",
+          "description": "Removes stop words from the search query. Stop words are common words like articles, conjunctions, prepositions, or pronouns that have little or no meaning on their own. In English, 'the', 'a', or 'and' are stop words. Only use this feature for the languages used in your index."
+        },
+        {
+          "name": "removeWordsIfNoResults",
+          "type": "string",
+          "location": "body",
+          "description": "Strategy for removing words from the query when it doesn't return any results. This helps to avoid returning empty search results. - `none`. No words are removed when a query doesn't return results. - `lastWords`. Treat the last (then second to last, then third to last) word as optional, until there are results or at most 5 words have been removed. - `firstWords`. Treat the first (then second, then third) word as optional, until there are results or at most 5 words have been removed. - `allOptional`. Treat all words as optional. For more information, see [Remove words to improve results](https://www.algolia.com/doc/guides/managing-results/optimize-search-results/empty-or-insufficient-results/in-depth/why-use-remove-words-if-no-results)."
+        },
+        {
+          "name": "rendering-content-facet-ordering-values",
+          "wire_name": "renderingContent.facetOrdering.values",
+          "type": "object",
+          "location": "body",
+          "description": "Order of facet values. One object for each facet."
+        },
+        {
+          "name": "rendering-content-redirect-url",
+          "wire_name": "renderingContent.redirect.url",
+          "type": "string",
+          "location": "body",
+          "description": "Url"
+        },
+        {
+          "name": "rendering-content-widgets-banners",
+          "wire_name": "renderingContent.widgets.banners",
+          "type": "array",
+          "location": "body",
+          "description": "Banners defined in the Merchandising Studio for a given search."
+        },
+        {
+          "name": "replaceSynonymsInHighlight",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to replace a highlighted word with the matched synonym By default, the original words are highlighted even if a synonym matches. For example, with `home` as a synonym for `house` and a search for `home`, records matching either 'home' or 'house' are included in the search results, and either 'home' or 'house' are highlighted With `replaceSynonymsInHighlight` set to `true`, a search for `home` still matches the same records, but all occurrences of 'house' are replaced by 'home' in the highlighted response."
+        },
+        {
+          "name": "replicas",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Creates [replica indices](https://www.algolia.com/doc/guides/managing-results/refine-results/sorting/in-depth/replicas). Replicas are copies of a primary index with the same records but different settings, synonyms, or rules. If you want to offer a different ranking or sorting of your search results, you'll use replica indices. All index operations on a primary index are automatically forwarded to its replicas. To add a replica index, you must provide the complete set of replicas to this parameter. If you omit a replica from this list, the replica turns into a regular, standalone index that will no longer be synced with the primary index. **Modifier** - `virtual('REPLICA')`. Create a virtual replica, Virtual replicas don't increase the number of records and are optimized for [Relevant sorting](https://www.algolia.com/doc/guides/managing-results/refine-results/sorting/in-depth/relevant-sort)."
+        },
+        {
+          "name": "responseFields",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Properties to include in the API response of search and browse requests By default, all response properties are included. To reduce the response size, you can select which properties should be included An empty list may lead to an empty API response (except properties you can't exclude) You can't exclude these properties: `message`, `warning`, `cursor`, `abTestVariantID`, or any property added by setting `getRankingInfo` to true Your search depends on the `hits` field. If you omit this field, searches won't return any results. Your UI might also depend on other properties, for example, for pagination. Before restricting the response size, check the impact on your search experience."
+        },
+        {
+          "name": "restrictHighlightAndSnippetArrays",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to restrict highlighting and snippeting to items that at least partially matched the search query. By default, all items are highlighted and snippeted."
+        },
+        {
+          "name": "searchableAttributes",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Attributes used for searching. Attribute names are case-sensitive. By default, all attributes are searchable and the [Attribute](https://www.algolia.com/doc/guides/managing-results/relevance-overview/in-depth/ranking-criteria/#attribute) ranking criterion is turned off. With a non-empty list, Algolia only returns results with matches in the selected attributes. In addition, the Attribute ranking criterion is turned on: matches in attributes that are higher in the list of `searchableAttributes` rank first. To make matches in two attributes rank equally, include them in a comma-separated string, such as `'title,alternate_title'`. Attributes with the same priority are always unordered. For more information, see [Searchable attributes](https://www.algolia.com/doc/guides/sending-and-managing-data/prepare-your-data/how-to/setting-searchable-attributes). **Modifier** - `unordered('ATTRIBUTE')`. Ignore the position of a match within the attribute. Without a modifier, matches at the beginning of an attribute rank higher than matches at the end."
+        },
+        {
+          "name": "semantic-search-event-sources",
+          "wire_name": "semanticSearch.eventSources",
+          "type": "string",
+          "location": "body",
+          "description": "Event sources"
+        },
+        {
+          "name": "separatorsToIndex",
+          "type": "string",
+          "location": "body",
+          "description": "Control which non-alphanumeric characters are indexed. By default, Algolia ignores [non-alphanumeric characters](https://www.algolia.com/doc/guides/managing-results/optimize-search-results/typo-tolerance/how-to/how-to-search-in-hyphenated-attributes/#handling-non-alphanumeric-characters) like hyphen (`-`), plus (`+`), and parentheses (`(`,`)`). To include such characters, define them with `separatorsToIndex`. Separators are all non-letter characters except spaces and currency characters, such as $€£¥. With `separatorsToIndex`, Algolia treats separator characters as separate words. For example, in a search for 'Disney+', Algolia considers 'Disney' and '+' as two separate words."
+        },
+        {
+          "name": "snippetEllipsisText",
+          "type": "string",
+          "location": "body",
+          "description": "String used as an ellipsis indicator when a snippet is truncated."
+        },
+        {
+          "name": "sortFacetValuesBy",
+          "type": "string",
+          "location": "body",
+          "description": "Order in which to retrieve facet values - `count`. Facet values are retrieved by decreasing count. The count is the number of matching records containing this facet value - `alpha`. Retrieve facet values alphabetically This setting doesn't influence how facet values are displayed in your UI (see `renderingContent`). For more information, see [facet value display](https://www.algolia.com/doc/guides/building-search-ui/ui-and-ux-patterns/facet-display/js)."
+        },
+        {
+          "name": "typoTolerance",
+          "type": "string",
+          "location": "body",
+          "description": "Whether [typo tolerance](https://www.algolia.com/doc/guides/managing-results/optimize-search-results/typo-tolerance) is enabled and how it is applied. If typo tolerance is true, `min`, or `strict`, [word splitting and concatenation](https://www.algolia.com/doc/guides/managing-results/optimize-search-results/handling-natural-languages-nlp/in-depth/splitting-and-concatenation) are also active."
+        },
+        {
+          "name": "unretrievableAttributes",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Attributes that can't be retrieved at query time. This can be useful if you want to use an attribute for ranking or to [restrict access](https://www.algolia.com/doc/guides/security/api-keys/how-to/user-restricted-access-to-data), but don't want to include it in the search results. Attribute names are case-sensitive."
+        },
+        {
+          "name": "userData",
+          "type": "string",
+          "location": "body",
+          "description": "An object with custom data. You can store up to 32kB as custom data."
+        }
+      ]
+    },
+    {
+      "name": "indexes_synonyms_clear",
+      "description": "Deletes all synonyms from the index. Required: indexName. Optional: forwardToReplicas. Returns the new UpdatedAtResponse.",
+      "method": "POST",
+      "path": "/1/indexes/{indexName}/synonyms/clear",
+      "params": [
+        {
+          "name": "indexName",
+          "type": "string",
+          "location": "path",
+          "description": "Name of the index on which to perform the operation.",
+          "required": true
+        },
+        {
+          "name": "forwardToReplicas",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether changes are applied to replica indices."
+        }
+      ]
+    },
+    {
+      "name": "indexes_synonyms_delete",
+      "description": "Deletes a synonym by its ID. To find the object IDs of your synonyms, use the [`search` operation](https://www.algolia.com/doc/rest-api/search/search-synonyms). Required: indexName, objectID. Optional: forwardToReplicas. Returns the DeletedAtResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/1/indexes/{indexName}/synonyms/{objectID}",
+      "params": [
+        {
+          "name": "indexName",
+          "type": "string",
+          "location": "path",
+          "description": "Name of the index on which to perform the operation.",
+          "required": true
+        },
+        {
+          "name": "objectID",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier of a synonym object.",
+          "required": true
+        },
+        {
+          "name": "forwardToReplicas",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether changes are applied to replica indices."
+        }
+      ]
+    },
+    {
+      "name": "indexes_synonyms_get",
+      "description": "Retrieves a synonym by its ID. To find the object IDs for your synonyms, use the [`search` operation](https://www.algolia.com/doc/rest-api/search/search-synonyms). Required: indexName, objectID. Returns the SynonymHit.",
+      "method": "GET",
+      "path": "/1/indexes/{indexName}/synonyms/{objectID}",
+      "params": [
+        {
+          "name": "indexName",
+          "type": "string",
+          "location": "path",
+          "description": "Name of the index on which to perform the operation.",
+          "required": true
+        },
+        {
+          "name": "objectID",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier of a synonym object.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "indexes_synonyms_save",
+      "description": "If a synonym with the `objectID` doesn't exist, Algolia adds a new one. Otherwise, existing synonyms are replaced. This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia). Required: indexName. Optional: forwardToReplicas, replaceExistingSynonyms. Returns the new UpdatedAtResponse.",
+      "method": "POST",
+      "path": "/1/indexes/{indexName}/synonyms/batch",
+      "params": [
+        {
+          "name": "indexName",
+          "type": "string",
+          "location": "path",
+          "description": "Name of the index on which to perform the operation.",
+          "required": true
+        },
+        {
+          "name": "forwardToReplicas",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether changes are applied to replica indices."
+        },
+        {
+          "name": "replaceExistingSynonyms",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether to replace all synonyms in the index with the ones sent with this request."
+        }
+      ]
+    },
+    {
+      "name": "indexes_synonyms_save-indexes",
+      "description": "If a synonym with the specified object ID doesn't exist, Algolia adds a new one. Otherwise, the existing synonym is replaced. To add multiple synonyms in a single API request, use the [`batch` operation](https://www.algolia.com/doc/rest-api/search/save-synonyms). Required: indexName, objectID, object-id-2, type. Optional: forwardToReplicas, corrections, input (plus 4 more). Returns the updated SaveSynonymResponse.",
+      "method": "PUT",
+      "path": "/1/indexes/{indexName}/synonyms/{objectID}",
+      "params": [
+        {
+          "name": "indexName",
+          "type": "string",
+          "location": "path",
+          "description": "Name of the index on which to perform the operation.",
+          "required": true
+        },
+        {
+          "name": "objectID",
+          "type": "string",
+          "location": "path",
+          "description": "Unique identifier of a synonym object.",
+          "required": true
+        },
+        {
+          "name": "forwardToReplicas",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether changes are applied to replica indices."
+        },
+        {
+          "name": "corrections",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Words to be matched in records."
+        },
+        {
+          "name": "input",
+          "type": "string",
+          "location": "body",
+          "description": "Word or phrase to appear in query strings (for [`onewaysynonym`s](https://www.algolia.com/doc/guides/managing-results/optimize-search-results/adding-synonyms/in-depth/one-way-synonyms))."
+        },
+        {
+          "name": "object-id-2",
+          "wire_name": "objectID",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier of a synonym object.",
+          "required": true
+        },
+        {
+          "name": "placeholder",
+          "type": "string",
+          "location": "body",
+          "description": "[Placeholder token](https://www.algolia.com/doc/guides/managing-results/optimize-search-results/adding-synonyms/in-depth/synonyms-placeholders) to be put inside records."
+        },
+        {
+          "name": "replacements",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Query words that will match the [placeholder token](https://www.algolia.com/doc/guides/managing-results/optimize-search-results/adding-synonyms/in-depth/synonyms-placeholders)."
+        },
+        {
+          "name": "synonyms",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Words or phrases considered equivalent."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Synonym type.",
+          "required": true
+        },
+        {
+          "name": "word",
+          "type": "string",
+          "location": "body",
+          "description": "Word or phrase to appear in query strings (for [`altcorrection1` and `altcorrection2`](https://www.algolia.com/doc/guides/managing-results/optimize-search-results/adding-synonyms/in-depth/synonyms-alternative-corrections))."
+        }
+      ]
+    },
+    {
+      "name": "indexes_synonyms_search",
+      "description": "Searches for synonyms in your index. Required: indexName. Optional: hitsPerPage (default: 20), page (default: 0), query (plus 1 more). Returns array of SynonymHit.",
+      "method": "POST",
+      "path": "/1/indexes/{indexName}/synonyms/search",
+      "params": [
+        {
+          "name": "indexName",
+          "type": "string",
+          "location": "path",
+          "description": "Name of the index on which to perform the operation.",
+          "required": true
+        },
+        {
+          "name": "hitsPerPage",
+          "type": "int",
+          "location": "body",
+          "description": "Number of hits per page."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "body",
+          "description": "Page of search results to retrieve."
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "Search query."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Synonym type."
+        }
+      ]
+    },
+    {
+      "name": "indexes_task_get",
+      "description": "Checks the status of a given task. Indexing tasks are asynchronous. When you add, update, or delete records or indices, a task is created on a queue and completed depending on the load on the server. The indexing tasks' responses include a task ID that you can use to check the status. Required: indexName, taskID. Returns the GetTaskResponse.",
+      "method": "GET",
+      "path": "/1/indexes/{indexName}/task/{taskID}",
+      "params": [
+        {
+          "name": "indexName",
+          "type": "string",
+          "location": "path",
+          "description": "Name of the index on which to perform the operation.",
+          "required": true
+        },
+        {
+          "name": "taskID",
+          "type": "int",
+          "location": "path",
+          "description": "Unique task identifier.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "keys_add-api",
+      "description": "Creates a new API key with specific permissions and restrictions. Required: acl (default: []). Optional: description, indexes (default: []), maxHitsPerQuery (default: 0) (plus 4 more). Returns the new AddApiKeyResponse.",
+      "method": "POST",
+      "path": "/1/keys",
+      "params": [
+        {
+          "name": "acl",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Permissions that determine the type of API requests this key can make. The required ACL is listed in each endpoint's reference. For more information, see [access control list](https://www.algolia.com/doc/guides/security/api-keys/#access-control-list-acl).",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description of an API key to help you identify this API key."
+        },
+        {
+          "name": "indexes",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Index names or patterns that this API key can access. By default, an API key can access all indices in the same application. You can use leading and trailing wildcard characters (`*`): - `dev_*` matches all indices starting with 'dev_' - `*_dev` matches all indices ending with '_dev' - `*_products_*` matches all indices containing '_products_'."
+        },
+        {
+          "name": "maxHitsPerQuery",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of results this API key can retrieve in one query. By default, there's no limit."
+        },
+        {
+          "name": "maxQueriesPerIPPerHour",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of API requests allowed per IP address or [user token](https://www.algolia.com/doc/guides/sending-events/concepts/usertoken) per hour. If this limit is reached, the API returns an error with status code `429`. By default, there's no limit."
+        },
+        {
+          "name": "queryParameters",
+          "type": "string",
+          "location": "body",
+          "description": "Query parameters to add when making API requests with this API key. To restrict this API key to specific IP addresses, add the `restrictSources` parameter. You can only add a single source, but you can provide a range of IP addresses. Creating an API key fails if the request is made from an IP address outside the restricted range."
+        },
+        {
+          "name": "referers",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Allowed HTTP referrers for this API key. By default, all referrers are allowed. You can use leading and trailing wildcard characters (`*`): - `https://algolia.com/*` allows all referrers starting with 'https://algolia.com/' - `*.algolia.com` allows all referrers ending with '.algolia.com' - `*algolia.com*` allows all referrers in the domain 'algolia.com'. Like all HTTP headers, referrers can be spoofed. Don't rely on them to secure your data. For more information, see [HTTP referrer restrictions](https://www.algolia.com/doc/guides/security/security-best-practices/#http-referrers-restrictions)."
+        },
+        {
+          "name": "validity",
+          "type": "int",
+          "location": "body",
+          "description": "Duration (in seconds) after which the API key expires. By default, API keys don't expire."
+        }
+      ]
+    },
+    {
+      "name": "keys_delete-api",
+      "description": "Deletes the API key. Required: key. Returns the DeleteApiKeyResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/1/keys/{key}",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "path",
+          "description": "API key.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "keys_get-api",
+      "description": "Gets the permissions and restrictions of an API key. When authenticating with the admin API key, you can request information for any of your application's keys. When authenticating with other API keys, you can only retrieve information for that key, with the description replaced by `\u003credacted\u003e`. Required: key. Returns the GetApiKeyResponse.",
+      "method": "GET",
+      "path": "/1/keys/{key}",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "path",
+          "description": "API key.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "keys_list-api",
+      "description": "Lists all API keys associated with your Algolia application, including their permissions and restrictions. Returns array of GetApiKeyResponse.",
+      "method": "GET",
+      "path": "/1/keys",
+      "params": []
+    },
+    {
+      "name": "keys_update-api",
+      "description": "Replaces the permissions of an existing API key. Any unspecified attribute resets that attribute to its default value. Required: key, acl (default: []). Optional: description, indexes (default: []), maxHitsPerQuery (default: 0) (plus 4 more). Returns the updated UpdateApiKeyResponse.",
+      "method": "PUT",
+      "path": "/1/keys/{key}",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "path",
+          "description": "API key.",
+          "required": true
+        },
+        {
+          "name": "acl",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Permissions that determine the type of API requests this key can make. The required ACL is listed in each endpoint's reference. For more information, see [access control list](https://www.algolia.com/doc/guides/security/api-keys/#access-control-list-acl).",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description of an API key to help you identify this API key."
+        },
+        {
+          "name": "indexes",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Index names or patterns that this API key can access. By default, an API key can access all indices in the same application. You can use leading and trailing wildcard characters (`*`): - `dev_*` matches all indices starting with 'dev_' - `*_dev` matches all indices ending with '_dev' - `*_products_*` matches all indices containing '_products_'."
+        },
+        {
+          "name": "maxHitsPerQuery",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of results this API key can retrieve in one query. By default, there's no limit."
+        },
+        {
+          "name": "maxQueriesPerIPPerHour",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of API requests allowed per IP address or [user token](https://www.algolia.com/doc/guides/sending-events/concepts/usertoken) per hour. If this limit is reached, the API returns an error with status code `429`. By default, there's no limit."
+        },
+        {
+          "name": "queryParameters",
+          "type": "string",
+          "location": "body",
+          "description": "Query parameters to add when making API requests with this API key. To restrict this API key to specific IP addresses, add the `restrictSources` parameter. You can only add a single source, but you can provide a range of IP addresses. Creating an API key fails if the request is made from an IP address outside the restricted range."
+        },
+        {
+          "name": "referers",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Allowed HTTP referrers for this API key. By default, all referrers are allowed. You can use leading and trailing wildcard characters (`*`): - `https://algolia.com/*` allows all referrers starting with 'https://algolia.com/' - `*.algolia.com` allows all referrers ending with '.algolia.com' - `*algolia.com*` allows all referrers in the domain 'algolia.com'. Like all HTTP headers, referrers can be spoofed. Don't rely on them to secure your data. For more information, see [HTTP referrer restrictions](https://www.algolia.com/doc/guides/security/security-best-practices/#http-referrers-restrictions)."
+        },
+        {
+          "name": "validity",
+          "type": "int",
+          "location": "body",
+          "description": "Duration (in seconds) after which the API key expires. By default, API keys don't expire."
+        }
+      ]
+    },
+    {
+      "name": "keys_restore_api-key",
+      "description": "Restores a deleted API key. Restoring resets the `validity` attribute to `0`. Algolia stores up to 1,000 API keys per application. If you create more, the oldest API keys are deleted and can't be restored. Required: key. Returns the new AddApiKeyResponse.",
+      "method": "POST",
+      "path": "/1/keys/{key}/restore",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "path",
+          "description": "API key.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "logs_get",
+      "description": "The request must be authenticated by an API key with the [`logs` ACL](https://www.algolia.com/doc/guides/security/api-keys/#access-control-list-acl). - Logs are held for the last seven days. - Up to 1,000 API requests per server are logged. - This request counts towards your [operations quota](https://support.algolia.com/hc/articles/17245378392977-How-does-Algolia-count-records-and-operations) but doesn't appear in the logs itself. Optional: offset (default: 0), length (default: 10), indexName (plus 1 more). Returns array of Log.",
+      "method": "GET",
+      "path": "/1/logs",
+      "params": [
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "First log entry to retrieve. The most recent entries are listed first."
+        },
+        {
+          "name": "length",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of entries to retrieve."
+        },
+        {
+          "name": "indexName",
+          "type": "string",
+          "location": "query",
+          "description": "Index for which to retrieve log entries. By default, log entries are retrieved for all indices."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Type of log entries to retrieve. By default, all log entries are retrieved."
+        }
+      ]
+    },
+    {
+      "name": "security_append-source",
+      "description": "Adds a source to the list of allowed sources. Required: source. Optional: description. Returns the new CreatedAtResponse.",
+      "method": "POST",
+      "path": "/1/security/sources/append",
+      "params": [
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Source description."
+        },
+        {
+          "name": "source",
+          "type": "string",
+          "location": "body",
+          "description": "IP address range of the source.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "security_delete-source",
+      "description": "Deletes a source from the list of allowed sources. Required: source. Returns the DeleteSourceResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/1/security/sources/{source}",
+      "params": [
+        {
+          "name": "source",
+          "type": "string",
+          "location": "path",
+          "description": "IP address range of the source.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "security_get-sources",
+      "description": "Retrieves all allowed IP addresses with access to your application. Returns array of Source.",
+      "method": "GET",
+      "path": "/1/security/sources",
+      "params": []
+    },
+    {
+      "name": "security_replace-sources",
+      "description": "Replaces the list of allowed sources. Returns the updated ReplaceSourceResponse.",
+      "method": "PUT",
+      "path": "/1/security/sources",
+      "params": []
+    },
+    {
+      "name": "task_get-app",
+      "description": "Checks the status of a given application task. Required: taskID. Returns the GetTaskResponse.",
+      "method": "GET",
+      "path": "/1/task/{taskID}",
+      "params": [
+        {
+          "name": "taskID",
+          "type": "int",
+          "location": "path",
+          "description": "Unique task identifier.",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

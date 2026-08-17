@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "inaturalist-pp-cli"
+display_name = "iNaturalist"
+description = "Explore iNaturalist's full API, plus privacy-safe field briefings and identification progress that ordinary endpoint wrappers miss."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/inaturalist-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+INATURALIST_API_TOKEN = true

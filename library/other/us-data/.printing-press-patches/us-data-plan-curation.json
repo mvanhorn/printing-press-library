@@ -1,0 +1,14 @@
+{
+  "id": "us-data-plan-curation",
+  "title": "Curate plan-generated public-data recipes",
+  "reason": "The plan-driven generator produced a minimal skeleton. This patch records the curated recipe commands, source-specific auth handling, and proof artifacts needed for issue #1189.",
+  "files": [
+    "internal/cli/root.go",
+    "internal/cli/bls.go",
+    "internal/cli/census.go",
+    "internal/cli/bea.go",
+    "internal/cli/commands.go",
+    "README.md",
+    "SKILL.md"
+  ]
+}

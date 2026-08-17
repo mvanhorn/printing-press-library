@@ -1,0 +1,189 @@
+
+=== verify ===
+Runtime Verification: /Users/nolson/printing-press/.runstate/claude_scratch-a8b0db3a/runs/20260721-105814-1da3c401/working/printgoat-pp-cli/printgoat-pp-cli
+Mode: mock
+
+COMMAND                        KIND         HELP   DRY-RUN  EXEC     SCORE
+resource-path:export           static       PASS   PASS     PASS     3/3
+resource-path:import           static       PASS   PASS     PASS     3/3
+agent-context                  read         PASS   PASS     PASS     3/3
+api                            local        PASS   PASS     PASS     3/3
+browse                         read         PASS   PASS     FAIL     2/3
+config                         read         PASS   PASS     FAIL     2/3
+designer                       read         PASS   PASS     FAIL     2/3
+doctor                         local        PASS   PASS     PASS     3/3
+download                       read         PASS   FAIL     PASS     2/3
+duplicates                     read         PASS   PASS     PASS     3/3
+export                         data-layer   PASS   PASS     PASS     3/3
+feed                           read         PASS   PASS     PASS     3/3
+feedback                       read         PASS   PASS     PASS     3/3
+files                          read         PASS   PASS     FAIL     2/3
+follow                         read         PASS   PASS     FAIL     2/3
+formats                        read         PASS   PASS     FAIL     2/3
+history                        read         PASS   PASS     FAIL     2/3
+import                         data-layer   PASS   PASS     PASS     3/3
+job                            read         PASS   PASS     FAIL     2/3
+learnings                      read         PASS   PASS     FAIL     2/3
+library                        read         PASS   PASS     FAIL     2/3
+license                        read         PASS   PASS     FAIL     2/3
+log                            read         PASS   PASS     FAIL     2/3
+models                         read         PASS   PASS     PASS     3/3
+playbook                       read         PASS   PASS     FAIL     2/3
+profile                        read         PASS   PASS     FAIL     2/3
+recall                         read         PASS   PASS     PASS     3/3
+search                         data-layer   PASS   PASS     PASS     3/3
+search-things                  read         PASS   PASS     PASS     3/3
+similar                        read         PASS   PASS     FAIL     2/3
+snapshot                       read         PASS   PASS     FAIL     2/3
+sync                           data-layer   PASS   PASS     PASS     3/3
+tags                           read         PASS   PASS     FAIL     2/3
+teach                          read         PASS   PASS     PASS     3/3
+teach-lookup                   read         PASS   PASS     PASS     3/3
+teach-pattern                  read         PASS   PASS     PASS     3/3
+teach-playbook                 read         PASS   PASS     PASS     3/3
+which                          read         PASS   PASS     PASS     3/3
+workflow                       read         PASS   PASS     FAIL     2/3
+
+Path-Param Probes (nested commands with <positional> args):
+  PASS browse category
+  PASS browse user
+  PASS config get
+  PASS config set
+  PASS designer stats
+  PASS follow designer add
+  PASS formats gaps
+  PASS history diff
+  PASS job resume
+  PASS learnings confirm
+  PASS learnings forget
+  PASS learnings reject
+  PASS log fail
+  PASS profile delete
+  PASS profile save
+  PASS profile show
+  PASS profile use
+  PASS snapshot create
+  PASS snapshot verify
+
+Data Pipeline: PASS: sync completed (sql unavailable, table validation skipped)
+Pass Rate: 100% (58/58 passed, 0 critical)
+Verdict: PASS
+
+=== validate-narrative ===
+OK: 9 narrative commands resolved and full examples passed
+
+=== dogfood ===
+dogfood: using spec /Users/nolson/printing-press/.runstate/claude_scratch-a8b0db3a/runs/20260721-105814-1da3c401/working/printgoat-pp-cli/spec.json (bundled)
+dogfood: caller --spec=/Users/nolson/printing-press/.runstate/claude_scratch-a8b0db3a/runs/20260721-105814-1da3c401/research/specs/cults3d.yaml overridden by bundled /Users/nolson/printing-press/.runstate/claude_scratch-a8b0db3a/runs/20260721-105814-1da3c401/working/printgoat-pp-cli/spec.json
+warning: no servers defined in spec; generated CLI will require base_url in config
+warning: accepted root-level 'mcp:' for backwards compatibility; rename to 'x-mcp:' per OpenAPI extension convention
+Dogfood Report: printgoat-pp-cli
+================================
+
+Path Validity:     0/0 valid (N/A)
+
+Auth Protocol:     MATCH
+  Generated: Uses "unknown" prefix
+  Detail: no bot/bearer/basic scheme detected
+
+OAuth Scope Cover: 0/0 endpoints covered (SKIP)
+  Detail: no OAuth-scoped endpoints in spec
+
+Dead Flags:        0 dead (PASS)
+
+Dead Functions:    0 dead (PASS)
+
+Data Pipeline:     PARTIAL
+  Sync: calls domain-specific Upsert methods (GOOD)
+  Search: uses generic Search only or direct SQL
+  Domain tables: 4
+
+Examples:          10/10 commands have examples (PASS)
+
+Novel Features:    10/10 survived (PASS)
+
+MCP Surface:       PASS (MCP surface mirrors the Cobra tree at runtime)
+
+Verdict: PASS
+
+=== workflow-verify ===
+Workflow Verification: printgoat-pp-cli
+================================
+
+Overall Verdict: workflow-pass
+  - no workflow manifest found, skipping
+
+=== apify-audit ===
+Apify Actor Audit
+=================
+
+No Apify actor references found.
+
+Verdict: pass
+  - no Apify actor references found, skipping
+
+=== verify-skill ===
+=== printgoat-pp-cli ===
+  ✓ All checks passed (flag-names, flag-commands, positional-args, shell-var-quotes, unknown-command)
+  ✓ canonical-sections passed
+
+=== scorecard ===
+Quality Scorecard: printgoat
+
+  Output Modes         10/10
+  Auth                 10/10
+  Error Handling       8/10
+  Terminal UX          10/10
+  README               10/10
+  Doctor               10/10
+  Agent Native         10/10
+  MCP Quality          9/10
+  MCP Desc Quality     10/10
+  MCP Token Efficiency 10/10
+  MCP Remote Transport 10/10
+  MCP Tool Design      7/10
+  MCP Surface Strategy N/A
+  Local Cache          10/10
+  Cache Freshness      5/10
+  Breadth              10/10
+  Vision               9/10
+  Workflows            10/10
+  Insight              7/10
+  Agent Workflow       9/10
+
+  Domain Correctness
+  Path Validity           N/A
+  Auth Protocol           N/A
+  Data Pipeline Integrity 7/10
+  Sync Correctness        10/10
+  Live API Verification   N/A
+  Type Fidelity           5/5
+  Dead Code               5/5
+
+  Total: 90/100 - Grade A
+  Note: omitted from denominator: mcp_surface_strategy, path_validity, auth_protocol, live_api_verification
+
+Sample Output Probe (live command sample)
+  Binary refresh: fresh_fallback (same-name runnable binary is newer than Go sources)
+  Passed: 5/10  (50% pass rate, 0 skipped)
+  Failures:
+    - Local History Diff / Staleness: output does not contain any token from query "printables:3161"
+    - Failure-Informed Re-Search: exit 4: Error: GET https://api.thingiverse.com/things/2409854 returned HTTP 403: {"error":"Thing has not been published"}
+hint: permission denied. This API is configured without credentials, so the service may be blocking the request by rate limit, geography, bot protection, or endpoint policy.
+      Run 'p...
+    - Cross-Source Resumable Batch Job: exit 3: Error: no job with id "job-20260721-01"
+    - Print-Job Version Pinning: exit 3: Error: no snapshot named "batch-march-orders"; run 'snapshot create batch-march-orders <model-keys...>' first
+    - Format-Availability Gap Finder: output does not contain any token from query "printables:3161"
+
+Shipcheck Summary
+=================
+  LEG               RESULT  EXIT      ELAPSED
+  verify            PASS    0         9.688s
+  validate-narrative  PASS    0         326ms
+  dogfood           PASS    0         3.322s
+  workflow-verify   PASS    0         17ms
+  apify-audit       PASS    0         31ms
+  verify-skill      PASS    0         3.92s
+  scorecard         PASS    0         2.514s
+
+Verdict: PASS (7/7 legs passed)

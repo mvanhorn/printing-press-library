@@ -1,0 +1,17 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "bambu-pp-cli"
+display_name = "Bambu Lab"
+description = "Agent-ready Bambu print monitoring with exact plate previews and start/finish payloads."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/bambu-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+BAMBU_ACCESS_CODE = true
+BAMBU_SERIAL = false

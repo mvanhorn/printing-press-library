@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "github-contents-learning-happy-args",
+  "applied_at": "2026-07-10",
+  "base_run_id": "20260710-125244-1a986992",
+  "base_printing_press_version": "4.28.0",
+  "summary": "pp:happy-args fixtures on generated learning-loop commands (teach, teach-pattern, teach-playbook, playbook amend).",
+  "reason": "The live-dogfood matrix scraped their multi-line Examples and passed literal backslash continuations and <placeholders> as argv, failing 8 cells; fixtures give valid local-state-only invocations.",
+  "files": ["internal/cli/teach.go", "internal/cli/teach_playbook.go"],
+  "validated_outcome": "All four commands pass happy_path + json_fidelity in the full live matrix."
+}

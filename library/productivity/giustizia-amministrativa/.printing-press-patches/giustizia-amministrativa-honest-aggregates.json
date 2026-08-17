@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "giustizia-amministrativa-honest-aggregates",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260621-094103",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Quattro correzioni dal test con avvocato e osservatore indipendente. (1) stats marca il gruppo tagliato dal campionamento (campo gruppo_troncato, flag troncato sulla riga, avviso) invece di presentare tutti i conteggi come equivalenti. (2) Un risultato zero con filtri attivi rilancia una sonda senza filtri e dice se il vuoto viene dai filtri o dai termini. (3) ExtractDataDeposito riconosce anche 'DEPOSITATA IN SEGRETERIA ... Il GG/MM/AAAA', la forma usata dagli HTML, e lavora sul testo ripulito dai tag. (4) Lo sweep per anni dichiara che --limit vale per anno.",
+  "reason": "Su stats: il campione si esaurisce seguendo l'ordine del portale, quindi i gruppi prima del taglio sono esatti e quello che contiene l'ultimo elemento e' dimezzato. Misurato: --by anno dava 2023=53 contro 103 reali, -48%, con sample_size e total_results dichiarati ma nulla che dicesse quale gruppo fosse tagliato. Un avvocato ne avrebbe concluso che nel 2023 il contenzioso era la meta' del 2024. Sul risultato zero: nella ricerca giuridica il negativo e' una conclusione ('dal 2023 non c'e' una Plenaria sul punto' era esattamente cio' che serviva), ma da solo e' indistinguibile fra 'non esiste giurisprudenza' e 'un filtro era troppo stretto'; una sola richiesta in piu', fatta solo sullo zero, scioglie l'ambiguita'. Sulla data: l'estrattore conosceva solo 'Pubblicato il', la dicitura dei PDF, mentre gli HTML scrivono 'DEPOSITATA IN SEGRETERIA' e 'Il GG/MM/AAAA' in due <p> separati -- da qui il 96,4% di record senza data, su un campo che il manifest e il front matter promettono e che e' il secondo elemento di ogni citazione dopo il numero.",
+  "files": [
+    "internal/cli/stats.go",
+    "internal/cli/ga_core.go",
+    "internal/cli/corpus_build.go",
+    "internal/cli/massime.go",
+    "internal/gaclient/markdown.go",
+    "internal/gaclient/client.go"
+  ],
+  "validated_outcome": "stats --by anno su 959 risultati con limit 400: gruppo_troncato='2023', la riga 2023 porta troncato=true e l'avviso spiega che i gruppi successivi mancano del tutto. search --tipo plenaria --phrase 'costi della manodopera' --anno 2024: 'nessun risultato con i filtri applicati (tipo=plenaria, anno=2024), ma la stessa ricerca senza filtri ne dichiara 4821'. Data di deposito su tre provvedimenti che prima ne erano privi: 19APLE 06/08/2013, 6149SENT 30/07/2026, 3396SENT 30/04/2026. Sweep per anni con --limit 10 su 4 anni: avvisa che ne ha restituiti 30. go build/vet/test verdi."
+}

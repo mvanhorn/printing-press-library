@@ -9,8 +9,10 @@ import (
 
 func newFilesImagesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "images",
-		Short: "Manage images",
+		Use:         "images",
+		Short:       "Get images for files",
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newFilesImagesGetFillsCmd(flags))

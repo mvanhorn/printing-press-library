@@ -83,3 +83,47 @@ func TestPersistedHashesAreSet(t *testing.T) {
 		t.Errorf("BookingConfirmationHash = %q (len %d); expected 64-char SHA256", BookingConfirmationHash, len(BookingConfirmationHash))
 	}
 }
+
+func TestUpcomingReservationsFromInitialStatePrefersDiningDashboard(t *testing.T) {
+	want := []any{map[string]any{"confirmationNumber": float64(222)}}
+	state := map[string]any{
+		"aaaOtherReducer": map[string]any{"upcomingReservations": []any{map[string]any{"confirmationNumber": float64(111)}}},
+		"routeState": map[string]any{
+			"diningDashboard": map[string]any{"upcomingReservations": want},
+		},
+	}
+	got, err := upcomingReservationsFromInitialState(state)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.([]any)[0].(map[string]any)["confirmationNumber"] != float64(222) {
+		t.Fatalf("selected reservations = %#v, want diningDashboard candidate", got)
+	}
+}
+
+func TestUpcomingReservationsFromInitialStateUsesStablePathTieBreak(t *testing.T) {
+	state := map[string]any{
+		"zReducer": map[string]any{"upcomingReservations": []any{map[string]any{"confirmationNumber": float64(999)}}},
+		"aReducer": map[string]any{"upcomingReservations": []any{map[string]any{"confirmationNumber": float64(111)}}},
+	}
+	for i := 0; i < 50; i++ {
+		got, err := upcomingReservationsFromInitialState(state)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got.([]any)[0].(map[string]any)["confirmationNumber"] != float64(111) {
+			t.Fatalf("iteration %d selected reservations = %#v, want lexical aReducer candidate", i, got)
+		}
+	}
+}
+
+func TestUpcomingReservationsFromInitialStateAnonymousIsAuthExpired(t *testing.T) {
+	state := map[string]any{
+		"authentication": map[string]any{"isAuthenticated": false},
+		"routeState":     map[string]any{"upcomingReservations": []any{}},
+	}
+	_, err := upcomingReservationsFromInitialState(state)
+	if !errors.Is(err, ErrAuthExpired) {
+		t.Fatalf("error = %v, want ErrAuthExpired", err)
+	}
+}

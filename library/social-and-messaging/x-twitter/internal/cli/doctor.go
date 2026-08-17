@@ -100,13 +100,69 @@ func probeAuthLane(ctx context.Context, c *client.Client, header, source, path, 
 		body := apiErr.Body
 		switch {
 		case apiErr.StatusCode == 401:
+			var refreshErr error
+			if path == "/2/users/me" {
+				var refreshed bool
+				refreshed, refreshErr = c.RefreshOAuth2UserContext(ctx, true)
+				if refreshErr == nil && refreshed {
+					refreshedHeader := c.Config.UserContextAuthHeader()
+					if refreshedHeader != "" && refreshedHeader != header {
+						refreshedHeaders := map[string]string{
+							"Authorization": refreshedHeader,
+							"User-Agent":    "x-twitter-pp-cli",
+						}
+						if refreshedBody, retryErr := c.GetWithHeaders(ctx, path, nil, refreshedHeaders); retryErr == nil {
+							lane := authLane("ok", source, "")
+							lane["refreshed"] = true
+							if user := userSummaryFromMeProbe(refreshedBody); len(user) > 0 {
+								lane["probe"] = "/2/users/me ok"
+								lane["user"] = user
+							}
+							return lane
+						}
+					}
+				}
+			}
 			lane := authLane("invalid", source, "token was rejected; refresh or replace this credential")
 			lane["http_status"] = apiErr.StatusCode
+			if refreshErr != nil {
+				lane["refresh_attempted"] = true
+				lane["refresh_error"] = cliutil.SanitizeErrorBody(refreshErr.Error())
+				lane["hint"] = "refresh token was rejected or could not be used; rerun `x-twitter-pp-cli auth oauth2-login --client-id <client-id>` to mint a new OAuth2 user-context token"
+			}
 			return lane
 		case apiErr.StatusCode == 403 && xAppOnlyUnsupportedAuth(body):
+			var refreshErr error
+			if path == "/2/users/me" && strings.TrimSpace(c.Config.RefreshToken) != "" && strings.TrimSpace(c.Config.ClientID) != "" {
+				var refreshed bool
+				refreshed, refreshErr = c.RefreshOAuth2UserContext(ctx, true)
+				if refreshErr == nil && refreshed {
+					refreshedHeader := c.Config.UserContextAuthHeader()
+					if refreshedHeader != "" && refreshedHeader != header {
+						refreshedHeaders := map[string]string{
+							"Authorization": refreshedHeader,
+							"User-Agent":    "x-twitter-pp-cli",
+						}
+						if refreshedBody, retryErr := c.GetWithHeaders(ctx, path, nil, refreshedHeaders); retryErr == nil {
+							lane := authLane("ok", source, "")
+							lane["refreshed"] = true
+							if user := userSummaryFromMeProbe(refreshedBody); len(user) > 0 {
+								lane["probe"] = "/2/users/me ok"
+								lane["user"] = user
+							}
+							return lane
+						}
+					}
+				}
+			}
 			lane := authLane("invalid", source, "this credential appears to be app-only; set/import a real OAuth2 user-context token in X_OAUTH2_USER_TOKEN")
 			lane["http_status"] = apiErr.StatusCode
 			lane["classification"] = "app_only_token_used_for_user_context"
+			if refreshErr != nil {
+				lane["refresh_attempted"] = true
+				lane["refresh_error"] = cliutil.SanitizeErrorBody(refreshErr.Error())
+				lane["hint"] = "stored user-context token is not usable and refresh failed; rerun `x-twitter-pp-cli auth oauth2-login --client-id <client-id>` to mint a new OAuth2 user-context token"
+			}
 			return lane
 		case apiErr.StatusCode == 403:
 			lane := authLane("invalid", source, "credential reached X but lacks permission for this probe")
@@ -129,9 +185,12 @@ func cookieAuthLane() map[string]any {
 		return authLane("missing", "cookies.json", "capture X Articles cookies with `x-twitter-pp-cli auth login --chrome`; this does not configure v2 API OAuth2 user-context auth")
 	}
 	lane := authLane("ok", "cookies.json", "")
-	if cookies.ArticleUserID() != "" {
+	if userID := cookies.ArticleUserID(); userID != "" {
 		lane["user_id_present"] = true
+		lane["user_id"] = userID
 	}
+	lane["write_capability"] = "ok: Articles create/update/title/cover/delete writes use browser cookies; X_OAUTH2_USER_TOKEN is only needed for v2 API user-context writes"
+	lane["capabilities"] = []string{"articles.list", "articles.create-draft", "articles.update-content", "articles.update-title", "articles.update-cover-media", "articles.delete", "articles.publish", "articles.unpublish", "articles.upload-media"}
 	return lane
 }
 
@@ -791,6 +850,12 @@ func renderAuthLaneReport(w io.Writer, lanes map[string]any) {
 		}
 		if hint, _ := lane["hint"].(string); hint != "" {
 			fmt.Fprintf(w, "      hint: %s\n", hint)
+		}
+		if capability, _ := lane["write_capability"].(string); capability != "" {
+			fmt.Fprintf(w, "      write_capability: %s\n", capability)
+		}
+		if userID, _ := lane["user_id"].(string); userID != "" {
+			fmt.Fprintf(w, "      user_id: %s\n", userID)
 		}
 	}
 }

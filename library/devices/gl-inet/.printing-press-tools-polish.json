@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-06-22T19:04:41.7580838Z",
+  "cli_dir": "\u003ccli-dir\u003e\\gl-inet-pp-cli",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-06-22T19:01:13.864851Z"
+  }
+}

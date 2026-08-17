@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "shelters-pp-mcp",
+  "display_name": "Shelters",
+  "version": "0.0.0",
+  "description": "Credible, real-time disaster shelter information for AI agents and people",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/shelters-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/shelters-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

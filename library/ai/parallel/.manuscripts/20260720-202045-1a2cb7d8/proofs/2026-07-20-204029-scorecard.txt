@@ -1,0 +1,37 @@
+Quality Scorecard: parallel
+
+  Output Modes         10/10
+  Auth                 10/10
+  Error Handling       10/10
+  Terminal UX          10/10
+  README               10/10
+  Doctor               10/10
+  Agent Native         10/10
+  MCP Quality          10/10
+  MCP Desc Quality     9/10
+  MCP Token Efficiency 7/10
+  MCP Remote Transport 5/10
+  MCP Tool Design      7/10
+  MCP Surface Strategy N/A
+  Local Cache          10/10
+  Cache Freshness      5/10
+  Breadth              10/10
+  Vision               10/10
+  Workflows            10/10
+  Insight              10/10
+  Agent Workflow       9/10
+
+  Domain Correctness
+  Path Validity           N/A
+  Auth Protocol           N/A
+  Data Pipeline Integrity 10/10
+  Sync Correctness        10/10
+  Live API Verification   N/A
+  Type Fidelity           5/5
+  Dead Code               5/5
+
+  Total: 95/100 - Grade A
+  Note: omitted from denominator: mcp_surface_strategy, path_validity, auth_protocol, live_api_verification
+
+Gaps:
+  - MCP: 39 tools (0 public, 39 auth-required) — readiness: full

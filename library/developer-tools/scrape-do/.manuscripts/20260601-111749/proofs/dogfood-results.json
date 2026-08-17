@@ -1,0 +1,1141 @@
+{
+  "dir": "/Users/charlesg77/printing-press/.runstate/charlesg77-f2620910/runs/20260601-111749/working/scrape-do-pp-cli",
+  "binary": "/Users/charlesg77/printing-press/.runstate/charlesg77-f2620910/runs/20260601-111749/working/scrape-do-pp-cli/scrape-do-pp-cli",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 68,
+  "passed": 68,
+  "failed": 0,
+  "skipped": 50,
+  "commands": [
+    "account",
+    "api",
+    "batch",
+    "budget set",
+    "cost",
+    "doctor",
+    "drift",
+    "feedback list",
+    "google flights",
+    "google hotels",
+    "google maps",
+    "google news",
+    "google play",
+    "google search",
+    "google shopping",
+    "google trends",
+    "import",
+    "movers",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "scrape",
+    "sql",
+    "sync",
+    "which",
+    "workflow archive",
+    "workflow status"
+  ],
+  "tests": [
+    {
+      "command": "account",
+      "kind": "help",
+      "args": [
+        "account",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Fetch live account state: IsActive, ConcurrentRequest, RemainingConcurrentRequest, MaxMonthlyRequest\n\nUsage:\n  scrape-do-pp-cli account [flags]\n\nExamples:\n  scrape-do-pp-cli account\n\nFlags:\n  -h, --help   help for account\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'scrape-do-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "account",
+      "kind": "happy_path",
+      "args": [
+        "account"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"IsActive\": true,\n    \"ConcurrentRequest\": 5,\n    \"MaxMonthlyRequest\": 1000,\n    \"RemainingConcurrentRequest\": 5,\n    \"RemainingMonthlyRequest\": 935\n  }\n}\nwarning: 1/1 account items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "account",
+      "kind": "json_fidelity",
+      "args": [
+        "account",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"IsActive\": true,\n    \"ConcurrentRequest\": 5,\n    \"MaxMonthlyRequest\": 1000,\n    \"RemainingConcurrentRequest\": 5,\n    \"RemainingMonthlyRequest\": 935\n  }\n}\nwarning: 1/1 account items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "account",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  scrape-do-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  scrape-do-pp-cli api\n\n  # Show methods for a specific interface\n  scrape-do-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'scrape-do-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'scrape-do-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "batch",
+      "kind": "help",
+      "args": [
+        "batch",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Dispatch many targets through the governor. Targets come from positional\narguments, from --input (one per line), or from stdin. The shared concurrency\nlease keeps total in-flight calls — across every agent process on this machine —\nunder the plan's ConcurrentRequest cap. Only the non-billed 429/502/510 failure\nclasses are retried, and --max-credits refuses to dispatch a call that would\npush month-to-date spend past the ceiling.\n\nDefault mode scrapes each target as a URL; --query treats each as a Google\nsearch query instead.\n\nUsage:\n  scrape-do-pp-cli batch [target...] [flags]\n\nExamples:\n  scrape-do-pp-cli batch https://example.com https://example.org\n  scrape-do-pp-cli batch --input urls.txt --max-credits 500 --agent\n  scrape-do-pp-cli batch --input queries.txt --query --gl us\n\nFlags:\n      --agent-id string       Attribution id for the credit ledger (or set SCRAPEDO_AGENT_ID)\n      --geo string            Country geo-targeting for each scrape (URL mode)\n      --gl string             Country code for each query (query mode)\n  -h, --help                  help for batch\n      --hl string             Language code for each query (query mode)\n      --input string          File with one target per line (or read from stdin)\n      --max-concurrency int   Cap concurrent workers (the plan's lease still applies; 0 = default)\n      --max-credits int       Refuse to dispatch once month-to-date spend would exceed N credits\n      --query                 Treat each line as a Google search query instead of a URL\n      --render                Enable JS rendering for each scrape (URL mode)\n      --super                 Use the super proxy for each scrape (URL mode)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'scrape-do-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "batch",
+      "kind": "happy_path",
+      "args": [
+        "batch",
+        "https://example.com",
+        "https://example.org"
+      ],
+      "status": "pass",
+      "output_sample": "dispatched 2  succeeded 2  failed 0  total cost 2 credits\n"
+    },
+    {
+      "command": "batch",
+      "kind": "json_fidelity",
+      "args": [
+        "batch",
+        "https://example.com",
+        "https://example.org",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"dispatched\": 2,\n  \"failed\": 0,\n  \"results\": [\n    {\n      \"target\": \"https://example.org\",\n      \"status\": 200,\n      \"cost\": 1,\n      \"ok\": true,\n      \"remaining_credits\": 932\n    },\n    {\n      \"target\": \"https://example.com\",\n      \"status\": 200,\n      \"cost\": 1,\n      \"ok\": true,\n      \"remaining_credits\": 932\n    }\n  ],\n  \"succeeded\": 2,\n  \"total_cost\": 2\n}\n"
+    },
+    {
+      "command": "batch",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "budget set",
+      "kind": "help",
+      "args": [
+        "budget",
+        "set",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Configure the month-to-date credit ceiling. Once set, scrape/google/batch refuse to dispatch a call whose estimate would push month spend past the ceiling (exit code 4).\n\nUsage:\n  scrape-do-pp-cli budget set [flags]\n\nExamples:\n  scrape-do-pp-cli budget set --max-credits 500\n\nFlags:\n  -h, --help                    help for set\n      --max-credits int         Month-to-date credit ceiling (0 to clear is not supported; set a positive value)\n      --max-monthly-pct float   Reserved: ceiling as a percent of the monthly cap\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'scrape-do-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "budget set",
+      "kind": "happy_path",
+      "args": [
+        "budget",
+        "set",
+        "--max-credits",
+        "500",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "would set budget ceiling (max-credits=500)\n"
+    },
+    {
+      "command": "budget set",
+      "kind": "json_fidelity",
+      "args": [
+        "budget",
+        "set",
+        "--max-credits",
+        "500",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"would_set_max_credits\": 500,\n  \"would_set_max_monthly_pct\": 0\n}\n"
+    },
+    {
+      "command": "budget set",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "budget set",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "cost",
+      "kind": "help",
+      "args": [
+        "cost",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the exact credit cost a request will incur, accounting for JS render,\nsuper (residential/mobile) proxy, Google endpoints, and documented per-domain\noverrides. Makes no API call and spends no credits — use it to pick the\ncheapest mode that works before dispatching a scrape or batch.\n\nCost table: datacenter=1, datacenter+render=5, super=10, super+render=25,\nany Google endpoint=10. Domain overrides (e.g. linkedin.com=30) supersede the\nproxy/render matrix.\n\nUsage:\n  scrape-do-pp-cli cost [flags]\n\nExamples:\n  scrape-do-pp-cli cost --url https://www.linkedin.com/company/example --render --super\n  scrape-do-pp-cli cost --google\n  scrape-do-pp-cli cost --url https://example.com --json\n\nFlags:\n      --google       Estimate a Google Scraper endpoint call (flat 10 credits)\n  -h, --help         help for cost\n      --render       Estimate with JS rendering enabled (raises cost)\n      --super        Estimate with the super (residential/mobile) proxy (raises cost)\n      --url string   Target URL to estimate a scrape for\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'scrape-do-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "cost",
+      "kind": "happy_path",
+      "args": [
+        "cost",
+        "--url",
+        "https://www.linkedin.com/company/example",
+        "--render",
+        "--super"
+      ],
+      "status": "pass",
+      "output_sample": "estimated cost: 30 credit(s)  [mode=domain:linkedin.com]  target=https://www.linkedin.com/company/example\n"
+    },
+    {
+      "command": "cost",
+      "kind": "json_fidelity",
+      "args": [
+        "cost",
+        "--url",
+        "https://www.linkedin.com/company/example",
+        "--render",
+        "--super",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"billed_on\": \"success only (2xx/400-target/404/410); 401/429/502/510 are free\",\n  \"estimated_credits\": 30,\n  \"mode\": \"domain:linkedin.com\",\n  \"render\": true,\n  \"super\": true,\n  \"target\": \"https://www.linkedin.com/company/example\"\n}\n"
+    },
+    {
+      "command": "cost",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  scrape-do-pp-cli doctor [flags]\n\nExamples:\n  scrape-do-pp-cli doctor\n  scrape-do-pp-cli doctor --json\n  scrape-do-pp-cli doctor --fail-on warn\n\nFlags:\n      --fail-on string   Exit non-zero when a health level is reached: stale, error. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'scrape-do-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  OK Auth: configured\n  OK Env Vars: OK 1/1 available\n  OK Verify Mode: normal operation\n  OK API: reachable\n  INFO Credentials: present, not verified. Run any read command to confirm the token works end-to-end.\n  config_path: /tmp/claude-501/printing-press-subprocess-3701737752/.config/scrape-do-pp-cli/config.toml\n  base_url: https://api.scrape.do\n  auth_source: env:SCRAPEDO_API_KEY\n  version: 1.0.0\n  INFO Cache: unknown\n    db_path: /tmp/claude-501/printing-press-subprocess-3701737752/.local/share/scrape-do-pp-cli/data.db\n    schema_version: 3\n    db_bytes: 122880\n    stale_after: 6h0m0s\n    hint: sync_state is empty; run 'scrape-do-pp-cli sync' to hydrate.\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"agentcookie\": \"not detected (optional)\",\n  \"api\": \"reachable\",\n  \"auth\": \"configured\",\n  \"auth_source\": \"env:SCRAPEDO_API_KEY\",\n  \"base_url\": \"https://api.scrape.do\",\n  \"cache\": {\n    \"db_bytes\": 122880,\n    \"db_path\": \"/tmp/claude-501/printing-press-subprocess-3701737752/.local/share/scrape-do-pp-cli/data.db\",\n    \"hint\": \"sync_state is empty; run 'scrape-do-pp-cli sync' to hydrate.\",\n    \"resources\": null,\n    \"schema_version\": 3,\n    \"stale_after\": \"6h0m0s\",\n    \"status\": \"unknown\"\n  },\n  \"config\": \"ok\",\n  \"config_path\": \"/tmp/claude-501/printing-press-subprocess-3701737752/.config/scrape-do-pp-cli/config.toml\",\n  \"credentials\": \"present, not verified. Run any read command to confirm the token works end-to-end.\",\n  \"env_vars\": \"OK 1/1 available\",\n  \"verify_mode\": \"normal operation\",\n  \"version\": \"1.0.0\"\n}\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "drift",
+      "kind": "help",
+      "args": [
+        "drift",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Compare the two most recent locally-stored SERP snapshots for a query (and\nits locale tuple) and report per-domain rank movement: who moved up or down,\nwho is newly ranking, and who dropped off. Reads only the local store — no API\ncall, no credits. Seed it by running 'google search \"\u003cquery\u003e\"' at least twice.\n\nUsage:\n  scrape-do-pp-cli drift \u003cquery\u003e [flags]\n\nExamples:\n  scrape-do-pp-cli drift \"best crm software\"\n  scrape-do-pp-cli drift \"best crm software\" --gl us --hl en --json\n\nFlags:\n      --db string              Database path\n      --device string          Device that keys the snapshot (must match the search)\n      --gl string              Country code that keys the snapshot (must match the search)\n      --google-domain string   Google domain that keys the snapshot (must match the search)\n  -h, --help                   help for drift\n      --hl string              Language code that keys the snapshot (must match the search)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'scrape-do-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "drift",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [drift] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "drift",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [drift] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "drift",
+      "kind": "error_path",
+      "args": [
+        "drift",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"movers\": [],\n  \"note\": \"need at least two snapshots for \\\"__printing_press_invalid__\\\"; run 'scrape-do-pp-cli google search \\\"__printing_press_invalid__\\\"' twice (over time) to seed them\",\n  \"param_hash\": \"49341d1406984ff57beae50d4b387fcb54af1d5ada967f7109307059429bfe9a\",\n  \"query\": \"__printing_press_invalid__\"\n}\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  scrape-do-pp-cli feedback list [flags]\n\nExamples:\n  scrape-do-pp-cli feedback list\n  scrape-do-pp-cli feedback list --limit 5\n  scrape-do-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'scrape-do-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "google flights",
+      "kind": "help",
+      "args": [
+        "google",
+        "flights",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Scrape Google Flights results (flat 10 credits, governed)\n\nUsage:\n  scrape-do-pp-cli google flights \u003cquery\u003e [flags]\n\nExamples:\n  scrape-do-pp-cli google flights \"JFK to LAX\" --gl us --json\n\nFlags:\n      --agent-id string        Attribution id for the credit ledger (or set SCRAPEDO_AGENT_ID)\n      --device string          Device emulation: desktop or mobile\n      --gl string              Country code for localization (e.g. us, gb, de)\n      --google-domain string   Google domain to query (e.g. google.com, google.co.uk)\n  -h, --help                   help for flights\n      --hl string              Interface language code (e.g. en, es, de)\n      --max-credits int        Refuse to dispatch if month-to-date spend + this call would exceed N credits\n      --param stringArray      Extra endpoint param as key=value (repeatable)\n      --start int              Result offset for pagination (0, 10, 20, ...)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'scrape-do-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "google flights",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "google flights",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "google flights",
+      "kind": "error_path",
+      "args": [
+        "google",
+        "flights",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"error\": \"departure_id is required (IATA or comma-separated IATAs)\"\n}\n"
+    },
+    {
+      "command": "google hotels",
+      "kind": "help",
+      "args": [
+        "google",
+        "hotels",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Scrape Google Hotels results (flat 10 credits, governed)\n\nUsage:\n  scrape-do-pp-cli google hotels \u003cquery\u003e [flags]\n\nExamples:\n  scrape-do-pp-cli google hotels \"hotels in paris\" --gl us --json\n\nFlags:\n      --agent-id string        Attribution id for the credit ledger (or set SCRAPEDO_AGENT_ID)\n      --device string          Device emulation: desktop or mobile\n      --gl string              Country code for localization (e.g. us, gb, de)\n      --google-domain string   Google domain to query (e.g. google.com, google.co.uk)\n  -h, --help                   help for hotels\n      --hl string              Interface language code (e.g. en, es, de)\n      --max-credits int        Refuse to dispatch if month-to-date spend + this call would exceed N credits\n      --param stringArray      Extra endpoint param as key=value (repeatable)\n      --start int              Result offset for pagination (0, 10, 20, ...)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'scrape-do-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "google hotels",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "google hotels",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "google hotels",
+      "kind": "error_path",
+      "args": [
+        "google",
+        "hotels",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"error\": \"check_in_date is required (format: YYYY-MM-DD)\"\n}\n"
+    },
+    {
+      "command": "google maps",
+      "kind": "help",
+      "args": [
+        "google",
+        "maps",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search Google Maps places by query (flat 10 credits, governed)\n\nUsage:\n  scrape-do-pp-cli google maps \u003cquery\u003e [flags]\n\nExamples:\n  scrape-do-pp-cli google maps \"coffee shops in austin\" --gl us --json\n\nFlags:\n      --agent-id string        Attribution id for the credit ledger (or set SCRAPEDO_AGENT_ID)\n      --device string          Device emulation: desktop or mobile\n      --gl string              Country code for localization (e.g. us, gb, de)\n      --google-domain string   Google domain to query (e.g. google.com, google.co.uk)\n  -h, --help                   help for maps\n      --hl string              Interface language code (e.g. en, es, de)\n      --max-credits int        Refuse to dispatch if month-to-date spend + this call would exceed N credits\n      --param stringArray      Extra endpoint param as key=value (repeatable)\n      --start int              Result offset for pagination (0, 10, 20, ...)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'scrape-do-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "google maps",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "google maps",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "google maps",
+      "kind": "error_path",
+      "args": [
+        "google",
+        "maps",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"local_results\":[{\"address\":\"\u003credacted\u003e\",\"data_cid\":\"16061910080621087538\",\"data_id\":\"0x89c24fb4eecc3605:0xdee75e1e61af8b32\",\"gps_coordinates\":{\"latitude\":40.796164999999995,\"longitude\":-73.946108},\"hours\":\"Open · Closes 6 PM\",\"open_state\":\"Open · Closes 6 PM\",\"operating_hours\":{\"friday\":\"11 AM–6 PM\",\"monday\":\"11 AM–6 PM\",\"saturday\":\"Closed\",\"sunday\":\"Closed\",\"thursday\":\"11 AM–6 PM\",\"tuesday\":\"11 AM–6 PM\",\"wednesday\":\"11 AM–6 PM\"},\"phone\":\"\u003credacted\u003e\",\"place_id\":\"ChIJBTbM7rRPwokRMouvYR5e594\",\"position\":1,\"provider_id\":\"/g/11cm401rj9\",\"rating\":5,\"reviews\":5,\"thumbnail\":\"https://lh3.googleusercontent.com/gps-cs-s/APNQkAFm-Y2SZHZK0EpbPV5w_HMFJ-fLsVoa6MrHsdMXzDr2Q2USLGYMb84JVgADrkRFDQB5ZYD7JVAVhEeiZVf_2QT7QAzjhLOegpEMNgunxOCsWneGCegt7TFZx-rtJfiFIHeK9NAG=w92-h92-k-no\",\"title\":\"SIGNS DEPOT NYC\",\"type\":\"Graphic designer\",\"type_id\":\"graphic_designer\",\"type_ids\":[\"graphic_designer\",\"apparel_company\",\"marketing_agency\",\"screen_printing_shop\",\"sign_shop\",\"video_editing_service\",\"website_designer\"],\"types\":[\"Graphic designer\",\"Apparel company\",\"Marketing agency\",\"Screen printing shop\",\"Sign shop\",\"Video editing service\",\"Website designer\"],\"user_review\":\"\\\"I had an excellent experience with this sign company from start to finish.\\\"\",\"website\":\"http://www.signsdepotnyc.com/\"},{\"address\":\"\u003credacted\u003e\",\"data_cid\":\"1092340328311782058\",\"data_id\":\"0x89c2f7fe31b06c13:0xf28c5bdbadb7aaa\",\"extensions\":[{\"service_options\":[\"Delivery\",\"Onsite services\"]},{\"planning\":[\"Quick visit\"]},{\"payments\":[\"Credit cards\",\"Debit cards\"]}],\"gps_coordinates\":{\"latitude\":40.8244002,\"longitude\":-73.9479698},\"hours\":\"Open · Closes 6 PM\",\"open_state\":\"Open · Closes 6 PM\",\"operating_hours\":{\"friday\":\"10 AM–6 PM\",\"monday\":\"10 AM–6 PM\",\"saturday\":\"Closed\",\"sunday\":\"Closed\",\"thursday\":\"10 AM–6 PM\",\"tuesday\":\"10 AM–6 PM\",\"wednesday\":\"10 AM–6 PM\"},\"phone\":\"\u003credacted\u003e\",\"place_id\":\"ChIJE2ywMf73wokRqnrbur3FKA8\",\"position\":2,\"provider_id\":\"/g/11hpcmr4l7\",\"rating\":4.9,\"reviews\":105,\"service_options\":{\"delivery\":true},\"thumbnail\":\"https://lh3.googleusercontent.com/gps-cs-s/APNQkAGfdsis2rxdT_z85rbgdF-fMEcqjTYmPb3nhQp8g6l-pJ4IZtQHod2ir5fRdnerwUjY3ARGy71xiVhg35uqcGQLZhcGafcziYubv6nKF8RnJ2PK25p6WOdGo19l4Kj_KPBSxkS_dQ=w164-h92-k-no\",\"title\":\"PRINTING DEPOT NYC\",\"type\":\"Print shop\",\"type_id\":\"print_shop\",\"type_ids\":[\"print_shop\",\"design_agency\",\"graphic_designer\",\"internet_marketing_service\",\"packaging_company\",\"passport_photo_processor\",\"photography_service\",\"screen_printing_shop\",\"sign_shop\",\"website_designer\"],\"types\":[\"Print shop\",\"Design agency\",\"Graphic designer\",\"Internet marketing service\",\"Packaging company\",\"Passport photo processor\",\"Photography service\",\"Screen printing shop\",\"Sign shop\",\"Website designer\"],\"unsupported_extensions\":[{\"planning\":[\"Appointment required\"]},{\"recycling\":[\"Electronics\"]},{\"payments\":[\"Cash-only\"]},{\"not_for_display\":[\"Mask required\"]}],\"user_review\":\"\\\"Fast printing, fair prices and they can do it all!\\\"\",\"website\":\"http://www.printingdepotnyc.com/\"},{\"address\":\"\u003credacted\u003e\",\"data_cid\":\"15288099913398781955\",\"data_id\":\"0x89c2f75c35120d47:0xd42a3ddf14d08803\",\"extensions\":[{\"from_the_business\":[\"Identifies as LGBTQ+ owned\",\"Identifies as veteran-owned\",\"Identifies as women-owned\"]},{\"service_options\":[\"Online appointments\",\"Onsite services\"]},{\"crowd\":[\"LGBTQ+ friendly\",\"Transgender safespace\"]},{\"planning\":[\"Appointment required\"]}],\"gps_coordinates\":{\"latitude\":40.8004915,\"longitude\":-73.93857679999999},\"hours\":\"Open · Closes 5 PM\",\"open_state\":\"Open · Closes 5 PM\",\"operating_hours\":{\"friday\":\"9 AM–5 PM\",\"monday\":\"9 AM–5 PM\",\"saturday\":\"9 AM–5 PM\",\"sunday\":\"9 AM–5 PM\",\"thursday\":\"9 AM–5 PM\",\"tuesday\":\"9 AM–5 PM\",\"wednesday\":\"9 AM–5 PM\"},\"phone\":\"\u003credacted\u003e\",\"place_id\":\"ChIJRw0SNVz3wokRA4jQFN89KtQ\",\"position\":3,\"provider_id\":\"/g/11q96tzndr\",\"rating\":5,\"reviews\":4,\"service_options\":{\"online_appointments\":true,\"onsite_services\":true},\"thumbnail\":\"https://lh3.googleusercontent.com/gps-cs-s/APNQkAE_mWBVnfBK3LsjaVuA01ZiqBzcSfLFsCIN-LfBiNNfkiRXcHsj5f6IEbzpp1RLJsC0E_vynzQ5LVJseDr4dhT-L-WiEiB7xmgd…[truncated]"
+    },
+    {
+      "command": "google news",
+      "kind": "help",
+      "args": [
+        "google",
+        "news",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Scrape Google News results (flat 10 credits, governed)\n\nUsage:\n  scrape-do-pp-cli google news \u003cquery\u003e [flags]\n\nExamples:\n  scrape-do-pp-cli google news \"openai\" --gl us --json\n\nFlags:\n      --agent-id string        Attribution id for the credit ledger (or set SCRAPEDO_AGENT_ID)\n      --device string          Device emulation: desktop or mobile\n      --gl string              Country code for localization (e.g. us, gb, de)\n      --google-domain string   Google domain to query (e.g. google.com, google.co.uk)\n  -h, --help                   help for news\n      --hl string              Interface language code (e.g. en, es, de)\n      --max-credits int        Refuse to dispatch if month-to-date spend + this call would exceed N credits\n      --param stringArray      Extra endpoint param as key=value (repeatable)\n      --start int              Result offset for pagination (0, 10, 20, ...)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'scrape-do-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "google news",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "google news",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "google news",
+      "kind": "error_path",
+      "args": [
+        "google",
+        "news",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "exit_code": 5,
+      "output_sample": "Error: scrape.do 502: upstream failure (not billed)\n"
+    },
+    {
+      "command": "google play",
+      "kind": "help",
+      "args": [
+        "google",
+        "play",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Scrape Google Play Store results (flat 10 credits, governed)\n\nUsage:\n  scrape-do-pp-cli google play \u003cquery\u003e [flags]\n\nExamples:\n  scrape-do-pp-cli google play \"notion\" --gl us --json\n\nFlags:\n      --agent-id string        Attribution id for the credit ledger (or set SCRAPEDO_AGENT_ID)\n      --device string          Device emulation: desktop or mobile\n      --gl string              Country code for localization (e.g. us, gb, de)\n      --google-domain string   Google domain to query (e.g. google.com, google.co.uk)\n  -h, --help                   help for play\n      --hl string              Interface language code (e.g. en, es, de)\n      --max-credits int        Refuse to dispatch if month-to-date spend + this call would exceed N credits\n      --param stringArray      Extra endpoint param as key=value (repeatable)\n      --start int              Result offset for pagination (0, 10, 20, ...)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'scrape-do-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "google play",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "google play",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "google play",
+      "kind": "error_path",
+      "args": [
+        "google",
+        "play",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"details\": \"You are not authorized to access this page. If you are using a browser, it can be related to that. You should use an http client like curl, programming language, or Postman.\",\n  \"error\": \":Access Denied\"\n}\n"
+    },
+    {
+      "command": "google search",
+      "kind": "help",
+      "args": [
+        "google",
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Run a Google web search and get pre-parsed JSON (organic_results, top_ads,\nrelated_questions, related_searches, knowledge_graph, ai_overview, and more).\nEach result is stored locally as a snapshot so 'drift' and 'movers' can diff\nrank changes offline. Cache-first: a recent identical query within --max-age is\nreused (no re-spend) unless --fresh is passed.\n\nUsage:\n  scrape-do-pp-cli google search \u003cquery\u003e [flags]\n\nExamples:\n  scrape-do-pp-cli google search \"best crm software\"\n  scrape-do-pp-cli google search \"coffee makers\" --gl us --hl en --json\n  scrape-do-pp-cli google search \"coffee makers\" --agent --select organic_results.position,organic_results.title,organic_results.link\n\nFlags:\n      --agent-id string        Attribution id for the credit ledger (or set SCRAPEDO_AGENT_ID)\n      --device string          Device emulation: desktop or mobile\n      --fresh                  Bypass the local cache and force a fresh (billed) search\n      --gl string              Country code for localization (e.g. us, gb, de)\n      --google-domain string   Google domain to query (e.g. google.com, google.co.uk)\n  -h, --help                   help for search\n      --hl string              Interface language code (e.g. en, es, de)\n      --max-credits int        Refuse to dispatch if month-to-date spend + this call would exceed N credits\n      --param stringArray      Extra endpoint param as key=value (repeatable)\n      --start int              Result offset for pagination (0, 10, 20, ...)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'scrape-do-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "google search",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "google search",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "google search",
+      "kind": "error_path",
+      "args": [
+        "google",
+        "search",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"ai_overview\": {\n    \"session_key\": \"e3909777be575d2736c526fe313e6220\",\n    \"state\": \"deferred\"\n  },\n  \"bottom_ads\": [],\n  \"discussions_and_forums\": [],\n  \"knowledge_graph\": null,\n  \"local_map\": null,\n  \"local_results\": null,\n  \"navigation\": [\n    {\n      \"title\": \"AI Mode\",\n      \"url\": \"https://google.com/search?q=__+printing+press+invalid+__\\u0026sca_esv=535308282edc524d\\u0026gl=us\\u0026hl=en\\u0026udm=50\\u0026fbs=ADc_l-aN0CWEZBOHjofHoaMMDiKpaEWjvZ2Py1XXV8d8KvlI3o6iwGk6Iv1tRbZIBNIVs-7DjmheGwJ9kkYLzOq5Q2x5_vUa7NlVh74273t1qYj0GEwYB8J2LG5eVyiIDA4gk4FUPF4qzy3OT4E3iFu44Nxfi0MvcGjweAy9EZfP8lmhJ7jsVRwJB5aZ2HSQ11lGXNgYNiZIM8ZA8BRLNX8BKw5UCEjGNQ\\u0026aep=1\\u0026ntc=1\\u0026sa=X\\u0026ved=2ahUKEwiHuZHlwOaUAxVmhv0HHemDGLAQ2J8OegQIExAD\"\n    },\n    {\n      \"title\": \"Images\",\n      \"url\": \"https://google.com/search?sca_esv=535308282edc524d\\u0026gl=us\\u0026hl=en\\u0026udm=2\\u0026fbs=ADc_l-aN0CWEZBOHjofHoaMMDiKpaEWjvZ2Py1XXV8d8KvlI3o6iwGk6Iv1tRbZIBNIVs-7DjmheGwJ9kkYLzOq5Q2x5_vUa7NlVh74273t1qYj0GEwYB8J2LG5eVyiIDA4gk4FUPF4qzy3OT4E3iFu44Nxfi0MvcGjweAy9EZfP8lmhJ7jsVRwJB5aZ2HSQ11lGXNgYNiZIM8ZA8BRLNX8BKw5UCEjGNQ\\u0026q=__+printing+press+invalid+__\\u0026sa=X\\u0026ved=2ahUKEwiHuZHlwOaUAxVmhv0HHemDGLAQtKgLegQIGRAB\"\n    },\n    {\n      \"title\": \"Shopping\",\n      \"url\": \"https://google.com/search?sca_esv=535308282edc524d\\u0026gl=us\\u0026hl=en\\u0026udm=28\\u0026fbs=ADc_l-aN0CWEZBOHjofHoaMMDiKpaEWjvZ2Py1XXV8d8KvlI3o6iwGk6Iv1tRbZIBNIVs-7DjmheGwJ9kkYLzOq5Q2x5_vUa7NlVh74273t1qYj0GEwYB8J2LG5eVyiIDA4gk4FUPF4qzy3OT4E3iFu44Nxfi0MvcGjweAy9EZfP8lmhJ7jsVRwJB5aZ2HSQ11lGXNgYNiZIM8ZA8BRLNX8BKw5UCEjGNQ\\u0026q=__+printing+press+invalid+__\\u0026ved=1t:220175\\u0026ictx=111\"\n    },\n    {\n      \"title\": \"Videos\",\n      \"url\": \"https://google.com/search?sca_esv=535308282edc524d\\u0026gl=us\\u0026hl=en\\u0026udm=7\\u0026fbs=ADc_l-aN0CWEZBOHjofHoaMMDiKpaEWjvZ2Py1XXV8d8KvlI3o6iwGk6Iv1tRbZIBNIVs-7DjmheGwJ9kkYLzOq5Q2x5_vUa7NlVh74273t1qYj0GEwYB8J2LG5eVyiIDA4gk4FUPF4qzy3OT4E3iFu44Nxfi0MvcGjweAy9EZfP8lmhJ7jsVRwJB5aZ2HSQ11lGXNgYNiZIM8ZA8BRLNX8BKw5UCEjGNQ\\u0026q=__+printing+press+invalid+__\\u0026sa=X\\u0026ved=2ahUKEwiHuZHlwOaUAxVmhv0HHemDGLAQtKgLegQIFhAB\"\n    },\n    {\n      \"title\": \"Forums\",\n      \"url\": \"https://google.com/search?sca_esv=535308282edc524d\\u0026gl=us\\u0026hl=en\\u0026udm=18\\u0026fbs=ADc_l-aN0CWEZBOHjofHoaMMDiKpaEWjvZ2Py1XXV8d8KvlI3o6iwGk6Iv1tRbZIBNIVs-7DjmheGwJ9kkYLzOq5Q2x5_vUa7NlVh74273t1qYj0GEwYB8J2LG5eVyiIDA4gk4FUPF4qzy3OT4E3iFu44Nxfi0MvcGjweAy9EZfP8lmhJ7jsVRwJB5aZ2HSQ11lGXNgYNiZIM8ZA8BRLNX8BKw5UCEjGNQ\\u0026q=__+printing+press+invalid+__\\u0026sa=X\\u0026ved=2ahUKEwiHuZHlwOaUAxVmhv0HHemDGLAQs6gLegQIFxAB\"\n    },\n    {\n      \"title\": \"Short videos\",\n      \"url\": \"https://google.com/search?sca_esv=535308282edc524d\\u0026gl=us\\u0026hl=en\\u0026udm=39\\u0026fbs=ADc_l-aN0CWEZBOHjofHoaMMDiKpaEWjvZ2Py1XXV8d8KvlI3o6iwGk6Iv1tRbZIBNIVs-7DjmheGwJ9kkYLzOq5Q2x5_vUa7NlVh74273t1qYj0GEwYB8J2LG5eVyiIDA4gk4FUPF4qzy3OT4E3iFu44Nxfi0MvcGjweAy9EZfP8lmhJ7jsVRwJB5aZ2HSQ11lGXNgYNiZIM8ZA8BRLNX8BKw5UCEjGNQ\\u0026q=__+printing+press+invalid+__\\u0026sa=X\\u0026ved=2ahUKEwiHuZHlwOaUAxVmhv0HHemDGLAQs6gLegQIFRAB\"\n    }\n  ],\n  \"organic_results\": [\n    {\n      \"displayed_link\": \"https://quizlet.com › week-4-comm-10-technology-and...\",\n      \"link\": \"https://quizlet.com/267215772/week-4-comm-10-technology-and-society-flash-cards\",\n      \"position\": 1,\n      \"snippet\": \"Gutenberg. invented printing press in 1440. What did the invention of the printing press include/entail? - adapted from? - used what? - made possible what? 1 ...Read more\",\n      \"snippet_highlighted_words\": [\n        \"invented printing press\",\n        \"printing press\"\n      ],\n      \"source\": \"Quizlet\",\n      \"title\": \"Week 4 - COMM 10: Technology and Society Flashcards\"\n    },\n    {\n      \"displayed_link\": \"90+ comments · 7 years ago\",\n      \"link\": \"https://www.facebook.com/groups/CivilServiceExamCommunity/posts/436833796797023\",\n      \"position\": 2,\n      \"snippet\": \"WORD ANALOGY AUTOMOBILE is to CONVEYANCE as PRINTING PRESS is to ______. 1. book 2. duplication √√√ 3. installation 4. machine 5.\",\n      \"snippet_highlighted_word…[truncated]"
+    },
+    {
+      "command": "google shopping",
+      "kind": "help",
+      "args": [
+        "google",
+        "shopping",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Scrape Google Shopping results (flat 10 credits, governed)\n\nUsage:\n  scrape-do-pp-cli google shopping \u003cquery\u003e [flags]\n\nExamples:\n  scrape-do-pp-cli google shopping \"coffee maker\" --gl us --json\n\nFlags:\n      --agent-id string        Attribution id for the credit ledger (or set SCRAPEDO_AGENT_ID)\n      --device string          Device emulation: desktop or mobile\n      --gl string              Country code for localization (e.g. us, gb, de)\n      --google-domain string   Google domain to query (e.g. google.com, google.co.uk)\n  -h, --help                   help for shopping\n      --hl string              Interface language code (e.g. en, es, de)\n      --max-credits int        Refuse to dispatch if month-to-date spend + this call would exceed N credits\n      --param stringArray      Extra endpoint param as key=value (repeatable)\n      --start int              Result offset for pagination (0, 10, 20, ...)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'scrape-do-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "google shopping",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "google shopping",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "google shopping",
+      "kind": "error_path",
+      "args": [
+        "google",
+        "shopping",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"carousel_filters\": [\n    {\n      \"shoprs\": \"CAEYAyoaX19wcmludGluZ19wcmVzc19pbnZhbGlkX18yDggDEgZOZWFyYnkYAkgB\",\n      \"text\": \"Nearby\"\n    },\n    {\n      \"shoprs\": \"CAESBEoCGAEYBioaX19wcmludGluZ19wcmVzc19pbnZhbGlkX18yFQgGEgdPbiBzYWxlGAIiBEoCGAFIAQ\",\n      \"text\": \"Deals\"\n    }\n  ],\n  \"pagination\": {\n    \"current\": 0,\n    \"next\": \"/plugin/google/shopping?q=__printing_press_invalid__\\u0026start=3\"\n  },\n  \"search_information\": {\n    \"city\": \"\",\n    \"country\": \"\",\n    \"organic_results_state\": \"\",\n    \"page_title\": \"__printing_press_invalid__ - Google Shopping\",\n    \"query_displayed\": \"__printing_press_invalid__\",\n    \"results_for\": \"\",\n    \"shopping_results_state\": \"Results for exact spelling\",\n    \"time_taken_displayed\": 0,\n    \"total_results\": 0\n  },\n  \"search_parameters\": {\n    \"device\": \"desktop\",\n    \"engine\": \"google_shopping\",\n    \"gl\": \"us\",\n    \"google_domain\": \"google.com\",\n    \"hl\": \"en\",\n    \"q\": \"__printing_press_invalid__\",\n    \"start\": 0\n  },\n  \"shopping_results\": [\n    {\n      \"catalog_id\": \"9251092671231998383\",\n      \"extensions\": [\n        \"Low price\"\n      ],\n      \"extracted_old_price\": 180,\n      \"extracted_price\": 168.08,\n      \"immersive_product_page_token\": \"eyJlaSI6IlRia2Rhb1hPQmFTcmtkVVBsTDJrd0FrIiwicHJvZHVjdGlkIjoiMTc0MTYwNjcwNzk4Mzc0MTI2NzkiLCJjYXRhbG9naWQiOiI5MjUxMDkyNjcxMjMxOTk4MzgzIiwiaGVhZGxpbmVPZmZlckRvY2lkIjoiMTY1NTU1ODI4MzMxNzk2NjY4MzIiLCJpbWFnZURvY2lkIjoiNjAyNTY3MDU5MjEyNjE5MDU3MSIsInJkcyI6IlBDXzEyMTU0MDUzMjcwMzE1NTU0ODI1fFBST0RfUENfMTIxNTQwNTMyNzAzMTU1NTQ4MjUiLCJxdWVyeSI6Il9fcHJpbnRpbmdfcHJlc3NfaW52YWxpZF9fIiwiZ3BjaWQiOiIxMjE1NDA1MzI3MDMxNTU1NDgyNSIsIm1pZCI6IiIsInB2dCI6ImhnIiwib2FwdmZjIjoiRXZjQ0NyY0NRVTF1TXkxNVUwbEpjRlpmUlRBelVUaFRiekJQVGxJMVZVcG5PVTgyTUZSSFQwRlFZMWx2U0hCV1MwbDJZamxCTVdaSFZtMVlhVXA2ZGs5UVQyUmpVbkZNVkZvMWNtaFZiMFI1WVV4MWVsRndOMmhQZVZCUGNsZDVjMHN6VmpWaGIweDJiMlZtZEV0WFltVkZVMkZMUXpWM1RGbFRXSFZRVHpCUlNFUTBhelI0WVdjNVdFcHVWRWhGVFZCS1pqQjJURzA1VjNGdmQzbzNlbTFwWWtkZk4zRndXbFJHWmxWZkxWVlNUakpQVTJ0Uk1HSkpZak5sWkdwZmRVcE9SemxOVW14TGFVeFBlSFpyWW0xQ2VXRjNWa05sUWpCaGJqZDRhMUpJVTFCTVlYQkNObTFGTVc4MFNTMTZiRlJMZW1JMFpEVnpPRUpaVVV4Q1dXZ3pRMnBqTTJGNFp5MTZTSEJUT0hCNVNEVkhUMmhLZFVWeFkyMDFWMlZYVkVsbVp6bDVlbUl6VVZNNWRrNDBaV0ZqUm1KQ1RFZE9jSEJ5TW1jU0YxUmlhMlJoYjFoUFFtRlRjbXRrVlZCc1RESnJkMEZyR2lKQlNrdE1SbTFNY1haWlNYSXRaamhQTkROV2JYRlNORGhxTWtFMGF6TlVaMVpSIiwieHNyZiI6IkFLUE9yMVJFbVZwc2pBOUFCcUg1ZVN4MDd5QUVyT210RXc6MTc4MDMzMjg3NzQ0MCIsInNzaWQiOiIyNTE0MjUiLCJtaW50ZWRfYXQiOjE3ODAzMzI4Nzc2MDUsInV1bGUiOm51bGwsImdsIjoidXMiLCJobCI6ImVuIn0=.7Ux4Z1Q2d4FqxfZe6ls6-JN8V5Z50m61DuE1K5TC2bc\",\n      \"multiple_sources\": true,\n      \"old_price\": \"Usually $180\",\n      \"position\": 1,\n      \"price\": \"$168.08\",\n      \"product_id\": \"9251092671231998383\",\n      \"product_link\": \"https://www.google.com/search?ibp=oshop\\u0026q=__printing_press_invalid__\\u0026prds=catalogid:9251092671231998383,headlineOfferDocid:16555582833179666832,imageDocid:6025670592126190571,rds:PC_12154053270315554825|PROD_PC_12154053270315554825,gpcid:12154053270315554825,pvt:hg\\u0026hl=en\\u0026gl=us\\u0026udm=28\",\n      \"rating\": 5,\n      \"reviews\": 30,\n      \"source\": \"Etsy\",\n      \"source_icon\": \"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAM1BMVEXxZB769vP30b3549n0m273v6P1rYjziFPydjn57eX2tpb0pHv3yLH55NjybSvzf0f52su8k95XAAAAgklEQVQ4jd2RSQ7EIAwEaRazhuT/rx2ENEomJvZ5UuKARAmatjEvIrobhRnVAc5PagAav8QD4bsnWFnoWRFMEIV9rCoJeeenV8EjysKG9CRsdpDxLBxEVCygZGhahqgJxmnCfKfLQlz85HcWC6HinHHiZfkyCkKjSeBldXtjEfKf+QDJGgNcEP3HywAAAABJRU5ErkJggg==\",\n      \"tag\": \"Low price\",\n      \"thumbnail\": \"data:image/webp;base64,UklGRiQZAABXRUJQVlA4IBgZAAAQXgCdASrAAMUAPk0ijkUioiEUWk3AKATEpu4MAAZbRFdd+2T0/ncWJ/Bfjb+pcj/YHmidIfMZ8w/9P+tvuk/OH/a9wb9SP9l/cPMz97/7g+o/+jf4T9uPeL/3v7Y+7X/S+of/c/731pX919Rv9nPTh/df4aP3J/dn2uuvu1CflH+o8KfNp8b90PjZvF2kfZV996z/7Hv7+O2oR7H/y3p0fYdx3un+l9BT3g+vf8L1KZpv3X7YeeByD3qvsC/nr/ferToxeuf2p+Bn9duuT6Ph1TZkTPxZ+D5jY4NoUmwe+jIKQgF3b2sDTFOnVvDpa9vFjHtIQx9YC3+CaMucaqbrGbFLl/UAIw/i+TqWE7zsAJ45rgZbjl8D4lsNqX/JR9OacRiVV9Hg/YKMUNYydlJXH49yN8zC9oiIGjkV8vTbg/9CTX9YsRMoZYIPnd4ZtI83rOLKZzWPsEzVnVkb41MwDtw0NeeU0Q5kYq28h/5DbHl69t1XJ3r20WiEZVu…[truncated]"
+    },
+    {
+      "command": "google trends",
+      "kind": "help",
+      "args": [
+        "google",
+        "trends",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Scrape Google Trends results (flat 10 credits, governed)\n\nUsage:\n  scrape-do-pp-cli google trends \u003cquery\u003e [flags]\n\nExamples:\n  scrape-do-pp-cli google trends \"bitcoin\" --gl us --json\n\nFlags:\n      --agent-id string        Attribution id for the credit ledger (or set SCRAPEDO_AGENT_ID)\n      --device string          Device emulation: desktop or mobile\n      --gl string              Country code for localization (e.g. us, gb, de)\n      --google-domain string   Google domain to query (e.g. google.com, google.co.uk)\n  -h, --help                   help for trends\n      --hl string              Interface language code (e.g. en, es, de)\n      --max-credits int        Refuse to dispatch if month-to-date spend + this call would exceed N credits\n      --param stringArray      Extra endpoint param as key=value (repeatable)\n      --start int              Result offset for pagination (0, 10, 20, ...)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'scrape-do-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "google trends",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "google trends",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "google trends",
+      "kind": "error_path",
+      "args": [
+        "google",
+        "trends",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"interest_by_region\": [\n    {\n      \"extracted_value\": 0,\n      \"geo\": \"US-MS\",\n      \"location\": \"Mississippi\",\n      \"max_value_index\": 0,\n      \"value\": \"\\u003c1\"\n    },\n    {\n      \"extracted_value\": 0,\n      \"geo\": \"US-AK\",\n      \"location\": \"Alaska\",\n      \"max_value_index\": 0,\n      \"value\": \"\"\n    },\n    {\n      \"extracted_value\": 0,\n      \"geo\": \"US-WY\",\n      \"location\": \"Wyoming\",\n      \"max_value_index\": 0,\n      \"value\": \"\"\n    },\n    {\n      \"extracted_value\": 0,\n      \"geo\": \"US-AZ\",\n      \"location\": \"Arizona\",\n      \"max_value_index\": 0,\n      \"value\": \"\"\n    },\n    {\n      \"extracted_value\": 0,\n      \"geo\": \"US-CA\",\n      \"location\": \"California\",\n      \"max_value_index\": 0,\n      \"value\": \"\"\n    },\n    {\n      \"extracted_value\": 0,\n      \"geo\": \"US-CO\",\n      \"location\": \"Colorado\",\n      \"max_value_index\": 0,\n      \"value\": \"\"\n    },\n    {\n      \"extracted_value\": 0,\n      \"geo\": \"US-CT\",\n      \"location\": \"Connecticut\",\n      \"max_value_index\": 0,\n      \"value\": \"\"\n    },\n    {\n      \"extracted_value\": 0,\n      \"geo\": \"US-DC\",\n      \"location\": \"District of Columbia\",\n      \"max_value_index\": 0,\n      \"value\": \"\"\n    },\n    {\n      \"extracted_value\": 0,\n      \"geo\": \"US-DE\",\n      \"location\": \"Delaware\",\n      \"max_value_index\": 0,\n      \"value\": \"\"\n    },\n    {\n      \"extracted_value\": 0,\n      \"geo\": \"US-FL\",\n      \"location\": \"Florida\",\n      \"max_value_index\": 0,\n      \"value\": \"\"\n    },\n    {\n      \"extracted_value\": 0,\n      \"geo\": \"US-GA\",\n      \"location\": \"Georgia\",\n      \"max_value_index\": 0,\n      \"value\": \"\"\n    },\n    {\n      \"extracted_value\": 0,\n      \"geo\": \"US-HI\",\n      \"location\": \"Hawaii\",\n      \"max_value_index\": 0,\n      \"value\": \"\"\n    },\n    {\n      \"extracted_value\": 0,\n      \"geo\": \"US-IA\",\n      \"location\": \"Iowa\",\n      \"max_value_index\": 0,\n      \"value\": \"\"\n    },\n    {\n      \"extracted_value\": 0,\n      \"geo\": \"US-ID\",\n      \"location\": \"Idaho\",\n      \"max_value_index\": 0,\n      \"value\": \"\"\n    },\n    {\n      \"extracted_value\": 0,\n      \"geo\": \"US-IL\",\n      \"location\": \"Illinois\",\n      \"max_value_index\": 0,\n      \"value\": \"\"\n    },\n    {\n      \"extracted_value\": 0,\n      \"geo\": \"US-IN\",\n      \"location\": \"Indiana\",\n      \"max_value_index\": 0,\n      \"value\": \"\"\n    },\n    {\n      \"extracted_value\": 0,\n      \"geo\": \"US-KS\",\n      \"location\": \"Kansas\",\n      \"max_value_index\": 0,\n      \"value\": \"\"\n    },\n    {\n      \"extracted_value\": 0,\n      \"geo\": \"US-KY\",\n      \"location\": \"Kentucky\",\n      \"max_value_index\": 0,\n      \"value\": \"\"\n    },\n    {\n      \"extracted_value\": 0,\n      \"geo\": \"US-LA\",\n      \"location\": \"Louisiana\",\n      \"max_value_index\": 0,\n      \"value\": \"\"\n    },\n    {\n      \"extracted_value\": 0,\n      \"geo\": \"US-MA\",\n      \"location\": \"Massachusetts\",\n      \"max_value_index\": 0,\n      \"value\": \"\"\n    },\n    {\n      \"extracted_value\": 0,\n      \"geo\": \"US-MD\",\n      \"location\": \"Maryland\",\n      \"max_value_index\": 0,\n      \"value\": \"\"\n    },\n    {\n      \"extracted_value\": 0,\n      \"geo\": \"US-ME\",\n      \"location\": \"Maine\",\n      \"max_value_index\": 0,\n      \"value\": \"\"\n    },\n    {\n      \"extracted_value\": 0,\n      \"geo\": \"US-MI\",\n      \"location\": \"Michigan\",\n      \"max_value_index\": 0,\n      \"value\": \"\"\n    },\n    {\n      \"extracted_value\": 0,\n      \"geo\": \"US-MN\",\n      \"location\": \"Minnesota\",\n      \"max_value_index\": 0,\n      \"value\": \"\"\n    },\n    {\n      \"extracted_value\": 0,\n      \"geo\": \"US-MO\",\n      \"location\": \"Missouri\",\n      \"max_value_index\": 0,\n      \"value\": \"\"\n    },\n    {\n      \"extracted_value\": 0,\n      \"geo\": \"US-AL\",\n      \"location\": \"Alabama\",\n      \"max_value_index\": 0,\n      \"value\": \"\"\n    },\n    {\n      \"extracted_value\": 0,\n      \"geo\": \"US-MT\",\n      \"location\": \"Montana\",\n      \"max_value_index\": 0,\n      \"value\": \"\"\n    },\n    {\n      \"extracted_value\": 0,\n      \"geo\": \"US-NC\",\n      \"location\": \"North Carolina\",\n      \"max_value_index\": 0,\n      \"value\": \"\"\n    },\n    {\n      \"extracted_value\": 0,\n      \"geo\": \"US-ND\",\n      \"location\": \"North Dakota\",\n      \"max_value_index\": 0,\n      \"value\": \"\"\n    },\n    {\n      \"ext…[truncated]"
+    },
+    {
+      "command": "import",
+      "kind": "help",
+      "args": [
+        "import",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Import data from a JSONL file by issuing POST requests for each record.\nEach line must be a valid JSON object. Failed records are logged to stderr\nbut do not stop the import.\n\nUsage:\n  scrape-do-pp-cli import \u003cresource\u003e [flags]\n\nExamples:\n  # Import from a JSONL file\n  scrape-do-pp-cli import \u003cresource\u003e --input data.jsonl\n\n  # Dry-run to preview without sending\n  scrape-do-pp-cli import \u003cresource\u003e --input data.jsonl --dry-run\n\n  # Import from stdin\n  cat data.jsonl | scrape-do-pp-cli import \u003cresource\u003e --input -\n\nFlags:\n      --batch-size int   Records per batch (future: batch API support) (default 1)\n      --dry-run          Preview import without sending requests\n  -h, --help             help for import\n  -i, --input string     Input JSONL file path (use - for stdin)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'scrape-do-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "import",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "error_path",
+      "args": [
+        "import",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: required flag(s) \"input\" not set\n"
+    },
+    {
+      "command": "movers",
+      "kind": "help",
+      "args": [
+        "movers",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Scan every locally-tracked query (those with at least two stored SERP\nsnapshots), diff each query's two most recent snapshots, and list only the\nqueries whose largest rank movement meets the --threshold. Turns hundreds of\ntracked keywords into a short 'what changed' list. Offline — no API call, no\ncredits. Seed it by running 'google search' on your keywords over time.\n\nUsage:\n  scrape-do-pp-cli movers [flags]\n\nExamples:\n  scrape-do-pp-cli movers --threshold 3\n  scrape-do-pp-cli movers --threshold 5 --agent\n\nFlags:\n      --db string       Database path\n  -h, --help            help for movers\n      --threshold int   Minimum absolute position movement to report (default 3)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'scrape-do-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "movers",
+      "kind": "happy_path",
+      "args": [
+        "movers",
+        "--threshold",
+        "3"
+      ],
+      "status": "pass",
+      "output_sample": "no queries moved by \u003e= 3 positions across 0 tracked queries\n"
+    },
+    {
+      "command": "movers",
+      "kind": "json_fidelity",
+      "args": [
+        "movers",
+        "--threshold",
+        "3",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"movers\": [],\n  \"threshold\": 3,\n  \"tracked_queries\": 0\n}\n"
+    },
+    {
+      "command": "movers",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  scrape-do-pp-cli profile delete \u003cname\u003e [flags]\n\nExamples:\n  scrape-do-pp-cli profile delete my-defaults --yes\n  scrape-do-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'scrape-do-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  scrape-do-pp-cli profile list [flags]\n\nExamples:\n  scrape-do-pp-cli profile list\n  scrape-do-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'scrape-do-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under \u003cname\u003e. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile and --config).\n\nUsage:\n  scrape-do-pp-cli profile save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...] [flags]\n\nExamples:\n  scrape-do-pp-cli profile save my-defaults --json --compact\n  scrape-do-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'scrape-do-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  scrape-do-pp-cli profile show \u003cname\u003e [flags]\n\nExamples:\n  scrape-do-pp-cli profile show my-defaults\n  scrape-do-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'scrape-do-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  scrape-do-pp-cli profile use \u003cname\u003e [flags]\n\nExamples:\n  scrape-do-pp-cli profile use my-defaults\n  scrape-do-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'scrape-do-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "scrape",
+      "kind": "help",
+      "args": [
+        "scrape",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Scrape a URL through the Scrape.do proxy with full control over rendering,\nproxy type, geo-targeting, output format, and browser behavior. Every call\nacquires a shared concurrency lease (so parallel agents stay under the plan's\nConcurrentRequest cap) and debits the local credit ledger from the authoritative\nper-call cost header.\n\nBy default the scraped content is written to stdout (pipe it to a file or a\nparser); cost and remaining-credit info go to stderr. Use --json for a\nstructured envelope or --out to write the body to a file.\n\nUsage:\n  scrape-do-pp-cli scrape \u003curl\u003e [flags]\n\nExamples:\n  scrape-do-pp-cli scrape \"https://example.com\"\n  scrape-do-pp-cli scrape \"https://example.com\" --render --markdown\n  scrape-do-pp-cli scrape \"https://example.com\" --super --geo us\n  scrape-do-pp-cli scrape \"https://example.com\" --json --select status,cost,remaining_credits\n\nFlags:\n      --agent-id string        Attribution id for the credit ledger (or set SCRAPEDO_AGENT_ID)\n      --device string          Device emulation: desktop, mobile, or tablet\n      --full-screenshot        Capture a full-page screenshot (implies --render)\n      --geo string             Country geo-targeting (ISO alpha-2, e.g. us, gb, de)\n  -h, --help                   help for scrape\n      --markdown               Convert the scraped HTML to Markdown\n      --max-credits int        Refuse to dispatch if month-to-date spend + this call would exceed N credits\n      --no-block-resources     Load CSS/images/fonts (default blocks them for speed)\n      --no-redirect            Do not follow redirects\n      --no-retry               Disable Scrape.do's internal retries\n      --out string             Write the scraped body to this file instead of stdout\n      --play string            playWithBrowser action script as a JSON array (implies --render)\n      --regional-geo string    Region targeting: europe, asia, africa, oceania, northamerica, southamerica\n      --render                 Enable headless-browser JS rendering (raises cost to 5/25)\n      --retry-timeout int      Max ms before cyclic retry of a failed request (5000-55000)\n      --return-json            Return structured JSON (implies --render)\n      --screenshot             Capture a viewport screenshot (implies --render)\n      --session int            Sticky proxy session id (1-1000000) to reuse the same IP\n      --set-cookies string     Cookie string to send with the request\n      --super                  Use the residential/mobile (super) proxy pool (raises cost to 10/25)\n      --target-timeout int     Per-request timeout to the target in ms (5000-120000)\n      --transparent            Return the target site's actual status code\n      --wait int               Extra wait in ms after load for dynamic content (implies --render)\n      --wait-selector string   Wait until this CSS selector appears (implies --render)\n      --wait-until string      Load condition: domcontentloaded, load, networkidle0, networkidle2 (implies --render)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-…[truncated]"
+    },
+    {
+      "command": "scrape",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [scrape] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "scrape",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [scrape] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "scrape",
+      "kind": "error_path",
+      "args": [
+        "scrape",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: invalid target URL \"__printing_press_invalid__\": expected a fully-qualified URL like https://example.com\n"
+    },
+    {
+      "command": "sql",
+      "kind": "help",
+      "args": [
+        "sql",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Run an ad-hoc read-only SQL query against the local SQLite store. Useful for\nshare-of-voice (GROUP BY domain over serp_organic), spend analysis over\ncredit_ledger, and joining stored snapshots. Only SELECT and WITH...SELECT are\nallowed; any mutating statement is rejected.\n\nKey tables: serp_snapshots, serp_organic, scrape_jobs, credit_ledger,\nusage_snapshots.\n\nUsage:\n  scrape-do-pp-cli sql \u003cquery\u003e [flags]\n\nExamples:\n  scrape-do-pp-cli sql \"SELECT domain, COUNT(*) c FROM serp_organic GROUP BY domain ORDER BY c DESC LIMIT 10\"\n  scrape-do-pp-cli sql \"SELECT mode, SUM(cost) FROM credit_ledger GROUP BY mode\" --json\n\nFlags:\n      --db string   Database path\n  -h, --help        help for sql\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'scrape-do-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "sql",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [sql] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "sql",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [sql] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "sql",
+      "kind": "error_path",
+      "args": [
+        "sql",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: only read-only SELECT (or WITH...SELECT) queries are allowed\n"
+    },
+    {
+      "command": "sync",
+      "kind": "help",
+      "args": [
+        "sync",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Sync data from the API into a local SQLite database. Supports resumable\nincremental sync (only fetches new data since last sync) and full resync.\nOnce synced, use the 'search' command for instant full-text search.\n\nExit codes \u0026 warnings:\n  Resources the API denies access to (HTTP 403, or HTTP 400 with an\n  access-policy body) are reported as warnings rather than failing the\n  run. In --json mode each is emitted as a {\"event\":\"sync_warning\",...}\n  line carrying status, reason, and message fields, and a final\n  {\"event\":\"sync_summary\",...} aggregates the run.\n\n  Exit 0 when at least one resource synced and no resource flagged in\n  the spec as critical (x-critical: true) failed; non-critical failures\n  emit {\"event\":\"sync_warning\",\"reason\":\"exit_policy_default_changed\",\n  ...} so callers can detect that a partial failure was tolerated. Pass\n  --strict to exit non-zero on any per-resource failure. Exit is always\n  non-zero when every selected resource failed, regardless of --strict.\n\nResource scoping:\n  --resources runs the named top-level resources, plus any parent-keyed\n  dependent whose own name is listed OR whose parent table is listed.\n  Naming a parent therefore cascades to its dependents (so \"sync this\n  parent and its children\" works without listing every nested resource\n  by hand). There is no flag today to suppress the cascade for a named\n  parent. To run a dependent without re-syncing its parent, list only\n  the dependent by name; the parent table must already be populated\n  from a prior sync.\n\nUsage:\n  scrape-do-pp-cli sync [flags]\n\nExamples:\n  # Sync all resources\n  scrape-do-pp-cli sync\n\n  # Sync specific resources only\n  scrape-do-pp-cli sync --resources channels,messages\n\n  # Full resync (ignore previous checkpoint)\n  scrape-do-pp-cli sync --full\n\n  # Incremental sync: only records from the last 7 days\n  scrape-do-pp-cli sync --since 7d\n\n  # Parallel sync with 8 workers\n  scrape-do-pp-cli sync --concurrency 8\n\n  # Latest-only: refresh head of each resource, no historical backfill\n  scrape-do-pp-cli sync --latest-only\n\nFlags:\n      --concurrency int              Number of parallel sync workers (default 4)\n      --db string                    Database path (default: ~/.local/share/scrape-do-pp-cli/data.db)\n      --full                         Full resync (ignore previous checkpoint)\n      --global-param stringArray     Extra query param to inject into every sync request including dependent path-scoped calls (repeatable, key=value). Use when an API requires a scope on every call regardless of path nesting.\n  -h, --help                         help for sync\n      --latest-only                  Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).\n      --max-pages int                Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)\n      --param stringArray            Extra query param to inject into flat-list sync requests (repeatable, key=value). Skipped on path-scoped dependent requests so a top-level scope like workspace=\u003cid\u003e does not double up on /parents/\u003cid\u003e/children calls. Use --global-param to inject everywhere. Avoid pagination keys (limit/since/cursor) — overriding them corrupts resume state.\n      --resource-param stringArray   Per-resource extra query param (repeatable, resource:key=value). Wins over --param and --global-param when keys conflict.\n      --resources strings            Comma-separated resource types to sync. Naming a parent also runs its parent-keyed dependents (see Long help for scoping).\n      --since string                 Incremental sync duration (e.g. 7d, 24h, 1w, 30m)\n      --strict                       Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string      …[truncated]"
+    },
+    {
+      "command": "sync",
+      "kind": "happy_path",
+      "args": [
+        "sync"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_warning\",\"reason\":\"no_bulk_list_endpoints\",\"detail\":\"no bulk-list endpoints in spec; populate the store via single-fetch commands\"}\n{\"event\":\"sync_summary\",\"total_records\":0,\"resources\":0,\"success\":0,\"warned\":0,\"errored\":0,\"duration_ms\":0}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "json_fidelity",
+      "args": [
+        "sync",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_warning\",\"reason\":\"no_bulk_list_endpoints\",\"detail\":\"no bulk-list endpoints in spec; populate the store via single-fetch commands\"}\n{\"event\":\"sync_summary\",\"total_records\":0,\"resources\":0,\"success\":0,\"warned\":0,\"errored\":0,\"duration_ms\":0}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  scrape-do-pp-cli which [query] [flags]\n\nExamples:\n  scrape-do-pp-cli which \"stale tickets\"\n  scrape-do-pp-cli which \"bottleneck\"\n  scrape-do-pp-cli which --limit 1 \"send message\"\n  scrape-do-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'scrape-do-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"matches\": []\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "archive",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Archive fetches all syncable resources from the API and stores them in a\nlocal SQLite database. Supports incremental sync (only new data since last run)\nand full resync. After archiving, use 'search' for instant full-text search.\n\nUsage:\n  scrape-do-pp-cli workflow archive [flags]\n\nExamples:\n  # Archive all resources\n  scrape-do-pp-cli workflow archive\n\n  # Full re-archive (ignore previous sync state)\n  scrape-do-pp-cli workflow archive --full\n\nFlags:\n      --db string   Database path (default: ~/.local/share/scrape-do-pp-cli/data.db)\n      --full        Full re-archive (ignore previous sync state)\n  -h, --help        help for archive\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'scrape-do-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "archive"
+      ],
+      "status": "pass",
+      "output_sample": "Archived 0 items across 0 resources to /tmp/claude-501/printing-press-subprocess-3701737752/.local/share/scrape-do-pp-cli/data.db\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "archive",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"resources_synced\": 0,\n  \"store_path\": \"/tmp/claude-501/printing-press-subprocess-3701737752/.local/share/scrape-do-pp-cli/data.db\",\n  \"timestamp\": \"2026-06-01T16:54:43Z\",\n  \"total_items\": 0\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show local archive status and sync state for all resources\n\nUsage:\n  scrape-do-pp-cli workflow status [flags]\n\nExamples:\n  # Show archive status\n  scrape-do-pp-cli workflow status\n\n  # Show status as JSON\n  scrape-do-pp-cli workflow status --json\n\nFlags:\n      --db string   Database path\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'scrape-do-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "No archived data. Run 'workflow archive' to sync.\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-06-01T16:54:18.504484Z"
+}

@@ -18,11 +18,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"sort"
 	"strings"
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/supabase/internal/client"
 )
 
 // RegisterCodeOrchestrationTools registers the two agent-facing tools that
@@ -60,6 +62,24 @@ type codeOrchEndpoint struct {
 	Summary    string
 	Positional []string
 	keywords   []string
+}
+
+func isCodeOrchEndpointDenied(id string) bool {
+	for i := range codeOrchEndpoints {
+		ep := &codeOrchEndpoints[i]
+		if ep.ID == id {
+			return isCredentialBearingCodeOrchEndpoint(ep)
+		}
+	}
+	return false
+}
+
+// isCredentialBearingCodeOrchEndpoint derives the deny policy from the route
+// contract instead of duplicating generated endpoint IDs. Any present or
+// future write to the protected Auth config route is therefore omitted from
+// search and rejected by execute automatically.
+func isCredentialBearingCodeOrchEndpoint(ep *codeOrchEndpoint) bool {
+	return ep.Method != http.MethodGet && client.IsAuthConfigPath(ep.Path)
 }
 
 // codeOrchEndpoints is the generator-populated registry covering every
@@ -1421,6 +1441,9 @@ func handleCodeOrchSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcp
 	results := make([]scored, 0, len(codeOrchEndpoints))
 	for i := range codeOrchEndpoints {
 		ep := &codeOrchEndpoints[i]
+		if isCodeOrchEndpointDenied(ep.ID) {
+			continue
+		}
 		score := 0
 		for _, t := range terms {
 			for _, kw := range ep.keywords {
@@ -1459,6 +1482,9 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 	id, ok := args["endpoint_id"].(string)
 	if !ok || id == "" {
 		return mcplib.NewToolResultError("endpoint_id is required (call supabase_search first)"), nil
+	}
+	if isCodeOrchEndpointDenied(id) {
+		return mcplib.NewToolResultError("this auth-config update endpoint is disabled through MCP because its request can contain credentials; use supabase-pp-cli projects config update-auth-service <ref> --stdin"), nil
 	}
 
 	var ep *codeOrchEndpoint

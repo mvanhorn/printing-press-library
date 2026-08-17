@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "patch_id": "twitch-default-sync-app-token-viable",
+  "base_run_id": "",
+  "title": "Trim defaultSyncResources to app-token-viable resources",
+  "rationale": "This CLI authenticates with a Twitch app access token (client_credentials, the default grant). The generator's defaultSyncResources listed 21 resources, but most require a user OAuth token (bits, streams-markers, twitch-helix-analytics*) or a required broadcaster_id/user_id/game_id/id parameter (games, videos, users, teams, clips, chat, extensions, entitlements). Out of the box those produce access-policy warnings or errors, so the default `sync` was mostly noise. Empirically verified the resources that succeed with an app token and no required param: games-top, streams, content-classification-labels, chat-emotes-global, eventsub-subscriptions. Trimmed the defaults to exactly those. knownSyncResourceNames() is left unchanged so every resource remains reachable via --resources for users who supply a user token or required params. Mirrors the library precedent of removing a credential-gated resource from the default set (oura webhook).",
+  "files": [
+    "internal/cli/sync.go"
+  ],
+  "changes": [
+    {
+      "file": "internal/cli/sync.go",
+      "summary": "defaultSyncResources() now returns only games-top, streams, content-classification-labels, chat-emotes-global, eventsub-subscriptions (the app-token-viable, no-required-param set). knownSyncResourceNames() unchanged.",
+      "validated_outcome": "go build/vet pass; `sync` with no --resources succeeds with 0 warnings; each trimmed-in resource verified to return 200 with an app token (games-top 20, streams 20, content-classification-labels 7, chat-emotes-global 302, eventsub-subscriptions 0)."
+    }
+  ]
+}

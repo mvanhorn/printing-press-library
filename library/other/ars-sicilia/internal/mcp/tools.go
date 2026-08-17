@@ -5,17 +5,15 @@ package mcp
 
 import (
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
+	"strconv"
 	"strings"
-	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/other/ars-sicilia/internal/cli"
-	"github.com/mvanhorn/printing-press-library/library/other/ars-sicilia/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/other/ars-sicilia/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/other/ars-sicilia/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/other/ars-sicilia/internal/store"
 	mcplib "github.com/mark3labs/mcp-go/mcp"
@@ -26,18 +24,19 @@ import (
 func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("biblioteca_cerca",
-			mcplib.WithDescription("Cerca nel catalogo bibliografico per autore, titolo, soggetto o ISBN. Optional: autore, titolo, soggetto (plus 3 more). Returns array of VoceCatalogo."),
+			mcplib.WithDescription("Cerca nel catalogo bibliografico per autore, titolo, soggetto o ISBN. Optional: autore, titolo, soggetto (plus 4 more). Returns array of VoceCatalogo."),
 			mcplib.WithString("autore", mcplib.Description("Autore (cognome nome).")),
 			mcplib.WithString("titolo", mcplib.Description("Titolo.")),
 			mcplib.WithString("soggetto", mcplib.Description("Soggetto/materia.")),
 			mcplib.WithString("isbn", mcplib.Description("ISBN.")),
 			mcplib.WithString("dewey", mcplib.Description("Classificazione Dewey.")),
 			mcplib.WithNumber("limit", mcplib.Description("Max risultati.")),
+			mcplib.WithString("frase", mcplib.Description("Cerca le parole come locuzione, adiacenti e nell'ordine dato. Piu' preciso di testo, che le combina in AND sull'intero documento.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/icaro/default.jsp", true, false, nil, []mcpParamBinding{{PublicName: "autore", WireName: "autore", Location: "query"}, {PublicName: "titolo", WireName: "titolo", Location: "query"}, {PublicName: "soggetto", WireName: "soggetto", Location: "query"}, {PublicName: "isbn", WireName: "isbn", Location: "query"}, {PublicName: "dewey", WireName: "dewey", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}}, []string{}),
+		makeCLIHandler([]string{"biblioteca", "cerca"}, []mcpParamBinding{{PublicName: "autore", WireName: "autore", Location: "query"}, {PublicName: "titolo", WireName: "titolo", Location: "query"}, {PublicName: "soggetto", WireName: "soggetto", Location: "query"}, {PublicName: "isbn", WireName: "isbn", Location: "query"}, {PublicName: "dewey", WireName: "dewey", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("biblioteca_multimediali",
@@ -49,21 +48,23 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/icaro/default.jsp", true, false, nil, []mcpParamBinding{{PublicName: "titolo", WireName: "titolo", Location: "query"}, {PublicName: "autore", WireName: "autore", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}}, []string{}),
+		makeCLIHandler([]string{"biblioteca", "multimediali"}, []mcpParamBinding{{PublicName: "titolo", WireName: "titolo", Location: "query"}, {PublicName: "autore", WireName: "autore", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("commissioni_convocazioni",
-			mcplib.WithDescription("Convocazioni delle Commissioni. Optional: legisl, codcom, commissione (plus 2 more). Returns array of Convocazione."),
+			mcplib.WithDescription("Convocazioni delle Commissioni. Optional: legisl, anno, codcom (plus 4 more). Returns array of Convocazione."),
 			mcplib.WithNumber("legisl", mcplib.Description("Legislatura.")),
+			mcplib.WithNumber("anno", mcplib.Description("Anno della convocazione.")),
 			mcplib.WithString("codcom", mcplib.Description("Codice numerico commissione.")),
 			mcplib.WithString("commissione", mcplib.Description("Nome commissione.")),
 			mcplib.WithString("data", mcplib.Description("Data seduta (YYYY-MM-DD).")),
+			mcplib.WithString("testo", mcplib.Description("Ricerca testuale sull'ordine del giorno della convocazione.")),
 			mcplib.WithNumber("limit", mcplib.Description("Max risultati.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/icaro/default.jsp", true, false, nil, []mcpParamBinding{{PublicName: "legisl", WireName: "legisl", Location: "query"}, {PublicName: "codcom", WireName: "codcom", Location: "query"}, {PublicName: "commissione", WireName: "commissione", Location: "query"}, {PublicName: "data", WireName: "data", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}}, []string{}),
+		makeCLIHandler([]string{"commissioni", "convocazioni"}, []mcpParamBinding{{PublicName: "legisl", WireName: "legisl", Location: "query"}, {PublicName: "anno", WireName: "anno", Location: "query"}, {PublicName: "codcom", WireName: "codcom", Location: "query"}, {PublicName: "commissione", WireName: "commissione", Location: "query"}, {PublicName: "data", WireName: "data", Location: "query"}, {PublicName: "testo", WireName: "testo", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("commissioni_sommari",
@@ -72,31 +73,33 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("codcom", mcplib.Description("Codice commissione.")),
 			mcplib.WithString("commissione", mcplib.Description("Nome commissione.")),
 			mcplib.WithString("data", mcplib.Description("Data seduta.")),
-			mcplib.WithString("presidente", mcplib.Description("Presidente seduta.")),
-			mcplib.WithString("argomento", mcplib.Description("Argomento.")),
-			mcplib.WithString("testo", mcplib.Description("Ricerca testuale.")),
+			mcplib.WithNumber("numero", mcplib.Description("Numero della seduta di commissione: il filtro più stretto, e quello che evita la troncatura del backend.")),
+			mcplib.WithString("argomento", mcplib.Description("Argomento (stesso campo di testo).")),
+			mcplib.WithString("testo", mcplib.Description("Ricerca testuale sul contenuto della seduta.")),
 			mcplib.WithNumber("limit", mcplib.Description("Max risultati.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/icaro/default.jsp", true, false, nil, []mcpParamBinding{{PublicName: "legisl", WireName: "legisl", Location: "query"}, {PublicName: "codcom", WireName: "codcom", Location: "query"}, {PublicName: "commissione", WireName: "commissione", Location: "query"}, {PublicName: "data", WireName: "data", Location: "query"}, {PublicName: "presidente", WireName: "presidente", Location: "query"}, {PublicName: "argomento", WireName: "argomento", Location: "query"}, {PublicName: "testo", WireName: "testo", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}}, []string{}),
+		makeCLIHandler([]string{"commissioni", "sommari"}, []mcpParamBinding{{PublicName: "legisl", WireName: "legisl", Location: "query"}, {PublicName: "codcom", WireName: "codcom", Location: "query"}, {PublicName: "commissione", WireName: "commissione", Location: "query"}, {PublicName: "data", WireName: "data", Location: "query"}, {PublicName: "numero", WireName: "numero", Location: "query"}, {PublicName: "argomento", WireName: "argomento", Location: "query"}, {PublicName: "testo", WireName: "testo", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("ddl_cerca",
-			mcplib.WithDescription("Cerca disegni di legge per legislatura, anno, firmatario, materia o testo. Optional: legisl, anno, firmatario (plus 4 more). Returns array of DDL."),
+			mcplib.WithDescription("Cerca disegni di legge per legislatura, anno, firmatario, materia o testo. Optional: legisl, anno, firmatario (plus 5 more). Returns array of DDL."),
 			mcplib.WithNumber("legisl", mcplib.Description("Legislatura (es. 18 per XVIII).")),
-			mcplib.WithNumber("anno", mcplib.Description("Anno di presentazione.")),
+			mcplib.WithNumber("anno", mcplib.Description("Anno di presentazione. Non usare insieme a data: qualificano lo stesso campo e insieme danno errore.")),
+			mcplib.WithString("data", mcplib.Description("Data di presentazione (YYYY-MM-DD; intervallo con YYYY-MM-DD:YYYY-MM-DD). Alternativa ad anno, che ne e' il range annuale.")),
 			mcplib.WithString("firmatario", mcplib.Description("Nome o cognome del firmatario.")),
 			mcplib.WithString("materia", mcplib.Description("Materia/settore.")),
 			mcplib.WithString("testo", mcplib.Description("Ricerca testuale libera.")),
 			mcplib.WithString("iter", mcplib.Description("Stato dell'iter (atto/storico).")),
 			mcplib.WithNumber("limit", mcplib.Description("Max risultati.")),
+			mcplib.WithString("frase", mcplib.Description("Cerca le parole come locuzione, adiacenti e nell'ordine dato. Piu' preciso di testo, che le combina in AND sull'intero documento.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/icaro/default.jsp", true, false, nil, []mcpParamBinding{{PublicName: "legisl", WireName: "legisl", Location: "query"}, {PublicName: "anno", WireName: "anno", Location: "query"}, {PublicName: "firmatario", WireName: "firmatario", Location: "query"}, {PublicName: "materia", WireName: "materia", Location: "query"}, {PublicName: "testo", WireName: "testo", Location: "query"}, {PublicName: "iter", WireName: "iter", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}}, []string{}),
+		makeCLIHandler([]string{"ddl", "cerca"}, []mcpParamBinding{{PublicName: "legisl", WireName: "legisl", Location: "query"}, {PublicName: "anno", WireName: "anno", Location: "query"}, {PublicName: "data", WireName: "data", Location: "query"}, {PublicName: "firmatario", WireName: "firmatario", Location: "query"}, {PublicName: "materia", WireName: "materia", Location: "query"}, {PublicName: "testo", WireName: "testo", Location: "query"}, {PublicName: "iter", WireName: "iter", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("ddl_get",
@@ -107,21 +110,23 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/icaro/doc221-1.jsp", true, false, nil, []mcpParamBinding{{PublicName: "legisl", WireName: "legisl", Location: "query"}, {PublicName: "numero", WireName: "numero", Location: "query"}}, []string{"legisl", "numero"}),
+		makeCLIHandler([]string{"ddl", "get"}, []mcpParamBinding{{PublicName: "legisl", WireName: "legisl", Location: "query"}, {PublicName: "numero", WireName: "numero", Location: "query"}}, []string{"legisl", "numero"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("interpellanze_cerca",
-			mcplib.WithDescription("Cerca interpellanze. Optional: legisl, firmatario, rubrica (plus 2 more). Returns array of Atto."),
+			mcplib.WithDescription("Cerca interpellanze. Optional: legisl, firmatario, rubrica (plus 4 more). Returns array of Atto."),
 			mcplib.WithNumber("legisl", mcplib.Description("Legislatura.")),
 			mcplib.WithString("firmatario", mcplib.Description("Firmatario.")),
 			mcplib.WithString("rubrica", mcplib.Description("Rubrica/materia.")),
 			mcplib.WithString("testo", mcplib.Description("Ricerca testuale.")),
 			mcplib.WithNumber("limit", mcplib.Description("Max risultati.")),
+			mcplib.WithNumber("numero", mcplib.Description("Numero dell'atto. Piu' preciso di testo: cercare il numero come testo libero aggancia ogni documento che lo cita.")),
+			mcplib.WithString("frase", mcplib.Description("Cerca le parole come locuzione, adiacenti e nell'ordine dato. Piu' preciso di testo, che le combina in AND sull'intero documento.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/icaro/default.jsp", true, false, nil, []mcpParamBinding{{PublicName: "legisl", WireName: "legisl", Location: "query"}, {PublicName: "firmatario", WireName: "firmatario", Location: "query"}, {PublicName: "rubrica", WireName: "rubrica", Location: "query"}, {PublicName: "testo", WireName: "testo", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}}, []string{}),
+		makeCLIHandler([]string{"interpellanze", "cerca"}, []mcpParamBinding{{PublicName: "legisl", WireName: "legisl", Location: "query"}, {PublicName: "firmatario", WireName: "firmatario", Location: "query"}, {PublicName: "rubrica", WireName: "rubrica", Location: "query"}, {PublicName: "testo", WireName: "testo", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("interpellanze_get",
@@ -132,21 +137,23 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/icaro/doc234-1.jsp", true, false, nil, []mcpParamBinding{{PublicName: "legisl", WireName: "legisl", Location: "query"}, {PublicName: "numero", WireName: "numero", Location: "query"}}, []string{"legisl", "numero"}),
+		makeCLIHandler([]string{"interpellanze", "get"}, []mcpParamBinding{{PublicName: "legisl", WireName: "legisl", Location: "query"}, {PublicName: "numero", WireName: "numero", Location: "query"}}, []string{"legisl", "numero"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("interrogazioni_cerca",
-			mcplib.WithDescription("Cerca interrogazioni per legislatura, firmatario o rubrica. Optional: legisl, firmatario, rubrica (plus 2 more). Returns array of Atto."),
+			mcplib.WithDescription("Cerca interrogazioni per legislatura, firmatario o rubrica. Optional: legisl, firmatario, rubrica (plus 4 more). Returns array of Atto."),
 			mcplib.WithNumber("legisl", mcplib.Description("Legislatura.")),
 			mcplib.WithString("firmatario", mcplib.Description("Firmatario.")),
 			mcplib.WithString("rubrica", mcplib.Description("Rubrica/materia.")),
 			mcplib.WithString("testo", mcplib.Description("Ricerca testuale.")),
 			mcplib.WithNumber("limit", mcplib.Description("Max risultati.")),
+			mcplib.WithNumber("numero", mcplib.Description("Numero dell'atto. Piu' preciso di testo: cercare il numero come testo libero aggancia ogni documento che lo cita.")),
+			mcplib.WithString("frase", mcplib.Description("Cerca le parole come locuzione, adiacenti e nell'ordine dato. Piu' preciso di testo, che le combina in AND sull'intero documento.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/icaro/default.jsp", true, false, nil, []mcpParamBinding{{PublicName: "legisl", WireName: "legisl", Location: "query"}, {PublicName: "firmatario", WireName: "firmatario", Location: "query"}, {PublicName: "rubrica", WireName: "rubrica", Location: "query"}, {PublicName: "testo", WireName: "testo", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}}, []string{}),
+		makeCLIHandler([]string{"interrogazioni", "cerca"}, []mcpParamBinding{{PublicName: "legisl", WireName: "legisl", Location: "query"}, {PublicName: "firmatario", WireName: "firmatario", Location: "query"}, {PublicName: "rubrica", WireName: "rubrica", Location: "query"}, {PublicName: "testo", WireName: "testo", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("interrogazioni_get",
@@ -157,21 +164,23 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/icaro/doc233-1.jsp", true, false, nil, []mcpParamBinding{{PublicName: "legisl", WireName: "legisl", Location: "query"}, {PublicName: "numero", WireName: "numero", Location: "query"}}, []string{"legisl", "numero"}),
+		makeCLIHandler([]string{"interrogazioni", "get"}, []mcpParamBinding{{PublicName: "legisl", WireName: "legisl", Location: "query"}, {PublicName: "numero", WireName: "numero", Location: "query"}}, []string{"legisl", "numero"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("leggi_cerca",
-			mcplib.WithDescription("Cerca leggi regionali per legislatura, anno, numero o testo. Optional: legisl, anno, numero (plus 2 more). Returns array of Legge."),
+			mcplib.WithDescription("Cerca leggi regionali per legislatura, anno, numero o testo. Optional: legisl, anno, numero (plus 4 more). Returns array of Legge."),
 			mcplib.WithNumber("legisl", mcplib.Description("Legislatura (es. 18 per XVIII).")),
 			mcplib.WithNumber("anno", mcplib.Description("Anno della legge.")),
 			mcplib.WithNumber("numero", mcplib.Description("Numero della legge.")),
 			mcplib.WithString("testo", mcplib.Description("Ricerca testuale libera.")),
 			mcplib.WithNumber("limit", mcplib.Description("Max risultati da scaricare.")),
+			mcplib.WithString("frase", mcplib.Description("Cerca le parole come locuzione, adiacenti e nell'ordine dato. Piu' preciso di testo, che le combina in AND sull'intero documento.")),
+			mcplib.WithBoolean("articoli", mcplib.Description("Una riga per articolo invece che una per legge.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/icaro/default.jsp", true, false, nil, []mcpParamBinding{{PublicName: "legisl", WireName: "legisl", Location: "query"}, {PublicName: "anno", WireName: "anno", Location: "query"}, {PublicName: "numero", WireName: "numero", Location: "query"}, {PublicName: "testo", WireName: "testo", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}}, []string{}),
+		makeCLIHandler([]string{"leggi", "cerca"}, []mcpParamBinding{{PublicName: "legisl", WireName: "legisl", Location: "query"}, {PublicName: "anno", WireName: "anno", Location: "query"}, {PublicName: "numero", WireName: "numero", Location: "query"}, {PublicName: "testo", WireName: "testo", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("leggi_get",
@@ -182,21 +191,23 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/icaro/doc201-1.jsp", true, false, nil, []mcpParamBinding{{PublicName: "legisl", WireName: "legisl", Location: "query"}, {PublicName: "numero", WireName: "numero", Location: "query"}}, []string{"legisl", "numero"}),
+		makeCLIHandler([]string{"leggi", "get"}, []mcpParamBinding{{PublicName: "legisl", WireName: "legisl", Location: "query"}, {PublicName: "numero", WireName: "numero", Location: "query"}}, []string{"legisl", "numero"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("mozioni_cerca",
-			mcplib.WithDescription("Cerca mozioni. Optional: legisl, firmatario, rubrica (plus 2 more). Returns array of Atto."),
+			mcplib.WithDescription("Cerca mozioni. Optional: legisl, firmatario, rubrica (plus 4 more). Returns array of Atto."),
 			mcplib.WithNumber("legisl", mcplib.Description("Legislatura.")),
 			mcplib.WithString("firmatario", mcplib.Description("Firmatario.")),
 			mcplib.WithString("rubrica", mcplib.Description("Rubrica/materia.")),
 			mcplib.WithString("testo", mcplib.Description("Ricerca testuale.")),
 			mcplib.WithNumber("limit", mcplib.Description("Max risultati.")),
+			mcplib.WithNumber("numero", mcplib.Description("Numero dell'atto. Piu' preciso di testo: cercare il numero come testo libero aggancia ogni documento che lo cita.")),
+			mcplib.WithString("frase", mcplib.Description("Cerca le parole come locuzione, adiacenti e nell'ordine dato. Piu' preciso di testo, che le combina in AND sull'intero documento.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/icaro/default.jsp", true, false, nil, []mcpParamBinding{{PublicName: "legisl", WireName: "legisl", Location: "query"}, {PublicName: "firmatario", WireName: "firmatario", Location: "query"}, {PublicName: "rubrica", WireName: "rubrica", Location: "query"}, {PublicName: "testo", WireName: "testo", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}}, []string{}),
+		makeCLIHandler([]string{"mozioni", "cerca"}, []mcpParamBinding{{PublicName: "legisl", WireName: "legisl", Location: "query"}, {PublicName: "firmatario", WireName: "firmatario", Location: "query"}, {PublicName: "rubrica", WireName: "rubrica", Location: "query"}, {PublicName: "testo", WireName: "testo", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("mozioni_get",
@@ -207,21 +218,23 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/icaro/doc235-1.jsp", true, false, nil, []mcpParamBinding{{PublicName: "legisl", WireName: "legisl", Location: "query"}, {PublicName: "numero", WireName: "numero", Location: "query"}}, []string{"legisl", "numero"}),
+		makeCLIHandler([]string{"mozioni", "get"}, []mcpParamBinding{{PublicName: "legisl", WireName: "legisl", Location: "query"}, {PublicName: "numero", WireName: "numero", Location: "query"}}, []string{"legisl", "numero"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("odg_cerca",
-			mcplib.WithDescription("Cerca ordini del giorno. Optional: legisl, firmatario, rubrica (plus 2 more). Returns array of Atto."),
+			mcplib.WithDescription("Cerca ordini del giorno. Optional: legisl, firmatario, rubrica (plus 4 more). Returns array of Atto."),
 			mcplib.WithNumber("legisl", mcplib.Description("Legislatura.")),
 			mcplib.WithString("firmatario", mcplib.Description("Firmatario.")),
 			mcplib.WithString("rubrica", mcplib.Description("Rubrica.")),
 			mcplib.WithString("testo", mcplib.Description("Ricerca testuale.")),
 			mcplib.WithNumber("limit", mcplib.Description("Max risultati.")),
+			mcplib.WithNumber("numero", mcplib.Description("Numero dell'atto. Piu' preciso di testo: cercare il numero come testo libero aggancia ogni documento che lo cita.")),
+			mcplib.WithString("frase", mcplib.Description("Cerca le parole come locuzione, adiacenti e nell'ordine dato. Piu' preciso di testo, che le combina in AND sull'intero documento.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/icaro/default.jsp", true, false, nil, []mcpParamBinding{{PublicName: "legisl", WireName: "legisl", Location: "query"}, {PublicName: "firmatario", WireName: "firmatario", Location: "query"}, {PublicName: "rubrica", WireName: "rubrica", Location: "query"}, {PublicName: "testo", WireName: "testo", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}}, []string{}),
+		makeCLIHandler([]string{"odg", "cerca"}, []mcpParamBinding{{PublicName: "legisl", WireName: "legisl", Location: "query"}, {PublicName: "firmatario", WireName: "firmatario", Location: "query"}, {PublicName: "rubrica", WireName: "rubrica", Location: "query"}, {PublicName: "testo", WireName: "testo", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("odg_get",
@@ -232,20 +245,21 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/icaro/doc236-1.jsp", true, false, nil, []mcpParamBinding{{PublicName: "legisl", WireName: "legisl", Location: "query"}, {PublicName: "numero", WireName: "numero", Location: "query"}}, []string{"legisl", "numero"}),
+		makeCLIHandler([]string{"odg", "get"}, []mcpParamBinding{{PublicName: "legisl", WireName: "legisl", Location: "query"}, {PublicName: "numero", WireName: "numero", Location: "query"}}, []string{"legisl", "numero"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("pareri_cerca",
-			mcplib.WithDescription("Cerca pareri richiesti dal Governo. Optional: legisl, commissione, oggetto (plus 1 more). Returns array of Parere."),
+			mcplib.WithDescription("Cerca pareri richiesti dal Governo. Optional: legisl, commissione, oggetto (plus 2 more). Returns array of Parere."),
 			mcplib.WithNumber("legisl", mcplib.Description("Legislatura.")),
 			mcplib.WithString("commissione", mcplib.Description("Commissione competente.")),
 			mcplib.WithString("oggetto", mcplib.Description("Oggetto del parere.")),
 			mcplib.WithNumber("limit", mcplib.Description("Max risultati.")),
+			mcplib.WithString("frase", mcplib.Description("Cerca le parole come locuzione, adiacenti e nell'ordine dato. Piu' preciso di testo, che le combina in AND sull'intero documento.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/icaro/default.jsp", true, false, nil, []mcpParamBinding{{PublicName: "legisl", WireName: "legisl", Location: "query"}, {PublicName: "commissione", WireName: "commissione", Location: "query"}, {PublicName: "oggetto", WireName: "oggetto", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}}, []string{}),
+		makeCLIHandler([]string{"pareri", "cerca"}, []mcpParamBinding{{PublicName: "legisl", WireName: "legisl", Location: "query"}, {PublicName: "commissione", WireName: "commissione", Location: "query"}, {PublicName: "oggetto", WireName: "oggetto", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("pareri_get",
@@ -256,24 +270,23 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/icaro/doc226-1.jsp", true, false, nil, []mcpParamBinding{{PublicName: "legisl", WireName: "legisl", Location: "query"}, {PublicName: "numero", WireName: "numero", Location: "query"}}, []string{"legisl", "numero"}),
+		makeCLIHandler([]string{"pareri", "get"}, []mcpParamBinding{{PublicName: "legisl", WireName: "legisl", Location: "query"}, {PublicName: "numero", WireName: "numero", Location: "query"}}, []string{"legisl", "numero"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("resoconti_cerca",
-			mcplib.WithDescription("Cerca resoconti per data, oratore o argomento. Optional: legisl, anno, data (plus 5 more). Returns array of Resoconto."),
+			mcplib.WithDescription("Cerca resoconti per data, numero, oratore o testo. Optional: legisl, anno, data (plus 4 more). Returns array of Resoconto."),
 			mcplib.WithNumber("legisl", mcplib.Description("Legislatura.")),
 			mcplib.WithNumber("anno", mcplib.Description("Anno della seduta.")),
 			mcplib.WithString("data", mcplib.Description("Data seduta (YYYY-MM-DD).")),
 			mcplib.WithNumber("numero", mcplib.Description("Numero seduta.")),
 			mcplib.WithString("oratore", mcplib.Description("Oratore.")),
-			mcplib.WithString("argomento", mcplib.Description("Argomento.")),
-			mcplib.WithString("testo", mcplib.Description("Ricerca testuale.")),
+			mcplib.WithString("testo", mcplib.Description("Ricerca testuale sul contenuto della seduta.")),
 			mcplib.WithNumber("limit", mcplib.Description("Max risultati.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/icaro/default.jsp", true, false, nil, []mcpParamBinding{{PublicName: "legisl", WireName: "legisl", Location: "query"}, {PublicName: "anno", WireName: "anno", Location: "query"}, {PublicName: "data", WireName: "data", Location: "query"}, {PublicName: "numero", WireName: "numero", Location: "query"}, {PublicName: "oratore", WireName: "oratore", Location: "query"}, {PublicName: "argomento", WireName: "argomento", Location: "query"}, {PublicName: "testo", WireName: "testo", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}}, []string{}),
+		makeCLIHandler([]string{"resoconti", "cerca"}, []mcpParamBinding{{PublicName: "legisl", WireName: "legisl", Location: "query"}, {PublicName: "anno", WireName: "anno", Location: "query"}, {PublicName: "data", WireName: "data", Location: "query"}, {PublicName: "numero", WireName: "numero", Location: "query"}, {PublicName: "oratore", WireName: "oratore", Location: "query"}, {PublicName: "testo", WireName: "testo", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("resoconti_get",
@@ -284,21 +297,23 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/icaro/doc217-1.jsp", true, false, nil, []mcpParamBinding{{PublicName: "legisl", WireName: "legisl", Location: "query"}, {PublicName: "numero", WireName: "numero", Location: "query"}}, []string{"legisl", "numero"}),
+		makeCLIHandler([]string{"resoconti", "get"}, []mcpParamBinding{{PublicName: "legisl", WireName: "legisl", Location: "query"}, {PublicName: "numero", WireName: "numero", Location: "query"}}, []string{"legisl", "numero"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("risoluzioni_cerca",
-			mcplib.WithDescription("Cerca risoluzioni. Optional: legisl, firmatario, commissione (plus 2 more). Returns array of Atto."),
+			mcplib.WithDescription("Cerca risoluzioni. Optional: legisl, firmatario, commissione (plus 4 more). Returns array of Atto."),
 			mcplib.WithNumber("legisl", mcplib.Description("Legislatura.")),
 			mcplib.WithString("firmatario", mcplib.Description("Firmatario.")),
 			mcplib.WithString("commissione", mcplib.Description("Commissione.")),
 			mcplib.WithString("testo", mcplib.Description("Ricerca testuale.")),
 			mcplib.WithNumber("limit", mcplib.Description("Max risultati.")),
+			mcplib.WithNumber("numero", mcplib.Description("Numero dell'atto. Piu' preciso di testo: cercare il numero come testo libero aggancia ogni documento che lo cita.")),
+			mcplib.WithString("frase", mcplib.Description("Cerca le parole come locuzione, adiacenti e nell'ordine dato. Piu' preciso di testo, che le combina in AND sull'intero documento.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/icaro/default.jsp", true, false, nil, []mcpParamBinding{{PublicName: "legisl", WireName: "legisl", Location: "query"}, {PublicName: "firmatario", WireName: "firmatario", Location: "query"}, {PublicName: "commissione", WireName: "commissione", Location: "query"}, {PublicName: "testo", WireName: "testo", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}}, []string{}),
+		makeCLIHandler([]string{"risoluzioni", "cerca"}, []mcpParamBinding{{PublicName: "legisl", WireName: "legisl", Location: "query"}, {PublicName: "firmatario", WireName: "firmatario", Location: "query"}, {PublicName: "commissione", WireName: "commissione", Location: "query"}, {PublicName: "testo", WireName: "testo", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("risoluzioni_get",
@@ -309,7 +324,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/icaro/doc238-1.jsp", true, false, nil, []mcpParamBinding{{PublicName: "legisl", WireName: "legisl", Location: "query"}, {PublicName: "numero", WireName: "numero", Location: "query"}}, []string{"legisl", "numero"}),
+		makeCLIHandler([]string{"risoluzioni", "get"}, []mcpParamBinding{{PublicName: "legisl", WireName: "legisl", Location: "query"}, {PublicName: "numero", WireName: "numero", Location: "query"}}, []string{"legisl", "numero"}),
 	)
 	// Search tool — faster than iterating list endpoints for finding specific items
 	s.AddTool(
@@ -355,193 +370,112 @@ type mcpParamBinding struct {
 	Location   string
 }
 
-// makeAPIHandler creates a generic MCP tool handler for an API endpoint.
-func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse bool, headerOverrides map[string]string, bindings []mcpParamBinding, positionalParams []string) server.ToolHandlerFunc {
+// makeCLIHandler esegue il comando della CLI corrispondente al tool, invece di
+// chiamare l'endpoint HTTP.
+//
+// I tool tipizzati nascono dal generatore assumendo una vera API REST: per
+// quelle, colpire l'endpoint direttamente funziona. La "API" dell'ARS invece è
+// un portale a sessione (Icaro) in cui una GET nuda su default.jsp/doc*.jsp
+// risponde con l'HTML di "Sessione Scaduta": il bootstrap della query lo fa
+// icaroclient, dentro la CLI. Passando di lì i tool restituiscono gli stessi
+// dati della riga di comando, e conservano i loro parametri con nome — che per
+// un client MCP valgono più della stringa `args` generica del mirror cobra.
+//
+// cmdPath è il comando CLI ("ddl", "cerca"). I parametri elencati in
+// positionalParams vengono passati come argomenti posizionali, nell'ordine
+// dato; gli altri come flag lunghi.
+func makeCLIHandler(cmdPath []string, bindings []mcpParamBinding, positionalParams []string) server.ToolHandlerFunc {
+	posSet := map[string]bool{}
+	for _, p := range positionalParams {
+		posSet[p] = true
+	}
 	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-		c, err := newMCPClient()
+		bin, err := cobratree.SiblingCLIPath()
 		if err != nil {
 			return mcplib.NewToolResultError(err.Error()), nil
 		}
+		args := append([]string{}, cmdPath...)
+		values := req.GetArguments()
 
-		// mcp-go v0.47+ made CallToolParams.Arguments an `any` to support
-		// non-map payloads; GetArguments() returns the map[string]any shape
-		// we rely on here (or an empty map when the payload is something else).
-		args := req.GetArguments()
-
-		// positionalParams mixes real URL path params with CLI positional
-		// args that map to query params (e.g. `search <query>` -> ?query=);
-		// the placeholder check below disambiguates them at runtime.
-		path := pathTemplate
-		knownArgs := make(map[string]bool, len(bindings))
-		pathParams := make(map[string]bool, len(positionalParams))
-		params := make(map[string]string)
-		bodyArgs := make(map[string]any)
-		var headers map[string]string
-		if len(headerOverrides) > 0 {
-			headers = make(map[string]string, len(headerOverrides)+1)
-			for k, v := range headerOverrides {
-				headers[k] = v
-			}
-		}
-		if binaryResponse {
-			if headers == nil {
-				headers = map[string]string{}
-			}
-			headers[client.BinaryResponseHeader] = "true"
-		}
-		for _, binding := range bindings {
-			knownArgs[binding.PublicName] = true
-			v, ok := args[binding.PublicName]
-			if !ok {
+		// Prima i posizionali, nell'ordine dichiarato: la CLI li vuole in testa
+		// (es. `ddl get <legisl> <numero>`).
+		for _, name := range positionalParams {
+			v, ok := values[name]
+			if !ok || v == nil {
 				continue
 			}
-			switch binding.Location {
-			case "path":
-				placeholder := "{" + binding.WireName + "}"
-				pathParams[binding.PublicName] = true
-				path = strings.Replace(path, placeholder, fmt.Sprintf("%v", v), 1)
-			case "body":
-				bodyArgs[binding.WireName] = v
-			default:
-				params[binding.WireName] = fmt.Sprintf("%v", v)
-			}
+			args = append(args, formatCLIValue(v))
 		}
-		for _, p := range positionalParams {
-			placeholder := "{" + p + "}"
-			if !strings.Contains(pathTemplate, placeholder) {
+		dichiarati := map[string]bool{}
+		for _, b := range bindings {
+			dichiarati[b.PublicName] = true
+			if posSet[b.PublicName] {
 				continue
 			}
-			pathParams[p] = true
-			if v, ok := args[p]; ok {
-				path = strings.Replace(path, placeholder, fmt.Sprintf("%v", v), 1)
-			}
-		}
-
-		for k, v := range args {
-			if pathParams[k] || knownArgs[k] {
+			v, ok := values[b.PublicName]
+			if !ok || v == nil {
 				continue
 			}
-			switch method {
-			case "POST", "PUT", "PATCH":
-				bodyArgs[k] = v
-			default:
-				params[k] = fmt.Sprintf("%v", v)
+			if s := formatCLIValue(v); s != "" {
+				args = append(args, "--"+b.PublicName, s)
 			}
 		}
-
-		var data json.RawMessage
-		switch method {
-		case "GET":
-			if len(headers) > 0 {
-				data, err = c.GetWithHeaders(ctx, path, params, headers)
-				break
+		// Gli schemi tipizzati sono fotografati alla generazione e restano
+		// indietro rispetto ai flag che il comando acquisisce dopo (--numero,
+		// --frase, --articoli…). Un parametro non dichiarato NON va scartato in
+		// silenzio: scartarlo fa girare la ricerca senza filtro e restituisce un
+		// atto qualunque, che si legge come una risposta valida. Si passa alla
+		// CLI, che lo applica se lo conosce e altrimenti fallisce dicendolo.
+		extra := make([]string, 0, len(values))
+		for name := range values {
+			if !dichiarati[name] && !posSet[name] && values[name] != nil {
+				extra = append(extra, name)
 			}
-			data, err = c.Get(ctx, path, params)
-		case "POST":
-			if len(headers) > 0 {
-				if readOnly {
-					data, _, err = c.PostQueryWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
-				} else {
-					data, _, err = c.PostWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
-				}
-				break
-			}
-			if readOnly {
-				data, _, err = c.PostQueryWithParams(ctx, path, params, bodyArgs)
-			} else {
-				data, _, err = c.PostWithParams(ctx, path, params, bodyArgs)
-			}
-		case "PUT":
-			if len(headers) > 0 {
-				data, _, err = c.PutWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
-				break
-			}
-			data, _, err = c.PutWithParams(ctx, path, params, bodyArgs)
-		case "PATCH":
-			if len(headers) > 0 {
-				data, _, err = c.PatchWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
-				break
-			}
-			data, _, err = c.PatchWithParams(ctx, path, params, bodyArgs)
-		case "DELETE":
-			if len(headers) > 0 {
-				data, _, err = c.DeleteWithParamsAndHeaders(ctx, path, params, headers)
-				break
-			}
-			data, _, err = c.DeleteWithParams(ctx, path, params)
-		default:
-			return mcplib.NewToolResultError("unsupported method: " + method), nil
 		}
-
+		sort.Strings(extra) // ordine stabile: la riga di comando dev'essere riproducibile
+		for _, name := range extra {
+			if s := formatCLIValue(values[name]); s != "" {
+				args = append(args, "--"+name, s)
+			}
+		}
+		// --agent: JSON compatto e nessun prompt, la resa che un client MCP vuole.
+		args = append(args, "--agent")
+		// --envelope: RunCLICommand legge stderr solo quando il comando
+		// fallisce (shellout.go), quindi su un comando riuscito ogni hint
+		// della CLI viene scartato prima di arrivare al client. È il caso
+		// peggiore: qui il consumatore è sempre una macchina, che non può
+		// leggere un avviso a schermo e correggere il tiro. Sulle ricerche
+		// l'envelope riporta dentro il JSON il flag di troncamento e il
+		// motivo, così l'agente distingue "non c'è" da "non l'ho letto
+		// tutto". Gli altri comandi accettano il flag e lo ignorano.
+		args = append(args, "--envelope")
+		out, diag, err := cobratree.RunCLICommandWithDiagnostics(ctx, bin, args)
 		if err != nil {
-			msg := err.Error()
-			switch {
-			case strings.Contains(msg, "HTTP 409"):
-				return mcplib.NewToolResultText("already exists (no-op)"), nil
-			case strings.Contains(msg, "HTTP 401"):
-				return mcplib.NewToolResultError("authentication failed: " + msg +
-					"\nhint: check your API credentials." +
-					"\n      See API docs: https://dati.ars.sicilia.it" +
-					"\n      Run 'ars-sicilia-pp-cli doctor' to check auth status."), nil
-			case strings.Contains(msg, "HTTP 403"):
-				return mcplib.NewToolResultError("permission denied: " + msg +
-					"\nhint: this API is configured without credentials; the service may be blocking the request by rate limit, geography, bot protection, or endpoint policy." +
-					"\n      See API docs: https://dati.ars.sicilia.it" +
-					"\n      Run 'ars-sicilia-pp-cli doctor' to check auth status."), nil
-			case strings.Contains(msg, "HTTP 404"):
-				if method == "DELETE" {
-					return mcplib.NewToolResultText("already deleted (no-op)"), nil
-				}
-				return mcplib.NewToolResultError("not found: " + msg), nil
-			case strings.Contains(msg, "HTTP 429"):
-				return mcplib.NewToolResultError("rate limited: " + msg), nil
-			default:
-				return mcplib.NewToolResultError(msg), nil
-			}
+			return mcplib.NewToolResultError(err.Error()), nil
 		}
-
-		// For GET responses, wrap bare arrays with count metadata
-		if method == "GET" {
-			trimmed := strings.TrimSpace(string(data))
-			if len(trimmed) > 0 && trimmed[0] == '[' {
-				var items []json.RawMessage
-				if json.Unmarshal(data, &items) == nil {
-					wrapped := map[string]any{
-						"count": len(items),
-						"items": items,
-					}
-					out, _ := json.Marshal(wrapped)
-					return mcplib.NewToolResultText(string(out)), nil
-				}
-			}
-		}
-		if binaryResponse {
-			out, _ := json.Marshal(map[string]any{
-				"content_encoding": "base64",
-				"data_base64":      base64.StdEncoding.EncodeToString(data),
-				"byte_count":       len(data),
-			})
-			return mcplib.NewToolResultText(string(out)), nil
-		}
-		return mcplib.NewToolResultText(string(data)), nil
+		return mcplib.NewToolResultText(cobratree.MergeDiagnostics(out, diag)), nil
 	}
 }
 
-func newMCPClient() (*client.Client, error) {
-	home, _ := os.UserHomeDir()
-	cfgPath := filepath.Join(home, ".config", "ars-sicilia-pp-cli", "config.toml")
-	cfg, err := config.Load(cfgPath)
-	if err != nil {
-		return nil, fmt.Errorf("loading config: %w", err)
+// formatCLIValue rende un argomento MCP nella forma che la CLI si aspetta.
+// I numeri arrivano come float64 dal JSON e non devono diventare "18.000000".
+func formatCLIValue(v any) string {
+	switch t := v.(type) {
+	case string:
+		return t
+	case bool:
+		if t {
+			return "true"
+		}
+		return "false"
+	case float64:
+		if t == float64(int64(t)) {
+			return strconv.FormatInt(int64(t), 10)
+		}
+		return strconv.FormatFloat(t, 'f', -1, 64)
+	default:
+		return fmt.Sprintf("%v", t)
 	}
-	c := client.New(cfg, 60*time.Second, 2)
-	// Agents calling through MCP need fresh data every call. The on-disk
-	// response cache survives across MCP server invocations, so a
-	// DELETE/PATCH followed by a GET would otherwise return the
-	// pre-mutation snapshot for up to the cache TTL. The interactive CLI
-	// constructs its own client and is unaffected.
-	c.NoCache = true
-	return c, nil
 }
 
 func dbPath() string {
@@ -781,6 +715,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			{"name": "Drift iter DDL", "command": "ddl drift", "description": "Confronta lo stato dell'iter dei DDL nella sync corrente con la precedente e segnala i disegni di legge che si sono", "rationale": "Richiede storico dei sync in SQLite locale; il portale offre solo lo snapshot corrente, non sa dire 'cosa è cambiato'.", "via": "mcp-command-mirror"},
 			{"name": "Query ISIS grezza", "command": "leggi cerca", "description": "Flag --isis-query disponibile su tutti i comandi cerca", "rationale": "Il linguaggio ISIS è documentato e potente ma nascosto dietro la UI; flag CLI puliti coprono l'80% dei casi", "via": "mcp-command-mirror"},
 			{"name": "Stato sync archivi", "command": "sync stale", "description": "Mostra per ognuno dei 12 archivi ARS: timestamp ultima sync, n.", "rationale": "Necessario per chi mantiene SQLite locale e deve decidere quando rilanciare sync", "via": "mcp-command-mirror"},
+			{"name": "Anagrafica dei gruppi parlamentari", "command": "gruppi elenco", "description": "Elenco dei gruppi di una legislatura e composizione di ciascuno: cariche, collegio di elezione, email, scheda; con --deputato, in quale gruppo sta un parlamentare", "rationale": "L'anagrafica non sta nel motore documentale, dove il gruppo compare solo come stringa accanto a una firma: sta sul sito istituzionale www.ars.sicilia.it, seconda sorgente della CLI", "via": "mcp-command-mirror"},
 			{"name": "Cronologia inversa di una legge", "command": "legge cronologia", "description": "Partendo da una legge regionale promulgata (archivio 201), risale al DDL originario", "rationale": "Inverso cronologico di ddl iter — input è la legge finale", "via": "mcp-command-mirror"},
 		},
 		"playbook": []map[string]string{
@@ -792,6 +727,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			{"topic": "Drift iter DDL", "insight": "Richiede storico dei sync in SQLite locale; il portale offre solo lo snapshot corrente, non sa dire 'cosa è cambiato'."},
 			{"topic": "Query ISIS grezza", "insight": "Il linguaggio ISIS è documentato e potente ma nascosto dietro la UI; flag CLI puliti coprono l'80% dei casi, questo flag sblocca il 20% restante senza riscrivere il client."},
 			{"topic": "Stato sync archivi", "insight": "Necessario per chi mantiene SQLite locale e deve decidere quando rilanciare sync; informazione esiste solo nel meta locale."},
+			{"topic": "Anagrafica dei gruppi parlamentari", "insight": "Due siti, non uno: gli atti stanno su dati.ars.sicilia.it, le anagrafiche su www.ars.sicilia.it, che non ha API — si legge HTML e i selettori sono certificati da fixture. I nomi dei gruppi sono gli stessi che compaiono accanto alle firme sugli atti, quindi l'elenco è il vocabolario per fare la join."},
 			{"topic": "Cronologia inversa di una legge", "insight": "Inverso cronologico di ddl iter — input è la legge finale, output è la storia parlamentare che ha portato alla promulgazione."},
 		},
 	}

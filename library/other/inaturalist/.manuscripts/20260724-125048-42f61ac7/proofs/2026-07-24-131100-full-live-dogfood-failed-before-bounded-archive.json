@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "api_name": "inaturalist",
+  "run_id": "20260724-125048-42f61ac7",
+  "status": "fail",
+  "level": "full",
+  "matrix_size": 326,
+  "tests_passed": 294,
+  "tests_skipped": 302,
+  "tests_failed": 32,
+  "auth_context": {
+    "type": "api_key"
+  },
+  "failure_summary": {
+    "http_4xx": 30,
+    "other": 2,
+    "commands": [
+      "identifications list",
+      "identifications list-categories",
+      "identifications list-identifiers",
+      "identifications list-observers",
+      "identifications list-recenttaxa",
+      "identifications list-speciescounts",
+      "messages list",
+      "messages list-unread",
+      "nearby highlights",
+      "nearby seasonal-shift",
+      "observations list-deleted",
+      "observations list-identifiers",
+      "observations list-speciescounts",
+      "observations list-updates",
+      "places get",
+      "posts list-foruser",
+      "projects get",
+      "site-search",
+      "taxa list",
+      "users list-me"
+    ]
+  }
+}

@@ -1,0 +1,1055 @@
+{
+  "api_name": "weaviate-collections",
+  "base_url": "https://YOUR-CLUSTER.weaviate.cloud/v1",
+  "description": "Full collection-config control for Weaviate Cloud, plus schema history, drift diffing, and lint that no other Weaviate tool has.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "WEAVIATE_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "WEAVIATE_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "indexes_get",
+      "description": "Returns per-property index state including active reindex progress. This powers the UI to show live migration status. Required: className.",
+      "method": "GET",
+      "path": "/schema/{className}/indexes",
+      "params": [
+        {
+          "name": "className",
+          "type": "string",
+          "location": "path",
+          "description": "Class name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "properties_add",
+      "description": "Adds a new property definition to an existing collection (`className`) definition. Required: className. Optional: bucketGeneration, dataType, description (plus 11 more). Returns the new Property.",
+      "method": "POST",
+      "path": "/schema/{className}/properties",
+      "params": [
+        {
+          "name": "className",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the collection (class) to add the property to.",
+          "required": true
+        },
+        {
+          "name": "bucketGeneration",
+          "type": "int",
+          "location": "body",
+          "description": "Internal RAFT-replicated counter bumped by semantic runtime-reindex migrations (e.g. change-tokenization, enable-filterable, enable-searchable). Used by the data path to resolve the property's inverted-index bucket name; a single RAFT commit flipping the schema flag AND bumping this counter atomically cuts the cluster from the old bucket to the new one. Defaults to 0. Internal use; clients should not set this."
+        },
+        {
+          "name": "dataType",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Data type of the property (required). If it starts with a capital (for example Person), may be a reference to another type."
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description of the property."
+        },
+        {
+          "name": "disableDuplicatedReferences",
+          "type": "bool",
+          "location": "body",
+          "description": "If set to false, allows multiple references to the same target object within this property. Setting it to true will enforce uniqueness of references within this property. By default, this is set to true."
+        },
+        {
+          "name": "indexFilterable",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to include this property in the filterable, Roaring Bitmap index. If `false`, this property cannot be used in `where` filters. Note: Unrelated to vectorization behavior."
+        },
+        {
+          "name": "indexInverted",
+          "type": "bool",
+          "location": "body",
+          "description": "(Deprecated). Whether to include this property in the inverted index. If `false`, this property cannot be used in `where` filters, `bm25` or `hybrid` search. Unrelated to vectorization behavior (deprecated as of v1.19; use indexFilterable or/and indexSearchable instead)"
+        },
+        {
+          "name": "indexRangeFilters",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to include this property in the filterable, range-based Roaring Bitmap index. Provides better performance for range queries compared to filterable index in large datasets. Applicable only to properties of data type int, number, date."
+        },
+        {
+          "name": "indexSearchable",
+          "type": "bool",
+          "location": "body",
+          "description": "Optional. Should this property be indexed in the inverted index. Defaults to true. Applicable only to properties of data type text and text[]. If you choose false, you will not be able to use this property in bm25 or hybrid search. This property has no affect on vectorization decisions done by modules"
+        },
+        {
+          "name": "moduleConfig",
+          "type": "object",
+          "location": "body",
+          "description": "Configuration specific to modules in a collection context."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the property (required). Multiple words should be concatenated in camelCase, e.g. `nameOfAuthor`."
+        },
+        {
+          "name": "nestedProperties",
+          "type": "array",
+          "location": "body",
+          "description": "The properties of the nested object(s). Applies to object and object[] data types."
+        },
+        {
+          "name": "searchableBlockmax",
+          "type": "bool",
+          "location": "body",
+          "description": "Internal RAFT-replicated per-property flag: true iff this property's searchable (BM25) bucket is on the blockmax (StrategyInverted) index. Stamped at migration cutover. Absent/null means 'not stamped' and is resolved against the class-wide UsingBlockMaxWAND flag. Internal use; clients must not set this."
+        },
+        {
+          "name": "text-analyzer-ascii-fold",
+          "wire_name": "textAnalyzer.asciiFold",
+          "type": "bool",
+          "location": "body",
+          "description": "If true, accent/diacritic marks are folded to their base characters during indexing and search. For example, 'Ã©cole' matches 'ecole'. Defaults to false."
+        },
+        {
+          "name": "text-analyzer-ascii-fold-ignore",
+          "wire_name": "textAnalyzer.asciiFoldIgnore",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "If provided, specifies a list of characters that should be excluded from ascii folding. For example, if ['Ã©'] is provided, then 'Ã©' will not be folded to 'e' during indexing and search. This list is immutable after the property is created."
+        },
+        {
+          "name": "text-analyzer-stopword-preset",
+          "wire_name": "textAnalyzer.stopwordPreset",
+          "type": "string",
+          "location": "body",
+          "description": "Stopword preset name. Overrides the collection-level invertedIndexConfig.stopwords for this property. Only applies to properties using 'word' tokenization. Can be a built-in preset ('en', 'none') or a user-defined preset from invertedIndexConfig.stopwordPresets."
+        },
+        {
+          "name": "tokenization",
+          "type": "string",
+          "location": "body",
+          "description": "Determines how a property is indexed. This setting applies to `text` and `text[]` data types. The following tokenization methods are available: - `word` (default): Splits the text on any non-alphanumeric characters and lowercases the tokens. - `lowercase`: Splits the text on whitespace and lowercases the tokens. - `whitespace`: Splits the text on whitespace. This tokenization is case-sensitive. - `field`: Indexes the entire property value as a single token after trimming whitespace. - `trigram`: Splits the property into rolling trigrams (three-character sequences). - `gse`: Uses the `gse` tokenizer, suitable for Chinese language text. [See `gse` docs](https://pkg.go.dev/github.com/go-ego/gse#section-readme). - `kagome_ja`: Uses the `Kagome` tokenizer with a Japanese (IPA) dictionary. [See `kagome` docs](https://github.com/ikawaha/kagome). - `kagome_kr`: Uses the `Kagome` tokenizer with a Korean dictionary. [See `kagome` docs](https://github.com/ikawaha/kagome). See [Reference: Tokenization](https://docs.weaviate.io/weaviate/config-refs/collections#tokenization) for details."
+        }
+      ]
+    },
+    {
+      "name": "properties_index_cancel",
+      "description": "Cancels the in-flight reindex task targeting this property's index. No request body. Idempotent: succeeds whether or not a task was in flight (a `202` with `{'status':'NO_OP'}` is returned when there is nothing to cancel). `indexName` accepts `rangeable` as an alias for `rangeFilters`. Required: className, propertyName, indexName (default: filterable). Returns the new IndexUpdateResponse.",
+      "method": "POST",
+      "path": "/schema/{className}/properties/{propertyName}/index/{indexName}/cancel",
+      "params": [
+        {
+          "name": "className",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the collection (class) containing the property.",
+          "required": true
+        },
+        {
+          "name": "propertyName",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the property whose reindex task should be cancelled.",
+          "required": true
+        },
+        {
+          "name": "indexName",
+          "type": "string",
+          "location": "path",
+          "description": "The inverted index type whose in-flight task should be cancelled. `rangeable` is accepted as a write-path alias for `rangeFilters`.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "properties_index_objects-properties-delete",
+      "description": "Deletes an inverted index of a specific property within a collection (`className`). The index to delete is identified by `indexName` and must be one of `filterable`, `searchable`, or `rangeFilters` (with `rangeable` accepted as an alias for `rangeFilters`). Required: className, propertyName, indexName (default: filterable). Destructive.",
+      "method": "DELETE",
+      "path": "/schema/{className}/properties/{propertyName}/index/{indexName}",
+      "params": [
+        {
+          "name": "className",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the collection (class) containing the property.",
+          "required": true
+        },
+        {
+          "name": "propertyName",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the property whose inverted index should be deleted.",
+          "required": true
+        },
+        {
+          "name": "indexName",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the inverted index to delete from the property. `rangeable` is accepted as a write-path alias for `rangeFilters`.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "properties_index_rebuild",
+      "description": "Rebuilds the inverted index from the stored objects with its current configuration (repair / format refresh). No request body. Index-mutating work is asynchronous: a `202` with a task ID is returned. `indexName` accepts `rangeable` as an alias for `rangeFilters`. Required: className, propertyName, indexName (default: filterable). Optional: tenants. Returns the new IndexUpdateResponse.",
+      "method": "POST",
+      "path": "/schema/{className}/properties/{propertyName}/index/{indexName}/rebuild",
+      "params": [
+        {
+          "name": "className",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the collection (class) containing the property.",
+          "required": true
+        },
+        {
+          "name": "propertyName",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the property whose inverted index should be rebuilt.",
+          "required": true
+        },
+        {
+          "name": "indexName",
+          "type": "string",
+          "location": "path",
+          "description": "The inverted index type to rebuild. `rangeable` is accepted as a write-path alias for `rangeFilters`.",
+          "required": true
+        },
+        {
+          "name": "tenants",
+          "type": "array",
+          "location": "query",
+          "description": "Tenant names to target. Allowed for all index types on multi-tenant collections (rebuilds are format-only). Omit to target all tenants."
+        }
+      ]
+    },
+    {
+      "name": "properties_index_upsert",
+      "description": "Upserts the inverted index of a property, identified by `indexName`. The body describes the desired index configuration; the server diffs it against the current state and either creates the index, migrates its configuration, or does nothing. Index-mutating work is asynchronous: a `202` with a task ID is returned when a reindex task is submitted, and `200` with `{'status':'NO_OP'}` is returned when the desired configuration is already in place. `indexName` accepts `rangeable` as an alias for `rangeFilters`. Required: className, propertyName, indexName (default: filterable). Optional: tenants, algorithm, tokenization. Returns the updated IndexUpdateResponse.",
+      "method": "PUT",
+      "path": "/schema/{className}/properties/{propertyName}/index/{indexName}",
+      "params": [
+        {
+          "name": "className",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the collection (class) containing the property.",
+          "required": true
+        },
+        {
+          "name": "propertyName",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the property whose inverted index should be upserted.",
+          "required": true
+        },
+        {
+          "name": "indexName",
+          "type": "string",
+          "location": "path",
+          "description": "The inverted index type to upsert. `rangeable` is accepted as a write-path alias for `rangeFilters`.",
+          "required": true
+        },
+        {
+          "name": "tenants",
+          "type": "array",
+          "location": "query",
+          "description": "Tenant names to target. Only valid on multi-tenant collections and only when the resulting operation is format-only (on PUT that is `rangeFilters` creation). Omit to target all tenants."
+        },
+        {
+          "name": "algorithm",
+          "type": "string",
+          "location": "body",
+          "description": "Target BM25 algorithm for a `searchable` index. Only `blockmax` is a valid target (input aliases `block-max`, `block_max`, `blockmaxwand`, `bmw` are accepted case-insensitively). From WAND this triggers the Map â†’ BlockMax migration; on an already-`blockmax` index it is a NO_OP. `wand` is rejected (deprecated); downgrade is intentionally not supported."
+        },
+        {
+          "name": "tokenization",
+          "type": "string",
+          "location": "body",
+          "description": "Target tokenization for a `searchable` or `filterable` index. Required when creating a `searchable` index; optional otherwise (omitted = keep the current value). On `filterable` creation it must be omitted or equal the property's current tokenization."
+        }
+      ]
+    },
+    {
+      "name": "properties_tokenize_objects-properties",
+      "description": "Tokenizes the provided text using the tokenization method configured for the specified property. This endpoint automatically applies the property's tokenization setting and the collection's stopword configuration, making it useful for understanding exactly how text will be processed for a given property during indexing and querying. Required: className, propertyName, text. Returns the new TokenizeResponse.",
+      "method": "POST",
+      "path": "/schema/{className}/properties/{propertyName}/tokenize",
+      "params": [
+        {
+          "name": "className",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the collection (class) containing the property.",
+          "required": true
+        },
+        {
+          "name": "propertyName",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the property whose tokenization configuration should be used.",
+          "required": true
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "The text to tokenize using the property's configured tokenization.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "schema_dump",
+      "description": "Retrieves the definitions of all collections (classes) currently in the database schema. Returns array of Class.",
+      "method": "GET",
+      "path": "/schema",
+      "params": []
+    },
+    {
+      "name": "schema_objects-create",
+      "description": "Defines and creates a new collection (class). If [`AutoSchema`](https://docs.weaviate.io/weaviate/config-refs/collections#auto-schema) is enabled (not recommended for production), Weaviate might attempt to infer schema from data during import. Manual definition via this endpoint provides explicit control. Optional: class, description, invertedIndexConfig (plus 10 more). Returns array of Property.",
+      "method": "POST",
+      "path": "/schema",
+      "params": [
+        {
+          "name": "class",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the collection (formerly 'class') (required). Multiple words should be concatenated in CamelCase, e.g. `ArticleAuthor`."
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description of the collection for metadata purposes."
+        },
+        {
+          "name": "inverted-index-config-bm25-b",
+          "wire_name": "invertedIndexConfig.bm25.b",
+          "type": "float",
+          "location": "body",
+          "description": "Calibrates term-weight scaling based on the document length (default: 0.75)."
+        },
+        {
+          "name": "inverted-index-config-bm25-k1",
+          "wire_name": "invertedIndexConfig.bm25.k1",
+          "type": "float",
+          "location": "body",
+          "description": "Calibrates term-weight scaling based on the term frequency within a document (default: 1.2)."
+        },
+        {
+          "name": "inverted-index-config-cleanup-interval-seconds",
+          "wire_name": "invertedIndexConfig.cleanupIntervalSeconds",
+          "type": "float",
+          "location": "body",
+          "description": "Asynchronous index clean up happens every n seconds (default: 60)."
+        },
+        {
+          "name": "inverted-index-config-index-null-state",
+          "wire_name": "invertedIndexConfig.indexNullState",
+          "type": "bool",
+          "location": "body",
+          "description": "Index each object with the null state (default: `false`)."
+        },
+        {
+          "name": "inverted-index-config-index-property-length",
+          "wire_name": "invertedIndexConfig.indexPropertyLength",
+          "type": "bool",
+          "location": "body",
+          "description": "Index length of properties (default: `false`)."
+        },
+        {
+          "name": "inverted-index-config-index-timestamps",
+          "wire_name": "invertedIndexConfig.indexTimestamps",
+          "type": "bool",
+          "location": "body",
+          "description": "Index each object by its internal timestamps (default: `false`)."
+        },
+        {
+          "name": "inverted-index-config-stopword-presets",
+          "wire_name": "invertedIndexConfig.stopwordPresets",
+          "type": "object",
+          "location": "body",
+          "description": "User-defined named stopword lists. Each key is a preset name that can be referenced by a property's textAnalyzer.stopwordPreset field. The value is an array of stopword strings. Preset names must not be empty or whitespace-only; each list must contain at least one word; individual words must not be empty or whitespace-only."
+        },
+        {
+          "name": "inverted-index-config-stopwords-additions",
+          "wire_name": "invertedIndexConfig.stopwords.additions",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Stopwords to be considered additionally (default: []). Can be any array of custom strings."
+        },
+        {
+          "name": "inverted-index-config-stopwords-preset",
+          "wire_name": "invertedIndexConfig.stopwords.preset",
+          "type": "string",
+          "location": "body",
+          "description": "Pre-existing list of common words by language (default: `en`). Options: [`en`, `none`]."
+        },
+        {
+          "name": "inverted-index-config-stopwords-removals",
+          "wire_name": "invertedIndexConfig.stopwords.removals",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Stopwords to be removed from consideration (default: []). Can be any array of custom strings."
+        },
+        {
+          "name": "inverted-index-config-tokenizer-user-dict",
+          "wire_name": "invertedIndexConfig.tokenizerUserDict",
+          "type": "array",
+          "location": "body",
+          "description": "User-defined dictionary for tokenization."
+        },
+        {
+          "name": "inverted-index-config-using-block-max-wand",
+          "wire_name": "invertedIndexConfig.usingBlockMaxWAND",
+          "type": "bool",
+          "location": "body",
+          "description": "Using BlockMax WAND for query execution (default: `false`, will be `true` for new collections created after 1.30)."
+        },
+        {
+          "name": "moduleConfig",
+          "type": "object",
+          "location": "body",
+          "description": "Configuration specific to modules in a collection context."
+        },
+        {
+          "name": "multiTenancyConfig",
+          "type": "string",
+          "location": "body",
+          "description": "Configuration related to multi-tenancy within a collection (class)"
+        },
+        {
+          "name": "objectTtlConfig",
+          "type": "string",
+          "location": "body",
+          "description": "Configuration of objects' time-to-live"
+        },
+        {
+          "name": "properties",
+          "type": "array",
+          "location": "body",
+          "description": "Define properties of the collection."
+        },
+        {
+          "name": "replication-config-async-config-diff-batch-size",
+          "wire_name": "replicationConfig.asyncConfig.diffBatchSize",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of object keys included in a single diff batch."
+        },
+        {
+          "name": "replication-config-async-config-diff-per-node-timeout",
+          "wire_name": "replicationConfig.asyncConfig.diffPerNodeTimeout",
+          "type": "int",
+          "location": "body",
+          "description": "Timeout in seconds for computing a diff against a single node."
+        },
+        {
+          "name": "replication-config-async-config-frequency",
+          "wire_name": "replicationConfig.asyncConfig.frequency",
+          "type": "int",
+          "location": "body",
+          "description": "Base frequency in milliseconds at which async replication runs diff calculations."
+        },
+        {
+          "name": "replication-config-async-config-frequency-while-propagating",
+          "wire_name": "replicationConfig.asyncConfig.frequencyWhilePropagating",
+          "type": "int",
+          "location": "body",
+          "description": "Frequency in milliseconds at which async replication runs while propagation is active."
+        },
+        {
+          "name": "replication-config-async-config-hashtree-height",
+          "wire_name": "replicationConfig.asyncConfig.hashtreeHeight",
+          "type": "int",
+          "location": "body",
+          "description": "Height of the hashtree used for diffing."
+        },
+        {
+          "name": "replication-config-async-config-logging-frequency",
+          "wire_name": "replicationConfig.asyncConfig.loggingFrequency",
+          "type": "int",
+          "location": "body",
+          "description": "Interval in seconds at which async replication logs its status."
+        },
+        {
+          "name": "replication-config-async-config-pre-propagation-timeout",
+          "wire_name": "replicationConfig.asyncConfig.prePropagationTimeout",
+          "type": "int",
+          "location": "body",
+          "description": "Overall timeout in seconds for the pre-propagation phase."
+        },
+        {
+          "name": "replication-config-async-config-propagation-batch-size",
+          "wire_name": "replicationConfig.asyncConfig.propagationBatchSize",
+          "type": "int",
+          "location": "body",
+          "description": "Number of objects to include in a single propagation batch."
+        },
+        {
+          "name": "replication-config-async-config-propagation-concurrency",
+          "wire_name": "replicationConfig.asyncConfig.propagationConcurrency",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of concurrent propagation workers."
+        },
+        {
+          "name": "replication-config-async-config-propagation-delay",
+          "wire_name": "replicationConfig.asyncConfig.propagationDelay",
+          "type": "int",
+          "location": "body",
+          "description": "Delay in milliseconds before newly added or updated objects are propagated."
+        },
+        {
+          "name": "replication-config-async-config-propagation-limit",
+          "wire_name": "replicationConfig.asyncConfig.propagationLimit",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of objects to propagate in a single async replication run."
+        },
+        {
+          "name": "replication-config-async-config-propagation-timeout",
+          "wire_name": "replicationConfig.asyncConfig.propagationTimeout",
+          "type": "int",
+          "location": "body",
+          "description": "Timeout in seconds for propagating batch of changes to a node."
+        },
+        {
+          "name": "replication-config-deletion-strategy",
+          "wire_name": "replicationConfig.deletionStrategy",
+          "type": "string",
+          "location": "body",
+          "description": "Conflict resolution strategy for deleted objects."
+        },
+        {
+          "name": "replication-config-factor",
+          "wire_name": "replicationConfig.factor",
+          "type": "int",
+          "location": "body",
+          "description": "Number of times a collection (class) is replicated (default: 1)."
+        },
+        {
+          "name": "shardingConfig",
+          "type": "object",
+          "location": "body",
+          "description": "Manage how the index should be sharded and distributed in the cluster"
+        },
+        {
+          "name": "vectorConfig",
+          "type": "object",
+          "location": "body",
+          "description": "Configure named vectors. Either use this field or `vectorizer`, `vectorIndexType`, and `vectorIndexConfig` fields. Available from `v1.24.0`."
+        },
+        {
+          "name": "vectorIndexConfig",
+          "type": "object",
+          "location": "body",
+          "description": "Vector-index config, that is specific to the type of index selected in vectorIndexType"
+        },
+        {
+          "name": "vectorIndexType",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the vector index type to use for the collection (e.g. `hnsw` or `flat`)."
+        },
+        {
+          "name": "vectorizer",
+          "type": "string",
+          "location": "body",
+          "description": "Specify how the vectors for this collection should be determined. The options are either `none` - this means you have to import a vector with each object yourself - or the name of a module that provides vectorization capabilities, such as `text2vec-weaviate`. If left empty, it will use the globally configured default ([`DEFAULT_VECTORIZER_MODULE`](https://docs.weaviate.io/deploy/configuration/env-vars)) which can itself either be `none` or a specific module."
+        }
+      ]
+    },
+    {
+      "name": "schema_objects-delete",
+      "description": "Removes a collection definition from the schema. WARNING: This action permanently deletes all data objects stored within the collection. Required: className. Destructive.",
+      "method": "DELETE",
+      "path": "/schema/{className}",
+      "params": [
+        {
+          "name": "className",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the collection (class) to delete.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "schema_objects-get",
+      "description": "Retrieve the definition of a specific collection (`className`), including its properties, configuration, and vectorizer settings. Required: className. Returns array of Property.",
+      "method": "GET",
+      "path": "/schema/{className}",
+      "params": [
+        {
+          "name": "className",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the collection (class) to retrieve.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "schema_objects-update",
+      "description": "Updates the configuration settings of an existing collection (`className`) based on the provided definition. Note: This operation modifies mutable settings specified in the request body. It does not add properties (use `POST /schema/{className}/properties` for that) or change the collection name. Required: className. Optional: class, description, invertedIndexConfig (plus 10 more). Returns array of Property.",
+      "method": "PUT",
+      "path": "/schema/{className}",
+      "params": [
+        {
+          "name": "className",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the collection (class) to update.",
+          "required": true
+        },
+        {
+          "name": "class",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the collection (formerly 'class') (required). Multiple words should be concatenated in CamelCase, e.g. `ArticleAuthor`."
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description of the collection for metadata purposes."
+        },
+        {
+          "name": "inverted-index-config-bm25-b",
+          "wire_name": "invertedIndexConfig.bm25.b",
+          "type": "float",
+          "location": "body",
+          "description": "Calibrates term-weight scaling based on the document length (default: 0.75)."
+        },
+        {
+          "name": "inverted-index-config-bm25-k1",
+          "wire_name": "invertedIndexConfig.bm25.k1",
+          "type": "float",
+          "location": "body",
+          "description": "Calibrates term-weight scaling based on the term frequency within a document (default: 1.2)."
+        },
+        {
+          "name": "inverted-index-config-cleanup-interval-seconds",
+          "wire_name": "invertedIndexConfig.cleanupIntervalSeconds",
+          "type": "float",
+          "location": "body",
+          "description": "Asynchronous index clean up happens every n seconds (default: 60)."
+        },
+        {
+          "name": "inverted-index-config-index-null-state",
+          "wire_name": "invertedIndexConfig.indexNullState",
+          "type": "bool",
+          "location": "body",
+          "description": "Index each object with the null state (default: `false`)."
+        },
+        {
+          "name": "inverted-index-config-index-property-length",
+          "wire_name": "invertedIndexConfig.indexPropertyLength",
+          "type": "bool",
+          "location": "body",
+          "description": "Index length of properties (default: `false`)."
+        },
+        {
+          "name": "inverted-index-config-index-timestamps",
+          "wire_name": "invertedIndexConfig.indexTimestamps",
+          "type": "bool",
+          "location": "body",
+          "description": "Index each object by its internal timestamps (default: `false`)."
+        },
+        {
+          "name": "inverted-index-config-stopword-presets",
+          "wire_name": "invertedIndexConfig.stopwordPresets",
+          "type": "object",
+          "location": "body",
+          "description": "User-defined named stopword lists. Each key is a preset name that can be referenced by a property's textAnalyzer.stopwordPreset field. The value is an array of stopword strings. Preset names must not be empty or whitespace-only; each list must contain at least one word; individual words must not be empty or whitespace-only."
+        },
+        {
+          "name": "inverted-index-config-stopwords-additions",
+          "wire_name": "invertedIndexConfig.stopwords.additions",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Stopwords to be considered additionally (default: []). Can be any array of custom strings."
+        },
+        {
+          "name": "inverted-index-config-stopwords-preset",
+          "wire_name": "invertedIndexConfig.stopwords.preset",
+          "type": "string",
+          "location": "body",
+          "description": "Pre-existing list of common words by language (default: `en`). Options: [`en`, `none`]."
+        },
+        {
+          "name": "inverted-index-config-stopwords-removals",
+          "wire_name": "invertedIndexConfig.stopwords.removals",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Stopwords to be removed from consideration (default: []). Can be any array of custom strings."
+        },
+        {
+          "name": "inverted-index-config-tokenizer-user-dict",
+          "wire_name": "invertedIndexConfig.tokenizerUserDict",
+          "type": "array",
+          "location": "body",
+          "description": "User-defined dictionary for tokenization."
+        },
+        {
+          "name": "inverted-index-config-using-block-max-wand",
+          "wire_name": "invertedIndexConfig.usingBlockMaxWAND",
+          "type": "bool",
+          "location": "body",
+          "description": "Using BlockMax WAND for query execution (default: `false`, will be `true` for new collections created after 1.30)."
+        },
+        {
+          "name": "moduleConfig",
+          "type": "object",
+          "location": "body",
+          "description": "Configuration specific to modules in a collection context."
+        },
+        {
+          "name": "multiTenancyConfig",
+          "type": "string",
+          "location": "body",
+          "description": "Configuration related to multi-tenancy within a collection (class)"
+        },
+        {
+          "name": "objectTtlConfig",
+          "type": "string",
+          "location": "body",
+          "description": "Configuration of objects' time-to-live"
+        },
+        {
+          "name": "properties",
+          "type": "array",
+          "location": "body",
+          "description": "Define properties of the collection."
+        },
+        {
+          "name": "replication-config-async-config-diff-batch-size",
+          "wire_name": "replicationConfig.asyncConfig.diffBatchSize",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of object keys included in a single diff batch."
+        },
+        {
+          "name": "replication-config-async-config-diff-per-node-timeout",
+          "wire_name": "replicationConfig.asyncConfig.diffPerNodeTimeout",
+          "type": "int",
+          "location": "body",
+          "description": "Timeout in seconds for computing a diff against a single node."
+        },
+        {
+          "name": "replication-config-async-config-frequency",
+          "wire_name": "replicationConfig.asyncConfig.frequency",
+          "type": "int",
+          "location": "body",
+          "description": "Base frequency in milliseconds at which async replication runs diff calculations."
+        },
+        {
+          "name": "replication-config-async-config-frequency-while-propagating",
+          "wire_name": "replicationConfig.asyncConfig.frequencyWhilePropagating",
+          "type": "int",
+          "location": "body",
+          "description": "Frequency in milliseconds at which async replication runs while propagation is active."
+        },
+        {
+          "name": "replication-config-async-config-hashtree-height",
+          "wire_name": "replicationConfig.asyncConfig.hashtreeHeight",
+          "type": "int",
+          "location": "body",
+          "description": "Height of the hashtree used for diffing."
+        },
+        {
+          "name": "replication-config-async-config-logging-frequency",
+          "wire_name": "replicationConfig.asyncConfig.loggingFrequency",
+          "type": "int",
+          "location": "body",
+          "description": "Interval in seconds at which async replication logs its status."
+        },
+        {
+          "name": "replication-config-async-config-pre-propagation-timeout",
+          "wire_name": "replicationConfig.asyncConfig.prePropagationTimeout",
+          "type": "int",
+          "location": "body",
+          "description": "Overall timeout in seconds for the pre-propagation phase."
+        },
+        {
+          "name": "replication-config-async-config-propagation-batch-size",
+          "wire_name": "replicationConfig.asyncConfig.propagationBatchSize",
+          "type": "int",
+          "location": "body",
+          "description": "Number of objects to include in a single propagation batch."
+        },
+        {
+          "name": "replication-config-async-config-propagation-concurrency",
+          "wire_name": "replicationConfig.asyncConfig.propagationConcurrency",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of concurrent propagation workers."
+        },
+        {
+          "name": "replication-config-async-config-propagation-delay",
+          "wire_name": "replicationConfig.asyncConfig.propagationDelay",
+          "type": "int",
+          "location": "body",
+          "description": "Delay in milliseconds before newly added or updated objects are propagated."
+        },
+        {
+          "name": "replication-config-async-config-propagation-limit",
+          "wire_name": "replicationConfig.asyncConfig.propagationLimit",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of objects to propagate in a single async replication run."
+        },
+        {
+          "name": "replication-config-async-config-propagation-timeout",
+          "wire_name": "replicationConfig.asyncConfig.propagationTimeout",
+          "type": "int",
+          "location": "body",
+          "description": "Timeout in seconds for propagating batch of changes to a node."
+        },
+        {
+          "name": "replication-config-deletion-strategy",
+          "wire_name": "replicationConfig.deletionStrategy",
+          "type": "string",
+          "location": "body",
+          "description": "Conflict resolution strategy for deleted objects."
+        },
+        {
+          "name": "replication-config-factor",
+          "wire_name": "replicationConfig.factor",
+          "type": "int",
+          "location": "body",
+          "description": "Number of times a collection (class) is replicated (default: 1)."
+        },
+        {
+          "name": "shardingConfig",
+          "type": "object",
+          "location": "body",
+          "description": "Manage how the index should be sharded and distributed in the cluster"
+        },
+        {
+          "name": "vectorConfig",
+          "type": "object",
+          "location": "body",
+          "description": "Configure named vectors. Either use this field or `vectorizer`, `vectorIndexType`, and `vectorIndexConfig` fields. Available from `v1.24.0`."
+        },
+        {
+          "name": "vectorIndexConfig",
+          "type": "object",
+          "location": "body",
+          "description": "Vector-index config, that is specific to the type of index selected in vectorIndexType"
+        },
+        {
+          "name": "vectorIndexType",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the vector index type to use for the collection (e.g. `hnsw` or `flat`)."
+        },
+        {
+          "name": "vectorizer",
+          "type": "string",
+          "location": "body",
+          "description": "Specify how the vectors for this collection should be determined. The options are either `none` - this means you have to import a vector with each object yourself - or the name of a module that provides vectorization capabilities, such as `text2vec-weaviate`. If left empty, it will use the globally configured default ([`DEFAULT_VECTORIZER_MODULE`](https://docs.weaviate.io/deploy/configuration/env-vars)) which can itself either be `none` or a specific module."
+        }
+      ]
+    },
+    {
+      "name": "shards_get",
+      "description": "Retrieves the status of all shards associated with the specified collection (`className`). For multi-tenant collections, use the `tenant` query parameter to retrieve status for a specific tenant's shards. Required: className. Optional: tenant. Returns array of ShardStatusGetResponse.",
+      "method": "GET",
+      "path": "/schema/{className}/shards",
+      "params": [
+        {
+          "name": "className",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the collection (class) whose shards to query.",
+          "required": true
+        },
+        {
+          "name": "tenant",
+          "type": "string",
+          "location": "query",
+          "description": "The name of the tenant for which to retrieve shard statuses (only applicable for multi-tenant collections)."
+        }
+      ]
+    },
+    {
+      "name": "shards_update",
+      "description": "Updates the status of a specific shard within a collection (e.g., sets it to `READY` or `READONLY`). This is typically used after resolving an underlying issue (like disk space) that caused a shard to become non-operational. There is also a convenience function in each client to set the status of all shards of a collection. Required: className, shardName. Optional: status. Returns the updated ShardStatus.",
+      "method": "PUT",
+      "path": "/schema/{className}/shards/{shardName}",
+      "params": [
+        {
+          "name": "className",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the collection (class) containing the shard.",
+          "required": true
+        },
+        {
+          "name": "shardName",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the shard to update.",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Status of the shard"
+        }
+      ]
+    },
+    {
+      "name": "tenants_create",
+      "description": "Creates one or more new tenants for a specified collection (`className`). Multi-tenancy must be enabled for the collection via its definition. Required: className. Returns array of Tenant.",
+      "method": "POST",
+      "path": "/schema/{className}/tenants",
+      "params": [
+        {
+          "name": "className",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the multi-tenant enabled collection (class).",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tenants_delete",
+      "description": "Deletes one or more specified tenants from a collection (`className`). WARNING: This action permanently deletes all data associated with the specified tenants. Required: className. Destructive.",
+      "method": "DELETE",
+      "path": "/schema/{className}/tenants",
+      "params": [
+        {
+          "name": "className",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the collection (class) from which to delete tenants.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tenants_exists",
+      "description": "Checks for the existence of a specific tenant within the given collection (`className`). Required: className, tenantName.",
+      "method": "HEAD",
+      "path": "/schema/{className}/tenants/{tenantName}",
+      "params": [
+        {
+          "name": "className",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the collection (class) to check within.",
+          "required": true
+        },
+        {
+          "name": "tenantName",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the tenant to check for.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tenants_get",
+      "description": "Retrieves a list of all tenants currently associated with the specified collection. Required: className. Returns array of Tenant.",
+      "method": "GET",
+      "path": "/schema/{className}/tenants",
+      "params": [
+        {
+          "name": "className",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the collection (class) whose tenants to list.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tenants_get-one",
+      "description": "Retrieves details about a specific tenant within the given collection (`className`), such as its current activity status. Required: className, tenantName. Returns the Tenant.",
+      "method": "GET",
+      "path": "/schema/{className}/tenants/{tenantName}",
+      "params": [
+        {
+          "name": "className",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the collection (class) containing the tenant.",
+          "required": true
+        },
+        {
+          "name": "tenantName",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the tenant to retrieve.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tenants_update",
+      "description": "Updates the activity status (e.g., `ACTIVE`, `INACTIVE`, etc.) of one or more specified tenants within a collection (`className`). Required: className. Returns array of Tenant.",
+      "method": "PUT",
+      "path": "/schema/{className}/tenants",
+      "params": [
+        {
+          "name": "className",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the collection (class) containing the tenants.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vectors_index_objects-vectors-delete",
+      "description": "Deletes a specific vector index within a collection (`className`). The vector index to delete is identified by `vectorIndexName`. Required: className, vectorIndexName. Destructive.",
+      "method": "DELETE",
+      "path": "/schema/{className}/vectors/{vectorIndexName}/index",
+      "params": [
+        {
+          "name": "className",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the collection (class) containing the property.",
+          "required": true
+        },
+        {
+          "name": "vectorIndexName",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the vector index.",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

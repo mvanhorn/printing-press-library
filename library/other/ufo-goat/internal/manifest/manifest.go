@@ -9,13 +9,36 @@ import (
 	"io"
 	"net/http"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/other/ufo-goat/internal/cliutil"
 )
 
-const ManifestURL = "https://raw.githubusercontent.com/DenisSergeevitch/UFO-USA/main/metadata/uap-csv.csv"
+// ManifestURL is the default manifest origin. Retained as a package-level
+// reference for callers that want the default without going through the source
+// registry; ResolveSource (source.go) is the configurable entry point.
+const ManifestURL = DefaultManifestURL
+
+// releaseBatchRe extracts the PURSUE release tranche number from a war.gov
+// media URL, e.g. ".../ufo/release_1/foo.pdf" -> 1. The government publishes
+// files in batches; the tranche number is encoded in the URL path.
+var releaseBatchRe = regexp.MustCompile(`/release_(\d+)/`)
+
+// batchFromURL returns the release tranche encoded in a war.gov media URL,
+// or 0 if none is present (e.g. DVIDS-hosted videos with no war.gov link).
+func batchFromURL(urls ...string) int {
+	for _, u := range urls {
+		if m := releaseBatchRe.FindStringSubmatch(u); m != nil {
+			n, err := strconv.Atoi(m[1])
+			if err == nil {
+				return n
+			}
+		}
+	}
+	return 0
+}
 
 // File represents a single declassified UAP file from the CSV manifest.
 type File struct {
@@ -24,6 +47,7 @@ type File struct {
 	Type             string `json:"type"` // PDF, VID, IMG
 	Agency           string `json:"agency"`
 	ReleaseDate      string `json:"release_date"`
+	ReleaseBatch     int    `json:"release_batch"` // PURSUE release tranche number (release_N); 0 if unknown
 	IncidentDate     string `json:"incident_date"`
 	ParsedDate       string `json:"parsed_date,omitempty"` // RFC3339 or empty
 	IncidentLocation string `json:"incident_location"`
@@ -39,9 +63,13 @@ type File struct {
 	PDFImageLink     string `json:"pdf_image_link,omitempty"`
 }
 
-// FetchManifest downloads the CSV manifest from GitHub and parses it.
-func FetchManifest(ctx context.Context) ([]File, error) {
-	req, err := http.NewRequestWithContext(ctx, "GET", ManifestURL, nil)
+// FetchManifest downloads the CSV manifest from the given URL and parses it.
+// Pass manifest.ResolveSource(...) output, or DefaultManifestURL for the default.
+func FetchManifest(ctx context.Context, manifestURL string) ([]File, error) {
+	if manifestURL == "" {
+		manifestURL = DefaultManifestURL
+	}
+	req, err := http.NewRequestWithContext(ctx, "GET", manifestURL, nil)
 	if err != nil {
 		return nil, fmt.Errorf("creating request: %w", err)
 	}
@@ -66,7 +94,7 @@ func FetchManifest(ctx context.Context) ([]File, error) {
 		if resp.StatusCode == 429 {
 			body, _ := io.ReadAll(resp.Body)
 			return nil, &cliutil.RateLimitError{
-				URL:        ManifestURL,
+				URL:        manifestURL,
 				RetryAfter: cliutil.RetryAfter(resp),
 				Body:       string(body),
 			}
@@ -168,7 +196,32 @@ func ParseCSV(reader io.Reader) ([]File, error) {
 			}
 		}
 
+		// Derive the release tranche from the media URLs. PDFs/images and most
+		// videos carry a war.gov /release_N/ path; videos with only a DVIDS link
+		// fall back to release-date matching in the post-pass below.
+		f.ReleaseBatch = batchFromURL(f.DownloadURL, f.ThumbnailURL, f.PDFImageLink, f.ModalImage)
+
 		files = append(files, f)
+	}
+
+	// Fallback pass: assign a batch to files that had no /release_N/ URL (e.g.
+	// DVIDS-only videos) by matching their release date to a tranche we already
+	// identified. Files in one government release share a release date.
+	dateToBatch := map[string]int{}
+	for _, f := range files {
+		if f.ReleaseBatch > 0 && f.ReleaseDate != "" {
+			// Lowest batch wins if a date somehow maps to several (shouldn't happen).
+			if b, ok := dateToBatch[f.ReleaseDate]; !ok || f.ReleaseBatch < b {
+				dateToBatch[f.ReleaseDate] = f.ReleaseBatch
+			}
+		}
+	}
+	for i := range files {
+		if files[i].ReleaseBatch == 0 && files[i].ReleaseDate != "" {
+			if b, ok := dateToBatch[files[i].ReleaseDate]; ok {
+				files[i].ReleaseBatch = b
+			}
+		}
 	}
 
 	return files, nil

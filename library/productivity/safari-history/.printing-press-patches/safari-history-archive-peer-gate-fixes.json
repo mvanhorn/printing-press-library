@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "safari-history-archive-peer-gate-fixes",
+  "applied_at": "2026-05-24T00:00:00Z",
+  "base_run_id": "20260523-231334",
+  "base_printing_press_version": "4.13.0",
+  "summary": "Fixed archive origin fidelity, snapshot-only visited routing, read-only archive source attaches, atomic FTS rebuilds, and archive-mode output tests.",
+  "reason": "Peer-gate findings identified silent wrong archive semantics for origin/referrers and insufficient output-level coverage before the unreleased archive feature ships.",
+  "files": [
+    "internal/store/archive.go",
+    "internal/store/archive_test.go",
+    "internal/cli/visited.go",
+    "internal/cli/archive_routing_test.go",
+    "internal/cli/archive_cmd_test.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "GOFLAGS=-mod=readonly go build ./..., go vet ./..., go test ./internal/..., and gofmt -l on changed Go files all passed."
+}

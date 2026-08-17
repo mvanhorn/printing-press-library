@@ -46,25 +46,14 @@ func newChartPromotedCmd(flags *rootFlags) *cobra.Command {
 				return usageErr(fmt.Errorf("symbol is required\nUsage: %s <%s>", cmd.CommandPath(), "symbol"))
 			}
 			path = replacePathParam(path, "symbol", args[0])
-			params := map[string]string{}
-			if flagInterval != "" {
-				params["interval"] = fmt.Sprintf("%v", flagInterval)
-			}
-			if flagRange != "" {
-				params["range"] = fmt.Sprintf("%v", flagRange)
-			}
-			if flagPeriod1 != 0 {
-				params["period1"] = fmt.Sprintf("%v", flagPeriod1)
-			}
-			if flagPeriod2 != 0 {
-				params["period2"] = fmt.Sprintf("%v", flagPeriod2)
-			}
-			if flagEvents != "" {
-				params["events"] = fmt.Sprintf("%v", flagEvents)
-			}
-			if flagIncludePrePost != false {
-				params["includePrePost"] = fmt.Sprintf("%v", flagIncludePrePost)
-			}
+			params := chartQueryParams(
+				flagInterval,
+				flagRange,
+				flagPeriod1,
+				flagPeriod2,
+				flagEvents,
+				flagIncludePrePost,
+			)
 			data, prov, err := resolveRead(cmd.Context(), c, flags, "chart", false, path, params, nil, cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
@@ -129,4 +118,34 @@ func newChartPromotedCmd(flags *rootFlags) *cobra.Command {
 	// Wire sibling endpoints and sub-resources as subcommands
 
 	return cmd
+}
+
+func chartQueryParams(
+	interval string,
+	dateRange string,
+	period1 int,
+	period2 int,
+	events string,
+	includePrePost bool,
+) map[string]string {
+	params := map[string]string{}
+	if interval != "" {
+		params["interval"] = fmt.Sprintf("%v", interval)
+	}
+	if dateRange != "" && period1 == 0 {
+		params["range"] = fmt.Sprintf("%v", dateRange)
+	}
+	if period1 != 0 {
+		params["period1"] = fmt.Sprintf("%v", period1)
+	}
+	if period2 != 0 {
+		params["period2"] = fmt.Sprintf("%v", period2)
+	}
+	if events != "" {
+		params["events"] = fmt.Sprintf("%v", events)
+	}
+	if includePrePost {
+		params["includePrePost"] = fmt.Sprintf("%v", includePrePost)
+	}
+	return params
 }

@@ -9,8 +9,10 @@ import (
 
 func newFlightsCanonicalCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "canonical",
-		Short: "Manage canonical",
+		Use:         "canonical",
+		Short:       "Get canonical for flights",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newFlightsCanonicalGetFlightsCmd(flags))

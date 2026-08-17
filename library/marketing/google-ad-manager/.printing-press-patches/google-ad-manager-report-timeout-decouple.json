@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "google-ad-manager-report-timeout-decouple",
+  "applied_at": "2026-06-16",
+  "base_run_id": "20260616-124304-8944dbb7",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Bind report run/rerun/watch to --report-timeout (default raised 120s->300s) instead of the root --timeout, so async report polling is not cut off at the 60s root default.",
+  "reason": "Live validation showed GAM reports take ~3-4 min to run; the root --timeout (60s) bounded the poll and defeated --report-timeout, so the headline report commands failed with 'context deadline exceeded'.",
+  "files": ["internal/cli/report_run.go", "internal/cli/report_rerun.go", "internal/cli/report_watch.go"],
+  "validated_outcome": "report run/rerun/watch all completed against the live GAM API after the fix: report run created+ran+fetched rows; rerun row_count=1; watch emitted a baseline."
+}

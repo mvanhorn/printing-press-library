@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "discogs-teach-typed-exit-annotations",
+  "applied_at": "2026-07-11",
+  "base_run_id": "20260711-092456-c0435d15",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Add pp:typed-exit-codes \"0,2\" and mcp:local-write \"true\" annotations to the teach-pattern and teach-lookup commands.",
+  "reason": "The learn-loop generator template (<= 4.28.0) annotated teach/teach-playbook/playbook-amend but omitted the whole Annotations field on their two siblings teach-pattern and teach-lookup, which are the same family (local-store writers that exit 2 via usageErr on missing required flags). Once the live-dogfood matrix honors pp:typed-exit-codes, teach-pattern surfaced as a full-dogfood FAIL. This patch matches the generator fix landed upstream so a regen carries it forward.",
+  "files": ["internal/cli/teach.go", "AGENTS.md"],
+  "validated_outcome": "dogfood --live --level full passes 193/193 (teach-pattern/teach-lookup happy_path + json_fidelity now PASS).",
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/3471"
+}

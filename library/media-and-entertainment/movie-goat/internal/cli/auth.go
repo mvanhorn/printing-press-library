@@ -14,11 +14,12 @@ import (
 func newAuthCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "auth",
-		Short: "Manage TMDB_API_KEY credentials",
+		Short: "Manage TMDB_API_KEY and OMDB_API_KEY credentials",
 	}
 
 	cmd.AddCommand(newAuthStatusCmd(flags))
 	cmd.AddCommand(newAuthSetTokenCmd(flags))
+	cmd.AddCommand(newAuthSetOmdbTokenCmd(flags))
 	cmd.AddCommand(newAuthLogoutCmd(flags))
 
 	return cmd
@@ -38,11 +39,17 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 			w := cmd.OutOrStdout()
 			header := cfg.AuthHeader()
 			authed := header != ""
+			// PATCH(omdb-key-in-config-like-tmdb) — report the optional OMDb
+			// credential alongside the required TMDb one. OMDb never gates
+			// authentication: a missing key degrades enrichment, not access.
+			omdbConfigured := cfg.OmdbKey() != ""
 			if flags.asJSON {
 				out := map[string]any{
-					"authenticated": authed,
-					"source":        cfg.AuthSource,
-					"config":        cfg.Path,
+					"authenticated":   authed,
+					"source":          cfg.AuthSource,
+					"config":          cfg.Path,
+					"omdb_configured": omdbConfigured,
+					"omdb_source":     cfg.OmdbSource(),
 				}
 				if printErr := printJSONFiltered(w, out, flags); printErr != nil {
 					return printErr
@@ -54,6 +61,12 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 			}
 			if !authed {
 				fmt.Fprintln(w, red("Not authenticated"))
+				// OMDb is configured independently of TMDb, so it can be
+				// present in this state; the JSON path always reports it and
+				// the plain-text path must not hide it.
+				if omdbConfigured {
+					fmt.Fprintf(w, "  OMDb:   configured (%s)\n", cfg.OmdbSource())
+				}
 				fmt.Fprintln(w, "")
 				fmt.Fprintln(w, "Set your token:")
 				fmt.Fprintln(w, "  export TMDB_API_KEY=\"your-token-here\"")
@@ -64,6 +77,12 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 			fmt.Fprintln(w, green("Authenticated"))
 			fmt.Fprintf(w, "  Source: %s\n", cfg.AuthSource)
 			fmt.Fprintf(w, "  Config: %s\n", cfg.Path)
+			if omdbConfigured {
+				fmt.Fprintf(w, "  OMDb:   configured (%s)\n", cfg.OmdbSource())
+			} else {
+				fmt.Fprintln(w, "  OMDb:   not configured (optional; enables IMDb / RT / Metacritic)")
+				fmt.Fprintln(w, "          movie-goat-pp-cli auth set-omdb-token <token>")
+			}
 			return nil
 		},
 	}
@@ -109,6 +128,59 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 	}
 }
 
+// newAuthSetOmdbTokenCmd mirrors set-token for the second credential.
+//
+// PATCH(omdb-key-in-config-like-tmdb: OMDb key had no persistent home) — the
+// generated config schema models a single api_key, so before this the OMDb
+// credential could only be supplied through OMDB_API_KEY while the TMDb key
+// lived in config.toml. Two keys, two mechanisms, one of them undiscoverable
+// from `auth --help`.
+func newAuthSetOmdbTokenCmd(flags *rootFlags) *cobra.Command {
+	return &cobra.Command{
+		Use:   "set-omdb-token <token>",
+		Short: "Save the optional OMDb API token to the config file",
+		Long: `Save the optional OMDb API token to the config file.
+
+OMDb powers the IMDb, Rotten Tomatoes, and Metacritic columns in ratings,
+versus, and career. It is optional: without it those commands degrade to
+TMDb-only.
+
+OMDB_API_KEY still works and takes precedence over the saved value, so an
+existing environment-based setup is unaffected.`,
+		Example: "  movie-goat-pp-cli auth set-omdb-token YOUR_OMDB_API_KEY",
+		Args:    cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cfg, err := config.Load(flags.configPath)
+			if err != nil {
+				return configErr(err)
+			}
+
+			if err := cfg.SaveOmdbCredential(args[0]); err != nil {
+				return configErr(fmt.Errorf("saving omdb token: %w", err))
+			}
+
+			// Saving while OMDB_API_KEY is set is legal but confusing: the env
+			// var keeps winning, so the new value would appear to do nothing.
+			envShadow := os.Getenv("OMDB_API_KEY") != ""
+			if flags.asJSON {
+				out := map[string]any{
+					"saved":       true,
+					"config_path": cfg.Path,
+				}
+				if envShadow {
+					out["note"] = "OMDB_API_KEY env var is set and takes precedence over the saved value"
+				}
+				return printJSONFiltered(cmd.OutOrStdout(), out, flags)
+			}
+			fmt.Fprintf(cmd.OutOrStdout(), "OMDb token saved to %s\n", cfg.Path)
+			if envShadow {
+				fmt.Fprintln(cmd.OutOrStdout(), "Note: OMDB_API_KEY is set and takes precedence over the saved value.")
+			}
+			return nil
+		},
+	}
+}
+
 func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:     "logout",
@@ -120,22 +192,40 @@ func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 				return configErr(err)
 			}
 
-			if err := cfg.ClearTokens(); err != nil {
-				return configErr(fmt.Errorf("clearing tokens: %w", err))
+			// PATCH(omdb-key-in-config-like-tmdb) — logout clears every stored
+			// credential in one config write. Leaving the OMDb key behind
+			// would make "Credentials cleared" false for a config file that
+			// now stores two of them, and clearing the two in separate writes
+			// could strand the file half-cleared if the second one fails.
+			if err := cfg.ClearCredentials(); err != nil {
+				return configErr(fmt.Errorf("clearing credentials: %w", err))
 			}
 
 			envStillSet := os.Getenv("TMDB_API_KEY") != ""
+			omdbEnvStillSet := os.Getenv("OMDB_API_KEY") != ""
 			if flags.asJSON {
 				out := map[string]any{"cleared": true}
-				if envStillSet {
+				switch {
+				case envStillSet && omdbEnvStillSet:
+					out["note"] = "TMDB_API_KEY and OMDB_API_KEY env vars are still set"
+				case envStillSet:
 					out["note"] = "TMDB_API_KEY env var is still set"
+				case omdbEnvStillSet:
+					out["note"] = "OMDB_API_KEY env var is still set"
 				}
 				return printJSONFiltered(cmd.OutOrStdout(), out, flags)
 			}
 
 			// Warn if env vars still set
-			if envStillSet {
+			switch {
+			case envStillSet && omdbEnvStillSet:
+				fmt.Fprintf(cmd.OutOrStdout(), "Config cleared. Note: TMDB_API_KEY and OMDB_API_KEY env vars are still set.\n")
+				return nil
+			case envStillSet:
 				fmt.Fprintf(cmd.OutOrStdout(), "Config cleared. Note: TMDB_API_KEY env var is still set.\n")
+				return nil
+			case omdbEnvStillSet:
+				fmt.Fprintf(cmd.OutOrStdout(), "Config cleared. Note: OMDB_API_KEY env var is still set.\n")
 				return nil
 			}
 			fmt.Fprintln(cmd.OutOrStdout(), "Logged out. Credentials cleared.")

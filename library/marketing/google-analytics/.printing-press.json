@@ -2,7 +2,7 @@
   "api_name": "google-analytics",
   "cli_name": "google-analytics-pp-cli",
   "category": "marketing",
-  "description": "Agent-first Google Analytics 4 CLI with typed Data/Admin/Funnel API coverage and novel one-call analytics reports for channels, sources, pages, funnels, comparisons, anomalies, revenue, and health checks.",
+  "description": "Agent-first Google Analytics 4 CLI with typed Data/Admin/Funnel API coverage and one-call reports for channels, pages, funnels, anomalies, revenue, and health.",
   "spec_format": "openapi3-curated",
   "spec_source": "curated-ga4-data-admin-apis",
   "spec_checksum": "sha256:2dfe6cb7ef79f217ae73793eda907af9aa0f5368f4fa9a41ed16a89e62089da0",
@@ -65,5 +65,6 @@
   "owner_name": "Cathryn Lavery",
   "auth_type": "service_account_jwt",
   "spec_url": "https://developers.google.com/analytics/devguides/reporting/data/v1",
-  "version": "1.1.0"
+  "version": "1.1.0",
+  "catalog_description": "Agent-first Google Analytics 4 CLI with typed Data/Admin/Funnel API coverage and one-call reports for channels, pages, funnels, anomalies, revenue, and health."
 }

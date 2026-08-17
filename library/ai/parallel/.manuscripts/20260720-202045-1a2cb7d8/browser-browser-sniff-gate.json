@@ -1,0 +1,17 @@
+{
+  "run_id": "20260720-202045-1a2cb7d8",
+  "sources": [
+    {
+      "source_name": "parallel-product-api",
+      "decision": "skip-silent",
+      "reason": "spec-complete: https://docs.parallel.ai/public-openapi.json (30 paths)",
+      "asked_at": "2026-07-20T14:54:59Z"
+    },
+    {
+      "source_name": "parallel-account-api",
+      "decision": "skip-silent",
+      "reason": "spec-complete: https://api.parallel.ai/account/service/openapi.json (balance/apps/keys)",
+      "asked_at": "2026-07-20T14:54:59Z"
+    }
+  ]
+}

@@ -6,6 +6,7 @@ package cobratree
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"os/exec"
 	"sort"
@@ -35,12 +36,69 @@ func shellOutToCLI(cliPath func() (string, error), commandPath []string) server.
 			}
 			finalArgs = append(finalArgs, tokens...)
 		}
-		out, err := RunCLICommand(ctx, lookupPath, finalArgs)
+		out, diag, err := RunCLICommandWithDiagnostics(ctx, lookupPath, finalArgs)
 		if err != nil {
 			return mcplib.NewToolResultError(err.Error()), nil
 		}
-		return mcplib.NewToolResultText(out), nil
+		return mcplib.NewToolResultText(MergeDiagnostics(out, diag)), nil
 	}
+}
+
+// MergeDiagnostics riporta dentro il payload gli avvisi che la CLI scrive su stderr,
+// che altrimenti il client MCP non vedrebbe mai (vedi
+// RunCLICommandWithDiagnostics). --envelope copre il troncamento sulle
+// ricerche; questo copre tutto il resto — l'ambiguità di `legge cronologia`,
+// i campi ignoti di `--select`, lo store vuoto — su ogni comando.
+//
+// Il vincolo è non rompere il payload: gli avvisi entrano nel JSON come campo
+// `avvisi`, mai accodati al testo, perché una riga dopo il JSON lo renderebbe
+// non parsabile. Un output che non è JSON (o che un campo `avvisi` già ce
+// l'ha) torna intatto: meglio nessun avviso che un payload manomesso.
+func MergeDiagnostics(stdout, stderr string) string {
+	avvisi := avvisiDaStderr(stderr)
+	if len(avvisi) == 0 {
+		return stdout
+	}
+	var payload any
+	if err := json.Unmarshal([]byte(stdout), &payload); err != nil {
+		return stdout
+	}
+	switch t := payload.(type) {
+	case map[string]any:
+		if _, occupato := t["avvisi"]; occupato {
+			return stdout
+		}
+		t["avvisi"] = avvisi
+		payload = t
+	default:
+		// Un array (o uno scalare) non ha dove ospitare il campo: si avvolge,
+		// con la stessa chiave `risultati` che usa --envelope sulle ricerche.
+		payload = map[string]any{"risultati": payload, "avvisi": avvisi}
+	}
+	out, err := json.Marshal(payload)
+	if err != nil {
+		return stdout
+	}
+	return string(out)
+}
+
+// avvisiDaStderr tiene le righe diagnostiche e scarta il resto. Il prefisso è
+// la discriminante: la CLI marca `hint:` e `warning:` ciò che è destinato a
+// chi legge il risultato, mentre su stderr passano anche barre di avanzamento
+// (`classifica oratori: 12/90`, riscritte con \r) che nel payload sarebbero
+// solo rumore.
+func avvisiDaStderr(stderr string) []string {
+	var out []string
+	for _, riga := range strings.Split(stderr, "\n") {
+		riga = strings.TrimSpace(riga)
+		if i := strings.LastIndex(riga, "\r"); i >= 0 {
+			riga = strings.TrimSpace(riga[i+1:])
+		}
+		if strings.HasPrefix(riga, "hint: ") || strings.HasPrefix(riga, "warning: ") {
+			out = append(out, riga)
+		}
+	}
+	return out
 }
 
 // blockedRootFlags are root-level CLI flags that an MCP client must not be
@@ -127,6 +185,22 @@ func SplitShellArgs(s string) []string {
 // machine-readable channel. Stderr is included only in error text so post-run
 // telemetry or quota output cannot corrupt JSON results.
 func RunCLICommand(ctx context.Context, binPath string, args []string) (string, error) {
+	out, _, err := RunCLICommandWithDiagnostics(ctx, binPath, args)
+	return out, err
+}
+
+// RunCLICommandWithDiagnostics is RunCLICommand plus the child's stderr, which
+// the plain form discards on success.
+//
+// Keeping the two channels separate is right — mixing stderr into stdout would
+// corrupt the JSON, which is what RunCLICommand's contract protects. But
+// *dropping* stderr is a different decision, and on the MCP surface it is the
+// wrong one: every hint the CLI writes there (truncation, ambiguity, unknown
+// --select fields, empty store) is diagnostic meant for whoever consumes the
+// result, and that consumer is always a machine which cannot read a warning on
+// screen and adjust. The caller gets both streams and decides how to carry the
+// diagnostic without breaking the payload.
+func RunCLICommandWithDiagnostics(ctx context.Context, binPath string, args []string) (string, string, error) {
 	cmd := exec.CommandContext(ctx, binPath, args...)
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout
@@ -141,9 +215,9 @@ func RunCLICommand(ctx context.Context, binPath string, args []string) (string, 
 			if strings.TrimSpace(stderr.String()) == "" {
 				label = "output"
 			}
-			return stdout.String(), fmt.Errorf("cli %s: %w (%s: %s)", binPath, err, label, msg)
+			return stdout.String(), stderr.String(), fmt.Errorf("cli %s: %w (%s: %s)", binPath, err, label, msg)
 		}
-		return stdout.String(), fmt.Errorf("cli %s: %w", binPath, err)
+		return stdout.String(), stderr.String(), fmt.Errorf("cli %s: %w", binPath, err)
 	}
-	return stdout.String(), nil
+	return stdout.String(), stderr.String(), nil
 }

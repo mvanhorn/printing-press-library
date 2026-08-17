@@ -1,0 +1,1143 @@
+{
+  "dir": "/Users/dwb/printing-press/.runstate/obsidian-75c44ba7/runs/20260606-104318-ao87811-27595/working/atlas-obscura-pp-cli",
+  "binary": "/Users/dwb/printing-press/.runstate/obsidian-75c44ba7/runs/20260606-104318-ao87811-27595/working/atlas-obscura-pp-cli/atlas-obscura-pp-cli",
+  "level": "full",
+  "verdict": "FAIL",
+  "matrix_size": 68,
+  "passed": 65,
+  "failed": 3,
+  "skipped": 53,
+  "commands": [
+    "api",
+    "categories",
+    "cluster",
+    "destinations",
+    "doctor",
+    "export",
+    "feedback list",
+    "gaps",
+    "import",
+    "near",
+    "places",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "route",
+    "search",
+    "show",
+    "surprise",
+    "sync",
+    "trip add",
+    "trip list",
+    "trip remove",
+    "trip show",
+    "visited list",
+    "visited mark",
+    "which",
+    "workflow archive",
+    "workflow status"
+  ],
+  "tests": [
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  atlas-obscura-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  atlas-obscura-pp-cli api\n\n  # Show methods for a specific interface\n  atlas-obscura-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'atlas-obscura-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'atlas-obscura-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "categories",
+      "kind": "help",
+      "args": [
+        "categories",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List place links in a category (e.g. cemeteries, caves, ruins)\n\nUsage:\n  atlas-obscura-pp-cli categories \u003cslug\u003e [flags]\n\nExamples:\n  atlas-obscura-pp-cli categories example-value\n\nFlags:\n  -h, --help   help for categories\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'atlas-obscura-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "categories",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [categories] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "categories",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [categories] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "categories",
+      "kind": "error_path",
+      "args": [
+        "categories",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /categories/__printing_press_invalid__ returned HTTP 404: \u003c!DOCTYPE html\u003e\n\u003chtml lang=\"en\"\u003e\n  \u003chead\u003e\n    \u003cmeta charset=\"utf-8\"\u003e\n    \u003cmeta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"\u003e\n    \u003cmeta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"\u003e\n    \u003ctitle\u003eAtlas Obscura | Curious and Wondrous Travel Destinations\u003c/title\u003e\n    \u003cmeta name=\"description\" content=\"Definitive guidebook and friendly tour-guide to the world's most wondrous places. Travel tips, articles, strange facts and unique events.\" /\u003e\n    \n\n    \u003cstyle type=\"text/css\"\u003e\n      .lazy, .lazyloading {\n        background-image: asset-url(\"icons/ao.svg\");\n      }\n    \u003c/style\u003e\n    \u003clink rel=\"stylesheet\" href=\"https://assets.atlasobscura.com/assets/application-00bcc51fc57c546397267fa6e3e982df1a6725e013aba001a8d69b8ee7056874.css\" /\u003e\n  \u003c/head\u003e\n  \u003cbody\u003e\n    \u003cdiv class=\"container error-wrap\"\u003e\n  \u003cdiv class\"row\"\u003e\n    \u003cdiv class=\"col-xs-12\"\u003e\n      \u003ca href=\"/\"\u003e\u003ci class=\"icon-atlas-icon\"\u003e\u003c/i\u003e\u003c/a\u003e\n      \u003ch2 class=\"title-lg\"\u003eYou've gone off the map.\u003c/h2\u003e\n      \u003cp\u003e\u003ca href=\"/\"\u003eTake me home.\u003c/a\u003e\u003c/p\u003e\n    \u003c/div\u003e\n  \u003c/div\u003e\n\u003c/div\u003e\n\n  \u003c/body\u003e\n  \u003c/html\u003e\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "cluster",
+      "kind": "help",
+      "args": [
+        "cluster",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Group wonders near a point into tight clusters you can walk between. Each cluster\nabsorbs places within --walk miles of its seed; clusters with at least --min\nplaces are returned, densest first. Community-sourced from atlasobscura.com; not an official API.\n\nUsage:\n  atlas-obscura-pp-cli cluster \u003cplace-or-latlng\u003e [flags]\n\nExamples:\n  atlas-obscura-pp-cli cluster \"Edinburgh\" --walk 0.6 --min 3 --json\n  atlas-obscura-pp-cli cluster \"55.95,-3.19\" --radius 5\n\nFlags:\n  -h, --help                 help for cluster\n      --limit int            Maximum clusters to return (0 = all)\n      --max-scan-pages int   Maximum result pages to scan (default 5)\n      --min int              Minimum places for a cluster to be reported (default 3)\n      --radius float         Only consider places within this many miles of the origin (0 = no limit)\n      --walk float           Walking radius in miles that defines a cluster (default 0.6)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'atlas-obscura-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "cluster",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [cluster] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "cluster",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [cluster] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "cluster",
+      "kind": "error_path",
+      "args": [
+        "cluster",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: could not geocode \"__printing_press_invalid__\"; try a more specific name (e.g. \"Portland, Oregon\") or pass lat,lng\n"
+    },
+    {
+      "command": "destinations",
+      "kind": "help",
+      "args": [
+        "destinations",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List place links for a destination (e.g. paris-france, new-york)\n\nUsage:\n  atlas-obscura-pp-cli destinations \u003cslug\u003e [flags]\n\nExamples:\n  atlas-obscura-pp-cli destinations example-value\n\nFlags:\n  -h, --help   help for destinations\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'atlas-obscura-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "destinations",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [destinations] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "destinations",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [destinations] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "destinations",
+      "kind": "error_path",
+      "args": [
+        "destinations",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /things-to-do/__printing_press_invalid__/places returned HTTP 404: \u003c!DOCTYPE html\u003e\n\u003chtml lang=\"en\"\u003e\n  \u003chead\u003e\n    \u003cmeta charset=\"utf-8\"\u003e\n    \u003cmeta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"\u003e\n    \u003cmeta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"\u003e\n    \u003ctitle\u003eAtlas Obscura | Curious and Wondrous Travel Destinations\u003c/title\u003e\n    \u003cmeta name=\"description\" content=\"Definitive guidebook and friendly tour-guide to the world's most wondrous places. Travel tips, articles, strange facts and unique events.\" /\u003e\n    \n\n    \u003cstyle type=\"text/css\"\u003e\n      .lazy, .lazyloading {\n        background-image: asset-url(\"icons/ao.svg\");\n      }\n    \u003c/style\u003e\n    \u003clink rel=\"stylesheet\" href=\"https://assets.atlasobscura.com/assets/application-00bcc51fc57c546397267fa6e3e982df1a6725e013aba001a8d69b8ee7056874.css\" /\u003e\n  \u003c/head\u003e\n  \u003cbody\u003e\n    \u003cdiv class=\"container error-wrap\"\u003e\n  \u003cdiv class\"row\"\u003e\n    \u003cdiv class=\"col-xs-12\"\u003e\n      \u003ca href=\"/\"\u003e\u003ci class=\"icon-atlas-icon\"\u003e\u003c/i\u003e\u003c/a\u003e\n      \u003ch2 class=\"title-lg\"\u003eYou've gone off the map.\u003c/h2\u003e\n      \u003cp\u003e\u003ca href=\"/\"\u003eTake me home.\u003c/a\u003e\u003c/p\u003e\n    \u003c/div\u003e\n  \u003c/div\u003e\n\u003c/div\u003e\n\n  \u003c/body\u003e\n  \u003c/html\u003e\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  atlas-obscura-pp-cli doctor [flags]\n\nExamples:\n  atlas-obscura-pp-cli doctor\n  atlas-obscura-pp-cli doctor --json\n  atlas-obscura-pp-cli doctor --fail-on warn\n\nFlags:\n      --fail-on string   Exit non-zero when a health level is reached: stale, error. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'atlas-obscura-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  OK Auth: not required\n  OK Verify Mode: normal operation\n  OK API: reachable (HTTP 404 at /)\n  config_path: /tmp/claude-501/printing-press-subprocess-\u003credacted\u003e/.config/atlas-obscura-pp-cli/config.toml\n  base_url: https://www.atlasobscura.com\n  version: 1.0.0\n  INFO Cache: unknown\n    db_path: /tmp/claude-501/printing-press-subprocess-\u003credacted\u003e/.local/share/atlas-obscura-pp-cli/data.db\n    hint: Database not created yet; run 'atlas-obscura-pp-cli sync' to hydrate.\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"api\":\"reachable (HTTP 404 at /)\",\"auth\":\"not required\",\"base_url\":\"https://www.atlasobscura.com\",\"cache\":{\"db_path\":\"/tmp/claude-501/printing-press-subprocess-\u003credacted\u003e/.local/share/atlas-obscura-pp-cli/data.db\",\"hint\":\"Database not created yet; run 'atlas-obscura-pp-cli sync' to hydrate.\",\"status\":\"unknown\"},\"config\":\"ok\",\"config_path\":\"/tmp/claude-501/printing-press-subprocess-\u003credacted\u003e/.config/atlas-obscura-pp-cli/config.toml\",\"verify_mode\":\"normal operation\",\"version\":\"1.0.0\"}"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "export",
+      "kind": "help",
+      "args": [
+        "export",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Export a saved trip (see 'trip') to a routable GPX track, importable GeoJSON, or a\nhuman-readable markdown itinerary. Reads only from the local store — no network calls.\n\nUsage:\n  atlas-obscura-pp-cli export \u003ctrip\u003e [flags]\n\nExamples:\n  atlas-obscura-pp-cli export california-oddities --format gpx --out trip.gpx\n  atlas-obscura-pp-cli export default --format md\n\nFlags:\n      --format string   Export format: gpx, geojson, or md (default \"md\")\n  -h, --help            help for export\n      --out string      Write to this file instead of stdout\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'atlas-obscura-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "export",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [export] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "export",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [export] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "export",
+      "kind": "error_path",
+      "args": [
+        "export",
+        "__printing_press_invalid__"
+      ],
+      "status": "fail",
+      "reason": "expected non-zero exit for invalid argument",
+      "output_sample": "{\n  \"count\": 0,\n  \"note\": \"trip \\\"__printing_press_invalid__\\\" is empty; add places with 'trip add \\u003cid-or-slug\\u003e --trip __printing_press_invalid__'\",\n  \"source\": \"community-sourced from atlasobscura.com; not an official API\",\n  \"trip\": \"__printing_press_invalid__\"\n}\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  atlas-obscura-pp-cli feedback list [flags]\n\nExamples:\n  atlas-obscura-pp-cli feedback list\n  atlas-obscura-pp-cli feedback list --limit 5\n  atlas-obscura-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'atlas-obscura-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "gaps",
+      "kind": "help",
+      "args": [
+        "gaps",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List worthwhile wonders near a place that are NOT in your visited log, ranked by\ninterestingness score. Combines a live geo search with your local visited table.\nCommunity-sourced from atlasobscura.com; not an official API.\n\nUsage:\n  atlas-obscura-pp-cli gaps \u003cplace-or-latlng\u003e [flags]\n\nExamples:\n  atlas-obscura-pp-cli gaps \"Portland, Oregon\" --radius 40 --min-score 6 --json\n  atlas-obscura-pp-cli gaps \"45.52,-122.68\"\n\nFlags:\n  -h, --help                 help for gaps\n      --limit int            Maximum number of unvisited places to return (default 15)\n      --max-scan-pages int   Maximum result pages to scan (default 5)\n      --min-score int        Only include places with at least this interestingness score (0-10)\n      --radius float         Only include places within this many miles (0 = no limit)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'atlas-obscura-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "gaps",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [gaps] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "gaps",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [gaps] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "gaps",
+      "kind": "error_path",
+      "args": [
+        "gaps",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: could not geocode \"__printing_press_invalid__\"; try a more specific name (e.g. \"Portland, Oregon\") or pass lat,lng\n"
+    },
+    {
+      "command": "import",
+      "kind": "help",
+      "args": [
+        "import",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Import data from a JSONL file by issuing POST requests for each record.\nEach line must be a valid JSON object. Failed records are logged to stderr\nbut do not stop the import.\n\nUsage:\n  atlas-obscura-pp-cli import \u003cresource\u003e [flags]\n\nExamples:\n  # Import from a JSONL file\n  atlas-obscura-pp-cli import \u003cresource\u003e --input data.jsonl\n\n  # Dry-run to preview without sending\n  atlas-obscura-pp-cli import \u003cresource\u003e --input data.jsonl --dry-run\n\n  # Import from stdin\n  cat data.jsonl | atlas-obscura-pp-cli import \u003cresource\u003e --input -\n\nFlags:\n      --batch-size int   Records per batch (future: batch API support) (default 1)\n      --dry-run          Preview import without sending requests\n  -h, --help             help for import\n  -i, --input string     Input JSONL file path (use - for stdin)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'atlas-obscura-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "import",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "error_path",
+      "args": [
+        "import",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: required flag(s) \"input\" not set\n"
+    },
+    {
+      "command": "near",
+      "kind": "help",
+      "args": [
+        "near",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Find wonders near a place name or \"lat,lng\", sorted by distance (miles).\nPlace names are geocoded via Open-Meteo (no key). --radius filters by distance,\n--category filters by each place's tags (scans detail pages, bounded by --max-scan-pages).\nCommunity-sourced from atlasobscura.com; not an official API.\n\nUsage:\n  atlas-obscura-pp-cli near \u003cplace-or-latlng\u003e [flags]\n\nExamples:\n  atlas-obscura-pp-cli near \"Paris\" --radius 5 --json\n  atlas-obscura-pp-cli near \"48.8584,2.2945\" --limit 20\n  atlas-obscura-pp-cli near \"Edinburgh\" --category cemeteries\n\nFlags:\n      --category string      Only include places tagged with this Atlas Obscura category (e.g. cemeteries)\n  -h, --help                 help for near\n      --images               Include image URLs in output\n      --limit int            Maximum number of matching places to return (default 15)\n      --max-scan-pages int   Maximum result pages to scan before returning (bounds --category detail fetches) (default 5)\n      --min-score int        Only include places with at least this interestingness score (0-10 heuristic)\n      --radius float         Only include places within this many miles (0 = no limit)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'atlas-obscura-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "near",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [near] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "near",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [near] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "near",
+      "kind": "error_path",
+      "args": [
+        "near",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: could not geocode \"__printing_press_invalid__\"; try a more specific name (e.g. \"Portland, Oregon\") or pass lat,lng\n"
+    },
+    {
+      "command": "places",
+      "kind": "help",
+      "args": [
+        "places",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Fetch a place detail page by slug or numeric id\n\nUsage:\n  atlas-obscura-pp-cli places \u003cslug\u003e [flags]\n\nExamples:\n  atlas-obscura-pp-cli places example-value\n\nFlags:\n  -h, --help   help for places\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'atlas-obscura-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "places",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [places] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "places",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [places] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "places",
+      "kind": "error_path",
+      "args": [
+        "places",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /places/__printing_press_invalid__ returned HTTP 404: \u003c!DOCTYPE html\u003e\n\u003chtml lang=\"en\"\u003e\n  \u003chead\u003e\n    \u003cmeta charset=\"utf-8\"\u003e\n    \u003cmeta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"\u003e\n    \u003cmeta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"\u003e\n    \u003ctitle\u003eAtlas Obscura | Curious and Wondrous Travel Destinations\u003c/title\u003e\n    \u003cmeta name=\"description\" content=\"Definitive guidebook and friendly tour-guide to the world's most wondrous places. Travel tips, articles, strange facts and unique events.\" /\u003e\n    \n\n    \u003cstyle type=\"text/css\"\u003e\n      .lazy, .lazyloading {\n        background-image: asset-url(\"icons/ao.svg\");\n      }\n    \u003c/style\u003e\n    \u003clink rel=\"stylesheet\" href=\"https://assets.atlasobscura.com/assets/application-00bcc51fc57c546397267fa6e3e982df1a6725e013aba001a8d69b8ee7056874.css\" /\u003e\n  \u003c/head\u003e\n  \u003cbody\u003e\n    \u003cdiv class=\"container error-wrap\"\u003e\n  \u003cdiv class\"row\"\u003e\n    \u003cdiv class=\"col-xs-12\"\u003e\n      \u003ca href=\"/\"\u003e\u003ci class=\"icon-atlas-icon\"\u003e\u003c/i\u003e\u003c/a\u003e\n      \u003ch2 class=\"title-lg\"\u003eYou've gone off the map.\u003c/h2\u003e\n      \u003cp\u003e\u003ca href=\"/\"\u003eTake me home.\u003c/a\u003e\u003c/p\u003e\n    \u003c/div\u003e\n  \u003c/div\u003e\n\u003c/div\u003e\n\n  \u003c/body\u003e\n  \u003c/html\u003e\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  atlas-obscura-pp-cli profile delete \u003cname\u003e [flags]\n\nExamples:\n  atlas-obscura-pp-cli profile delete my-defaults --yes\n  atlas-obscura-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'atlas-obscura-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  atlas-obscura-pp-cli profile list [flags]\n\nExamples:\n  atlas-obscura-pp-cli profile list\n  atlas-obscura-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'atlas-obscura-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under \u003cname\u003e. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile and --config).\n\nUsage:\n  atlas-obscura-pp-cli profile save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...] [flags]\n\nExamples:\n  atlas-obscura-pp-cli profile save my-defaults --json --compact\n  atlas-obscura-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'atlas-obscura-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  atlas-obscura-pp-cli profile show \u003cname\u003e [flags]\n\nExamples:\n  atlas-obscura-pp-cli profile show my-defaults\n  atlas-obscura-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'atlas-obscura-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  atlas-obscura-pp-cli profile use \u003cname\u003e [flags]\n\nExamples:\n  atlas-obscura-pp-cli profile use my-defaults\n  atlas-obscura-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'atlas-obscura-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "route",
+      "kind": "help",
+      "args": [
+        "route",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Find wonders along the corridor between two places. Both endpoints are geocoded\n(Open-Meteo), the straight-line path is sampled, and each sample point is geo-searched.\nStops within --width miles of the path are deduped, scored, and returned best-first.\nThe corridor is a straight-line approximation, not turn-by-turn routing.\nCommunity-sourced from atlasobscura.com; not an official API.\n\nUsage:\n  atlas-obscura-pp-cli route \u003ccityA\u003e \u003ccityB\u003e [flags]\n\nExamples:\n  atlas-obscura-pp-cli route \"San Francisco\" \"Los Angeles\" --min-score 6 --limit 15 --json\n  atlas-obscura-pp-cli route \"Denver\" \"Moab\" --width 30\n\nFlags:\n  -h, --help            help for route\n      --limit int       Maximum number of corridor stops to return (default 15)\n      --min-score int   Only include stops with at least this interestingness score (0-10 heuristic)\n      --samples int     Number of points to sample along the path (0 = auto from distance)\n      --width float     Corridor half-width in miles (max distance off the straight-line path) (default 20)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'atlas-obscura-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "route",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [route] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "route",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [route] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "route",
+      "kind": "error_path",
+      "args": [
+        "route",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Usage:\n  atlas-obscura-pp-cli route \u003ccityA\u003e \u003ccityB\u003e [flags]\n\nExamples:\n  atlas-obscura-pp-cli route \"San Francisco\" \"Los Angeles\" --min-score 6 --limit 15 --json\n  atlas-obscura-pp-cli route \"Denver\" \"Moab\" --width 30\n\nFlags:\n  -h, --help            help for route\n      --limit int       Maximum number of corridor stops to return (default 15)\n      --min-score int   Only include stops with at least this interestingness score (0-10 heuristic)\n      --samples int     Number of points to sample along the path (0 = auto from distance)\n      --width float     Corridor half-width in miles (max distance off the straight-line path) (default 20)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'atlas-obscura-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\nError: two places are required: route \u003ccityA\u003e \u003ccityB\u003e\n"
+    },
+    {
+      "command": "search",
+      "kind": "help",
+      "args": [
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search Atlas Obscura's catalog of hidden wonders by keyword (relevance-ranked).\nResults are cached to the local SQLite store for offline re-query.\nCommunity-sourced from atlasobscura.com; not an official API.\n\nUsage:\n  atlas-obscura-pp-cli search \u003cquery\u003e [flags]\n\nExamples:\n  atlas-obscura-pp-cli search \"catacombs\" --json\n  atlas-obscura-pp-cli search \"abandoned amusement park\" --limit 30\n\nFlags:\n  -h, --help        help for search\n      --limit int   Maximum number of results to return (default 15)\n      --page int    Page of results to start from (15 per page) (default 1)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'atlas-obscura-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "search",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "error_path",
+      "args": [
+        "search",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"count\": 0,\n  \"query\": \"__printing_press_invalid__\",\n  \"results\": null,\n  \"source\": \"community-sourced from atlasobscura.com; not an official API\",\n  \"total_matches\": 0\n}\n"
+    },
+    {
+      "command": "show",
+      "kind": "help",
+      "args": [
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a place's full detail: description, coordinates, address, category tags,\nand the \"Know Before You Go\" practical notes. Accepts a slug\n(gustave-eiffels-secret-apartment) or a numeric id. Use --short for the lean\nJSON record only. Community-sourced from atlasobscura.com; not an official API.\n\nUsage:\n  atlas-obscura-pp-cli show \u003cid-or-slug\u003e [flags]\n\nExamples:\n  atlas-obscura-pp-cli show gustave-eiffels-secret-apartment\n  atlas-obscura-pp-cli show 27604 --json\n  atlas-obscura-pp-cli show winchester-mystery-house --short\n\nFlags:\n  -h, --help    help for show\n      --short   Fetch only the compact JSON record (1 request, no description/categories/KBYG)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'atlas-obscura-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [show] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [show] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "show",
+      "kind": "error_path",
+      "args": [
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /places/__printing_press_invalid__ returned HTTP 404: \u003c!DOCTYPE html\u003e\n\u003chtml lang=\"en\"\u003e\n  \u003chead\u003e\n    \u003cmeta charset=\"utf-8\"\u003e\n    \u003cmeta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"\u003e\n    \u003cmeta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"\u003e\n    \u003ctitle\u003eAtlas Obscura | Curious and Wondrous Travel Destinations\u003c/title\u003e\n    \u003cmeta name=\"description\" content=\"Definitive guidebook and friendly tour-guide to the world's most wondrous places. Travel tips, articles, strange facts and unique events.\" /\u003e\n    \n\n    \u003cstyle type=\"text/css\"\u003e\n      .lazy, .lazyloading {\n        background-image: asset-url(\"icons/ao.svg\");\n      }\n    \u003c/style\u003e\n    \u003clink rel=\"stylesheet\" href=\"https://assets.atlasobscura.com/assets/application-00bcc51fc57c546397267fa6e3e982df1a6725e013aba001a8d69b8ee7056874.css\" /\u003e\n  \u003c/head\u003e\n  \u003cbody\u003e\n    \u003cdiv class=\"container error-wrap\"\u003e\n  \u003cdiv class\"row\"\u003e\n    \u003cdiv class=\"col-xs-12\"\u003e\n      \u003ca href=\"/\"\u003e\u003ci class=\"icon-atlas-icon\"\u003e\u003c/i\u003e\u003c/a\u003e\n      \u003ch2 class=\"title-lg\"\u003eYou've gone off the map.\u003c/h2\u003e\n      \u003cp\u003e\u003ca href=\"/\"\u003eTake me home.\u003c/a\u003e\u003c/p\u003e\n    \u003c/div\u003e\n  \u003c/div\u003e\n\u003c/div\u003e\n\n  \u003cscript\u003e(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML=\"window.__CF$cv$params={r:'a07aecb00923cfb4',t:'MTc4MDc4NTY4Nw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);\";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState\u0026\u0026(document.onreadystatechange=e,c())}}}})();\u003c/script\u003e\u003cscript defer src=\"https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447\" integrity=\"sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==\" data-cf-beacon='{\"version\":\"2024.11.0\",\"token\":\"928b8373b6b54955be94edf603f0a236\",\"server_timing\":{\"name\":{\"cfCacheStatus\":true,\"cfEdge\":true,\"cfExtPri\":true,\"cfL4\":true,\"cfOrigin\":true,\"cfSpeedBrain\":true},\"location_startswith\":null}}' crossorigin=\"anonymous\"\u003e\u003c/script\u003e\n\u003c/body\u003e\n  \u003c/html\u003e\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "surprise",
+      "kind": "help",
+      "args": [
+        "surprise",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Surface a single high-interest wonder. The pick is seeded by date, so it stays the\nsame all day and changes tomorrow — handy for a daily agent heartbeat. With --near it\ndraws from that area; otherwise from your local cache (or a seeded fallback city).\nCommunity-sourced from atlasobscura.com; not an official API.\n\nUsage:\n  atlas-obscura-pp-cli surprise [flags]\n\nExamples:\n  atlas-obscura-pp-cli surprise --json\n  atlas-obscura-pp-cli surprise --near \"Tokyo\" --exclude-visited\n\nFlags:\n      --category string   Prefer places hinting at this category in title/subtitle\n      --exclude-visited   Exclude places already marked visited\n  -h, --help              help for surprise\n      --near string       Draw the surprise from near this place or \"lat,lng\"\n      --seed string       Override the date seed (any string) for deterministic picks\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'atlas-obscura-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "surprise",
+      "kind": "happy_path",
+      "args": [
+        "surprise",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"origin\": \"Edinburgh\",\n  \"place\": {\n    \"id\": 31868,\n    \"slug\": \"the-scotsman-steps\",\n    \"title\": \"The Scotsman Steps\",\n    \"subtitle\": \"The colorful stairs are made with marble from the world's major quarries.\",\n    \"location\": \"Edinburgh, Scotland\",\n    \"lat\": 55.951171,\n    \"lng\": -3.188506,\n    \"url\": \"https://www.atlasobscura.com/places/the-scotsman-steps\",\n    \"distance_from_query\": \"0.15\",\n    \"score\": 8\n  },\n  \"seed\": \"2026-06-06\",\n  \"source\": \"community-sourced from atlasobscura.com; not an official API\"\n}\n"
+    },
+    {
+      "command": "surprise",
+      "kind": "json_fidelity",
+      "args": [
+        "surprise",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"origin\": \"Edinburgh\",\n  \"place\": {\n    \"id\": 31868,\n    \"slug\": \"the-scotsman-steps\",\n    \"title\": \"The Scotsman Steps\",\n    \"subtitle\": \"The colorful stairs are made with marble from the world's major quarries.\",\n    \"location\": \"Edinburgh, Scotland\",\n    \"lat\": 55.951171,\n    \"lng\": -3.188506,\n    \"url\": \"https://www.atlasobscura.com/places/the-scotsman-steps\",\n    \"distance_from_query\": \"0.15\",\n    \"score\": 8\n  },\n  \"seed\": \"2026-06-06\",\n  \"source\": \"community-sourced from atlasobscura.com; not an official API\"\n}\n"
+    },
+    {
+      "command": "surprise",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "sync",
+      "kind": "help",
+      "args": [
+        "sync",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Sync data from the API into a local SQLite database. Supports resumable\nincremental sync (only fetches new data since last sync) and full resync.\nOnce synced, use the 'search' command for instant full-text search.\n\nExit codes \u0026 warnings:\n  Resources the API denies access to (HTTP 403, or HTTP 400 with an\n  access-policy body) are reported as warnings rather than failing the\n  run. In --json mode each is emitted as a {\"event\":\"sync_warning\",...}\n  line carrying status, reason, and message fields, and a final\n  {\"event\":\"sync_summary\",...} aggregates the run.\n\n  Exit 0 when at least one resource synced and no resource flagged in\n  the spec as critical (x-critical: true) failed; non-critical failures\n  emit {\"event\":\"sync_warning\",\"reason\":\"exit_policy_default_changed\",\n  ...} so callers can detect that a partial failure was tolerated. Pass\n  --strict to exit non-zero on any per-resource failure. Exit is always\n  non-zero when every selected resource failed, regardless of --strict.\n\nResource scoping:\n  --resources runs the named top-level resources, plus any parent-keyed\n  dependent whose own name is listed OR whose parent table is listed.\n  Naming a parent therefore cascades to its dependents (so \"sync this\n  parent and its children\" works without listing every nested resource\n  by hand). There is no flag today to suppress the cascade for a named\n  parent. To run a dependent without re-syncing its parent, list only\n  the dependent by name; the parent table must already be populated\n  from a prior sync.\n\nUsage:\n  atlas-obscura-pp-cli sync [flags]\n\nExamples:\n  # Sync all resources\n  atlas-obscura-pp-cli sync\n\n  # Sync specific resources only\n  atlas-obscura-pp-cli sync --resources channels,messages\n\n  # Full resync (ignore previous checkpoint)\n  atlas-obscura-pp-cli sync --full\n\n  # Incremental sync: only records from the last 7 days\n  atlas-obscura-pp-cli sync --since 7d\n\n  # Parallel sync with 8 workers\n  atlas-obscura-pp-cli sync --concurrency 8\n\n  # Latest-only: refresh head of each resource, no historical backfill\n  atlas-obscura-pp-cli sync --latest-only\n\nFlags:\n      --concurrency int              Number of parallel sync workers (default 4)\n      --db string                    Database path (default: ~/.local/share/atlas-obscura-pp-cli/data.db)\n      --full                         Full resync (ignore previous checkpoint)\n      --global-param stringArray     Extra query param to inject into every sync request including dependent path-scoped calls (repeatable, key=value). Use when an API requires a scope on every call regardless of path nesting.\n  -h, --help                         help for sync\n      --latest-only                  Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).\n      --max-pages int                Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)\n      --param stringArray            Extra query param to inject into flat-list sync requests (repeatable, key=value). Skipped on path-scoped dependent requests so a top-level scope like workspace=\u003cid\u003e does not double up on /parents/\u003cid\u003e/children calls. Use --global-param to inject everywhere. Avoid pagination keys (limit/since/cursor) — overriding them corrupts resume state.\n      --resource-param stringArray   Per-resource extra query param (repeatable, resource:key=value). Wins over --param and --global-param when keys conflict.\n      --resources strings            Comma-separated resource types to sync. Naming a parent also runs its parent-keyed dependents (see Long help for scoping).\n      --since string                 Incremental sync duration (e.g. 7d, 24h, 1w, 30m)\n      --strict                       Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token u…[truncated]"
+    },
+    {
+      "command": "sync",
+      "kind": "happy_path",
+      "args": [
+        "sync"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_warning\",\"reason\":\"no_bulk_list_endpoints\",\"detail\":\"no bulk-list endpoints in spec; populate the store via single-fetch commands\"}\n{\"event\":\"sync_summary\",\"total_records\":0,\"resources\":0,\"success\":0,\"warned\":0,\"errored\":0,\"duration_ms\":0}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "json_fidelity",
+      "args": [
+        "sync",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_warning\",\"reason\":\"no_bulk_list_endpoints\",\"detail\":\"no bulk-list endpoints in spec; populate the store via single-fetch commands\"}\n{\"event\":\"sync_summary\",\"total_records\":0,\"resources\":0,\"success\":0,\"warned\":0,\"errored\":0,\"duration_ms\":0}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "trip add",
+      "kind": "help",
+      "args": [
+        "trip",
+        "add",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Add a place to a trip\n\nUsage:\n  atlas-obscura-pp-cli trip add \u003cid-or-slug\u003e [flags]\n\nExamples:\n  atlas-obscura-pp-cli trip add winchester-mystery-house --trip california-oddities\n\nFlags:\n  -h, --help          help for add\n      --trip string   Trip name (default: \"default\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'atlas-obscura-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "trip add",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"id-or-slug\" at depth 0"
+    },
+    {
+      "command": "trip add",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"id-or-slug\" at depth 0"
+    },
+    {
+      "command": "trip add",
+      "kind": "error_path",
+      "args": [
+        "trip",
+        "add",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /places/__printing_press_invalid__ returned HTTP 404: \u003c!DOCTYPE html\u003e\n\u003chtml lang=\"en\"\u003e\n  \u003chead\u003e\n    \u003cmeta charset=\"utf-8\"\u003e\n    \u003cmeta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"\u003e\n    \u003cmeta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"\u003e\n    \u003ctitle\u003eAtlas Obscura | Curious and Wondrous Travel Destinations\u003c/title\u003e\n    \u003cmeta name=\"description\" content=\"Definitive guidebook and friendly tour-guide to the world's most wondrous places. Travel tips, articles, strange facts and unique events.\" /\u003e\n    \n\n    \u003cstyle type=\"text/css\"\u003e\n      .lazy, .lazyloading {\n        background-image: asset-url(\"icons/ao.svg\");\n      }\n    \u003c/style\u003e\n    \u003clink rel=\"stylesheet\" href=\"https://assets.atlasobscura.com/assets/application-00bcc51fc57c546397267fa6e3e982df1a6725e013aba001a8d69b8ee7056874.css\" /\u003e\n  \u003c/head\u003e\n  \u003cbody\u003e\n    \u003cdiv class=\"container error-wrap\"\u003e\n  \u003cdiv class\"row\"\u003e\n    \u003cdiv class=\"col-xs-12\"\u003e\n      \u003ca href=\"/\"\u003e\u003ci class=\"icon-atlas-icon\"\u003e\u003c/i\u003e\u003c/a\u003e\n      \u003ch2 class=\"title-lg\"\u003eYou've gone off the map.\u003c/h2\u003e\n      \u003cp\u003e\u003ca href=\"/\"\u003eTake me home.\u003c/a\u003e\u003c/p\u003e\n    \u003c/div\u003e\n  \u003c/div\u003e\n\u003c/div\u003e\n\n  \u003c/body\u003e\n  \u003c/html\u003e\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "trip list",
+      "kind": "help",
+      "args": [
+        "trip",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List trips, or the places in one trip\n\nUsage:\n  atlas-obscura-pp-cli trip list [flags]\n\nExamples:\n  atlas-obscura-pp-cli trip list\n  atlas-obscura-pp-cli trip list --trip california-oddities\n\nFlags:\n  -h, --help          help for list\n      --trip string   Show the places in this trip (omit to list all trips)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'atlas-obscura-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "trip list",
+      "kind": "happy_path",
+      "args": [
+        "trip",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"count\": 0,\n  \"source\": \"community-sourced from atlasobscura.com; not an official API\",\n  \"trips\": []\n}\n"
+    },
+    {
+      "command": "trip list",
+      "kind": "json_fidelity",
+      "args": [
+        "trip",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"count\": 0,\n  \"source\": \"community-sourced from atlasobscura.com; not an official API\",\n  \"trips\": []\n}\n"
+    },
+    {
+      "command": "trip list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "trip remove",
+      "kind": "help",
+      "args": [
+        "trip",
+        "remove",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a place from a trip\n\nUsage:\n  atlas-obscura-pp-cli trip remove \u003cid-or-slug\u003e [flags]\n\nExamples:\n  atlas-obscura-pp-cli trip remove winchester-mystery-house --trip california-oddities\n\nFlags:\n  -h, --help          help for remove\n      --trip string   Trip name (default: \"default\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'atlas-obscura-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "trip remove",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"id-or-slug\" at depth 0"
+    },
+    {
+      "command": "trip remove",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"id-or-slug\" at depth 0"
+    },
+    {
+      "command": "trip remove",
+      "kind": "error_path",
+      "args": [
+        "trip",
+        "remove",
+        "__printing_press_invalid__"
+      ],
+      "status": "fail",
+      "reason": "expected non-zero exit for invalid argument",
+      "output_sample": "{\n  \"message\": \"removed 0 item(s) from trip \\\"default\\\"\",\n  \"removed\": 0,\n  \"trip\": \"default\"\n}\n"
+    },
+    {
+      "command": "trip show",
+      "kind": "help",
+      "args": [
+        "trip",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show all places in a trip\n\nUsage:\n  atlas-obscura-pp-cli trip show \u003ctrip\u003e [flags]\n\nExamples:\n  atlas-obscura-pp-cli trip show california-oddities --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'atlas-obscura-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "trip show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"trip\" at depth 0"
+    },
+    {
+      "command": "trip show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"trip\" at depth 0"
+    },
+    {
+      "command": "trip show",
+      "kind": "error_path",
+      "args": [
+        "trip",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "fail",
+      "reason": "expected non-zero exit for invalid argument",
+      "output_sample": "{\n  \"count\": 0,\n  \"results\": [],\n  \"source\": \"community-sourced from atlasobscura.com; not an official API\",\n  \"trip\": \"__printing_press_invalid__\"\n}\n"
+    },
+    {
+      "command": "visited list",
+      "kind": "help",
+      "args": [
+        "visited",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List places you've marked visited\n\nUsage:\n  atlas-obscura-pp-cli visited list [flags]\n\nExamples:\n  atlas-obscura-pp-cli visited list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'atlas-obscura-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "visited list",
+      "kind": "happy_path",
+      "args": [
+        "visited",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"count\": 0,\n  \"source\": \"community-sourced from atlasobscura.com; not an official API\",\n  \"visited\": []\n}\n"
+    },
+    {
+      "command": "visited list",
+      "kind": "json_fidelity",
+      "args": [
+        "visited",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"count\": 0,\n  \"source\": \"community-sourced from atlasobscura.com; not an official API\",\n  \"visited\": []\n}\n"
+    },
+    {
+      "command": "visited list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "visited mark",
+      "kind": "help",
+      "args": [
+        "visited",
+        "mark",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Mark a place as visited\n\nUsage:\n  atlas-obscura-pp-cli visited mark \u003cid-or-slug\u003e [flags]\n\nExamples:\n  atlas-obscura-pp-cli visited mark salvation-mountain --note \"worth the desert drive\"\n\nFlags:\n      --date string   Visit date (YYYY-MM-DD; default today)\n  -h, --help          help for mark\n      --note string   Optional note about the visit\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'atlas-obscura-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "visited mark",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"id-or-slug\" at depth 0"
+    },
+    {
+      "command": "visited mark",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"id-or-slug\" at depth 0"
+    },
+    {
+      "command": "visited mark",
+      "kind": "error_path",
+      "args": [
+        "visited",
+        "mark",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /places/__printing_press_invalid__ returned HTTP 404: \u003c!DOCTYPE html\u003e\n\u003chtml lang=\"en\"\u003e\n  \u003chead\u003e\n    \u003cmeta charset=\"utf-8\"\u003e\n    \u003cmeta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"\u003e\n    \u003cmeta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"\u003e\n    \u003ctitle\u003eAtlas Obscura | Curious and Wondrous Travel Destinations\u003c/title\u003e\n    \u003cmeta name=\"description\" content=\"Definitive guidebook and friendly tour-guide to the world's most wondrous places. Travel tips, articles, strange facts and unique events.\" /\u003e\n    \n\n    \u003cstyle type=\"text/css\"\u003e\n      .lazy, .lazyloading {\n        background-image: asset-url(\"icons/ao.svg\");\n      }\n    \u003c/style\u003e\n    \u003clink rel=\"stylesheet\" href=\"https://assets.atlasobscura.com/assets/application-00bcc51fc57c546397267fa6e3e982df1a6725e013aba001a8d69b8ee7056874.css\" /\u003e\n  \u003c/head\u003e\n  \u003cbody\u003e\n    \u003cdiv class=\"container error-wrap\"\u003e\n  \u003cdiv class\"row\"\u003e\n    \u003cdiv class=\"col-xs-12\"\u003e\n      \u003ca href=\"/\"\u003e\u003ci class=\"icon-atlas-icon\"\u003e\u003c/i\u003e\u003c/a\u003e\n      \u003ch2 class=\"title-lg\"\u003eYou've gone off the map.\u003c/h2\u003e\n      \u003cp\u003e\u003ca href=\"/\"\u003eTake me home.\u003c/a\u003e\u003c/p\u003e\n    \u003c/div\u003e\n  \u003c/div\u003e\n\u003c/div\u003e\n\n  \u003c/body\u003e\n  \u003c/html\u003e\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  atlas-obscura-pp-cli which [query] [flags]\n\nExamples:\n  atlas-obscura-pp-cli which \"stale tickets\"\n  atlas-obscura-pp-cli which \"bottleneck\"\n  atlas-obscura-pp-cli which --limit 1 \"send message\"\n  atlas-obscura-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'atlas-obscura-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"matches\": []\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "archive",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Archive fetches all syncable resources from the API and stores them in a\nlocal SQLite database. Supports incremental sync (only new data since last run)\nand full resync. After archiving, use 'search' for instant full-text search.\n\nUsage:\n  atlas-obscura-pp-cli workflow archive [flags]\n\nExamples:\n  # Archive all resources\n  atlas-obscura-pp-cli workflow archive\n\n  # Full re-archive (ignore previous sync state)\n  atlas-obscura-pp-cli workflow archive --full\n\nFlags:\n      --db string   Database path (default: ~/.local/share/atlas-obscura-pp-cli/data.db)\n      --full        Full re-archive (ignore previous sync state)\n  -h, --help        help for archive\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'atlas-obscura-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "archive"
+      ],
+      "status": "pass",
+      "output_sample": "Archived 0 items across 0 resources to /tmp/claude-501/printing-press-subprocess-\u003credacted\u003e/.local/share/atlas-obscura-pp-cli/data.db\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "archive",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"resources_synced\":0,\"store_path\":\"/tmp/claude-501/printing-press-subprocess-\u003credacted\u003e/.local/share/atlas-obscura-pp-cli/data.db\",\"timestamp\":\"2026-06-06T22:41:29Z\",\"total_items\":0}"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show local archive status and sync state for all resources\n\nUsage:\n  atlas-obscura-pp-cli workflow status [flags]\n\nExamples:\n  # Show archive status\n  atlas-obscura-pp-cli workflow status\n\n  # Show status as JSON\n  atlas-obscura-pp-cli workflow status --json\n\nFlags:\n      --db string   Database path\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'atlas-obscura-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "Archive Status:\n  places                         1 items\n\n  Total: 1 items\n  Store: /tmp/claude-501/printing-press-subprocess-\u003credacted\u003e/.local/share/atlas-obscura-pp-cli/data.db\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"places\": 1\n}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-06-06T22:41:22.826295Z"
+}
+Error: live dogfood failed: 3/68 tests failed
+live dogfood failed: 3/68 tests failed

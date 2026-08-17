@@ -30,10 +30,12 @@ func newReportingGetReportRunsReportRunCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/v1/reporting/report_runs/{report_run}"
-			if len(args) < 2 {
+
+			// PATCH: Bind path placeholders from Cobra positional args in Use order.
+			if len(args) < 1 {
 				return usageErr(fmt.Errorf("report_run is required\nUsage: %s <%s>", cmd.CommandPath(), "report_run"))
 			}
-			path = replacePathParam(path, "report_run", args[1])
+			path = replacePathParam(path, "report_run", args[0])
 			params := map[string]string{}
 			if flagExpand != "" {
 				params["expand"] = fmt.Sprintf("%v", flagExpand)

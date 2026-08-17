@@ -1,0 +1,66 @@
+{
+  "api_name": "juneoven",
+  "base_url": "https://api.junelife.com",
+  "description": "Every June oven control from the terminal — self-pair, preheat, adjust, watch live telemetry, and cancel, over June's cloud with agent-native JSON.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "format": "Bearer {JUNE_ACCESS_TOKEN}",
+    "in": "header",
+    "env_vars": [
+      "JUNE_ACCESS_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "JUNE_ACCESS_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "devices_associated",
+      "description": "List ovens associated with this companion (yields oven_id). Required: device_id. Returns the AssociatedDevices.",
+      "method": "GET",
+      "path": "/2/devices/{device_id}/associated",
+      "params": [
+        {
+          "name": "device_id",
+          "type": "string",
+          "location": "path",
+          "description": "Companion device id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "devices_register",
+      "description": "Register or re-register a companion device to mint a 7-day access token. Required: device_id, password. Returns the new Token.",
+      "method": "POST",
+      "path": "/2/devices/register",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "device_id",
+          "type": "string",
+          "location": "body",
+          "description": "Companion device id (from pairing)",
+          "required": true
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "location": "body",
+          "description": "32-hex companion device secret",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

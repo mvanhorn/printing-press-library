@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "novel-error-path-probe",
+  "applied_at": "2026-07-12",
+  "base_run_id": "20260712-180417-tm-reprint428",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Annotate events tour + events watchlist save with pp:no-error-path-probe: their bad-input path can't return a non-zero exit (Ticketmaster returns 200+empty for unknown attraction ids; save's no-arg shows help), so live-dogfood's error_path probe must skip them.",
+  "reason": "Both novels use the help-on-no-args pattern and cannot distinguish invalid input from an empty result, so an error_path probe expecting a non-zero exit fails against real behavior. The annotation is the skill's sanctioned way to skip that probe for such commands.",
+  "files": ["internal/cli/events_tour.go", "internal/cli/events_watchlist.go"],
+  "validated_outcome": "live dogfood --level full 142/142 pass after annotation."
+}

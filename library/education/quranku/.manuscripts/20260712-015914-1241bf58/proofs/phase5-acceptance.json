@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "quranku",
+  "run_id": "20260712-015914-1241bf58",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 103,
+  "tests_passed": 103,
+  "tests_skipped": 55,
+  "auth_context": {
+    "type": "none"
+  }
+}

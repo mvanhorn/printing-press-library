@@ -83,6 +83,35 @@ func TestBuildGoogleFlightsURLEmptyOriginYieldsEmpty(t *testing.T) {
 	}
 }
 
+// PATCH(amend-2026-07-31): the deeplink must quote the same currency the
+// search returned — a EUR search handing out a curr=USD booking page was the
+// dogfood bug that motivated bookingCurrency.
+func TestBuildGoogleFlightsURLPropagatesCurrency(t *testing.T) {
+	opts := SearchOptions{
+		Origin:        "PDX",
+		Destination:   "DEN",
+		DepartureDate: "2026-09-15",
+		Currency:      "eur",
+	}
+	got := buildGoogleFlightsURL(opts)
+	if !strings.Contains(got, "&curr=EUR") {
+		t.Errorf("expected &curr=EUR (normalized from %q); got %s", opts.Currency, got)
+	}
+}
+
+func TestBuildGoogleFlightsURLInvalidCurrencyFallsBackToUSD(t *testing.T) {
+	opts := SearchOptions{
+		Origin:        "SEA",
+		Destination:   "LHR",
+		DepartureDate: "2026-06-15",
+		Currency:      "not-a-code",
+	}
+	got := buildGoogleFlightsURL(opts)
+	if !strings.Contains(got, "&curr=USD") {
+		t.Errorf("expected &curr=USD fallback for invalid currency; got %s", got)
+	}
+}
+
 func TestBuildGoogleFlightsURLZeroPaxDefaultsToOne(t *testing.T) {
 	opts := SearchOptions{Origin: "SEA", Destination: "LAX", DepartureDate: "2026-06-15", Passengers: 0}
 	got := buildGoogleFlightsURL(opts)

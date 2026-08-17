@@ -1,5 +1,5 @@
 // Copyright 2026 educrvz and contributors. Licensed under Apache-2.0. See LICENSE.
-// Hand-written tests for the orders spend/history helpers (PATCH: orders-history).
+// Tests for orders spend/history helpers — PATCH: orders-history (6 stores)
 
 package cli
 
@@ -11,7 +11,7 @@ import (
 func TestParseBRL(t *testing.T) {
 	cases := map[string]float64{
 		"R$ 2.124,65":  2124.65,
-		"R$ 660,23":    660.23,
+		"R$ 660,23":    660.23,
 		"R$ 0,00":      0,
 		"1.533,47":     1533.47,
 		"R$ 12.978,76": 12978.76,
@@ -41,7 +41,6 @@ func TestFormatBRL(t *testing.T) {
 }
 
 func TestParseBRLFormatRoundTrip(t *testing.T) {
-	// A value pulled from the API and reformatted must read back identically.
 	if got := formatBRL(parseBRL("R$ 2.908,54")); got != "2.908,54" {
 		t.Errorf("round trip = %q, want 2.908,54", got)
 	}
@@ -71,7 +70,6 @@ func TestLastNMonths(t *testing.T) {
 			t.Errorf("lastNMonths[%d] = %q, want %q", i, got[i], want[i])
 		}
 	}
-	// Crossing a year boundary.
 	jan := time.Date(2026, 1, 15, 0, 0, 0, 0, time.UTC)
 	g := lastNMonths(jan, 2)
 	if g[0] != "2025-12" || g[1] != "2026-01" {

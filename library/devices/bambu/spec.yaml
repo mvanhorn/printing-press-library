@@ -1,0 +1,128 @@
+name: bambu
+display_name: Bambu Local
+description: For people wiring an agent or code to monitor Bambu prints and emit notification-ready lifecycle payloads using normal local access.
+cli_description: Monitor Bambu prints over the local LAN and emit automation-ready start and finish payloads with exact plate metadata and previews.
+version: "1.0.0"
+kind: synthetic
+source: local-sqlite
+spec_source: docs
+category: devices
+website_url: https://printingpress.dev
+rate_class: unlimited
+
+auth:
+  type: api_key
+  header: X-Bambu-Access-Code
+  in: header
+  format: "{token}"
+  title: Bambu local LAN credentials
+  description: The printer serial and LAN access code are both required. They are used only for direct private-LAN MQTT and FTPS connections.
+  instructions: Read the serial and access code from the printer's network settings. This CLI supports normal local access only; Developer Mode, LAN Only Mode, and Bambu Cloud are not used or supported.
+  env_var_specs:
+    - name: BAMBU_SERIAL
+      kind: per_call
+      required: true
+      sensitive: false
+      description: Bambu printer serial used for discovery filtering, MQTT topics, and certificate identity checks.
+    - name: BAMBU_ACCESS_CODE
+      kind: per_call
+      required: true
+      sensitive: true
+      description: Local LAN access code used to authenticate directly to the printer.
+
+config:
+  format: toml
+  path: ~/.config/bambu-pp-cli/config.toml
+
+learn:
+  ticker_patterns:
+    - "^[A-Z0-9]{15}$"
+  synonyms:
+    "in progress": running
+    "on hold": paused
+    "completed": finished
+  entity_lookup_seeds:
+    print_state:
+      - canonical: RUNNING
+        aliases: [running, printing, in progress]
+      - canonical: PAUSE
+        aliases: [pause, paused, on hold]
+      - canonical: FINISH
+        aliases: [finish, finished, complete, completed]
+      - canonical: FAILED
+        aliases: [failed, error]
+      - canonical: IDLE
+        aliases: [idle, ready]
+
+resources:
+  observations:
+    description: Locally persisted, redacted printer observations collected from LAN status and event commands.
+    endpoints:
+      list:
+        method: GET
+        path: /observations
+        description: List locally persisted printer observations.
+        params:
+          - name: printer_serial
+            flag_name: printer
+            aliases: [serial]
+            type: string
+            description: Filter by configured printer serial.
+          - name: observation_type
+            flag_name: type
+            type: string
+            description: Filter by observation type such as status, transition, or job.
+          - name: since
+            type: string
+            format: duration
+            description: Include observations recorded within this duration or after this timestamp.
+        response:
+          type: array
+          item: Observation
+
+types:
+  Observation:
+    fields:
+      - name: observed_at
+        type: string
+        description: UTC observation timestamp.
+      - name: printer_serial
+        type: string
+        description: Redacted or configured printer identity.
+      - name: observation_type
+        type: string
+        description: Status, transition, job, health, or schema observation type.
+      - name: payload
+        type: object
+        description: Normalized redacted observation payload.
+
+extra_commands:
+  - {name: discover, description: Discover Bambu printers on the private LAN with SSDP and serial filtering.}
+  - {name: profile, description: Manage secret-safe multi-printer profiles and environment precedence.}
+  - {name: printer status, description: Fetch a fresh normalized MQTT pushall status snapshot.}
+  - {name: printer raw, description: Return the complete redacted MQTT report including unknown firmware fields.}
+  - {name: events watch, description: Emit provider-neutral start and terminal print lifecycle payloads as NDJSON.}
+  - {name: printer watch, description: Stream normalized printer snapshots and restart-safe lifecycle transitions.}
+  - {name: printer temperatures, description: Show current and target bed chamber nozzle and AMS temperatures.}
+  - {name: printer fans, description: Show available part auxiliary chamber heatbreak and airduct fan state.}
+  - {name: printer capabilities, description: Show model-aware lights speed network door storage firmware nozzle and tool capabilities.}
+  - {name: ams status, description: Show AMS units trays materials colors RFID humidity temperature and remaining estimates.}
+  - {name: ams active, description: Resolve the active AMS tray or external spool with Bambu tray semantics.}
+  - {name: ams services, description: Show read-only AMS drying and filament backup service state.}
+  - {name: printer health, description: Show normalized HMS messages and print errors with history.}
+  - {name: job current, description: Show current job IDs plate progress ETA layers stages speed file and timing.}
+  - {name: job objects, description: Show printable and skipped object identities for the current job.}
+  - {name: job metadata, description: Read exact-current-job bounded 3MF plate object and material metadata over FTPS.}
+  - {name: job thumbnail, description: Write the validated current plate preview image to an explicit output path.}
+  - {name: printer services, description: Show queue upload upgrade camera and timelapse operational flags.}
+  - {name: files list, description: List printer files over certificate-verified implicit FTPS.}
+  - {name: files download, description: Download a bounded printer file to an explicit safe local path.}
+  - {name: history, description: Query locally persisted jobs outcomes durations transitions and observations.}
+  - {name: maintenance, description: Track usage-derived maintenance due state forecasts and completion records.}
+  - {name: analytics, description: Run printer and job analytics over the local observation store.}
+  - {name: job eta, description: Forecast calibrated completion time and a historical error band.}
+  - {name: ams runway, description: Estimate loaded filament surplus or shortfall for the current plate.}
+  - {name: job repeats, description: Compare persisted executions of the same printable job.}
+  - {name: printer field-diff, description: Detect added removed type-changed and stale firmware report fields.}
+  - {name: history failure-correlations, description: Correlate failed jobs with printer filament plate firmware speed and temperature context.}
+  - {name: job timeline, description: Reconstruct stages pauses layers thermal recovery and errors for one print.}

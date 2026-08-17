@@ -1,0 +1,163 @@
+
+=== verify ===
+Runtime Verification: /Users/pbl-dev/printing-press/.runstate/pbl-415c512c/runs/20260614-181724-d301c9dc/working/withings-pp-cli/withings-pp-cli
+Mode: mock
+
+COMMAND                        KIND         HELP   DRY-RUN  EXEC     SCORE
+agent-context                  read         PASS   PASS     PASS     3/3
+analytics                      data-layer   PASS   PASS     PASS     3/3
+api                            local        PASS   PASS     PASS     3/3
+auth                           local        PASS   PASS     PASS     3/3
+bp-report                      read         PASS   PASS     PASS     3/3
+correlate                      read         PASS   PASS     FAIL     2/3
+devices                        read         PASS   PASS     PASS     3/3
+digest                         read         PASS   PASS     PASS     3/3
+doctor                         local        PASS   PASS     PASS     3/3
+feedback                       read         PASS   PASS     PASS     3/3
+goals                          read         PASS   PASS     PASS     3/3
+import                         data-layer   PASS   PASS     PASS     3/3
+measure                        read         PASS   PASS     PASS     3/3
+profile                        read         PASS   PASS     FAIL     2/3
+recomp                         read         PASS   PASS     PASS     3/3
+recovery                       read         PASS   PASS     PASS     3/3
+sync                           data-layer   PASS   PASS     PASS     3/3
+tail                           data-layer   PASS   PASS     PASS     3/3
+which                          read         PASS   PASS     PASS     3/3
+workflow                       read         PASS   PASS     FAIL     2/3
+workouts                       read         PASS   PASS     PASS     3/3
+
+Path-Param Probes (nested commands with <positional> args):
+  PASS auth set-token
+  PASS profile delete
+  PASS profile save
+  PASS profile show
+  PASS profile use
+
+Data Pipeline: SKIP (CLI has no sync command)
+Pass Rate: 100% (26/26 passed, 0 critical)
+Verdict: PASS
+
+=== validate-narrative ===
+OK: 8 narrative commands resolved and full examples passed
+
+=== dogfood ===
+dogfood: using spec /Users/pbl-dev/printing-press/.runstate/pbl-415c512c/runs/20260614-181724-d301c9dc/working/withings-pp-cli/spec.yaml (bundled)
+dogfood: caller --spec=/Users/pbl-dev/printing-press/.runstate/pbl-415c512c/runs/20260614-181724-d301c9dc/research/withings-spec.yaml overridden by bundled /Users/pbl-dev/printing-press/.runstate/pbl-415c512c/runs/20260614-181724-d301c9dc/working/withings-pp-cli/spec.yaml
+dogfood: synced .printing-press.json (novel_features) from novel_features_built
+dogfood: synced README.md (Unique Features) from novel_features_built
+dogfood: synced SKILL.md (Unique Capabilities) from novel_features_built
+dogfood: synced internal/mcp/tools.go (command_mirror_capabilities) from novel_features_built
+dogfood: synced README.md (Value Proposition) from research.json narrative
+dogfood: synced README.md (Quick Start) from research.json narrative
+dogfood: synced README.md (Troubleshooting) from research.json narrative
+dogfood: synced SKILL.md (Recipes) from research.json narrative
+Dogfood Report: withings-pp-cli
+================================
+
+Path Validity:     0/0 valid (SKIP)
+  Detail: internal-yaml spec: paths validated at parse time
+
+Auth Protocol:     MATCH
+  Spec: bearer token format (expects "Bearer " prefix)
+  Generated: Uses "Bearer" prefix
+  Detail: spec and generated client both use "Bearer"
+
+OAuth Scope Cover: 0/0 endpoints covered (SKIP)
+  Detail: no OAuth-scoped endpoints in spec
+
+Dead Flags:        0 dead (PASS)
+
+Dead Functions:    1 dead (WARN)
+  - formatCLIParamValue (defined, never called)
+
+Data Pipeline:     PARTIAL
+  Sync: calls domain-specific Upsert methods (GOOD)
+  Search: uses generic Search only or direct SQL
+  Domain tables: 1
+
+Examples:          7/10 commands have examples (PASS)
+  - bp-report: missing example
+  - recomp: missing example
+  - sleep debt: missing example
+
+Novel Features:    6/6 survived (PASS)
+
+MCP Surface:       PASS (MCP surface mirrors the Cobra tree at runtime)
+
+Verdict: WARN
+  - 1 dead helper functions found
+  - defaultSyncResources empty: sync command is a runtime no-op; store-dependent novel commands have no advertised population path
+  - 1 unregistered commands: sync
+
+=== workflow-verify ===
+Workflow Verification: withings-pp-cli
+================================
+
+Overall Verdict: workflow-pass
+  - no workflow manifest found, skipping
+
+=== verify-skill ===
+=== withings-pp-cli ===
+  ✘ 0 error(s), 2 likely false-positive(s)
+    [positional-args] withings-pp-cli correlate: got 2 positional args; Use: "correlate METRIC_A METRIC_B" expects 0–0  [likely false positive]
+      evidence: SKILL.md: weight sleep_score
+    [positional-args] withings-pp-cli correlate: got 2 positional args; Use: "correlate METRIC_A METRIC_B" expects 0–0  [likely false positive]
+      evidence: README.md: weight sleep_score
+  ✓ canonical-sections passed
+
+=== scorecard ===
+Quality Scorecard: withings
+
+  Output Modes         10/10
+  Auth                 10/10
+  Error Handling       10/10
+  Terminal UX          10/10
+  README               10/10
+  Doctor               10/10
+  Agent Native         10/10
+  MCP Quality          9/10
+  MCP Desc Quality     10/10
+  MCP Token Efficiency 7/10
+  MCP Remote Transport 10/10
+  MCP Tool Design      N/A
+  MCP Surface Strategy N/A
+  Local Cache          10/10
+  Cache Freshness      5/10
+  Breadth              9/10
+  Vision               8/10
+  Workflows            10/10
+  Insight              10/10
+  Agent Workflow       9/10
+
+  Domain Correctness
+  Path Validity           10/10
+  Auth Protocol           10/10
+  Data Pipeline Integrity 7/10
+  Sync Correctness        10/10
+  Live API Verification   N/A
+  Type Fidelity           4/5
+  Dead Code               4/5
+
+  Total: 91/100 - Grade A
+  Note: omitted from denominator: mcp_tool_design, mcp_surface_strategy, live_api_verification
+
+Sample Output Probe (live command sample)
+  Binary refresh: rebuilt (staged binary was older than Go sources)
+  Passed: 5/6  (83% pass rate, 0 skipped)
+  Failures:
+    - Multi-metric correlation: output does not contain any token from query "sleep_score"
+
+Gaps:
+  - MCP: 14 tools (0 public, 14 auth-required) — readiness: full
+
+Shipcheck Summary
+=================
+  LEG               RESULT  EXIT      ELAPSED
+  verify            PASS    0         6.033s
+  validate-narrative  PASS    0         214ms
+  dogfood           PASS    0         1.407s
+  workflow-verify   PASS    0         13ms
+  verify-skill      PASS    0         1.222s
+  scorecard         PASS    0         1.061s
+
+Verdict: PASS (6/6 legs passed)

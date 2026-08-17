@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "greptile-comparable-cohorts",
+  "applied_at": "2026-07-18",
+  "base_run_id": "20260717-002908-c6f34c82",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Require comparable theme windows and prevent incomplete or differently bounded watch samples from producing change claims.",
+  "reason": "Unequal exposures reverse raw-count trends, one-sided buckets have unknown deltas, and bounded samples can rotate IDs without representing new complaints.",
+  "files": ["internal/cli/cfpb_novel_support.go", "internal/cli/emerging_themes.go", "internal/cli/emerging_themes_test.go", "internal/cli/watch_changes.go", "internal/cli/watch_changes_test.go"],
+  "validated_outcome": "Tests cover explicit unknown deltas and limit-specific observation identity; incomplete observations do not advance state."
+}

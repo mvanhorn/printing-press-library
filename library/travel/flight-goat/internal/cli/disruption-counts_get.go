@@ -18,8 +18,8 @@ func newDisruptionCountsGetCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "get <id>",
 		Short:       "Returns flight cancellation/delay counts in the specified time period for a particular airline or airport.",
-		Example:     "  flight-goat-pp-cli disruption-counts get 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "disruption-counts.get", "mcp:read-only": "true"},
+		Example:     "  flight-goat-pp-cli disruption-counts get HOU --entity-type origin",
+		Annotations: map[string]string{"pp:endpoint": "disruption-counts.get", "pp:method": "GET", "pp:path": "/disruption_counts/{entity_type}/{id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -34,7 +34,7 @@ func newDisruptionCountsGetCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validEntityType {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "entity-type", flagEntityType, allowedEntityType)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagEntityType, "entity-type", allowedEntityType)
 				}
 			}
 			if cmd.Flags().Changed("time-period") {
@@ -47,35 +47,43 @@ func newDisruptionCountsGetCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validTimePeriod {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "time-period", flagTimePeriod, allowedTimePeriod)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagTimePeriod, "time-period", allowedTimePeriod)
 				}
 			}
+			path := "/disruption_counts/{entity_type}/{id}"
+			if len(args) < 1 || args[0] == "" {
+				return usageErr(fmt.Errorf("id is required\nUsage: %s <%s>", cmd.CommandPath(), "id"))
+			}
+			path = replacePathParam(path, "id", args[0])
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/disruption_counts/{entity_type}/{id}"
-			path = replacePathParam(path, "id", args[0])
-			path = replacePathParam(path, "entity_type", fmt.Sprintf("%v", flagEntityType))
+			path = replacePathParam(path, "entity_type", formatCLIParamValue(flagEntityType))
 			params := map[string]string{}
 			if flagTimePeriod != "" {
-				params["time_period"] = fmt.Sprintf("%v", flagTimePeriod)
+				params["time_period"] = formatCLIParamValue(flagTimePeriod)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "disruption-counts", false, path, params, nil)
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "disruption-counts", false, path, params, nil, "", cmd.ErrOrStderr())
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
 			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
+			// --plain) opt out of the auto-JSON path so piped consumers that asked for
+			// a non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -101,7 +109,7 @@ func newDisruptionCountsGetCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagEntityType, "entity-type", "airline", "The type of entity to get disruption statistics for. (one of: airline, origin, destination)")

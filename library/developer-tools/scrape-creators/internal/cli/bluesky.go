@@ -9,8 +9,10 @@ import (
 
 func newBlueskyCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "bluesky",
-		Short: "Get Bluesky posts and profile info",
+		Use:         "bluesky",
+		Short:       "Get Bluesky posts and profile info",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:api-resource": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newBlueskyListCmd(flags))

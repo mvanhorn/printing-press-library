@@ -1,0 +1,299 @@
+{
+  "api_name": "github-contents",
+  "base_url": "https://api.github.com",
+  "description": "Download any GitHub folder without cloning — plan it first, verify it after, re-sync only what changed.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "format": "Bearer {GITHUB_TOKEN}",
+    "env_vars": [
+      "GITHUB_TOKEN",
+      "GH_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "GITHUB_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "GH_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [
+    {
+      "name": "Accept",
+      "value": "application/vnd.github+json"
+    },
+    {
+      "name": "X-GitHub-Api-Version",
+      "value": "2022-11-28"
+    }
+  ],
+  "tools": [
+    {
+      "name": "blobs_get",
+      "description": "Get a blob (base64-encoded content) by its git SHA. Required: owner, repo, file-sha. Returns the Blob.",
+      "method": "GET",
+      "path": "/repos/{owner}/{repo}/git/blobs/{file_sha}",
+      "params": [
+        {
+          "name": "owner",
+          "type": "string",
+          "location": "path",
+          "description": "Repository owner",
+          "required": true
+        },
+        {
+          "name": "repo",
+          "type": "string",
+          "location": "path",
+          "description": "Repository name",
+          "required": true
+        },
+        {
+          "name": "file-sha",
+          "wire_name": "file_sha",
+          "type": "string",
+          "location": "path",
+          "description": "Blob SHA from a tree or contents listing",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contents_get",
+      "description": "Get a directory listing (JSON array) or file metadata+content (JSON object, base64, files up to 1 MB). Use trees get for large/deep listings and blobs get or download_url for files over 1 MB. Required: owner, repo, path. Optional: ref. Returns array of ContentEntry.",
+      "method": "GET",
+      "path": "/repos/{owner}/{repo}/contents/{path}",
+      "params": [
+        {
+          "name": "owner",
+          "type": "string",
+          "location": "path",
+          "description": "Repository owner",
+          "required": true
+        },
+        {
+          "name": "repo",
+          "type": "string",
+          "location": "path",
+          "description": "Repository name",
+          "required": true
+        },
+        {
+          "name": "path",
+          "type": "string",
+          "location": "path",
+          "description": "Path inside the repo, e.g. books or books/mathematics (use '' for repo root)",
+          "required": true
+        },
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "query",
+          "description": "Branch, tag, or commit SHA (defaults to the default branch)"
+        }
+      ]
+    },
+    {
+      "name": "rate-limit_show",
+      "description": "Show remaining API quota (5000/h with a token, 60/h without). Returns the RateLimit.",
+      "method": "GET",
+      "path": "/rate_limit",
+      "params": []
+    },
+    {
+      "name": "releases_latest",
+      "description": "Get the latest published release. Required: owner, repo. Returns the Release.",
+      "method": "GET",
+      "path": "/repos/{owner}/{repo}/releases/latest",
+      "params": [
+        {
+          "name": "owner",
+          "type": "string",
+          "location": "path",
+          "description": "Repository owner",
+          "required": true
+        },
+        {
+          "name": "repo",
+          "type": "string",
+          "location": "path",
+          "description": "Repository name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "releases_list",
+      "description": "List releases with their assets. Required: owner, repo. Optional: per-page (default: 30). Returns array of Release.",
+      "method": "GET",
+      "path": "/repos/{owner}/{repo}/releases",
+      "params": [
+        {
+          "name": "owner",
+          "type": "string",
+          "location": "path",
+          "description": "Repository owner",
+          "required": true
+        },
+        {
+          "name": "repo",
+          "type": "string",
+          "location": "path",
+          "description": "Repository name",
+          "required": true
+        },
+        {
+          "name": "per-page",
+          "wire_name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 100)"
+        }
+      ]
+    },
+    {
+      "name": "repos_branches",
+      "description": "List branches of a repository. Required: owner, repo. Optional: per-page (default: 100). Returns array of Branch.",
+      "method": "GET",
+      "path": "/repos/{owner}/{repo}/branches",
+      "params": [
+        {
+          "name": "owner",
+          "type": "string",
+          "location": "path",
+          "description": "Repository owner",
+          "required": true
+        },
+        {
+          "name": "repo",
+          "type": "string",
+          "location": "path",
+          "description": "Repository name",
+          "required": true
+        },
+        {
+          "name": "per-page",
+          "wire_name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 100)"
+        }
+      ]
+    },
+    {
+      "name": "repos_commits",
+      "description": "List commits, optionally filtered to a path (newest first). Required: owner, repo. Optional: path, ref, per-page (default: 30). Returns array of Commit.",
+      "method": "GET",
+      "path": "/repos/{owner}/{repo}/commits",
+      "params": [
+        {
+          "name": "owner",
+          "type": "string",
+          "location": "path",
+          "description": "Repository owner",
+          "required": true
+        },
+        {
+          "name": "repo",
+          "type": "string",
+          "location": "path",
+          "description": "Repository name",
+          "required": true
+        },
+        {
+          "name": "path",
+          "type": "string",
+          "location": "query",
+          "description": "Only commits touching this file or directory path"
+        },
+        {
+          "name": "ref",
+          "wire_name": "sha",
+          "type": "string",
+          "location": "query",
+          "description": "Branch, tag, or commit SHA to start listing from",
+          "aliases": [
+            "sha"
+          ]
+        },
+        {
+          "name": "per-page",
+          "wire_name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (max 100)"
+        }
+      ]
+    },
+    {
+      "name": "repos_get",
+      "description": "Get repository metadata including the default branch. Required: owner, repo. Returns the Repo.",
+      "method": "GET",
+      "path": "/repos/{owner}/{repo}",
+      "params": [
+        {
+          "name": "owner",
+          "type": "string",
+          "location": "path",
+          "description": "Repository owner (user or org), e.g. mjwoon",
+          "required": true
+        },
+        {
+          "name": "repo",
+          "type": "string",
+          "location": "path",
+          "description": "Repository name, e.g. AI-readings",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "trees_get",
+      "description": "Get a git tree. With --recursive, returns every file under it in one request (check the truncated flag on huge repos). Required: owner, repo, tree-sha. Optional: recursive.",
+      "method": "GET",
+      "path": "/repos/{owner}/{repo}/git/trees/{tree_sha}",
+      "params": [
+        {
+          "name": "owner",
+          "type": "string",
+          "location": "path",
+          "description": "Repository owner",
+          "required": true
+        },
+        {
+          "name": "repo",
+          "type": "string",
+          "location": "path",
+          "description": "Repository name",
+          "required": true
+        },
+        {
+          "name": "tree-sha",
+          "wire_name": "tree_sha",
+          "type": "string",
+          "location": "path",
+          "description": "Tree SHA, branch name, or commit SHA",
+          "required": true
+        },
+        {
+          "name": "recursive",
+          "type": "bool",
+          "location": "query",
+          "description": "Return all nested entries in one response"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+name: costco
+description: "Costco receipts and purchase-history CLI — pull in-warehouse, gas, and online receipts past the 2-year website cap"
+version: "0.1.0"
+base_url: "https://ecom-api.costco.com/ebusiness/order/v1"
+category: commerce
+health_check_path: "/orders/graphql"
+
+# Static headers every Costco ecom-api request carries. The costco-x-wcs-clientId
+# value (4900eb1f...) is a static app/tenant identifier — verified identical
+# across two distinct member sessions during live capture — so it is baked in
+# here rather than treated as a per-user credential. The json-patch content-type
+# is required by the gateway; the standard application/json returns a misleading
+# 401 "Invalid credentials".
+required_headers:
+  - name: client-identifier
+    value: "481b1aec-aa3b-454b-b81b-48187e28f205"
+  - name: costco-x-wcs-clientId
+    value: "4900eb1f-0c10-4bd9-99c3-c59e6c1ecebf"
+  - name: costco.env
+    value: "ecom"
+  - name: costco.service
+    value: "restOrders"
+  - name: Content-Type
+    value: "application/json-patch+json"
+  - name: Origin
+    value: "https://www.costco.com"
+  - name: Referer
+    value: "https://www.costco.com/"
+
+auth:
+  type: bearer_token
+  header: "costco-x-authorization"
+  format: "Bearer {token}"
+  env_vars:
+    - COSTCO_ID_TOKEN
+
+config:
+  format: toml
+  path: "~/.config/costco-pp-cli/config.toml"
+
+# Single raw GraphQL passthrough endpoint to scaffold the framework. All real
+# user-facing commands (receipts, orders, counts, sync, history-depth, spend,
+# item-history, savings, returns-window, search, sql) are hand-built in Phase 3
+# around the custom internal/costco GraphQL client.
+resources:
+  raw:
+    description: "Raw GraphQL passthrough to the Costco orders endpoint (advanced)"
+    endpoints:
+      query:
+        method: POST
+        path: "/orders/graphql"
+        description: "Execute a raw GraphQL query against the Costco orders endpoint"
+        body:
+          properties:
+            query:
+              type: string
+              required: true
+              description: "GraphQL document"
+            variables:
+              type: object
+              description: "GraphQL variables JSON"
+        response:
+          type: object
+          item: GraphQLResponse
+
+types:
+  GraphQLResponse:
+    fields:
+      - name: data
+        type: string
+      - name: errors
+        type: string

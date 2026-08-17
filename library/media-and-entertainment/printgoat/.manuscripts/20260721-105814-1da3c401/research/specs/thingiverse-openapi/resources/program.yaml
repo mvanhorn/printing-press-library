@@ -1,0 +1,45 @@
+Root:
+  get:
+    tags:
+      - Program
+    summary: Get the specified program
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/programPathParam"
+    responses:
+      '200':
+        content:
+            application/json:
+              schema:
+                $ref: '../schemas/program_schema.yaml'  
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+getAll:
+  get:
+    tags:
+      - Program
+    summary: Get a list of programs
+    security:
+      - BearerAuth: []
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                count:
+                  type: integer
+                programs:
+                  type: array
+                  items:
+                    $ref: '../schemas/program_schema.yaml'       
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"

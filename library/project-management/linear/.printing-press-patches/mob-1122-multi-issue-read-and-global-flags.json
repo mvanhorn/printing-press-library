@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "mob-1122-multi-issue-read-and-global-flags",
+  "applied_at": "2026-07-12",
+  "base_run_id": "20260518-232543",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Issue reads must accept comma-separated identifiers in caller order while preserving the single-issue response contract, and root output flags must work at every Cobra-supported command position.",
+  "reason": "Agents commonly hydrate several linked tickets and place global output flags after positional arguments; treating a comma list as one identifier or rejecting valid persistent-flag placement turns routine closeout reads into typed blockers.",
+  "files": [
+    "internal/cli/issues.go",
+    "internal/cli/issues_multi_test.go"
+  ],
+  "validated_outcome": "Focused tests cover before/between/after --json placement, comma parsing, whitespace, de-duplication, caller order, fail-closed missing members, and the unchanged single-object envelope."
+}

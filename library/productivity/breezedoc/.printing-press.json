@@ -19,7 +19,7 @@
   "run_id": "20260601-002955",
   "catalog_entry": "breezedoc",
   "category": "productivity",
-  "description": "E-signature and invoicing API for documents, templates, recipients, teams, and invoice workflows.",
+  "description": "Manage BreezeDoc e-signature and invoicing workflows across documents, templates, recipients, teams, invoices, and follow-ups.",
   "mcp_binary": "breezedoc-pp-mcp",
   "mcp_tool_count": 19,
   "mcp_ready": "full",
@@ -72,5 +72,6 @@
       "description": "Prepare a signature packet from a template or raw document payload and optionally send it with explicit opt-in."
     }
   ],
-  "auth_key_url": "https://breezedoc.com/integrations/api"
+  "auth_key_url": "https://breezedoc.com/integrations/api",
+  "catalog_description": "Manage BreezeDoc e-signature and invoicing workflows across documents, templates, recipients, teams, invoices, and follow-ups."
 }

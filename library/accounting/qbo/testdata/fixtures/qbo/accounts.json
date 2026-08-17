@@ -1,9 +1,0 @@
-{
-  "QueryResponse": {
-    "Account": [
-      {"Id": "1", "Name": "Checking", "AccountType": "Bank", "Active": true},
-      {"Id": "2", "Name": "Sales", "AccountType": "Income", "Active": true},
-      {"Id": "3", "Name": "Old Expense", "AccountType": "Expense", "Active": false}
-    ]
-  }
-}

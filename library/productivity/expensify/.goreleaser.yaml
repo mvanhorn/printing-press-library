@@ -1,0 +1,51 @@
+version: 2
+project_name: expensify-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: expensify-pp-cli
+    main: ./cmd/expensify-pp-cli
+    binary: expensify-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/productivity/expensify/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: expensify-pp-mcp
+    main: ./cmd/expensify-pp-mcp
+    binary: expensify-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: expensify-pp-cli
+    repository:
+      owner: mvanhorn
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "File expenses and submit reports to Expensify from the command line"
+    install: |
+      bin.install "expensify-pp-cli"
+      bin.install "expensify-pp-mcp"

@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "lda-gov-publish-dogfood-fixes",
+  "applied_at": "2026-06-15",
+  "base_run_id": "20260614-204724-5aa6a87d",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Fixed publish-gate command semantics for invalid entity resolution, graph JSON precedence, and tail resource validation.",
+  "reason": "The publish-time live dogfood gate requires invalid positional arguments to fail and explicit --json to emit JSON even when a command-specific CSV format is also present.",
+  "files": [
+    "internal/cli/entities_resolve.go",
+    "internal/cli/entities_resolve_test.go",
+    "internal/cli/graph_export.go",
+    "internal/cli/graph_export_test.go",
+    "internal/cli/tail.go",
+    "internal/cli/tail_test.go"
+  ],
+  "validated_outcome": "go test ./...; publish validate; full live dogfood: 115 passed, 0 failed, 46 skipped."
+}

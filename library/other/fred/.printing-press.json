@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-15T01:45:44.4156584Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "fred",
+  "display_name": "FRED",
+  "cli_name": "fred-pp-cli",
+  "creator": {
+    "handle": "LukeTheoJohnson",
+    "name": "Luke J"
+  },
+  "owner": "luketheojohnson",
+  "printer": "LukeTheoJohnson",
+  "printer_name": "Luke J",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:573f49c184d3bf278b9ec226c6a86f5e42b858ea4afc9a4c02fde8a94094b003",
+  "run_id": "20260615-012908",
+  "category": "other",
+  "description": "Every FRED endpoint, plus a local SQLite store, offline search, and macro commands no other FRED tool has.",
+  "mcp_binary": "fred-pp-mcp",
+  "mcp_tool_count": 25,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "FRED_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Macro dashboard",
+      "command": "dashboard",
+      "description": "Latest value of a curated set of headline U.S. indicators (unemployment, CPI, GDP, fed funds, 10Y, payrolls) in one call."
+    },
+    {
+      "name": "Series compare",
+      "command": "series compare",
+      "description": "Pull observations for multiple series and align them by date into one table or JSON for correlation."
+    },
+    {
+      "name": "Series latest",
+      "command": "series latest",
+      "description": "The single most recent observation (date + value) for a series, as a one-liner."
+    },
+    {
+      "name": "Watchlist",
+      "command": "watchlist sync",
+      "description": "Persist a set of series locally, sync their latest observations into SQLite, and report which ones moved since the last sync."
+    },
+    {
+      "name": "Release calendar",
+      "command": "release calendar",
+      "description": "Recent and upcoming economic data release dates within a day window, aggregated across all releases."
+    }
+  ]
+}

@@ -29,7 +29,7 @@ func newTransactionsPromotedCmd(flags *rootFlags) *cobra.Command {
 			path := "/cpe/yourpayments/transactions"
 			htmlRequestParams := map[string]string{}
 			params := map[string]string{}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "transactions", false, path, params, nil)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "transactions", true, path, params, nil, "")
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

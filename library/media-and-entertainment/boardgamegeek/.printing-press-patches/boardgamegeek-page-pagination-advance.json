@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "patch_id": "boardgamegeek-page-pagination-advance",
+  "base_run_id": "20260618-160601",
+  "title": "Advance page-number pagination for plays/guild --all (Greptile P1, re-review)",
+  "rationale": "BGG's plays and guild commands paginate by page number with a server-fixed 100-item page and no page-size (limit) parameter, and the XML-normalized response exposes no next-cursor or has-more field. paginatedGet's only page-advance path was nextFullPageOffsetCursor, which hard-gates on paginationType == \"offset\" and a limit param, so it always returned false for these commands. The loop therefore broke after page 1 and `plays --all` / `guild --all` silently returned only the first 100 records.",
+  "files": [
+    "internal/cli/helpers.go",
+    "internal/cli/pagination_page_test.go"
+  ],
+  "changes": [
+    {
+      "file": "internal/cli/helpers.go",
+      "summary": "Added nextFullPagePageCursor (page-number advance for page pagination with no limit param) and paginationTotalFromEnvelope/totalFromAttributes (extract @total from flat and XML-normalized nested envelopes). paginatedGet now tracks an inferred page size and, in both the array and object branches, advances via nextFullPagePageCursor as a fallback after nextFullPageOffsetCursor. When the envelope declares a total (BGG's @total) the walk stops exactly; otherwise a full-page heuristic is used. Restricted to paginationType==\"page\" with empty limitParam, so offset/limit and cursor/has-more pagination are untouched.",
+      "validated_outcome": "go build/vet/test pass; multi-page walk collects all 250 records across 3 pages and stops at the declared total without an extra fetch; single short page makes exactly one request."
+    },
+    {
+      "file": "internal/cli/pagination_page_test.go",
+      "summary": "New hand-authored tests: TestPaginatedGetPageTypeWalksAllPages (multi-page collect + exact stop), TestPaginatedGetPageTypeSinglePage (no speculative fetch), TestNextFullPagePageCursorGuards (gating matrix), TestPaginationTotalFromEnvelope (flat + nested @total extraction).",
+      "validated_outcome": "go test -count=1 ./internal/cli/ passes including the new pagination tests."
+    }
+  ]
+}

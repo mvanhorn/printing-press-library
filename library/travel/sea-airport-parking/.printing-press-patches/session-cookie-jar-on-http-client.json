@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "session-cookie-jar-on-http-client",
+  "applied_at": "2026-07-13",
+  "base_run_id": "20260713-185103-c898b442",
+  "base_printing_press_version": "4.28.0",
+  "summary": "reservesea (AeroParker) is a session-driven flow whose booking pages 302 through a chain that only settles once JSESSIONID/parkingReservationGuid/AWSALB cookies are carried across hops; the generated HTTP client is built with a nil cookie jar and redirect-loops, so it is given a real cookie jar.",
+  "reason": "Without a cookie jar the generic client cannot hold the session cookie across the redirect chain and every hop re-requests anonymously until the 10-redirect cap; a cookie jar is inert for stateless APIs, so enabling it by default is safe and is required for any endpoint on this session site (including the live 'parking' page fetch).",
+  "files": ["internal/client/client.go"],
+  "validated_outcome": "With the jar, 'parking' fetches the live booking page (200) and extracts title/description/links instead of erroring after 10 redirects.",
+  "upstream_issue": ""
+}

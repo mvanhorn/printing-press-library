@@ -1,0 +1,133 @@
+pageParam:
+    in: query
+    name: page
+    required: false
+    description: Page for pagination
+    schema:
+        type: integer
+        minimum: 0
+        example: 1
+perPageParam:
+    in: query
+    name: per_page
+    required: false
+    description: Amount of results to show per page
+    schema:
+        type: integer
+        minimum: 1
+        example: 30
+
+usernamePathParam:
+    in: path
+    name: username
+    required: true
+    description: The username of the user affected
+    schema:
+        type: string
+        example: thingiverse
+
+thingIdPathParam:
+    in: path
+    name: thing_id
+    required: true
+    description: The id of the thing affected
+    schema:
+        type: integer
+        minimum: 1
+        example: 1004996
+
+groupIdPathParam:
+    in: path
+    name: group_id
+    required: true
+    description: The id of the group affected
+    schema:
+        type: integer
+        minimum: 1
+        example: 25
+forumIdPathParam:
+    in: path
+    name: forum_id
+    required: true
+    description: The id of the forum
+    schema:
+        type: integer
+        minimum: 1
+        example: 15561
+forumSlugPathParam:
+    in: path
+    name: forum_slug
+    required: true
+    description: The slug of the forum
+    schema:
+        type: string
+        example: general
+
+tagPathParam:
+    in: path
+    name: tag
+    required: true
+    description: The name of the tag affected
+    schema:
+        type: string
+        example: 3d
+
+fileIdPathParam:
+    in: path
+    name: file_id
+    required: true
+    description: The id of the file
+    schema:
+        type: integer
+        minimum: 1
+        example: 1
+
+copyIdPathParam:
+    in: path
+    name: copy_id
+    required: true
+    description: The id of the affected copy. This is also known as the make_id
+    schema:
+        type: integer
+        minimum: 1
+        example: 1
+
+imageIdPathParam:
+    in: path
+    name: image_id
+    required: true
+    description: The id of the image affected
+    schema:
+        type: integer
+        minimum: 1
+        example: 1
+
+collectionIdPathParam:
+    in: path
+    name: collection_id
+    required: true
+    description: ID of the collection affected
+    schema:
+        type: integer
+        minimum: 1
+        example: 1
+
+grouptopicIdPathParam:
+    in: path
+    name: grouptopic_id
+    required: true
+    description: The id of the group topic
+    schema:
+        type: integer
+        minimum: 1
+        example: 2
+
+commentIdPathParam:
+    in: path
+    name: comment_id
+    required: true
+    description: The id of the comment
+    schema:
+        type: integer
+        minimum: 1
+        example: 285620

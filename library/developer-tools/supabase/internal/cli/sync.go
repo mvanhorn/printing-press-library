@@ -1153,6 +1153,7 @@ func syncDependentResource(c interface {
 	var deniedParents int
 	var firstDenial *accessWarning
 	pageSize := determinePaginationDefaults()
+	parentFKKey := dep.ParentTable + "_id"
 	depSinceParam := syncResourceSinceParam(dep.Name)
 	depSinceTS := sinceTS
 	if depSinceTS != "" && depSinceParam == "" {
@@ -1233,6 +1234,9 @@ func syncDependentResource(c interface {
 				if err := json.Unmarshal(item, &obj); err == nil {
 					parentIDJSON, _ := json.Marshal(parentID)
 					obj["parent_id"] = parentIDJSON
+					if _, ok := obj[parentFKKey]; !ok {
+						obj[parentFKKey] = parentIDJSON
+					}
 					if modified, err := json.Marshal(obj); err == nil {
 						items[i] = modified
 					}

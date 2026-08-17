@@ -1,0 +1,220 @@
+{
+  "api_name": "luma",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "luma-events-mcp",
+      "url": "https://github.com/montaguegabe/luma-events-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Lu.Ma .NET SDK",
+      "url": "https://github.com/Zettersten/Lu.Ma",
+      "language": "C#",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "luma-ai-mcp-server",
+      "url": "https://github.com/bobtista/luma-ai-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-16T13:58:00Z",
+  "novel_features": [
+    {
+      "name": "Multi-city/category agenda",
+      "command": "agenda",
+      "description": "One flat, date-sorted list of upcoming events across multiple cities and categories at once.",
+      "rationale": "The API lists one place OR one category per call with cursor paging; we union across places and categories in the local store, de-page, and date-sort.",
+      "example": "luma-pp-cli agenda --city sf --city nyc --category cat-ai --window 7d --agent",
+      "why_it_matters": "Reach for this when the user asks 'what AI events are on this week' across several cities — no single Luma call can answer it.",
+      "group": "Query the API can't"
+    },
+    {
+      "name": "Geo-radius event search",
+      "command": "near",
+      "description": "Find events within N km of a lat/lng, ranked by distance.",
+      "rationale": "The API exposes each event's coordinate but has no radius filter; we run haversine over the local SQLite store.",
+      "example": "luma-pp-cli near --lat 37.77 --lng -122.42 --radius-km 5 --window 14d --agent",
+      "why_it_matters": "Use when the user wants events near a point or venue, which no Luma API call supports.",
+      "group": "Query the API can't"
+    },
+    {
+      "name": "ICS export of any filtered set",
+      "command": "ics",
+      "description": "Export a synced/filtered set of events to a .ics calendar file your calendar app can import.",
+      "rationale": "The API returns JSON only; we serialize any query result (a city, a category, a window) to RFC5545 VEVENTs, not just one Luma calendar.",
+      "example": "luma-pp-cli ics --city sf --category cat-ai --window 30d --out ai.ics",
+      "why_it_matters": "Use when the user wants events on their own calendar instead of re-reading JSON.",
+      "group": "Take it with you"
+    },
+    {
+      "name": "Drift / new-since-last-sync",
+      "command": "watch",
+      "description": "Show what changed on synced events since the previous sync — new, removed, filling up, sold out, rescheduled.",
+      "rationale": "The API is stateless; we snapshot guest_count, ticket_count, sold_out, and start_at to SQLite across syncs and diff them.",
+      "example": "luma-pp-cli watch --city sf --category cat-ai --agent",
+      "why_it_matters": "Reach for this to monitor events over time; a single API call can never show change.",
+      "group": "Track over time"
+    },
+    {
+      "name": "Multi-calendar aggregate compare",
+      "command": "calendars compare",
+      "description": "Side-by-side upcoming-event counts and total guest counts across several calendars (communities).",
+      "rationale": "The API is per-calendar; we GROUP BY calendar_api_id over local events to compare communities the API never aggregates.",
+      "example": "luma-pp-cli calendars compare cal-AAA cal-BBB cal-CCC --window 14d --agent",
+      "why_it_matters": "Use to benchmark which communities are most active or drawing the biggest crowds.",
+      "group": "Track over time"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Multi-city/category agenda",
+      "command": "agenda",
+      "description": "One flat, date-sorted list of upcoming events across multiple cities and categories at once.",
+      "rationale": "The API lists one place OR one category per call with cursor paging; we union across places and categories in the local store, de-page, and date-sort.",
+      "example": "luma-pp-cli agenda --city sf --city nyc --category cat-ai --window 7d --agent",
+      "why_it_matters": "Reach for this when the user asks 'what AI events are on this week' across several cities — no single Luma call can answer it.",
+      "group": "Query the API can't"
+    },
+    {
+      "name": "Geo-radius event search",
+      "command": "near",
+      "description": "Find events within N km of a lat/lng, ranked by distance.",
+      "rationale": "The API exposes each event's coordinate but has no radius filter; we run haversine over the local SQLite store.",
+      "example": "luma-pp-cli near --lat 37.77 --lng -122.42 --radius-km 5 --window 14d --agent",
+      "why_it_matters": "Use when the user wants events near a point or venue, which no Luma API call supports.",
+      "group": "Query the API can't"
+    },
+    {
+      "name": "ICS export of any filtered set",
+      "command": "ics",
+      "description": "Export a synced/filtered set of events to a .ics calendar file your calendar app can import.",
+      "rationale": "The API returns JSON only; we serialize any query result (a city, a category, a window) to RFC5545 VEVENTs, not just one Luma calendar.",
+      "example": "luma-pp-cli ics --city sf --category cat-ai --window 30d --out ai.ics",
+      "why_it_matters": "Use when the user wants events on their own calendar instead of re-reading JSON.",
+      "group": "Take it with you"
+    },
+    {
+      "name": "Drift / new-since-last-sync",
+      "command": "watch",
+      "description": "Show what changed on synced events since the previous sync — new, removed, filling up, sold out, rescheduled.",
+      "rationale": "The API is stateless; we snapshot guest_count, ticket_count, sold_out, and start_at to SQLite across syncs and diff them.",
+      "example": "luma-pp-cli watch --city sf --category cat-ai --agent",
+      "why_it_matters": "Reach for this to monitor events over time; a single API call can never show change.",
+      "group": "Track over time"
+    },
+    {
+      "name": "Multi-calendar aggregate compare",
+      "command": "calendars compare",
+      "description": "Side-by-side upcoming-event counts and total guest counts across several calendars (communities).",
+      "rationale": "The API is per-calendar; we GROUP BY calendar_api_id over local events to compare communities the API never aggregates.",
+      "example": "luma-pp-cli calendars compare cal-AAA cal-BBB cal-CCC --window 14d --agent",
+      "why_it_matters": "Use to benchmark which communities are most active or drawing the biggest crowds.",
+      "group": "Track over time"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "Luma",
+    "headline": "Browse, search, and export public Luma events from one Go binary — no account, no API key, plus offline full-text search the public API doesn't have.",
+    "value_prop": "luma reads Luma's public discovery surface (api.luma.com) to list events by city and category, fetch full event and calendar details, and mirror it all into a local SQLite store. On top of the raw API it adds what Luma never exposed publicly: full-text search, geo-radius lookup, cross-city aggregation, change tracking, and ICS export — all agent-native with --json and --select.",
+    "auth_narrative": "No account or API key required. luma reads Luma's public, read-only discovery API the website itself uses. It cannot create events, manage guests, or read private/subscribed calendars — that is the paid Luma Plus API's job.",
+    "quickstart": [
+      {
+        "command": "luma-pp-cli doctor --dry-run",
+        "comment": "health check — confirms the public API is reachable"
+      },
+      {
+        "command": "luma-pp-cli events list --city sf --limit 10",
+        "comment": "upcoming events in San Francisco"
+      },
+      {
+        "command": "luma-pp-cli discover categories",
+        "comment": "list topic categories (AI, Crypto, Tech) and their ids"
+      },
+      {
+        "command": "luma-pp-cli events list --category cat-ai --limit 10",
+        "comment": "events for a category id from the list above"
+      },
+      {
+        "command": "luma-pp-cli sync --resources events --resource-param events:slug=sf",
+        "comment": "mirror a city's events locally so search/digest/drift work offline"
+      },
+      {
+        "command": "luma-pp-cli search \"summit\"",
+        "comment": "offline full-text search across everything synced"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "events near / search / digest / drift return nothing",
+        "fix": "Run sync first (e.g. luma-pp-cli sync --resources events --resource-param events:slug=sf) — these commands read the local store."
+      },
+      {
+        "symptom": "unknown city returns empty",
+        "fix": "Use a real Luma city slug (sf, nyc, miami, london); run luma-pp-cli discover home to see places."
+      },
+      {
+        "symptom": "HTTP 429 / rate limited",
+        "fix": "Lower --limit or add --max-scan-pages; the public API throttles aggressive paging."
+      }
+    ],
+    "when_to_use": "Use luma when an agent needs to discover or report on public Luma events — what's happening in a city, events for a topic, full details for an event or community, or a calendar export. It is ideal for read-only event discovery, aggregation across cities, and tracking how events fill up over time.",
+    "anti_triggers": [
+      "Do not use this CLI to create, edit, or cancel events — that needs the paid Luma Plus API.",
+      "Do not use it to manage guest lists, check-ins, RSVPs, or ticketing.",
+      "Do not use it to read private or subscriber-only calendars; it only sees public discovery data."
+    ],
+    "recipes": [
+      {
+        "title": "Event detail, narrowed for an agent",
+        "command": "luma-pp-cli events get --event-id evt-XXXX --agent --select api_id,event.name,event.start_at,event.timezone,guest_count,ticket_count",
+        "explanation": "Event detail is large and deeply nested; --select pulls only the fields you need so an agent doesn't burn context."
+      },
+      {
+        "title": "AI events across three cities this week",
+        "command": "luma-pp-cli agenda --city sf --city nyc --category cat-ai --window 7d --agent",
+        "explanation": "Unions several cities filtered to a category into one flat, date-sorted list the API can't return."
+      },
+      {
+        "title": "Events near a point",
+        "command": "luma-pp-cli near --lat 37.77 --lng -122.42 --radius-km 5 --window 14d --agent",
+        "explanation": "Haversine radius search over synced event coordinates — no Luma endpoint offers this."
+      },
+      {
+        "title": "Export a city to your calendar",
+        "command": "luma-pp-cli ics --city sf --out sf.ics",
+        "explanation": "Writes an ICS file you can import into any calendar app."
+      }
+    ],
+    "trigger_phrases": [
+      "events in sf",
+      "AI events this week",
+      "what's happening in nyc on luma",
+      "luma events near me",
+      "use luma",
+      "run luma"
+    ]
+  }
+}

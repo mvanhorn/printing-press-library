@@ -1,0 +1,839 @@
+ByName:
+  get:
+    tags:
+      - User
+    summary: Get the specified user
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/usernamePathParam"
+    responses:
+      '200':
+        description: The user
+        content:
+            application/json:
+              schema:
+                $ref: '../schemas/user_schema.yaml'  
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+  patch:
+    tags:
+      - User
+    summary: Update the user's profile
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/usernamePathParam"
+    requestBody:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              first_name:
+                description: Replace the first name of this user.
+                type: string
+              last_name:
+                description: Replace the last name of this user.
+                type: string
+              bio:
+                description: Replace the biography for this user.
+                type: string
+              location:
+                description: Replace the location for this user.
+                type: string
+              default_license:
+                description: One of cc, cc-sa, cc-nd, cc-nc, cc-nc-sa, cc-nc-nd, pd0, gpl, lgpl, bsd. Update default license.
+                type: string
+    responses:
+      '200':
+        description: The updated user
+        content:
+            application/json:
+              schema:
+                type: object
+                $ref: '../schemas/user_schema.yaml'  
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+  delete:
+    tags:
+      - User
+    summary: Soft delete a user's account
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/usernamePathParam"
+    responses:
+      '200':
+        $ref : "../responses/ok.yaml"
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+ById:
+  post:
+    tags:
+      - User
+    summary: Restore a deleted user
+    security:
+        - BearerAuth: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        description: The id of the user to restore. Must match token.
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: The user
+        content:
+            application/json:
+              schema:
+                type: object
+                $ref: '../schemas/user_schema.yaml'  
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+Search:
+  get:
+    tags: 
+      - User
+    summary: Search data by user
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/usernamePathParam"
+      - in: path
+        name: term
+        required: false
+        description: The search query to perform
+        schema:
+          type: string
+    responses:
+      '200':
+        description: The returned hits can either be things, makes, users or collections
+        content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  hits: 
+                    type: array
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+Things:
+  get:
+    tags: 
+      - User
+    summary: Get things by user
+    description: If an authenticated user is requesting their own list of things, unpublished things will also appear in the list. If the user doesn't exist, result is 404 Not Found
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/usernamePathParam"
+      - $ref: "../parameters.yaml#/pageParam"
+      - $ref: "../parameters.yaml#/perPageParam"
+    responses:
+      '200':
+        description: Thing objects.
+        content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../schemas/thing_schema.yaml'   
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+Favorites:
+  get:
+    tags: 
+      - User
+    summary: Get favorites by user
+    description: If an authenticated user is requesting their own list of favorites, If the user doesn't exist, result is 404 Not Found
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/usernamePathParam"
+      - $ref: "../parameters.yaml#/pageParam"
+      - $ref: "../parameters.yaml#/perPageParam"
+    responses:
+      '200':
+        description: Favorite objects.
+        content:
+            application/json:
+              schema:
+                type: array
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+Likes:
+  get:
+    tags: 
+      - User
+    summary: Get things liked by user
+    description: If the user doesn't exist, result is 404 Not Found
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/usernamePathParam"
+      - $ref: "../parameters.yaml#/pageParam"
+      - $ref: "../parameters.yaml#/perPageParam"
+    responses:
+      '200':
+        description: Thing objects
+        content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../schemas/thing_schema.yaml'   
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+Likesids:
+  get:
+    tags: 
+      - User
+    summary: Get all things id's like by user
+    description: If the user doesn't exist, result is 404 Not Found
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/usernamePathParam"
+    responses:
+      '200':
+        description: array of thing ids
+        content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: integer   
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+Mute:
+  Post:
+    tags: 
+      - User
+    summary: Mute a user by username
+    description: If the user doesn't exist, result is 404 Not Found
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/usernamePathParam"
+    responses:
+      '200':
+        description: The "ok" object.
+        content:
+            application/json:
+              schema:
+                type: object
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+Unmute:
+  Post:
+    tags: 
+      - User
+    summary: unMute a user by username that has been muted
+    description: If the user doesn't exist, result is 404 Not Found
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/usernamePathParam"
+    responses:
+      '200':
+        description: The "ok" object.
+        content:
+            application/json:
+              schema:
+                type: object
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+Copies:
+  get:
+    tags: 
+      - User
+    summary: Get latest copies by user
+    description: If the user doesn't exist, result is 404 Not Found.
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/usernamePathParam"
+      - $ref: "../parameters.yaml#/pageParam"
+      - $ref: "../parameters.yaml#/perPageParam"
+    responses:
+      '200':
+        description: Copy objects
+        content:
+            application/json:
+              schema:
+                type: array
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+LatestCollections:
+  get:
+    tags: 
+      - User
+    summary: Get latest copies by user
+    description: If the user doesn't exist, result is 404 Not Found.
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/usernamePathParam"
+      - $ref: "../parameters.yaml#/pageParam"
+      - $ref: "../parameters.yaml#/perPageParam"
+    responses:
+      '200':
+        description: Collection objects
+        content:
+            application/json:
+              schema:
+                type: array  
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+Downloads:
+  get:
+    tags: 
+      - User
+    summary: Get latest downloaded things by user
+    description: If the user doesn't exist, result is 404 Not Found.
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/usernamePathParam"
+      - $ref: "../parameters.yaml#/pageParam"
+      - $ref: "../parameters.yaml#/perPageParam"
+    responses:
+      '200':
+        description: Thing objects
+        content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../schemas/thing_schema.yaml'   
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+VerifyAccount:
+  post:
+    tags: 
+      - User
+    summary: Send user verification email
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/usernamePathParam"
+    responses:
+      '200':
+        description: The "ok" object.
+        content:
+            application/json:
+              schema:
+                type: object 
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+EventCount:
+  get:
+    tags: 
+      - User
+    summary: Get the count of events for user since the timestamp sent
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/usernamePathParam"
+      - in: query
+        name: timestamp
+        required: false
+        description: The timestamp to check against UTC (YYYY-MM-DDThh:mm:ssTZD)
+        schema:
+          type: string
+    responses:
+      '200':
+        description: The count of events
+        content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                    example: 10
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+AllCollectedThings:
+  get:
+    tags: 
+      - User
+    summary: Get latest downloaded things by user
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/usernamePathParam"
+    responses:
+      '200':
+        description: All things that the user added to the collection
+        content:
+            application/json:
+              schema:
+                type: object
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+UnreadMessageCount:
+  get:
+    tags: 
+      - User
+    summary: Get the count of messages for user
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/usernamePathParam"
+    responses:
+      '200':
+        description:  The count of messages
+        content:
+            application/json:
+              schema:
+                type: object
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+Follow:
+  get:
+    tags: 
+      - User
+    summary: Get followers
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/usernamePathParam"
+    responses:
+      '200':
+        description: Array of users
+        content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../schemas/group_schemas/user_summary_schema.yaml'
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+      
+  post:
+    tags: 
+      - User
+    summary: Follow an user
+    description: Must use the POST method Result will be 404 Not Found if the user doesn't exist. Result will be 400 Bad Request if the user is trying to follow itself.
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/usernamePathParam"
+    responses:
+      '200':
+        description: The "ok" object.
+        content:
+            application/json:
+              schema:
+                type: object
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+  delete:
+    tags: 
+      - User
+    summary: Unfollow an user
+    description: Must use the DELETE method Result will be 404 Not Found if the user doesn't exist.
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/usernamePathParam"
+    responses:
+      '200':
+        description: The "ok" object.
+        content:
+            application/json:
+              schema:
+                type: object
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+Following:
+  get:
+    tags: 
+      - User
+    summary: Get array of users that requested user is following
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/usernamePathParam"
+    responses:
+      '200':
+        description: Array of users
+        content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../schemas/group_schemas/user_summary_schema.yaml'
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+AvatarImage:
+  post:
+    tags: 
+      - User
+    summary: Update the avatar image
+    description: Must use the POST method
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/usernamePathParam"
+    requestBody:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - filename
+            properties:
+              filename:
+                type: string
+    responses:
+      '200':
+        description: The data needed to upload a file via an HTTP POST with multipart/form-data encoding.
+        content:
+            application/json:
+              schema:
+                type: object
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+CoverImage:
+  post:
+    tags: 
+      - User
+    summary: Update the cover image
+    description: Must use the POST method
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/usernamePathParam"
+    requestBody:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - filename
+            properties:
+              filename:
+                type: string
+    responses:
+      '200':
+        description: The data needed to upload a file via an HTTP POST with multipart/form-data encoding.
+        content:
+            application/json:
+              schema:
+                type: object
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+UserAnalyticByDay: 
+  get:
+    tags: 
+      - User
+    summary: Get user's analytics of viewing and downloading things per day
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/usernamePathParam"
+      - in: path
+        name: startDate
+        required: true
+        description: The day from which analytics are shown
+        schema:
+          type: string
+          example: '2023-03-28'
+      - in: path
+        name: endDate
+        required: true
+        description: The day till which analytics are shown
+        schema:
+          type: string
+          example: '2023-04-27'
+    responses:
+      '200':
+        description: Array of stats per day
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                required:
+                  - name
+                properties:
+                  day:
+                    type: string
+                    example: '2023-03-28'
+                  user_id:
+                    type: integer
+                    format: int
+                  views:
+                    type: integer
+                    format: int
+                  downloads:
+                    type: integer
+                    format: int
+                  likes:
+                    type: integer
+                    format: int
+                  collects:
+                    type: integer
+                    format: int
+                  watches:
+                    type: integer
+                    format: int
+                  comments:
+                    type: integer
+                    format: int
+                  makes:
+                    type: integer
+                    format: int
+                  derivatives:
+                    type: integer
+                    format: int
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '404':
+        description: There are no published things
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                error:
+                  type: string
+            example:
+              error: Not Found
+UserAnalyticByThing: 
+  get:
+    tags: 
+      - User
+    summary: Get user's analytics of viewing and downloading by things
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/usernamePathParam"
+      - in: path
+        name: startDate
+        required: true
+        description: The day from which analytics are shown
+        schema:
+          type: string
+          example: '2023-03-28'
+      - in: path
+        name: endDate
+        required: true
+        description: The day till which analytics are shown
+        schema:
+          type: string
+          example: '2023-04-27'
+    responses:
+      '200':
+        description: Array of stats per day
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                required:
+                  - name
+                properties:
+                  day:
+                    type: string
+                    example: '2023-03-28'
+                  user_id:
+                    type: integer
+                    format: int
+                  views:
+                    type: integer
+                    format: int
+                  downloads:
+                    type: integer
+                    format: int
+                  likes:
+                    type: integer
+                    format: int
+                  collects:
+                    type: integer
+                    format: int
+                  watches:
+                    type: integer
+                    format: int
+                  comments:
+                    type: integer
+                    format: int
+                  makes:
+                    type: integer
+                    format: int
+                  derivatives:
+                    type: integer
+                    format: int
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '404':
+        description: There are no published things
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                error:
+                  type: string
+            example:
+              error: Not Found
+RecommendedThings:
+  get:
+    tags:
+      - User
+    summary: Get a bunch random things from categories based on the users likes and collected things
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/usernamePathParam"
+      - $ref: "../parameters.yaml#/pageParam"
+      - $ref: "../parameters.yaml#/perPageParam"
+    responses:
+      '200':
+        description: An array of objects with thing and category
+        headers:
+          total-count:
+            schema:
+              type: integer
+            description: How many results in total does this have. Note that this can be higher than the results you got. In that case you can use the page query to get the others.
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../schemas/thing_schema.yaml'
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+RecommendedTags:
+  get:
+    tags:
+      - User
+    summary: Get the list of personal tags.
+    description: returns a list of Recommended tags which are based on the users likes and collected things.
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/usernamePathParam"
+    responses:
+      '200':
+        description: The list of tags.
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../schemas/tag_schema.yaml'
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"

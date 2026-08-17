@@ -29,7 +29,7 @@ func ParseGiftCards(htmlBytes []byte) (*GiftCardPage, error) {
 	if err != nil {
 		return nil, err
 	}
-	page := &GiftCardPage{Currency: "USD"}
+	page := &GiftCardPage{Currency: MarketplaceCurrency}
 	docText := Text(doc)
 
 	// Balance: text near "Total balance" or "balance is".

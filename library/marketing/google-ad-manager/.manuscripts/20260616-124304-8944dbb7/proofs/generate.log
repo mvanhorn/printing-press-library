@@ -1,0 +1,33 @@
+warning: skipping DELETE "/v1/{name}": could not derive resource name
+warning: skipping GET "/v1/{name}": could not derive resource name
+warning: skipping PATCH "/v1/{name}": could not derive resource name
+warning: filtered global query param "access_token" from generated commands: dropped from 111/111 endpoints where present (111 total)
+warning: filtered global query param "callback" from generated commands: dropped from 111/111 endpoints where present (111 total)
+warning: filtered global query param "fields" from generated commands: dropped from 111/111 endpoints where present (111 total)
+warning: filtered global query param "key" from generated commands: dropped from 111/111 endpoints where present (111 total)
+warning: filtered global query param "oauth_token" from generated commands: dropped from 111/111 endpoints where present (111 total)
+warning: filtered global query param "quotaUser" from generated commands: dropped from 111/111 endpoints where present (111 total)
+warning: filtered global query param "upload_protocol" from generated commands: dropped from 111/111 endpoints where present (111 total)
+warning: filtered global query param "uploadType" from generated commands: dropped from 111/111 endpoints where present (111 total)
+warning: novel feature command "search" maps to existing internal/cli/search.go; leaving existing file unchanged
+PASS go mod tidy
+PASS ensure safe golang.org/x/net
+FAIL govulncheck ./...
+Error: validating generated project: gate "govulncheck ./..." failed: exit status 1
+govulncheck: loading packages: 
+There are errors with the provided package patterns:
+
+/Users/pbl-dev/printing-press/.runstate/pbl-415c512c/runs/20260616-124304-8944dbb7/working/google-ad-manager-pp-cli/internal/cli/root.go:276:21: undefined: newNovelSearchCmd
+
+For details on package patterns, see https://pkg.go.dev/cmd/go#hdr-Package_lists_and_patterns.
+
+exit status 1
+validating generated project: gate "govulncheck ./..." failed: exit status 1
+govulncheck: loading packages: 
+There are errors with the provided package patterns:
+
+/Users/pbl-dev/printing-press/.runstate/pbl-415c512c/runs/20260616-124304-8944dbb7/working/google-ad-manager-pp-cli/internal/cli/root.go:276:21: undefined: newNovelSearchCmd
+
+For details on package patterns, see https://pkg.go.dev/cmd/go#hdr-Package_lists_and_patterns.
+
+exit status 1

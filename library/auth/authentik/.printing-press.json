@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-25T03:47:40.44181Z",
+  "printing_press_version": "4.12.0",
+  "api_name": "authentik",
+  "display_name": "authentik",
+  "cli_name": "authentik-pp-cli",
+  "owner": "carlf01",
+  "printer": "CarlF01",
+  "printer_name": "CFinney",
+  "spec_path": "/Users/CFinney/Documents/Claude/Projects/HomeLab API integration/specs/authentik-openapi.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:aca002d6595dd9aafc0ac72147864cb63dccda9bfa464fbf738dd7e68c912b4d",
+  "run_id": "20260524-233210",
+  "category": "auth",
+  "description": "Agent-native admin CLI for authentik identity provider with offline SQLite cache and an MCP server for Claude Desktop.",
+  "mcp_binary": "authentik-pp-mcp",
+  "mcp_tool_count": 969,
+  "mcp_public_tool_count": 8,
+  "mcp_ready": "full",
+  "api_version": "2025.10.3",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "AUTHENTIK_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Operator health snapshot",
+      "command": "health",
+      "description": "Joins admin/system + tasks + workers + version into a single agent-readable summary"
+    },
+    {
+      "name": "Stale token audit",
+      "command": "tokens stale",
+      "description": "Find API tokens whose owners have not used them in N days"
+    },
+    {
+      "name": "Unused application audit",
+      "command": "apps unused",
+      "description": "List applications with no successful login in N days"
+    },
+    {
+      "name": "User group flattener",
+      "command": "users groups",
+      "description": "Recursively expand a user's group memberships including inherited roles"
+    },
+    {
+      "name": "Flow stage map",
+      "command": "flows map",
+      "description": "Render a flow with its ordered stage bindings as a tree"
+    }
+  ]
+}

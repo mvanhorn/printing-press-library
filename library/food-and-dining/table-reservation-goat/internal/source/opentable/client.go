@@ -504,6 +504,21 @@ type RestaurantAvailability struct {
 // `noCache=true` bypasses the cache read but still writes on success.
 // Singleflight key includes `noCache` so cache-bypass callers don't
 // piggyback on cache-allowed leaders' fresh-fetch results.
+// isPersistedQueryError reports whether err is a stale-persisted-query
+// failure — the Apollo gateway 409 (opname/hash mismatch), a
+// PERSISTED_QUERY_NOT_FOUND 400, or the drifted-hash GraphQL error surfaced by
+// restaurantsAvailabilityNetwork. Distinct from a BotDetectionError (403 WAF):
+// this one is healed by refreshing the hash, not by backing off.
+func isPersistedQueryError(err error) bool {
+	if err == nil {
+		return false
+	}
+	s := err.Error()
+	return strings.Contains(s, "HTTP 409") ||
+		strings.Contains(s, "persisted-query hash drifted") ||
+		strings.Contains(strings.ToUpper(s), "PERSISTED")
+}
+
 func (c *Client) RestaurantsAvailability(ctx context.Context, restaurantIDs []int, date, hhmm string, partySize, forwardDays, forwardMinutes, forwardSlots int, noCache bool) ([]RestaurantAvailability, error) {
 	if forwardMinutes <= 0 {
 		forwardMinutes = 150
@@ -518,7 +533,7 @@ func (c *Client) RestaurantsAvailability(ctx context.Context, restaurantIDs []in
 	// (the typical caller pattern). Multi-restaurant calls bypass — they
 	// represent a batch fetch whose cache key shape would differ.
 	if len(restaurantIDs) != 1 {
-		return c.restaurantsAvailabilityNetwork(ctx, restaurantIDs, date, hhmm, partySize, forwardDays, forwardMinutes, forwardSlots)
+		return c.restaurantsAvailabilityNetwork(ctx, restaurantIDs, date, hhmm, partySize, forwardDays, forwardMinutes, forwardSlots, currentAvailabilityHash())
 	}
 	restID := restaurantIDs[0]
 	key := availCacheKey{
@@ -530,9 +545,16 @@ func (c *Client) RestaurantsAvailability(ctx context.Context, restaurantIDs []in
 		BackwardMinutes: forwardMinutes,
 	}
 
-	// Cache check (skip when noCache).
+	// Resolve the persisted-query hash once for this call and reuse it for the
+	// cache key, the request body, and the cache write so all three observe the
+	// same value even if a concurrent run rotates it mid-call. Re-resolved only
+	// after a self-heal harvests a fresh one.
+	liveHash := currentAvailabilityHash()
+
+	// Cache check (skip when noCache). Keyed on the live hash so entries
+	// written under a since-rotated hash miss (R3 invalidation for free).
 	if !noCache {
-		if hit := loadAvailCache(key, RestaurantsAvailabilityHash); hit != nil && hit.Fresh {
+		if hit := loadAvailCache(key, liveHash); hit != nil && hit.Fresh {
 			return hit.Entry.Response, nil
 		}
 	}
@@ -544,27 +566,46 @@ func (c *Client) RestaurantsAvailability(ctx context.Context, restaurantIDs []in
 		restID, date, hhmm, partySize, forwardMinutes, forwardMinutes, noCache)
 	v, err, _ := c.availSF.Do(sfKey, func() (any, error) {
 		// Fire network call (which goes through do429Aware → AdaptiveLimiter).
-		// On BotDetectionError after the in-do429Aware 750ms retry, sleep 5s
-		// (ctx-aware) and retry once more before surfacing.
-		resp, nerr := c.restaurantsAvailabilityNetwork(ctx, restaurantIDs, date, hhmm, partySize, forwardDays, forwardMinutes, forwardSlots)
+		resp, nerr := c.restaurantsAvailabilityNetwork(ctx, restaurantIDs, date, hhmm, partySize, forwardDays, forwardMinutes, forwardSlots, liveHash)
+
+		// Self-heal a stale persisted-query hash (409). A brief browser run
+		// harvests the hash the page's own JS uses (the hash rides in the
+		// outgoing request, so this works even when Akamai 403s the browser
+		// response). If the hash changed, retry the direct call once — it
+		// passes the WAF at human pace, so the fresh hash yields slots. If the
+		// browser run itself returned slots (attach path, WAF cool), use them.
+		if nerr != nil && isPersistedQueryError(nerr) {
+			slots, cerr := c.ChromeAvailability(ctx, restID, "", date, hhmm, partySize, forwardDays)
+			if fresh := currentAvailabilityHash(); fresh != liveHash {
+				liveHash = fresh
+				resp, nerr = c.restaurantsAvailabilityNetwork(ctx, restaurantIDs, date, hhmm, partySize, forwardDays, forwardMinutes, forwardSlots, liveHash)
+			}
+			if nerr != nil && cerr == nil && len(slots) > 0 {
+				resp, nerr = slots, nil
+			}
+		}
+
 		if nerr != nil {
+			// On BotDetectionError after the in-do429Aware 750ms retry, sleep
+			// 5s (ctx-aware) and retry once more before surfacing.
 			if _, isBot := IsBotDetection(nerr); isBot {
 				select {
 				case <-time.After(5 * time.Second):
 				case <-ctx.Done():
 					return nil, ctx.Err()
 				}
-				resp, nerr = c.restaurantsAvailabilityNetwork(ctx, restaurantIDs, date, hhmm, partySize, forwardDays, forwardMinutes, forwardSlots)
+				resp, nerr = c.restaurantsAvailabilityNetwork(ctx, restaurantIDs, date, hhmm, partySize, forwardDays, forwardMinutes, forwardSlots, liveHash)
 			}
 			if nerr != nil {
-				// U5 stale-cache fallback: when the network is genuinely
-				// blocked (BotDetectionError after both retries), serve
-				// the cached entry IF one exists within the 24h hard cap.
-				// Tag with `source: "cache_fallback"` so consumers can
-				// distinguish this from a fresh fetch. `Stale` is set
-				// when the entry is past TTL.
-				if _, isBot := IsBotDetection(nerr); isBot {
-					if hit := loadAvailCache(key, RestaurantsAvailabilityHash); hit != nil {
+				// Stale-cache fallback: serve a within-24h cached entry when the
+				// live path can't. Fires on a BotDetectionError (403 WAF after
+				// both retries) AND on a persisted-query error that survived
+				// self-heal (Chrome unreachable, or no fresh hash harvested) —
+				// a stale answer beats a hard error either way. Tagged with
+				// `source: "cache_fallback"`; `Stale` is set when past TTL.
+				_, isBot := IsBotDetection(nerr)
+				if isBot || isPersistedQueryError(nerr) {
+					if hit := loadAvailCache(key, liveHash); hit != nil {
 						return enrichWithCacheMetadata(hit.Entry.Response, hit.Entry.CachedAt, !hit.Fresh), nil
 					}
 				}
@@ -573,7 +614,7 @@ func (c *Client) RestaurantsAvailability(ctx context.Context, restaurantIDs []in
 		}
 		// Always write cache on success — even when noCache=true. A user
 		// asking for fresh data is also willing to update what's cached.
-		saveAvailCache(key, RestaurantsAvailabilityHash, resp)
+		saveAvailCache(key, liveHash, resp)
 		return resp, nil
 	})
 	if err != nil {
@@ -600,7 +641,7 @@ func enrichWithCacheMetadata(resp []RestaurantAvailability, cachedAt time.Time, 
 // restaurantsAvailabilityNetwork is the bare network call that
 // RestaurantsAvailability wraps. Kept private so callers go through the
 // cache+singleflight+retry envelope rather than bypassing it.
-func (c *Client) restaurantsAvailabilityNetwork(ctx context.Context, restaurantIDs []int, date, hhmm string, partySize, forwardDays, forwardMinutes, forwardSlots int) ([]RestaurantAvailability, error) {
+func (c *Client) restaurantsAvailabilityNetwork(ctx context.Context, restaurantIDs []int, date, hhmm string, partySize, forwardDays, forwardMinutes, forwardSlots int, hash string) ([]RestaurantAvailability, error) {
 	if forwardDays <= 0 {
 		forwardDays = 1
 	}
@@ -658,7 +699,7 @@ func (c *Client) restaurantsAvailabilityNetwork(ctx context.Context, restaurantI
 		"extensions": map[string]any{
 			"persistedQuery": map[string]any{
 				"version":    1,
-				"sha256Hash": RestaurantsAvailabilityHash,
+				"sha256Hash": hash,
 			},
 		},
 	}
@@ -687,7 +728,7 @@ func (c *Client) restaurantsAvailabilityNetwork(ctx context.Context, restaurantI
 		// hash has drifted past whatever OT's bundle currently expects.
 		first := r.Errors[0]
 		if strings.Contains(strings.ToUpper(first.Message), "PERSISTED") || first.Extensions.Code == "PERSISTED_QUERY_NOT_FOUND" {
-			return nil, fmt.Errorf("opentable: persisted-query hash drifted (RestaurantsAvailability returned %q); cached hash %s no longer accepted by upstream — the cached value will need to be refreshed in a follow-up release", first.Message, RestaurantsAvailabilityHash[:16])
+			return nil, fmt.Errorf("opentable: persisted-query hash drifted (RestaurantsAvailability returned %q); hash %s no longer accepted by upstream — the caller self-heals by harvesting the current hash via a browser run and retrying", first.Message, hash[:16])
 		}
 		return nil, fmt.Errorf("opentable RestaurantsAvailability: %s", first.Message)
 	}

@@ -3,6 +3,7 @@ package cli
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"sort"
@@ -10,10 +11,13 @@ import (
 
 	"github.com/mvanhorn/printing-press-library/library/project-management/linear/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/project-management/linear/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/project-management/linear/internal/groups"
 	"github.com/mvanhorn/printing-press-library/library/project-management/linear/internal/store"
 
 	"github.com/spf13/cobra"
 )
+
+var errTeamFilterNotFound = errors.New("team not found")
 
 // issueRow is the shared projection used by `issues list` and table rendering.
 // It mirrors the shape the sync writes to the `data` JSON column.
@@ -44,12 +48,23 @@ type issueRow struct {
 	} `json:"assignee,omitempty"`
 	UpdatedAt string `json:"updatedAt"`
 	URL       string `json:"url,omitempty"`
+	// ArchivedAt is Issue.archivedAt, null on a live issue. It is the only
+	// thing that distinguishes an archived row once --include-archived is on.
+	ArchivedAt string `json:"archivedAt,omitempty"`
 }
 
+// pp:data-source auto
+// The identifier read goes through the shared resolver, so --data-source
+// picks the leg: local sqlite first, then the live GraphQL query, with the
+// store miss returned as not found when live fails on a fresh store.
 func newIssuesCmd(flags *rootFlags) *cobra.Command {
 	var dbPath string
 	cmd := &cobra.Command{
-		Use:   "issues [ID]",
+		// Use carries no positional placeholder on purpose. The read form
+		// (`issues ESP-1155`) shares its slot with every subcommand, so a
+		// placeholder here reads as though `issues create` were an ID.
+		// The read form is documented in Long and leads the Example block.
+		Use:   "issues",
 		Short: "Get, list, or create Linear issues",
 		Long: `Get a single issue by identifier (e.g. ESP-1155), or list issues with filters.
 
@@ -58,30 +73,91 @@ Single-issue get resolution order (with --data-source auto, the default):
   2. live Linear GraphQL query
   3. on live failure with a fresh store, return the store miss as not found
 
-Use 'issues list' for filtered listing against the local sqlite store.`,
+Pass comma-separated identifiers to fetch several issues in one ordered response.
+Use 'issues list' for filtered listing against the local sqlite store.
+Use 'issues create --parent' or 'issues edit --parent/--no-parent' to manage
+parent and sub-issue links.`,
 		Example: `  linear-pp-cli issues ESP-1155
+  linear-pp-cli issues ESP-1155,ESP-1156 --agent
   linear-pp-cli issues list
   linear-pp-cli issues list --assignee me
   linear-pp-cli issues list --assignee me --state started
-  linear-pp-cli issues list --team ESP --state started --json`,
+  linear-pp-cli issues list --team ESP --state started --json
+  linear-pp-cli issues create --title "child" --team ESP --parent ESP-1155 --agent
+  linear-pp-cli issues edit ESP-1156 --no-parent --agent`,
 		Args: cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
-			// Verify mode: short-circuit so identifier-shape probes
-			// (TEAM-NUMBER) don't fail the mechanical verify pass.
-			if cliutil.IsVerifyEnv() {
-				return nil
-			}
-			return runIssuesGet(cmd, flags, resolveDBPath(dbPath), args[0])
+			return runIssuesRead(cmd, flags, dbPath, args[0])
 		},
 	}
 	cmd.PersistentFlags().StringVar(&dbPath, "db", "", "Database path")
 
 	cmd.AddCommand(newIssuesListCmd(flags, &dbPath))
+	cmd.AddCommand(newIssuesSearchCmd(flags, &dbPath))
 	cmd.AddCommand(newIssuesCreateCmd(flags))
+	cmd.AddCommand(newIssuesEditCmd(flags, &dbPath))
+	cmd.AddCommand(newIssuesReadAliasCmd(flags, &dbPath))
 	return cmd
+}
+
+func newIssuesReadAliasCmd(flags *rootFlags, dbPath *string) *cobra.Command {
+	return &cobra.Command{
+		Use:     "get ID",
+		Aliases: []string{"view", "show"},
+		Short:   "Get Linear issues by identifier",
+		Long:    `Compatibility aliases for the canonical positional form: linear-pp-cli issues ID.`,
+		Example: `  linear-pp-cli issues get ESP-1155
+  linear-pp-cli issues get ESP-1155,ESP-1156 --agent`,
+		Hidden: true,
+		Args:   cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return runIssuesRead(cmd, flags, *dbPath, args[0])
+		},
+	}
+}
+
+func runIssuesRead(cmd *cobra.Command, flags *rootFlags, dbPath, rawIdentifiers string) error {
+	// Verify mode short-circuits so identifier-shape probes (TEAM-NUMBER)
+	// do not fail the mechanical verify pass.
+	if cliutil.IsVerifyEnv() {
+		return nil
+	}
+	commaList := strings.Contains(rawIdentifiers, ",")
+	identifiers, err := parseIssueIdentifiers(rawIdentifiers)
+	if err != nil {
+		return err
+	}
+	if !commaList {
+		return runIssuesGet(cmd, flags, resolveDBPath(dbPath), identifiers[0])
+	}
+	return runIssuesMultiGet(cmd, flags, resolveDBPath(dbPath), identifiers)
+}
+
+func parseIssueIdentifiers(raw string) ([]string, error) {
+	parts := strings.Split(raw, ",")
+	identifiers := make([]string, 0, len(parts))
+	seen := make(map[string]struct{}, len(parts))
+	for _, part := range parts {
+		identifier := strings.TrimSpace(part)
+		if identifier == "" {
+			return nil, usageErr(fmt.Errorf("issue identifier list contains an empty value"))
+		}
+		key := identifier
+		if !store.IsUUID(identifier) {
+			if _, _, ok := parseIssueIdentifier(identifier); ok {
+				key = strings.ToUpper(identifier)
+			}
+		}
+		if _, ok := seen[key]; ok {
+			continue
+		}
+		seen[key] = struct{}{}
+		identifiers = append(identifiers, key)
+	}
+	return identifiers, nil
 }
 
 func resolveDBPath(override string) string {
@@ -108,6 +184,8 @@ func newIssuesListCmd(flags *rootFlags, dbPath *string) *cobra.Command {
 		team      string
 		project   string
 		limit     int
+
+		includeArchived bool
 	)
 	cmd := &cobra.Command{
 		Use:         "list",
@@ -115,26 +193,38 @@ func newIssuesListCmd(flags *rootFlags, dbPath *string) *cobra.Command {
 		Short:       "List issues from the local sqlite store with filters",
 		Long: `List issues from the local sqlite store. Requires a prior 'linear-pp-cli sync'.
 
-Filters compose with AND. --state is matched against state.type (not state.name)
-so values like 'started', 'backlog', 'completed', 'canceled', 'triage' work across
-teams that customize state names. Use --state all to include completed and canceled.
+Filters compose with AND. --state takes a state group or a raw state type: any
+group from 'groups list' (active, all, and one trivial group per raw type),
+a raw type (triage, backlog, unstarted, started, completed, canceled,
+duplicate), 'type:<type>' to bypass a group that shadows a raw type, or
+'name:<state name>' for one literal state name. Declare your own groups in
+groups.toml next to your config file. Use --state all to drop the filter.
 
 --assignee accepts 'me' (resolves the authenticated viewer via a live GraphQL query),
 a user id, a user's display name, or a user's email.
 
---team and --project accept either a team/project key or a UUID.`,
+--team and --project accept either a team/project key or a UUID.
+
+--include-archived passes includeArchived: true to the issues connection, so
+archived issues come back alongside live ones and carry archivedAt. Archived
+issues keep the workflow state they were archived in, which is usually a
+completed or canceled one, so pair the flag with --state all to actually see
+them. Note that sync prunes archived issues out of the local store, so the
+flag only reaches archived rows on a live read.`,
 		Example: `  linear-pp-cli issues list --assignee me
   linear-pp-cli issues list --assignee me --state started --json
-  linear-pp-cli issues list --team ESP --state all --limit 500`,
+  linear-pp-cli issues list --team ESP --state all --limit 500
+  linear-pp-cli issues list --team ESP --state all --include-archived --json`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runIssuesList(cmd, flags, resolveDBPath(*dbPath), assignee, stateFlag, team, project, limit)
+			return runIssuesList(cmd, flags, resolveDBPath(*dbPath), assignee, stateFlag, team, project, limit, includeArchived)
 		},
 	}
 	cmd.Flags().StringVar(&assignee, "assignee", "", "Filter by assignee (me, user id, display name, or email)")
-	cmd.Flags().StringVar(&stateFlag, "state", "active", "Filter by state type: active (default), started, backlog, unstarted, completed, canceled, triage, all")
+	cmd.Flags().StringVar(&stateFlag, "state", "active", stateGroupFlagUsage)
 	cmd.Flags().StringVar(&team, "team", "", "Filter by team key or ID")
 	cmd.Flags().StringVar(&project, "project", "", "Filter by project key or ID")
 	cmd.Flags().IntVar(&limit, "limit", 200, "Maximum results to return")
+	cmd.Flags().BoolVar(&includeArchived, "include-archived", false, "Include archived issues, mapping to the issues connection includeArchived argument. Live reads only")
 	return cmd
 }
 
@@ -177,14 +267,74 @@ func runIssuesGet(cmd *cobra.Command, flags *rootFlags, dbPath, identifier strin
 			return renderIssue(cmd, flags, rows[0], DataProvenance{Source: "local", ResourceType: "issues", Reason: "api_unreachable"})
 		}
 	}
-	return classifyAPIError(liveErr, flags)
+	return classifyLiveReadError(liveErr, flags)
 }
 
-// fetchIssueLive fetches a single issue by identifier via the Linear GraphQL API.
-// Parses "ESP-1155" into team key "ESP" and number 1155, then filters. This avoids
-// relying on Linear accepting the identifier string in the top-level issue(id:) arg,
-// which behaves inconsistently across workspaces.
-func fetchIssueLive(c *client.Client, identifier string) (json.RawMessage, error) {
+func runIssuesMultiGet(cmd *cobra.Command, flags *rootFlags, dbPath string, identifiers []string) error {
+	db, openErr := openStoreAt(dbPath)
+	if db != nil {
+		defer db.Close()
+	}
+
+	if flags.dataSource != "live" && db != nil {
+		rows, missing, err := loadIssuesFromStore(db, identifiers)
+		if err != nil {
+			return err
+		}
+		if missing == "" {
+			return renderIssues(cmd, flags, rows, DataProvenance{Source: "local", ResourceType: "issues"})
+		}
+		if flags.dataSource == "local" {
+			return notFoundErr(fmt.Errorf("issue %q not found in local store. Run 'linear-pp-cli sync' first", missing))
+		}
+	}
+
+	if flags.dataSource == "local" {
+		if openErr != nil {
+			return notFoundErr(fmt.Errorf("one or more requested issues were not found in local store (and store unavailable: %v). Run 'linear-pp-cli sync' first", openErr))
+		}
+		return notFoundErr(fmt.Errorf("one or more requested issues were not found in local store. Run 'linear-pp-cli sync' first"))
+	}
+
+	c, err := flags.newClient()
+	if err != nil {
+		return err
+	}
+	rows := make([]json.RawMessage, 0, len(identifiers))
+	for _, identifier := range identifiers {
+		row, fetchErr := fetchIssueLive(c, identifier)
+		if fetchErr != nil {
+			return classifyLiveReadError(fetchErr, flags)
+		}
+		rows = append(rows, row)
+	}
+	return renderIssues(cmd, flags, rows, DataProvenance{Source: "live", ResourceType: "issues"})
+}
+
+func loadIssuesFromStore(db *store.Store, identifiers []string) ([]json.RawMessage, string, error) {
+	rows := make([]json.RawMessage, 0, len(identifiers))
+	for _, identifier := range identifiers {
+		matches, err := db.ListIssues(map[string]string{"identifier": identifier}, 1)
+		if err != nil {
+			return nil, "", err
+		}
+		if len(matches) == 0 {
+			return nil, identifier, nil
+		}
+		rows = append(rows, matches[0])
+	}
+	return rows, "", nil
+}
+
+// fetchIssueLive fetches a single issue by UUID or identifier via the Linear
+// GraphQL API. For identifiers it parses "ESP-1155" into team key "ESP" and
+// number 1155, then filters. This avoids relying on Linear accepting the
+// identifier string in the top-level issue(id:) arg, which behaves
+// inconsistently across workspaces.
+func fetchIssueLive(c graphqlQueryer, identifier string) (json.RawMessage, error) {
+	if store.IsUUID(identifier) {
+		return fetchIssueByIDLive(c, identifier)
+	}
 	teamKey, number, ok := parseIssueIdentifier(identifier)
 	if !ok {
 		return nil, fmt.Errorf("invalid issue identifier %q (expected TEAM-NUMBER, e.g. ESP-1155)", identifier)
@@ -193,7 +343,7 @@ func fetchIssueLive(c *client.Client, identifier string) (json.RawMessage, error
 		issues(filter: { team: { key: { eq: $teamKey } }, number: { eq: $number } }, first: 1) {
 			nodes {
 				id identifier title description priority estimate dueDate url updatedAt createdAt
-				state { name type }
+				state { id name type }
 				team { id key name }
 				project { id name }
 				assignee { id name displayName email }
@@ -214,6 +364,102 @@ func fetchIssueLive(c *client.Client, identifier string) (json.RawMessage, error
 	return resp.Issues.Nodes[0], nil
 }
 
+func fetchIssueByIDLive(c graphqlQueryer, id string) (json.RawMessage, error) {
+	query := `query($id: String!) {
+		issue(id: $id) {
+			id identifier title description priority estimate dueDate url updatedAt createdAt
+			state { id name type }
+			team { id key name }
+			project { id name }
+			assignee { id name displayName email }
+		}
+	}`
+	var resp struct {
+		Issue json.RawMessage `json:"issue"`
+	}
+	if err := c.QueryInto(query, map[string]any{"id": id}, &resp); err != nil {
+		return nil, err
+	}
+	if len(resp.Issue) == 0 || string(resp.Issue) == "null" {
+		return nil, notFoundErr(fmt.Errorf("issue %q not found", id))
+	}
+	return resp.Issue, nil
+}
+
+func resolveIssueID(c graphqlQueryer, identifier string) (string, error) {
+	return resolveIssueIDWith(c, identifier, false)
+}
+
+// resolveIssueIDWith is resolveIssueID with the issues connection's
+// includeArchived argument exposed.
+//
+// The default false is the right answer for every read and almost every
+// write: an archived issue is not a live target and resolving one silently
+// would be worse than exit 3. `issues unarchive` is the exception, because its
+// subject is archived by definition, and excluding archived rows here made
+// TEAM-NUMBER unresolvable for it while the UUID path worked. Rather than
+// widen the default for everyone, callers who need archived rows ask.
+//
+// includeArchived is only sent when true, so the default path emits exactly
+// the variable set it always emitted and the server default keeps applying.
+func resolveIssueIDWith(c graphqlQueryer, identifier string, includeArchived bool) (string, error) {
+	if store.IsUUID(identifier) {
+		return identifier, nil
+	}
+	teamKey, number, ok := parseIssueIdentifier(identifier)
+	if !ok {
+		return "", fmt.Errorf("invalid issue identifier %q (expected TEAM-NUMBER, e.g. ESP-1155)", identifier)
+	}
+	query := `query($teamKey: String!, $number: Float!, $includeArchived: Boolean) {
+		issues(filter: { team: { key: { eq: $teamKey } }, number: { eq: $number } }, first: 1, includeArchived: $includeArchived) {
+			nodes { id }
+		}
+	}`
+	var resp struct {
+		Issues struct {
+			Nodes []struct {
+				ID string `json:"id"`
+			} `json:"nodes"`
+		} `json:"issues"`
+	}
+	vars := map[string]any{"teamKey": teamKey, "number": number}
+	if includeArchived {
+		vars["includeArchived"] = true
+	}
+	if err := c.QueryInto(query, vars, &resp); err != nil {
+		return "", err
+	}
+	if len(resp.Issues.Nodes) == 0 || resp.Issues.Nodes[0].ID == "" {
+		return "", notFoundErr(fmt.Errorf("issue %q not found", identifier))
+	}
+	return resp.Issues.Nodes[0].ID, nil
+}
+
+func resolveParentIssueID(c graphqlQueryer, parent string) (string, error) {
+	parent, err := validateParentIssueRef(parent)
+	if err != nil {
+		return "", err
+	}
+	if store.IsUUID(parent) {
+		return parent, nil
+	}
+	return resolveIssueID(c, parent)
+}
+
+func validateParentIssueRef(parent string) (string, error) {
+	parent = strings.TrimSpace(parent)
+	if parent == "" {
+		return "", usageErr(fmt.Errorf("--parent requires an issue identifier (TEAM-NUMBER) or issue UUID"))
+	}
+	if store.IsUUID(parent) {
+		return parent, nil
+	}
+	if _, _, ok := parseIssueIdentifier(parent); !ok {
+		return "", usageErr(fmt.Errorf("--parent expects an issue identifier (TEAM-NUMBER, e.g. MOB-123) or issue UUID; got %q", parent))
+	}
+	return parent, nil
+}
+
 func parseIssueIdentifier(identifier string) (string, float64, bool) {
 	idx := strings.LastIndex(identifier, "-")
 	if idx <= 0 || idx == len(identifier)-1 {
@@ -227,7 +473,7 @@ func parseIssueIdentifier(identifier string) (string, float64, bool) {
 	return teamKey, float64(number), true
 }
 
-func runIssuesList(cmd *cobra.Command, flags *rootFlags, dbPath, assignee, stateFlag, team, project string, limit int) error {
+func runIssuesList(cmd *cobra.Command, flags *rootFlags, dbPath, assignee, stateFlag, team, project string, limit int, includeArchived bool) error {
 	db, err := openStoreAt(dbPath)
 	if err != nil {
 		return fmt.Errorf("opening database: %w\nRun 'linear-pp-cli sync' first", err)
@@ -269,6 +515,15 @@ func runIssuesList(cmd *cobra.Command, flags *rootFlags, dbPath, assignee, state
 		filter["project_id"] = projectID
 	}
 
+	// One resolver, one predicate. Every state filter in this CLI resolves
+	// through internal/groups so the live query and the local re-check
+	// cannot disagree on normalization, and so the user can redeclare what
+	// a token means without a rebuild.
+	set, err := resolveStateSet(flags, teamKeyForGroups(db, team), stateFlag)
+	if err != nil {
+		return err
+	}
+
 	// Honor --data-source for the actual issue fetch. `auto` (default)
 	// tries live-first per the framework's resolveRead pattern; `local`
 	// pins to the store (budget-conscious); `live` errors instead of
@@ -280,7 +535,7 @@ func runIssuesList(cmd *cobra.Command, flags *rootFlags, dbPath, assignee, state
 	servedFromLive := false
 	fellBackOnNetErr := false
 	if useLive {
-		raw, err = fetchIssuesLive(cmd.Context(), flags, db, filter, stateFlag, limit)
+		raw, err = fetchIssuesLive(cmd.Context(), flags, db, filter, set, limit, includeArchived)
 		if err != nil {
 			if flags.dataSource == "live" {
 				return err
@@ -311,7 +566,14 @@ func runIssuesList(cmd *cobra.Command, flags *rootFlags, dbPath, assignee, state
 		if err := json.Unmarshal(r, &row); err != nil {
 			continue
 		}
-		if !matchesStateFilter(row.State.Type, stateFlag) {
+		// The live path already excluded archived issues server-side unless
+		// asked otherwise, but the store can hold archived rows written
+		// through by an earlier --include-archived read. Re-applying the
+		// predicate keeps the local path answering the same question.
+		if !includeArchived && row.ArchivedAt != "" {
+			continue
+		}
+		if !set.Matches(row.State.Type, row.State.Name) {
 			continue
 		}
 		rows = append(rows, row)
@@ -371,6 +633,29 @@ func runIssuesList(cmd *cobra.Command, flags *rootFlags, dbPath, assignee, state
 		return nil
 	}
 
+	if includeArchived {
+		// Only widen the table when the caller asked for archived rows. The
+		// stamp is trimmed to the date: the time of day is never the reason
+		// anyone is reading this column.
+		fmt.Fprintf(cmd.OutOrStdout(), "%-12s %-4s %-16s %-10s %-12s %s\n", "ID", "PRI", "STATE", "TEAM", "ARCHIVED", "TITLE")
+		fmt.Fprintln(cmd.OutOrStdout(), strings.Repeat("-", 92))
+		for _, row := range rows {
+			title := row.Title
+			if len(title) > 40 {
+				title = title[:37] + "..."
+			}
+			archived := "-"
+			if len(row.ArchivedAt) >= 10 {
+				archived = row.ArchivedAt[:10]
+			} else if row.ArchivedAt != "" {
+				archived = row.ArchivedAt
+			}
+			fmt.Fprintf(cmd.OutOrStdout(), "%-12s %-4s %-16s %-10s %-12s %s\n",
+				row.Identifier, priorityLabel(row.Priority), row.State.Name, row.Team.Key, archived, title)
+		}
+		return nil
+	}
+
 	fmt.Fprintf(cmd.OutOrStdout(), "%-12s %-4s %-16s %-10s %s\n", "ID", "PRI", "STATE", "TEAM", "TITLE")
 	fmt.Fprintln(cmd.OutOrStdout(), strings.Repeat("-", 80))
 	for _, row := range rows {
@@ -382,17 +667,6 @@ func runIssuesList(cmd *cobra.Command, flags *rootFlags, dbPath, assignee, state
 			row.Identifier, priorityLabel(row.Priority), row.State.Name, row.Team.Key, title)
 	}
 	return nil
-}
-
-func matchesStateFilter(stateType, stateFlag string) bool {
-	switch strings.ToLower(strings.TrimSpace(stateFlag)) {
-	case "all", "":
-		return true
-	case "active":
-		return stateType != "completed" && stateType != "canceled"
-	default:
-		return strings.EqualFold(stateType, stateFlag)
-	}
 }
 
 // resolveAssigneeFilter maps --assignee input to a user UUID.
@@ -462,7 +736,7 @@ func resolveTeamFilter(db *store.Store, input string) (string, error) {
 			return t.ID, nil
 		}
 	}
-	return "", fmt.Errorf("no team matching %q in local store", input)
+	return "", fmt.Errorf("%w: no team matching %q in local store", errTeamFilterNotFound, input)
 }
 
 // resolveProjectFilter maps --project input to a project UUID. Accepts name or UUID.
@@ -492,20 +766,16 @@ func resolveProjectFilter(db *store.Store, input string) (string, error) {
 
 func renderIssue(cmd *cobra.Command, flags *rootFlags, data json.RawMessage, prov DataProvenance) error {
 	printProvenance(cmd, 1, prov)
-	if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
-		if flags.compact {
-			data = compactFields(data)
-		}
-		if flags.selectFields != "" {
-			data = filterFields(data, flags.selectFields)
-		}
-		wrapped, err := wrapWithProvenance(data, prov)
-		if err != nil {
-			return err
-		}
-		return printOutput(cmd.OutOrStdout(), wrapped, true)
+	return renderPayloadWithProvenance(cmd, flags, data, prov, true)
+}
+
+func renderIssues(cmd *cobra.Command, flags *rootFlags, issues []json.RawMessage, prov DataProvenance) error {
+	data, err := json.Marshal(issues)
+	if err != nil {
+		return fmt.Errorf("marshaling issues: %w", err)
 	}
-	return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+	printProvenance(cmd, len(issues), prov)
+	return renderPayloadWithProvenance(cmd, flags, data, prov, true)
 }
 
 // fetchIssuesLive queries Linear's `issues(filter:...)` GraphQL endpoint
@@ -513,7 +783,11 @@ func renderIssue(cmd *cobra.Command, flags *rootFlags, data json.RawMessage, pro
 // write-throughs the response into the local store via UpsertIssue so the
 // next --data-source local read sees fresh data. The cliutil/store imports
 // already in this file's import block cover the helpers used here.
-func fetchIssuesLive(ctx context.Context, flags *rootFlags, db *store.Store, filter map[string]string, stateFlag string, limit int) ([]json.RawMessage, error) {
+//
+// includeArchived maps to the issues connection's includeArchived argument.
+// It is only sent when true, so the default path emits exactly the variable
+// set it always emitted and the server default keeps applying.
+func fetchIssuesLive(ctx context.Context, flags *rootFlags, db *store.Store, filter map[string]string, set groups.Set, limit int, includeArchived bool) ([]json.RawMessage, error) {
 	c, err := flags.newClient()
 	if err != nil {
 		return nil, err
@@ -528,16 +802,8 @@ func fetchIssuesLive(ctx context.Context, flags *rootFlags, db *store.Store, fil
 	if v, ok := filter["project_id"]; ok && v != "" {
 		gqlFilter["project"] = map[string]any{"id": map[string]any{"eq": v}}
 	}
-	switch stateFlag {
-	case "", "all":
-		// no filter — return everything
-	case "active":
-		// "active" is the v3 semantic: not completed AND not canceled. Linear's
-		// state.type enum is {backlog, unstarted, started, completed, canceled,
-		// triage}; the live filter uses nin.
-		gqlFilter["state"] = map[string]any{"type": map[string]any{"nin": []string{"completed", "canceled"}}}
-	default:
-		gqlFilter["state"] = map[string]any{"type": map[string]any{"eq": stateFlag}}
+	if stateFilter := set.GraphQLFilter(); stateFilter != nil {
+		gqlFilter["state"] = stateFilter
 	}
 	// Linear's GraphQL `issues` query caps `first` at 100 per page. To
 	// honor a user-supplied --limit greater than 100, paginate via
@@ -563,6 +829,9 @@ func fetchIssuesLive(ctx context.Context, flags *rootFlags, db *store.Store, fil
 			}
 		}
 		vars := map[string]any{"first": first, "filter": gqlFilter}
+		if includeArchived {
+			vars["includeArchived"] = true
+		}
 		if cursor != "" {
 			vars["after"] = cursor
 		}

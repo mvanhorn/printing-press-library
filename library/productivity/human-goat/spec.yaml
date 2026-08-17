@@ -1,0 +1,240 @@
+name: human-goat
+display_name: Human-Goat
+description: |-
+  goat dispatches real-world tasks to real humans and tracks them to completion
+  across two backends: TaskRabbit for in-person local labor (moving, assembly,
+  mounting, cleaning) and Magic for remote errands (phone calls, lookups, online
+  bookings, data entry). The headline capability is autonomous soup-to-nuts hire
+  on TaskRabbit against the card on file, made safe by a verified cancel and a
+  spend cap. TaskRabbit is authenticated via Chrome cookies (session + XSRF-TOKEN,
+  never headless login); Magic via x-api-key.
+version: "0.1.0"
+cli_description: "Hire real humans from the terminal — autonomous TaskRabbit checkout with all-in pricing and a verified undo, plus Magic remote errands, in one agent-native binary."
+category: productivity
+base_url: https://www.taskrabbit.com
+health_check_path: /api/v3/web-client/bootstrap.json
+
+# TaskRabbit is the PRIMARY source (cookie auth). Its REST /api/v3 read surface is
+# modeled below. Everything else is hand-authored (Codex) because it cannot live in
+# one spec:
+#   - TaskRabbit tRPC BFF (/next-api/trpc/*): page.tasks.list read + the page.book.*
+#     funnel (details/recommendations/schedule/confirm/hire). Envelope
+#     [{result:{data:{json:...}}}]; Zod input shapes pinned by the U4 read-only
+#     funnel walk. Lives in internal/source/taskrabbit/ with X-CSRF-Token on mutations.
+#   - Magic (console.api.getmagic.com/api/v1, x-api-key): send/call/reply/track.
+#     Lives in internal/source/magic/ (different base_url + auth than the primary).
+#   - Cross-source verbs (dispatch/track/spend) and transcendence (all-in pricing,
+#     compare/best, hire, verified cancel, spend cap, watch, rebook).
+
+auth:
+  type: cookie
+  header: Cookie
+  cookie_domain: .taskrabbit.com
+  cookies:
+    - session
+    - XSRF-TOKEN
+
+config:
+  format: toml
+  path: "~/.config/human-goat/config.toml"
+
+resources:
+  system:
+    description: TaskRabbit account bootstrap, metro, and dashboard reachability
+    endpoints:
+      bootstrap:
+        method: GET
+        path: /api/v3/web-client/bootstrap.json
+        description: Account bootstrap — metro (id, name, country), payment_method_types, stream_api_key. Used by doctor to resolve the account metro.
+        response:
+          type: object
+          item: Bootstrap
+      dashboard_counts:
+        method: GET
+        path: /api/v3/web-client/dashboard/counts
+        description: Dashboard tab counts (open tasks, messages, etc.)
+        response:
+          type: object
+
+  account:
+    description: The logged-in TaskRabbit client account profile
+    endpoints:
+      get:
+        method: GET
+        path: /api/v3/account.json
+        description: Get the authenticated account profile
+        response:
+          type: object
+          item: Account
+
+  categories:
+    description: TaskRabbit task categories and templates for the account metro
+    endpoints:
+      list:
+        method: GET
+        path: /api/v3/web-client/metro_task_template.json
+        description: List task templates for the account metro (title, category_name, category_id, default_template_id, top_category)
+        response:
+          type: array
+          item: Category
+        response_path: initial_task_templates
+
+  taskers:
+    description: Favorite, past, and suggested TaskRabbit Taskers
+    endpoints:
+      favorites:
+        method: GET
+        path: /api/v3/poster_rabbit_relationships/favorite
+        description: List your favorited Taskers (poster=client, rabbit=tasker)
+        params:
+          - name: page
+            type: int
+            required: false
+            description: Page number for pagination
+        response:
+          type: array
+          item: Tasker
+        response_path: items
+        pagination:
+          type: page
+          has_more_field: meta.total_pages
+      past:
+        method: GET
+        path: /api/v3/poster_rabbit_relationships/past
+        description: List Taskers you have hired before
+        params:
+          - name: page
+            type: int
+            required: false
+            description: Page number for pagination
+        response:
+          type: array
+          item: Tasker
+        response_path: items
+        pagination:
+          type: page
+          has_more_field: meta.total_pages
+      suggestions:
+        method: GET
+        path: /api/v3/web-client/dashboard/tasker_suggestions
+        description: Tasker suggestions for the account metro
+        response:
+          type: array
+          item: Tasker
+        response_path: items
+
+  invoices:
+    description: Invoice and payment-history flags
+    endpoints:
+      has_submitted:
+        method: GET
+        path: /api/v3/decline_invoice/has_submitted_invoices
+        description: Whether the account has submitted invoices (payment-history presence flag)
+        response:
+          type: object
+
+types:
+  Bootstrap:
+    fields:
+      - name: metro
+        type: object
+      - name: payment_method_types
+        type: array
+      - name: stream_api_key
+        type: string
+      - name: support_key
+        type: string
+  Account:
+    fields:
+      - name: id
+        type: string
+      - name: first_name
+        type: string
+      - name: last_name
+        type: string
+      - name: email
+        type: string
+      - name: metro_id
+        type: int
+  Category:
+    fields:
+      - name: title
+        type: string
+      - name: category_name
+        type: string
+      - name: category_id
+        type: int
+      - name: default_template_id
+        type: int
+      - name: top_category
+        type: bool
+      - name: fallback
+        type: bool
+  Tasker:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: hourly_rate
+        type: float
+      - name: rating
+        type: float
+      - name: review_count
+        type: int
+      - name: tasks_completed
+        type: int
+      - name: elite
+        type: bool
+      - name: metro_id
+        type: int
+  Booking:
+    fields:
+      - name: id
+        type: string
+      - name: source
+        type: string
+      - name: status
+        type: string
+      - name: title
+        type: string
+      - name: tasker_name
+        type: string
+      - name: hourly_rate
+        type: float
+      - name: all_in_rate
+        type: float
+      - name: scheduled_at
+        type: string
+      - name: created_at
+        type: string
+  Invoice:
+    fields:
+      - name: id
+        type: string
+      - name: booking_id
+        type: string
+      - name: amount
+        type: float
+      - name: hours
+        type: float
+      - name: created_at
+        type: string
+
+# Sync: which read endpoints feed the local SQLite store for offline track/spend/ranking.
+# The hand-coded tRPC (bookings) and Magic (remote tasks) adapters also write into the
+# shared store under source=taskrabbit / source=magic.
+sync:
+  cursor:
+    type: time_window
+    description: Bookings by date; tasker search cached per (category, metro, date). Categories rarely change.
+  resources:
+    - categories
+    - taskers
+    - account
+
+# MCP: expose the verbs as agent tools. stdio + http so hosted agents can reach it.
+mcp:
+  transport:
+    - stdio
+    - http

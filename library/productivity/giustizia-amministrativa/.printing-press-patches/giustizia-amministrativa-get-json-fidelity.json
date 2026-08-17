@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "giustizia-amministrativa-get-json-fidelity",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260621-094103",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Due correzioni su provvedimenti_get, emerse da un test con un agente esterno che non conosceva il progetto. (1) Il controllo sul testo non estraibile e' stato spostato prima delle diramazioni di formato, cosi' vale anche per l'output JSON: la risposta porta ora testo_non_estraibile, formato_documento e un full_text che spiega il caso, invece di un record col campo semplicemente assente. (2) makeCLIHandler non passa piu' --agent in blocco (che implica --json): passa --no-input --no-color --yes e aggiunge --json solo se il chiamante non ha chiesto md/text/html. format e front-matter sono ora dichiarati nello schema di provvedimenti_get.",
+  "reason": "Il fix sui PDF applicato in precedenza copriva le diramazioni md e text di runGAGet, ma non quella JSON -- ed e' JSON quello che il tool MCP restituisce davvero. Un agente esterno, messo a costruire un corpus senza sapere nulla del progetto, ha ricevuto per tre provvedimenti un record di 546-671 byte con tutte le chiavi al posto giusto e full_text semplicemente mancante: nessun errore, nessun avviso. Sue parole: se ne e' accorto solo perche' stampava le dimensioni dei file in un ciclo, e ha dovuto escludere dal corpus tre sentenze forti non per ragioni giuridiche ma perche' il tool non sa leggerle; una delle tre era il secondo risultato per rilevanza. Sul formato: --agent forza --json, quindi format:'md' e format:'text' producevano output byte-identici in JSON. L'utente aveva chiesto un corpus in Markdown; il tool che dovrebbe fornirlo restituiva JSON chiamando 'md' un formato che non produceva, e l'agente ha speso due download della stessa sentenza per capirlo.",
+  "files": [
+    "internal/cli/ga_core.go",
+    "internal/mcp/tools.go"
+  ],
+  "validated_outcome": "provvedimenti_get su ECLI:IT:CDS:2026:3396SENT (PDF): testo_non_estraibile=true, formato_documento=PDF, full_text con la nota e il link. provvedimenti_get con format=md e format=text: output ora diversi (md5 e2d72ee19a7d vs 1f4ca249de87), e md restituisce Markdown con front-matter invece di JSON. go build/vet/test verdi."
+}

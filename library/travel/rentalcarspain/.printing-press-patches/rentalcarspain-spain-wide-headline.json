@@ -1,0 +1,10 @@
+{
+  "schema_version": 2,
+  "id": "rentalcarspain-spain-wide-headline",
+  "applied_at": "2026-07-26",
+  "base_run_id": "20260713-084638-059f7c9e",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Reframe the root command headline from Malaga-only to Spain-wide.",
+  "reason": "The tool covers every major Spanish airport; the root --help description must match the manifest, README and catalog framing.",
+  "files": ["internal/cli/root.go"]
+}

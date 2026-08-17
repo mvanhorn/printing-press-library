@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "giustizia-amministrativa-mcp-diagnostics",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260621-094103",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Aggiunti cobratree.RunCLICommandWithDiagnostics e cobratree.MergeDiagnostics: gli avvisi che la CLI scrive su stderr vengono portati dentro il risultato del tool MCP (campo 'avvisi' su un oggetto JSON, wrapper 'risultati'+'avvisi' su un array, blocco di testo in coda su output non-JSON come il Markdown di get). Sia shellOutToCLI (mirror cobratree) sia makeCLIHandler (tool tipizzati) ci passano ora attraverso. Il filtro tiene solo le righe con prefisso 'Attenzione: ', 'Nota: ', 'hint: ', 'warning: '.",
+  "reason": "RunCLICommand legge stderr solo nel ramo di errore: su un comando riuscito lo scarta. Ogni avviso della CLI destinato a chi legge il risultato spariva quindi prima di arrivare al client MCP -- e li' il lettore e' sempre una macchina, che non puo' vedere una nota a schermo e correggere il tiro. Riguardava gia' i Warnings dello sweep anni introdotti a luglio (anni saltati per un errore transitorio: mai visti da un utente Claude Desktop) ed era un prerequisito per l'avviso sulla copertura per sede, che senza questa infrastruttura sarebbe stato scritto e buttato via. Stessa soluzione gia' adottata in ars-sicilia-pp-cli.",
+  "files": [
+    "internal/mcp/cobratree/shellout.go",
+    "internal/mcp/tools.go"
+  ],
+  "validated_outcome": "go build/vet/test verdi. L'avviso di copertura sede prodotto su stderr da search arriva ora nel payload del tool provvedimenti_cerca invece di essere scartato."
+}

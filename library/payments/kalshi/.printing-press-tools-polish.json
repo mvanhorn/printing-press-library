@@ -1,5 +1,19 @@
 {
-  "timestamp": "2026-05-05T05:26:58.258388Z",
-  "cli_dir": "/Users/tmchow/printing-press/.runstate/scalable-hopping-kay-d72f6279/runs/20260504-204550/working/kalshi-pp-cli",
-  "findings": null
+  "timestamp": "2026-06-10T05:00:18.9983769Z",
+  "cli_dir": "\u003ccli-dir\u003e\\kalshi",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "version",
+      "file": "root.go",
+      "line": 284,
+      "evidence": "Print version",
+      "status": "accepted",
+      "note": "Standard version command printing the release string; brief-but-precise per tools-polish.md ('Print version' is its canonical acceptable example) and agents need no parameter or return-shape context to use it"
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-06-10T04:33:38.7258554Z"
+  }
 }

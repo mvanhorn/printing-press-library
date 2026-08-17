@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "quranku-plan-advance-idempotent",
+  "applied_at": "2026-07-12",
+  "base_run_id": "20260712-015914-1241bf58",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Make 'plan advance' idempotent per UTC day via a last_advanced field so a retried call cannot skip a reading range.",
+  "reason": "The generated advance always added a full PerDay and recorded no completion date; a retry after a timeout (user or MCP client) silently advanced twice, moving 'plan today' past unread verses.",
+  "files": ["internal/cli/plan.go"],
+  "validated_outcome": "Two 'plan advance' calls on the same day leave completed_verses unchanged (208 -> 208); the second reports 'already recorded today's reading'."
+}

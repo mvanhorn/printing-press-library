@@ -1,0 +1,118 @@
+{
+  "api_name": "cookunity",
+  "base_url": "https://subscription.cookunity.com",
+  "description": "Mirror CookUnity's full weekly menu into a local database so you can plan meals offline — filter by macros, diet, and budget, and diff the menu week over week, none of which the web app can do.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "Authorization",
+    "format": "{COOKUNITY_TOKEN}",
+    "in": "header",
+    "env_vars": [
+      "COOKUNITY_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "COOKUNITY_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [
+    {
+      "name": "platform",
+      "value": "web"
+    }
+  ],
+  "tools": [
+    {
+      "name": "meals_list",
+      "description": "List meals (hand-built to read the local store; this endpoint is the upstream source). Returns array of Meal.",
+      "method": "GET",
+      "path": "/sdui-service/web/view/menu/components/clustered-result",
+      "params": []
+    },
+    {
+      "name": "menu_cluster",
+      "description": "Fetch one meal cluster (category/subcategory slice) of MEAL cards for a delivery date. Required: date. Optional: display-date, order-status (default: confirmed), view (default: {'type':'ClusteredResult'}) (plus 4 more). Returns the MealCluster.",
+      "method": "GET",
+      "path": "/sdui-service/web/view/menu/components/clustered-result",
+      "params": [
+        {
+          "name": "date",
+          "wire_name": "currentDeliveryDate",
+          "type": "string",
+          "location": "query",
+          "description": "Delivery date, YYYY-MM-DD",
+          "required": true
+        },
+        {
+          "name": "display-date",
+          "wire_name": "currentDeliveryDisplayDate",
+          "type": "string",
+          "location": "query",
+          "description": "Display date, usually equal to the delivery date"
+        },
+        {
+          "name": "order-status",
+          "wire_name": "currentOrderStatus",
+          "type": "string",
+          "location": "query",
+          "description": "Current order status context (e.g. confirmed)"
+        },
+        {
+          "name": "view",
+          "type": "string",
+          "location": "query",
+          "description": "SDUI view descriptor JSON"
+        },
+        {
+          "name": "reference",
+          "type": "string",
+          "location": "query",
+          "description": "Cluster reference UUID from clustered-results"
+        },
+        {
+          "name": "filter-by",
+          "wire_name": "filterBy",
+          "type": "string",
+          "location": "query",
+          "description": "Cluster filter key (e.g. meal_protein_and_starch)"
+        },
+        {
+          "name": "category-id",
+          "wire_name": "categoryId",
+          "type": "string",
+          "location": "query",
+          "description": "Category id from clustered-results"
+        },
+        {
+          "name": "subcategory-id",
+          "wire_name": "subcategoryId",
+          "type": "string",
+          "location": "query",
+          "description": "Subcategory id from clustered-results"
+        }
+      ]
+    },
+    {
+      "name": "menu_view",
+      "description": "Fetch the menu chrome and lazy meal-cluster references for a delivery date (YYYY-MM-DD). Required: date. Returns the MenuView.",
+      "method": "GET",
+      "path": "/sdui-service/web/view/menu/{date}/clustered-results",
+      "params": [
+        {
+          "name": "date",
+          "type": "string",
+          "location": "path",
+          "description": "Delivery date, YYYY-MM-DD (menu is published ~2 weeks ahead)",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

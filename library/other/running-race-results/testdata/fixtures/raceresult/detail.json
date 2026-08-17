@@ -1,0 +1,45 @@
+{
+  "_meta": {
+    "url": "https://my-us-1.raceresult.com/390537/details0/view?lang=en&noVisitor=1&mid=0&standalone=false&pid=1286",
+    "event": "17. REWE Team Challenge Dresden, 2026-06-17",
+    "eventId": 390537,
+    "pid": 1286,
+    "participant": "Runner Alpha, BIB 1286",
+    "capturedAt": "2026-06-18"
+  },
+  "Elements": [
+    {
+      "ID": "F7dkBk",
+      "Type": "box",
+      "Children": [
+        {"ID": "nOMOyw", "Type": "favorite"}
+      ]
+    }
+  ],
+  "Data": {
+    "Comments": null,
+    "Photos": [
+      {
+        "URL": "https://www.sportograf.com/en/event/20080/search/1286",
+        "Thumbnail": "https://sa.sportograf.com/img/thumbnail/20080/20080_LPI1_00296.JPG",
+        "PhotographerEventID": "20080"
+      }
+    ],
+    "SplitsAndLegs": {
+      "Splits": null,
+      "Legs": null
+    },
+    "Fields": null,
+    "Certificates": [
+      {"label": "Einzelurkunde", "cs": "Mittwoch - Alle für Internet - Einzel", "pic": ""},
+      {"label": "Team-Urkunde", "cs": "MIttwoch - Alle für Internet - Teams", "pic": ""}
+    ],
+    "IsFavorite": false
+  },
+  "key": "93941475da0e781fdf01c051062b7423",
+  "LiveUpdateInterval": 10,
+  "MID": 607513,
+  "Server": "my-us-1.raceresult.com",
+  "PID": 1286,
+  "Color": ""
+}

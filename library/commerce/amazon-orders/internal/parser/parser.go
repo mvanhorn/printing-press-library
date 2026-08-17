@@ -27,11 +27,14 @@ var orderIDRegex = regexp.MustCompile(`\b\d{3}-\d{7}-\d{7}\b|\bD\d{2}-\d{7}-\d{7
 // asinRegex extracts a 10-char Amazon Standard ID Number (ASIN).
 var asinRegex = regexp.MustCompile(`/dp/([A-Z0-9]{10})`)
 
-// moneyRegex matches USD-style money (e.g. "$1,234.56", "-$5.00").
-var moneyRegex = regexp.MustCompile(`-?\$\s*([0-9][0-9,]*\.\d{2})`)
+// moneyRegex matches currency-marked money across Amazon marketplaces (e.g.
+// "$1,234.56", "-₹1,234.56", "Rs. 999.00", "INR 2,500.00").
+var moneyRegex = regexp.MustCompile(`(?i)(-?)\s*(₹|rs\.?|inr|\$|£|€)\s*([0-9][0-9,]*(?:\.\d{2})?)`)
 
-// dateLikeRegex tolerates "May 5, 2026", "May 5", "Jan 1, 2026".
-var dateLikeRegex = regexp.MustCompile(`\b(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+\d{1,2}(?:,\s*\d{4})?\b`)
+// dateLikeRegex tolerates both US month-first ("May 5, 2026", "May 5") and
+// non-US day-first ("5 May 2026", "16 June") layouts. amazon.in and other
+// international marketplaces render the day-first form.
+var dateLikeRegex = regexp.MustCompile(`\b(?:\d{1,2}\s+(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)(?:\s+\d{4})?|(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+\d{1,2}(?:,\s*\d{4})?)\b`)
 
 // last4Regex matches "ending in 1234" or "****1234" payment hints.
 var last4Regex = regexp.MustCompile(`(?:ending in|ending|\*+)\s*(\d{4})`)
@@ -125,13 +128,21 @@ func Attr(n *html.Node, key string) string {
 }
 
 // Text returns the concatenated text content of n with whitespace collapsed.
-// Wraps cliutil.CleanText for HTML entity unescaping.
+// Wraps cliutil.CleanText for HTML entity unescaping. <script>/<style>/<noscript>
+// subtrees are skipped: Amazon inlines JSON and JS (containing tokens like "$0"
+// and "total") inside order cards, which otherwise pollute label/money scans.
 func Text(n *html.Node) string {
 	if n == nil {
 		return ""
 	}
 	var sb strings.Builder
 	Walk(n, func(x *html.Node) bool {
+		if x.Type == html.ElementNode {
+			switch x.Data {
+			case "script", "style", "noscript":
+				return false // skip this subtree entirely
+			}
+		}
 		if x.Type == html.TextNode {
 			sb.WriteString(x.Data)
 			sb.WriteString(" ")
@@ -174,19 +185,47 @@ func ExtractASIN(url string) string {
 // ExtractMoney returns the first money value in text as a float (e.g. 51.46).
 // Returns 0 if no money string is found. Negative for negative amounts.
 func ExtractMoney(text string) float64 {
-	m := moneyRegex.FindStringSubmatch(text)
-	if len(m) < 2 {
+	v, _, ok := ExtractMoneyWithCurrency(text)
+	if !ok {
 		return 0
-	}
-	clean := strings.ReplaceAll(m[1], ",", "")
-	v, err := strconv.ParseFloat(clean, 64)
-	if err != nil {
-		return 0
-	}
-	if strings.HasPrefix(m[0], "-") {
-		v = -v
 	}
 	return v
+}
+
+// ExtractMoneyWithCurrency returns the first money value and detected ISO-ish
+// currency code. ok is false when no supported currency-marked amount exists.
+func ExtractMoneyWithCurrency(text string) (amount float64, currency string, ok bool) {
+	m := moneyRegex.FindStringSubmatch(text)
+	if len(m) < 4 {
+		return 0, "", false
+	}
+	clean := strings.ReplaceAll(m[3], ",", "")
+	v, err := strconv.ParseFloat(clean, 64)
+	if err != nil {
+		return 0, "", false
+	}
+	if m[1] == "-" {
+		v = -v
+	}
+	return v, currencyForMoneyToken(m[2]), true
+}
+
+func currencyForMoneyToken(token string) string {
+	switch strings.ToUpper(strings.TrimSpace(token)) {
+	case "₹", "RS", "RS.", "INR":
+		return "INR"
+	case "$":
+		// "$" is ambiguous: USD (amazon.com), CAD (amazon.ca), AUD (amazon.com.au),
+		// MXN (amazon.com.mx). Return "" so callers fall back to MarketplaceCurrency
+		// instead of pinning to USD.
+		return ""
+	case "£":
+		return "GBP"
+	case "€":
+		return "EUR"
+	default:
+		return ""
+	}
 }
 
 // ParseDate tolerates several Amazon date strings ("May 5, 2026", "May 5",
@@ -201,7 +240,14 @@ func ParseDate(s string) time.Time {
 	if i := strings.Index(s, " - "); i >= 0 {
 		s = strings.TrimSpace(s[i+3:])
 	}
-	formats := []string{"January 2, 2006", "Jan 2, 2006", "January 2", "Jan 2"}
+	formats := []string{
+		// ISO (the form OrderSummary.PlacedDate is normalized to).
+		"2006-01-02",
+		// US month-first
+		"January 2, 2006", "Jan 2, 2006", "January 2", "Jan 2",
+		// Non-US day-first (amazon.in et al.): "16 June 2026", "5 May"
+		"2 January 2006", "2 Jan 2006", "2 January", "2 Jan",
+	}
 	for _, f := range formats {
 		if t, err := time.Parse(f, s); err == nil {
 			// If year is missing, assume current year.

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "luma",
+  "run_id": "20260616-093926-b732f35f",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 73,
+  "tests_passed": 73,
+  "tests_skipped": 40,
+  "auth_context": {
+    "type": "none"
+  }
+}

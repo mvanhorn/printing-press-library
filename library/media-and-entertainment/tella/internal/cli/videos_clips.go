@@ -14,11 +14,20 @@ func newVideosClipsCmd(flags *rootFlags) *cobra.Command {
 		RunE:  rejectUnknownSubcommand,
 	}
 
+	cmd.AddCommand(newVideosClipsAddCmd(flags))
+	cmd.AddCommand(newVideosClipsInsertFileCmd(flags))
+	cmd.AddCommand(newVideosClipsAddBrollCmd(flags))
 	cmd.AddCommand(newVideosClipsAddBlurCmd(flags))
 	cmd.AddCommand(newVideosClipsAddHighlightCmd(flags))
 	cmd.AddCommand(newVideosClipsAddLayoutCmd(flags))
 	cmd.AddCommand(newVideosClipsAddZoomCmd(flags))
 	cmd.AddCommand(newVideosClipsCutCmd(flags))
+	cmd.AddCommand(newVideosClipsCutByTranscriptCmd(flags))
+	cmd.AddCommand(newVideosClipsCutWordsCmd(flags))
+	cmd.AddCommand(newVideosClipsCleanCmd(flags))
+	cmd.AddCommand(newVideosClipsUndoLastCutsCmd(flags))
+	cmd.AddCommand(newVideosClipsRestoreCutsCmd(flags))
+	cmd.AddCommand(newVideosClipsReplaceWordRangesCmd(flags))
 	cmd.AddCommand(newVideosClipsDeleteCmd(flags))
 	cmd.AddCommand(newVideosClipsDuplicateCmd(flags))
 	// PATCH(library): add find-mistakes (UNOFFICIAL API; cataloged in
@@ -27,6 +36,7 @@ func newVideosClipsCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newVideosClipsGetCmd(flags))
 	cmd.AddCommand(newVideosClipsGetCutTranscriptCmd(flags))
 	cmd.AddCommand(newVideosClipsGetSilencesCmd(flags))
+	cmd.AddCommand(newVideosClipsSilenceMapCmd(flags))
 	cmd.AddCommand(newVideosClipsGetSourceThumbnailCmd(flags))
 	cmd.AddCommand(newVideosClipsGetSourceWaveformCmd(flags))
 	cmd.AddCommand(newVideosClipsGetThumbnailCmd(flags))

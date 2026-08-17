@@ -9,14 +9,16 @@ import (
 
 func newOrderCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "order",
-		Short: "Cart and order management",
+		Use:         "order",
+		Short:       "Cart and order management",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newOrderAddItemsCmd(flags))
 	cmd.AddCommand(newOrderCurrentCmd(flags))
 	cmd.AddCommand(newOrderUpsellCmd(flags))
-	// Hand-authored transcendence features.
 	cmd.AddCommand(newOrderPlanCmd(flags))
 	return cmd
 }

@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "cookunity-pp-cli"
+display_name = "CookUnity"
+description = "Mirror CookUnity's full weekly menu into a local database so you can plan meals offline — filter by macros, diet, and budget, and diff the menu week over week, none of which the web app can do."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/cookunity-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+COOKUNITY_TOKEN = true

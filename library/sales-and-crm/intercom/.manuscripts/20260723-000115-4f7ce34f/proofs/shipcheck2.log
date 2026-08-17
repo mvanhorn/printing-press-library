@@ -1,0 +1,195 @@
+
+=== verify ===
+warning: request body for POST "/contacts" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/events" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/messages" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/tags" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for PUT "/visitors" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for PUT "/contacts/{id}" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/conversations/redact" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/conversations/{id}/parts" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/conversations/{id}/reply" contains oneOf/anyOf; emitting --body-json fallback
+warning: resource "export" from path "/export/cancel/{job_identifier}" would shadow framework cobra command "export"; renamed to "intercom-export"
+warning: request body for POST "/tickets/{id}/reply" contains oneOf/anyOf; emitting --body-json fallback
+Runtime Verification: /Users/francis.battikha/printing-press/.runstate/clis-0c63cf52/runs/20260723-000115-4f7ce34f/working/intercom-pp-cli/intercom-pp-cli
+Mode: mock
+
+COMMAND                        KIND         HELP   DRY-RUN  EXEC     SCORE
+resource-path:tail             static       PASS   PASS     PASS     3/3
+resource-path:export           static       PASS   PASS     PASS     3/3
+resource-path:import           static       PASS   PASS     PASS     3/3
+agent-context                  read         PASS   PASS     PASS     3/3
+analytics                      data-layer   PASS   PASS     PASS     3/3
+api                            local        PASS   PASS     PASS     3/3
+auth                           local        PASS   PASS     PASS     3/3
+doctor                         local        PASS   PASS     PASS     3/3
+download                       read         PASS   PASS     PASS     3/3
+export                         data-layer   PASS   PASS     PASS     3/3
+feedback                       read         PASS   PASS     PASS     3/3
+import                         data-layer   PASS   PASS     PASS     3/3
+learnings                      read         PASS   PASS     FAIL     2/3
+me                             read         PASS   PASS     PASS     3/3
+messages                       read         PASS   PASS     PASS     3/3
+notes                          read         PASS   PASS     PASS     3/3
+phone-call-redirects           read         PASS   PASS     FAIL     2/3
+playbook                       read         PASS   PASS     FAIL     2/3
+profile                        read         PASS   PASS     FAIL     2/3
+recall                         read         PASS   PASS     PASS     3/3
+search                         data-layer   PASS   PASS     PASS     3/3
+subscription-types             read         PASS   PASS     PASS     3/3
+sync                           data-layer   PASS   PASS     PASS     3/3
+tail                           data-layer   PASS   PASS     PASS     3/3
+teach                          read         PASS   PASS     PASS     3/3
+teach-lookup                   read         PASS   PASS     PASS     3/3
+teach-pattern                  read         PASS   PASS     PASS     3/3
+teach-playbook                 read         PASS   PASS     PASS     3/3
+ticket-states                  read         PASS   PASS     PASS     3/3
+which                          read         PASS   PASS     PASS     3/3
+workflow                       read         PASS   PASS     FAIL     2/3
+
+Path-Param Probes (nested commands with <positional> args):
+  PASS auth set-token
+  PASS learnings confirm
+  PASS learnings forget
+  PASS learnings reject
+  PASS profile delete
+  PASS profile save
+  PASS profile show
+  PASS profile use
+
+Data Pipeline: PASS: sync completed (sql unavailable, table validation skipped)
+Pass Rate: 100% (39/39 passed, 0 critical)
+Verdict: PASS
+
+=== validate-narrative ===
+UNSUPPORTED [quickstart]: intercom-pp-cli auth set-token "$INTERCOM_ACCESS_TOKEN" → full-example validation skipped: command is side-effectful (auth/launch/apply)
+UNSUPPORTED [recipes]: intercom-pp-cli conversations incident-tag --mentions "checkout fails" --since 24h --tag incident-2026-05-24 --apply → full-example validation skipped: command is side-effectful (auth/launch/apply)
+UNSUPPORTED [auth_narrative]: intercom-pp-cli auth set-token "<token>" → full-example validation skipped: command is side-effectful (auth/launch/apply)
+UNSUPPORTED [troubleshoots.fix]: intercom-pp-cli auth set-token <token> → full-example validation skipped: command is side-effectful (auth/launch/apply)
+DONE: 8 ok, 0 missing, 0 empty-words, 0 failed-examples, 4 unsupported
+
+=== dogfood ===
+dogfood: using spec /Users/francis.battikha/printing-press/.runstate/clis-0c63cf52/runs/20260723-000115-4f7ce34f/working/intercom-pp-cli/spec.yaml (bundled)
+dogfood: caller --spec=/Users/francis.battikha/printing-press/library/intercom/spec.yaml overridden by bundled /Users/francis.battikha/printing-press/.runstate/clis-0c63cf52/runs/20260723-000115-4f7ce34f/working/intercom-pp-cli/spec.yaml
+warning: request body for POST "/contacts" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/events" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/messages" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/tags" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for PUT "/visitors" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for PUT "/contacts/{id}" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/conversations/redact" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/conversations/{id}/parts" contains oneOf/anyOf; emitting --body-json fallback
+warning: request body for POST "/conversations/{id}/reply" contains oneOf/anyOf; emitting --body-json fallback
+warning: resource "export" from path "/export/cancel/{job_identifier}" would shadow framework cobra command "export"; renamed to "intercom-export"
+warning: request body for POST "/tickets/{id}/reply" contains oneOf/anyOf; emitting --body-json fallback
+Dogfood Report: intercom-pp-cli
+================================
+
+Path Validity:     6/6 valid (PASS)
+
+Auth Protocol:     MATCH
+  Spec: bearer token format (expects "Bearer " prefix)
+  Generated: Uses "Bearer" prefix
+  Detail: spec and generated client both use "Bearer"
+
+OAuth Scope Cover: 0/0 endpoints covered (SKIP)
+  Detail: no OAuth-scoped endpoints in spec
+
+Dead Flags:        0 dead (PASS)
+
+Dead Functions:    0 dead (PASS)
+
+Data Pipeline:     GOOD
+  Sync: calls domain-specific Upsert methods (GOOD)
+  Search: calls domain-specific Search methods (GOOD)
+  Domain tables: 4
+
+Examples:          10/10 commands have examples (PASS)
+
+Novel Features:    4/4 survived (PASS)
+
+MCP Surface:       PASS (MCP surface mirrors the Cobra tree at runtime)
+
+Verdict: FAIL
+  - 4/4 novel features missing data-source strategy: conversations incident-tag (conversations_incident_tag.go) — missing // pp:data-source <auto|local|live|computed> annotation; articles pull (articles_pull.go) — missing // pp:data-source <auto|local|live|computed> annotation; contact 360 (contact_360.go) — missing // pp:data-source <auto|local|live|computed> annotation; conversations sla (conversations_sla.go) — missing // pp:data-source <auto|local|live|computed> annotation
+
+=== workflow-verify ===
+Workflow Verification: intercom-pp-cli
+================================
+
+Overall Verdict: workflow-pass
+  - no workflow manifest found, skipping
+
+=== apify-audit ===
+Apify Actor Audit
+=================
+
+No Apify actor references found.
+
+Verdict: pass
+  - no Apify actor references found, skipping
+
+=== verify-skill ===
+=== intercom-pp-cli ===
+  ✓ All checks passed (flag-names, flag-commands, positional-args, shell-var-quotes, unknown-command)
+  ✓ canonical-sections passed
+
+=== scorecard ===
+Quality Scorecard: intercom
+
+  Output Modes         10/10
+  Auth                 10/10
+  Error Handling       10/10
+  Terminal UX          10/10
+  README               10/10
+  Doctor               10/10
+  Agent Native         10/10
+  MCP Quality          8/10
+  MCP Desc Quality     N/A
+  MCP Token Efficiency N/A
+  MCP Remote Transport 10/10
+  MCP Tool Design      10/10
+  MCP Surface Strategy 10/10
+  Local Cache          10/10
+  Cache Freshness      5/10
+  Breadth              10/10
+  Vision               10/10
+  Workflows            10/10
+  Insight              7/10
+  Agent Workflow       9/10
+
+  Domain Correctness
+  Path Validity           10/10
+  Auth Protocol           10/10
+  Data Pipeline Integrity 10/10
+  Sync Correctness        10/10
+  Live API Verification   N/A
+  Type Fidelity           5/5
+  Dead Code               5/5
+
+  Total: 96/100 - Grade A
+  Note: omitted from denominator: mcp_description_quality, mcp_token_efficiency, live_api_verification
+
+Sample Output Probe (live command sample)
+  Binary refresh: fresh_fallback (same-name runnable binary is newer than Go sources)
+  Passed: 2/4  (50% pass rate, 0 skipped)
+  Failures:
+    - Incident-tag dry-run: exit 4: Error: GET /me returned HTTP 401: {"type":"error.list","request_id":"000bpc1efbinv1p16180","errors":[{"code":"missing_authorization","message":"No authorization was provided"}]}
+hint: check your token.
+      Set it with: intercom-pp-cli auth set-token <token> or export INTERCOM_ACCESS_TOKEN="your-to...
+    - Articles git round-trip: exit 4: Error: GET /articles returned HTTP 401: {"type":"error.list","request_id":"0000h7sqpj2rtlgmd52g","errors":[{"code":"missing_authorization","message":"No authorization was provided"}]}
+hint: check your token.
+      Set it with: intercom-pp-cli auth set-token <token> or export INTERCOM_ACCESS_TOKEN="y...
+
+Shipcheck Summary
+=================
+  LEG               RESULT  EXIT      ELAPSED
+  verify            PASS    0         14.634s
+  validate-narrative  PASS    0         607ms
+  dogfood           PASS    0         5.671s
+  workflow-verify   PASS    0         31ms
+  apify-audit       PASS    0         106ms
+  verify-skill      PASS    0         12.519s
+  scorecard         PASS    0         3.017s
+
+Verdict: PASS (7/7 legs passed)

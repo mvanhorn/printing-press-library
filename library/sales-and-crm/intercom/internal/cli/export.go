@@ -8,8 +8,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 
+	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/intercom/internal/cliutil"
 	"github.com/spf13/cobra"
 )
 
@@ -33,33 +35,47 @@ large datasets as it has no memory pressure.`,
 
   # Pipe to another tool
   intercom-pp-cli export <resource> --format jsonl | jq '.id'`,
-		Args: cobra.MinimumNArgs(1),
+		Args: cobra.RangeArgs(1, 2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			validResources := map[string]bool{
-				"admins":        true,
-				"articles":      true,
-				"companies":     true,
-				"contacts":      true,
-				"conversations": true,
-				"events":        true,
-				"me":            true,
-				"segments":      true,
-				"tags":          true,
-				"teams":         true,
-				"visitors":      true,
+				"admins":             true,
+				"ai":                 true,
+				"articles":           true,
+				"companies":          true,
+				"contacts":           true,
+				"conversations":      true,
+				"data-attributes":    true,
+				"events":             true,
+				"help-center":        true,
+				"internal-articles":  true,
+				"me":                 true,
+				"news":               true,
+				"segments":           true,
+				"subscription-types": true,
+				"tags":               true,
+				"teams":              true,
+				"ticket-states":      true,
+				"ticket-types":       true,
 			}
 			validResourceList := []string{
 				"admins",
+				"ai",
 				"articles",
 				"companies",
 				"contacts",
 				"conversations",
+				"data-attributes",
 				"events",
+				"help-center",
+				"internal-articles",
 				"me",
+				"news",
 				"segments",
+				"subscription-types",
 				"tags",
 				"teams",
-				"visitors",
+				"ticket-states",
+				"ticket-types",
 			}
 			resource := args[0]
 			if !validResources[resource] {
@@ -74,9 +90,16 @@ large datasets as it has no memory pressure.`,
 				c.NoCache = true
 			}
 
-			path := "/" + resource
+			path, err := resourceReadPath(resource)
+			if err != nil {
+				return usageErr(err)
+			}
+			singleItem := len(args) > 1
 			if len(args) > 1 {
-				path += "/" + args[1]
+				path, err = resourceDetailPath(resource, cliutil.EscapePathParam(args[1]))
+				if err != nil {
+					return usageErr(err)
+				}
 			}
 
 			var writer *bufio.Writer
@@ -93,37 +116,88 @@ large datasets as it has no memory pressure.`,
 				defer writer.Flush()
 			}
 
-			data, err := c.Get(cmd.Context(), path, nil)
-			if err != nil {
-				return classifyAPIError(err, flags)
-			}
-
-			switch format {
-			case "jsonl":
-				var items []json.RawMessage
-				if err := json.Unmarshal(data, &items); err != nil {
-					fmt.Fprintln(writer, string(data))
-					return nil
+			config := resourceReadConfigFor(resource)
+			allItems := []json.RawMessage{}
+			var singlePayload json.RawMessage
+			count, page, cursor := 0, 0, ""
+			for {
+				remaining := 0
+				if limit > 0 {
+					remaining = limit - count
 				}
-				count := 0
+				params := map[string]string(nil)
+				if !singleItem && config.paginationType != "" {
+					params = resourcePageParams(config, cursor, page, remaining)
+				}
+				data, err := c.Get(cmd.Context(), path, params)
+				if err != nil {
+					return classifyAPIError(err, flags)
+				}
+				if singleItem {
+					count = 1
+					if format == "jsonl" {
+						fmt.Fprintln(writer, string(data))
+					} else {
+						singlePayload = data
+					}
+					break
+				}
+				items, nextCursor, hasMore := extractResourcePage(data, config)
+				if items == nil {
+					items = []json.RawMessage{data}
+				}
 				for _, item := range items {
 					if limit > 0 && count >= limit {
 						break
 					}
-					fmt.Fprintln(writer, string(item))
+					if format == "jsonl" {
+						fmt.Fprintln(writer, string(item))
+					} else {
+						allItems = append(allItems, item)
+					}
 					count++
 				}
-				if outputFile != "" {
-					fmt.Fprintf(os.Stderr, "Exported %d records to %s\n", count, outputFile)
+
+				if config.paginationType == "" || len(items) == 0 || (limit > 0 && count >= limit) {
+					break
 				}
-			default:
+				page++
+				var stop bool
+				cursor, stop, err = resourceNextCursor(config, cursor, nextCursor, hasMore)
+				if err != nil {
+					return fmt.Errorf("export pagination for %q: %w", resource, err)
+				}
+				if stop {
+					break
+				}
+				if config.limitParam != "" && !hasMore {
+					requested, _ := strconv.Atoi(params[config.limitParam])
+					if requested > 0 && len(items) < requested {
+						break
+					}
+				}
+				if page > 100000 {
+					return fmt.Errorf("export pagination exceeded 100000 pages for %q", resource)
+				}
+			}
+
+			if format != "jsonl" {
 				enc := json.NewEncoder(writer)
 				enc.SetIndent("", "  ")
-				var parsed any
-				if err := json.Unmarshal(data, &parsed); err != nil {
+				output := any(allItems)
+				if singleItem {
+					var value any
+					if err := json.Unmarshal(singlePayload, &value); err != nil {
+						return fmt.Errorf("decoding exported resource: %w", err)
+					}
+					output = value
+				}
+				if err := enc.Encode(output); err != nil {
 					return err
 				}
-				return enc.Encode(parsed)
+			}
+			if outputFile != "" {
+				fmt.Fprintf(os.Stderr, "Exported %d records to %s\n", count, outputFile)
 			}
 			return nil
 		},

@@ -1,0 +1,42 @@
+{
+  "api_name": "woot",
+  "base_url": "https://d24qg5zsx8xdc4.cloudfront.net",
+  "description": "Search Woot's live All Deals catalog with filters, prices, offline full-text search, and read-only GraphQL access.",
+  "mcp_ready": "full",
+  "http_transport": "browser-chrome-h2",
+  "auth": {
+    "type": "api_key",
+    "header": "x-api-key",
+    "in": "header",
+    "env_vars": [
+      "D24QG5ZSX8XDC4_CLOUDFRONT_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "D24QG5ZSX8XDC4_CLOUDFRONT_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "graphql_list_graphql",
+      "description": "Execute a read-only GraphQL query against Woot's browser API. Required: query containing one query operation; mutation and subscription operations are rejected. Returns a validated GraphQL response envelope. Prefer the deals tool for paged All Deals scans with keyword filtering.",
+      "method": "GET",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "GraphQL query document; mutation and subscription operations are rejected.",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-23T21:19:08.649037Z",
+  "printing_press_version": "4.12.0",
+  "api_name": "pangolin",
+  "cli_name": "pangolin-pp-cli",
+  "spec_path": null,
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:a900642b436c0127181be280bb8182d616754647f37f72f93a6863fe6fdf1b06",
+  "spec_source": null,
+  "run_id": "20260522-221421",
+  "novel_features": [
+    {
+      "name": "Cross-org health audit",
+      "command": "audit",
+      "description": "Find stale targets, orphaned resources, and missing role bindings across every org you administer, in one command."
+    },
+    {
+      "name": "Certificate expiry watch",
+      "command": "cert-watch",
+      "description": "List certificates sorted by days-until-expiry across every org, with a configurable warning window."
+    },
+    {
+      "name": "Full config backup",
+      "command": "backup",
+      "description": "Export the complete Pangolin configuration — orgs, sites, resources, targets, roles, IdPs — as version-controllable JSON."
+    },
+    {
+      "name": "Config restore from backup",
+      "command": "restore",
+      "description": "Re-apply a backup against a fresh Pangolin install, in the correct dependency order, with dry-run preview."
+    },
+    {
+      "name": "Access graph",
+      "command": "access-graph",
+      "description": "Answer 'who can reach what' by joining users, roles, resources, and orgs into one queryable view."
+    },
+    {
+      "name": "One-shot expose",
+      "command": "expose",
+      "description": "Create site (if needed), create resource, attach target, bind a role — in one command, with dry-run preview."
+    },
+    {
+      "name": "Doctor with base-URL discovery",
+      "command": "doctor",
+      "description": "Validate auth, probe both /v1 and /api/v1 mount paths, and report the working integration-API base URL with environment-variable guidance."
+    }
+  ],
+  "category": "developer-tools",
+  "printer": "CarlF01",
+  "printer_name": "CFinney"
+}

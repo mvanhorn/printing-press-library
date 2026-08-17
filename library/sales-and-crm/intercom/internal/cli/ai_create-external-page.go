@@ -18,7 +18,7 @@ func newAiCreateExternalPageCmd(flags *rootFlags) *cobra.Command {
 	var bodyExternalId string
 	var bodyHtml string
 	var bodyLocale string
-	var bodySourceId int
+	var bodySourceId string
 	var bodyTitle string
 	var bodyUrl string
 	var stdinBody bool
@@ -26,9 +26,27 @@ func newAiCreateExternalPageCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "create-external-page",
 		Short:       "You can create a new external page by sending a POST request to this endpoint.",
-		Example:     "  intercom-pp-cli ai create-external-page --external-id 550e8400-e29b-41d4-a716-446655440000",
+		Example:     "  intercom-pp-cli ai create-external-page --external-id 5678",
 		Annotations: map[string]string{"pp:endpoint": "ai.create-external-page", "pp:method": "POST", "pp:path": "/ai/external_pages"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Bare invocation of a command with required input prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only read commands fall through so a bare call still executes.
+			// Machine callers (--json/--agent, which sets asJSON) get a usage
+			// error + exit 2 instead of silent exit-0 help, so an incomplete
+			// invocation is never mistaken for success.
+			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "requires input",
+						"usage": cmd.CommandPath() + " --help",
+					}, flags); printErr != nil {
+						return printErr
+					}
+					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
+				}
+				return cmd.Help()
+			}
 			if !stdinBody {
 				if !cmd.Flags().Changed("external-id") && !flags.dryRun {
 					return fmt.Errorf("required flag \"%s\" not set", "external-id")
@@ -43,14 +61,13 @@ func newAiCreateExternalPageCmd(flags *rootFlags) *cobra.Command {
 					return fmt.Errorf("required flag \"%s\" not set", "title")
 				}
 			}
+			path := "/ai/external_pages"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/ai/external_pages"
 			params := map[string]string{}
-			var body map[string]any
+			var body any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
@@ -62,30 +79,31 @@ func newAiCreateExternalPageCmd(flags *rootFlags) *cobra.Command {
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
+				bodyMap := map[string]any{}
+				body = bodyMap
 				if cmd.Flags().Changed("ai-agent-availability") {
-					body["ai_agent_availability"] = bodyAiAgentAvailability
+					bodyMap["ai_agent_availability"] = bodyAiAgentAvailability
 				}
 				if cmd.Flags().Changed("ai-copilot-availability") {
-					body["ai_copilot_availability"] = bodyAiCopilotAvailability
+					bodyMap["ai_copilot_availability"] = bodyAiCopilotAvailability
 				}
 				if bodyExternalId != "" {
-					body["external_id"] = bodyExternalId
+					bodyMap["external_id"] = bodyExternalId
 				}
 				if bodyHtml != "" {
-					body["html"] = bodyHtml
+					bodyMap["html"] = bodyHtml
 				}
 				if bodyLocale != "" {
-					body["locale"] = bodyLocale
+					bodyMap["locale"] = bodyLocale
 				}
-				if bodySourceId != 0 {
-					body["source_id"] = bodySourceId
+				if bodySourceId != "" {
+					bodyMap["source_id"] = bodySourceId
 				}
 				if bodyTitle != "" {
-					body["title"] = bodyTitle
+					bodyMap["title"] = bodyTitle
 				}
 				if bodyUrl != "" {
-					body["url"] = bodyUrl
+					bodyMap["url"] = bodyUrl
 				}
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
@@ -155,6 +173,9 @@ func newAiCreateExternalPageCmd(flags *rootFlags) *cobra.Command {
 					"status":   statusCode,
 					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
 				}
+				if flags.agent {
+					envelope["meta"] = map[string]any{"source": "live"}
+				}
 				if partialFailure != nil {
 					envelope["partial_failure"] = partialFailure
 				}
@@ -193,7 +214,11 @@ func newAiCreateExternalPageCmd(flags *rootFlags) *cobra.Command {
 				if len(filtered) > 0 {
 					var parsed any
 					if err := json.Unmarshal(filtered, &parsed); err == nil {
-						envelope["data"] = parsed
+						if flags.agent {
+							envelope["results"] = parsed
+						} else {
+							envelope["data"] = parsed
+						}
 					}
 				}
 				envelopeJSON, err := json.Marshal(envelope)
@@ -229,7 +254,7 @@ func newAiCreateExternalPageCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyExternalId, "external-id", "", "The identifier for the external page which was given by the source. Must be unique for the source.")
 	cmd.Flags().StringVar(&bodyHtml, "html", "", "The body of the external page in HTML.")
 	cmd.Flags().StringVar(&bodyLocale, "locale", "en", "Always en")
-	cmd.Flags().IntVar(&bodySourceId, "source-id", 0, "The unique identifier for the source of the external page which was given by Intercom.")
+	cmd.Flags().StringVar(&bodySourceId, "source-id", "", "The unique identifier for the source of the external page which was given by Intercom.")
 	cmd.Flags().StringVar(&bodyTitle, "title", "", "The title of the external page.")
 	cmd.Flags().StringVar(&bodyUrl, "url", "", "The URL of the external page. This will be used by Fin to link end users to the page it based its answer on.")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")

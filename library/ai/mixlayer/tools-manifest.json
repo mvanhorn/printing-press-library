@@ -1,0 +1,107 @@
+{
+  "api_name": "mixlayer",
+  "base_url": "https://models.mixlayer.ai/v1",
+  "description": "Privacy-first Mixlayer CLI for OpenAI-compatible chat, local PII redaction and vaulting, reasoning-aware model ladders, live model catalog refresh, and ledger-backed cost proofs.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "format": "Bearer {MIXLAYER_API_KEY}",
+    "env_vars": [
+      "MIXLAYER_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "MIXLAYER_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "chat_create_completion",
+      "description": "Create a chat completion for the given model and messages. Required: model, messages. Optional: tools, tool_choice, temperature (plus 3 more).",
+      "method": "POST",
+      "path": "/chat/completions",
+      "params": [
+        {
+          "name": "model",
+          "type": "string",
+          "location": "body",
+          "description": "ID of the model to use (e.g. qwen/qwen3.5-4b-free)",
+          "required": true
+        },
+        {
+          "name": "messages",
+          "type": "array",
+          "location": "body",
+          "description": "List of messages comprising the conversation so far",
+          "required": true
+        },
+        {
+          "name": "tools",
+          "type": "array",
+          "location": "body",
+          "description": "List of tools the model may call"
+        },
+        {
+          "name": "tool_choice",
+          "type": "string",
+          "location": "body",
+          "description": "Controls which tool, if any, the model calls"
+        },
+        {
+          "name": "temperature",
+          "type": "number",
+          "location": "body",
+          "description": "Sampling temperature to use"
+        },
+        {
+          "name": "top_p",
+          "type": "number",
+          "location": "body",
+          "description": "Nucleus sampling probability mass"
+        },
+        {
+          "name": "max_tokens",
+          "type": "integer",
+          "location": "body",
+          "description": "Maximum number of tokens to generate"
+        },
+        {
+          "name": "stream",
+          "type": "boolean",
+          "location": "body",
+          "description": "Whether to stream back partial progress"
+        }
+      ]
+    },
+    {
+      "name": "models_get",
+      "description": "Retrieve a model by ID. Required: id.",
+      "method": "GET",
+      "path": "/models/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The model identifier",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "models_list",
+      "description": "List all available models. Returns array.",
+      "method": "GET",
+      "path": "/models",
+      "params": []
+    }
+  ]
+}

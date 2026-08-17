@@ -5,12 +5,13 @@ package cli
 
 import (
 	"fmt"
-	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/intercom/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/intercom/internal/config"
-	"github.com/spf13/cobra"
 	"os"
 	"os/exec"
 	"runtime"
+
+	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/intercom/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/intercom/internal/config"
+	"github.com/spf13/cobra"
 )
 
 func newAuthCmd(flags *rootFlags) *cobra.Command {
@@ -42,7 +43,7 @@ func newAuthSetupCmd(_ *rootFlags) *cobra.Command {
 			fmt.Fprintln(w, "See API docs: https://developers.intercom.com")
 			fmt.Fprintln(w, "")
 			fmt.Fprintln(w, "Then set:")
-			fmt.Fprintln(w, "  export INTERCOM_ACCESS_TOKEN=\"<your-token>\"")
+			fmt.Fprintln(w, "  export INTERCOM_ACCESS_TOKEN=\"your-token-here\"")
 			fmt.Fprintln(w, "  intercom-pp-cli auth set-token <token>")
 			if !launch {
 				return nil
@@ -131,7 +132,7 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:     "set-token <token>",
-		Short:   "Save an API token to the config file",
+		Short:   "Save an API token to the credentials file",
 		Example: "  intercom-pp-cli auth set-token YOUR_TOKEN_HERE",
 		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -151,17 +152,35 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 				return configErr(fmt.Errorf("saving token: %w", err))
 			}
 
-			// JSON envelope: {saved, config_path}.
+			savePath := credentialSavePath(cfg)
+			// JSON envelope: {saved, config_path, credentials_path}.
 			if flags.asJSON {
-				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+				out := map[string]any{
 					"saved":       true,
 					"config_path": cfg.Path,
-				}, flags)
+				}
+				if !cfg.AgentcookieManagedByExternalStore() {
+					out["credentials_path"] = savePath
+				}
+				return printJSONFiltered(cmd.OutOrStdout(), out, flags)
 			}
-			fmt.Fprintf(cmd.OutOrStdout(), "Token saved to %s\n", cfg.Path)
+			fmt.Fprintf(cmd.OutOrStdout(), "Token saved to %s\n", savePath)
 			return nil
 		},
 	}
+}
+
+func credentialSavePath(cfg *config.Config) string {
+	if cfg != nil && cfg.AgentcookieManagedByExternalStore() {
+		return cfg.Path
+	}
+	if path, err := cliutil.CredentialsFilePath(); err == nil {
+		return path
+	}
+	if cfg != nil {
+		return cfg.Path
+	}
+	return ""
 }
 
 func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {

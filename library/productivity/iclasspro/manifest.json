@@ -1,0 +1,54 @@
+{
+  "manifest_version": "0.3",
+  "name": "iclasspro-pp-mcp",
+  "display_name": "iClassPro",
+  "version": "0.1.0",
+  "description": "The only iClassPro tool that remembers yesterday — a queryable local mirror of any gym's catalog, with the search and filter surface the portal keeps to itself.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/iclasspro-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/iclasspro-pp-mcp",
+      "args": [],
+      "env": {
+        "PRINTING_PRESS_CLIENT_PROFILE": "${user_config.printing_press_client_profile}",
+        "ICLASSPRO_STAFF_USERNAME": "${user_config.iclasspro_staff_username}",
+        "ICLASSPRO_STAFF_PASSWORD": "${user_config.iclasspro_staff_password}"
+      }
+    }
+  },
+  "user_config": {
+    "printing_press_client_profile": {
+      "type": "string",
+      "title": "Client profile",
+      "description": "Binds the MCP server to an existing tenant-gated Printing Press client profile.",
+      "required": true
+    },
+    "iclasspro_staff_username": {
+      "type": "string",
+      "title": "ICLASSPRO_STAFF_USERNAME",
+      "description": "Optional Office Portal username used only by auth staff-login.",
+      "sensitive": false,
+      "required": false
+    },
+    "iclasspro_staff_password": {
+      "type": "string",
+      "title": "ICLASSPRO_STAFF_PASSWORD",
+      "description": "Optional Office Portal password used only by auth staff-login and never persisted.",
+      "sensitive": true,
+      "required": false
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

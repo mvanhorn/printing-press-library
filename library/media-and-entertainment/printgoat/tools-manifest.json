@@ -1,0 +1,350 @@
+{
+  "api_name": "printgoat",
+  "base_url": "https://api.printables.com",
+  "description": "Search and reliably download 3D-print files across Printables and Thingiverse (plus search Cults3D) — with real resumable downloads and cross-site duplicate detection nothing else has.",
+  "mcp_ready": "full",
+  "http_transport": "browser-chrome-h2",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "categories_list",
+      "description": "List top-level categories. Returns array of ThingiverseCategory.",
+      "method": "GET",
+      "path": "/categories",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "categories_things",
+      "description": "List things in a category. Required: slug. Returns array of ThingiverseThing.",
+      "method": "GET",
+      "path": "/categories/{slug}/things",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Category slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "collections_get",
+      "description": "Get a collection by ID. Required: collection_id. Returns the ThingiverseCollection.",
+      "method": "GET",
+      "path": "/collections/{collection_id}/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "collection_id",
+          "type": "string",
+          "location": "path",
+          "description": "Collection ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "collections_things",
+      "description": "List things in a collection. Required: collection_id. Returns array of ThingiverseThing.",
+      "method": "GET",
+      "path": "/collections/{collection_id}/things",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "collection_id",
+          "type": "string",
+          "location": "path",
+          "description": "Collection ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "creations_get",
+      "description": "Get a Cults3D creation's detail. Required: slug, query. Optional: variables. Returns the new Cults3DCreationDetail.",
+      "method": "POST",
+      "path": "/graphql",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Cults3D creation slug",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "variables-slug",
+          "wire_name": "variables.slug",
+          "type": "string",
+          "location": "body",
+          "description": "Cults3D creation slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "creations_search",
+      "description": "Search Cults3D creations by keyword. Required: query, query. Optional: variables. Returns array of Cults3DCreation.",
+      "method": "POST",
+      "path": "/graphql",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "path",
+          "description": "Search keywords",
+          "required": true
+        },
+        {
+          "name": "query-2",
+          "wire_name": "query",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "variables-query",
+          "wire_name": "variables.query",
+          "type": "string",
+          "location": "body",
+          "description": "Search keywords",
+          "required": true
+        },
+        {
+          "name": "variables-limit",
+          "wire_name": "variables.limit",
+          "type": "integer",
+          "location": "body"
+        },
+        {
+          "name": "variables-offset",
+          "wire_name": "variables.offset",
+          "type": "integer",
+          "location": "body"
+        }
+      ]
+    },
+    {
+      "name": "models_get",
+      "description": "Get a Printables model's detail and file listing. Required: id, query. Optional: variables. Returns the new PrintablesModelDetail.",
+      "method": "POST",
+      "path": "/graphql/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Printables model ID",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "variables-id",
+          "wire_name": "variables.id",
+          "type": "string",
+          "location": "body",
+          "description": "Printables model ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "search_things_things",
+      "description": "Search for things by keyword. Required: term. Optional: type (default: things), per_page (default: 20), page (default: 1). Returns array of ThingiverseThing.",
+      "method": "GET",
+      "path": "/search/{term}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "term",
+          "type": "string",
+          "location": "path",
+          "description": "Search keywords",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Result type filter (things, makes, users, collections)"
+        },
+        {
+          "name": "per_page",
+          "type": "integer",
+          "location": "query",
+          "description": "Results per page (Thingiverse caps at 30)"
+        },
+        {
+          "name": "page",
+          "type": "integer",
+          "location": "query",
+          "description": "Page number"
+        }
+      ]
+    },
+    {
+      "name": "tags_things",
+      "description": "List things with a tag. Required: tag. Returns array of ThingiverseThing.",
+      "method": "GET",
+      "path": "/tags/{tag}/things",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "path",
+          "description": "Tag name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "things_categories",
+      "description": "List categories for a thing. Required: thing_id. Returns array of ThingiverseCategory.",
+      "method": "GET",
+      "path": "/things/{thing_id}/categories",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "thing_id",
+          "type": "string",
+          "location": "path",
+          "description": "Thing ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "things_files",
+      "description": "List files for a thing. Required: thing_id. Returns array of ThingiverseFile.",
+      "method": "GET",
+      "path": "/things/{thing_id}/files",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "thing_id",
+          "type": "string",
+          "location": "path",
+          "description": "Thing ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "things_get",
+      "description": "Get a thing by ID. Required: thing_id. Returns the ThingiverseThing.",
+      "method": "GET",
+      "path": "/things/{thing_id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "thing_id",
+          "type": "string",
+          "location": "path",
+          "description": "Thing ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "things_images",
+      "description": "List images for a thing. Required: thing_id. Returns array of ThingiverseImage.",
+      "method": "GET",
+      "path": "/things/{thing_id}/images",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "thing_id",
+          "type": "string",
+          "location": "path",
+          "description": "Thing ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "things_tags",
+      "description": "List tags for a thing. Required: thing_id. Returns array of ThingiverseTag.",
+      "method": "GET",
+      "path": "/things/{thing_id}/tags",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "thing_id",
+          "type": "string",
+          "location": "path",
+          "description": "Thing ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_collections",
+      "description": "List a user's collections. Required: username. Returns array of ThingiverseCollection.",
+      "method": "GET",
+      "path": "/users/{username}/collections",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "description": "Thingiverse username",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_get",
+      "description": "Get a user's public profile. Required: username. Returns the ThingiverseUser.",
+      "method": "GET",
+      "path": "/users/{username}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "description": "Thingiverse username",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_things",
+      "description": "List a user's published things. Required: username. Returns array of ThingiverseThing.",
+      "method": "GET",
+      "path": "/users/{username}/things",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "description": "Thingiverse username",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

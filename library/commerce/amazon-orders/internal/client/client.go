@@ -84,8 +84,20 @@ func (c *Client) GetWithHeaders(path string, params map[string]string, headers m
 	return result, err
 }
 
+// GetWithStatus performs a GET and returns the response body, HTTP status, and
+// error. Unlike Get it bypasses the response cache, so callers validating a
+// live browser session always observe the current server response (including a
+// sign-in/interstitial page served with HTTP 200).
+func (c *Client) GetWithStatus(path string, params map[string]string) (json.RawMessage, int, error) {
+	return c.do("GET", path, params, nil, nil)
+}
+
 func (c *Client) ProbeGet(path string) (int, error) {
-	_, status, err := c.do("GET", path, nil, nil, nil)
+	return c.ProbeGetWithParams(path, nil)
+}
+
+func (c *Client) ProbeGetWithParams(path string, params map[string]string) (int, error) {
+	_, status, err := c.do("GET", path, params, nil, nil)
 	return status, err
 }
 

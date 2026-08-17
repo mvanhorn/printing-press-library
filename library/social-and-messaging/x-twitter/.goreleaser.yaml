@@ -45,7 +45,7 @@ brews:
       owner: tmchow
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "The only X CLI with an offline"
+    description: "Use X/Twitter with local searchable archives, post and conversation resolvers, collections, analytics, MCP tools, and tier diagnostics."
     install: |
       bin.install "x-twitter-pp-cli"
       bin.install "x-twitter-pp-mcp"

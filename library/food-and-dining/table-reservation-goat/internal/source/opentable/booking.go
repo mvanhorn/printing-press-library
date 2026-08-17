@@ -31,6 +31,7 @@ import (
 	"net/http"
 	"net/url"
 	"regexp"
+	"sort"
 	"strings"
 	"time"
 )
@@ -442,20 +443,17 @@ func (c *Client) Cancel(ctx context.Context, req CancelRequest) (*CancelResponse
 }
 
 // ListUpcomingReservations fetches the user's upcoming reservations from
-// /user/dining-dashboard SSR. Returns a slice mapped from
-// __INITIAL_STATE__.diningDashboard.upcomingReservations[].
+// /user/dining-dashboard SSR. OpenTable has moved the dashboard reducer
+// within __INITIAL_STATE__ over time, so the legacy root path is preferred
+// and nested candidates are ranked deterministically.
 func (c *Client) ListUpcomingReservations(ctx context.Context) ([]UpcomingReservation, error) {
 	state, err := c.fetchDiningDashboardState(ctx)
 	if err != nil {
 		return nil, err
 	}
-	dd, ok := state["diningDashboard"].(map[string]any)
-	if !ok {
-		return nil, fmt.Errorf("%w: diningDashboard slice missing from __INITIAL_STATE__", ErrCanaryUnrecognizedBody)
-	}
-	rawList, ok := dd["upcomingReservations"]
-	if !ok || rawList == nil {
-		return []UpcomingReservation{}, nil
+	rawList, err := upcomingReservationsFromInitialState(state)
+	if err != nil {
+		return nil, err
 	}
 	listJSON, err := json.Marshal(rawList)
 	if err != nil {
@@ -475,9 +473,15 @@ func (c *Client) MyProfile(ctx context.Context) (*MyProfile, error) {
 	if err != nil {
 		return nil, err
 	}
+	if authenticated, known := initialStateAuthentication(state); known && !authenticated {
+		return nil, ErrAuthExpired
+	}
 	up, ok := state["userProfile"].(map[string]any)
 	if !ok {
-		return nil, fmt.Errorf("%w: userProfile slice missing from __INITIAL_STATE__", ErrCanaryUnrecognizedBody)
+		up, ok = findMapByExactKey(state, "userProfile", 0)
+	}
+	if !ok {
+		return nil, fmt.Errorf("%w: userProfile missing from __INITIAL_STATE__", ErrCanaryUnrecognizedBody)
 	}
 	prof := &MyProfile{}
 	if v, ok := up["firstName"].(string); ok {
@@ -502,6 +506,110 @@ func (c *Client) MyProfile(ctx context.Context) (*MyProfile, error) {
 		prof.PhoneNumberCountryID = "US"
 	}
 	return prof, nil
+}
+
+type initialStateCandidate struct {
+	path  string
+	rank  int
+	value any
+}
+
+func upcomingReservationsFromInitialState(state map[string]any) (any, error) {
+	if authenticated, known := initialStateAuthentication(state); known && !authenticated {
+		return nil, ErrAuthExpired
+	}
+	if dd, ok := state["diningDashboard"].(map[string]any); ok {
+		if raw, exists := dd["upcomingReservations"]; exists {
+			if raw == nil {
+				return []any{}, nil
+			}
+			return raw, nil
+		}
+	}
+
+	var candidates []initialStateCandidate
+	collectExactKeyCandidates(state, "upcomingReservations", nil, 0, &candidates)
+	if len(candidates) == 0 {
+		return nil, fmt.Errorf("%w: upcomingReservations missing from __INITIAL_STATE__", ErrCanaryUnrecognizedBody)
+	}
+	sort.Slice(candidates, func(i, j int) bool {
+		if candidates[i].rank != candidates[j].rank {
+			return candidates[i].rank < candidates[j].rank
+		}
+		return candidates[i].path < candidates[j].path
+	})
+	if candidates[0].value == nil {
+		return []any{}, nil
+	}
+	return candidates[0].value, nil
+}
+
+func initialStateAuthentication(state map[string]any) (authenticated, known bool) {
+	authState, ok := state["authentication"].(map[string]any)
+	if !ok {
+		return false, false
+	}
+	value, ok := authState["isAuthenticated"].(bool)
+	return value, ok
+}
+
+func collectExactKeyCandidates(value any, key string, path []string, depth int, out *[]initialStateCandidate) {
+	if depth > 10 {
+		return
+	}
+	switch typed := value.(type) {
+	case map[string]any:
+		keys := make([]string, 0, len(typed))
+		for childKey := range typed {
+			keys = append(keys, childKey)
+		}
+		sort.Strings(keys)
+		for _, childKey := range keys {
+			childPath := append(append([]string(nil), path...), childKey)
+			if childKey == key {
+				*out = append(*out, initialStateCandidate{
+					path:  strings.Join(childPath, "."),
+					rank:  upcomingReservationsPathRank(path),
+					value: typed[childKey],
+				})
+			}
+			collectExactKeyCandidates(typed[childKey], key, childPath, depth+1, out)
+		}
+	case []any:
+		for i, child := range typed {
+			childPath := append(append([]string(nil), path...), fmt.Sprintf("[%06d]", i))
+			collectExactKeyCandidates(child, key, childPath, depth+1, out)
+		}
+	}
+}
+
+func upcomingReservationsPathRank(path []string) int {
+	for _, part := range path {
+		if strings.EqualFold(part, "diningDashboard") {
+			return 0
+		}
+	}
+	for _, part := range path {
+		if strings.Contains(strings.ToLower(part), "reservation") {
+			return 1
+		}
+	}
+	return 2
+}
+
+func findMapByExactKey(value any, key string, depth int) (map[string]any, bool) {
+	var candidates []initialStateCandidate
+	collectExactKeyCandidates(value, key, nil, depth, &candidates)
+	if len(candidates) == 0 {
+		return nil, false
+	}
+	sort.Slice(candidates, func(i, j int) bool { return candidates[i].path < candidates[j].path })
+	for _, candidate := range candidates {
+		if found, ok := candidate.value.(map[string]any); ok {
+			return found, true
+		}
+	}
+	return nil, false
 }
 
 // fetchDiningDashboardState GETs /user/dining-dashboard via the shared

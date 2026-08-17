@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"sort"
+	"strings"
 
 	"github.com/mvanhorn/printing-press-library/library/project-management/plane/internal/store"
 	"github.com/spf13/cobra"
@@ -53,10 +54,24 @@ Data must be synced first with the sync command.`,
 				if err != nil {
 					return fmt.Errorf("getting status: %w", err)
 				}
-				if flags.asJSON {
-					enc := json.NewEncoder(out)
-					enc.SetIndent("", "  ")
-					return enc.Encode(status)
+				if wantsMachineOutput(flags) {
+					if flags.csv || flags.plain || flags.quiet {
+						type statusRow struct {
+							ResourceType string `json:"resource_type"`
+							Count        int    `json:"count"`
+						}
+						keys := make([]string, 0, len(status))
+						for rt := range status {
+							keys = append(keys, rt)
+						}
+						sort.Strings(keys)
+						rows := make([]statusRow, 0, len(keys))
+						for _, rt := range keys {
+							rows = append(rows, statusRow{ResourceType: rt, Count: status[rt]})
+						}
+						return printJSONFiltered(out, rows, flags)
+					}
+					return printJSONFiltered(out, status, flags)
 				}
 				fmt.Fprintln(out, "Resource Type\tCount")
 				fmt.Fprintln(out, "-------------\t-----")
@@ -75,11 +90,9 @@ Data must be synced first with the sync command.`,
 				return fmt.Errorf("counting: %w", err)
 			}
 
-			if flags.asJSON {
+			if wantsMachineOutput(flags) {
 				result := map[string]any{"resource_type": resourceType, "count": count}
-				enc := json.NewEncoder(out)
-				enc.SetIndent("", "  ")
-				return enc.Encode(result)
+				return printJSONFiltered(out, result, flags)
 			}
 
 			fmt.Fprintf(out, "%s: %d records\n", resourceType, count)
@@ -89,7 +102,7 @@ Data must be synced first with the sync command.`,
 
 	cmd.Flags().StringVar(&resourceType, "type", "", "Resource type to analyze")
 	cmd.Flags().StringVar(&groupBy, "group-by", "", "Field to group by")
-	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
+	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite database file path (default: resolved data directory data.db)")
 	cmd.Flags().IntVar(&limit, "limit", 25, "Max groups to show")
 
 	return cmd
@@ -102,13 +115,33 @@ func runGroupBy(out io.Writer, db *store.Store, resourceType, field string, limi
 	}
 
 	counts := make(map[string]int)
+	validFields := make(map[string]struct{})
+	matchedAny := false
+	missingFieldCount := 0
+	decodedRows := 0
 	for _, item := range items {
 		var obj map[string]any
 		if err := json.Unmarshal(item, &obj); err != nil {
 			continue
 		}
-		val := fmt.Sprintf("%v", obj[field])
-		counts[val]++
+		decodedRows++
+		for key := range obj {
+			validFields[key] = struct{}{}
+		}
+		raw, ok := resolvedGroupValue(obj, field)
+		if ok {
+			matchedAny = true
+			val := fmt.Sprintf("%v", raw)
+			counts[val]++
+		} else {
+			missingFieldCount++
+		}
+	}
+	if decodedRows > 0 && !matchedAny {
+		return fmt.Errorf("group-by field %q was not found in any %s record; valid group-by fields: %s", field, resourceType, formatGroupByFields(validFields))
+	}
+	if missingFieldCount > 0 {
+		counts["<nil>"] += missingFieldCount
 	}
 
 	type kv struct {
@@ -124,10 +157,8 @@ func runGroupBy(out io.Writer, db *store.Store, resourceType, field string, limi
 		sorted = sorted[:limit]
 	}
 
-	if flags.asJSON {
-		enc := json.NewEncoder(out)
-		enc.SetIndent("", "  ")
-		return enc.Encode(sorted)
+	if wantsMachineOutput(flags) {
+		return printJSONFiltered(out, sorted, flags)
 	}
 
 	fmt.Fprintf(out, "%s\tCount\n", field)
@@ -136,4 +167,41 @@ func runGroupBy(out io.Writer, db *store.Store, resourceType, field string, limi
 		fmt.Fprintf(out, "%s\t%d\n", kv.Key, kv.Count)
 	}
 	return nil
+}
+
+func resolvedGroupValue(obj map[string]any, field string) (any, bool) {
+	if val, ok := obj[field]; ok {
+		return val, true
+	}
+	if !strings.HasSuffix(field, "_id") {
+		if val, ok := obj[field+"_id"]; ok {
+			return val, true
+		}
+	}
+	return nil, false
+}
+
+func formatGroupByFields(fields map[string]struct{}) string {
+	if len(fields) == 0 {
+		return "none"
+	}
+	var names []string
+	var aliases []string
+	for name := range fields {
+		names = append(names, name)
+		if strings.HasSuffix(name, "_id") {
+			alias := strings.TrimSuffix(name, "_id")
+			if alias != "" {
+				if _, exists := fields[alias]; !exists {
+					aliases = append(aliases, alias)
+				}
+			}
+		}
+	}
+	sort.Strings(names)
+	sort.Strings(aliases)
+	if len(aliases) == 0 {
+		return strings.Join(names, ", ")
+	}
+	return fmt.Sprintf("%s (aliases: %s)", strings.Join(names, ", "), strings.Join(aliases, ", "))
 }

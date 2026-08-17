@@ -15,7 +15,7 @@
   "spec_format": "internal",
   "spec_checksum": "sha256:9e870850c8de1042795ca0171d441a6127be667ed78f9f45cff2f1549cf6da47",
   "run_id": "20260516-193948",
-  "description": "PCGS Public API CLI \u2014 verify PCGS-graded coin certs, extract full CoinFacts metadata, and stay under the 1,000-call-per-day budget.",
+  "description": "PCGS Public API CLI — verify PCGS-graded coin certs, extract full CoinFacts metadata, and stay under the 1,000-call-per-day budget.",
   "mcp_binary": "pcgs-pp-mcp",
   "mcp_tool_count": 12,
   "mcp_ready": "full",
@@ -33,12 +33,12 @@
     {
       "name": "Mutable-only refresh (with --dry-run for stale-watching)",
       "command": "refresh",
-      "description": "Refresh cached coins by updating only the fields PCGS can actually change \u2014 Population, PopHigher, PriceGuideValue, AuctionList, Images, CoinFactsNotes \u2014 while leaving cert identity fields untouched. Emits a per-field diff. --dry-run --older 30d --field price-guide lists which cached coins need refresh without calling the API."
+      "description": "Refresh cached coins by updating only the fields PCGS can actually change — Population, PopHigher, PriceGuideValue, AuctionList, Images, CoinFactsNotes — while leaving cert identity fields untouched. Emits a per-field diff. --dry-run --older 30d --field price-guide lists which cached coins need refresh without calling the API."
     },
     {
       "name": "Spec-number population sweep",
       "command": "coin pop-curve",
-      "description": "Pull every grade 1\u201370 (and PlusGrade variants, plus the 82\u201398 Details codes when --include-details) for one PCGSNo in one command, persist the full population curve to local store, and print the scarcity table."
+      "description": "Pull every grade 1–70 (and PlusGrade variants, plus the 82–98 Details codes when --include-details) for one PCGSNo in one command, persist the full population curve to local store, and print the scarcity table."
     },
     {
       "name": "Lookup-log audit",
@@ -53,7 +53,7 @@
     {
       "name": "Local search across cached coins (with --top-pct rarity)",
       "command": "search",
-      "description": "FTS5 + numeric filters over your local cache: search by Name, Country, SeriesName, Category, Designer, MintLocation, or variety fields, plus range filters on Year, Grade, PriceGuideValue, Population, PopHigher, Mintage, Weight, Diameter. --max-pop and --top-pct flags expose continuous rarity slicing (e.g. --top-pct 5 = top 5% rarest in the scoped cohort) \u2014 no API call."
+      "description": "FTS5 + numeric filters over your local cache: search by Name, Country, SeriesName, Category, Designer, MintLocation, or variety fields, plus range filters on Year, Grade, PriceGuideValue, Population, PopHigher, Mintage, Weight, Diameter. --max-pop and --top-pct flags expose continuous rarity slicing (e.g. --top-pct 5 = top 5% rarest in the scoped cohort) — no API call."
     }
   ],
   "category": "other"

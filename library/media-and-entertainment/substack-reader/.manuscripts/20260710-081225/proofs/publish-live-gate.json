@@ -1,0 +1,239 @@
+{
+  "dir": "/Users/maxime/printing-press/library/substack-reader",
+  "binary": "/Users/maxime/printing-press/library/substack-reader/substack-reader-pp-cli",
+  "level": "quick",
+  "verdict": "PASS",
+  "matrix_size": 14,
+  "passed": 14,
+  "failed": 0,
+  "skipped": 10,
+  "commands": [
+    "api",
+    "archive",
+    "author-compare",
+    "categories browse",
+    "digest",
+    "doctor"
+  ],
+  "tests": [
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  substack-reader-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  substack-reader-pp-cli api\n\n  # Show methods for a specific interface\n  substack-reader-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'substack-reader-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'substack-reader-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "archive",
+      "kind": "help",
+      "args": [
+        "archive",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Archive a Substack publication's posts into the local SQLite corpus for offline read, search, and SQL. Accepts a handle (astralcodexten), a bare host (blog.bytebytego.com), or a full URL. Keyless (Tier 0): archives post metadata + previews for any public publication; the full body of paid posts requires your own session (see the read command).\n\nUsage:\n  substack-reader-pp-cli archive \u003cpublication\u003e [flags]\n\nExamples:\n  substack-reader-pp-cli archive astralcodexten --limit 200\n\nFlags:\n      --db string     database path (default: standard location)\n  -h, --help          help for archive\n      --limit int     maximum posts to archive (default 50)\n      --sort string   archive sort order: new | top | community (default \"new\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'substack-reader-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "archive",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [archive] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "archive",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [archive] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "archive",
+      "kind": "error_path",
+      "args": [
+        "archive",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: fetching archive: GET https://__printing_press_invalid__.substack.com/api/v1/archive?limit=50\u0026offset=0\u0026sort=new: HTTP 404: \n"
+    },
+    {
+      "command": "author-compare",
+      "kind": "help",
+      "args": [
+        "author-compare",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Compare two archived publications side by side: how many posts you've\nmirrored, their date range, publishing cadence (posts/week), and free/paid mix.\n\nReads only the local corpus — archive both publications first\n('substack-reader-pp-cli archive \u003cpub\u003e'). Each publication is matched by the host it\nwas archived under, so pass the same handle/host you archived with.\n\nUsage:\n  substack-reader-pp-cli author-compare \u003cpub-a\u003e \u003cpub-b\u003e [flags]\n\nExamples:\n  substack-reader-pp-cli author-compare astralcodexten blog.bytebytego.com\n\nFlags:\n  -h, --help   help for author-compare\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'substack-reader-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "author-compare",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [author-compare] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "author-compare",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [author-compare] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "author-compare",
+      "kind": "error_path",
+      "args": [
+        "author-compare",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: author-compare needs exactly two publications; got 1\n"
+    },
+    {
+      "command": "categories browse",
+      "kind": "help",
+      "args": [
+        "categories",
+        "browse",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List publications in a category\n\nUsage:\n  substack-reader-pp-cli categories browse \u003cid\u003e [flags]\n\nExamples:\n  substack-reader-pp-cli categories browse 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n  -h, --help          help for browse\n      --page string   Result page (0-indexed) (default \"0\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'substack-reader-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "categories browse",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "categories browse",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "categories browse",
+      "kind": "error_path",
+      "args": [
+        "categories",
+        "browse",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 5,
+      "output_sample": "Error: GET /api/v1/category/public/__printing_press_invalid__/all returned HTTP 400: {\"errors\":[{\"location\":\"params\",\"param\":\"id\",\"value\":\"__printing_press_invalid__\",\"msg\":\"Invalid value\"}]}\n"
+    },
+    {
+      "command": "digest",
+      "kind": "help",
+      "args": [
+        "digest",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Summarize what's new across every publication in your local corpus within a\ntime window, grouped by publication and ordered by recency.\n\nReads only the local corpus built by 'substack-reader-pp-cli archive' — it never hits\nthe network — so it is a \"what did I miss across my newsletters\" briefing over\nexactly what you have mirrored. Posts without a parseable date are omitted from\nthe window.\n\nUsage:\n  substack-reader-pp-cli digest [flags]\n\nExamples:\n  substack-reader-pp-cli digest --since 7d\n\nFlags:\n  -h, --help           help for digest\n      --limit int      cap the total number of posts shown (0 = no cap)\n      --since string   time window to include (e.g. 7d, 24h, 2w) (default \"7d\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'substack-reader-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "digest",
+      "kind": "happy_path",
+      "args": [
+        "digest",
+        "--since",
+        "7d"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"count\": 0,\n  \"cutoff\": \"2026-07-03T12:37:01Z\",\n  \"publications\": [],\n  \"since\": \"7d\",\n  \"window\": \"168h0m0s\"\n}\n"
+    },
+    {
+      "command": "digest",
+      "kind": "json_fidelity",
+      "args": [
+        "digest",
+        "--since",
+        "7d",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"count\": 0,\n  \"cutoff\": \"2026-07-03T12:37:01Z\",\n  \"publications\": [],\n  \"since\": \"7d\",\n  \"window\": \"168h0m0s\"\n}\n"
+    },
+    {
+      "command": "digest",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  substack-reader-pp-cli doctor [flags]\n\nExamples:\n  substack-reader-pp-cli doctor\n  substack-reader-pp-cli doctor --json\n  substack-reader-pp-cli doctor --fail-on warn\n  substack-reader-pp-cli doctor --fail-on stale\n\nFlags:\n      --fail-on string   Exit non-zero for selected health gates. stale: cache freshness plus errors; warn: credential/path warnings plus errors; error: errors only. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'substack-reader-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  OK Auth: not required\n  OK Verify Mode: normal operation\n  OK API: reachable\n  config_path: /var/folders/2r/b53hxd916x3_z86kbk8w7t3m0000gn/T/printing-press-subprocess-2987239479/.config/substack-reader-pp-cli/config.toml\n  base_url: https://substack.com\n  version: 0.0.0-dev\n  INFO Cache: empty\n    db_path: /var/folders/2r/b53hxd916x3_z86kbk8w7t3m0000gn/T/printing-press-subprocess-2987239479/.local/share/substack-reader-pp-cli/data.db\n    schema_version: 9\n    db_bytes: 159744\n    stale_after: 6h0m0s\n    hint: Cache is empty; run 'substack-reader-pp-cli sync' to hydrate.\n  Paths:\n    config: /var/folders/2r/b53hxd916x3_z86kbk8w7t3m0000gn/T/printing-press-subprocess-2987239479/.config/substack-reader-pp-cli (XDG_CONFIG_HOME)\n    data: /var/folders/2r/b53hxd916x3_z86kbk8w7t3m0000gn/T/printing-press-subprocess-2987239479/.local/share/substack-reader-pp-cli (XDG_DATA_HOME)\n    state: /var/folders/2r/b53hxd916x3_z86kbk8w7t3m0000gn/T/printing-press-subprocess-2987239479/.local/state/substack-reader-pp-cli (XDG_STATE_HOME)\n    cache: /var/folders/2r/b53hxd916x3_z86kbk8w7t3m0000gn/T/printing-press-subprocess-2987239479/.cache/substack-reader-pp-cli (XDG_CACHE_HOME)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"api\": \"reachable\",\n  \"auth\": \"not required\",\n  \"base_url\": \"https://substack.com\",\n  \"cache\": {\n    \"db_bytes\": 159744,\n    \"db_path\": \"/var/folders/2r/b53hxd916x3_z86kbk8w7t3m0000gn/T/printing-press-subprocess-2987239479/.local/share/substack-reader-pp-cli/data.db\",\n    \"hint\": \"Cache is empty; run 'substack-reader-pp-cli sync' to hydrate.\",\n    \"resources\": null,\n    \"schema_version\": 9,\n    \"stale_after\": \"6h0m0s\",\n    \"status\": \"empty\"\n  },\n  \"config\": \"ok\",\n  \"config_path\": \"/var/folders/2r/b53hxd916x3_z86kbk8w7t3m0000gn/T/printing-press-subprocess-2987239479/.config/substack-reader-pp-cli/config.toml\",\n  \"paths\": {\n    \"cache\": {\n      \"dir\": \"/var/folders/2r/b53hxd916x3_z86kbk8w7t3m0000gn/T/printing-press-subprocess-2987239479/.cache/substack-reader-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CACHE_HOME\"\n    },\n    \"config\": {\n      \"dir\": \"/var/folders/2r/b53hxd916x3_z86kbk8w7t3m0000gn/T/printing-press-subprocess-2987239479/.config/substack-reader-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CONFIG_HOME\"\n    },\n    \"data\": {\n      \"dir\": \"/var/folders/2r/b53hxd916x3_z86kbk8w7t3m0000gn/T/printing-press-subprocess-2987239479/.local/share/substack-reader-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_DATA_HOME\"\n    },\n    \"state\": {\n      \"dir\": \"/var/folders/2r/b53hxd916x3_z86kbk8w7t3m0000gn/T/printing-press-subprocess-2987239479/.local/state/substack-reader-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_STATE_HOME\"\n    },\n    \"status\": \"ok\"\n  },\n  \"verify_mode\": \"normal operation\",\n  \"version\": \"0.0.0-dev\"\n}\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-07-10T12:37:00.472131Z"
+}

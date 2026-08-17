@@ -1,0 +1,31 @@
+{
+  "schema_version": 2,
+  "id": "public-source-upload-and-transcript-cut",
+  "applied_at": "2026-06-16",
+  "base_run_id": "20260509-180956",
+  "base_printing_press_version": "4.2.1",
+  "summary": "Expose Tella source upload/add-clip/transcript-cut APIs and add reversible compound video-edit workflow commands for full agent-operated edits.",
+  "reason": "The live Tella OpenAPI gained POST /v1/sources, POST /v1/videos/{id}/clips, POST /v1/videos/{id}/clips/{clipId}/cut-by-transcript, and a multi-range body for POST /cut after the original print. These endpoints are the public API path for full editor coverage: uploading source assets, adding clips/B-roll sources, cutting by multiple time ranges, and cutting by transcript word indices. The novel workflow layer composes these primitives into insert-file, add-broll, silence-map, cut-words, replace-word-ranges, storyboard/apply-storyboard, format, audit, and playlist edit-pass so agents can operate the editor at video or playlist scope instead of juggling endpoint calls. The follow-up clean/undo layer adds a reversible per-clip edit workflow for fillers, silence buffers, trim edges, and optional mistake cuts.",
+  "files": [
+    ".printing-press.json",
+    "README.md",
+    "SKILL.md",
+    "internal/cli/novel_workflows.go",
+    "internal/cli/playlists.go",
+    "internal/cli/root.go",
+    "internal/cli/sources.go",
+    "internal/cli/sources_create.go",
+    "internal/cli/sources_upload-file.go",
+    "internal/cli/videos.go",
+    "internal/cli/videos_clips.go",
+    "internal/cli/videos_clips_add.go",
+    "internal/cli/videos_clips_clean_restore.go",
+    "internal/cli/videos_clips_clean_restore_test.go",
+    "internal/cli/videos_clips_cut-by-transcript.go",
+    "internal/cli/videos_clips_cut.go",
+    "internal/cli/which.go",
+    "spec.json"
+  ],
+  "validated_outcome": "go test ./..., go build ./..., go vet ./..., verify-skill, and dry-run smoke tests for insert-file, add-broll, replace-word-ranges, apply-storyboard, and format pass.",
+  "upstream_issue": ""
+}

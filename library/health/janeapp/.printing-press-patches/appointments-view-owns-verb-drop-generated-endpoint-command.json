@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "appointments-view-owns-verb-drop-generated-endpoint-command",
+  "applied_at": "2026-07-08",
+  "base_run_id": "20260707-170547",
+  "base_printing_press_version": "4.27.1",
+  "summary": "The top-level `appointments` verb is owned by the hand-built cross-clinic view command (upcoming/past, live per-clinic); the generated store-backed appointments endpoint command must NOT also be registered, and appointments is not an auto-refresh/store-backed path.",
+  "reason": "Patient appointments are session-gated and fetched live per clinic, so the unified view command (upcoming/past + --all-clinics) supersedes the generated `appointments` endpoint wrapper. Registering both produced a duplicate cobra command (two `appointments` in --help, undefined resolution). A regen must drop the generated appointments endpoint command, keep it out of readCommandResources, and not advertise appointments get/list/search in the freshness contract.",
+  "files": [
+    "internal/cli/root.go",
+    "internal/cli/auto_refresh.go",
+    "SKILL.md",
+    "README.md"
+  ],
+  "validated_outcome": "janeapp-pp-cli --help lists `appointments` exactly once (the view command with upcoming/past). go build/vet/test and verify-skill pass."
+}

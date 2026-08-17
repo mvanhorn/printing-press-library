@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "ars-sicilia-mcp-typed-via-cli",
+  "applied_at": "2026-08-01",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.18.0",
+  "summary": "I 22 tool MCP tipizzati (ddl_cerca, leggi_cerca, tutti i *_get, commissioni_*, biblioteca_*) passano dalla CLI via cobratree.RunCLICommand invece di chiamare le JSP con makeAPIHandler. Aggiunto il passaggio dei parametri non dichiarati come flag alla CLI, cosi' un parametro che lo schema non conosce non viene scartato in silenzio. Schemi estesi con i flag acquisiti dopo la generazione (numero su mozioni/odg/interrogazioni/interpellanze/risoluzioni, frase sui cerca ISIS, articoli su leggi). Rimossi makeAPIHandler e newMCPClient, ora morti (il linter ha 'unused' attivo).",
+  "reason": "makeAPIHandler e' generato assumendo una vera API REST: fa una GET diretta sull'endpoint. La 'API' dell'ARS e' invece il portale Icaro a sessione, dove default.jsp/doc*.jsp senza bootstrap della query rispondono con l'HTML di 'Sessione Scaduta'. Risultato: TUTTI i tool tipizzati restituivano markup invece di dati, e sono le operazioni piu' comuni (cerca e get su ogni archivio), mentre funzionavano solo i tool rispecchiati dall'albero cobra. Per un utente MCP - la modalita' piu' accessibile - la CLI era quindi inservibile sulle ricerche di base. Il secondo difetto era piu' insidioso del primo: gli schemi tipizzati sono fotografati alla generazione, quindi 'numero' non esisteva su mozioni_cerca e veniva scartato senza dirlo, facendo girare una ricerca senza filtro il cui primo risultato si legge come una risposta valida.",
+  "files": [
+    "internal/mcp/tools.go"
+  ],
+  "validated_outcome": "leggi_cerca legisl=18 anno=2025: prima HTML 'Sessione Scaduta', ora le 4 leggi aggregate con articoli_trovati. ddl_get 18/1030, interrogazioni_get 18/1235, ddl_cerca, resoconti_cerca, mozioni_cerca: tutti dati strutturati. mozioni_cerca numero=143 -> la mozione del 13.12.23 firmata Ciminnisi (prima il parametro era ignorato e tornava un atto qualunque). ddl_cerca frase='aree idonee' -> ddl 1139. Parametro inesistente -> errore esplicito 'unknown flag: --pippo'. 52 tool esposti, go build/vet/test verdi."
+}

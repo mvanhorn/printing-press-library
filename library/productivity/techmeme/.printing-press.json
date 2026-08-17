@@ -9,6 +9,12 @@
     "handle": "davemorin",
     "name": "Dave Morin"
   },
+  "contributors": [
+    {
+      "handle": "mvanhorn",
+      "name": "Matt Van Horn"
+    }
+  ],
   "printer": "davemorin",
   "printer_name": "Dave Morin",
   "spec_format": "openapi3",

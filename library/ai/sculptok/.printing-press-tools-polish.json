@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-06-23T05:39:28.836196Z",
+  "cli_dir": "\u003ccli-dir\u003e/sculptok-pp-cli",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 7,
+    "captured": "2026-06-23T05:28:32.102136Z"
+  }
+}

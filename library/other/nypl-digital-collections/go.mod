@@ -1,6 +1,6 @@
 module github.com/mvanhorn/printing-press-library/library/other/nypl-digital-collections
 
-go 1.26.4
+go 1.26.5
 
 require (
 	github.com/mark3labs/mcp-go v0.47.0

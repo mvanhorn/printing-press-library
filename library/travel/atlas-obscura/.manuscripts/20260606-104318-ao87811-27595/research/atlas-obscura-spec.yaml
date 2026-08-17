@@ -1,0 +1,112 @@
+name: atlas-obscura
+description: "Atlas Obscura CLI — search the world's hidden wonders, with a local SQLite mirror, road-trip corridor routing, and saved trips. Community-sourced from atlasobscura.com (not an official API)."
+version: "0.1.0"
+base_url: "https://www.atlasobscura.com"
+health_check_path: "/"
+category: travel
+http_transport: standard
+
+# Browser-like UA is safe on every request. JSON-search endpoints need Accept:application/json
+# + X-Requested-With (sent per-request by hand-coded commands); category pages 406 on JSON-accept,
+# so those headers are intentionally NOT global.
+required_headers:
+  - name: User-Agent
+    value: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/atlas-obscura-pp-cli/config.toml"
+
+resources:
+  places:
+    description: "Atlas Obscura places (wonders)"
+    endpoints:
+      get:
+        method: GET
+        path: "/places/{slug}"
+        description: "Fetch a place detail page by slug or numeric id"
+        params:
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Place slug (e.g. gustave-eiffels-secret-apartment) or numeric id"
+        response:
+          type: object
+          item: Place
+        response_format: html
+        html_extract:
+          mode: page
+
+  categories:
+    description: "Browse places by Atlas Obscura category"
+    endpoints:
+      places:
+        method: GET
+        path: "/categories/{slug}"
+        description: "List place links in a category (e.g. cemeteries, caves, ruins)"
+        params:
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Category slug (e.g. cemeteries, abandoned, caves, ruins, museums)"
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: ["/places"]
+
+  destinations:
+    description: "Browse places by destination (city/region)"
+    endpoints:
+      places:
+        method: GET
+        path: "/things-to-do/{slug}/places"
+        description: "List place links for a destination (e.g. paris-france, new-york)"
+        params:
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Destination slug (e.g. paris-france, london-england, new-york)"
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: ["/places"]
+
+types:
+  Place:
+    fields:
+      - name: id
+        type: int
+      - name: slug
+        type: string
+      - name: title
+        type: string
+      - name: subtitle
+        type: string
+      - name: location
+        type: string
+      - name: city
+        type: string
+      - name: country
+        type: string
+      - name: lat
+        type: float
+      - name: lng
+        type: float
+      - name: description
+        type: string
+      - name: categories
+        type: string
+      - name: know_before_you_go
+        type: string
+      - name: image_url
+        type: string
+      - name: url
+        type: string
+      - name: distance_from_query
+        type: string

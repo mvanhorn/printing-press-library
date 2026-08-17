@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "api_name": "gladly",
+  "run_id": "20260622-071510",
+  "source": "local-openapi-spec",
+  "spec_path": "spec.yaml",
+  "summary": "Read-first Gladly API CLI generated from the saved local OpenAPI spec.",
+  "narrative": {
+    "quickstart": [
+      {
+        "command": "gladly-pp-cli which --help",
+        "description": "Inspect the agent command-discovery surface."
+      },
+      {
+        "command": "gladly-pp-cli agent-context --help",
+        "description": "Inspect the structured agent metadata command."
+      }
+    ],
+    "recipes": [
+      {
+        "command": "gladly-pp-cli sync --help",
+        "description": "Inspect the local SQLite sync framework."
+      },
+      {
+        "command": "gladly-pp-cli analytics --help",
+        "description": "Inspect the read-only SQL analytics surface."
+      }
+    ]
+  }
+}

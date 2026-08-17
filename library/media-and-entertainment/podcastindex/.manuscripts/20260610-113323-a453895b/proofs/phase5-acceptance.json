@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "podcastindex",
+  "run_id": "20260610-113323-a453895b",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 148,
+  "tests_passed": 148,
+  "tests_skipped": 67,
+  "auth_context": {
+    "type": "api_key"
+  }
+}

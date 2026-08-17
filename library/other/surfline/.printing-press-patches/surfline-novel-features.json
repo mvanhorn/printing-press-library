@@ -1,0 +1,10 @@
+{
+  "schema_version": 2,
+  "id": "surfline-novel-features",
+  "applied_at": "2026-06-14",
+  "base_run_id": "20260614-164025-61e51520",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Implement the 7 transcendence commands plus shared forecast/store helpers.",
+  "reason": "Generator scaffolds novel commands as TODO stubs; these files carry the full hand-coded implementations and must survive regen.",
+  "files": ["internal/cli/now.go", "internal/cli/rank.go", "internal/cli/windows.go", "internal/cli/raw.go", "internal/cli/buoy_check.go", "internal/cli/alert.go", "internal/cli/alert_add.go", "internal/cli/alert_list.go", "internal/cli/alert_run.go", "internal/cli/journal.go", "internal/cli/journal_log.go", "internal/cli/journal_show.go", "internal/cli/search.go", "internal/cli/surfline_forecast.go", "internal/cli/surfline_store.go", "internal/store/surfline_migrations.go"]
+}
