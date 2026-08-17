@@ -58,7 +58,7 @@ The whole CLI is unique — archive.today has no official API. But within this C
 
   _This is how 90% of agent calls should start. It's idempotent — calling it twice on the same URL doesn't double-submit._
 
-- **`get <url> [--format text|html]` / `tldr <url>`** — Fetch article text, optionally LLM-summarized. Automatic Wayback fallback when archive.today serves a CAPTCHA (which happens daily to cloud IPs).
+- **`get <url> [--raw]` / `tldr <url>`** — Fetch article text, optionally LLM-summarized. Automatic Wayback fallback when archive.today serves a CAPTCHA (which happens daily to cloud IPs).
 
   _`tldr` pipes the fetched text through a summarization step — useful for agent chains where you want a short take without shipping 20KB of HTML back._
 
@@ -124,10 +124,10 @@ Auth + health:
 ```bash
 archive-is-pp-cli read "https://www.wsj.com/articles/..." --agent
 # or: return just the text
-archive-is-pp-cli get "https://www.wsj.com/articles/..." --format text --agent
+archive-is-pp-cli get "https://www.wsj.com/articles/..." --agent
 ```
 
-`read` returns the archive URL (finding existing or creating new). `get --format text` returns the article body, falling back to Wayback if archive.today CAPTCHAs.
+`read` returns the archive URL (finding existing or creating new). `get` returns extracted article text by default, falling back to Wayback if archive.today CAPTCHAs; add `--raw` only when you need the archived HTML.
 
 ### Preserve a URL before it changes
 
@@ -171,7 +171,7 @@ Add `--agent` to any command. Expands to `--json --compact --no-input --no-color
 Notable flags:
 - `--submit-timeout <duration>` — max wait for a fresh submit (default `10m`; `0` = unbounded)
 - `--backend archive-is,wayback` — backend preference and fallback order
-- `--format text|html` — `get`/`tldr` output format
+- `--raw` — return raw HTML from `get` instead of extracted text
 
 ### Filtering output
 

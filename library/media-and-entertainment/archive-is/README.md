@@ -221,7 +221,7 @@ The six hand-built commands below are the hero features. They're optimized for o
 | `sync` | Sync recent archive metadata to local SQLite for offline search. |
 | `workflow archive` | Run the full sync workflow across all resources. |
 | `workflow status` | Show local archive status and sync state. |
-| `export --format jsonl` | Export synced data to JSONL. |
+| `export <resource> --format jsonl` | Export synced data to JSONL. |
 | `import <file>` | Import JSONL back into the API. |
 | `api` | Browse all API endpoints by interface name. |
 
@@ -342,7 +342,7 @@ archive-is-pp-cli sync --full
 archive-is-pp-cli workflow status
 
 # 13. Export your local archive index for backup
-archive-is-pp-cli export --format jsonl > archive-backup.jsonl
+archive-is-pp-cli export captures --format jsonl > archive-backup.jsonl
 
 # 14. Check archive-is-pp-cli's auth and API reachability
 archive-is-pp-cli doctor --json
