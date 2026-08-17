@@ -1919,6 +1919,30 @@ func (s *Store) ClearSyncCursors() error {
 	return err
 }
 
+// ClearOrganizationScopedData removes every mirrored API row and its sync
+// markers before a credential is rebound to a different organization. Local
+// learning and playbook tables are intentionally preserved because they are
+// operator-authored and are not organization API responses.
+func (s *Store) ClearOrganizationScopedData() error {
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	if _, err := tx.Exec("DELETE FROM resources_fts"); err != nil {
+		return err
+	}
+	if _, err := tx.Exec("DELETE FROM resources"); err != nil {
+		return err
+	}
+	if _, err := tx.Exec("DELETE FROM sync_state"); err != nil {
+		return err
+	}
+	return tx.Commit()
+}
+
 // Query executes a raw SQL query and returns the rows.
 // Used by workflow commands that need custom queries against the local store.
 func (s *Store) Query(query string, args ...any) (*sql.Rows, error) {

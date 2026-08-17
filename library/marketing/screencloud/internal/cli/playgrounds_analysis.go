@@ -49,8 +49,8 @@ func bindStoreToCurrentOrganization(ctx context.Context, flags *rootFlags, s *st
 		return "", err
 	}
 	if stored != current {
-		if err := s.ClearSyncCursors(); err != nil {
-			return "", fmt.Errorf("invalidating metadata from a different organization: %w", err)
+		if err := s.ClearOrganizationScopedData(); err != nil {
+			return "", fmt.Errorf("purging metadata from a different organization: %w", err)
 		}
 	}
 	if err := s.SaveSyncState(syncOrganizationStateKey, current, 0); err != nil {

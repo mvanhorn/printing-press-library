@@ -12,7 +12,7 @@
     "type": "bearer_token",
     "api_key_available": true
   },
-  "source_fingerprint": "dc902f5d938ce2171def1c88fdcc93cb5d541d81a85bdf787ef0b0dfef3d82df",
+  "source_fingerprint": "c0a66d0c322c815d49c1ec0b655565ca7842a5e3e0e805dd9b5a4d6cc1c551b3",
   "source_files": {
     "cmd/screencloud-pp-cli/main.go": "c596c0423aef47adf12e171d9eead03d80f6b3e57ceecf28101523ac3a5b4378",
     "cmd/screencloud-pp-mcp/main.go": "86ef127a39057624082dd16a8f1416a6105dcfd0c4ad9427a045de62f8575788",
@@ -40,8 +40,8 @@
     "internal/cli/playbook_init_test.go": "fa535f94c3167bba8bdbd7843a909d44a0aeae3f268d15b9d3a73d9a80157e76",
     "internal/cli/playbooks/embed.go": "17a53e59f7c03eb3f07f6ed836cf2ce00c18ccc61aa3f6fb8f657625e5cf9911",
     "internal/cli/playgrounds.go": "7a3033fb6a52cb63bc7b5dcd0e406f09044d97905163cf804c81ac9507b5b2c5",
-    "internal/cli/playgrounds_analysis.go": "b82a5d435e6ce99a52eee8cb8273a64b817617f09aed568ad18c9f343aacc090",
-    "internal/cli/playgrounds_api.go": "f2bafa5663cea7d8f3c6552de5e5604334449c9c491bd02a24d184dd4050cf34",
+    "internal/cli/playgrounds_analysis.go": "ad824489bcbddf35be2dc73d5154c379bf96aab140b3c8dde5116335c095147d",
+    "internal/cli/playgrounds_api.go": "c988d27c95d413b606961dfa6fed3c6560f593c41efcc21444b21d1b78b70072",
     "internal/cli/playgrounds_config_drift.go": "b9c67b558d56cdaf83cbbb599066aa38a190454074be89249774fccef203365c",
     "internal/cli/playgrounds_config_drift_test.go": "2fa2fdc6ff90b0c4a4f137d3b52003a0cfa0486ba9109f9eae95188c47c21d11",
     "internal/cli/playgrounds_contract_check.go": "85c2d79f4e0701f8238bcd944885bc362a83bcd372220f7441644284b088ae2b",
@@ -61,7 +61,7 @@
     "internal/cli/root_test.go": "5507b6b3a3172ef16a64774952a01af788ff44bc1ad9863043f9da3862c618d2",
     "internal/cli/screencloud_api.go": "bbb22bf750501cdb0fe5f1c95c2814e331ab5caedbad7c14a426e3803a8aa227",
     "internal/cli/screencloud_commands.go": "fef3f20bd4eeee6eee822d1f0017b494d1e63bb233708fb33dc9e3ffb54aab14",
-    "internal/cli/screencloud_features_test.go": "662440d534b51794e9c7e877541ddf7d99ee40304d91dd151a48c9ccafbd1f31",
+    "internal/cli/screencloud_features_test.go": "5ac6a3da9575332814cd91d716e108c609d437bef91ced8a2baa4126b839c1b0",
     "internal/cli/screencloud_sync.go": "bd9a4b17377f212d21b797368f16ed59597a3897f30cb8154c3749ff110e8d75",
     "internal/cli/teach.go": "7e89d20375f09bb07b81b542288004e19410fbd60644c56b05c58e5f1d2d6b00",
     "internal/cli/teach_playbook.go": "16a375e3c01696877eb9d7b4acd55d88709f776160198e84ac3599631b8a936b",
@@ -158,7 +158,7 @@
     "internal/store/playbooks.go": "690c03a0ca10ee2502aeb2f133fc2f2362050fb6423b4d23a5899f8bad76a6c3",
     "internal/store/playbooks_test.go": "a979dbbe62a024f24ae1e96b4d6cb635b5011abe375c50962d83bd1da56cef72",
     "internal/store/schema_version_test.go": "12a2cb63fb9f962f3db53e7045c4e3cda3f6e682ace1aa9938544e14988ff3ae",
-    "internal/store/store.go": "f8e3f80dccfde85e0bd0154c7a19474ca2af1b70f2989cd9f0a932ca7b86fc12",
+    "internal/store/store.go": "49aa9af29cf6b5d2f380467d55af41737a703eb199dacee172b1e5004b7dc7b2",
     "internal/store/upsert_batch_test.go": "dadeed5238e24b9b8f3ad71f2eb3f534b0f2a092d893c6522f684ab4bcba500d",
     "internal/types/types.go": "721bb1df9aa8bc247541fe670f95367470fd8f9f038b58777bde17f7ea877da9",
     "spec.yaml": "b82fd19ed4cc6714a1758ee11aa5fbcbf20e727ada84fcd3c55333f5189fdc57"

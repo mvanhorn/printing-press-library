@@ -612,6 +612,12 @@ func TestOrganizationChangeInvalidatesUnrefreshedMirrorResources(t *testing.T) {
 	if err := s.SaveSyncState("spaces", "complete", 1); err != nil {
 		t.Fatal(err)
 	}
+	if err := s.Upsert("spaces", "old-space", json.RawMessage(`{"id":"old-space","name":"Old organization"}`)); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.Upsert("playgrounds_metadata", "old-playground", json.RawMessage(`{"id":"old-playground","refreshed_at":"2026-08-17T12:00:00Z"}`)); err != nil {
+		t.Fatal(err)
+	}
 	_ = s.Close()
 	t.Setenv("SCREENCLOUD_BASE_URL", server.URL)
 	t.Setenv("SCREENCLOUD_API_KEY", "key")
@@ -634,6 +640,12 @@ func TestOrganizationChangeInvalidatesUnrefreshedMirrorResources(t *testing.T) {
 	spacesState, _, _, err := s.GetSyncState("spaces")
 	if err != nil || spacesState != "" {
 		t.Fatalf("unselected old-organization resource remained trusted: state=%q err=%v", spacesState, err)
+	}
+	if _, err := s.Get("spaces", "old-space"); err == nil {
+		t.Fatal("old-organization space row survived organization rebinding")
+	}
+	if _, err := s.Get("playgrounds_metadata", "old-playground"); err == nil {
+		t.Fatal("old-organization Playgrounds metadata survived organization rebinding")
 	}
 }
 
@@ -675,6 +687,10 @@ func TestDataPutUsesOptimisticConcurrencyGuard(t *testing.T) {
 			fmt.Fprint(w, `{"data":{"createSignedAppManagementJwt":{"signedAppManagementToken":"management-jwt"}}}`)
 			return
 		}
+		if r.URL.Path == "/data/app-1" && r.Method == http.MethodGet {
+			fmt.Fprint(w, `{"data":{"message":"current"},"lastModified":"1"}`)
+			return
+		}
 		if r.URL.Path != "/data/app-1" || r.Method != http.MethodPut {
 			http.NotFound(w, r)
 			return
@@ -683,7 +699,7 @@ func TestDataPutUsesOptimisticConcurrencyGuard(t *testing.T) {
 		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 			t.Errorf("decode PUT: %v", err)
 		}
-		if body["lastModified"] != "1" || len(body) != 2 || body["data"] == nil {
+		if _, ok := body["lastModified"]; ok || len(body) != 1 || body["data"] == nil {
 			t.Errorf("unexpected data PUT body: %#v", body)
 		}
 		fmt.Fprint(w, `{"data":{},"lastModified":"2"}`)
@@ -701,6 +717,39 @@ func TestDataPutUsesOptimisticConcurrencyGuard(t *testing.T) {
 	}
 	if !strings.Contains(stdout, `"stage": "standalone_data_uploaded"`) || !strings.Contains(stdout, `"reconcile_compatible": false`) {
 		t.Fatalf("standalone write receipt implied create-workflow completion: %s", stdout)
+	}
+}
+
+func TestDataPutRefusesStaleExpectedLastModified(t *testing.T) {
+	input := filepath.Join(t.TempDir(), "data.json")
+	if err := os.WriteFile(input, []byte(`{"message":"reviewed"}`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	putCalled := false
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		switch {
+		case r.URL.Path == "/graphql":
+			fmt.Fprint(w, `{"data":{"createSignedAppManagementJwt":{"signedAppManagementToken":"management-jwt"}}}`)
+		case r.URL.Path == "/data/app-1" && r.Method == http.MethodGet:
+			fmt.Fprint(w, `{"data":{"message":"newer"},"lastModified":"2"}`)
+		case r.URL.Path == "/data/app-1" && r.Method == http.MethodPut:
+			putCalled = true
+			fmt.Fprint(w, `{"data":{},"lastModified":"3"}`)
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer server.Close()
+	t.Setenv("SCREENCLOUD_BASE_URL", server.URL)
+	t.Setenv("SCREENCLOUD_PLAYGROUNDS_URL", server.URL)
+	t.Setenv("SCREENCLOUD_API_KEY", "key")
+	_, _, err := runRootArgs(t, "--no-learn", "--json", "--yes", "playgrounds", "data", "put", "app-1", "--space-id", "space-1", "--input", input, "--expected-last-modified", "1")
+	if err == nil || !strings.Contains(err.Error(), "changed since the reviewed pull") {
+		t.Fatalf("stale data write was not rejected: %v", err)
+	}
+	if putCalled {
+		t.Fatal("data PUT was sent after the lastModified comparison failed")
 	}
 }
 

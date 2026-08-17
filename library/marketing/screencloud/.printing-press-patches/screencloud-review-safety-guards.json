@@ -4,8 +4,8 @@
   "applied_at": "2026-08-17",
   "base_run_id": "20260731-132333-5e8894d6",
   "base_printing_press_version": "4.29.0",
-  "summary": "Bind synchronized metadata to the active ScreenCloud organization and require optimistic concurrency for Playgrounds data uploads.",
-  "reason": "A credential change must not allow organization-scoped analysis to reuse a fresh mirror from another organization, and data writes must not overwrite changes made after the caller's last read.",
+  "summary": "Bind synchronized metadata to the active ScreenCloud organization, purge mirrored API rows on organization changes, and compare live data versions immediately before Playgrounds uploads.",
+  "reason": "A credential change must not allow organization-scoped analysis to reuse any rows from another organization, and data writes must refuse changes made after the caller's reviewed pull even when the service does not document an atomic lastModified request field.",
   "files": [
     "internal/cli/playgrounds_analysis.go",
     "internal/cli/playgrounds_api.go",
@@ -14,7 +14,8 @@
     "internal/cli/playgrounds_preview_drift.go",
     "internal/cli/playgrounds_readiness.go",
     "internal/cli/screencloud_features_test.go",
-    "internal/cli/screencloud_sync.go"
+    "internal/cli/screencloud_sync.go",
+    "internal/store/store.go"
   ],
   "validated_outcome": "Focused safety tests, the full Go test suite, go vet, go build, and a fresh authenticated read-only dogfood matrix passed (148 evaluated checks, 0 failures); mutation-shaped cases remained dry-run only.",
   "upstream_issue": null

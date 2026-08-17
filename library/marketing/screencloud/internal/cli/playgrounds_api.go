@@ -288,7 +288,7 @@ func newPlaygroundsDataPutCmd(flags *rootFlags) *cobra.Command {
 			if len(args) > 0 {
 				appUUID = previewUUID(args[0], preview)
 			}
-			plan := map[string]any{"operation": "PUT", "target": "/data/" + appUUID, "input_file": filepath.Clean(input), "expected_last_modified": expected, "sent": false}
+			plan := map[string]any{"operation": "PUT", "target": "/data/" + appUUID, "input_file": filepath.Clean(input), "expected_last_modified": expected, "concurrency_guard": "uncached GET /data immediately before PUT", "sent": false}
 			if flags.dryRun {
 				return printValue(cmd, flags, plan)
 			}
@@ -323,7 +323,23 @@ func newPlaygroundsDataPutCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			response, _, err := c.PutWithHeaders(cmd.Context(), "/data/"+url.PathEscape(appUUID), map[string]any{"data": data, "lastModified": expected}, bearerHeader(token))
+			path := "/data/" + url.PathEscape(appUUID)
+			remoteRaw, err := c.GetWithHeadersNoCache(cmd.Context(), path, nil, bearerHeader(token))
+			if err != nil {
+				return classifyAPIError(err, flags)
+			}
+			remote, err := decodeObject(remoteRaw)
+			if err != nil {
+				return fmt.Errorf("decoding current Playgrounds data metadata: %w", err)
+			}
+			actual := strings.TrimSpace(firstString(remote, "lastModified"))
+			if actual == "" {
+				return apiErr(fmt.Errorf("Playgrounds data response omitted lastModified; refusing an unguarded write"))
+			}
+			if actual != strings.TrimSpace(expected) {
+				return apiErr(fmt.Errorf("Playgrounds data changed since the reviewed pull (expected lastModified %q, current %q); pull and review again", expected, actual))
+			}
+			response, _, err := c.PutWithHeaders(cmd.Context(), path, map[string]any{"data": data}, bearerHeader(token))
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
