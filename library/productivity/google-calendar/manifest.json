@@ -1,0 +1,46 @@
+{
+  "manifest_version": "0.3",
+  "name": "google-calendar-pp-mcp",
+  "display_name": "Google Calendar",
+  "version": "4.28.0",
+  "description": "The multi-account Google Calendar layer for agents that must never surprise a human.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/google-calendar-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/google-calendar-pp-mcp",
+      "args": [],
+      "env": {
+        "GOOGLE_CALENDAR_CALENDAR_ID": "${user_config.google_calendar_calendar_id}",
+        "GOOGLE_CALENDAR_OAUTH2C": "${user_config.google_calendar_oauth2c}"
+      }
+    }
+  },
+  "user_config": {
+    "google_calendar_calendar_id": {
+      "type": "string",
+      "title": "GOOGLE_CALENDAR_CALENDAR_ID",
+      "description": "Sets GOOGLE_CALENDAR_CALENDAR_ID for the endpoint template variable {calendarId}.",
+      "required": true
+    },
+    "google_calendar_oauth2c": {
+      "type": "string",
+      "title": "GOOGLE_CALENDAR_OAUTH2C",
+      "description": "Sets GOOGLE_CALENDAR_OAUTH2C for the Google Calendar MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
