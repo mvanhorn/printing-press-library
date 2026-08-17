@@ -5,6 +5,7 @@
 notion-pp-cli syncs your Notion workspace into a local SQLite store and exposes commands that answer compound questions the Notion UI cannot: cross-database joins, status drift, dead links, workspace health, and who owns what across every client. Works offline and ships a full MCP server so agents can load rich project context in a single call instead of 30.
 
 Created by [@neektza](https://github.com/neektza) (Nikica Jokic).
+Contributors: [@tmchow](https://github.com/tmchow) (Trevin Chow).
 
 ## Install
 
@@ -293,6 +294,7 @@ This CLI is designed for AI agent consumption:
 - **Piped input** - write commands can accept structured input when their help lists `--stdin`
 - **Offline-friendly** - sync/search commands can use the local SQLite store when available
 - **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
+- **Machine-readable help** - add `--json` or `--agent` to help requests (for example, `notion-pp-cli pages update --help --json`) to receive a JSON command/flag envelope; plain `--help` stays human-readable
 
 Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API error, `7` rate limited, `10` config error.
 

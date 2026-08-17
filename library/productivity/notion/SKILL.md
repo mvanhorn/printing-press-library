@@ -312,4 +312,4 @@ Parse `$ARGUMENTS`:
    ```bash
    notion-pp-cli <command> [subcommand] [args] --agent
    ```
-4. If ambiguous, drill into subcommand help: `notion-pp-cli <command> --help`.
+4. If ambiguous, drill into subcommand help. Use `notion-pp-cli <command> --help --agent` when you need a machine-readable command/flag envelope; plain `--help` stays human-readable.
