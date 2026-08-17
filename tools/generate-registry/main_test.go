@@ -307,6 +307,32 @@ func TestAPIDisplayName(t *testing.T) {
 	}
 }
 
+func TestBuildEntryCatalogDisplayNameOverridesPriorAPI(t *testing.T) {
+	dir := t.TempDir()
+	manifest := `{
+  "api_name": "weather-goat",
+  "display_name": "Open-Meteo + NWS",
+  "catalog_display_name": "Weather GOAT",
+  "description": "Weather forecasts and activity verdicts."
+}`
+	if err := os.WriteFile(filepath.Join(dir, ".printing-press.json"), []byte(manifest), 0o644); err != nil {
+		t.Fatalf("write manifest: %v", err)
+	}
+
+	entry, err := buildEntry(dir, "other", "weather-goat", map[string]RegistryEntry{
+		"weather-goat": {API: "Open-Meteo + NWS"},
+	})
+	if err != nil {
+		t.Fatalf("buildEntry: %v", err)
+	}
+	if entry == nil {
+		t.Fatal("buildEntry returned nil")
+	}
+	if got := entry.API; got != "Weather GOAT" {
+		t.Fatalf("entry API = %q, want explicit catalog display name", got)
+	}
+}
+
 func TestRepairDuplicateAPIDisplayNamesUsesSourceDisplay(t *testing.T) {
 	entries := []RegistryEntry{
 		{
@@ -405,6 +431,147 @@ func TestSearchTerms(t *testing.T) {
 	}
 	if strings.Join(got, "\n") != strings.Join(want, "\n") {
 		t.Fatalf("searchTerms mismatch\nwant: %#v\ngot:  %#v", want, got)
+	}
+}
+
+func TestBuildEntriesIncludesReleaseMetadataFromReleaseFiles(t *testing.T) {
+	cwd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	repoRoot := filepath.Clean(filepath.Join(cwd, "..", ".."))
+	if err := os.Chdir(repoRoot); err != nil {
+		t.Fatalf("chdir repo root: %v", err)
+	}
+	t.Cleanup(func() { _ = os.Chdir(cwd) })
+
+	generatedEntries, err := buildEntries(libraryDir, loadExistingEntries(registryPath))
+	if err != nil {
+		t.Fatalf("build entries: %v", err)
+	}
+
+	checked := 0
+	var substack *Release
+	for _, generated := range generatedEntries {
+		if generated.Release != nil {
+			checked++
+		}
+		if generated.Name == "substack" {
+			substack = generated.Release
+		}
+	}
+	if checked == 0 {
+		t.Fatal("expected at least one .printing-press-release.json-backed registry entry")
+	}
+	if substack == nil || substack.CLIName != "substack-pp-cli" || strings.TrimSpace(substack.Version) == "" {
+		t.Fatalf("generated substack release = %+v, want substack-pp-cli with non-empty version", substack)
+	}
+}
+
+func TestIsUnreleasedSkeleton(t *testing.T) {
+	cases := []struct {
+		name string
+		r    *Release
+		want bool
+	}{
+		{"nil release is not a skeleton", nil, false},
+		{"cli_name set + blank trio is an unreleased skeleton", &Release{CLIName: "x-pp-cli"}, true},
+		{"whitespace-only trio is an unreleased skeleton", &Release{CLIName: "x-pp-cli", Version: "  ", ReleasedAt: "\t", SourceCommit: "\n"}, true},
+		{"blank cli_name + blank trio is malformed, not a clean skeleton", &Release{}, false},
+		{"whitespace cli_name + blank trio is malformed, not a clean skeleton", &Release{CLIName: "  "}, false},
+		{"version set means released", &Release{CLIName: "x-pp-cli", Version: "2026.6.3"}, false},
+		{"source_commit set means released", &Release{CLIName: "x-pp-cli", SourceCommit: "abc123"}, false},
+	}
+	for _, tc := range cases {
+		if got := isUnreleasedSkeleton(tc.r); got != tc.want {
+			t.Errorf("%s: isUnreleasedSkeleton = %v, want %v", tc.name, got, tc.want)
+		}
+	}
+}
+
+// A freshly-printed CLI ships a blank release skeleton; the post-merge release
+// workflow stamps it later. buildEntries must omit the release block for such an
+// entry so registry.json never carries empty required release fields — the npm
+// installer's parseRegistryEntry rejects a release object with blank
+// version/released_at/source_commit and skips the whole CLI. A genuinely
+// released ledger is still emitted.
+func TestBuildEntriesOmitsReleaseForUnreleasedSkeleton(t *testing.T) {
+	root := t.TempDir()
+	writeCLI := func(category, slug, ppJSON, releaseJSON string) {
+		t.Helper()
+		dir := filepath.Join(root, category, slug)
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(dir, ".printing-press.json"), []byte(ppJSON), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(dir, ".printing-press-release.json"), []byte(releaseJSON), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	writeCLI("ai", "released", `{"display_name":"Released","api_name":"released","description":"Does things."}`,
+		`{"cli_name":"released-pp-cli","version":"2026.6.3","released_at":"2026-06-23T00:00:00Z","source_commit":"abc123"}`)
+	writeCLI("ai", "skeleton", `{"display_name":"Skeleton","api_name":"skeleton","description":"Does things."}`,
+		`{"cli_name":"skeleton-pp-cli","version":"","released_at":"","source_commit":""}`)
+
+	entries, err := buildEntries(root, map[string]RegistryEntry{})
+	if err != nil {
+		t.Fatalf("buildEntries: %v", err)
+	}
+	got := map[string]*Release{}
+	for _, e := range entries {
+		got[e.Name] = e.Release
+	}
+	if got["released"] == nil {
+		t.Errorf("released CLI: want a release block, got nil")
+	} else if got["released"].Version != "2026.6.3" {
+		t.Errorf("released CLI: version = %q, want 2026.6.3", got["released"].Version)
+	}
+	if got["skeleton"] != nil {
+		t.Errorf("unreleased skeleton: want no release block (nil), got %+v", got["skeleton"])
+	}
+	// With the skeleton's release block omitted, the strict validator passes it
+	// via the e.Release == nil path — no false positive on the pre-merge state.
+	if errs := validateEntries(entries); len(errs) != 0 {
+		t.Errorf("validateEntries on built entries: want no errors, got %v", errs)
+	}
+}
+
+// A malformed ledger — trio blank but cli_name ALSO blank (e.g. a printer
+// workflow misfire) — must not be silently omitted. It is kept as a non-nil
+// release block so validateEntries still flags the empty cli_name, preserving
+// the pre-existing gate that the skeleton-omission must not weaken.
+func TestBuildEntriesKeepsReleaseForBlankCLINameSkeleton(t *testing.T) {
+	root := t.TempDir()
+	dir := filepath.Join(root, "ai", "broken")
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, ".printing-press.json"),
+		[]byte(`{"display_name":"Broken","api_name":"broken","description":"Does things."}`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, ".printing-press-release.json"),
+		[]byte(`{"cli_name":"","version":"","released_at":"","source_commit":""}`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	entries, err := buildEntries(root, map[string]RegistryEntry{})
+	if err != nil {
+		t.Fatalf("buildEntries: %v", err)
+	}
+	var rel *Release
+	for _, e := range entries {
+		if e.Name == "broken" {
+			rel = e.Release
+		}
+	}
+	if rel == nil {
+		t.Fatal("blank cli_name skeleton: release block must be kept (not omitted) so validation can flag it")
+	}
+	if errs := validateEntries(entries); !strings.Contains(strings.Join(errs, "\n"), "broken: release.cli_name is empty") {
+		t.Errorf("want a release.cli_name error for the malformed skeleton, got: %v", errs)
 	}
 }
 
@@ -523,6 +690,31 @@ func TestValidateEntries(t *testing.T) {
 				{Name: "x", Category: "tools", API: "X", Description: "Has desc.", Path: "library/tools/x", MCP: mcpOK},
 			},
 			wantOK: true,
+		},
+		{
+			name: "valid release block passes",
+			entries: []RegistryEntry{
+				{
+					Name: "x", Category: "tools", API: "X", Description: "Has desc.", Path: "library/tools/x",
+					Release: &Release{CLIName: "x-pp-cli", Version: "2026.6.23", ReleasedAt: "2026-06-23T00:00:00Z", SourceCommit: "abc123"},
+				},
+			},
+			wantOK: true,
+		},
+		{
+			name: "release block required fields fail when blank",
+			entries: []RegistryEntry{
+				{
+					Name: "x", Category: "tools", API: "X", Description: "Has desc.", Path: "library/tools/x",
+					Release: &Release{CLIName: " ", Version: "", ReleasedAt: "	", SourceCommit: "\n"},
+				},
+			},
+			wantSubstrs: []string{
+				"x: release.cli_name is empty",
+				"x: release.version is empty",
+				"x: release.released_at is empty",
+				"x: release.source_commit is empty",
+			},
 		},
 		{
 			name: "unnamed entry reports under (unnamed) prefix",

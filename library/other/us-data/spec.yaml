@@ -1,0 +1,28 @@
+name: us-data
+source_kind: plan
+description: Official US public data recipes for BLS, Census, and BEA.
+auth:
+  type: optional_api_key
+  env:
+    - US_DATA_BLS_API_KEY
+    - US_DATA_CENSUS_API_KEY
+    - US_DATA_BEA_API_KEY
+commands:
+  - name: cpi
+    source: BLS Public Data API v1
+    purpose: Fetch CPI timeseries snapshot.
+  - name: unemployment
+    source: BLS Public Data API v1
+    purpose: Fetch national unemployment timeseries snapshot.
+  - name: population
+    source: Census Data API ACS profile
+    purpose: Fetch supported place population when Census key is configured.
+  - name: wages
+    source: BLS occupational wage datasets
+    purpose: Explain source-backed wage lookup status.
+  - name: industry
+    source: BEA API
+    purpose: Fetch or explain BEA industry/regional data.
+  - name: compare-regions
+    source: BLS/Census/BEA
+    purpose: Build an agent-readable region comparison shell.

@@ -11,16 +11,19 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newDevModeCmd(flags *rootFlags) *cobra.Command {
+func newNovelDevModeCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "dev-mode",
 		Short: "Dev Mode bundles for one node.",
 	}
-	cmd.AddCommand(newDevModeDumpCmd(flags))
+	cmd.AddCommand(newNovelDevModeDumpCmd(flags))
 	return cmd
 }
 
-func newDevModeDumpCmd(flags *rootFlags) *cobra.Command {
+// pp:data-source live
+// dev-mode dump fuses live node, dev-resource, and published-variable reads
+// from the Figma REST API; it does not consult the local SQLite store.
+func newNovelDevModeDumpCmd(flags *rootFlags) *cobra.Command {
 	var node string
 	var format string
 
@@ -58,7 +61,7 @@ into a Dev Mode hand-off doc.`,
 			}
 
 			// 1. Node tree at depth 2.
-			nodesRaw, err := c.Get("/v1/files/"+key+"/nodes", map[string]string{"ids": normID, "depth": "2"})
+			nodesRaw, err := c.Get(cmd.Context(), "/v1/files/"+key+"/nodes", map[string]string{"ids": normID, "depth": "2"})
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -77,14 +80,14 @@ into a Dev Mode hand-off doc.`,
 			}
 
 			// 2. Dev resources, server-side filter on node_ids.
-			devResRaw, _ := c.Get("/v1/files/"+key+"/dev_resources", map[string]string{"node_ids": normID})
+			devResRaw, _ := c.Get(cmd.Context(), "/v1/files/"+key+"/dev_resources", map[string]string{"node_ids": normID})
 			var devEnv struct {
 				DevResources []map[string]any `json:"dev_resources"`
 			}
 			_ = json.Unmarshal(devResRaw, &devEnv)
 
 			// 3. Published variables.
-			varsRaw, _ := c.Get("/v1/files/"+key+"/variables/published", nil)
+			varsRaw, _ := c.Get(cmd.Context(), "/v1/files/"+key+"/variables/published", nil)
 			var varsList []map[string]any
 			if len(varsRaw) > 0 {
 				var env struct {

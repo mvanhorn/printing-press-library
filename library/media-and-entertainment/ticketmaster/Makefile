@@ -1,7 +1,9 @@
 .PHONY: build test lint install clean
 
+BIN_EXT := $(if $(filter windows,$(shell go env GOOS)),.exe,)
+
 build:
-	go build -o bin/ticketmaster-pp-cli ./cmd/ticketmaster-pp-cli
+	go build -o bin/ticketmaster-pp-cli$(BIN_EXT) ./cmd/ticketmaster-pp-cli
 
 test:
 	go test ./...
@@ -16,7 +18,7 @@ clean:
 	rm -rf bin/
 
 build-mcp:
-	go build -o bin/ticketmaster-pp-mcp ./cmd/ticketmaster-pp-mcp
+	go build -o bin/ticketmaster-pp-mcp$(BIN_EXT) ./cmd/ticketmaster-pp-mcp
 
 install-mcp:
 	go install ./cmd/ticketmaster-pp-mcp

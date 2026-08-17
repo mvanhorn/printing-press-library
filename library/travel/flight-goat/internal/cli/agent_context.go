@@ -8,14 +8,16 @@ import (
 	"os"
 	"sort"
 
+	"github.com/mvanhorn/printing-press-library/library/travel/flight-goat/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/travel/flight-goat/internal/learn"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
 
 // agentContextSchemaVersion is bumped on any breaking change to the JSON
 // shape emitted by `agent-context`. Agents should check this before
-// parsing. Shape at v2 adds optional browser-sniff discovery context.
-const agentContextSchemaVersion = "2"
+// parsing. Shape at v4 adds resolved config/data/state/cache directories.
+const agentContextSchemaVersion = "4"
 
 // agentContext is the structured description of this CLI consumed by AI
 // agents. Inspired by Cloudflare's /cdn-cgi/explorer/api runtime endpoint
@@ -25,10 +27,15 @@ type agentContext struct {
 	SchemaVersion              string                 `json:"schema_version"`
 	CLI                        agentContextCLI        `json:"cli"`
 	Auth                       agentContextAuth       `json:"auth"`
+	Paths                      agentContextPaths      `json:"paths"`
 	Discovery                  *agentContextDiscovery `json:"discovery,omitempty"`
 	Commands                   []agentContextCommand  `json:"commands"`
 	AvailableProfiles          []string               `json:"available_profiles"`
 	FeedbackEndpointConfigured bool                   `json:"feedback_endpoint_configured"`
+	// LearnProtocol carries the recall-first protocol from the single
+	// shared source (internal/learn.RecallFirstProtocol) also consumed by
+	// the MCP context tool, so the two agent surfaces cannot drift.
+	LearnProtocol string `json:"learn_protocol"`
 }
 
 type agentContextCLI struct {
@@ -38,8 +45,23 @@ type agentContextCLI struct {
 }
 
 type agentContextAuth struct {
-	Mode    string   `json:"mode"`
-	EnvVars []string `json:"env_vars"`
+	Mode    string                   `json:"mode"`
+	EnvVars []agentContextAuthEnvVar `json:"env_vars"`
+}
+
+type agentContextAuthEnvVar struct {
+	Name        string `json:"name"`
+	Kind        string `json:"kind"`
+	Required    bool   `json:"required"`
+	Sensitive   bool   `json:"sensitive"`
+	Description string `json:"description,omitempty"`
+}
+
+type agentContextPaths struct {
+	ConfigDir string `json:"config_dir"`
+	DataDir   string `json:"data_dir"`
+	StateDir  string `json:"state_dir"`
+	CacheDir  string `json:"cache_dir"`
 }
 
 type agentContextDiscovery struct {
@@ -95,8 +117,14 @@ reading source. Schema is versioned via schema_version.`,
 }
 
 func buildAgentContext(rootCmd *cobra.Command) agentContext {
-	envVars := []string{
-		"FLIGHT_GOAT_API_KEY_AUTH",
+	envVars := []agentContextAuthEnvVar{
+		{
+			Name:        "FLIGHT_GOAT_API_KEY",
+			Kind:        "per_call",
+			Required:    true,
+			Sensitive:   true,
+			Description: "Set to your API credential.",
+		},
 	}
 	authMode := "api_key"
 	if authMode == "" {
@@ -110,17 +138,32 @@ func buildAgentContext(rootCmd *cobra.Command) agentContext {
 		SchemaVersion: agentContextSchemaVersion,
 		CLI: agentContextCLI{
 			Name:        "flight-goat-pp-cli",
-			Description: "Search Google Flights, scan Kayak long-haul routes, and join FlightAware AeroAPI reliability, alerts, and tracking from one CLI.",
+			Description: "AeroAPI is a simple, query-based API that gives software developers access to a variety of FlightAware's flight data.",
 			Version:     rootCmd.Version,
 		},
 		Auth: agentContextAuth{
 			Mode:    authMode,
 			EnvVars: envVars,
 		},
+		Paths:                      buildAgentContextPaths(),
 		Discovery:                  buildAgentDiscoveryContext(),
 		Commands:                   collectAgentCommands(rootCmd),
 		AvailableProfiles:          profiles,
 		FeedbackEndpointConfigured: FeedbackEndpointConfigured(),
+		LearnProtocol:              learn.RecallFirstProtocol,
+	}
+}
+
+func buildAgentContextPaths() agentContextPaths {
+	configDir, _ := cliutil.ConfigDir()
+	dataDir, _ := cliutil.DataDir()
+	stateDir, _ := cliutil.StateDir()
+	cacheDir, _ := cliutil.CacheDir()
+	return agentContextPaths{
+		ConfigDir: configDir,
+		DataDir:   dataDir,
+		StateDir:  stateDir,
+		CacheDir:  cacheDir,
 	}
 }
 
@@ -129,17 +172,23 @@ func buildAgentDiscoveryContext() *agentContextDiscovery {
 }
 
 // collectAgentCommands walks the cobra tree from the given command and
-// returns its direct children (skipping hidden commands and the
-// agent-context command itself to avoid self-reference). Each child is
-// recursed into if it has subcommands. Flags are captured via VisitAll.
-// Output is sorted by command name for stable diffs across regenerations.
+// returns its direct children (skipping the agent-context command itself
+// to avoid self-reference). Each child is recursed into if it has
+// subcommands. Flags are captured via VisitAll. Output is sorted by
+// command name for stable diffs across regenerations.
+//
+// Cobra's Hidden flag suppresses listing in --help but does not gate
+// agent discovery. Raw resource parents are Hidden so --help stays
+// curated and the `api` browser populates; the agent-context surface
+// must still enumerate them and their endpoints so agents can call any
+// action a CLI user could.
 func collectAgentCommands(c *cobra.Command) []agentContextCommand {
 	children := c.Commands()
 	sort.Slice(children, func(i, j int) bool { return children[i].Name() < children[j].Name() })
 
 	out := make([]agentContextCommand, 0, len(children))
 	for _, sub := range children {
-		if sub.Hidden || sub.Name() == "agent-context" {
+		if sub.Name() == "agent-context" {
 			continue
 		}
 		entry := agentContextCommand{

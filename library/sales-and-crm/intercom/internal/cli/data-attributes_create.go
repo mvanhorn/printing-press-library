@@ -9,6 +9,7 @@ import (
 	"io"
 	"os"
 
+	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/intercom/internal/cliutil"
 	"github.com/spf13/cobra"
 )
 
@@ -27,6 +28,24 @@ func newDataAttributesCreateCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  intercom-pp-cli data-attributes create --data-type string",
 		Annotations: map[string]string{"pp:endpoint": "data-attributes.create", "pp:method": "POST", "pp:path": "/data_attributes"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Bare invocation of a command with required input prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only read commands fall through so a bare call still executes.
+			// Machine callers (--json/--agent, which sets asJSON) get a usage
+			// error + exit 2 instead of silent exit-0 help, so an incomplete
+			// invocation is never mistaken for success.
+			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "requires input",
+						"usage": cmd.CommandPath() + " --help",
+					}, flags); printErr != nil {
+						return printErr
+					}
+					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
+				}
+				return cmd.Help()
+			}
 			if !stdinBody {
 				if !cmd.Flags().Changed("data-type") && !flags.dryRun {
 					return fmt.Errorf("required flag \"%s\" not set", "data-type")
@@ -38,14 +57,13 @@ func newDataAttributesCreateCmd(flags *rootFlags) *cobra.Command {
 					return fmt.Errorf("required flag \"%s\" not set", "name")
 				}
 			}
+			path := "/data_attributes"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/data_attributes"
 			params := map[string]string{}
-			var body map[string]any
+			var body any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
@@ -57,28 +75,29 @@ func newDataAttributesCreateCmd(flags *rootFlags) *cobra.Command {
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
+				bodyMap := map[string]any{}
+				body = bodyMap
 				if bodyDataType != "" {
-					body["data_type"] = bodyDataType
+					bodyMap["data_type"] = bodyDataType
 				}
 				if bodyDescription != "" {
-					body["description"] = bodyDescription
+					bodyMap["description"] = bodyDescription
 				}
 				if cmd.Flags().Changed("messenger-writable") {
-					body["messenger_writable"] = bodyMessengerWritable
+					bodyMap["messenger_writable"] = bodyMessengerWritable
 				}
 				if bodyModel != "" {
-					body["model"] = bodyModel
+					bodyMap["model"] = bodyModel
 				}
 				if bodyName != "" {
-					body["name"] = bodyName
+					bodyMap["name"] = bodyName
 				}
-				if bodyOptions != "" {
-					var parsedOptions any
-					if err := json.Unmarshal([]byte(bodyOptions), &parsedOptions); err != nil {
-						return fmt.Errorf("parsing --options JSON: %w", err)
+				if cmd.Flags().Changed("options") {
+					parsedOptions, parseErr := cliutil.ParseStringList(bodyOptions)
+					if parseErr != nil {
+						return fmt.Errorf("parsing --options list: %w", parseErr)
 					}
-					body["options"] = parsedOptions
+					bodyMap["options"] = parsedOptions
 				}
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
@@ -104,7 +123,7 @@ func newDataAttributesCreateCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 			if !flags.dryRun && statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure) {
-				writeMutationResponseToStore(cmd.Context(), "data-attributes", data, "")
+				writeMutationResponseToStore(cmd.Context(), "data-attributes", data, "options")
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")
@@ -148,6 +167,9 @@ func newDataAttributesCreateCmd(flags *rootFlags) *cobra.Command {
 					"status":   statusCode,
 					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
 				}
+				if flags.agent {
+					envelope["meta"] = map[string]any{"source": "live"}
+				}
 				if partialFailure != nil {
 					envelope["partial_failure"] = partialFailure
 				}
@@ -186,7 +208,11 @@ func newDataAttributesCreateCmd(flags *rootFlags) *cobra.Command {
 				if len(filtered) > 0 {
 					var parsed any
 					if err := json.Unmarshal(filtered, &parsed); err == nil {
-						envelope["data"] = parsed
+						if flags.agent {
+							envelope["results"] = parsed
+						} else {
+							envelope["data"] = parsed
+						}
 					}
 				}
 				envelopeJSON, err := json.Marshal(envelope)

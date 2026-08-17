@@ -1,0 +1,1347 @@
+{
+  "dir": "/Users/omarshahine/printing-press/.runstate/sea-airport-parking-07c3c986/runs/20260713-185103-c898b442/working/sea-airport-parking-pp-cli",
+  "binary": "/Users/omarshahine/printing-press/.runstate/sea-airport-parking-07c3c986/runs/20260713-185103-c898b442/working/sea-airport-parking-pp-cli/sea-airport-parking-pp-cli",
+  "level": "full",
+  "verdict": "FAIL",
+  "matrix_size": 85,
+  "passed": 82,
+  "failed": 3,
+  "skipped": 44,
+  "commands": [
+    "api",
+    "book",
+    "calendar",
+    "doctor",
+    "drift",
+    "feedback list",
+    "history",
+    "learnings candidates",
+    "learnings confirm",
+    "learnings forget",
+    "learnings list",
+    "learnings purge",
+    "learnings reject",
+    "learnings stats",
+    "parking",
+    "playbook amend",
+    "playbook list",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "quote",
+    "recall",
+    "sweep",
+    "teach",
+    "teach-lookup",
+    "teach-pattern",
+    "teach-playbook",
+    "watch",
+    "which",
+    "workflow status"
+  ],
+  "tests": [
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  sea-airport-parking-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  sea-airport-parking-pp-cli api\n\n  # Show methods for a specific interface\n  sea-airport-parking-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'sea-airport-parking-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'sea-airport-parking-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "book",
+      "kind": "help",
+      "args": [
+        "book",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Confirm availability and price for a range, then hand off to the official\nguest-checkout flow with the exact dates to enter. This NEVER submits payment —\nit prepares the booking and stops so you complete the card step yourself.\n\nPass --launch to open the booking page in your browser.\n\nUsage:\n  sea-airport-parking-pp-cli book [flags]\n\nExamples:\n  sea-airport-parking-pp-cli book --quote --entry 2026-08-15T11:00 --exit 2026-08-18T11:00\n\nFlags:\n      --entry string   Entry date/time, e.g. 2026-08-15T11:00\n      --exit string    Exit date/time, e.g. 2026-08-18T11:00\n  -h, --help           help for book\n      --launch         Open the booking page in your browser\n      --promo string   Optional promo code to apply\n      --quote          Quote before handing off (default behavior)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'sea-airport-parking-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "book",
+      "kind": "happy_path",
+      "args": [
+        "book",
+        "--quote",
+        "--entry",
+        "2026-08-15T11:00",
+        "--exit",
+        "2026-08-18T11:00"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"available\": true,\n  \"entry\": \"2026-08-15T11:00\",\n  \"exit\": \"2026-08-18T11:00\",\n  \"nights\": 3,\n  \"total_price\": 141,\n  \"product_name\": \"Reserved Parking\",\n  \"booking_url\": \"https://reservesea.portseattle.org/book/SEA/Parking?parkingCmd=collectParkingDetails\",\n  \"steps\": [\n    \"Open https://reservesea.portseattle.org/book/SEA/Parking?parkingCmd=collectParkingDetails\",\n    \"Enter entry 2026-08-15T11:00 and exit 2026-08-18T11:00\",\n    \"Choose Reserved Parking, skip or add travel extras\",\n    \"Enter your details (name, email, phone, license plate + vehicle)\",\n    \"Confirm the total (~$141.00) and complete payment yourself\"\n  ],\n  \"note\": \"This CLI never submits payment. Complete the card step yourself in the browser.\"\n}\n"
+    },
+    {
+      "command": "book",
+      "kind": "json_fidelity",
+      "args": [
+        "book",
+        "--quote",
+        "--entry",
+        "2026-08-15T11:00",
+        "--exit",
+        "2026-08-18T11:00",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"available\": true,\n  \"entry\": \"2026-08-15T11:00\",\n  \"exit\": \"2026-08-18T11:00\",\n  \"nights\": 3,\n  \"total_price\": 141,\n  \"product_name\": \"Reserved Parking\",\n  \"booking_url\": \"https://reservesea.portseattle.org/book/SEA/Parking?parkingCmd=collectParkingDetails\",\n  \"steps\": [\n    \"Open https://reservesea.portseattle.org/book/SEA/Parking?parkingCmd=collectParkingDetails\",\n    \"Enter entry 2026-08-15T11:00 and exit 2026-08-18T11:00\",\n    \"Choose Reserved Parking, skip or add travel extras\",\n    \"Enter your details (name, email, phone, license plate + vehicle)\",\n    \"Confirm the total (~$141.00) and complete payment yourself\"\n  ],\n  \"note\": \"This CLI never submits payment. Complete the card step yourself in the browser.\"\n}\n"
+    },
+    {
+      "command": "book",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "calendar",
+      "kind": "help",
+      "args": [
+        "calendar",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Render price and open/sold-out across every entry day in a month for a\nfixed-length stay. Loops the live quote flow over each candidate entry date and\nreturns the whole grid, persisting each quote.\n\nUnlike 'sweep' it does not vary stay length or hunt a single winner — it returns\nthe whole grid for eyeballing.\n\nUsage:\n  sea-airport-parking-pp-cli calendar [flags]\n\nExamples:\n  sea-airport-parking-pp-cli calendar --month 2026-11 --nights 3 --agent\n\nFlags:\n  -h, --help                help for calendar\n      --max-scan-days int   Maximum entry days to scan (default 31)\n      --month string        Month to scan (YYYY-MM)\n      --nights int          Length of stay in nights (default 3)\n      --promo string        Optional promo code to apply\n      --time string         Entry/exit time of day (HH:MM) (default \"11:00\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'sea-airport-parking-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "calendar",
+      "kind": "happy_path",
+      "args": [
+        "calendar",
+        "--month",
+        "2026-11",
+        "--nights",
+        "3",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"days\": [\n      {\n        \"available\": true,\n        \"date\": \"2026-11-01\",\n        \"price\": 141,\n        \"sold_out\": false\n      }\n    ],\n    \"month\": \"2026-11\",\n    \"nights\": 3,\n    \"note\": \"stopped at --max-scan-days (1); raise it to cover the whole month\",\n    \"scanned_days\": 1\n  }\n}\n"
+    },
+    {
+      "command": "calendar",
+      "kind": "json_fidelity",
+      "args": [
+        "calendar",
+        "--month",
+        "2026-11",
+        "--nights",
+        "3",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"days\": [\n      {\n        \"available\": true,\n        \"date\": \"2026-11-01\",\n        \"price\": 141,\n        \"sold_out\": false\n      }\n    ],\n    \"month\": \"2026-11\",\n    \"nights\": 3,\n    \"note\": \"stopped at --max-scan-days (1); raise it to cover the whole month\",\n    \"scanned_days\": 1\n  }\n}\n"
+    },
+    {
+      "command": "calendar",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  sea-airport-parking-pp-cli doctor [flags]\n\nExamples:\n  sea-airport-parking-pp-cli doctor\n  sea-airport-parking-pp-cli doctor --json\n  sea-airport-parking-pp-cli doctor --fail-on warn\n  sea-airport-parking-pp-cli doctor --fail-on stale\n\nFlags:\n      --fail-on string   Exit non-zero for selected health gates. stale: cache freshness plus errors; warn: credential/path warnings plus errors; error: errors only. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'sea-airport-parking-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  OK Auth: not required\n  OK Verify Mode: normal operation\n  FAIL API: unreachable: GET /book/SEA/Parking?parkingCmd=collectParkingDetails: Get \"Parking?parkingCmd=collectParkingDetails\": stopped after 10 redirects\n  config_path: /var/folders/bv/gk19nl6x7y9847hjqv0zrhqr0000gn/T/printing-press-subprocess-257761776/.config/sea-airport-parking-pp-cli/config.toml\n  base_url: https://reservesea.portseattle.org\n  version: 0.0.0-dev\n  Paths:\n    config: /var/folders/bv/gk19nl6x7y9847hjqv0zrhqr0000gn/T/printing-press-subprocess-257761776/.config/sea-airport-parking-pp-cli (XDG_CONFIG_HOME)\n    data: /var/folders/bv/gk19nl6x7y9847hjqv0zrhqr0000gn/T/printing-press-subprocess-257761776/.local/share/sea-airport-parking-pp-cli (XDG_DATA_HOME)\n    state: /var/folders/bv/gk19nl6x7y9847hjqv0zrhqr0000gn/T/printing-press-subprocess-257761776/.local/state/sea-airport-parking-pp-cli (XDG_STATE_HOME)\n    cache: /var/folders/bv/gk19nl6x7y9847hjqv0zrhqr0000gn/T/printing-press-subprocess-257761776/.cache/sea-airport-parking-pp-cli (XDG_CACHE_HOME)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"api\": \"unreachable: GET /book/SEA/Parking?parkingCmd=collectParkingDetails: Get \\\"Parking?parkingCmd=collectParkingDetails\\\": stopped after 10 redirects\",\n  \"auth\": \"not required\",\n  \"base_url\": \"https://reservesea.portseattle.org\",\n  \"config\": \"ok\",\n  \"config_path\": \"/var/folders/bv/gk19nl6x7y9847hjqv0zrhqr0000gn/T/printing-press-subprocess-257761776/.config/sea-airport-parking-pp-cli/config.toml\",\n  \"paths\": {\n    \"cache\": {\n      \"dir\": \"/var/folders/bv/gk19nl6x7y9847hjqv0zrhqr0000gn/T/printing-press-subprocess-257761776/.cache/sea-airport-parking-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CACHE_HOME\"\n    },\n    \"config\": {\n      \"dir\": \"/var/folders/bv/gk19nl6x7y9847hjqv0zrhqr0000gn/T/printing-press-subprocess-257761776/.config/sea-airport-parking-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CONFIG_HOME\"\n    },\n    \"data\": {\n      \"dir\": \"/var/folders/bv/gk19nl6x7y9847hjqv0zrhqr0000gn/T/printing-press-subprocess-257761776/.local/share/sea-airport-parking-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_DATA_HOME\"\n    },\n    \"state\": {\n      \"dir\": \"/var/folders/bv/gk19nl6x7y9847hjqv0zrhqr0000gn/T/printing-press-subprocess-257761776/.local/state/sea-airport-parking-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_STATE_HOME\"\n    },\n    \"status\": \"ok\"\n  },\n  \"verify_mode\": \"normal operation\",\n  \"version\": \"0.0.0-dev\"\n}\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "drift",
+      "kind": "help",
+      "args": [
+        "drift",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Summarize the change in an exact range's price and availability across your\nstored snapshots: first vs latest price, min/max, and how many times it flipped\nbetween sold-out and available. Requires at least 2 snapshots.\n\nFor the full row-by-row list use 'history'.\n\nUsage:\n  sea-airport-parking-pp-cli drift [flags]\n\nExamples:\n  sea-airport-parking-pp-cli drift --entry 2026-08-15T11:00 --exit 2026-08-18T11:00 --agent\n\nFlags:\n      --entry string   Entry date/time of the range, e.g. 2026-08-15T11:00\n      --exit string    Exit date/time of the range, e.g. 2026-08-18T11:00\n  -h, --help           help for drift\n      --since string   Only snapshots captured within this window (e.g. 30d)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'sea-airport-parking-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "drift",
+      "kind": "happy_path",
+      "args": [
+        "drift",
+        "--entry",
+        "2026-08-15T11:00",
+        "--exit",
+        "2026-08-18T11:00",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"availability_flips\": 0,\n    \"currently_available\": true,\n    \"entry\": \"2026-08-15T11:00\",\n    \"exit\": \"2026-08-18T11:00\",\n    \"first_captured\": \"2026-07-13T19:51:31Z\",\n    \"first_price\": 141,\n    \"latest_captured\": \"2026-07-13T19:51:32Z\",\n    \"latest_price\": 141,\n    \"max_price\": 141,\n    \"min_price\": 141,\n    \"price_delta\": 0,\n    \"snapshots\": 2\n  }\n}\n"
+    },
+    {
+      "command": "drift",
+      "kind": "json_fidelity",
+      "args": [
+        "drift",
+        "--entry",
+        "2026-08-15T11:00",
+        "--exit",
+        "2026-08-18T11:00",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"availability_flips\": 0,\n    \"currently_available\": true,\n    \"entry\": \"2026-08-15T11:00\",\n    \"exit\": \"2026-08-18T11:00\",\n    \"first_captured\": \"2026-07-13T19:51:31Z\",\n    \"first_price\": 141,\n    \"latest_captured\": \"2026-07-13T19:51:32Z\",\n    \"latest_price\": 141,\n    \"max_price\": 141,\n    \"min_price\": 141,\n    \"price_delta\": 0,\n    \"snapshots\": 2\n  }\n}\n"
+    },
+    {
+      "command": "drift",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  sea-airport-parking-pp-cli feedback list [flags]\n\nExamples:\n  sea-airport-parking-pp-cli feedback list\n  sea-airport-parking-pp-cli feedback list --limit 5\n  sea-airport-parking-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'sea-airport-parking-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "history",
+      "kind": "help",
+      "args": [
+        "history",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List the raw recorded quote snapshots for an exact entry/exit range, newest\nfirst. This is the read surface over the local store; for the summarized\nfirst-vs-latest change use 'drift'. Returns nothing for a range never quoted —\nrun 'quote' or 'sweep' first to populate it.\n\nUsage:\n  sea-airport-parking-pp-cli history [flags]\n\nExamples:\n  sea-airport-parking-pp-cli history --entry 2026-08-15T11:00 --exit 2026-08-18T11:00 --agent\n\nFlags:\n      --entry string   Entry date/time of the range, e.g. 2026-08-15T11:00\n      --exit string    Exit date/time of the range, e.g. 2026-08-18T11:00\n  -h, --help           help for history\n      --since string   Only snapshots captured within this window (e.g. 7d, 24h)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'sea-airport-parking-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "history",
+      "kind": "happy_path",
+      "args": [
+        "history",
+        "--entry",
+        "2026-08-15T11:00",
+        "--exit",
+        "2026-08-18T11:00",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": [\n    {\n      \"available\": true,\n      \"captured_at\": \"2026-07-13T19:51:32Z\",\n      \"entry\": \"2026-08-15T11:00\",\n      \"exit\": \"2026-08-18T11:00\",\n      \"id\": 2,\n      \"nightly_json\": \"[{\\\"date\\\":\\\"2026-08-15\\\",\\\"price\\\":47},{\\\"date\\\":\\\"2026-08-16\\\",\\\"price\\\":47},{\\\"date\\\":\\\"2026-08-17\\\",\\\"price\\\":47}]\",\n      \"nights\": 3,\n      \"product_code\": \"RP\",\n      \"product_name\": \"Reserved Parking\",\n      \"sold_out\": false,\n      \"total_price\": 141\n    },\n    {\n      \"available\": true,\n      \"captured_at\": \"2026-07-13T19:51:31Z\",\n      \"entry\": \"2026-08-15T11:00\",\n      \"exit\": \"2026-08-18T11:00\",\n      \"id\": 1,\n      \"nightly_json\": \"[{\\\"date\\\":\\\"2026-08-15\\\",\\\"price\\\":47},{\\\"date\\\":\\\"2026-08-16\\\",\\\"price\\\":47},{\\\"date\\\":\\\"2026-08-17\\\",\\\"price\\\":47}]\",\n      \"nights\": 3,\n      \"product_code\": \"RP\",\n      \"product_name\": \"Reserved Parking\",\n      \"sold_out\": false,\n      \"total_price\": 141\n    }\n  ]\n}\n"
+    },
+    {
+      "command": "history",
+      "kind": "json_fidelity",
+      "args": [
+        "history",
+        "--entry",
+        "2026-08-15T11:00",
+        "--exit",
+        "2026-08-18T11:00",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": [\n    {\n      \"available\": true,\n      \"captured_at\": \"2026-07-13T19:51:32Z\",\n      \"entry\": \"2026-08-15T11:00\",\n      \"exit\": \"2026-08-18T11:00\",\n      \"id\": 2,\n      \"nightly_json\": \"[{\\\"date\\\":\\\"2026-08-15\\\",\\\"price\\\":47},{\\\"date\\\":\\\"2026-08-16\\\",\\\"price\\\":47},{\\\"date\\\":\\\"2026-08-17\\\",\\\"price\\\":47}]\",\n      \"nights\": 3,\n      \"product_code\": \"RP\",\n      \"product_name\": \"Reserved Parking\",\n      \"sold_out\": false,\n      \"total_price\": 141\n    },\n    {\n      \"available\": true,\n      \"captured_at\": \"2026-07-13T19:51:31Z\",\n      \"entry\": \"2026-08-15T11:00\",\n      \"exit\": \"2026-08-18T11:00\",\n      \"id\": 1,\n      \"nightly_json\": \"[{\\\"date\\\":\\\"2026-08-15\\\",\\\"price\\\":47},{\\\"date\\\":\\\"2026-08-16\\\",\\\"price\\\":47},{\\\"date\\\":\\\"2026-08-17\\\",\\\"price\\\":47}]\",\n      \"nights\": 3,\n      \"product_code\": \"RP\",\n      \"product_name\": \"Reserved Parking\",\n      \"sold_out\": false,\n      \"total_price\": 141\n    }\n  ]\n}\n"
+    },
+    {
+      "command": "history",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "learnings candidates",
+      "kind": "help",
+      "args": [
+        "learnings",
+        "candidates",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Lists rows from the learn_candidates table: corrections and playbook\nshapes the CLI derived from observed usage. Candidates are quarantined\nuntil an explicit 'learnings confirm \u003cid\u003e' materializes them; they never\nalter command behavior or recall's verified results on their own.\n\nUsage:\n  sea-airport-parking-pp-cli learnings candidates [flags]\n\nExamples:\n  sea-airport-parking-pp-cli learnings candidates\n  sea-airport-parking-pp-cli learnings candidates --class flag_alias\n  sea-airport-parking-pp-cli learnings candidates --status rejected\n\nFlags:\n      --class string    Filter by class (flag_alias | playbook_candidate)\n      --db string       SQLite database file path (default: resolved data directory data.db)\n  -h, --help            help for candidates\n      --limit int       Maximum rows to return (default: capped)\n      --status string   Filter by status (open | confirmed | rejected | expired; empty for all) (default \"open\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'sea-airport-parking-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "learnings candidates",
+      "kind": "happy_path",
+      "args": [
+        "learnings",
+        "candidates"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "learnings candidates",
+      "kind": "json_fidelity",
+      "args": [
+        "learnings",
+        "candidates",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "learnings candidates",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "learnings confirm",
+      "kind": "help",
+      "args": [
+        "learnings",
+        "confirm",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Promotes one open candidate into the verified knowledge tables.\n\nThe full candidate payload is printed before anything is written, so\nthe caller always sees exactly what is being blessed. Materialization\nis per class:\n\n  playbook_candidate  upserts a playbook row for the candidate's query\n                      family (confidence 2, the same floor as a teach)\n  flag_alias          appends a timestamped [amend ...] correction note\n                      to the query family's playbook notes\n\nUsage errors (unknown id, non-open status) exit 2.\n\nUsage:\n  sea-airport-parking-pp-cli learnings confirm \u003cid\u003e [flags]\n\nExamples:\n  sea-airport-parking-pp-cli learnings confirm 3\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n  -h, --help        help for confirm\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'sea-airport-parking-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "learnings confirm",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "learnings confirm",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "learnings confirm",
+      "kind": "error_path",
+      "args": [
+        "learnings",
+        "confirm",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: learnings confirm: invalid candidate id \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "learnings forget",
+      "kind": "help",
+      "args": [
+        "learnings",
+        "forget",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Removes rows from the search_learnings table so a bad teach can be\nundone without dropping the whole DB.\n\nRequires at least one of --resource, --action, or --all.\n\nUsage:\n  sea-airport-parking-pp-cli learnings forget \u003cquery\u003e [flags]\n\nExamples:\n  sea-airport-parking-pp-cli learnings forget \"\u003cquestion\u003e\" --resource \u003cid\u003e\n  sea-airport-parking-pp-cli learnings forget \"\u003cquestion\u003e\" --all\n\nFlags:\n      --action string     Delete only rules with this action (boost | hide | alias_of)\n      --all               Delete every rule for the supplied query\n      --db string         SQLite database file path (default: resolved data directory data.db)\n  -h, --help              help for forget\n      --resource string   Delete only the rule for this resource_id\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'sea-airport-parking-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "learnings forget",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "learnings forget",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "learnings forget",
+      "kind": "error_path",
+      "args": [
+        "learnings",
+        "forget",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: learnings forget: forget learnings: pass --resource, --action, or --all\n"
+    },
+    {
+      "command": "learnings list",
+      "kind": "help",
+      "args": [
+        "learnings",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recorded learnings\n\nUsage:\n  sea-airport-parking-pp-cli learnings list [flags]\n\nExamples:\n  sea-airport-parking-pp-cli learnings list --agent\n  sea-airport-parking-pp-cli learnings list --query \"\u003csubstring\u003e\"\n  sea-airport-parking-pp-cli learnings list --warnings --agent\n\nFlags:\n      --action string        Filter by action (boost | hide | alias_of)\n      --db string            SQLite database file path (default: resolved data directory data.db)\n  -h, --help                 help for list\n      --limit int            Maximum rows to return (default 200)\n      --min-confidence int   Filter by minimum confidence\n      --query string         Filter by normalized query substring\n      --resource string      Filter by resource_id\n      --source string        Filter by source (taught | manual-forget)\n      --warnings             Return teach-time warnings from teach.log instead of stored learning rows\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'sea-airport-parking-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "learnings list",
+      "kind": "happy_path",
+      "args": [
+        "learnings",
+        "list",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": []\n}\n"
+    },
+    {
+      "command": "learnings list",
+      "kind": "json_fidelity",
+      "args": [
+        "learnings",
+        "list",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": []\n}\n"
+    },
+    {
+      "command": "learnings list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "learnings purge",
+      "kind": "help",
+      "args": [
+        "learnings",
+        "purge",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Deletes expired and confirmed candidate rows. Materialized artifacts\n(playbook rows, correction notes) are untouched. Rejected rows are kept\nby default because they tombstone their derivation signatures; pass\n--tombstones to remove them too, which re-allows derivation of those\nsignatures. Open rows are never purged.\n\nOpen rows past the unseen TTL are swept to expired first, so a single\npurge also clears stale candidates nobody judged.\n\nUsage:\n  sea-airport-parking-pp-cli learnings purge [flags]\n\nExamples:\n  sea-airport-parking-pp-cli learnings purge\n  sea-airport-parking-pp-cli learnings purge --tombstones\n\nFlags:\n      --db string    SQLite database file path (default: resolved data directory data.db)\n  -h, --help         help for purge\n      --tombstones   Also delete rejected rows (re-allows derivation of their signatures)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'sea-airport-parking-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "learnings purge",
+      "kind": "happy_path",
+      "args": [
+        "learnings",
+        "purge"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"expired\": 0,\n  \"purged\": 0,\n  \"tombstones\": false\n}\n"
+    },
+    {
+      "command": "learnings purge",
+      "kind": "json_fidelity",
+      "args": [
+        "learnings",
+        "purge",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"expired\": 0,\n  \"purged\": 0,\n  \"tombstones\": false\n}\n"
+    },
+    {
+      "command": "learnings purge",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "learnings reject",
+      "kind": "help",
+      "args": [
+        "learnings",
+        "reject",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Marks a candidate rejected. The rejected row stays as a tombstone on\nits derivation signature: the identical observation never re-derives a\ncandidate, and recall never resurfaces it.\n\nRejecting a CONFIRMED playbook_candidate tombstones the candidate but\nleaves the playbook row in place; repair the guidance with\n'playbook amend' if needed. A confirmed flag_alias cannot be rejected:\nits correction note already lives in the family playbook, so repair the\nguidance with 'playbook amend' instead.\n\nUsage errors (unknown id, no-reject-path candidates) exit 2.\n\nUsage:\n  sea-airport-parking-pp-cli learnings reject \u003cid\u003e [flags]\n\nExamples:\n  sea-airport-parking-pp-cli learnings reject 3\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n  -h, --help        help for reject\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'sea-airport-parking-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "learnings reject",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "learnings reject",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "learnings reject",
+      "kind": "error_path",
+      "args": [
+        "learnings",
+        "reject",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: learnings reject: invalid candidate id \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "learnings stats",
+      "kind": "help",
+      "args": [
+        "learnings",
+        "stats",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Aggregates the local learn_events table into the loop's headline\nmetrics:\n\n  recall_hit_rate           recall hits / (hits + misses)\n  teach_to_reuse            fraction of taught learnings later seen in a\n                            recall hit (joined by learning row id, with a\n                            query-family fallback for older rows)\n  playbook_resolution_rate  playbook hits not followed by an amend on the\n                            same query family\n  candidates_confirmed/rejected  judgment counts on auto-captured candidates\n\nRates are null until their denominator is non-zero. Everything is\nlocal-only: events never leave this machine.\n\nUsage:\n  sea-airport-parking-pp-cli learnings stats [flags]\n\nExamples:\n  sea-airport-parking-pp-cli learnings stats\n  sea-airport-parking-pp-cli learnings stats --json\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n  -h, --help        help for stats\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'sea-airport-parking-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "learnings stats",
+      "kind": "happy_path",
+      "args": [
+        "learnings",
+        "stats"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"recall_hit_rate\": null,\n  \"recall_hits\": 0,\n  \"recall_misses\": 0,\n  \"teach_to_reuse\": null,\n  \"taught_rows\": 0,\n  \"reused_rows\": 0,\n  \"playbook_resolution_rate\": null,\n  \"playbook_hits\": 0,\n  \"playbook_hits_amended\": 0,\n  \"candidates_confirmed\": 0,\n  \"candidates_rejected\": 0,\n  \"event_counts\": {},\n  \"events_pruned\": 0\n}\n"
+    },
+    {
+      "command": "learnings stats",
+      "kind": "json_fidelity",
+      "args": [
+        "learnings",
+        "stats",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"recall_hit_rate\": null,\n  \"recall_hits\": 0,\n  \"recall_misses\": 0,\n  \"teach_to_reuse\": null,\n  \"taught_rows\": 0,\n  \"reused_rows\": 0,\n  \"playbook_resolution_rate\": null,\n  \"playbook_hits\": 0,\n  \"playbook_hits_amended\": 0,\n  \"candidates_confirmed\": 0,\n  \"candidates_rejected\": 0,\n  \"event_counts\": {},\n  \"events_pruned\": 0\n}\n"
+    },
+    {
+      "command": "learnings stats",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "parking",
+      "kind": "help",
+      "args": [
+        "parking",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Fetch the live SEA parking booking page (product card + date-entry form)\n\nUsage:\n  sea-airport-parking-pp-cli parking [flags]\n\nExamples:\n  sea-airport-parking-pp-cli parking\n\nFlags:\n  -h, --help   help for parking\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'sea-airport-parking-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "parking",
+      "kind": "happy_path",
+      "args": [
+        "parking"
+      ],
+      "status": "fail",
+      "exit_code": 5,
+      "reason": "exit 5",
+      "output_sample": "Error: GET /book/SEA/Parking?parkingCmd=collectParkingDetails: Get \"Parking?parkingCmd=collectParkingDetails\": stopped after 10 redirects\n"
+    },
+    {
+      "command": "parking",
+      "kind": "json_fidelity",
+      "args": [
+        "parking",
+        "--json"
+      ],
+      "status": "fail",
+      "exit_code": 5,
+      "reason": "exit 5",
+      "output_sample": "Error: GET /book/SEA/Parking?parkingCmd=collectParkingDetails: Get \"Parking?parkingCmd=collectParkingDetails\": stopped after 10 redirects\n"
+    },
+    {
+      "command": "parking",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "playbook amend",
+      "kind": "help",
+      "args": [
+        "playbook",
+        "amend",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Appends a timestamped note to the matching family's playbook notes_text.\nIf no playbook exists for the family yet, creates a notes-only one.\n\nDesigned for agents to fire when their debug-protocol response\nidentifies a concrete correction worth persisting (a workaround, an\nundocumented endpoint shape, a stale field name, observed schema\ndrift). Same fire-and-forget posture as teach: silent on success,\nerrors to teach.log, safe to background with \u0026.\n\nDisabling: pass --no-learn or set SEA_AIRPORT_PARKING_NO_LEARN=true.\n\nUsage:\n  sea-airport-parking-pp-cli playbook amend [flags]\n\nExamples:\n  sea-airport-parking-pp-cli playbook amend \\\n    --query \"\u003cexact recall query\u003e\" \\\n    --add-note \"summary endpoint envelope: data lives at .results.header, not .header\"\n\nFlags:\n      --add-note string   The note text to append to the family's playbook (required)\n      --db string         Database path (default: standard cache location)\n  -h, --help              help for amend\n      --query string      The exact recall query whose family should be amended (required)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'sea-airport-parking-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "playbook amend",
+      "kind": "happy_path",
+      "args": [
+        "playbook",
+        "amend",
+        "\\"
+      ],
+      "status": "pass",
+      "exit_code": 2
+    },
+    {
+      "command": "playbook amend",
+      "kind": "json_fidelity",
+      "args": [
+        "playbook",
+        "amend",
+        "\\",
+        "--json"
+      ],
+      "status": "pass",
+      "exit_code": 2
+    },
+    {
+      "command": "playbook amend",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "playbook list",
+      "kind": "help",
+      "args": [
+        "playbook",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List stored playbooks (query_family, content presence, last observed)\n\nUsage:\n  sea-airport-parking-pp-cli playbook list [flags]\n\nExamples:\n  sea-airport-parking-pp-cli playbook list --agent\n\nFlags:\n      --db string   Database path (default: standard cache location)\n  -h, --help        help for list\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'sea-airport-parking-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "playbook list",
+      "kind": "happy_path",
+      "args": [
+        "playbook",
+        "list",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": []\n}\n"
+    },
+    {
+      "command": "playbook list",
+      "kind": "json_fidelity",
+      "args": [
+        "playbook",
+        "list",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": []\n}\n"
+    },
+    {
+      "command": "playbook list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  sea-airport-parking-pp-cli profile delete \u003cname\u003e [flags]\n\nExamples:\n  sea-airport-parking-pp-cli profile delete my-defaults --yes\n  sea-airport-parking-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'sea-airport-parking-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  sea-airport-parking-pp-cli profile list [flags]\n\nExamples:\n  sea-airport-parking-pp-cli profile list\n  sea-airport-parking-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'sea-airport-parking-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under \u003cname\u003e. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile, --config, and --home, which are never\ncaptured: they control profile/config resolution and would never apply).\n\nUsage:\n  sea-airport-parking-pp-cli profile save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...] [flags]\n\nExamples:\n  sea-airport-parking-pp-cli profile save my-defaults --json --compact\n  sea-airport-parking-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'sea-airport-parking-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  sea-airport-parking-pp-cli profile show \u003cname\u003e [flags]\n\nExamples:\n  sea-airport-parking-pp-cli profile show my-defaults\n  sea-airport-parking-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'sea-airport-parking-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  sea-airport-parking-pp-cli profile use \u003cname\u003e [flags]\n\nExamples:\n  sea-airport-parking-pp-cli profile use my-defaults\n  sea-airport-parking-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'sea-airport-parking-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "quote",
+      "kind": "help",
+      "args": [
+        "quote",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Quote the official SEA on-airport Reserved garage for an exact entry/exit\ndate range: total price, the nightly breakdown, any promo discount, and whether\na space is available. Every quote is persisted so 'history' and 'drift' can\nshow how the price moved over time.\n\nUse this for a single known date range. To search flexible dates use 'sweep';\nto render a per-day grid use 'calendar'.\n\nUsage:\n  sea-airport-parking-pp-cli quote [flags]\n\nExamples:\n  sea-airport-parking-pp-cli quote --entry 2026-08-15T11:00 --exit 2026-08-18T11:00\n\nFlags:\n      --entry string   Entry date/time, e.g. 2026-08-15T11:00 or 2026-08-15\n      --exit string    Exit date/time, e.g. 2026-08-18T11:00 or 2026-08-18\n  -h, --help           help for quote\n      --promo string   Optional promo code to apply\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'sea-airport-parking-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "quote",
+      "kind": "happy_path",
+      "args": [
+        "quote",
+        "--entry",
+        "2026-08-15T11:00",
+        "--exit",
+        "2026-08-18T11:00"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"entry\": \"2026-08-15T11:00\",\n  \"exit\": \"2026-08-18T11:00\",\n  \"nights\": 3,\n  \"product_name\": \"Reserved Parking\",\n  \"product_code\": \"RP\",\n  \"total_price\": 141,\n  \"available\": true,\n  \"sold_out\": false,\n  \"invalid\": false,\n  \"nightly_prices\": [\n    {\n      \"date\": \"2026-08-15\",\n      \"price\": 47\n    },\n    {\n      \"date\": \"2026-08-16\",\n      \"price\": 47\n    },\n    {\n      \"date\": \"2026-08-17\",\n      \"price\": 47\n    }\n  ],\n  \"captured_at\": \"2026-07-13T19:51:42.803142Z\"\n}\n"
+    },
+    {
+      "command": "quote",
+      "kind": "json_fidelity",
+      "args": [
+        "quote",
+        "--entry",
+        "2026-08-15T11:00",
+        "--exit",
+        "2026-08-18T11:00",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"entry\": \"2026-08-15T11:00\",\n  \"exit\": \"2026-08-18T11:00\",\n  \"nights\": 3,\n  \"product_name\": \"Reserved Parking\",\n  \"product_code\": \"RP\",\n  \"total_price\": 141,\n  \"available\": true,\n  \"sold_out\": false,\n  \"invalid\": false,\n  \"nightly_prices\": [\n    {\n      \"date\": \"2026-08-15\",\n      \"price\": 47\n    },\n    {\n      \"date\": \"2026-08-16\",\n      \"price\": 47\n    },\n    {\n      \"date\": \"2026-08-17\",\n      \"price\": 47\n    }\n  ],\n  \"captured_at\": \"2026-07-13T19:51:44.012633Z\"\n}\n"
+    },
+    {
+      "command": "quote",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "recall",
+      "kind": "help",
+      "args": [
+        "recall",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Returns prior learnings matching the supplied query by token-set\noverlap (Jaccard \u003e= 0.6) plus entity-aware validation. The LLM should\ncall this FIRST when starting work on a new user question; if\nfound=true AND results[0].entity_match == \"exact\" AND confidence \u003e= 2,\nthe LLM can skip discovery and go straight to live fetch for the\nreturned resource IDs.\n\nEmpty match returns {\"found\": false, \"results\": []} with exit 0 — this\nis an information query, not a not-found error.\n\nDisabling: SEA_AIRPORT_PARKING_NO_LEARN=true returns the empty shape even\nwhen learnings exist.\n\nUsage:\n  sea-airport-parking-pp-cli recall \u003cquery\u003e [flags]\n\nExamples:\n  sea-airport-parking-pp-cli recall \"\u003cquestion\u003e\" --agent\n  sea-airport-parking-pp-cli recall \"\u003cquestion\u003e\" --agent --min-confidence 2\n\nFlags:\n      --db string            SQLite database file path (default: resolved data directory data.db)\n      --debug-mismatches     Include cross-entity mismatches in the envelope under mismatches[]\n  -h, --help                 help for recall\n      --limit int            Maximum number of learnings to return (default 10)\n      --min-confidence int   Minimum confidence to include in results (default 1)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'sea-airport-parking-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "recall",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [recall] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "recall",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [recall] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "recall",
+      "kind": "error_path",
+      "args": [
+        "recall",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"found\": false,\n  \"query\": \"__printing_press_invalid__\",\n  \"normalized\": \"__printing_press_invalid__\",\n  \"query_entities\": [],\n  \"results\": [],\n  \"warnings\": [\n    \"no_learnings_for_query_family\"\n  ]\n}\n"
+    },
+    {
+      "command": "sweep",
+      "kind": "help",
+      "args": [
+        "sweep",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search a flexible entry-date window for the cheapest (or first available)\nfixed-length Reserved stay. Fans out a quote for each candidate entry day and\nreturns the winner, persisting every quote.\n\nUse this for a flexible date window. For a single known range use 'quote'; to\nrender the whole per-day grid use 'calendar'.\n\nUsage:\n  sea-airport-parking-pp-cli sweep [flags]\n\nExamples:\n  sea-airport-parking-pp-cli sweep --from 2026-08-10 --to 2026-08-20 --nights 3 --agent\n\nFlags:\n      --any                 Return the first available stay instead of the cheapest\n      --from string         Earliest entry date, e.g. 2026-08-10\n  -h, --help                help for sweep\n      --limit int           Maximum available candidates to return (default 5)\n      --max-scan-days int   Maximum entry days to scan before returning (default 45)\n      --nights int          Length of stay in nights (default 3)\n      --promo string        Optional promo code to apply\n      --time string         Entry/exit time of day (HH:MM) (default \"11:00\")\n      --to string           Latest entry date, e.g. 2026-08-20\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'sea-airport-parking-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "sweep",
+      "kind": "happy_path",
+      "args": [
+        "sweep",
+        "--from",
+        "2026-08-10",
+        "--to",
+        "2026-08-20",
+        "--nights",
+        "3",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"available\": [\n      {\n        \"available\": true,\n        \"captured_at\": \"2026-07-13T19:51:45.271473Z\",\n        \"entry\": \"2026-08-10T11:00\",\n        \"exit\": \"2026-08-13T11:00\",\n        \"invalid\": false,\n        \"nightly_prices\": [\n          {\n            \"date\": \"2026-08-10\",\n            \"price\": 47\n          },\n          {\n            \"date\": \"2026-08-11\",\n            \"price\": 47\n          },\n          {\n            \"date\": \"2026-08-12\",\n            \"price\": 47\n          }\n        ],\n        \"nights\": 3,\n        \"product_code\": \"RP\",\n        \"product_name\": \"Reserved Parking\",\n        \"sold_out\": false,\n        \"total_price\": 141\n      }\n    ],\n    \"cheapest\": {\n      \"available\": true,\n      \"captured_at\": \"2026-07-13T19:51:45.271473Z\",\n      \"entry\": \"2026-08-10T11:00\",\n      \"exit\": \"2026-08-13T11:00\",\n      \"invalid\": false,\n      \"nightly_prices\": [\n        {\n          \"date\": \"2026-08-10\",\n          \"price\": 47\n        },\n        {\n          \"date\": \"2026-08-11\",\n          \"price\": 47\n        },\n        {\n          \"date\": \"2026-08-12\",\n          \"price\": 47\n        }\n      ],\n      \"nights\": 3,\n      \"product_code\": \"RP\",\n      \"product_name\": \"Reserved Parking\",\n      \"sold_out\": false,\n      \"total_price\": 141\n    },\n    \"max_scan_days\": 1,\n    \"nights\": 3,\n    \"scanned_days\": 1\n  }\n}\n"
+    },
+    {
+      "command": "sweep",
+      "kind": "json_fidelity",
+      "args": [
+        "sweep",
+        "--from",
+        "2026-08-10",
+        "--to",
+        "2026-08-20",
+        "--nights",
+        "3",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"available\": [\n      {\n        \"available\": true,\n        \"captured_at\": \"2026-07-13T19:51:46.340872Z\",\n        \"entry\": \"2026-08-10T11:00\",\n        \"exit\": \"2026-08-13T11:00\",\n        \"invalid\": false,\n        \"nightly_prices\": [\n          {\n            \"date\": \"2026-08-10\",\n            \"price\": 47\n          },\n          {\n            \"date\": \"2026-08-11\",\n            \"price\": 47\n          },\n          {\n            \"date\": \"2026-08-12\",\n            \"price\": 47\n          }\n        ],\n        \"nights\": 3,\n        \"product_code\": \"RP\",\n        \"product_name\": \"Reserved Parking\",\n        \"sold_out\": false,\n        \"total_price\": 141\n      }\n    ],\n    \"cheapest\": {\n      \"available\": true,\n      \"captured_at\": \"2026-07-13T19:51:46.340872Z\",\n      \"entry\": \"2026-08-10T11:00\",\n      \"exit\": \"2026-08-13T11:00\",\n      \"invalid\": false,\n      \"nightly_prices\": [\n        {\n          \"date\": \"2026-08-10\",\n          \"price\": 47\n        },\n        {\n          \"date\": \"2026-08-11\",\n          \"price\": 47\n        },\n        {\n          \"date\": \"2026-08-12\",\n          \"price\": 47\n        }\n      ],\n      \"nights\": 3,\n      \"product_code\": \"RP\",\n      \"product_name\": \"Reserved Parking\",\n      \"sold_out\": false,\n      \"total_price\": 141\n    },\n    \"max_scan_days\": 1,\n    \"nights\": 3,\n    \"scanned_days\": 1\n  }\n}\n"
+    },
+    {
+      "command": "sweep",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "teach",
+      "kind": "help",
+      "args": [
+        "teach",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Record one or more \"this query -\u003e this resource\" mappings so the next\nquery that matches surfaces the right resources without re-running discovery.\n\nThis command is designed to be backgrounded by an LLM right before it\nemits the user-facing response: silent on success, errors only to\nthe CLI state directory's teach.log, safe to fire-and-forget.\n\nDisabling: pass --no-learn or set SEA_AIRPORT_PARKING_NO_LEARN=true.\n\nUsage:\n  sea-airport-parking-pp-cli teach [flags]\n\nExamples:\n  sea-airport-parking-pp-cli teach --query \"\u003cquestion\u003e\" --resource-type \u003ctype\u003e \\\n    --resource \u003cid\u003e --resource \u003cid\u003e \u0026\n\nFlags:\n      --db string                    SQLite database file path (default: resolved data directory data.db)\n  -h, --help                         help for teach\n      --no-validate                  Suppress teach-time resource-shape validation (warnings to teach.log)\n      --notes string                 Optional free-form note recorded in the audit log\n      --playbook-file string         Optional path to a JSON playbook recording the CLI choreography for this query family\n      --playbook-json string         Optional inline JSON playbook (mutually exclusive with --playbook-file; for agents without filesystem access)\n      --playbook-notes string        Optional inline gotchas/workarounds for this query family (stored alongside the playbook)\n      --playbook-notes-file string   Optional path to a markdown file with playbook notes\n      --query string                 User's original natural-language question (required)\n      --quiet                        Silent on success (default true — designed for background invocation) (default true)\n      --resource strings             Resource ID — repeat for multiple (required)\n      --resource-type string         Resource type (required; e.g. matches a row in the local resources table)\n      --venue string                 Optional venue scope tag stored with the learning\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'sea-airport-parking-pp-cli profile list')\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "teach",
+      "kind": "happy_path",
+      "args": [
+        "teach",
+        "--query",
+        "\u003cquestion\u003e",
+        "--resource-type",
+        "\u003ctype\u003e",
+        "\\"
+      ],
+      "status": "pass",
+      "exit_code": 2
+    },
+    {
+      "command": "teach",
+      "kind": "json_fidelity",
+      "args": [
+        "teach",
+        "--query",
+        "\u003cquestion\u003e",
+        "--resource-type",
+        "\u003ctype\u003e",
+        "\\",
+        "--json"
+      ],
+      "status": "pass",
+      "exit_code": 2
+    },
+    {
+      "command": "teach",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "teach-lookup",
+      "kind": "help",
+      "args": [
+        "teach-lookup",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Adds one row to entity_lookups. Used by the recall path's pattern\nengine to substitute values for canonical names at substitution time.\nComputed kinds (lowercase, uppercase, kebab-case, capitalize-first, slug)\ncannot be taught — they are derived from the canonical input.\n\nUsage:\n  sea-airport-parking-pp-cli teach-lookup [flags]\n\nExamples:\n  sea-airport-parking-pp-cli teach-lookup --kind country --canonical \"United States\" --value USA\n\nFlags:\n      --canonical string   Canonical entity name (required)\n      --db string          SQLite database file path (default: resolved data directory data.db)\n  -h, --help               help for teach-lookup\n      --kind string        Entity kind, e.g. country, team (required, must not be a computed kind)\n      --value string       Value/alias that should resolve to the canonical (required)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'sea-airport-parking-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "teach-lookup",
+      "kind": "happy_path",
+      "args": [
+        "teach-lookup",
+        "--kind",
+        "country",
+        "--canonical",
+        "United States",
+        "--value",
+        "USA"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"canonical\": \"United States\",\n  \"kind\": \"country\",\n  \"recorded\": true,\n  \"value\": \"USA\"\n}\n"
+    },
+    {
+      "command": "teach-lookup",
+      "kind": "json_fidelity",
+      "args": [
+        "teach-lookup",
+        "--kind",
+        "country",
+        "--canonical",
+        "United States",
+        "--value",
+        "USA",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"canonical\": \"United States\",\n  \"kind\": \"country\",\n  \"recorded\": true,\n  \"value\": \"USA\"\n}\n"
+    },
+    {
+      "command": "teach-lookup",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "teach-pattern",
+      "kind": "help",
+      "args": [
+        "teach-pattern",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Adds one row to search_patterns. The recall path uses patterns to\nsubstitute live query entities into a resource template, so a pattern\nwith query_template=\"items in {entity}\" and\nresource_template=\"GROUP-{entity:category}\" generalizes one teach into\na whole family.\n\nUsage:\n  sea-airport-parking-pp-cli teach-pattern [flags]\n\nExamples:\n  sea-airport-parking-pp-cli teach-pattern \\\n    --query-template \"items in {entity}\" \\\n    --resource-template \"GROUP-{entity:category}\" \\\n    --resource-type \"items\" \\\n    --entity-kind \"category\" \\\n    --strategy substitute\n\nFlags:\n      --db string                  SQLite database file path (default: resolved data directory data.db)\n      --entity-kind string         Entity kind name registered in entity_lookups (required)\n  -h, --help                       help for teach-pattern\n      --query-template string      Query template with {entity} placeholder (required)\n      --resource-template string   Resource template with typed entity slot, e.g. PREFIX-{entity:country} (required)\n      --resource-type string       Resource type for substituted IDs (required)\n      --strategy string            Substitution strategy: substitute | substitute-then-search-prefix (default substitute)\n      --venue string               Optional venue scope tag\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'sea-airport-parking-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "teach-pattern",
+      "kind": "happy_path",
+      "args": [
+        "teach-pattern",
+        "\\"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: --query-template is required\n"
+    },
+    {
+      "command": "teach-pattern",
+      "kind": "json_fidelity",
+      "args": [
+        "teach-pattern",
+        "\\",
+        "--json"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: --query-template is required\n"
+    },
+    {
+      "command": "teach-pattern",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "teach-playbook",
+      "kind": "help",
+      "args": [
+        "teach-playbook",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Stores a structured CLI command sequence (with entity slots) and/or\nfree-form gotchas/workarounds, keyed on the structural query family.\nThe recall path surfaces this whenever a future query of the same\nfamily fires, so the agent can replay the choreography and read the\nnotes verbatim.\n\nAt least one of --playbook-json/--playbook-file and --notes/--notes-file\nmust be set. --playbook-json takes the playbook body inline so MCP-only\nagents can record playbooks without a file on disk.\n\nUsage:\n  sea-airport-parking-pp-cli teach-playbook [flags]\n\nExamples:\n  sea-airport-parking-pp-cli teach-playbook \\\n    --query \"\u003cquestion that anchors the family\u003e\" \\\n    --playbook-file ~/playbooks/recipe.json \\\n    --notes-file ~/playbooks/recipe-notes.md\n\nFlags:\n      --db string              Database path (default: standard cache location)\n  -h, --help                   help for teach-playbook\n      --notes string           Free-text notes (gotchas, workarounds) -- mutually exclusive with --notes-file\n      --notes-file string      Path to a markdown file with the notes\n      --playbook-file string   Path to a JSON file with the playbook (steps, entity_slots, expected_tool_calls)\n      --playbook-json string   Inline playbook JSON (steps, entity_slots, expected_tool_calls) -- mutually exclusive with --playbook-file\n      --query string           Example query that anchors the family (required)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'sea-airport-parking-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "teach-playbook",
+      "kind": "happy_path",
+      "args": [
+        "teach-playbook",
+        "\\"
+      ],
+      "status": "pass",
+      "exit_code": 2
+    },
+    {
+      "command": "teach-playbook",
+      "kind": "json_fidelity",
+      "args": [
+        "teach-playbook",
+        "\\",
+        "--json"
+      ],
+      "status": "pass",
+      "exit_code": 2
+    },
+    {
+      "command": "teach-playbook",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "watch",
+      "kind": "help",
+      "args": [
+        "watch",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Poll one entry/exit range on an interval until Reserved becomes available (or\nits price drops below --until-price), then stop and notify. Every poll is\npersisted. This is one foreground loop, not a background daemon — leave it\nrunning in a terminal or under a supervisor.\n\nFor a one-shot check use 'quote'; to search many ranges use 'sweep'.\n\nUsage:\n  sea-airport-parking-pp-cli watch [flags]\n\nExamples:\n  sea-airport-parking-pp-cli watch --entry 2026-11-25T11:00 --exit 2026-11-30T11:00 --interval 30m --notify\n\nFlags:\n      --entry string        Entry date/time, e.g. 2026-11-25T11:00\n      --exit string         Exit date/time, e.g. 2026-11-30T11:00\n  -h, --help                help for watch\n      --interval string     Poll interval (e.g. 30m, 1h) (default \"15m\")\n      --max-polls int       Stop after this many polls (0 = unlimited)\n      --notify              Emit a terminal bell + NOTIFY line when the condition is met\n      --promo string        Optional promo code to apply\n      --until-price float   Stop when available at or below this total price (0 = any availability)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'sea-airport-parking-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "watch",
+      "kind": "happy_path",
+      "args": [
+        "watch",
+        "--entry",
+        "2026-11-25T11:00",
+        "--exit",
+        "2026-11-30T11:00",
+        "--interval",
+        "30m",
+        "--notify"
+      ],
+      "status": "pass",
+      "output_sample": "[poll 1] 19:51:47 — invalid: at least 6 hours in advance\n"
+    },
+    {
+      "command": "watch",
+      "kind": "json_fidelity",
+      "args": [
+        "watch",
+        "--entry",
+        "2026-11-25T11:00",
+        "--exit",
+        "2026-11-30T11:00",
+        "--interval",
+        "30m",
+        "--notify",
+        "--json"
+      ],
+      "status": "fail",
+      "reason": "invalid JSON",
+      "output_sample": "[poll 1] 19:51:48 — invalid: at least 6 hours in advance\n"
+    },
+    {
+      "command": "watch",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  sea-airport-parking-pp-cli which [query] [flags]\n\nExamples:\n  sea-airport-parking-pp-cli which \"stale tickets\"\n  sea-airport-parking-pp-cli which \"bottleneck\"\n  sea-airport-parking-pp-cli which --limit 1 \"send message\"\n  sea-airport-parking-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'sea-airport-parking-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"matches\": []\n}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show local archive status and sync state for all resources\n\nUsage:\n  sea-airport-parking-pp-cli workflow status [flags]\n\nExamples:\n  # Show archive status\n  sea-airport-parking-pp-cli workflow status\n\n  # Show status as JSON\n  sea-airport-parking-pp-cli workflow status --json\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'sea-airport-parking-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "No archived data. Add a site-specific sync command to populate the store.\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-07-13T19:51:30.47117Z"
+}

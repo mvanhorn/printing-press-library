@@ -39,7 +39,7 @@ func newAuthSetupCmd(_ *rootFlags) *cobra.Command {
 		Example: "  apify-pp-cli auth setup\n  apify-pp-cli auth setup --launch",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			w := cmd.OutOrStdout()
-			fmt.Fprintln(w, "Get a key at: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Authorization")
+			fmt.Fprintln(w, "Get a key at: https://console.apify.com/settings/integrations")
 			fmt.Fprintln(w, "")
 			fmt.Fprintln(w, "Then set:")
 			fmt.Fprintln(w, "  export APIFY_TOKEN=\"<your-token>\"")
@@ -47,7 +47,7 @@ func newAuthSetupCmd(_ *rootFlags) *cobra.Command {
 			if !launch {
 				return nil
 			}
-			launchURL := "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Authorization"
+			launchURL := "https://console.apify.com/settings/integrations"
 			if cliutil.IsVerifyEnv() {
 				fmt.Fprintf(w, "would launch: %s\n", launchURL)
 				return nil

@@ -1,0 +1,147 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-21T16:14:11.166319Z",
+  "printing_press_version": "4.29.0",
+  "api_name": "home-assistant",
+  "display_name": "Home Assistant",
+  "cli_name": "home-assistant-pp-cli",
+  "creator": {
+    "handle": "Avanderheyde",
+    "name": "avanderheyde"
+  },
+  "owner": "avanderheyde",
+  "printer": "Avanderheyde",
+  "printer_name": "avanderheyde",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:1a21f352a5a1a5cc477677fe95e40d2588552933c6c63145c8150cc3e4844636",
+  "run_id": "20260718-170717-2c0fb604",
+  "category": "devices",
+  "description": "Safe household actions, offline memory, and evidence-backed answers on top of the full Home Assistant control surface.",
+  "mcp_binary": "home-assistant-pp-mcp",
+  "mcp_tool_count": 18,
+  "mcp_ready": "full",
+  "api_version": "2026.7",
+  "auth_type": "bearer_token",
+  "auth_preference": "BearerAuth",
+  "auth_env_vars": [
+    "HOME_ASSISTANT_BEARER_AUTH"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "HASS_TOKEN",
+      "kind": "per_call",
+      "required": false,
+      "sensitive": true
+    },
+    {
+      "name": "HOME_ASSISTANT_BEARER_AUTH",
+      "kind": "per_call",
+      "required": false,
+      "sensitive": true
+    }
+  ],
+  "endpoint_template_vars": [
+    "server"
+  ],
+  "endpoint_template_var_defaults": {
+    "server": "http://homeassistant.local:8123"
+  },
+  "novel_features": [
+    {
+      "name": "Verified household mode",
+      "command": "mode run",
+      "description": "Preview a scene or script, run it, and verify every resulting entity state."
+    },
+    {
+      "name": "Household exception check",
+      "command": "house check",
+      "description": "See open windows, unlocked locks, lights left on, low batteries, and unavailable safety devices in one answer."
+    },
+    {
+      "name": "Routine incident explanation",
+      "command": "routine why",
+      "description": "Reconstruct why an automation or script failed from traces, state changes, logbook entries, and errors."
+    },
+    {
+      "name": "Routine reference lint",
+      "command": "routine lint",
+      "description": "Find missing entities, unavailable services, disabled dependencies, ambiguous names, and stale routine references."
+    },
+    {
+      "name": "Routine impact graph",
+      "command": "routine impact",
+      "description": "See every automation, script, scene, helper, and service target affected by changing one entity or routine."
+    },
+    {
+      "name": "Mechanical household recap",
+      "command": "house recap",
+      "description": "Review factual household activity, routine failures, presence changes, openings, and unavailable time for a recent period."
+    },
+    {
+      "name": "Health hotspot grouping",
+      "command": "health hotspots",
+      "description": "Group recurring unavailable, stale, low-battery, and disconnecting entities into device, room, integration, and radio hotspots."
+    },
+    {
+      "name": "Standby energy finder",
+      "command": "energy standby",
+      "description": "Find devices drawing persistent power during explicit periods when related household states show inactivity."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Verified household mode",
+      "command": "mode run",
+      "description": "Preview a scene or script, run it, and verify every resulting entity state."
+    },
+    {
+      "name": "Household exception check",
+      "command": "house check",
+      "description": "See open windows, unlocked locks, lights left on, low batteries, and unavailable safety devices in one answer."
+    },
+    {
+      "name": "Routine incident explanation",
+      "command": "routine why",
+      "description": "Reconstruct why an automation or script failed from traces, state changes, logbook entries, and errors."
+    },
+    {
+      "name": "Routine reference lint",
+      "command": "routine lint",
+      "description": "Find missing entities, unavailable services, disabled dependencies, ambiguous names, and stale routine references."
+    },
+    {
+      "name": "Routine impact graph",
+      "command": "routine impact",
+      "description": "See every automation, script, scene, helper, and service target affected by changing one entity or routine."
+    },
+    {
+      "name": "Mechanical household recap",
+      "command": "house recap",
+      "description": "Review factual household activity, routine failures, presence changes, openings, and unavailable time for a recent period."
+    },
+    {
+      "name": "Health hotspot grouping",
+      "command": "health hotspots",
+      "description": "Group recurring unavailable, stale, low-battery, and disconnecting entities into device, room, integration, and radio hotspots."
+    },
+    {
+      "name": "Standby energy finder",
+      "command": "energy standby",
+      "description": "Find devices drawing persistent power during explicit periods when related household states show inactivity."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 86,
+    "total": 86,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 92,
+      "grade": "A",
+      "total": 92
+    }
+  }
+}

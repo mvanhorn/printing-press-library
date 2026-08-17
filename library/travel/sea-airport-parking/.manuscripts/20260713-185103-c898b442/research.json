@@ -1,0 +1,192 @@
+{
+  "api_name": "sea-airport-parking",
+  "novelty_score": 9,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-13T19:00:00Z",
+  "novel_features": [
+    {
+      "name": "Flexible-date sweep",
+      "command": "sweep",
+      "description": "Search a flexible date window for the cheapest or any-available Reserved stay.",
+      "rationale": "Fans out live quotes across every entry/exit combo and persists them; no aggregator can quote the official garage, let alone range over dates.",
+      "example": "sea-airport-parking-pp-cli sweep --from 2026-08-10 --to 2026-08-20 --nights 3 --agent",
+      "why_it_matters": "Reach for this when the trip dates are soft and the agent needs the single best-priced open option.",
+      "group": "Ranging over dates"
+    },
+    {
+      "name": "Sold-out watch",
+      "command": "watch",
+      "description": "Poll a sold-out or target date range until Reserved opens up (or drops below a price), then notify.",
+      "rationale": "The site and every aggregator lack availability alerts; only a local poll loop over the live flow can detect the sold-out to available flip.",
+      "example": "sea-airport-parking-pp-cli watch --entry 2026-11-25T11:00 --exit 2026-11-30T11:00 --max-polls 1 --agent",
+      "why_it_matters": "Reach for this when a peak-date range is sold out and the user must grab a space the instant it frees up.",
+      "group": "Ranging over dates"
+    },
+    {
+      "name": "Quote-snapshot history",
+      "command": "history",
+      "description": "List every recorded quote snapshot for a date range: price, availability, promo, captured time.",
+      "rationale": "The site keeps zero history; this CLI is the only thing recording the official garage's price and availability over time.",
+      "example": "sea-airport-parking-pp-cli history --entry 2026-08-15T11:00 --exit 2026-08-18T11:00 --agent",
+      "why_it_matters": "Reach for this when the agent needs the raw recorded time series for a range before reasoning about it.",
+      "group": "Ranging over time"
+    },
+    {
+      "name": "Price / availability drift",
+      "command": "drift",
+      "description": "Summarize how a range's price and availability moved across stored snapshots: first vs latest, min/max, sold-out flips.",
+      "rationale": "Requires the local time series only this CLI records; no single request or aggregator can produce it.",
+      "example": "sea-airport-parking-pp-cli drift --entry 2026-08-15T11:00 --exit 2026-08-18T11:00 --agent",
+      "why_it_matters": "Reach for this to tell whether today's price for a range is high or low relative to its own history.",
+      "group": "Ranging over time"
+    },
+    {
+      "name": "Availability calendar",
+      "command": "calendar",
+      "description": "Render price and open/sold-out across many entry days for a fixed-length stay.",
+      "rationale": "Loops the live flow over each entry date into a grid; the single-product domain makes a per-day availability grid uniquely useful and no tool offers it for this garage.",
+      "example": "sea-airport-parking-pp-cli calendar --month 2026-11 --nights 3 --max-scan-days 6 --agent",
+      "why_it_matters": "Reach for this to eyeball which entry days in a month are open and how price varies day to day.",
+      "group": "Ranging over dates"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Flexible-date sweep",
+      "command": "sweep",
+      "description": "Search a flexible date window for the cheapest or any-available Reserved stay.",
+      "rationale": "Fans out live quotes across every entry/exit combo and persists them; no aggregator can quote the official garage, let alone range over dates.",
+      "example": "sea-airport-parking-pp-cli sweep --from 2026-08-10 --to 2026-08-20 --nights 3 --agent",
+      "why_it_matters": "Reach for this when the trip dates are soft and the agent needs the single best-priced open option.",
+      "group": "Ranging over dates"
+    },
+    {
+      "name": "Sold-out watch",
+      "command": "watch",
+      "description": "Poll a sold-out or target date range until Reserved opens up (or drops below a price), then notify.",
+      "rationale": "The site and every aggregator lack availability alerts; only a local poll loop over the live flow can detect the sold-out to available flip.",
+      "example": "sea-airport-parking-pp-cli watch --entry 2026-11-25T11:00 --exit 2026-11-30T11:00 --max-polls 1 --agent",
+      "why_it_matters": "Reach for this when a peak-date range is sold out and the user must grab a space the instant it frees up.",
+      "group": "Ranging over dates"
+    },
+    {
+      "name": "Quote-snapshot history",
+      "command": "history",
+      "description": "List every recorded quote snapshot for a date range: price, availability, promo, captured time.",
+      "rationale": "The site keeps zero history; this CLI is the only thing recording the official garage's price and availability over time.",
+      "example": "sea-airport-parking-pp-cli history --entry 2026-08-15T11:00 --exit 2026-08-18T11:00 --agent",
+      "why_it_matters": "Reach for this when the agent needs the raw recorded time series for a range before reasoning about it.",
+      "group": "Ranging over time"
+    },
+    {
+      "name": "Price / availability drift",
+      "command": "drift",
+      "description": "Summarize how a range's price and availability moved across stored snapshots: first vs latest, min/max, sold-out flips.",
+      "rationale": "Requires the local time series only this CLI records; no single request or aggregator can produce it.",
+      "example": "sea-airport-parking-pp-cli drift --entry 2026-08-15T11:00 --exit 2026-08-18T11:00 --agent",
+      "why_it_matters": "Reach for this to tell whether today's price for a range is high or low relative to its own history.",
+      "group": "Ranging over time"
+    },
+    {
+      "name": "Availability calendar",
+      "command": "calendar",
+      "description": "Render price and open/sold-out across many entry days for a fixed-length stay.",
+      "rationale": "Loops the live flow over each entry date into a grid; the single-product domain makes a per-day availability grid uniquely useful and no tool offers it for this garage.",
+      "example": "sea-airport-parking-pp-cli calendar --month 2026-11 --nights 3 --max-scan-days 6 --agent",
+      "why_it_matters": "Reach for this to eyeball which entry days in a month are open and how price varies day to day.",
+      "group": "Ranging over dates"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "SEA Airport Parking",
+    "headline": "Check, track, and get alerted on SEA's official on-airport Reserved garage — with a local price/availability history and sold-out watch that no site or aggregator has.",
+    "value_prop": "reservesea.portseattle.org is the only place to book SEA's Floor-4 Reserved garage, and it keeps no history and offers no alerts. This CLI quotes availability and price for any date range over plain HTTP (no login, no browser), persists every quote to a local SQLite store, and adds what the site can't: sweep flexible dates for the cheapest open stay, watch a sold-out range until it frees up, and see how a range's price has drifted over time.",
+    "auth_narrative": "No account or API key is required. Availability, pricing, and even booking use guest checkout, so every read command works anonymously. The CLI bootstraps a fresh session cookie automatically on each quote.",
+    "quickstart": [
+      {
+        "command": "sea-airport-parking-pp-cli doctor --dry-run",
+        "comment": "confirm the site is reachable before quoting"
+      },
+      {
+        "command": "sea-airport-parking-pp-cli quote --entry 2026-08-15T11:00 --exit 2026-08-18T11:00",
+        "comment": "quote a specific date range (price + availability)"
+      },
+      {
+        "command": "sea-airport-parking-pp-cli sweep --from 2026-08-10 --to 2026-08-20 --nights 3",
+        "comment": "find the cheapest open 3-night stay in a flexible window"
+      },
+      {
+        "command": "sea-airport-parking-pp-cli watch --entry 2026-11-25T11:00 --exit 2026-11-30T11:00 --interval 30m --notify",
+        "comment": "poll a sold-out Thanksgiving range until a space opens"
+      },
+      {
+        "command": "sea-airport-parking-pp-cli drift --entry 2026-08-15T11:00 --exit 2026-08-18T11:00",
+        "comment": "see how that range's price moved across your stored quotes"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "\"minimum 2 day stay is required\"",
+        "fix": "SEA Reserved requires at least a 2-day stay; widen your exit date."
+      },
+      {
+        "symptom": "\"must be made at least 6 hours in advance\"",
+        "fix": "Entry must be 6+ hours out; pick a later entry time."
+      },
+      {
+        "symptom": "No availability / SOLD OUT for your dates",
+        "fix": "Reserved sells out before peak dates; use 'watch' to be alerted when it opens, or 'sweep' to find nearby open dates."
+      },
+      {
+        "symptom": "Dates more than 120 days out return an error",
+        "fix": "SEA only sells Reserved up to 120 days ahead; quote once inside that window."
+      }
+    ],
+    "when_to_use": "Use this CLI to quote, compare, track, or get alerted on official SEA on-airport Reserved garage parking. It is the right tool when you need availability and price for specific or flexible dates, want a price/availability history for a range, or need to be notified when a sold-out peak date opens up. It works entirely over plain HTTP with no login.",
+    "anti_triggers": [
+      "Do not use this CLI for off-airport SEA lots (MasterPark, WallyPark, Doug Fox) — it only covers the official on-airport Reserved garage; use SpotHero/ParkWhiz for those.",
+      "Do not use this CLI to actually pay for or auto-submit a booking — 'book --quote' prepares a guest-checkout handoff and stops before payment.",
+      "Do not use this CLI for General drive-up parking — that product is pay-at-exit and not reservable through reservesea."
+    ],
+    "recipes": [
+      {
+        "title": "Quote a specific trip",
+        "command": "sea-airport-parking-pp-cli quote --entry 2026-08-15T11:00 --exit 2026-08-18T11:00",
+        "explanation": "Returns total price, the nightly breakdown, and whether Reserved is available for the exact range."
+      },
+      {
+        "title": "Find the cheapest open stay (agent-narrowed)",
+        "command": "sea-airport-parking-pp-cli sweep --from 2026-08-10 --to 2026-08-20 --nights 3 --agent --select entry,exit,total_price,available",
+        "explanation": "Sweeps a flexible window and returns only the fields an agent needs from each candidate, avoiding the verbose per-date payload."
+      },
+      {
+        "title": "Watch a sold-out holiday range",
+        "command": "sea-airport-parking-pp-cli watch --entry 2026-11-25T11:00 --exit 2026-11-30T11:00 --interval 30m --notify",
+        "explanation": "Polls the sold-out Thanksgiving range every 30 minutes and notifies the moment Reserved becomes available."
+      },
+      {
+        "title": "Is today's price high or low for this range?",
+        "command": "sea-airport-parking-pp-cli drift --entry 2026-08-15T11:00 --exit 2026-08-18T11:00",
+        "explanation": "Summarizes first-vs-latest price and any sold-out flips from your stored snapshots for that range."
+      },
+      {
+        "title": "Prepare a booking handoff",
+        "command": "sea-airport-parking-pp-cli book --quote --entry 2026-08-15T11:00 --exit 2026-08-18T11:00",
+        "explanation": "Builds the prefilled guest-checkout link/params and stops before payment so you finish the card step yourself."
+      }
+    ],
+    "trigger_phrases": [
+      "quote SEA parking",
+      "is SEA reserved parking available",
+      "watch SEA parking for August",
+      "cheapest SEA airport parking dates",
+      "SEA garage parking price",
+      "use sea-airport-parking",
+      "run sea-airport-parking"
+    ]
+  }
+}

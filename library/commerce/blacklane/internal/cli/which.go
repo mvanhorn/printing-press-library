@@ -11,10 +11,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// whichEntry is one row of the curated capability index. The index is
-// seeded at generation time from the same NovelFeature list that drives
-// the SKILL.md feature section, so the command a `which` query returns
-// is guaranteed to exist and to match what the skill advertises.
+// whichEntry is one row of the curated capability index. The index is seeded
+// at generation time from the verified NovelFeature list that drives the
+// SKILL.md feature section, so the command a `which` query returns is
+// guaranteed to exist and to match what the skill advertises.
 type whichEntry struct {
 	Command      string `json:"command"`
 	Description  string `json:"description"`
@@ -32,10 +32,6 @@ var whichIndex = []whichEntry{
 	{Command: "trip", Description: "Quote a sequence of legs and total the fares.", Group: "Trip planning", WhyItMatters: "Use to budget a full day of ground transport."},
 	{Command: "fit", Description: "Recommend the cheapest vehicle class that fits the party.", Group: "Trip planning", WhyItMatters: "Use to avoid overpaying for more car than you need."},
 	{Command: "log", Description: "Every quote saved to SQLite, full-text searchable and SQL-queryable.", Group: "Local state that compounds", WhyItMatters: "Use to recall and compare past quotes offline."},
-	{Command: "bookings", Description: "List your upcoming and past Blacklane rides (requires auth login).", Group: "Authenticated account", WhyItMatters: "Pull your ride history/status without opening the site."},
-	{Command: "me", Description: "Show your Blacklane profile (requires auth login).", Group: "Authenticated account", WhyItMatters: "Confirm which account the CLI is acting as."},
-	{Command: "wallet", Description: "Show wallet credits and vouchers (requires auth login).", Group: "Authenticated account", WhyItMatters: "Check available credits before booking."},
-	{Command: "book", Description: "Quote and assemble a booking, then open browser checkout for payment under --confirm. Never charges.", Group: "Booking", WhyItMatters: "Assemble and price a ride in the terminal, confirm payment yourself in the browser."},
 }
 
 // whichMatch pairs an index entry with its ranking score for a query.
@@ -139,6 +135,7 @@ func newWhichCmd(flags *rootFlags) *cobra.Command {
 		Use:   "which [query]",
 		Short: "Find the command that implements a capability",
 		Annotations: map[string]string{
+			"mcp:read-only":       "true",
 			"pp:typed-exit-codes": "0,2",
 		},
 		Long: `which resolves a natural-language capability query (for example, "search messages" or "stale tickets") to the best matching command from this CLI's curated feature index.

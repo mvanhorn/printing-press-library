@@ -57,3 +57,9 @@ func TestParseAge_RFC3339(t *testing.T) {
 		t.Errorf("parseAge RFC3339 returned %v", got)
 	}
 }
+
+func TestEscapeMarkdownTableCell(t *testing.T) {
+	if got, want := escapeMarkdownTableCell("one|two\\three\nfour"), `one\|two\\three four`; got != want {
+		t.Fatalf("escapeMarkdownTableCell() = %q, want %q", got, want)
+	}
+}

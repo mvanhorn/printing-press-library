@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "weaviate-collections-mtc-json-body",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260807-100645-wvc1",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Fixed --multi-tenancy-config and --object-ttl-config on schema objects-create/objects-update sending the raw flag string as the request body instead of parsing it as JSON.",
+  "reason": "Sibling flags on the same command (--module-config, --sharding-config, --vector-config) all parse their string value as JSON before assigning it to the body map, but multiTenancyConfig and objectTtlConfig assigned the raw string directly. Confirmed live: creating a multi-tenant collection with --multi-tenancy-config '{\"enabled\":true}' returned HTTP 400 (\"cannot unmarshal string into Go struct field Class.multiTenancyConfig\") until fixed to parse-and-validate like its siblings.",
+  "files": ["internal/cli/schema_objects-create.go", "internal/cli/schema_objects-update.go"],
+  "validated_outcome": "Confirmed live: multi-tenant collection creation, tenant create/get/exists, and tenants audit all pass against a real Weaviate Cloud cluster after the fix.",
+  "upstream_issue": ""
+}

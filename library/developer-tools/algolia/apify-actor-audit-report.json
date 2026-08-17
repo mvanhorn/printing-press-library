@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/algolia-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260813-224253-d4da62ef",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "roblox-safe-execution-contracts",
+  "applied_at": "2026-08-06",
+  "base_run_id": "20260718-204038",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Require explicit confirmation for remote mutations, surface incomplete network-overlap inputs as errors, and keep temporary browser-cookie data private and safely quoted.",
+  "reason": "The generated CLI and code-orchestration MCP surface exposed authenticated writes without enforcing their advertised confirmation controls; network overlap converted upstream failures into false empty results; and Chrome cookie database sidecars could inherit broad file permissions while pycookiecheat profile paths were embedded into Python source without quoting.",
+  "files": [
+    "internal/cli/root.go",
+    "internal/cli/helpers.go",
+    "internal/cli/root_test.go",
+    "internal/mcp/code_orch.go",
+    "internal/mcp/code_orch_writebody_test.go",
+    "internal/cli/novel_helpers.go",
+    "internal/cli/network_overlap_test.go",
+    "internal/cli/network_overlap.go",
+    "internal/cli/auth.go"
+  ],
+  "validated_outcome": "Focused regression coverage and the full Go test suite, race detector, vet, govulncheck, formatting check, and publish-package verifier all pass."
+}

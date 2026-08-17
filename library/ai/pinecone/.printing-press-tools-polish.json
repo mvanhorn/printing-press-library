@@ -1,0 +1,30 @@
+{
+  "timestamp": "2026-08-13T17:59:56.434441Z",
+  "cli_dir": "\u003ccli-dir\u003e",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "platform_client.go",
+      "line": 517,
+      "evidence": "List client profiles",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; needs generator-template fix (accurate brief short on framework command)",
+      "spec_source_material": "generator-emitted framework command (platform client list / learnings list)",
+      "target_description": "List client profiles",
+      "gap_analysis": "Short is terse but precise; framework utility command where brevity is accurate; hand-editing generated file would be wiped on regen"
+    },
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 691,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file; needs generator-template fix (accurate brief short on framework command)",
+      "spec_source_material": "generator-emitted framework command (platform client list / learnings list)",
+      "target_description": "List recorded learnings",
+      "gap_analysis": "Short is terse but precise; framework utility command where brevity is accurate; hand-editing generated file would be wiped on regen"
+    }
+  ]
+}

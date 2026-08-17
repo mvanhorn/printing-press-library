@@ -1,0 +1,904 @@
+{
+  "api_name": "sarvam",
+  "base_url": "https://api.sarvam.ai",
+  "description": "Every Sarvam AI model on your terminal — translate, speak, transcribe, chat, and extract documents in 22 Indian languages, with a local history that compounds",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "api-subscription-key",
+    "in": "header",
+    "env_vars": [
+      "SARVAM_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "SARVAM_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "chat_completions",
+      "description": "Creates a model response for the given chat conversation. Serves sarvam-105b and sarvam-105b-conversations models. Supports streaming via server-sent events, tool calling, and structured outputs. Required: messages, model. Optional: frequency_penalty (default: 0), max_tokens (default: 2048), n (default: 1) (plus 11 more). Returns array of ChatCompletionsItem.",
+      "method": "POST",
+      "path": "/v1/chat/completions",
+      "params": [
+        {
+          "name": "frequency_penalty",
+          "type": "float",
+          "location": "body",
+          "description": "Penalize repeated tokens (-2.0 to 2.0)"
+        },
+        {
+          "name": "max_tokens",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum tokens to generate"
+        },
+        {
+          "name": "messages",
+          "type": "array",
+          "location": "body",
+          "description": "Conversation history",
+          "required": true
+        },
+        {
+          "name": "model",
+          "type": "string",
+          "location": "body",
+          "description": "Chat model ID. sarvam-105b for complex reasoning, sarvam-105b-conversations for real-time voice workloads",
+          "required": true
+        },
+        {
+          "name": "n",
+          "type": "int",
+          "location": "body",
+          "description": "Number of chat completion choices"
+        },
+        {
+          "name": "presence_penalty",
+          "type": "float",
+          "location": "body",
+          "description": "Penalize new topics (-2.0 to 2.0)"
+        },
+        {
+          "name": "reasoning_effort",
+          "type": "string",
+          "location": "body",
+          "description": "Reasoning effort. Set to null to disable"
+        },
+        {
+          "name": "response-format-json-schema-name",
+          "wire_name": "response_format.json_schema.name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "response-format-json-schema-schema",
+          "wire_name": "response_format.json_schema.schema",
+          "type": "object",
+          "location": "body",
+          "description": "Schema"
+        },
+        {
+          "name": "response-format-json-schema-strict",
+          "wire_name": "response_format.json_schema.strict",
+          "type": "bool",
+          "location": "body",
+          "description": "Strict"
+        },
+        {
+          "name": "response-format-type",
+          "wire_name": "response_format.type",
+          "type": "string",
+          "location": "body",
+          "description": "Type"
+        },
+        {
+          "name": "seed",
+          "type": "int",
+          "location": "body",
+          "description": "Beta — best-effort deterministic sampling"
+        },
+        {
+          "name": "stop",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Up to 4 stop sequences"
+        },
+        {
+          "name": "stream",
+          "type": "bool",
+          "location": "body",
+          "description": "Stream the response via server-sent events"
+        },
+        {
+          "name": "temperature",
+          "type": "float",
+          "location": "body",
+          "description": "Sampling temperature (0-2)"
+        },
+        {
+          "name": "tool-choice-function-name",
+          "wire_name": "tool_choice.function.name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "tool-choice-type",
+          "wire_name": "tool_choice.type",
+          "type": "string",
+          "location": "body",
+          "description": "Type"
+        },
+        {
+          "name": "tools",
+          "type": "array",
+          "location": "body",
+          "description": "Functions the model may call"
+        },
+        {
+          "name": "top_p",
+          "type": "float",
+          "location": "body",
+          "description": "Nucleus sampling probability mass"
+        },
+        {
+          "name": "wiki_grounding",
+          "type": "bool",
+          "location": "body",
+          "description": "Wiki grounding"
+        }
+      ]
+    },
+    {
+      "name": "doc-ai_digitise",
+      "description": "Creates and starts a digitisation job from files or pre-uploaded handles. Converts documents to machine-readable text with layout awareness. Runs asynchronously; poll status until terminal. Optional: file, language, model (plus 2 more). Returns the new DocAiStartJobResponse.",
+      "method": "POST",
+      "path": "/doc-ai/v1/job/digitise",
+      "params": [
+        {
+          "name": "file",
+          "type": "array",
+          "location": "body",
+          "description": "Document file(s) to digitise"
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "body",
+          "description": "Language code of the document (BCP-47)"
+        },
+        {
+          "name": "model",
+          "type": "string",
+          "location": "body",
+          "description": "Model"
+        },
+        {
+          "name": "output_format",
+          "type": "string",
+          "location": "body",
+          "description": "Output format"
+        },
+        {
+          "name": "upload_ids",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated upload IDs"
+        }
+      ]
+    },
+    {
+      "name": "doc-ai_download-url",
+      "description": "Returns a presigned URL to download the output of a completed doc-ai job. Required: job_id.",
+      "method": "GET",
+      "path": "/doc-ai/v1/job/{job_id}/download-url",
+      "params": [
+        {
+          "name": "job_id",
+          "type": "string",
+          "location": "path",
+          "description": "Job id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "doc-ai_extract",
+      "description": "Creates and starts an extract job from files or pre-uploaded handles. Extract pulls structured fields out of documents according to a schema. Exactly one of file and upload_ids must be provided; exactly one of schema and config_id is required. Runs asynchronously. Optional: classification, config_id, file (plus 5 more). Returns the new DocAiStartJobResponse.",
+      "method": "POST",
+      "path": "/doc-ai/v1/job/extract",
+      "params": [
+        {
+          "name": "classification",
+          "type": "string",
+          "location": "body",
+          "description": "Enable document classification (true/false)"
+        },
+        {
+          "name": "config_id",
+          "type": "string",
+          "location": "body",
+          "description": "Saved extraction configuration ID"
+        },
+        {
+          "name": "file",
+          "type": "array",
+          "location": "body",
+          "description": "Document file(s) to extract from"
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "body",
+          "description": "Language code of the document (BCP-47)"
+        },
+        {
+          "name": "model",
+          "type": "string",
+          "location": "body",
+          "description": "Model"
+        },
+        {
+          "name": "output_format",
+          "type": "string",
+          "location": "body",
+          "description": "Output format"
+        },
+        {
+          "name": "schema",
+          "type": "string",
+          "location": "body",
+          "description": "Inline extraction schema as a JSON string"
+        },
+        {
+          "name": "upload_ids",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated upload IDs"
+        }
+      ]
+    },
+    {
+      "name": "doc-ai_results",
+      "description": "Fetches the results of a completed doc-ai job, including extracted fields and annotations with confidence scores. Required: job_id. Returns the DocAiGetResultsResponse.",
+      "method": "GET",
+      "path": "/doc-ai/v1/job/{job_id}/results",
+      "params": [
+        {
+          "name": "job_id",
+          "type": "string",
+          "location": "path",
+          "description": "Job id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "doc-ai_status",
+      "description": "Polls the status of a doc-ai job until a terminal status (completed, partially_completed, failed, rejected). Required: job_id. Returns the DocAiJobStatusResponse.",
+      "method": "GET",
+      "path": "/doc-ai/v1/job/{job_id}/status",
+      "params": [
+        {
+          "name": "job_id",
+          "type": "string",
+          "location": "path",
+          "description": "Job id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "doc-ai_upload",
+      "description": "Creates a presigned URL to upload a document for doc-ai processing. Required: content_type, file_name. Returns the new DocAiPresignUploadResponse.",
+      "method": "POST",
+      "path": "/doc-ai/v1/job/upload",
+      "params": [
+        {
+          "name": "content_type",
+          "type": "string",
+          "location": "body",
+          "description": "MIME type of the file",
+          "required": true
+        },
+        {
+          "name": "file_name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the file to upload",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "models_list",
+      "description": "Lists the model IDs this deployment currently serves. A model is only served where its backend is configured, so the list is environment-specific — fetch it rather than hardcoding IDs. Returns array of ModelsListItem. (public)",
+      "method": "GET",
+      "path": "/v2/models",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "speech-to-text_speech_to_text",
+      "description": "Transcribes speech to text in multiple Indian languages and English. Accepts an audio file via multipart form-data. Supports transcribe, translate, verbatim, translit, and codemix modes. Required: file. Optional: input_audio_codec, language_code, mode (default: transcribe) (plus 2 more). Returns the new SpeechToTextResponse.",
+      "method": "POST",
+      "path": "/speech-to-text",
+      "params": [
+        {
+          "name": "file",
+          "type": "string",
+          "location": "body",
+          "description": "Audio file to transcribe (WAV, MP3, AAC, OGG, FLAC, etc.)",
+          "required": true
+        },
+        {
+          "name": "input_audio_codec",
+          "type": "string",
+          "location": "body",
+          "description": "Audio codec of the input file (required for PCM)"
+        },
+        {
+          "name": "language_code",
+          "type": "string",
+          "location": "body",
+          "description": "Language of the input audio. unknown enables auto-detect"
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "location": "body",
+          "description": "Mode of operation"
+        },
+        {
+          "name": "model",
+          "type": "string",
+          "location": "body",
+          "description": "STT model"
+        },
+        {
+          "name": "with_timestamps",
+          "type": "bool",
+          "location": "body",
+          "description": "Include chunk-level timestamps in the response"
+        }
+      ]
+    },
+    {
+      "name": "speech-to-text_stt-job-download",
+      "description": "Returns presigned download URLs for the output files of a completed batch speech-to-text job. Required: files, job_id.",
+      "method": "POST",
+      "path": "/speech-to-text/job/v1/download-files",
+      "params": [
+        {
+          "name": "files",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Output filenames to download (e.g. '0.json')",
+          "required": true
+        },
+        {
+          "name": "job_id",
+          "type": "string",
+          "location": "body",
+          "description": "UUID of the bulk job",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "speech-to-text_stt-job-initiate",
+      "description": "Creates a new speech-to-text bulk job and returns a job UUID and storage details for processing multiple audio files. Optional: callback, job_parameters.",
+      "method": "POST",
+      "path": "/speech-to-text/job/v1",
+      "params": [
+        {
+          "name": "callback-auth-token",
+          "wire_name": "callback.auth_token",
+          "type": "string",
+          "location": "body",
+          "description": "Authorization token for the callback URL"
+        },
+        {
+          "name": "callback-url",
+          "wire_name": "callback.url",
+          "type": "string",
+          "location": "body",
+          "description": "Webhook URL to call on job completion"
+        },
+        {
+          "name": "job-parameters-input-audio-codec",
+          "wire_name": "job_parameters.input_audio_codec",
+          "type": "string",
+          "location": "body",
+          "description": "Input audio codec"
+        },
+        {
+          "name": "job-parameters-language-code",
+          "wire_name": "job_parameters.language_code",
+          "type": "string",
+          "location": "body",
+          "description": "Language of the input audio"
+        },
+        {
+          "name": "job-parameters-mode",
+          "wire_name": "job_parameters.mode",
+          "type": "string",
+          "location": "body",
+          "description": "Mode"
+        },
+        {
+          "name": "job-parameters-model",
+          "wire_name": "job_parameters.model",
+          "type": "string",
+          "location": "body",
+          "description": "Model"
+        },
+        {
+          "name": "job-parameters-num-speakers",
+          "wire_name": "job_parameters.num_speakers",
+          "type": "int",
+          "location": "body",
+          "description": "Number of speakers to detect (when diarization enabled)"
+        },
+        {
+          "name": "job-parameters-with-diarization",
+          "wire_name": "job_parameters.with_diarization",
+          "type": "bool",
+          "location": "body",
+          "description": "Enables speaker diarization (beta)"
+        },
+        {
+          "name": "job-parameters-with-timestamps",
+          "wire_name": "job_parameters.with_timestamps",
+          "type": "bool",
+          "location": "body",
+          "description": "With timestamps"
+        }
+      ]
+    },
+    {
+      "name": "speech-to-text_stt-job-start",
+      "description": "Starts processing a speech-to-text bulk job after all audio files have been uploaded. Required: job_id. Returns array of SpeechToTextSttJobStartItem.",
+      "method": "POST",
+      "path": "/speech-to-text/job/v1/{job_id}/start",
+      "params": [
+        {
+          "name": "job_id",
+          "type": "string",
+          "location": "path",
+          "description": "Job id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "speech-to-text_stt-job-status",
+      "description": "Returns the status of a batch speech-to-text job including per-file details and download information. Required: job_id.",
+      "method": "GET",
+      "path": "/speech-to-text/job/v1/{job_id}/status",
+      "params": [
+        {
+          "name": "job_id",
+          "type": "string",
+          "location": "path",
+          "description": "Job id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "speech-to-text_stt-job-upload",
+      "description": "Generates presigned upload URLs for audio files that will be processed in a speech-to-text bulk job. Required: files, job_id. Returns the new FilesUploadResponse.",
+      "method": "POST",
+      "path": "/speech-to-text/job/v1/upload-files",
+      "params": [
+        {
+          "name": "files",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Output filenames to upload (e.g. '0.json')",
+          "required": true
+        },
+        {
+          "name": "job_id",
+          "type": "string",
+          "location": "body",
+          "description": "UUID of the bulk job",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "text-lid_identify-language",
+      "description": "Identifies the language (e.g. hi-IN) and script (e.g. Devanagari) of the input text, supporting 10+ Indian languages and English. Required: input. Returns the new IdentifyLanguageResponse.",
+      "method": "POST",
+      "path": "/text-lid",
+      "params": [
+        {
+          "name": "input",
+          "type": "string",
+          "location": "body",
+          "description": "Text input for language and script identification. Max 1000 chars",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "text-to-speech_create-pronunciation-dictionary",
+      "description": "Uploads a .json file to create a new pronunciation dictionary. Only supported by bulbul:v3. The returned dictionary_id can be passed as dict_id in text-to-speech requests. Required: file. Returns the new PronunciationDictionaryCreateResponse.",
+      "method": "POST",
+      "path": "/text-to-speech/pronunciation-dictionary",
+      "params": [
+        {
+          "name": "file",
+          "type": "string",
+          "location": "body",
+          "description": "JSON file with a pronunciations key",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "text-to-speech_delete-pronunciation-dictionary",
+      "description": "Deletes a pronunciation dictionary by ID. Required: dict_id. Returns the PronunciationDictionaryDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/text-to-speech/pronunciation-dictionary",
+      "params": [
+        {
+          "name": "dict_id",
+          "type": "string",
+          "location": "query",
+          "description": "Dict id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "text-to-speech_get-pronunciation-dictionary",
+      "description": "Fetches a single pronunciation dictionary by ID. Required: dict_id. Returns the PronunciationDictionaryGetResponse.",
+      "method": "GET",
+      "path": "/text-to-speech/pronunciation-dictionary/{dict_id}",
+      "params": [
+        {
+          "name": "dict_id",
+          "type": "string",
+          "location": "path",
+          "description": "Dict id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "text-to-speech_list-pronunciation-dictionaries",
+      "description": "Lists all pronunciation dictionaries for the user. Dictionaries define custom word pronunciations used by bulbul:v3 TTS. Returns array of TextToSpeechListPronunciationDictionariesItem.",
+      "method": "GET",
+      "path": "/text-to-speech/pronunciation-dictionary",
+      "params": []
+    },
+    {
+      "name": "text-to-speech_stream",
+      "description": "Converts the input text into a streamed spoken audio response using the specified output codec (e.g. MP3). Returns binary audio. Required: text. Optional: dict_id, enable_cached_responses (default: false), enable_preprocessing (default: false) (plus 10 more).",
+      "method": "POST",
+      "path": "/text-to-speech/stream",
+      "params": [
+        {
+          "name": "dict_id",
+          "type": "string",
+          "location": "body",
+          "description": "Pronunciation dictionary ID. bulbul:v3 only"
+        },
+        {
+          "name": "enable_cached_responses",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable cached responses"
+        },
+        {
+          "name": "enable_preprocessing",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable preprocessing"
+        },
+        {
+          "name": "language_code",
+          "type": "string",
+          "location": "body",
+          "description": "Language code in BCP-47 format"
+        },
+        {
+          "name": "loudness",
+          "type": "float",
+          "location": "body",
+          "description": "Loudness control (0.3 to 3.0). bulbul:v2 only"
+        },
+        {
+          "name": "model",
+          "type": "string",
+          "location": "body",
+          "description": "Model"
+        },
+        {
+          "name": "output_audio_bitrate",
+          "type": "string",
+          "location": "body",
+          "description": "Output audio bitrate"
+        },
+        {
+          "name": "output_audio_codec",
+          "type": "string",
+          "location": "body",
+          "description": "Codec for the streamed audio"
+        },
+        {
+          "name": "pace",
+          "type": "float",
+          "location": "body",
+          "description": "Speed of audio"
+        },
+        {
+          "name": "pitch",
+          "type": "float",
+          "location": "body",
+          "description": "Pitch control (-0.75 to 0.75). bulbul:v2 only"
+        },
+        {
+          "name": "speaker",
+          "type": "string",
+          "location": "body",
+          "description": "Speaker voice (lowercase)"
+        },
+        {
+          "name": "speech_sample_rate",
+          "type": "int",
+          "location": "body",
+          "description": "Speech sample rate"
+        },
+        {
+          "name": "temperature",
+          "type": "float",
+          "location": "body",
+          "description": "Randomness (0.01 to 1.0). bulbul:v3 only"
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "Text to convert to speech. Max 3500 chars",
+          "required": true
+        }
+      ],
+      "header_overrides": [
+        {
+          "name": "Accept",
+          "value": "application/octet-stream"
+        }
+      ]
+    },
+    {
+      "name": "text-to-speech_text_to_speech",
+      "description": "Converts text into spoken audio. The output is a base64-encoded audio string (WAV by default) that must be decoded before use. Supports bulbul:v2 and bulbul:v3 models with 30+ voices. Required: language_code, text. Optional: dict_id, enable_cached_responses (default: false), enable_preprocessing (default: false) (plus 8 more). Returns array of string.",
+      "method": "POST",
+      "path": "/text-to-speech",
+      "params": [
+        {
+          "name": "dict_id",
+          "type": "string",
+          "location": "body",
+          "description": "Pronunciation dictionary ID to apply. bulbul:v3 only"
+        },
+        {
+          "name": "enable_cached_responses",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable response caching (beta, bulbul:v1/v2 only)"
+        },
+        {
+          "name": "enable_preprocessing",
+          "type": "bool",
+          "location": "body",
+          "description": "Normalize English words and numeric entities. bulbul:v2 only"
+        },
+        {
+          "name": "language_code",
+          "type": "string",
+          "location": "body",
+          "description": "Language code in BCP-47 format",
+          "required": true
+        },
+        {
+          "name": "loudness",
+          "type": "float",
+          "location": "body",
+          "description": "Loudness control (0.3 to 3.0). bulbul:v2 only"
+        },
+        {
+          "name": "model",
+          "type": "string",
+          "location": "body",
+          "description": "TTS model. bulbul:v3 is the latest with 30+ voices"
+        },
+        {
+          "name": "output_audio_codec",
+          "type": "string",
+          "location": "body",
+          "description": "Output audio codec"
+        },
+        {
+          "name": "pace",
+          "type": "float",
+          "location": "body",
+          "description": "Speed of audio. bulbul:v3: 0.5-2.0, bulbul:v2: 0.3-3.0"
+        },
+        {
+          "name": "pitch",
+          "type": "float",
+          "location": "body",
+          "description": "Pitch control (-0.75 to 0.75). bulbul:v2 only"
+        },
+        {
+          "name": "speaker",
+          "type": "string",
+          "location": "body",
+          "description": "Speaker voice (lowercase). Default shubh for bulbul:v3, anushka for bulbul:v2"
+        },
+        {
+          "name": "speech_sample_rate",
+          "type": "int",
+          "location": "body",
+          "description": "Sample rate of the output audio"
+        },
+        {
+          "name": "temperature",
+          "type": "float",
+          "location": "body",
+          "description": "Randomness/expressiveness (0.01 to 2.0). bulbul:v3 only"
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "Text to convert to speech. Max 2500 chars for bulbul:v3, 1500 for bulbul:v2. Use commas for numbers larger than 4 digits",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "text-to-speech_update-pronunciation-dictionary",
+      "description": "Updates an existing pronunciation dictionary with a new JSON file. Required: dict_id, file. Returns the updated PronunciationDictionaryUpdateResponse.",
+      "method": "PUT",
+      "path": "/text-to-speech/pronunciation-dictionary",
+      "params": [
+        {
+          "name": "dict_id",
+          "type": "string",
+          "location": "body",
+          "description": "Dict id",
+          "required": true
+        },
+        {
+          "name": "file",
+          "type": "string",
+          "location": "body",
+          "description": "File",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "translate_translate",
+      "description": "Converts text from one language to another while preserving meaning. Supports 22 Indic languages plus English. Required: input, source_language_code, target_language_code. Optional: mode (default: formal), model, numerals_format (default: international) (plus 2 more). Returns the new TranslateResponse.",
+      "method": "POST",
+      "path": "/translate",
+      "params": [
+        {
+          "name": "input",
+          "type": "string",
+          "location": "body",
+          "description": "Text to translate. Max 1000 chars for mayura:v1, 2000 for sarvam-translate:v1",
+          "required": true
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "location": "body",
+          "description": "Tone or style of the translation. sarvam-translate:v1 only supports formal"
+        },
+        {
+          "name": "model",
+          "type": "string",
+          "location": "body",
+          "description": "Translation model. mayura:v1 supports 12 languages with all modes; sarvam-translate:v1 supports 22 languages, formal only"
+        },
+        {
+          "name": "numerals_format",
+          "type": "string",
+          "location": "body",
+          "description": "Numerals style (international 0-9 or native script numerals)"
+        },
+        {
+          "name": "output_script",
+          "type": "string",
+          "location": "body",
+          "description": "Transliteration style applied to output. mayura:v1 only"
+        },
+        {
+          "name": "source_language_code",
+          "type": "string",
+          "location": "body",
+          "description": "Source language. auto enables detection (mayura:v1 only)",
+          "required": true
+        },
+        {
+          "name": "speaker_gender",
+          "type": "string",
+          "location": "body",
+          "description": "Gender of the speaker for better translations"
+        },
+        {
+          "name": "target_language_code",
+          "type": "string",
+          "location": "body",
+          "description": "Target language for the translation",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "transliterate_transliterate",
+      "description": "Transliterates text from one script to another (e.g. Devanagari to Latin) while keeping the same language and pronunciation. Required: input, source_language_code, target_language_code. Optional: numerals_format (default: international), spoken_form (default: false), spoken_form_numerals_language (default: native). Returns the new TransliterateResponse.",
+      "method": "POST",
+      "path": "/transliterate",
+      "params": [
+        {
+          "name": "input",
+          "type": "string",
+          "location": "body",
+          "description": "Text to transliterate",
+          "required": true
+        },
+        {
+          "name": "numerals_format",
+          "type": "string",
+          "location": "body",
+          "description": "Numerals format"
+        },
+        {
+          "name": "source_language_code",
+          "type": "string",
+          "location": "body",
+          "description": "Source language (Indic or English)",
+          "required": true
+        },
+        {
+          "name": "spoken_form",
+          "type": "bool",
+          "location": "body",
+          "description": "Converts text into a natural spoken form"
+        },
+        {
+          "name": "spoken_form_numerals_language",
+          "type": "string",
+          "location": "body",
+          "description": "Language for numerals in spoken form"
+        },
+        {
+          "name": "target_language_code",
+          "type": "string",
+          "location": "body",
+          "description": "Target language (Indic or English)",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

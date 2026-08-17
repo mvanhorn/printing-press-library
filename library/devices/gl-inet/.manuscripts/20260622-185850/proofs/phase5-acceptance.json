@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "api_name": "gl-inet",
+  "run_id": "20260622-185850",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 16,
+  "tests_passed": 16,
+  "tests_failed": 0,
+  "auth_context": {
+    "type": "session_handshake",
+    "api_key_available": true,
+    "browser_session_available": false
+  }
+}

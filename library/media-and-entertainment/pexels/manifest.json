@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "pexels-pp-mcp",
+  "display_name": "Pexels",
+  "version": "0.0.0",
+  "description": "Every Pexels photo, video, and collection endpoint — plus a local store that adds quota forecasting, dedup-aware bulk download, and one-shot attribution exports no other Pexels tool has.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/pexels-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/pexels-pp-mcp",
+      "args": [],
+      "env": {
+        "PEXELS_API_KEY": "${user_config.pexels_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "pexels_api_key": {
+      "type": "string",
+      "title": "PEXELS_API_KEY",
+      "description": "Sets PEXELS_API_KEY for the Pexels MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -43,7 +43,8 @@ such as assignee, project, priority, or labels. Useful for triaging unowned work
 				jsonPaths []string
 				label     string
 			}{
-				{[]string{"$.assigneeId", "$.assignee_id", "$.assignee", "$.ownerId", "$.owner_id"}, "assignee"},
+				// PATCH(assignees-array-aggregation): check the `assignees[]` array first; a task with a populated assignees array is no longer flagged missing-assignee.
+				{[]string{"$.assignees", "$.assigneeId", "$.assignee_id", "$.assignee", "$.ownerId", "$.owner_id"}, "assignee"},
 				{[]string{"$.projectId", "$.project_id", "$.project"}, "project"},
 				{[]string{"$.priority", "$.priorityId", "$.priority_id"}, "priority"},
 				{[]string{"$.labels", "$.labelIds", "$.label_ids", "$.tags"}, "labels"},

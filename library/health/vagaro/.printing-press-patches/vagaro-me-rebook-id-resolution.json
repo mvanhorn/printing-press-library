@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "vagaro-me-rebook-id-resolution",
+  "applied_at": "2026-07-08",
+  "base_run_id": "20260701-143117-d22a0c47",
+  "base_printing_press_version": "4.27.1",
+  "summary": "me rebook now resolves a past appointment's business slug/URL, or exact/unique cached business name, to the public business id; maps appointment-history service/provider ids onto the public availability ids when they match; falls back to exact or unique service/provider names when history ids are encrypted or stale; and queries every weekly availability window covered by --from/--to.",
+  "reason": "Appointment-history ids can differ from the public getavailablemultiappointments service/provider ids, causing me rebook to return zero slots even when business availability with the same business/service/provider names finds openings.",
+  "files": [
+    "internal/cli/me_rebook.go",
+    "internal/cli/me_rebook_behavior_test.go"
+  ]
+}

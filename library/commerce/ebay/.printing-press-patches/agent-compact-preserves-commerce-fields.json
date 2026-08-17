@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "agent-compact-preserves-commerce-fields",
+  "applied_at": "2026-07-02",
+  "base_run_id": "2026-04-30T15:53:54.784232Z",
+  "base_printing_press_version": "3.0.1",
+  "summary": "eBay agent compact output must preserve commerce-critical listing and comp fields such as price, condition, bids, sold_price, currency, and comp statistics.",
+  "reason": "The generic compact allow-list made --agent unusable for commerce commands by keeping title/url while stripping the pricing and auction fields agents need; consumers misread the result as parser drift or missing vendor data.",
+  "files": [
+    "internal/cli/helpers.go",
+    "internal/cli/helpers_compact_test.go"
+  ],
+  "validated_outcome": "library/commerce/ebay/internal/cli helpers_compact_test.go verifies listing/sold/auction fields and comp summary fields survive compact output while verbose fields are stripped."
+}

@@ -34,7 +34,7 @@ func newProgramsFitCmd(flags *rootFlags) *cobra.Command {
 			defer db.Close()
 			spec := map[string]bool{}
 			for _, s := range strings.Split(specialty, ",") {
-				if t := strings.TrimSpace(s); t != "" {
+				if t := normalizeCWE(strings.TrimSpace(s)); t != "" {
 					spec[t] = true
 				}
 			}
@@ -51,7 +51,7 @@ func newProgramsFitCmd(flags *rootFlags) *cobra.Command {
 				slug := programSlug(p)
 				counts := map[string]int{}
 				for _, h := range hacks {
-					cwe := stringField(h, "vulnerable_part", "data.vulnerable_part")
+					cwe := cweFromReport(h)
 					if stringField(h, "program.slug", "data.program.slug") == slug && (len(spec) == 0 || spec[cwe]) {
 						counts[cwe]++
 					}

@@ -1,0 +1,224 @@
+{
+  "api_name": "forkable",
+  "novelty_score": 9,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-17T17:10:00Z",
+  "novel_features": [
+    {
+      "name": "Served-meal history",
+      "command": "served-history",
+      "description": "See every meal actually served to you over time, with date, venue, price, and dietary level.",
+      "rationale": "Requires a local join across synced deliveries, orders, pieces, and menus over weeks or months; the web app shows one delivery at a time and never aggregates.",
+      "example": "forkable-pp-cli served-history --since 90d --agent",
+      "why_it_matters": "Reach for this when an agent needs a longitudinal view of what a person has eaten, not just the current delivery.",
+      "group": "Local history that compounds"
+    },
+    {
+      "name": "Preference-vs-served drift",
+      "command": "preference-drift",
+      "description": "Flag served meals that violate your stated dislikes or dietary restrictions, or miss your likes.",
+      "rationale": "Mechanical set-membership join of your profile preferences against served meal items in the local store; no such conformance view exists in the product.",
+      "example": "forkable-pp-cli preference-drift --since 60d --agent",
+      "why_it_matters": "Use this to audit whether auto-selection is actually honoring dietary preferences over time.",
+      "group": "Local history that compounds"
+    },
+    {
+      "name": "Auto-selection explainer",
+      "command": "why-picked",
+      "description": "Explain why a delivery's meal was auto-selected by ranking candidate items and their scores.",
+      "rationale": "Joins the auto-selection scores with menu items and your preferences locally; the web app hides the scoring entirely.",
+      "example": "forkable-pp-cli why-picked --delivery 1219480 --agent",
+      "why_it_matters": "Pick this to explain a single day's auto-selected meal; use preference-drift for aggregate conformance.",
+      "group": "Making the opaque legible"
+    },
+    {
+      "name": "Spend trend over time",
+      "command": "spend-trend",
+      "description": "Bucket lunch spend into per-week or per-month totals with CSV export.",
+      "rationale": "Aggregates delivery receipts into billing-period buckets in the local store; the product has no cross-period spend view or export.",
+      "example": "forkable-pp-cli spend-trend --since 6mo --by month --csv",
+      "why_it_matters": "Reach for this when finance needs a time series of lunch cost, not a single delivery receipt.",
+      "group": "Finance and allowances"
+    },
+    {
+      "name": "Allowance utilization",
+      "command": "allowance-burn",
+      "description": "Show granted-vs-consumed allowance utilization per club, including multi-club comparison.",
+      "rationale": "Joins club allowance settings against delivery receipts locally; enables cross-team comparison the product never surfaces.",
+      "example": "forkable-pp-cli allowance-burn --by club --csv",
+      "why_it_matters": "Use this to see which teams are over- or under-using their lunch budget.",
+      "group": "Finance and allowances"
+    },
+    {
+      "name": "Week-ahead digest",
+      "command": "upcoming-digest",
+      "description": "One agent-shaped line per upcoming day: date, venue, auto-selected item, price, allowance headroom.",
+      "rationale": "Joins in-progress and future deliveries with menus into a compact briefing; agent-native output the SPA does not offer.",
+      "example": "forkable-pp-cli upcoming-digest --agent",
+      "why_it_matters": "Pick this for a quick 'what's coming this week' summary an agent can read in one shot.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Venue rotation",
+      "command": "venue-rotation",
+      "description": "Rank venues by how often they've served you and how recently.",
+      "rationale": "Computes served-frequency and days-since-last-seen from the local store; distinct from the single-venue usage endpoint.",
+      "example": "forkable-pp-cli venue-rotation --since 120d --agent",
+      "why_it_matters": "Use this to spot venue fatigue or under-used favorites across the whole synced window.",
+      "group": "Local history that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Served-meal history",
+      "command": "served-history",
+      "description": "See every meal actually served to you over time, with date, venue, price, and dietary level.",
+      "rationale": "Requires a local join across synced deliveries, orders, pieces, and menus over weeks or months; the web app shows one delivery at a time and never aggregates.",
+      "example": "forkable-pp-cli served-history --since 90d --agent",
+      "why_it_matters": "Reach for this when an agent needs a longitudinal view of what a person has eaten, not just the current delivery.",
+      "group": "Local history that compounds"
+    },
+    {
+      "name": "Preference-vs-served drift",
+      "command": "preference-drift",
+      "description": "Flag served meals that violate your stated dislikes or dietary restrictions, or miss your likes.",
+      "rationale": "Mechanical set-membership join of your profile preferences against served meal items in the local store; no such conformance view exists in the product.",
+      "example": "forkable-pp-cli preference-drift --since 60d --agent",
+      "why_it_matters": "Use this to audit whether auto-selection is actually honoring dietary preferences over time.",
+      "group": "Local history that compounds"
+    },
+    {
+      "name": "Auto-selection explainer",
+      "command": "why-picked",
+      "description": "Explain why a delivery's meal was auto-selected by ranking candidate items and their scores.",
+      "rationale": "Joins the auto-selection scores with menu items and your preferences locally; the web app hides the scoring entirely.",
+      "example": "forkable-pp-cli why-picked --delivery 1219480 --agent",
+      "why_it_matters": "Pick this to explain a single day's auto-selected meal; use preference-drift for aggregate conformance.",
+      "group": "Making the opaque legible"
+    },
+    {
+      "name": "Spend trend over time",
+      "command": "spend-trend",
+      "description": "Bucket lunch spend into per-week or per-month totals with CSV export.",
+      "rationale": "Aggregates delivery receipts into billing-period buckets in the local store; the product has no cross-period spend view or export.",
+      "example": "forkable-pp-cli spend-trend --since 6mo --by month --csv",
+      "why_it_matters": "Reach for this when finance needs a time series of lunch cost, not a single delivery receipt.",
+      "group": "Finance and allowances"
+    },
+    {
+      "name": "Allowance utilization",
+      "command": "allowance-burn",
+      "description": "Show granted-vs-consumed allowance utilization per club, including multi-club comparison.",
+      "rationale": "Joins club allowance settings against delivery receipts locally; enables cross-team comparison the product never surfaces.",
+      "example": "forkable-pp-cli allowance-burn --by club --csv",
+      "why_it_matters": "Use this to see which teams are over- or under-using their lunch budget.",
+      "group": "Finance and allowances"
+    },
+    {
+      "name": "Week-ahead digest",
+      "command": "upcoming-digest",
+      "description": "One agent-shaped line per upcoming day: date, venue, auto-selected item, price, allowance headroom.",
+      "rationale": "Joins in-progress and future deliveries with menus into a compact briefing; agent-native output the SPA does not offer.",
+      "example": "forkable-pp-cli upcoming-digest --agent",
+      "why_it_matters": "Pick this for a quick 'what's coming this week' summary an agent can read in one shot.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Venue rotation",
+      "command": "venue-rotation",
+      "description": "Rank venues by how often they've served you and how recently.",
+      "rationale": "Computes served-frequency and days-since-last-seen from the local store; distinct from the single-venue usage endpoint.",
+      "example": "forkable-pp-cli venue-rotation --since 120d --agent",
+      "why_it_matters": "Use this to spot venue fatigue or under-used favorites across the whole synced window.",
+      "group": "Local history that compounds"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "Forkable",
+    "headline": "A CLI and MCP server for your Forkable office-lunch program, with a local database and history, spend, and preference queries the web app cannot answer, plus commands to set, confirm, and skip meal orders (dry-run by default; --confirm to apply).",
+    "value_prop": "Forkable exposes no public API. This CLI reverse-engineers the my-account app's GraphQL surface into a Go binary with clean read commands and agent-native output. On top of the raw reads it adds longitudinal views the product never shows — served-meal history, preference-vs-served drift, spend trends, allowance utilization, venue rotation, and a week-ahead digest — all fetched live from Forkable. It also exposes the my-account app's own meal-management mutations as meal set, meal set-all, meal confirm, meal skip, and reorder; these are dry-run by default and only place, confirm, or skip real orders when you pass --confirm.",
+    "auth_narrative": "Forkable authenticates with a browser session cookie plus a per-request CSRF token fetched from /api/v2/csrf_token. Log in to forkable.com in Chrome, then run 'forkable-pp-cli auth login --chrome' to import your session. There is no API key.",
+    "quickstart": [
+      {
+        "command": "forkable-pp-cli doctor --dry-run",
+        "comment": "Verify the binary, config, and auth wiring before hitting the API."
+      },
+      {
+        "command": "forkable-pp-cli auth login --chrome",
+        "comment": "Import your logged-in Forkable session from Chrome (no API key exists)."
+      },
+      {
+        "command": "forkable-pp-cli account --json",
+        "comment": "Confirm auth works by fetching your profile and preferences."
+      },
+      {
+        "command": "forkable-pp-cli served-history --since 90d --agent",
+        "comment": "See what you've actually eaten over the last quarter (fetched live)."
+      },
+      {
+        "command": "forkable-pp-cli spend-trend --since 6mo --by month --csv",
+        "comment": "Export per-month lunch spend for finance."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Commands return HTTP 401",
+        "fix": "Your session expired; re-run 'forkable-pp-cli auth login --chrome' after logging in to forkable.com in Chrome."
+      },
+      {
+        "symptom": "A GraphQL query with placeholder ids returns empty",
+        "fix": "menus/meal-scores/venue-usage need real ids: get them from 'deliveries list' (availableMenuIds) and 'clubs list', then pass a custom --query."
+      },
+      {
+        "symptom": "History or trend commands show nothing",
+        "fix": "These fetch live from Forkable; make sure 'account --json' works first, then widen the window with --since 180d."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or script needs to query a Forkable office-lunch program from the terminal: what meals were served, how much was spent, which venues rotate, and whether served meals match stated dietary preferences. It is the only programmatic surface for Forkable and the only way to get longitudinal history the web app does not aggregate. It can also set, confirm, and skip upcoming meal deliveries on the user's behalf — those commands are dry-run by default and require --confirm to apply. All commands fetch live from Forkable (no local sync step).",
+    "anti_triggers": [
+      "Do not place, change, or cancel meal orders without explicit user intent — the meal set, meal set-all, meal confirm, meal skip, and reorder commands mutate the real account and require --confirm; run them dry-run first and confirm the printed mutation before adding --confirm.",
+      "Do not use this CLI to add or remove club members or manage billing — use the Forkable web app.",
+      "Do not use this CLI for real-time delivery tracking notifications — those come via Forkable's email/Slack/SMS."
+    ],
+    "recipes": [
+      {
+        "title": "What have I eaten this quarter",
+        "command": "forkable-pp-cli served-history --since 90d --agent --select date,venue,name,price",
+        "explanation": "Longitudinal list of served meals, narrowed to the high-signal fields to keep agent context small."
+      },
+      {
+        "title": "Audit dietary conformance",
+        "command": "forkable-pp-cli preference-drift --since 60d --json",
+        "explanation": "Flags any served meal that conflicts with your stated dislikes or restrictions."
+      },
+      {
+        "title": "Monthly lunch spend for finance",
+        "command": "forkable-pp-cli spend-trend --since 6mo --by month --csv",
+        "explanation": "Per-month spend totals exported as CSV for a budget close."
+      },
+      {
+        "title": "Which teams are burning their allowance",
+        "command": "forkable-pp-cli allowance-burn --by club --csv",
+        "explanation": "Granted-vs-consumed allowance utilization per club, side by side."
+      },
+      {
+        "title": "This week's lunch at a glance",
+        "command": "forkable-pp-cli upcoming-digest --agent",
+        "explanation": "One compact line per upcoming day for a quick agent-readable briefing."
+      }
+    ],
+    "trigger_phrases": [
+      "what have I eaten on forkable",
+      "forkable lunch spend this month",
+      "which forkable venues do we use most",
+      "did my forkable meals match my dietary preferences",
+      "forkable week ahead",
+      "use forkable",
+      "run forkable"
+    ]
+  }
+}

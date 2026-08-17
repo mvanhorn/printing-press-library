@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "spotify-fix-tracks-where-distinct-sql",
+  "applied_at": "2026-07-07",
+  "base_run_id": "20260707-145126",
+  "base_printing_press_version": "4.27.1",
+  "summary": "Replace `SELECT DISTINCT ... ORDER BY captured_at DESC` with correlated subquery selecting the latest snapshot per playlist.",
+  "reason": "SQLite applies ORDER BY before DISTINCT, so the captured_at ordering hint was silently dropped \u2014 a track in 10 historical snapshots of the same playlist generated 10 rows in undefined order, not 1 latest row. Greptile review caught this. The correlated subquery filters to MAX(captured_at) per playlist for the given track, matching the documented 'where is this track right now' semantic.",
+  "files": [
+    "internal/cli/transcendence_t6_tracks_where.go"
+  ]
+}

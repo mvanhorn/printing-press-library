@@ -1,0 +1,120 @@
+name: ticketdata
+description: "TicketData ticket price-intelligence CLI: get-in price, full price history, forecasts, and N-day change for any event, performer, or venue"
+version: "0.1.0"
+base_url: "https://data.ticketdata.com/api"
+category: media-and-entertainment
+http_transport: browser-chrome
+health_check_path: "/performers/search?q=test"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/ticketdata/config.toml"
+
+resources:
+  events:
+    description: "Look up ticket events, their get-in price, price history, and section catalog"
+    endpoints:
+      get:
+        method: GET
+        path: "/events/{id}"
+        description: "Get an event's current get-in price, forecast, N-day change, marketplace links, and venue/performer detail"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "TicketData numeric event id (e.g. 22323960)"
+        response:
+          type: object
+        response_path: data
+      history:
+        method: GET
+        path: "/events/{id}/price-history"
+        description: "Get the full get-in-price time series for an event (hundreds of points), plus per-zone series and on/presale dates"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "TicketData numeric event id"
+        response:
+          type: object
+        response_path: data
+      sections:
+        method: GET
+        path: "/events/{id}/zones/sections"
+        description: "List the section names catalogued for an event"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "TicketData numeric event id"
+        response:
+          type: array
+        response_path: data.sections
+
+  performers:
+    description: "Look up performers (artists, teams) and resolve names to canonical performer pages"
+    endpoints:
+      get:
+        method: GET
+        path: "/performers/{slug}"
+        description: "Get a performer's stats (upcoming events, avg/min/max get-in price) and resale/social links"
+        params:
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Performer slug (e.g. ariana-grande, world-cup-soccer)"
+        response:
+          type: object
+        response_path: data
+      search:
+        method: GET
+        path: "/autocomplete/suggestions"
+        description: "Resolve a search query to the best-matching performer"
+        params:
+          - name: q
+            flag_name: query
+            aliases: [q]
+            type: string
+            required: true
+            description: "Performer name to search for (e.g. 'ariana grande')"
+        response:
+          type: object
+        response_path: data
+
+  venues:
+    description: "Look up venues and resolve names to canonical venue pages"
+    endpoints:
+      get:
+        method: GET
+        path: "/venues/{slug}"
+        description: "Get a venue's stats (upcoming events, location)"
+        params:
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Venue slug (e.g. state-farm-arena, lumen-field)"
+        response:
+          type: object
+        response_path: data
+      search:
+        method: GET
+        path: "/autocomplete/suggestions"
+        description: "Resolve a search query to the best-matching venue"
+        params:
+          - name: q
+            flag_name: query
+            aliases: [q]
+            type: string
+            required: true
+            description: "Venue name to search for (e.g. 'state farm arena')"
+        response:
+          type: object
+        response_path: data

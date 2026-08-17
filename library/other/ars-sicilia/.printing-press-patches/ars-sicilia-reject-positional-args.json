@@ -1,0 +1,27 @@
+{
+  "schema_version": 2,
+  "id": "ars-sicilia-reject-positional-args",
+  "applied_at": "2026-07-29",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.18.0",
+  "summary": "Args: rejectPositionalArgs su tutti i 13 comandi di ricerca (biblioteca cerca/multimediali, commissioni convocazioni/sommari, ddl/interrogazioni/interpellanze/leggi/mozioni/odg/pareri/resoconti/risoluzioni cerca). L'helper vive in internal/cli/icaro_helpers.go e rifiuta con usageErr, nominando l'argomento inatteso e il comando, e rimandando ai flag.",
+  "reason": "Nessuno dei comandi di ricerca dichiarava Args, quindi cobra accettava qualunque argomento posizionale e lo scartava in silenzio: `commissioni sommari cerca --commissione X` restituiva esattamente lo stesso output di `commissioni sommari --commissione X`, e anche `commissioni sommari pippo` funzionava. Chi scriveva il sottocomando inesistente credeva di averlo invocato. Non e' teorico: una gap analysis (docs/news-agent/2026-07-29_18-15.md) ha concluso che `commissioni sommari cerca --commissione 'Affari Istituzionali'` funzionasse mentre `commissione dossier 'Affari Istituzionali'` no, deducendone un difetto del dossier che non esiste. I due comandi erano lo stesso comando piu' un argomento buttato via, e il dossier risolveva gia' correttamente entrambe le forme.",
+  "files": [
+    "internal/cli/icaro_helpers.go",
+    "internal/cli/biblioteca_cerca.go",
+    "internal/cli/biblioteca_multimediali.go",
+    "internal/cli/commissioni_convocazioni.go",
+    "internal/cli/commissioni_sommari.go",
+    "internal/cli/ddl_cerca.go",
+    "internal/cli/interrogazioni_cerca.go",
+    "internal/cli/interpellanze_cerca.go",
+    "internal/cli/leggi_cerca.go",
+    "internal/cli/mozioni_cerca.go",
+    "internal/cli/odg_cerca.go",
+    "internal/cli/pareri_cerca.go",
+    "internal/cli/resoconti_cerca.go",
+    "internal/cli/risoluzioni_cerca.go",
+    "SKILL.md"
+  ],
+  "validated_outcome": "commissioni sommari cerca --commissione 'Affari Istituzionali' --legisl 18 -> exit 2 con «argomento inatteso \"cerca\": ars-sicilia-pp-cli commissioni sommari non prende argomenti posizionali, i criteri di ricerca sono flag»; la stessa invocazione senza l'argomento spurio resta invariata (2 record). go build/vet/test verdi, gofmt pulito."
+}

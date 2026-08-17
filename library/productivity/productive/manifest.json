@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "productive-pp-mcp",
+  "display_name": "Productive",
+  "version": "0.1.0",
+  "description": "Full Productive.io v2 API client — list/get across ~48 resource types, generic create/update/delete, 11 report types, and a local sync/search/export/tail data layer, plus first-class revenue-recognition commands (recognized-revenue, invoiced, reconcile, aging).",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/productive-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/productive-pp-mcp",
+      "args": [],
+      "env": {
+        "PRODUCTIVE_API_TOKEN": "${user_config.productive_api_token}"
+      }
+    }
+  },
+  "user_config": {
+    "productive_api_token": {
+      "type": "string",
+      "title": "PRODUCTIVE_API_TOKEN",
+      "description": "Sets PRODUCTIVE_API_TOKEN for the Productive MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

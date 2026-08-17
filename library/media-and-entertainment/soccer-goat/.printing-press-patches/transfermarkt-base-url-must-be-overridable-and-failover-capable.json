@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "transfermarkt-base-url-must-be-overridable-and-failover-capable",
+  "applied_at": "2026-07-18",
+  "base_run_id": "20260712-074136",
+  "base_printing_press_version": "4.27.1",
+  "summary": "The Transfermarkt base URL must be user-overridable (--base-url flag / SOCCER_GOAT_BASE_URL / base_url) and support an ordered failover list (SOCCER_GOAT_BASE_URLS / base_urls / compiled default), because pinning the CLI to a single hardcoded free mirror takes every command down when that mirror 5xxes.",
+  "reason": "The generated client hardcoded one base URL (transfermarkt-api.fly.dev) with no flag or list override, so a multi-day upstream 5xx outage on that instance dead-lined player/team/compare with a raw 'HTTP 500' and no recovery path. The fix adds a --base-url flag and an ordered candidate list with lazy client-side failover (advance only on 5xx-after-retries or transport error, never on a 4xx/empty answer), refreshes the default to a failover list, surfaces per-source health in doctor, and maps exhausted-source 5xx to a friendly 'data source unavailable' hint. A regen must preserve the override + failover contract, not just re-pin a single URL. The specific mirror hosts are moving targets — the durable point is that the source is swappable and self-hostable (felipeall/transfermarkt-api), not any particular URL.",
+  "files": [
+    "internal/config/config.go",
+    "internal/client/client.go",
+    "internal/cli/root.go",
+    "internal/cli/helpers.go",
+    "internal/cli/player.go",
+    "internal/cli/team.go",
+    "internal/cli/compare.go",
+    "internal/cli/doctor.go"
+  ],
+  "validated_outcome": "With the default list and the reference mirror down (HTTP 500), 'player \"Jhon Duran\"' fails over to a working source and returns market value €15.00m; '--base-url' at a single dead source exits 5 with the actionable hint and does not fan out; doctor's Sources block marks the primary FAIL (HTTP 500) and mirrors OK. go build/vet/test and govulncheck pass.",
+  "upstream_issue": "generator-shaped: the single-hardcoded-base-URL pattern is template-wide (every printed CLI pins one client base URL with no override/failover); worth a --base-url flag + optional failover list in cli-printing-press's client/config templates."
+}

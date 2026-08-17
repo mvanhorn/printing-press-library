@@ -1,0 +1,179 @@
+{
+  "api_name": "ifood",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "iFood web application",
+      "url": "https://www.ifood.com.br/",
+      "language": "browser",
+      "install_method": "none",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": true
+    }
+  ],
+  "gaps": [
+    "iFood does not publish a stable consumer grocery API for this workflow.",
+    "Authenticated site-api requests can be masked or rejected outside the signed-in browser session.",
+    "Product availability, delivery fees, ratings, and prices are location- and session-dependent.",
+    "Checkout, payment, and order submission are intentionally unsupported."
+  ],
+  "patterns": [
+    "Keep cookies, anti-fraud state, CAPTCHA handling, and authentication inside the signed-in browser.",
+    "Use deterministic local JSON validation for market coverage, rating thresholds, product availability, and totals.",
+    "Separate read-only quotation from cart mutation and require confirmation before the first cart item is added."
+  ],
+  "recommendation": "proceed-with-gaps",
+  "researched_at": "2026-08-14T04:22:01Z",
+  "novel_features": [
+    {
+      "name": "Browser-safe workflow plan",
+      "command": "browser plan",
+      "description": "Emit the complete browser-owned quotation and cart workflow without exporting credentials.",
+      "rationale": "The signed-in browser is the reliable owner of cookies, anti-fraud state, and CAPTCHA interactions.",
+      "example": "ifood-pp-cli browser plan --json --no-learn",
+      "why_it_matters": "Agents get deterministic requirements while credentials remain inside the browser.",
+      "group": "Browser-backed agent workflow"
+    },
+    {
+      "name": "Three-market quotation validator",
+      "command": "browser validate-quote",
+      "description": "Validate complete product observations from at least three markets meeting a configurable rating floor.",
+      "rationale": "Visible browser observations need strict local checks before price comparisons are trusted.",
+      "example": "ifood-pp-cli browser validate-quote --example --json --no-learn",
+      "why_it_matters": "The CLI fails closed on missing, unavailable, unnamed, or unpriced products.",
+      "group": "Browser-backed agent workflow"
+    },
+    {
+      "name": "Confirmation-gated cart plan",
+      "command": "browser cart-plan",
+      "description": "Produce the exact selected merchant, products, quantities, and expected total before any cart interaction.",
+      "rationale": "Cart writes require an explicit boundary between local planning and external mutation.",
+      "example": "ifood-pp-cli browser cart-plan --example --json --no-learn",
+      "why_it_matters": "Agents can request approval for a concrete plan and stop on substitutions or price changes.",
+      "group": "Guarded cart boundary"
+    },
+    {
+      "name": "Cross-market grocery quote",
+      "command": "quote",
+      "description": "Compare requested grocery terms across eligible markets and return complete price estimates.",
+      "rationale": "The private API requires composing market discovery and per-merchant product searches.",
+      "example": "ifood-pp-cli quote --example --json --no-learn",
+      "why_it_matters": "Agents can inspect the direct-API composition when a controlled session supports it.",
+      "group": "Direct API composition"
+    },
+    {
+      "name": "Preview-first cart builder",
+      "command": "cart build",
+      "description": "Resolve product terms into an exact read-only cart-item preview.",
+      "rationale": "Product choice and cart mutation remain separate phases; cart add owns the confirmation-gated write.",
+      "example": "ifood-pp-cli cart build EXAMPLE_CART --example --json --no-learn",
+      "why_it_matters": "Agents can review a complete resolved request before authorizing cart add, while checkout remains unsupported.",
+      "group": "Guarded cart boundary"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Browser-safe workflow plan",
+      "command": "browser plan",
+      "description": "Emit the complete browser-owned quotation and cart workflow without exporting credentials.",
+      "rationale": "The signed-in browser is the reliable owner of cookies, anti-fraud state, and CAPTCHA interactions.",
+      "example": "ifood-pp-cli browser plan --json --no-learn",
+      "why_it_matters": "Agents get deterministic requirements while credentials remain inside the browser.",
+      "group": "Browser-backed agent workflow"
+    },
+    {
+      "name": "Three-market quotation validator",
+      "command": "browser validate-quote",
+      "description": "Validate complete product observations from at least three markets meeting a configurable rating floor.",
+      "rationale": "Visible browser observations need strict local checks before price comparisons are trusted.",
+      "example": "ifood-pp-cli browser validate-quote --example --json --no-learn",
+      "why_it_matters": "The CLI fails closed on missing, unavailable, unnamed, or unpriced products.",
+      "group": "Browser-backed agent workflow"
+    },
+    {
+      "name": "Confirmation-gated cart plan",
+      "command": "browser cart-plan",
+      "description": "Produce the exact selected merchant, products, quantities, and expected total before any cart interaction.",
+      "rationale": "Cart writes require an explicit boundary between local planning and external mutation.",
+      "example": "ifood-pp-cli browser cart-plan --example --json --no-learn",
+      "why_it_matters": "Agents can request approval for a concrete plan and stop on substitutions or price changes.",
+      "group": "Guarded cart boundary"
+    },
+    {
+      "name": "Cross-market grocery quote",
+      "command": "quote",
+      "description": "Compare requested grocery terms across eligible markets and return complete price estimates.",
+      "rationale": "The private API requires composing market discovery and per-merchant product searches.",
+      "example": "ifood-pp-cli quote --example --json --no-learn",
+      "why_it_matters": "Agents can inspect the direct-API composition when a controlled session supports it.",
+      "group": "Direct API composition"
+    },
+    {
+      "name": "Preview-first cart builder",
+      "command": "cart build",
+      "description": "Resolve product terms into an exact read-only cart-item preview.",
+      "rationale": "Product choice and cart mutation remain separate phases; cart add owns the confirmation-gated write.",
+      "example": "ifood-pp-cli cart build EXAMPLE_CART --example --json --no-learn",
+      "why_it_matters": "Agents can review a complete resolved request before authorizing cart add, while checkout remains unsupported.",
+      "group": "Guarded cart boundary"
+    }
+  ],
+  "narrative": {
+    "display_name": "iFood",
+    "headline": "Agent-ready iFood grocery quoting with browser-owned authentication and confirmation-gated cart planning.",
+    "value_prop": "This CLI combines typed iFood grocery discovery with a deterministic Browser-backed workflow for comparing a complete shopping list across eligible markets. Authentication and anti-fraud state stay inside the signed-in browser, while the CLI validates observations, totals, and the exact cart plan locally.",
+    "auth_narrative": "Prefer the Browser-backed commands, which never export cookies or authorization headers. Direct private-API commands accept IFOOD_BEARER_AUTH only in controlled environments and may still be rejected by iFood anti-automation controls.",
+    "quickstart": [
+      {
+        "command": "ifood-pp-cli browser plan --json --no-learn",
+        "comment": "Generate the safe quotation workflow and default six-item requirements."
+      },
+      {
+        "command": "ifood-pp-cli browser schema --json --no-learn",
+        "comment": "Inspect the credential-free observation schema."
+      },
+      {
+        "command": "ifood-pp-cli cart build --help",
+        "comment": "Inspect the preview-first direct cart builder without changing a cart."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Direct API commands return an HTML 404 or authentication error",
+        "fix": "Use the Browser-backed workflow with the existing signed-in iFood session; do not export cookies or anti-fraud values."
+      },
+      {
+        "symptom": "A cart plan reports ready=false",
+        "fix": "Collect complete observations for at least three eligible markets and rerun browser validate-quote before planning the cart."
+      }
+    ],
+    "when_to_use": "Use this skill when an agent needs to quote grocery products on iFood, compare complete market totals, or prepare an exact cart plan while preserving browser authentication boundaries.",
+    "recipes": [
+      {
+        "title": "Validate a complete quotation",
+        "command": "ifood-pp-cli browser validate-quote --input ./ifood-quote.json --json --no-learn",
+        "explanation": "Rejects incomplete or below-threshold markets and selects the lowest complete known total."
+      },
+      {
+        "title": "Prepare a confirmation-ready cart plan",
+        "command": "ifood-pp-cli browser cart-plan --input ./ifood-quote.json --json --no-learn",
+        "explanation": "Produces an exact local plan and never writes to the remote cart."
+      },
+      {
+        "title": "Inspect direct cart composition safely",
+        "command": "ifood-pp-cli cart build --help",
+        "explanation": "Shows preview-first cart composition options without running a mutation."
+      }
+    ],
+    "trigger_phrases": [
+      "quote my iFood grocery list",
+      "compare iFood markets",
+      "prepare an iFood cart",
+      "cotação no iFood",
+      "montar carrinho do iFood"
+    ]
+  }
+}

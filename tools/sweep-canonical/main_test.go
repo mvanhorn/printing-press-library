@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"os"
 	"strings"
 	"testing"
 )
@@ -10,6 +11,17 @@ import (
 // the live library, paired with the expected post-sweep output. The
 // fragments are intentionally minimal — full SKILL.md round-trips are
 // covered by the manual dry-run against the live library before commit.
+
+func TestMinimumGoVersionMatchesRepoGoVersion(t *testing.T) {
+	data, err := os.ReadFile("../../.go-version")
+	if err != nil {
+		t.Fatalf("read repo .go-version: %v", err)
+	}
+	want := "Go " + strings.TrimSpace(string(data)) + " or newer"
+	if minimumGoVersion != want {
+		t.Fatalf("minimumGoVersion must track .go-version; want %q, got %q", want, minimumGoVersion)
+	}
+}
 
 func TestStripFrontmatterLegacyEnvBlocks_FourShapes(t *testing.T) {
 	cases := []struct {
@@ -326,6 +338,52 @@ stuff.
 	}
 	if !strings.Contains(got, "otherwise → see Prerequisites above") {
 		t.Errorf("expected 'otherwise → see Prerequisites above' routing rule")
+	}
+}
+
+func TestPatchSkillGoFallbackFloor_RewritesStaleVersionOnly(t *testing.T) {
+	body := `---
+name: pp-x
+---
+
+# X — Printing Press CLI
+
+## Prerequisites: Install the CLI
+
+If the ` + "`npx`" + ` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer). This installs into ` + "`$GOPATH/bin`" + `, so add that directory to ` + "`$PATH`" + ` instead:
+
+` + "```bash" + `
+go install github.com/mvanhorn/printing-press-library/library/other/x/cmd/x-pp-cli@latest
+` + "```" + `
+
+## Command Reference
+`
+	want := strings.Replace(body, "Go 1.26.3 or newer", minimumGoVersion, 1)
+	got := patchSkillGoFallbackFloor(body)
+	if got != want {
+		t.Fatalf("stale SKILL fallback floor mismatch.\n--- want ---\n%s\n--- got ---\n%s", want, got)
+	}
+	if !strings.Contains(got, "go install github.com/mvanhorn/printing-press-library/library/other/x/cmd/x-pp-cli@latest") {
+		t.Fatalf("go install block was not preserved:\n%s", got)
+	}
+
+	second := patchSkillGoFallbackFloor(got)
+	if second != got {
+		t.Fatalf("second SKILL fallback-floor run should be zero diff.\n--- first ---\n%s\n--- second ---\n%s", got, second)
+	}
+}
+
+func TestPatchSkillGoFallbackFloor_LiveVersionNoOp(t *testing.T) {
+	body := `# X — Printing Press CLI
+
+If the ` + "`npx`" + ` install fails (no Node, offline, etc.), fall back to a direct Go install (requires ` + minimumGoVersion + `):
+
+` + "```bash" + `
+go install github.com/mvanhorn/printing-press-library/library/other/x/cmd/x-pp-cli@latest
+` + "```" + `
+`
+	if got := patchSkillGoFallbackFloor(body); got != body {
+		t.Fatalf("live-floor SKILL fixture should stay byte-identical.\n--- want ---\n%s\n--- got ---\n%s", body, got)
 	}
 }
 
@@ -666,6 +724,56 @@ stuff.
 	// ## Install heading appears exactly once.
 	if strings.Count(got, "## Install\n") != 1 {
 		t.Errorf("## Install heading should appear exactly once; got %d", strings.Count(got, "## Install\n"))
+	}
+}
+
+func TestPatchReadmeGoFallbackFloor_RewritesStaleVersionOnly(t *testing.T) {
+	body := `# X CLI
+
+## Install
+
+### Without Node (Go fallback)
+
+If ` + "`npx`" + ` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.4 or newer):
+
+` + "```bash" + `
+go install github.com/mvanhorn/printing-press-library/library/other/x/cmd/x-pp-cli@latest
+` + "```" + `
+
+This installs the CLI only — no skill.
+
+## Authentication
+`
+	want := strings.Replace(body, "Go 1.26.4 or newer", minimumGoVersion, 1)
+	got := patchReadmeGoFallbackFloor(body)
+	if got != want {
+		t.Fatalf("stale README fallback floor mismatch.\n--- want ---\n%s\n--- got ---\n%s", want, got)
+	}
+	if !strings.Contains(got, "go install github.com/mvanhorn/printing-press-library/library/other/x/cmd/x-pp-cli@latest") {
+		t.Fatalf("go install block was not preserved:\n%s", got)
+	}
+
+	second := patchReadmeGoFallbackFloor(got)
+	if second != got {
+		t.Fatalf("second README fallback-floor run should be zero diff.\n--- first ---\n%s\n--- second ---\n%s", got, second)
+	}
+}
+
+func TestPatchReadmeGoFallbackFloor_LiveVersionNoOp(t *testing.T) {
+	body := `# X CLI
+
+## Install
+
+### Without Node (Go fallback)
+
+If ` + "`npx`" + ` isn't available (no Node, offline), install the CLI directly via Go (requires ` + minimumGoVersion + `):
+
+` + "```bash" + `
+go install github.com/mvanhorn/printing-press-library/library/other/x/cmd/x-pp-cli@latest
+` + "```" + `
+`
+	if got := patchReadmeGoFallbackFloor(body); got != body {
+		t.Fatalf("live-floor README fixture should stay byte-identical.\n--- want ---\n%s\n--- got ---\n%s", body, got)
 	}
 }
 

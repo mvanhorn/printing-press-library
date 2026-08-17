@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "oauth2-user-context-refresh",
+  "applied_at": "2026-06-17",
+  "base_run_id": "20260603-230951",
+  "base_printing_press_version": "4.20.1",
+  "summary": "OAuth2 user-context requests and doctor probes refresh stale access tokens with the stored refresh token before declaring credentials invalid.",
+  "reason": "The runtime request path and doctor probe could keep using a stale oauth2_user_token even when refresh_token and client_id were present. Refreshing must update oauth2_user_token, the same field UserContextAuthHeader prefers, and persist rotated refresh tokens/expiry.",
+  "files": [
+    "internal/client/client.go",
+    "internal/client/client_test.go",
+    "internal/cli/doctor.go",
+    "internal/cli/doctor_test.go"
+  ],
+  "validated_outcome": "go test ./internal/config ./internal/client ./internal/cli -run 'OAuth2UserContext|DoctorRefreshes|RequestRefreshes' -count=1; go test ./...; go build ./cmd/x-twitter-pp-cli"
+}

@@ -9,21 +9,30 @@ import (
 
 func newInstagramCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "instagram",
-		Short: "Gets Instagram profiles, posts, and reels",
+		Use:         "instagram",
+		Short:       "Gets Instagram profiles, posts, and reels",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:api-resource": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newInstagramListCmd(flags))
+	cmd.AddCommand(newInstagramListAudioCmd(flags))
 	cmd.AddCommand(newInstagramListMediaCmd(flags))
 	cmd.AddCommand(newInstagramListPostCmd(flags))
 	cmd.AddCommand(newInstagramListPost2Cmd(flags))
+	cmd.AddCommand(newInstagramListPost3Cmd(flags))
 	cmd.AddCommand(newInstagramListProfileCmd(flags))
 	cmd.AddCommand(newInstagramListReelsCmd(flags))
-	cmd.AddCommand(newInstagramListSongCmd(flags))
+	cmd.AddCommand(newInstagramListReels2Cmd(flags))
+	cmd.AddCommand(newInstagramListSearchCmd(flags))
+	cmd.AddCommand(newInstagramListSearch2Cmd(flags))
+	cmd.AddCommand(newInstagramListSearch3Cmd(flags))
+	cmd.AddCommand(newInstagramListSearch4Cmd(flags))
 	cmd.AddCommand(newInstagramListUserCmd(flags))
 	cmd.AddCommand(newInstagramListUser2Cmd(flags))
 	cmd.AddCommand(newInstagramListUser3Cmd(flags))
 	cmd.AddCommand(newInstagramListUser4Cmd(flags))
 	cmd.AddCommand(newInstagramListUser5Cmd(flags))
+	cmd.AddCommand(newInstagramListUser6Cmd(flags))
 	return cmd
 }

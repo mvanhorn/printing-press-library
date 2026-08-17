@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "api-catalog-refresh",
+  "applied_at": "2026-08-03",
+  "base_run_id": "20260511-211333",
+  "base_printing_press_version": "4.4.0",
+  "summary": "Recipes, panel templates and folders are refreshed over the internal API on the degraded path, staged into the Cache so one write path persists them, and stamped as API-owned.",
+  "reason": "On an install whose desktop cache can never be decrypted again, every catalog surface was frozen at the last successful decrypt while still answering as though it were current -- a folder or recipe created since then simply did not exist. Each of these surfaces is a single call for the whole set, so unlike transcripts there is deliberately no budget, no fetch-state table and no resume; a regen must not add that machinery here. The API payload lacks derivations the cache reader applies, and a regen has to keep replaying them: the recipe's Source is the bucket it came out of, its Name falls back to the slug, a blank panel-template slug is derived from the title, and the usage counter must be stored as decimal digits because every consumer reads it with Sscanf. Folder membership arrives inline on each document list, which is why the folder metadata type carries it and why its unmarshaler is written to never fail -- a custom unmarshaler's error aborts the whole cache decode rather than being accumulated.",
+  "validated_outcome": "Mutation checks confirm the guards bite: dropping the source stamp, the slug fallback, the counter stringification, the document_id preference, the degraded guard on the hydrate call, the CatalogOwner assignment, or narrowing the document-list fallback back to any 4xx each turns a test red.",
+  "files": [
+    "internal/granola/api_catalog.go",
+    "internal/granola/internalapi.go",
+    "internal/granola/cache.go",
+    "internal/cli/sync_cache.go"
+  ]
+}

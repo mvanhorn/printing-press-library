@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "archive-workflow-front-matter-and-year-sweep",
+  "applied_at": "2026-07-23",
+  "base_run_id": "20260621-094103",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Hand-added archive-workflow capabilities the generator does not emit: a front-matter YAML header on get/corpus md output, incremental corpus build (--skip-existing/--plan), and a year-range sweep (--anno-from/--anno-to). A reprint must re-carry these flags.",
+  "reason": "The portal exposes no relevance sort and only a single-year filter, so a year-at-a-time sweep de-duplicated by id is the only way to get balanced historical coverage; and the deposit date ('Pubblicato il') lives only in the raw HTML and is dropped by the Markdown renderer, so the front-matter block makes get/corpus output self-contained and source-traceable in a single fetch.",
+  "files": [
+    "internal/gaclient/frontmatter.go",
+    "internal/gaclient/client.go",
+    "internal/cli/get.go",
+    "internal/cli/provvedimenti_get.go",
+    "internal/cli/corpus_build.go",
+    "internal/cli/search.go",
+    "internal/cli/ga_core.go"
+  ],
+  "validated_outcome": "go build/vet/test green; front-matter, --skip-existing/--plan, and --anno-from/--anno-to all verified live against the portal."
+}

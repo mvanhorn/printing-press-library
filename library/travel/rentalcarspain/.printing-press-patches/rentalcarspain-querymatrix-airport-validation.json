@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "rentalcarspain-querymatrix-airport-validation",
+  "applied_at": "2026-07-26",
+  "base_run_id": "20260713-084638-059f7c9e",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Reject an unknown airport argument in the querymatrix diagnostic.",
+  "reason": "A diagnostic canary should run against a real airport; an unrecognized positional arg now errors non-zero instead of silently falling through to the Malaga default.",
+  "files": ["internal/cli/querymatrix.go"],
+  "validated_outcome": "querymatrix __printing_press_invalid__ exits non-zero; publish live error-path gate passes 102/102."
+}

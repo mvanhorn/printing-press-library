@@ -1,0 +1,305 @@
+{
+  "api_name": "bambu",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "Bambuddy",
+      "url": "https://github.com/maziggy/bambuddy",
+      "language": "Python",
+      "install_method": "",
+      "stars": 2502,
+      "last_updated": "",
+      "command_count": 30,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Bambu Lab Home Assistant",
+      "url": "https://github.com/greghesp/ha-bambulab",
+      "language": "Python",
+      "install_method": "",
+      "stars": 2244,
+      "last_updated": "",
+      "command_count": 25,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Bambu Printer MCP",
+      "url": "https://github.com/DMontgomery40/bambu-printer-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 76,
+      "last_updated": "",
+      "command_count": 28,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "BambuTools API",
+      "url": "https://github.com/BambuTools/bambulabs_api",
+      "language": "Python",
+      "install_method": "",
+      "stars": 318,
+      "last_updated": "",
+      "command_count": 24,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "bambu-cli",
+      "url": "https://github.com/tobiasbischoff/bambu-cli",
+      "language": "Go",
+      "install_method": "",
+      "stars": 23,
+      "last_updated": "",
+      "command_count": 18,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Bambu MCP",
+      "url": "https://github.com/schwarztim/bambu-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 15,
+      "last_updated": "",
+      "command_count": 24,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Madcow Bambu core",
+      "url": "https://github.com/twidtwid/madcowbot",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 10,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "bambu-node",
+      "url": "https://github.com/THE-SIMPLE-MARK/bambu-node",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 18,
+      "last_updated": "",
+      "command_count": 15,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [
+    "No OpenAPI spec exists for the MQTT/FTPS surface.",
+    "Crowd-sniff failed to generate a spec because npm discovery returned HTTP 400 and a package tarball ended unexpectedly."
+  ],
+  "patterns": [
+    "Sparse MQTT reports require reducer-based accumulation.",
+    "Exact current-job asset selection must never fall back to the newest arbitrary file.",
+    "Printer model, hardware and firmware determine field and feature availability."
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-11T04:34:20Z",
+  "novel_features": [
+    {
+      "name": "Calibrated completion forecast",
+      "command": "job eta",
+      "description": "Correct the printer's finish estimate using the error pattern from prior runs of the same job.",
+      "rationale": "Requires persisted ETA snapshots and actual terminal transitions that no single printer report contains.",
+      "example": "bambu-pp-cli job eta --agent",
+      "why_it_matters": "Use this when an automation or person needs a finish time grounded in this printer's observed history.",
+      "group": "History that improves live decisions"
+    },
+    {
+      "name": "Filament runway",
+      "command": "ams runway",
+      "description": "Estimate whether the active AMS tray can cover the current plate's remaining weight, with explicit unknown output when tray estimates or multi-material mapping are ambiguous.",
+      "rationale": "Requires joining exact 3MF material demand, live progress, active-tray mapping, and AMS remaining estimates.",
+      "example": "bambu-pp-cli ams runway --agent",
+      "why_it_matters": "Use this before leaving a long print unattended or deciding which spool needs attention.",
+      "group": "Material-aware operation"
+    },
+    {
+      "name": "Failure correlation matrix",
+      "command": "history failure-correlations",
+      "description": "Rank the printer, filament, plate, firmware, speed, and temperature contexts most associated with failed jobs.",
+      "rationale": "Requires a local join across job outcomes, HMS errors, printer state, AMS state, and environmental observations.",
+      "example": "bambu-pp-cli history failure-correlations --since 30d --agent",
+      "why_it_matters": "Use this when repeated failures need evidence-backed triage rather than inspection of one job.",
+      "group": "History that improves live decisions"
+    },
+    {
+      "name": "Print-stage timeline",
+      "command": "job timeline",
+      "description": "Reconstruct one print's stages, pauses, layers, temperature recovery, and errors as an ordered timeline.",
+      "rationale": "Requires reducing many sparse MQTT observations and transitions into a chronology.",
+      "example": "bambu-pp-cli job timeline --latest --agent",
+      "why_it_matters": "Use this to explain where one print slowed, paused, recovered, or failed.",
+      "group": "History that improves live decisions"
+    },
+    {
+      "name": "Firmware field drift",
+      "command": "printer field-diff",
+      "description": "Compare first and latest persisted redacted MQTT schemas for added, removed, and type-changed fields across a selected window.",
+      "rationale": "Requires sparse-report-aware comparison across persisted redacted raw schemas.",
+      "example": "bambu-pp-cli printer field-diff --since 7d --agent",
+      "why_it_matters": "Use this to inspect structural report changes between locally persisted observations.",
+      "group": "Integration resilience"
+    },
+    {
+      "name": "Repeat-job comparison",
+      "command": "job repeats",
+      "description": "Compare duration, pauses, material, errors, and outcomes across repeated runs of the same plate.",
+      "rationale": "Requires stable job identity and a local history of transitions, errors, and 3MF metadata.",
+      "example": "bambu-pp-cli job repeats \"Colored Accents\" --agent",
+      "why_it_matters": "Use this to judge whether a recurring print is stable and repeatable.",
+      "group": "History that improves live decisions"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Calibrated completion forecast",
+      "command": "job eta",
+      "description": "Correct the printer's finish estimate using the error pattern from prior runs of the same job.",
+      "rationale": "Requires persisted ETA snapshots and actual terminal transitions that no single printer report contains.",
+      "example": "bambu-pp-cli job eta --agent",
+      "why_it_matters": "Use this when an automation or person needs a finish time grounded in this printer's observed history.",
+      "group": "History that improves live decisions"
+    },
+    {
+      "name": "Filament runway",
+      "command": "ams runway",
+      "description": "Estimate whether the active AMS tray can cover the current plate's remaining weight, with explicit unknown output when tray estimates or multi-material mapping are ambiguous.",
+      "rationale": "Requires joining exact 3MF material demand, live progress, active-tray mapping, and AMS remaining estimates.",
+      "example": "bambu-pp-cli ams runway --agent",
+      "why_it_matters": "Use this before leaving a long print unattended or deciding which spool needs attention.",
+      "group": "Material-aware operation"
+    },
+    {
+      "name": "Failure correlation matrix",
+      "command": "history failure-correlations",
+      "description": "Rank the printer, filament, plate, firmware, speed, and temperature contexts most associated with failed jobs.",
+      "rationale": "Requires a local join across job outcomes, HMS errors, printer state, AMS state, and environmental observations.",
+      "example": "bambu-pp-cli history failure-correlations --since 30d --agent",
+      "why_it_matters": "Use this when repeated failures need evidence-backed triage rather than inspection of one job.",
+      "group": "History that improves live decisions"
+    },
+    {
+      "name": "Print-stage timeline",
+      "command": "job timeline",
+      "description": "Reconstruct one print's stages, pauses, layers, temperature recovery, and errors as an ordered timeline.",
+      "rationale": "Requires reducing many sparse MQTT observations and transitions into a chronology.",
+      "example": "bambu-pp-cli job timeline --latest --agent",
+      "why_it_matters": "Use this to explain where one print slowed, paused, recovered, or failed.",
+      "group": "History that improves live decisions"
+    },
+    {
+      "name": "Firmware field drift",
+      "command": "printer field-diff",
+      "description": "Compare first and latest persisted redacted MQTT schemas for added, removed, and type-changed fields across a selected window.",
+      "rationale": "Requires sparse-report-aware comparison across persisted redacted raw schemas.",
+      "example": "bambu-pp-cli printer field-diff --since 7d --agent",
+      "why_it_matters": "Use this to inspect structural report changes between locally persisted observations.",
+      "group": "Integration resilience"
+    },
+    {
+      "name": "Repeat-job comparison",
+      "command": "job repeats",
+      "description": "Compare duration, pauses, material, errors, and outcomes across repeated runs of the same plate.",
+      "rationale": "Requires stable job identity and a local history of transitions, errors, and 3MF metadata.",
+      "example": "bambu-pp-cli job repeats \"Colored Accents\" --agent",
+      "why_it_matters": "Use this to judge whether a recurring print is stable and repeatable.",
+      "group": "History that improves live decisions"
+    }
+  ],
+  "narrative": {
+    "display_name": "Bambu Lab",
+    "headline": "Agent-ready Bambu print monitoring with exact plate previews and start/finish payloads.",
+    "value_prop": "For people wiring an agent or code to monitor a Bambu print and post updates to Discord, a webhook, or another automation. Use normal local access for live MQTT status, exact-current-job 3MF weight and preview, provider-neutral start/finish events, and local history; Developer Mode, LAN Only Mode, Bambu Cloud, printer control, and farm management are intentionally unsupported.",
+    "auth_narrative": "Set BAMBU_SERIAL and BAMBU_ACCESS_CODE from the printer network settings. BAMBU_HOST is optional because discovery follows DHCP changes; set it only when multicast SSDP cannot cross the local network. The CLI uses normal local access only, validates the printer CA, and matches the peer certificate CN to the configured serial.",
+    "quickstart": [
+      {
+        "command": "bambu-pp-cli doctor --dry-run",
+        "comment": "Validate local configuration and command shape without contacting or changing the printer."
+      },
+      {
+        "command": "bambu-pp-cli discover --agent",
+        "comment": "Find the configured serial on the LAN without hard-coding a DHCP address."
+      },
+      {
+        "command": "bambu-pp-cli printer status --agent --select state,job.name,job.percent,job.estimated_finish_at,temperatures,ams_active",
+        "comment": "Fetch a fresh status while keeping the agent payload compact."
+      },
+      {
+        "command": "bambu-pp-cli events watch --agent --asset-dir ./bambu-events",
+        "comment": "Emit start and terminal lifecycle payloads with a preview attachment reference."
+      },
+      {
+        "command": "bambu-pp-cli sync --resources snapshots,jobs,transitions --since 24h",
+        "comment": "Record a fresh observation and current-job baseline; LAN sync does not backfill historical transitions."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Discovery finds no printer",
+        "fix": "Set BAMBU_HOST only if multicast SSDP cannot reach the printer across your VLAN or subnet."
+      },
+      {
+        "symptom": "Certificate identity mismatch",
+        "fix": "Verify BAMBU_SERIAL against the printer; do not disable certificate verification."
+      },
+      {
+        "symptom": "MQTT connects but status remains empty",
+        "fix": "Verify the access code and that TCP 8883 is reachable, then run bambu-pp-cli doctor --agent."
+      },
+      {
+        "symptom": "FTPS reports session reuse required",
+        "fix": "Run bambu-pp-cli doctor --agent and report the output; this CLI must negotiate implicit TLS data-channel session reuse."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or automation needs structured local truth about a Bambu print, including progress, ETA, AMS/HMS state, exact plate metadata, a model preview, and start/finish payloads. For printer control, LAN Only Mode, Developer Mode, camera walls, or farm management, use Bambuddy or another control-oriented project.",
+    "anti_triggers": [
+      "Do not use this CLI for printer control, print dispatch, movement, heating, firmware, camera control, or AMS writes.",
+      "Do not use it with Developer Mode, LAN Only Mode, Bambu Cloud, remote relays, or farm-management workflows.",
+      "Do not use it for slicing, mesh repair, MakerWorld browsing, or spool inventory management.",
+      "Do not expose the local access code in flags, logs, artifacts, chat messages, or MCP calls."
+    ],
+    "recipes": [
+      {
+        "title": "Automation-ready print events",
+        "command": "bambu-pp-cli events watch --agent --asset-dir ./bambu-events",
+        "explanation": "Stream a start payload with ETA, material weight, and preview reference when available; enrichment failures appear in warnings. A terminal payload follows when the print ends."
+      },
+      {
+        "title": "Compact current-print summary",
+        "command": "bambu-pp-cli printer status --agent --select state,job.name,job.percent,job.estimated_finish_at,job.current_layer,job.total_layers,ams_active",
+        "explanation": "Keep only the fields a notification or agent needs."
+      },
+      {
+        "title": "Check filament runway",
+        "command": "bambu-pp-cli ams runway --agent",
+        "explanation": "Estimate whether loaded material can finish the current plate."
+      },
+      {
+        "title": "Explain the latest print",
+        "command": "bambu-pp-cli job timeline --latest --agent",
+        "explanation": "Reconstruct stages, pauses, layer progress, temperature recovery, and errors."
+      },
+      {
+        "title": "Find recurring failure context",
+        "command": "bambu-pp-cli history failure-correlations --since 30d --agent",
+        "explanation": "Group failed jobs by printer, filament, plate, firmware, speed, and temperature context."
+      }
+    ],
+    "trigger_phrases": [
+      "what is my Bambu printer doing",
+      "post when this print starts and finishes",
+      "send this Bambu print to Discord",
+      "show my Bambu plate preview",
+      "when will the Bambu print finish",
+      "monitor my Bambu print"
+    ]
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "autorefresh-no-stdout",
+  "applied_at": "2026-07-25",
+  "base_run_id": "20260511-211333",
+  "base_printing_press_version": "4.4.0",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/sync_autorefresh.go",
+    "internal/cli/sync_autorefresh_api_test.go"
+  ],
+  "summary": "The generated sync progress stream writes ndjson to the process stdout whenever human-friendly mode is off, which is the default and the documented agent-safe mode. That is correct for a command the user invoked and wrong for anything the CLI runs on its behalf, so the destination has to be a caller argument, not a package global: syncResource keeps the generated signature and the generated stdout/stderr destinations for the explicit sync commands, and syncResourceTo takes the writers so the pre-command refresh can discard them. A regen that restores the direct os.Stdout writes reintroduces the bug for every automatic caller, however that caller is spelled.",
+  "reason": "Auto-refresh fires from PersistentPreRunE on nearly every command, so with an API key configured 'granola-pp-cli show <id> --json' emitted six sync ndjson lines ahead of its real payload and broke any strict JSON or ndjson consumer. Agents parse the explicit sync and sync-api summaries today, so silencing them globally was not an option — hence a writer seam rather than a quiet flag on the shared global.",
+  "validated_outcome": "Capturing the process stdout file descriptor around the refresh dispatcher yields zero bytes, while sync-api still emits sync_start / sync_complete / sync_summary unchanged."
+}

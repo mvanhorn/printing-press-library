@@ -30,7 +30,8 @@ type articleManifestEntry struct {
 	Checksums     map[string]string `json:"checksums"` // locale -> sha256 of the as-written markdown file (frontmatter + body) at pull time; push re-reads + re-checksums to detect edits without round-tripping the lossy HTML↔markdown converter
 }
 
-func newArticlesPullCmd(flags *rootFlags) *cobra.Command {
+// pp:data-source live
+func newNovelArticlesPullCmd(flags *rootFlags) *cobra.Command {
 	var to string
 	var localesCSV string
 	var maxArticles int
@@ -54,11 +55,16 @@ func newArticlesPullCmd(flags *rootFlags) *cobra.Command {
 				fmt.Fprintln(cmd.OutOrStdout(), "would pull (verify mode)")
 				return nil
 			}
+			// Live-only command: pulls from the API, so reject --data-source
+			// local (auto/live pass through).
+			if err := validateDataSourceStrategy(flags, "live"); err != nil {
+				return err
+			}
 			localeFilter := parseLocaleFilter(localesCSV)
 			if maxArticles <= 0 {
 				maxArticles = 5000
 			}
-			if err := os.MkdirAll(to, 0o755); err != nil {
+			if err := os.MkdirAll(to, 0o750); err != nil {
 				return fmt.Errorf("mkdir %s: %w", to, err)
 			}
 
@@ -114,6 +120,9 @@ func newArticlesPullCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			manifestPath := filepath.Join(to, "manifest.json")
+			// #nosec G304 -- manifestPath is filepath.Join(user-supplied --to
+			// output dir, constant "manifest.json"); pointing this command at a
+			// user-chosen directory is its intended contract.
 			mf, err := os.Create(manifestPath)
 			if err != nil {
 				return fmt.Errorf("creating manifest: %w", err)
@@ -121,10 +130,12 @@ func newArticlesPullCmd(flags *rootFlags) *cobra.Command {
 			enc := json.NewEncoder(mf)
 			enc.SetIndent("", "  ")
 			if err := enc.Encode(manifest); err != nil {
-				mf.Close()
+				_ = mf.Close()
 				return err
 			}
-			mf.Close()
+			if err := mf.Close(); err != nil {
+				return fmt.Errorf("closing manifest: %w", err)
+			}
 
 			if flags.asJSON || flags.agent {
 				// PATCH(articles-pull-json-envelope): emit a JSON envelope when
@@ -271,6 +282,11 @@ func writeArticleFiles(dir string, raw json.RawMessage, localeFilter map[string]
 	if id == "" {
 		return articleManifestEntry{}, 0, fmt.Errorf("article missing id")
 	}
+	// id is API-controlled and lands verbatim in the on-disk filename below.
+	// A hostile "../" would escape --to via filepath.Join's upward cleaning.
+	if !isPathSafeComponent(id) {
+		return articleManifestEntry{}, 0, fmt.Errorf("article id %q contains unsafe path characters", id)
+	}
 	slug := slugify(a.Title, 40)
 	entry := articleManifestEntry{
 		ID:            id,
@@ -290,10 +306,18 @@ func writeArticleFiles(dir string, raw json.RawMessage, localeFilter map[string]
 		if localeFilter != nil && !localeFilter[locale] {
 			return
 		}
+		// locale is an API-controlled translated_content map key that lands
+		// verbatim in the filename; reject any value that could escape --to.
+		// Real locales (en, pt-BR, zh-CN) never contain path separators.
+		if !isPathSafeComponent(locale) {
+			fmt.Fprintf(os.Stderr, "warning: skipping unsafe locale %q for article %s\n", locale, id)
+			return
+		}
 		fname := fmt.Sprintf("%s-%s.%s.md", id, slug, locale)
 		fpath := filepath.Join(dir, fname)
 		md := renderArticleMarkdown(a, locale, title, description, body)
-		if err := os.WriteFile(fpath, []byte(md), 0o644); err != nil {
+		if err := os.WriteFile(fpath, []byte(md), 0o600); err != nil {
+			fmt.Fprintf(os.Stderr, "warning: writing %s: %v\n", fname, err)
 			return
 		}
 		entry.Files = append(entry.Files, fname)
@@ -349,6 +373,24 @@ func stringifyAny(v any) string {
 	default:
 		return fmt.Sprintf("%v", x)
 	}
+}
+
+// isPathSafeComponent reports whether s is safe to embed as a single path
+// component in an on-disk filename: no path separators, no parent-dir escape,
+// no NUL. Used to fence API-controlled values (article id, translated_content
+// locale keys) out of filepath.Join, which would otherwise clean an embedded
+// "../" upward and write outside --to.
+func isPathSafeComponent(s string) bool {
+	if s == "" || s == "." || s == ".." {
+		return false
+	}
+	if strings.ContainsAny(s, `/\`) || strings.Contains(s, "..") {
+		return false
+	}
+	if strings.ContainsRune(s, 0) {
+		return false
+	}
+	return true
 }
 
 func renderArticleMarkdown(a articleShape, locale, title, description, body string) string {

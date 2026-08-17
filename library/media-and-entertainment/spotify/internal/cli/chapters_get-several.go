@@ -16,34 +16,44 @@ func newChaptersGetSeveralCmd(flags *rootFlags) *cobra.Command {
 	var flagMarket string
 
 	cmd := &cobra.Command{
-		Use:         "get-several",
-		Aliases:     []string{"list"},
-		Short:       "Get Spotify catalog information for several audiobook chapters identified by their Spotify IDs. Chapters are only...",
+		Use:     "get-several",
+		Aliases: []string{"list"},
+		Short:   "Get Spotify catalog information for several audiobook chapters identified by their Spotify IDs.",
+		// TODO: replace placeholder example values before relying on this for live dogfood.
 		Example:     "  spotify-pp-cli chapters get-several --ids example-value",
 		Annotations: map[string]string{"pp:endpoint": "chapters.get-several", "pp:method": "GET", "pp:path": "/chapters", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Bare invocation of a command with required input prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only read commands fall through so a bare call still executes.
+			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
+				return cmd.Help()
+			}
 			if !cmd.Flags().Changed("ids") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "ids")
 			}
+			path := "/chapters"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/chapters"
 			params := map[string]string{}
 			if flagIds != "" {
-				params["ids"] = fmt.Sprintf("%v", flagIds)
+				params["ids"] = formatCLIParamValue(flagIds)
 			}
 			if flagMarket != "" {
-				params["market"] = fmt.Sprintf("%v", flagMarket)
+				params["market"] = formatCLIParamValue(flagMarket)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "chapters", false, path, params, nil)
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "chapters", false, path, params, nil, "chapters", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
@@ -79,7 +89,7 @@ func newChaptersGetSeveralCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagIds, "ids", "", "Ids")

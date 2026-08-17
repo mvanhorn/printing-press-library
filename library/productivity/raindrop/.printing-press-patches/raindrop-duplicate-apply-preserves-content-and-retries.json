@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "raindrop-duplicate-apply-preserves-content-and-retries",
+  "applied_at": "2026-08-14",
+  "base_run_id": "20260814-120132",
+  "base_printing_press_version": "4.30.2",
+  "summary": "Duplicate cleanup must preserve unique notes and highlights and remain retry-safe after partial deletion.",
+  "reason": "Raindrop deletes are irreversible; retrying a partially applied plan must tolerate already-removed bookmarks and must not discard content unique to a duplicate.",
+  "files": ["internal/cli/duplicates_plan.go", "internal/cli/duplicates_apply.go", "internal/cli/duplicates_apply_test.go"],
+  "validated_outcome": "Focused tests cover note/highlight merging, immutable-field stripping, and highlight identity detection."
+}

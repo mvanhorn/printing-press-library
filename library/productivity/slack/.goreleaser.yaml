@@ -23,7 +23,7 @@ builds:
     env:
       - CGO_ENABLED=0
     ldflags:
-      - -s -w
+      - -s -w -X main.version={{ .Version }}
     targets:
       - darwin_amd64
       - darwin_arm64
@@ -42,10 +42,10 @@ checksum:
 brews:
   - name: slack-pp-cli
     repository:
-      owner: matt-van-horn
+      owner: mvanhorn
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Send messages, search conversations, manage channels and users in your Slack workspace"
+    description: "Every Slack read your token can make, mirrored to local SQLite so your history outlives Slack's own retention wall."
     install: |
       bin.install "slack-pp-cli"
       bin.install "slack-pp-mcp"

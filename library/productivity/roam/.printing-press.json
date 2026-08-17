@@ -78,5 +78,6 @@
       "command": "mention-inbox",
       "description": "Local FTS over messages.text for @user tokens with --since filter; tail format."
     }
-  ]
+  ],
+  "mcp_tool_count": 74
 }

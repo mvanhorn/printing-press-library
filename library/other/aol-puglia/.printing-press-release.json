@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "aol-puglia",
+  "cli_name": "aol-puglia-pp-cli",
+  "version": "2026.8.1",
+  "released_at": "2026-08-17T09:20:00Z",
+  "source_commit": "74481218e937b287f820083d970333e956d6bbcd",
+  "printing_press_version": "4.24.0",
+  "run_id": "20260617-160648",
+  "changes": [
+    {
+      "title": "add: aol-puglia — Online Public Register of Apulia Healthcare",
+      "pr": 1259,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1259",
+      "commit": "74481218e937b287f820083d970333e956d6bbcd"
+    }
+  ]
+}

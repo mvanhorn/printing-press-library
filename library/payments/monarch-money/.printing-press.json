@@ -18,7 +18,7 @@
   "run_id": "manual-plan-20260509",
   "catalog_entry": "monarch-money",
   "category": "payments",
-  "description": "Use Monarch Money account balances, tags, transactions, cashflow summaries, and explicit transaction CRUD workflows from the terminal.",
+  "description": "Read Monarch Money account balances, tags, transactions, and cashflow summaries from the terminal.",
   "auth_type": "token",
   "auth_env_vars": [
     "MONARCH_TOKEN",

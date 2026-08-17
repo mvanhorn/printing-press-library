@@ -84,3 +84,29 @@ func TestFetchOrderListPages_ParsesRealOrderPage(t *testing.T) {
 		t.Errorf("currency = %q, want INR", orders[0].Currency)
 	}
 }
+
+func TestFetchOrderListPages_FailsOnLaterInterstitial(t *testing.T) {
+	calls := 0
+	firstPage := `<html><head><title>Your Orders</title></head><body>
+<div class="order-card js-order-card">ORDER PLACED May 5, 2026 TOTAL $51.46 SHIP TO Jane ORDER # 111-1111111-1111111</div>
+<li class="a-last"><a href="#">Next</a></li>
+</body></html>`
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		calls++
+		if calls == 1 {
+			_, _ = w.Write([]byte(firstPage))
+			return
+		}
+		_, _ = w.Write([]byte(signInInterstitialHTML))
+	}))
+	defer srv.Close()
+
+	c := testClientFor(srv.URL)
+	orders, err := fetchOrderListPages(context.Background(), c, "year-2026", 3)
+	if err == nil {
+		t.Fatalf("expected auth/interstitial error, got nil (orders=%d)", len(orders))
+	}
+	if !strings.Contains(err.Error(), "sign-in/interstitial") {
+		t.Errorf("error = %v, want it to mention sign-in/interstitial", err)
+	}
+}

@@ -9,12 +9,18 @@ import (
 
 func newTracksCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "tracks",
-		Short: "Manage tracks (incl. cross-entity 'tracks where' lookup)",
+		Use:         "tracks",
+		Short:       "Manage tracks command groups",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newTracksGetCmd(flags))
 	cmd.AddCommand(newTracksGetSeveralCmd(flags))
 	cmd.AddCommand(newTracksWhereCmd(flags))
+	// PATCH(tracks-resolve-setlist-to-uris): hand-written sibling of the
+	// generated track commands — see transcendence_tracks_resolve.go.
+	cmd.AddCommand(newTracksResolveCmd(flags))
 	return cmd
 }

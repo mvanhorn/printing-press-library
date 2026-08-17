@@ -1,0 +1,312 @@
+{
+  "api_name": "3cx-xapi",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "getrav/3cx-cli",
+      "url": "https://github.com/getrav/3cx-cli",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 30,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "SSIG-IT/3cx-mcp-server",
+      "url": "https://github.com/SSIG-IT/3cx-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 22,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "O-IT/3CX",
+      "url": "https://github.com/O-IT/3CX",
+      "language": "PowerShell",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "luxzg/3CX-XAPI_examples",
+      "url": "https://github.com/luxzg/3CX-XAPI_examples",
+      "language": "PowerShell",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "werddomain/3CX_XAPI",
+      "url": "https://github.com/werddomain/3CX_XAPI",
+      "language": "C#",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "3cx/xapi-tutorial",
+      "url": "https://github.com/3cx/xapi-tutorial",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-27T11:27:46Z",
+  "novel_features": [
+    {
+      "name": "Config integrity audit",
+      "command": "audit",
+      "description": "Flag every ring group, queue, inbound/outbound rule, and IVR destination that points at a deleted, disabled, or non-existent extension or DID.",
+      "rationale": "Requires a cross-entity join across the whole config graph in local SQLite that no single XAPI call can return.",
+      "example": "3cx-xapi-pp-cli audit --agent",
+      "why_it_matters": "Reach for this to catch broken call routing before users do, surfacing dangling references the 3CX console cannot detect.",
+      "group": "Config graph intelligence"
+    },
+    {
+      "name": "Config snapshot and diff",
+      "command": "diff",
+      "description": "Capture the full PBX config to a local snapshot, then show exactly what changed between two points in time or two tenants.",
+      "rationale": "The PBX has no concept of config history; only a local mirror of every entity makes row-level drift detection possible.",
+      "example": "3cx-xapi-pp-cli diff yesterday now --agent",
+      "why_it_matters": "Reach for this for change management, proving what changed, when, and by how much across the whole config.",
+      "group": "Config graph intelligence"
+    },
+    {
+      "name": "Bulk provision from CSV",
+      "command": "provision",
+      "description": "Idempotently create extensions and users from a CSV, assigning groups and roles, with a dry-run plan and typed exit codes.",
+      "rationale": "Turns hundreds of console clicks into one auditable, replayable command; the local plan and diff make it idempotent.",
+      "example": "3cx-xapi-pp-cli provision --file users.csv --dry-run",
+      "why_it_matters": "Reach for this to onboard a whole tenant in one command instead of clicking the web console per extension.",
+      "group": "Bulk operations"
+    },
+    {
+      "name": "Queue and agent performance rollup",
+      "command": "qrollup",
+      "description": "One cross-queue table joining queue performance, agent-in-queue stats, abandoned calls, and SLA breaches over a time window.",
+      "rationale": "Joins four separate reporting endpoints into a single rollup the per-queue console screens never aggregate.",
+      "example": "3cx-xapi-pp-cli qrollup --since 7d --agent",
+      "why_it_matters": "Reach for this to compare queues and weeks at a glance instead of opening one slow report screen per queue.",
+      "group": "Contact-centre analytics"
+    },
+    {
+      "name": "Offline directory search",
+      "command": "search",
+      "description": "Instant full-text search across the mirrored config graph (users, groups, ring groups, queues, trunks, DIDs, contacts) by number, name, email, or extension.",
+      "rationale": "FTS5 over the local mirror answers lookups instantly without paging the live API across many collections.",
+      "example": "3cx-xapi-pp-cli search reception --type users --data-source local --agent",
+      "why_it_matters": "Reach for this when you know a number or name and need the object fast, across every entity type at once.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Security posture report",
+      "command": "posture",
+      "description": "Consolidate blocklist, blacklisted numbers, anti-hacking settings, firewall state, failed-auth events, and the admin audit log into one attack-surface report.",
+      "rationale": "Aggregates several security and log endpoints the console scatters across separate screens into one report.",
+      "example": "3cx-xapi-pp-cli posture --agent",
+      "why_it_matters": "Reach for this for a one-shot security review instead of hunting across Security and Logs screens.",
+      "group": "Config graph intelligence"
+    },
+    {
+      "name": "Extension routing trace",
+      "command": "trace",
+      "description": "For one extension, show every inbound rule, ring group, queue, DID, and forwarding profile that routes to it.",
+      "rationale": "Walks the routing graph in local SQLite to answer reachability for a single DN; no single API call traverses these relations.",
+      "example": "3cx-xapi-pp-cli trace 214 --agent",
+      "why_it_matters": "Reach for this to answer why an extension is not ringing by seeing every path that reaches it.",
+      "group": "Config graph intelligence"
+    },
+    {
+      "name": "Live state merge",
+      "command": "changed",
+      "description": "A single time-windowed feed merging activity log, event log, active calls, and system status into the state of the PBX now or since a given time.",
+      "rationale": "Merges four live endpoints into one window-scoped view the console never combines.",
+      "example": "3cx-xapi-pp-cli changed --since 2h --agent",
+      "why_it_matters": "Reach for this as the first command when triaging something wrong right now on a PBX.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Config integrity audit",
+      "command": "audit",
+      "description": "Flag every ring group, queue, inbound/outbound rule, and IVR destination that points at a deleted, disabled, or non-existent extension or DID.",
+      "rationale": "Requires a cross-entity join across the whole config graph in local SQLite that no single XAPI call can return.",
+      "example": "3cx-xapi-pp-cli audit --agent",
+      "why_it_matters": "Reach for this to catch broken call routing before users do, surfacing dangling references the 3CX console cannot detect.",
+      "group": "Config graph intelligence"
+    },
+    {
+      "name": "Config snapshot and diff",
+      "command": "diff",
+      "description": "Capture the full PBX config to a local snapshot, then show exactly what changed between two points in time or two tenants.",
+      "rationale": "The PBX has no concept of config history; only a local mirror of every entity makes row-level drift detection possible.",
+      "example": "3cx-xapi-pp-cli diff yesterday now --agent",
+      "why_it_matters": "Reach for this for change management, proving what changed, when, and by how much across the whole config.",
+      "group": "Config graph intelligence"
+    },
+    {
+      "name": "Bulk provision from CSV",
+      "command": "provision",
+      "description": "Idempotently create extensions and users from a CSV, assigning groups and roles, with a dry-run plan and typed exit codes.",
+      "rationale": "Turns hundreds of console clicks into one auditable, replayable command; the local plan and diff make it idempotent.",
+      "example": "3cx-xapi-pp-cli provision --file users.csv --dry-run",
+      "why_it_matters": "Reach for this to onboard a whole tenant in one command instead of clicking the web console per extension.",
+      "group": "Bulk operations"
+    },
+    {
+      "name": "Queue and agent performance rollup",
+      "command": "qrollup",
+      "description": "One cross-queue table joining queue performance, agent-in-queue stats, abandoned calls, and SLA breaches over a time window.",
+      "rationale": "Joins four separate reporting endpoints into a single rollup the per-queue console screens never aggregate.",
+      "example": "3cx-xapi-pp-cli qrollup --since 7d --agent",
+      "why_it_matters": "Reach for this to compare queues and weeks at a glance instead of opening one slow report screen per queue.",
+      "group": "Contact-centre analytics"
+    },
+    {
+      "name": "Offline directory search",
+      "command": "search",
+      "description": "Instant full-text search across the mirrored config graph (users, groups, ring groups, queues, trunks, DIDs, contacts) by number, name, email, or extension.",
+      "rationale": "FTS5 over the local mirror answers lookups instantly without paging the live API across many collections.",
+      "example": "3cx-xapi-pp-cli search reception --type users --data-source local --agent",
+      "why_it_matters": "Reach for this when you know a number or name and need the object fast, across every entity type at once.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Security posture report",
+      "command": "posture",
+      "description": "Consolidate blocklist, blacklisted numbers, anti-hacking settings, firewall state, failed-auth events, and the admin audit log into one attack-surface report.",
+      "rationale": "Aggregates several security and log endpoints the console scatters across separate screens into one report.",
+      "example": "3cx-xapi-pp-cli posture --agent",
+      "why_it_matters": "Reach for this for a one-shot security review instead of hunting across Security and Logs screens.",
+      "group": "Config graph intelligence"
+    },
+    {
+      "name": "Extension routing trace",
+      "command": "trace",
+      "description": "For one extension, show every inbound rule, ring group, queue, DID, and forwarding profile that routes to it.",
+      "rationale": "Walks the routing graph in local SQLite to answer reachability for a single DN; no single API call traverses these relations.",
+      "example": "3cx-xapi-pp-cli trace 214 --agent",
+      "why_it_matters": "Reach for this to answer why an extension is not ringing by seeing every path that reaches it.",
+      "group": "Config graph intelligence"
+    },
+    {
+      "name": "Live state merge",
+      "command": "changed",
+      "description": "A single time-windowed feed merging activity log, event log, active calls, and system status into the state of the PBX now or since a given time.",
+      "rationale": "Merges four live endpoints into one window-scoped view the console never combines.",
+      "example": "3cx-xapi-pp-cli changed --since 2h --agent",
+      "why_it_matters": "Reach for this as the first command when triaging something wrong right now on a PBX.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "3CX",
+    "headline": "Every 3CX Configuration API (XAPI) object in one Go binary, with a local mirror of your whole PBX, offline search, config diffing, and cross-entity auditing no 3CX tool has.",
+    "value_prop": "Covers the full 3CX V20+ Configuration API: users, groups, ring groups, queues, IVRs, trunks, DIDs, in/outbound rules, reporting, backups, security, and integrations. Beyond CRUD, it mirrors the entire config graph into local SQLite so you can search it offline, diff it over time, audit it for dangling references, roll up queue and agent performance, and trace exactly what routes to an extension.",
+    "auth_narrative": "Authentication is OAuth2 client-credentials. Create an API client in the 3CX Web Client under Admin \u003e Integrations \u003e API, enable the 3CX Configuration API checkbox, and assign the Service Principal the System Owner role (System Administrator causes 403 on call history and several reports). Set TCX_CLIENT_ID and TCX_CLIENT_SECRET, and point the CLI at your instance with TCX_FQDN (or the base-url config). The CLI mints and caches a Bearer token from /connect/token and refreshes it automatically (tokens last 60 minutes).",
+    "quickstart": [
+      {
+        "command": "3cx-xapi-pp-cli doctor --dry-run",
+        "comment": "Health check: confirms config and auth wiring before any live call."
+      },
+      {
+        "command": "3cx-xapi-pp-cli sync --resources users,groups,ring-groups,queues,trunks,inbound-rules,did-numbers",
+        "comment": "Mirror the core config graph into local SQLite, the basis for search, audit, diff, and trace."
+      },
+      {
+        "command": "3cx-xapi-pp-cli search 214 --type users --data-source local",
+        "comment": "Instant offline lookup once synced."
+      },
+      {
+        "command": "3cx-xapi-pp-cli audit --agent",
+        "comment": "Find broken routing: destinations pointing at deleted or disabled objects."
+      },
+      {
+        "command": "3cx-xapi-pp-cli qrollup --since 7d --agent",
+        "comment": "Cross-queue performance and SLA rollup for the last week."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "403 Forbidden on call history or reports",
+        "fix": "The API client Service Principal needs the System Owner role, not System Administrator. Re-assign it under Admin \u003e Integrations \u003e API."
+      },
+      {
+        "symptom": "401 Unauthorized on every command",
+        "fix": "Check TCX_CLIENT_ID and TCX_CLIENT_SECRET and that the API client has the 3CX Configuration API checkbox enabled. Run: 3cx-xapi-pp-cli doctor"
+      },
+      {
+        "symptom": "Connection or DNS error",
+        "fix": "Set TCX_FQDN (or the base-url config) to your instance, for example https://your-company.3cx.com.au; the CLI appends /xapi/v1 and /connect/token automatically."
+      },
+      {
+        "symptom": "search, audit, or trace return nothing",
+        "fix": "Populate the local mirror first: 3cx-xapi-pp-cli sync --resources users,groups,ring-groups,queues,trunks,inbound-rules,did-numbers"
+      }
+    ],
+    "when_to_use": "Use this CLI to manage and reason about a 3CX V20+ phone system from scripts or an agent: provisioning extensions in bulk, auditing the config graph for broken routing, diffing config over time, rolling up queue and agent performance, and tracing how calls reach an extension. It is ideal when you want offline, queryable, agent-native access to a PBX whose web console is slow and siloed.",
+    "anti_triggers": [
+      "Do not use this CLI for real-time call control (answer, transfer, or originate a live call); that is the separate 3CX Call Control API, not the Configuration API.",
+      "Do not use it to place or receive calls or as a softphone.",
+      "Do not use it for end-user voicemail playback or webclient chat; it manages configuration and reporting, not the user-facing client."
+    ],
+    "recipes": [
+      {
+        "title": "Audit broken call routing",
+        "command": "3cx-xapi-pp-cli audit --agent",
+        "explanation": "After a sync, lists every ring group, queue, rule, and IVR destination that no longer resolves to a live extension or DID."
+      },
+      {
+        "title": "Narrow a verbose Users listing for an agent",
+        "command": "3cx-xapi-pp-cli users list --agent --select Number,FirstName,LastName,Groups.Name",
+        "explanation": "Users responses are deeply nested; --select with dotted paths returns only the fields an agent needs, saving context."
+      },
+      {
+        "title": "Provision a tenant from CSV (safe preview)",
+        "command": "3cx-xapi-pp-cli provision --file new-extensions.csv --dry-run",
+        "explanation": "Shows the exact create and update plan with no writes; drop --dry-run to apply idempotently."
+      },
+      {
+        "title": "Trace why an extension is not ringing",
+        "command": "3cx-xapi-pp-cli trace 214 --agent",
+        "explanation": "Shows every inbound rule, ring group, queue, DID, and forwarding profile that routes to extension 214."
+      },
+      {
+        "title": "Weekly queue SLA review",
+        "command": "3cx-xapi-pp-cli qrollup --since 7d --agent",
+        "explanation": "One cross-queue table of performance, abandoned calls, and SLA breaches for the week."
+      }
+    ],
+    "trigger_phrases": [
+      "audit my 3cx config",
+      "what changed on the pbx",
+      "provision 3cx extensions",
+      "queue sla report 3cx",
+      "trace extension 214",
+      "use 3cx-xapi",
+      "run 3cx-xapi"
+    ]
+  }
+}

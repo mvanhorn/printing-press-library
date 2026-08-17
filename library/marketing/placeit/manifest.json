@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "placeit-pp-mcp",
+  "display_name": "Placeit",
+  "version": "0.0.0",
+  "description": "Every one of Placeit's 164k mockup, logo, video, and design templates — searchable, sortable by real popularity, and cached offline from your terminal, with catalog analytics Placeit's own UI can't do.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/placeit-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/placeit-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

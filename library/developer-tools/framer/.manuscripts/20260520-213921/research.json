@@ -1,0 +1,374 @@
+{
+  "api_name": "framer",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "framer-design-mcp-server",
+      "url": "https://github.com/superprat/framer-design-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 44,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "framer-mcp",
+      "url": "https://github.com/tmcpro/framer-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 30,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "framer-api",
+      "url": "https://www.npmjs.com/package/framer-api",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 10,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "framer-plugin-tools",
+      "url": "https://www.npmjs.com/package/framer-plugin-tools",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-20T21:39:21Z",
+  "novel_features": [
+    {
+      "name": "Site Snapshot \u0026 Diff",
+      "command": "snapshot",
+      "description": "Track your Framer project's evolution over time with full structural snapshots and visual diffs",
+      "rationale": "Requires local SQLite persistence across time — MCP tools are stateless and forget everything after each call",
+      "example": "framer-pp-cli snapshot --label 'before-redesign' \u0026\u0026 framer-pp-cli diff latest~1 latest --json",
+      "why_it_matters": "When an agent needs to understand what changed in a project between two points in time, this is the only way",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Multi-Project Dashboard",
+      "command": "dashboard",
+      "description": "Query across all registered Framer projects at once — stale CMS, unpublished changes, collection health",
+      "rationale": "Requires a local registry of N project configs — all existing tools bind to a single project",
+      "example": "framer-pp-cli dashboard --json",
+      "why_it_matters": "When an agent manages multiple client sites and needs a single command to find which projects need attention",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "CMS Sync with Dry-Run",
+      "command": "cms-sync",
+      "description": "Import CMS content from CSV/JSON/Sheets with a preview diff before committing changes",
+      "rationale": "Computes a local diff between source data and remote CMS state — MCP tools are fire-and-forget with no preview",
+      "example": "framer-pp-cli cms-sync ./blog-posts.csv --collection Blog --dry-run --json",
+      "why_it_matters": "When an agent needs to bulk-update CMS content safely without risking accidental overwrites or deletions",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Migration Scaffold",
+      "command": "migrate-scrape",
+      "description": "Scrape an existing website and generate a complete Framer migration plan with pages, content, and assets",
+      "rationale": "No existing tool bridges arbitrary websites to Framer projects — combines web scraping with Framer API operations",
+      "example": "framer-pp-cli migrate-scrape https://old-site.com --depth 3 \u0026\u0026 framer-pp-cli migrate-apply manifest.json --dry-run",
+      "why_it_matters": "When porting an existing site to Framer, this automates the most tedious part of the migration",
+      "group": "Migration automation"
+    },
+    {
+      "name": "Silent Failure Guard",
+      "command": "nodes set",
+      "description": "Read-back verification on every mutation catches Framer's silent attribute rejections",
+      "rationale": "Requires a stateful client that caches intended state and compares after write — MCP tools fire and forget",
+      "example": "framer-pp-cli nodes set abc123 --json --dry-run",
+      "why_it_matters": "When an agent sets node attributes and needs to know whether they actually took effect",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "CMS Schema Diff",
+      "command": "cms-schema-diff",
+      "description": "Declare CMS schema in YAML and diff it against the live project — infrastructure-as-code for Framer CMS",
+      "rationale": "Treats CMS schema as diffable infrastructure — no existing tool supports schema-as-code for Framer",
+      "example": "framer-pp-cli cms-schema-diff ./schema.yaml --json",
+      "why_it_matters": "When an agent needs to verify CMS schema matches the expected structure before syncing content",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Bulk Asset Pipeline",
+      "command": "assets upload",
+      "description": "Upload a directory of images and auto-bind them to CMS items by filename-to-slug matching",
+      "rationale": "Batch upload with CMS field mapping in one command — existing tools handle single assets only",
+      "example": "framer-pp-cli assets upload --dry-run --json",
+      "why_it_matters": "When an agent needs to upload dozens of images and link them to the right CMS records in one operation",
+      "group": "Migration automation"
+    },
+    {
+      "name": "Publish Guardrails",
+      "command": "publish",
+      "description": "Pre-publish linting catches broken links, missing CMS references, orphan pages, and empty text nodes",
+      "rationale": "Full project graph traversal against a local snapshot — no existing tool does site-wide validation before publish",
+      "example": "framer-pp-cli publish preview --json",
+      "why_it_matters": "When an agent is about to deploy and needs confidence that the site won't ship with broken references",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Localization Sync",
+      "command": "i18n-push",
+      "description": "Push and pull translations between standard i18n formats (CSV, PO, XLIFF) and Framer's localization system",
+      "rationale": "Bridges standard translation toolchains to Framer's proprietary localization model",
+      "example": "framer-pp-cli i18n-push translations.csv --format csv --dry-run",
+      "why_it_matters": "When an agent manages multi-language sites and needs to sync translations from external translation tools",
+      "group": "Migration automation"
+    },
+    {
+      "name": "Redirect Map Generator",
+      "command": "redirects-generate",
+      "description": "Auto-generate redirect map by crawling old site's sitemap and fuzzy-matching to Framer page slugs",
+      "rationale": "Combines external sitemap crawl with Framer page introspection and fuzzy URL matching",
+      "example": "framer-pp-cli redirects-generate --old-sitemap https://old-site.com/sitemap.xml --json",
+      "why_it_matters": "Every site migration needs redirects — this automates what is otherwise a fully manual spreadsheet task",
+      "group": "Migration automation"
+    },
+    {
+      "name": "CMS Relationship Validator",
+      "command": "cms-validate",
+      "description": "Find broken collection references, orphan items, and circular refs across your CMS",
+      "rationale": "Graph traversal across collections using local snapshot — no tool validates Framer CMS referential integrity",
+      "example": "framer-pp-cli cms-validate --json",
+      "why_it_matters": "When CMS grows past 3-4 collections, broken references become invisible — this surfaces them",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Design Token Import",
+      "command": "styles-import",
+      "description": "Import CSS variables or Tailwind config as Framer color and text styles — no manual recreation",
+      "rationale": "Parses CSS/Tailwind locally and creates Framer styles via API — no tool bridges design token formats to Framer",
+      "example": "framer-pp-cli styles-import --from tailwind.config.js --json",
+      "why_it_matters": "When porting a site with an existing design system, this eliminates hours of manual style recreation",
+      "group": "Migration automation"
+    },
+    {
+      "name": "Code File Sync",
+      "command": "code-push",
+      "description": "Edit TSX components locally in your editor, then push to Framer — eliminates copy-paste workflow",
+      "rationale": "Two-way file sync between local filesystem and Framer code files — no tool offers local editing with push/pull",
+      "example": "framer-pp-cli code-pull HeroSection -o hero.tsx \u0026\u0026 vim hero.tsx \u0026\u0026 framer-pp-cli code-push hero.tsx --name HeroSection",
+      "why_it_matters": "When a developer needs to edit Framer components in their preferred editor without the copy-paste dance",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Site Snapshot \u0026 Diff",
+      "command": "snapshot",
+      "description": "Track your Framer project's evolution over time with full structural snapshots and visual diffs",
+      "rationale": "Requires local SQLite persistence across time — MCP tools are stateless and forget everything after each call",
+      "example": "framer-pp-cli snapshot --label 'before-redesign' \u0026\u0026 framer-pp-cli diff latest~1 latest --json",
+      "why_it_matters": "When an agent needs to understand what changed in a project between two points in time, this is the only way",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Multi-Project Dashboard",
+      "command": "dashboard",
+      "description": "Query across all registered Framer projects at once — stale CMS, unpublished changes, collection health",
+      "rationale": "Requires a local registry of N project configs — all existing tools bind to a single project",
+      "example": "framer-pp-cli dashboard --json",
+      "why_it_matters": "When an agent manages multiple client sites and needs a single command to find which projects need attention",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "CMS Sync with Dry-Run",
+      "command": "cms-sync",
+      "description": "Import CMS content from CSV/JSON/Sheets with a preview diff before committing changes",
+      "rationale": "Computes a local diff between source data and remote CMS state — MCP tools are fire-and-forget with no preview",
+      "example": "framer-pp-cli cms-sync ./blog-posts.csv --collection Blog --dry-run --json",
+      "why_it_matters": "When an agent needs to bulk-update CMS content safely without risking accidental overwrites or deletions",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Migration Scaffold",
+      "command": "migrate-scrape",
+      "description": "Scrape an existing website and generate a complete Framer migration plan with pages, content, and assets",
+      "rationale": "No existing tool bridges arbitrary websites to Framer projects — combines web scraping with Framer API operations",
+      "example": "framer-pp-cli migrate-scrape https://old-site.com --depth 3 \u0026\u0026 framer-pp-cli migrate-apply manifest.json --dry-run",
+      "why_it_matters": "When porting an existing site to Framer, this automates the most tedious part of the migration",
+      "group": "Migration automation"
+    },
+    {
+      "name": "Silent Failure Guard",
+      "command": "nodes set",
+      "description": "Read-back verification on every mutation catches Framer's silent attribute rejections",
+      "rationale": "Requires a stateful client that caches intended state and compares after write — MCP tools fire and forget",
+      "example": "framer-pp-cli nodes set abc123 --json --dry-run",
+      "why_it_matters": "When an agent sets node attributes and needs to know whether they actually took effect",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "CMS Schema Diff",
+      "command": "cms-schema-diff",
+      "description": "Declare CMS schema in YAML and diff it against the live project — infrastructure-as-code for Framer CMS",
+      "rationale": "Treats CMS schema as diffable infrastructure — no existing tool supports schema-as-code for Framer",
+      "example": "framer-pp-cli cms-schema-diff ./schema.yaml --json",
+      "why_it_matters": "When an agent needs to verify CMS schema matches the expected structure before syncing content",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Bulk Asset Pipeline",
+      "command": "assets upload",
+      "description": "Upload a directory of images and auto-bind them to CMS items by filename-to-slug matching",
+      "rationale": "Batch upload with CMS field mapping in one command — existing tools handle single assets only",
+      "example": "framer-pp-cli assets upload --dry-run --json",
+      "why_it_matters": "When an agent needs to upload dozens of images and link them to the right CMS records in one operation",
+      "group": "Migration automation"
+    },
+    {
+      "name": "Publish Guardrails",
+      "command": "publish",
+      "description": "Pre-publish linting catches broken links, missing CMS references, orphan pages, and empty text nodes",
+      "rationale": "Full project graph traversal against a local snapshot — no existing tool does site-wide validation before publish",
+      "example": "framer-pp-cli publish preview --json",
+      "why_it_matters": "When an agent is about to deploy and needs confidence that the site won't ship with broken references",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Localization Sync",
+      "command": "i18n-push",
+      "description": "Push and pull translations between standard i18n formats (CSV, PO, XLIFF) and Framer's localization system",
+      "rationale": "Bridges standard translation toolchains to Framer's proprietary localization model",
+      "example": "framer-pp-cli i18n-push translations.csv --format csv --dry-run",
+      "why_it_matters": "When an agent manages multi-language sites and needs to sync translations from external translation tools",
+      "group": "Migration automation"
+    },
+    {
+      "name": "Redirect Map Generator",
+      "command": "redirects-generate",
+      "description": "Auto-generate redirect map by crawling old site's sitemap and fuzzy-matching to Framer page slugs",
+      "rationale": "Combines external sitemap crawl with Framer page introspection and fuzzy URL matching",
+      "example": "framer-pp-cli redirects-generate --old-sitemap https://old-site.com/sitemap.xml --json",
+      "why_it_matters": "Every site migration needs redirects — this automates what is otherwise a fully manual spreadsheet task",
+      "group": "Migration automation"
+    },
+    {
+      "name": "CMS Relationship Validator",
+      "command": "cms-validate",
+      "description": "Find broken collection references, orphan items, and circular refs across your CMS",
+      "rationale": "Graph traversal across collections using local snapshot — no tool validates Framer CMS referential integrity",
+      "example": "framer-pp-cli cms-validate --json",
+      "why_it_matters": "When CMS grows past 3-4 collections, broken references become invisible — this surfaces them",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Design Token Import",
+      "command": "styles-import",
+      "description": "Import CSS variables or Tailwind config as Framer color and text styles — no manual recreation",
+      "rationale": "Parses CSS/Tailwind locally and creates Framer styles via API — no tool bridges design token formats to Framer",
+      "example": "framer-pp-cli styles-import --from tailwind.config.js --json",
+      "why_it_matters": "When porting a site with an existing design system, this eliminates hours of manual style recreation",
+      "group": "Migration automation"
+    },
+    {
+      "name": "Code File Sync",
+      "command": "code-push",
+      "description": "Edit TSX components locally in your editor, then push to Framer — eliminates copy-paste workflow",
+      "rationale": "Two-way file sync between local filesystem and Framer code files — no tool offers local editing with push/pull",
+      "example": "framer-pp-cli code-pull HeroSection -o hero.tsx \u0026\u0026 vim hero.tsx \u0026\u0026 framer-pp-cli code-push hero.tsx --name HeroSection",
+      "why_it_matters": "When a developer needs to edit Framer components in their preferred editor without the copy-paste dance",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "Framer",
+    "headline": "Every Framer operation from your terminal — CMS sync, bulk upload, site migration, and a local database no other Framer tool has",
+    "value_prop": "Framer's Server API is powerful but locked behind a JavaScript SDK with no CLI. framer-pp-cli wraps every API method with offline search, dry-run previews, multi-project management, and migration automation that turns site porting from days into hours.",
+    "auth_narrative": "Framer uses per-project API keys generated in Site Settings. The CLI stores project profiles locally so you can switch between projects with --project aliases. Requires Node.js 18+ and the framer-api npm package as a runtime bridge.",
+    "quickstart": [
+      {
+        "command": "framer-pp-cli doctor",
+        "comment": "Verify Node.js, framer-api, and connectivity"
+      },
+      {
+        "command": "framer-pp-cli auth set-token YOUR_FRAMER_API_KEY",
+        "comment": "Store your Framer API key"
+      },
+      {
+        "command": "framer-pp-cli cms-collections list --json",
+        "comment": "See what CMS collections exist"
+      },
+      {
+        "command": "framer-pp-cli cms-sync ./posts.csv --collection Blog --dry-run",
+        "comment": "Preview a CMS import before committing"
+      },
+      {
+        "command": "framer-pp-cli publish preview",
+        "comment": "Lint the site, then publish"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Connection timeout or 'WebSocket error'",
+        "fix": "Verify FRAMER_API_KEY is valid and Node.js 18+ is installed: framer-pp-cli doctor"
+      },
+      {
+        "symptom": "Node attributes silently rejected",
+        "fix": "Use --dry-run to preview the request before sending: framer-pp-cli nodes set NODE_ID --dry-run"
+      },
+      {
+        "symptom": "'framer-api not found' error",
+        "fix": "Install the npm package globally: npm install -g framer-api"
+      },
+      {
+        "symptom": "CMS sync creates duplicates",
+        "fix": "Ensure your CSV has a unique 'slug' column matching existing item slugs for upsert behavior"
+      }
+    ],
+    "when_to_use": "Use framer-pp-cli when you need to automate Framer operations from scripts, CI/CD pipelines, or AI agents. Especially valuable for site migrations (importing content, uploading assets, generating redirects), multi-project management, and CMS content pipelines. Not for visual design work — use the Framer editor for that.",
+    "recipes": [
+      {
+        "title": "Bulk import blog posts from CSV",
+        "command": "framer-pp-cli cms-sync ./posts.csv --collection Blog --dry-run \u0026\u0026 framer-pp-cli cms-sync ./posts.csv --collection Blog",
+        "explanation": "Preview the import diff first, then commit the changes"
+      },
+      {
+        "title": "Port design tokens from Tailwind",
+        "command": "framer-pp-cli styles-import --from tailwind.config.js --json --select name,value",
+        "explanation": "Import your entire Tailwind color palette as Framer styles"
+      },
+      {
+        "title": "Edit a component locally",
+        "command": "framer-pp-cli code-pull HeroSection --output hero.tsx",
+        "explanation": "Pull a Framer code file to edit locally, then push back with code-push"
+      },
+      {
+        "title": "Generate migration redirects",
+        "command": "framer-pp-cli redirects-generate --dry-run --json",
+        "explanation": "Preview redirect map generation from old site sitemap"
+      },
+      {
+        "title": "Pre-publish health check",
+        "command": "framer-pp-cli publish preview --json",
+        "explanation": "Create a preview deployment and get the shareable URL"
+      }
+    ],
+    "trigger_phrases": [
+      "sync CMS content to Framer",
+      "import blog posts into Framer",
+      "publish my Framer site",
+      "migrate site to Framer",
+      "upload assets to Framer",
+      "check Framer project status"
+    ]
+  }
+}

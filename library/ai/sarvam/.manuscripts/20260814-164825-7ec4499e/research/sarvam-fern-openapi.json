@@ -1,0 +1,2135 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Sarvam AI API",
+    "version": "1.0.0",
+    "description": "Sarvam AI provides models and APIs for chat completion, speech-to-text, text-to-speech, translation, transliteration, language identification, and document intelligence across 22+ Indian languages and English. Authentication uses the `api-subscription-key` header (or `Authorization: Bearer`)."
+  },
+  "servers": [
+    {
+      "url": "https://api.sarvam.ai"
+    }
+  ],
+  "paths": {
+    "/jobs": {
+      "post": {
+        "operationId": "dubbing_create",
+        "summary": "create",
+        "description": "",
+        "tags": [
+          "dubbing"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateDubbingJobResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "src_lang": {
+                    "type": "string"
+                  },
+                  "target_langs": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "export_options": {
+                    "type": "string"
+                  },
+                  "voice_cloning": {
+                    "type": "string"
+                  },
+                  "voice_id": {
+                    "type": "string"
+                  },
+                  "pace_preset": {
+                    "type": "string"
+                  },
+                  "num_speakers": {
+                    "type": "string"
+                  },
+                  "disable_watermark": {
+                    "type": "string"
+                  },
+                  "register": {
+                    "type": "string"
+                  },
+                  "editor_flow": {
+                    "type": "string"
+                  },
+                  "job_name": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/jobs/{job_id}/start": {
+      "post": {
+        "operationId": "dubbing_start",
+        "summary": "start",
+        "description": "",
+        "tags": [
+          "dubbing"
+        ],
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DubbingStartResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/jobs/{job_id}/live-status": {
+      "get": {
+        "operationId": "dubbing_get_live_status",
+        "summary": "get_live_status",
+        "description": "",
+        "tags": [
+          "dubbing"
+        ],
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DubbingLiveStatusResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/jobs/{job_id}/export-status": {
+      "get": {
+        "operationId": "dubbing_get_export_status",
+        "summary": "get_export_status",
+        "description": "",
+        "tags": [
+          "dubbing"
+        ],
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": ""
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DubbingExportStatusResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/translate": {
+      "post": {
+        "operationId": "text_translate",
+        "summary": "translate",
+        "description": "",
+        "tags": [
+          "text"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TranslationResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "input": {
+                    "type": "string"
+                  },
+                  "source_language_code": {
+                    "type": "string"
+                  },
+                  "target_language_code": {
+                    "type": "string"
+                  },
+                  "speaker_gender": {
+                    "type": "string"
+                  },
+                  "mode": {
+                    "type": "string"
+                  },
+                  "model": {
+                    "type": "string"
+                  },
+                  "output_script": {
+                    "type": "string"
+                  },
+                  "numerals_format": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/text-lid": {
+      "post": {
+        "operationId": "text_identifyLanguage",
+        "summary": "identifyLanguage",
+        "description": "",
+        "tags": [
+          "text"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LanguageIdentificationResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "input": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/transliterate": {
+      "post": {
+        "operationId": "text_transliterate",
+        "summary": "transliterate",
+        "description": "",
+        "tags": [
+          "text"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransliterationResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "input": {
+                    "type": "string"
+                  },
+                  "source_language_code": {
+                    "type": "string"
+                  },
+                  "target_language_code": {
+                    "type": "string"
+                  },
+                  "numerals_format": {
+                    "type": "string"
+                  },
+                  "spoken_form_numerals_language": {
+                    "type": "string"
+                  },
+                  "spoken_form": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/speech-to-text": {
+      "post": {
+        "operationId": "speechToText_transcribe",
+        "summary": "transcribe",
+        "description": "",
+        "tags": [
+          "speechToText"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SpeechToTextResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/speech-to-text-translate": {
+      "post": {
+        "operationId": "speechToText_translate",
+        "summary": "translate",
+        "description": "",
+        "tags": [
+          "speechToText"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SpeechToTextTranslateResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/text-to-speech": {
+      "post": {
+        "operationId": "textToSpeech_convert",
+        "summary": "convert",
+        "description": "",
+        "tags": [
+          "textToSpeech"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TextToSpeechResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string"
+                  },
+                  "language_code": {
+                    "type": "string"
+                  },
+                  "speaker": {
+                    "type": "string"
+                  },
+                  "pitch": {
+                    "type": "string"
+                  },
+                  "pace": {
+                    "type": "string"
+                  },
+                  "loudness": {
+                    "type": "string"
+                  },
+                  "speech_sample_rate": {
+                    "type": "string"
+                  },
+                  "enable_preprocessing": {
+                    "type": "string"
+                  },
+                  "model": {
+                    "type": "string"
+                  },
+                  "output_audio_codec": {
+                    "type": "string"
+                  },
+                  "temperature": {
+                    "type": "string"
+                  },
+                  "dict_id": {
+                    "type": "string"
+                  },
+                  "enable_cached_responses": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/text-to-speech/stream": {
+      "post": {
+        "operationId": "textToSpeech_convertStream",
+        "summary": "convertStream",
+        "description": "",
+        "tags": [
+          "textToSpeech"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string"
+                  },
+                  "language_code": {
+                    "type": "string"
+                  },
+                  "speaker": {
+                    "type": "string"
+                  },
+                  "pitch": {
+                    "type": "string"
+                  },
+                  "pace": {
+                    "type": "string"
+                  },
+                  "loudness": {
+                    "type": "string"
+                  },
+                  "speech_sample_rate": {
+                    "type": "string"
+                  },
+                  "enable_preprocessing": {
+                    "type": "string"
+                  },
+                  "model": {
+                    "type": "string"
+                  },
+                  "temperature": {
+                    "type": "string"
+                  },
+                  "enable_cached_responses": {
+                    "type": "string"
+                  },
+                  "dict_id": {
+                    "type": "string"
+                  },
+                  "output_audio_codec": {
+                    "type": "string"
+                  },
+                  "output_audio_bitrate": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/text-to-speech/pronunciation-dictionary": {
+      "get": {
+        "operationId": "pronunciationDictionary_list",
+        "summary": "list",
+        "description": "",
+        "tags": [
+          "pronunciationDictionary"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PronunciationDictionaryResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "pronunciationDictionary_create",
+        "summary": "create",
+        "description": "",
+        "tags": [
+          "pronunciationDictionary"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PronunciationDictionaryResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "pronunciationDictionary_update",
+        "summary": "update",
+        "description": "",
+        "tags": [
+          "pronunciationDictionary"
+        ],
+        "parameters": [
+          {
+            "name": "dict_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": ""
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PronunciationDictionaryUpdateResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "pronunciationDictionary_delete",
+        "summary": "delete",
+        "description": "",
+        "tags": [
+          "pronunciationDictionary"
+        ],
+        "parameters": [
+          {
+            "name": "dict_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": ""
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PronunciationDictionaryDeleteResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/text-to-speech/pronunciation-dictionary/{dict_id}": {
+      "get": {
+        "operationId": "pronunciationDictionary_get",
+        "summary": "get",
+        "description": "",
+        "tags": [
+          "pronunciationDictionary"
+        ],
+        "parameters": [
+          {
+            "name": "dict_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PronunciationDictionaryGetResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/chat/completions": {
+      "post": {
+        "operationId": "chat_completions",
+        "summary": "completions",
+        "description": "",
+        "tags": [
+          "chat"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateChatCompletionResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "messages": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "model": {
+                    "type": "string"
+                  },
+                  "temperature": {
+                    "type": "string"
+                  },
+                  "top_p": {
+                    "type": "string"
+                  },
+                  "reasoning_effort": {
+                    "type": "string"
+                  },
+                  "max_tokens": {
+                    "type": "string"
+                  },
+                  "stream": {
+                    "type": "string"
+                  },
+                  "stop": {
+                    "type": "string"
+                  },
+                  "n": {
+                    "type": "string"
+                  },
+                  "seed": {
+                    "type": "string"
+                  },
+                  "frequency_penalty": {
+                    "type": "string"
+                  },
+                  "presence_penalty": {
+                    "type": "string"
+                  },
+                  "wiki_grounding": {
+                    "type": "string"
+                  },
+                  "tools": {
+                    "type": "string"
+                  },
+                  "tool_choice": {
+                    "type": "string"
+                  },
+                  "response_format": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/speech-to-text/job/v1": {
+      "post": {
+        "operationId": "speechToTextJob_initialise",
+        "summary": "initialise",
+        "description": "",
+        "tags": [
+          "speechToTextJob"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkJobInitResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "job_parameters": {
+                    "type": "string"
+                  },
+                  "callback": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/speech-to-text/job/v1/{job_id}/status": {
+      "get": {
+        "operationId": "speechToTextJob_get_status",
+        "summary": "get_status",
+        "description": "",
+        "tags": [
+          "speechToTextJob"
+        ],
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobStatusResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/speech-to-text/job/v1/{job_id}/start": {
+      "post": {
+        "operationId": "speechToTextJob_start",
+        "summary": "start",
+        "description": "",
+        "tags": [
+          "speechToTextJob"
+        ],
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ptu_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": ""
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobStatusResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/speech-to-text/job/v1/upload-files": {
+      "post": {
+        "operationId": "speechToTextJob_get_upload_links",
+        "summary": "get_upload_links",
+        "description": "",
+        "tags": [
+          "speechToTextJob"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesUploadResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/speech-to-text/job/v1/download-files": {
+      "post": {
+        "operationId": "speechToTextJob_get_download_links",
+        "summary": "get_download_links",
+        "description": "",
+        "tags": [
+          "speechToTextJob"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesDownloadResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/speech-to-text-translate/job/v1": {
+      "post": {
+        "operationId": "speechToTextTranslateJob_initialise",
+        "summary": "initialise",
+        "description": "",
+        "tags": [
+          "speechToTextTranslateJob"
+        ],
+        "parameters": [
+          {
+            "name": "ptu_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": ""
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkJobInitResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "job_parameters": {
+                    "type": "string"
+                  },
+                  "callback": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/speech-to-text-translate/job/v1/{job_id}/status": {
+      "get": {
+        "operationId": "speechToTextTranslateJob_get_status",
+        "summary": "get_status",
+        "description": "",
+        "tags": [
+          "speechToTextTranslateJob"
+        ],
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobStatusResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/speech-to-text-translate/job/v1/{job_id}/start": {
+      "post": {
+        "operationId": "speechToTextTranslateJob_start",
+        "summary": "start",
+        "description": "",
+        "tags": [
+          "speechToTextTranslateJob"
+        ],
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ptu_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": ""
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobStatusResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/speech-to-text-translate/job/v1/upload-files": {
+      "post": {
+        "operationId": "speechToTextTranslateJob_get_upload_links",
+        "summary": "get_upload_links",
+        "description": "",
+        "tags": [
+          "speechToTextTranslateJob"
+        ],
+        "parameters": [
+          {
+            "name": "ptu_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": ""
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesUploadResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/speech-to-text-translate/job/v1/download-files": {
+      "post": {
+        "operationId": "speechToTextTranslateJob_get_download_links",
+        "summary": "get_download_links",
+        "description": "",
+        "tags": [
+          "speechToTextTranslateJob"
+        ],
+        "parameters": [
+          {
+            "name": "ptu_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": ""
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilesDownloadResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/doc-digitization/job/v1": {
+      "post": {
+        "operationId": "documentIntelligence_initialise",
+        "summary": "initialise",
+        "description": "",
+        "tags": [
+          "documentIntelligence"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocDigitizationCreateJobResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "job_parameters": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/doc-digitization/job/v1/upload-files": {
+      "post": {
+        "operationId": "documentIntelligence_get_upload_links",
+        "summary": "get_upload_links",
+        "description": "",
+        "tags": [
+          "documentIntelligence"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocDigitizationUploadFilesResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "job_id": {
+                    "type": "string"
+                  },
+                  "files": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/doc-digitization/job/v1/{job_id}/start": {
+      "post": {
+        "operationId": "documentIntelligence_start",
+        "summary": "start",
+        "description": "",
+        "tags": [
+          "documentIntelligence"
+        ],
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocDigitizationJobStatusResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/doc-digitization/job/v1/{job_id}/status": {
+      "get": {
+        "operationId": "documentIntelligence_get_status",
+        "summary": "get_status",
+        "description": "",
+        "tags": [
+          "documentIntelligence"
+        ],
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocDigitizationJobStatusResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/doc-digitization/job/v1/{job_id}/download-files": {
+      "post": {
+        "operationId": "documentIntelligence_get_download_links",
+        "summary": "get_download_links",
+        "description": "",
+        "tags": [
+          "documentIntelligence"
+        ],
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocDigitizationDownloadFilesResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/doc-ai/v1/job/upload": {
+      "post": {
+        "operationId": "docAi_create_upload_url",
+        "summary": "create_upload_url",
+        "description": "",
+        "tags": [
+          "docAi"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocAiPresignUploadResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "content_type": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/doc-ai/v1/job/digitise": {
+      "post": {
+        "operationId": "docAi_digitise",
+        "summary": "digitise",
+        "description": "",
+        "tags": [
+          "docAi"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocAiStartJobResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/doc-ai/v1/job/extract": {
+      "post": {
+        "operationId": "docAi_extract",
+        "summary": "extract",
+        "description": "",
+        "tags": [
+          "docAi"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocAiStartJobResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/doc-ai/v1/job/{job_id}/status": {
+      "get": {
+        "operationId": "docAi_get_status",
+        "summary": "get_status",
+        "description": "",
+        "tags": [
+          "docAi"
+        ],
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocAiJobStatusResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/doc-ai/v1/job/{job_id}/results": {
+      "get": {
+        "operationId": "docAi_get_results",
+        "summary": "get_results",
+        "description": "",
+        "tags": [
+          "docAi"
+        ],
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "format",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": ""
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocAiGetResultsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/doc-ai/v1/job/{job_id}/download-url": {
+      "get": {
+        "operationId": "docAi_get_download_url",
+        "summary": "get_download_url",
+        "description": "",
+        "tags": [
+          "docAi"
+        ],
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocAiDownloadUrlResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "apiSubscriptionKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "api-subscription-key"
+      },
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    },
+    "schemas": {
+      "DocAiDigitiseRequestOutputFormat": {
+        "type": "object"
+      },
+      "DocAiDigitiseRequestContentType": {
+        "type": "object"
+      },
+      "DocAiExtractRequestOutputFormat": {
+        "type": "object"
+      },
+      "DocAiGetResultsResponse": {
+        "type": "object"
+      },
+      "SpeechToTextStreamingLanguageCode": {
+        "type": "object"
+      },
+      "SpeechToTextStreamingModel": {
+        "type": "object"
+      },
+      "SpeechToTextStreamingMode": {
+        "type": "object"
+      },
+      "SpeechToTextStreamingHighVadSensitivity": {
+        "type": "object"
+      },
+      "SpeechToTextStreamingVadSignals": {
+        "type": "object"
+      },
+      "SpeechToTextStreamingFlushSignal": {
+        "type": "object"
+      },
+      "SpeechToTextStreamingInputAudioCodec": {
+        "type": "object"
+      },
+      "SpeechToTextTranslateStreamingHighVadSensitivity": {
+        "type": "object"
+      },
+      "SpeechToTextTranslateStreamingVadSignals": {
+        "type": "object"
+      },
+      "SpeechToTextTranslateStreamingFlushSignal": {
+        "type": "object"
+      },
+      "SpeechToTextTranslateStreamingInputAudioCodec": {
+        "type": "object"
+      },
+      "SpeechToTextRealtimeStreamingLanguageCode": {
+        "type": "object"
+      },
+      "SpeechToTextRealtimeStreamingStreamType": {
+        "type": "object"
+      },
+      "SpeechToTextRealtimeStreamingMode": {
+        "type": "object"
+      },
+      "SpeechToTextRealtimeStreamingEndpointing": {
+        "type": "object"
+      },
+      "SpeechToTextRealtimeStreamingEncoding": {
+        "type": "object"
+      },
+      "SpeechToTextRealtimeStreamingReturnTimestamps": {
+        "type": "object"
+      },
+      "TextToSpeechStreamingModel": {
+        "type": "object"
+      },
+      "TextToSpeechStreamingSendCompletionEvent": {
+        "type": "object"
+      },
+      "ConfigMessage": {
+        "type": "object"
+      },
+      "AudioMessage": {
+        "type": "object"
+      },
+      "AudioData": {
+        "type": "object"
+      },
+      "SpeechToTextStreamingResponse": {
+        "type": "object"
+      },
+      "SpeechToTextTranslateStreamingResponse": {
+        "type": "object"
+      },
+      "ResponseType": {
+        "type": "object"
+      },
+      "SpeechToTextResponseData": {
+        "type": "object"
+      },
+      "SpeechToTextTranslateResponseData": {
+        "type": "object"
+      },
+      "SpeechToTextTranscriptionData": {
+        "type": "object"
+      },
+      "SpeechToTextTranslateTranscriptionData": {
+        "type": "object"
+      },
+      "TranscriptionMetrics": {
+        "type": "object"
+      },
+      "ErrorData": {
+        "type": "object"
+      },
+      "EventsDataSignalType": {
+        "type": "object"
+      },
+      "EventsData": {
+        "type": "object"
+      },
+      "RealtimeAudioInput": {
+        "type": "object"
+      },
+      "RealtimeSpeechStart": {
+        "type": "object"
+      },
+      "RealtimeSpeechEnd": {
+        "type": "object"
+      },
+      "RealtimeFlush": {
+        "type": "object"
+      },
+      "RealtimeConfigUpdateMode": {
+        "type": "object"
+      },
+      "RealtimeConfigUpdateStreamType": {
+        "type": "object"
+      },
+      "RealtimeConfigUpdateEndpointing": {
+        "type": "object"
+      },
+      "RealtimeConfigUpdate": {
+        "type": "object"
+      },
+      "RealtimeEnd": {
+        "type": "object"
+      },
+      "RealtimePing": {
+        "type": "object"
+      },
+      "RealtimeSessionBeginConfig": {
+        "type": "object"
+      },
+      "RealtimeSessionBegin": {
+        "type": "object"
+      },
+      "RealtimeVadSpeechStart": {
+        "type": "object"
+      },
+      "RealtimeVadSpeechEnd": {
+        "type": "object"
+      },
+      "RealtimeTranscriptPartial": {
+        "type": "object"
+      },
+      "RealtimeTranscriptFinal": {
+        "type": "object"
+      },
+      "RealtimeConfigUpdated": {
+        "type": "object"
+      },
+      "RealtimePong": {
+        "type": "object"
+      },
+      "RealtimeSessionEnd": {
+        "type": "object"
+      },
+      "RealtimeError": {
+        "type": "object"
+      },
+      "ConfigureConnectionDataModel": {
+        "type": "object"
+      },
+      "ConfigureConnectionDataLanguageCode": {
+        "type": "object"
+      },
+      "ConfigureConnectionDataSpeaker": {
+        "type": "object"
+      },
+      "ConfigureConnectionDataOutputAudioCodec": {
+        "type": "object"
+      },
+      "ConfigureConnectionDataOutputAudioBitrate": {
+        "type": "object"
+      },
+      "ConfigureConnectionData": {
+        "type": "object"
+      },
+      "ConfigureConnection": {
+        "type": "object"
+      },
+      "SendTextData": {
+        "type": "object"
+      },
+      "SendText": {
+        "type": "object"
+      },
+      "SttFlushSignal": {
+        "type": "object"
+      },
+      "FlushSignal": {
+        "type": "object"
+      },
+      "PingSignal": {
+        "type": "object"
+      },
+      "AudioOutputData": {
+        "type": "object"
+      },
+      "AudioOutput": {
+        "type": "object"
+      },
+      "ErrorResponseData": {
+        "type": "object"
+      },
+      "ErrorResponse": {
+        "type": "object"
+      },
+      "EventResponseData": {
+        "type": "object"
+      },
+      "EventResponse": {
+        "type": "object"
+      },
+      "CompletionEventFlag": {
+        "type": "object"
+      },
+      "ConnectionSampleRate": {
+        "type": "object"
+      },
+      "DubbingLanguage": {
+        "type": "object"
+      },
+      "DubbingExportOption": {
+        "type": "object"
+      },
+      "DubbingExportType": {
+        "type": "object"
+      },
+      "DubbingRegister": {
+        "type": "object"
+      },
+      "DubbingJobStatus": {
+        "type": "object"
+      },
+      "DubbingExportItemStatus": {
+        "type": "object"
+      },
+      "DubbingPacePreset": {
+        "type": "object"
+      },
+      "DubbingModelTier": {
+        "type": "object"
+      },
+      "CreateDubbingJobData": {
+        "type": "object"
+      },
+      "CreateDubbingJobResponse": {
+        "type": "object"
+      },
+      "DubbingStartData": {
+        "type": "object"
+      },
+      "DubbingStartResponse": {
+        "type": "object"
+      },
+      "DubbingLiveStatusExportInfo": {
+        "type": "object"
+      },
+      "DubbingLiveStatusData": {
+        "type": "object"
+      },
+      "DubbingLiveStatusResponse": {
+        "type": "object"
+      },
+      "DubbingExportItem": {
+        "type": "object"
+      },
+      "DubbingExportStatusData": {
+        "type": "object"
+      },
+      "DubbingExportStatusResponse": {
+        "type": "object"
+      },
+      "JobState": {
+        "type": "object"
+      },
+      "StorageContainerType": {
+        "type": "object"
+      },
+      "TaskState": {
+        "type": "object"
+      },
+      "SpeechToTextJobParameters": {
+        "type": "object"
+      },
+      "JobStatusResponse": {
+        "type": "object"
+      },
+      "FilesUploadResponse": {
+        "type": "object"
+      },
+      "FilesDownloadResponse": {
+        "type": "object"
+      },
+      "FilesRequest": {
+        "type": "object"
+      },
+      "BulkJobInitResponse": {
+        "type": "object"
+      },
+      "TaskDetail": {
+        "type": "object"
+      },
+      "SpeechToTextTranslateJobParameters": {
+        "type": "object"
+      },
+      "BulkJobCallback": {
+        "type": "object"
+      },
+      "BaseJobParameters": {
+        "type": "object"
+      },
+      "FileSignedURLDetails": {
+        "type": "object"
+      },
+      "TaskFileDetails": {
+        "type": "object"
+      },
+      "ChatCompletionRequestAssistantMessage": {
+        "type": "object"
+      },
+      "ChatCompletionRequestMessage": {
+        "type": "object"
+      },
+      "ChatCompletionRequestSystemMessage": {
+        "type": "object"
+      },
+      "ChatCompletionRequestUserMessage": {
+        "type": "object"
+      },
+      "ChatCompletionResponseMessage": {
+        "type": "object"
+      },
+      "Choice": {
+        "type": "object"
+      },
+      "CompletionUsage": {
+        "type": "object"
+      },
+      "CreateChatCompletionResponse": {
+        "type": "object"
+      },
+      "FinishReason": {
+        "type": "object"
+      },
+      "ReasoningEffort": {
+        "type": "object"
+      },
+      "Role": {
+        "type": "object"
+      },
+      "SarvamModelIds": {
+        "type": "object"
+      },
+      "StopConfiguration": {
+        "type": "object"
+      },
+      "ErrorCode": {
+        "type": "object"
+      },
+      "ErrorDetails": {
+        "type": "object"
+      },
+      "ErrorMessage": {
+        "type": "object"
+      },
+      "LanguageIdentificationResponse": {
+        "type": "object"
+      },
+      "NumeralsFormat": {
+        "type": "object"
+      },
+      "SpokenFormNumeralsFormat": {
+        "type": "object"
+      },
+      "TranslateMode": {
+        "type": "object"
+      },
+      "TranslateModel": {
+        "type": "object"
+      },
+      "TransliterateMode": {
+        "type": "object"
+      },
+      "TranslateSourceLanguage": {
+        "type": "object"
+      },
+      "TranslateSpeakerGender": {
+        "type": "object"
+      },
+      "TranslateTargetLanguage": {
+        "type": "object"
+      },
+      "TranslationResponse": {
+        "type": "object"
+      },
+      "TranslatiterateTargetLanguage": {
+        "type": "object"
+      },
+      "TransliterateSourceLanguage": {
+        "type": "object"
+      },
+      "TransliterationResponse": {
+        "type": "object"
+      },
+      "InputAudioCodec": {
+        "type": "object"
+      },
+      "DiarizedEntry": {
+        "type": "object"
+      },
+      "DiarizedTranscript": {
+        "type": "object"
+      },
+      "SpeechToTextLanguage": {
+        "type": "object"
+      },
+      "SpeechToTextModel": {
+        "type": "object"
+      },
+      "SpeechToTextBatchModel": {
+        "type": "object"
+      },
+      "Mode": {
+        "type": "object"
+      },
+      "SpeechToTextResponse": {
+        "type": "object"
+      },
+      "SpeechToTextTranslateLanguage": {
+        "type": "object"
+      },
+      "SpeechToTextTranslateModel": {
+        "type": "object"
+      },
+      "SpeechToTextTranslateResponse": {
+        "type": "object"
+      },
+      "TimestampsModel": {
+        "type": "object"
+      },
+      "SpeechSampleRate": {
+        "type": "object"
+      },
+      "TextToSpeechLanguage": {
+        "type": "object"
+      },
+      "TextToSpeechModel": {
+        "type": "object"
+      },
+      "TextToSpeechResponse": {
+        "type": "object"
+      },
+      "TextToSpeechSpeaker": {
+        "type": "object"
+      },
+      "ErrorCode2": {
+        "type": "object"
+      },
+      "ErrorDetails2": {
+        "type": "object"
+      },
+      "ErrorMessage2": {
+        "type": "object"
+      },
+      "DocDigitizationErrorCode": {
+        "type": "object"
+      },
+      "DocDigitizationErrorDetails": {
+        "type": "object"
+      },
+      "DocDigitizationErrorMessage": {
+        "type": "object"
+      },
+      "DocDigitizationJobState": {
+        "type": "object"
+      },
+      "DocDigitizationOutputFormat": {
+        "type": "object"
+      },
+      "DocDigitizationSupportedLanguage": {
+        "type": "object"
+      },
+      "DocDigitizationJobParameters": {
+        "type": "object"
+      },
+      "DocDigitizationCreateJobResponse": {
+        "type": "object"
+      },
+      "DocDigitizationUploadFilesResponse": {
+        "type": "object"
+      },
+      "DocDigitizationDownloadFilesResponse": {
+        "type": "object"
+      },
+      "DocDigitizationPageError": {
+        "type": "object"
+      },
+      "DocDigitizationJobDetailState": {
+        "type": "object"
+      },
+      "DocDigitizationJobDetail": {
+        "type": "object"
+      },
+      "DocDigitizationJobStatusResponse": {
+        "type": "object"
+      },
+      "TextToSpeechOutputAudioCodec": {
+        "type": "object"
+      },
+      "ChatCompletionMessageToolCall": {
+        "type": "object"
+      },
+      "ChatCompletionNamedToolChoice": {
+        "type": "object"
+      },
+      "ChatCompletionNamedToolChoiceFunction": {
+        "type": "object"
+      },
+      "ChatCompletionRequestToolMessage": {
+        "type": "object"
+      },
+      "ChatCompletionTool": {
+        "type": "object"
+      },
+      "FunctionCall": {
+        "type": "object"
+      },
+      "FunctionDefinition": {
+        "type": "object"
+      },
+      "ToolChoiceOption": {
+        "type": "object"
+      },
+      "ResponseFormat": {
+        "type": "object"
+      },
+      "ResponseFormatText": {
+        "type": "object"
+      },
+      "ResponseFormatJsonObject": {
+        "type": "object"
+      },
+      "ResponseFormatJsonSchema": {
+        "type": "object"
+      },
+      "JsonSchemaDefinition": {
+        "type": "object"
+      },
+      "PronunciationDictionaryResponse": {
+        "type": "object"
+      },
+      "PronunciationDictionaryGetResponse": {
+        "type": "object"
+      },
+      "PronunciationDictionaryUpdateResponse": {
+        "type": "object"
+      },
+      "PronunciationDictionaryDeleteResponse": {
+        "type": "object"
+      },
+      "PronunciationDictionaryData": {
+        "type": "object"
+      },
+      "SpeechStreamCodec": {
+        "type": "object"
+      },
+      "SpeechStreamBitrate": {
+        "type": "object"
+      },
+      "DocAiPresignUploadResponse": {
+        "type": "object"
+      },
+      "DocAiStartJobResponse": {
+        "type": "object"
+      },
+      "DocAiJobStatusResponse": {
+        "type": "object"
+      },
+      "DocAiUsage": {
+        "type": "object"
+      },
+      "DocAiDownloadUrlResponse": {
+        "type": "object"
+      },
+      "DocAiErrorDetail": {
+        "type": "object"
+      },
+      "DocAiErrorModel": {
+        "type": "object"
+      },
+      "DocAiExtractResults": {
+        "type": "object"
+      },
+      "DocAiDigitiseResultsDocumentsItemPagesItem": {
+        "type": "object"
+      },
+      "DocAiDigitiseResultsDocumentsItem": {
+        "type": "object"
+      },
+      "DocAiDigitiseResults": {
+        "type": "object"
+      }
+    }
+  },
+  "security": [
+    {
+      "apiSubscriptionKey": []
+    }
+  ]
+}

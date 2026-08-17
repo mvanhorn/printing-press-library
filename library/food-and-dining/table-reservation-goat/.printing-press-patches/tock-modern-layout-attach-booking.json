@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "tock-modern-layout-attach-booking",
+  "applied_at": "2026-07-15",
+  "base_run_id": "20260712-223206",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Preserve legacy Tock slot booking while adding exact-time search rows, fail-closed pinned-experience-aware legacy, combobox, experience-card, and post-selection date/slot attribution, trusted foreground checkout input, SMS opt-out handling, and typed redacted failures.",
+  "reason": "Modern Tock venue pages can expose a time combobox and party-dependent experience cards without any per-time slot button, causing attach booking to fail before checkout. Venue-wide and redirected legacy controls are matched by time only and must be skipped for pinned experiences unless the current page remains the exact pinned experience deep link, while experience-card controls must be tied to the pinned ID by an exact experience path segment unless the page itself is that experience's deep link; after a tied card click, date and slot controls must remain scoped to a uniquely revealed follow-on boundary so a pre-existing background row cannot satisfy modal detection or be booked. The SPA also requires foreground trusted input, can drop the first checkout transition, and may interpose an SMS opt-in dialog that must be declined.",
+  "files": [
+    "internal/source/tock/booking.go",
+    "internal/source/tock/booking_test.go",
+    "internal/source/tock/chrome_book.go",
+    "internal/source/tock/chrome_book_test.go",
+    "internal/cli/book.go",
+    "internal/cli/book_test.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "Fixture coverage exercises layout detection, exact combobox matching, unchanged unpinned legacy, party-size, and document-wide post-selection heuristics, boundary-safe fail-closed pinned-ID matching for redirected legacy pages and experience cards, uniquely revealed marker-free pinned follow-on panels, ambiguous-root rejection, scoped slot diagnostics, pinned deep-link sole-static-control exceptions, selector_drift propagation that names the pinned experience, exact-time venue search rows, the SMS-decline portal, typed non-interactive CVC handling, and redacted selector fallback state."
+}

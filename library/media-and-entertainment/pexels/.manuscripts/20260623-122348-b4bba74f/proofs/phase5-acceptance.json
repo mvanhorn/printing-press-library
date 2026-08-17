@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "pexels",
+  "run_id": "20260623-122348-b4bba74f",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 80,
+  "tests_passed": 80,
+  "tests_skipped": 33,
+  "auth_context": {
+    "type": "api_key"
+  }
+}

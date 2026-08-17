@@ -1,0 +1,115 @@
+# Substack Reader — hand-authored internal spec for cli-printing-press
+# Provenance: reconstructed 2026-07-06 from anonymous live probing + community libraries
+# (NHagar/substack_api, postcli, sbstck-dl). See ../discovery/ for the evidence base.
+#
+# ARCHITECTURE NOTE (important): Substack is per-publication — every author is their own
+# HOST (<pub>.substack.com or a custom domain), not a path on a shared API. The generator's
+# spec model assumes a single fixed base_url, so ONLY the central substack.com discovery
+# endpoints are modeled as generated typed endpoints here. The headline reader commands
+# (archive / read / search / feed / digest / corpus) take a <publication> argument and build
+# the URL at runtime — they are hand-built NOVEL commands (Phase 3), exactly like Medium v2's
+# keyless fetch layer. The generated chassis provides the store / FTS / sql / MCP scaffold +
+# these discovery commands; the reader is layered on top.
+
+name: substack-reader
+description: "Read any Substack publication as a local, full-text-searchable corpus — keyless for free posts, your own session for what you subscribe to."
+version: "0.1.0"
+base_url: "https://substack.com"
+health_check_path: "/api/v1/categories"
+
+required_headers:
+  - name: User-Agent
+    value: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"
+
+# Tier 0 is keyless. The Tier-1 session cookie (substack.sid[+connect.sid]) and the private
+# RSS token are hand-added fork extensions (internal/auth + client header injection), NOT a
+# generator auth type — mirroring how Medium v2 hand-added --cookie-file. Keep auth.type none
+# so the headline install story stays zero-setup.
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/substack-reader-pp-cli/config.toml"
+
+resources:
+  publications:
+    description: "Discover Substack publications"
+    endpoints:
+      search:
+        method: GET
+        path: "/api/v1/publication/search"
+        description: "Search Substack publications by name (best-effort; may return few results anonymously)"
+        params:
+          - name: query
+            type: string
+            required: true
+            positional: true
+            description: "Publication name or keyword to search for"
+          - name: page
+            type: int
+            required: false
+            default: 0
+            description: "Result page (0-indexed)"
+        response:
+          type: object
+          item: PublicationSearchResult
+
+  categories:
+    description: "Browse Substack's publication categories"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/v1/categories"
+        description: "List all Substack categories"
+        response:
+          type: array
+          item: Category
+      browse:
+        method: GET
+        path: "/api/v1/category/public/{id}/all"
+        description: "List publications in a category"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Category id (from `categories list`)"
+          - name: page
+            type: int
+            required: false
+            default: 0
+            description: "Result page (0-indexed)"
+        response:
+          type: object
+          item: CategoryPublications
+
+types:
+  PublicationSearchResult:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: subdomain
+        type: string
+      - name: custom_domain
+        type: string
+      - name: author_name
+        type: string
+  Category:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+  CategoryPublications:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: subdomain
+        type: string
+      - name: custom_domain
+        type: string

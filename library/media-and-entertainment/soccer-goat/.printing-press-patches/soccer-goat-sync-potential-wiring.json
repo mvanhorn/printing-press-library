@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "soccer-goat-sync-potential-wiring",
+  "applied_at": "2026-07-12",
+  "base_run_id": "20260712-074136",
+  "base_printing_press_version": "4.27.1",
+  "summary": "Register the hand-authored `sync potential` subcommand on the generated sync command, and wire the local potential store into all six novel report commands.",
+  "reason": "Potential ratings are only reachable via a bundled offline dataset (sofifa/fifacm are Cloudflare-walled; EA drop-api has no potential). The generated sync.go and novel command constructors must be extended to load and consume that store.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/player.go",
+    "internal/cli/team.go",
+    "internal/cli/compare.go",
+    "internal/cli/over_under_rated.go",
+    "internal/cli/potential_gap.go",
+    "internal/cli/wonderkids.go"
+  ],
+  "validated_outcome": "sync potential loads 18166 rows (June 2025 sofifa); player schjelderup shows potential 84; potential-gap/wonderkids rank on real potential.",
+  "upstream_issue": ""
+}

@@ -4,9 +4,124 @@
 package mcp
 
 import (
+	"context"
+	"net/http"
+	"net/http/httptest"
 	"strings"
 	"testing"
+
+	mcplib "github.com/mark3labs/mcp-go/mcp"
 )
+
+const testAuthConfigUpdateEndpointID = "projects.config.update-auth-service"
+
+func TestCodeOrchExecuteRedactsAuthConfig(t *testing.T) {
+	const sentinel = "synthetic-credential-must-not-escape"
+	t.Setenv("HOME", t.TempDir())
+	t.Setenv("SUPABASE_ACCESS_TOKEN", "synthetic-management-token")
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte(`{
+			"site_url":"https://portal.example.test",
+			"external_google_secret":"synthetic-credential-must-not-escape-google",
+			"smtp_pass":"synthetic-credential-must-not-escape-smtp"
+		}`))
+	}))
+	defer server.Close()
+	t.Setenv("SUPABASE_BASE_URL", server.URL)
+
+	result, err := handleCodeOrchExecute(context.Background(), mcplib.CallToolRequest{
+		Params: mcplib.CallToolParams{Arguments: map[string]any{
+			"endpoint_id": "projects.config.get-auth-service",
+			"params":      map[string]any{"ref": "project-ref"},
+		}},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.IsError {
+		t.Fatalf("MCP result is an error: %#v", result.Content)
+	}
+	text, ok := result.Content[0].(mcplib.TextContent)
+	if !ok {
+		t.Fatalf("MCP content type = %T, want TextContent", result.Content[0])
+	}
+	if strings.Contains(text.Text, sentinel) {
+		t.Fatalf("MCP output leaked a credential sentinel: %s", text.Text)
+	}
+	if !strings.Contains(text.Text, "portal.example.test") {
+		t.Fatalf("MCP output omitted approved metadata: %s", text.Text)
+	}
+}
+
+func TestCodeOrchSearchOmitsCredentialBearingAuthConfigUpdate(t *testing.T) {
+	result, err := handleCodeOrchSearch(context.Background(), mcplib.CallToolRequest{
+		Params: mcplib.CallToolParams{Arguments: map[string]any{
+			"query": "update auth service config",
+			"limit": float64(200),
+		}},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.IsError {
+		t.Fatalf("MCP search returned an error: %#v", result.Content)
+	}
+	text, ok := result.Content[0].(mcplib.TextContent)
+	if !ok {
+		t.Fatalf("MCP content type = %T, want TextContent", result.Content[0])
+	}
+	if strings.Contains(text.Text, testAuthConfigUpdateEndpointID) {
+		t.Fatalf("MCP search advertised denied credential-bearing endpoint: %s", text.Text)
+	}
+}
+
+func TestCodeOrchExecuteDeniesCredentialBearingAuthConfigUpdateWithoutEcho(t *testing.T) {
+	const sentinel = "synthetic-credential-must-not-escape"
+	result, err := handleCodeOrchExecute(context.Background(), mcplib.CallToolRequest{
+		Params: mcplib.CallToolParams{Arguments: map[string]any{
+			"endpoint_id": testAuthConfigUpdateEndpointID,
+			"params": map[string]any{
+				"ref":                    "project-ref",
+				"external_google_secret": sentinel,
+			},
+		}},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !result.IsError {
+		t.Fatalf("credential-bearing MCP update was not denied: %#v", result.Content)
+	}
+	text, ok := result.Content[0].(mcplib.TextContent)
+	if !ok {
+		t.Fatalf("MCP content type = %T, want TextContent", result.Content[0])
+	}
+	if strings.Contains(text.Text, sentinel) {
+		t.Fatalf("MCP denial echoed a credential sentinel: %s", text.Text)
+	}
+	if !strings.Contains(text.Text, "--stdin") {
+		t.Fatalf("MCP denial omitted safe CLI guidance: %s", text.Text)
+	}
+}
+
+func TestCredentialBearingCodeOrchEndpointPolicyDerivesFromMethodAndPath(t *testing.T) {
+	for _, testCase := range []struct {
+		name string
+		ep   codeOrchEndpoint
+		want bool
+	}{
+		{name: "auth config read remains available", ep: codeOrchEndpoint{Method: http.MethodGet, Path: "/v1/projects/{ref}/config/auth"}},
+		{name: "current auth config update denied", ep: codeOrchEndpoint{Method: http.MethodPatch, Path: "/v1/projects/{ref}/config/auth"}, want: true},
+		{name: "future auth config write denied", ep: codeOrchEndpoint{Method: http.MethodPost, Path: "/v1/projects/{ref}/config/auth"}, want: true},
+		{name: "unrelated config write remains available", ep: codeOrchEndpoint{Method: http.MethodPatch, Path: "/v1/projects/{ref}/config/database"}},
+	} {
+		t.Run(testCase.name, func(t *testing.T) {
+			if got := isCredentialBearingCodeOrchEndpoint(&testCase.ep); got != testCase.want {
+				t.Fatalf("isCredentialBearingCodeOrchEndpoint() = %t, want %t", got, testCase.want)
+			}
+		})
+	}
+}
 
 // TestValidateReadOnlyQuery_AllowsSelectAndWITH pins the contract: the MCP
 // sql tool's allowlist accepts SELECT and WITH-prefix queries, including

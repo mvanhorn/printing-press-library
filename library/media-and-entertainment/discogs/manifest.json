@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "discogs-pp-mcp",
+  "display_name": "Discogs",
+  "version": "4.28.0",
+  "description": "Every Discogs feature — plus a local price-history mirror the API doesn't keep, so you can watch your wantlist like a limit-order book, spot underpriced records, and track your collection's value over time.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/discogs-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/discogs-pp-mcp",
+      "args": [],
+      "env": {
+        "DISCOGS_TOKEN": "${user_config.discogs_token}"
+      }
+    }
+  },
+  "user_config": {
+    "discogs_token": {
+      "type": "string",
+      "title": "DISCOGS_TOKEN",
+      "description": "Sets DISCOGS_TOKEN for the Discogs MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

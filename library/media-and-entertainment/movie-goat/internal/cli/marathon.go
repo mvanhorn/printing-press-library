@@ -39,6 +39,7 @@ func newMarathonCmd(flags *rootFlags) *cobra.Command {
 	var flagOrder string
 	var flagBreaksEvery int
 	var flagIncludeUnreleased bool
+	var flagYear string
 
 	cmd := &cobra.Command{
 		Use:         "marathon <title-or-collection-id>",
@@ -51,9 +52,13 @@ points every --breaks-every minutes (default 240).
 
 --order release sorts ascending by release_date (default).
 --order inuniverse falls back to release order with a warning when the
-parts list lacks a canonical chronology field.`,
+parts list lacks a canonical chronology field.
+
+When the seed title is shared by several movies, the alternatives are listed on
+stderr; pin one with --year, a "Title (YYYY)" suffix, or a TMDb movie id.`,
 		Example: `  movie-goat-pp-cli marathon "Star Wars"
   movie-goat-pp-cli marathon 10 --order release
+  movie-goat-pp-cli marathon "Ocean's Eleven" --year 2001
   movie-goat-pp-cli marathon "Lord of the Rings" --breaks-every 180 --json`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -83,13 +88,19 @@ parts list lacks a canonical chronology field.`,
 				breaksEvery = 240
 			}
 
+			// PATCH(title-resolution-must-signal-ambiguity)
+			year, yerr := validateYearFlag(flagYear)
+			if yerr != nil {
+				return yerr
+			}
+
 			// Resolve collection id from numeric arg or via movie -> belongs_to_collection.
 			var collectionID int
 			var collectionName string
 			if id, perr := strconv.Atoi(arg); perr == nil {
 				collectionID = id
 			} else {
-				movieID, _, mlerr := searchMovieByTitle(c, arg)
+				movieID, _, mlerr := resolveMovieID(c, flags, arg, year, "--year")
 				if mlerr != nil {
 					return classifyAPIError(mlerr)
 				}
@@ -266,5 +277,7 @@ parts list lacks a canonical chronology field.`,
 	cmd.Flags().StringVar(&flagOrder, "order", "release", "Watch order: release | inuniverse")
 	cmd.Flags().IntVar(&flagBreaksEvery, "breaks-every", 240, "Insert a break suggestion after every N minutes")
 	cmd.Flags().BoolVar(&flagIncludeUnreleased, "include-unreleased", false, "Include franchise entries with future release dates (default: skip them)")
+	// PATCH(title-resolution-must-signal-ambiguity)
+	cmd.Flags().StringVar(&flagYear, "year", "", "Release year used to disambiguate a seed title shared by several movies")
 	return cmd
 }

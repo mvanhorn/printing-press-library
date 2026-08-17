@@ -8,8 +8,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/mvanhorn/printing-press-library/library/food-and-dining/dominos/internal/config"
-
 	"github.com/spf13/cobra"
 )
 
@@ -26,18 +24,9 @@ func newCustomerOrdersCmd(flags *rootFlags) *cobra.Command {
 			// Resolve customerID: positional arg wins; otherwise fall back to
 			// the saved DominosCustomerID from `auth login` so users never
 			// have to know their opaque CustomerID.
-			var customerID string
-			if len(args) > 0 {
-				customerID = args[0]
-			} else {
-				cfg, err := config.Load(flags.configPath)
-				if err != nil {
-					return configErr(err)
-				}
-				customerID = cfg.DominosCustomerID
-				if customerID == "" {
-					return usageErr(fmt.Errorf("no CustomerID — run 'dominos-pp-cli auth login' (auto-harvests it) or pass <customerID> explicitly"))
-				}
+			customerID, err := resolveCustomerID(flags, args)
+			if err != nil {
+				return err
 			}
 			c, err := flags.newClient()
 			if err != nil {

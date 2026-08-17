@@ -8,7 +8,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strconv"
+	"strings"
 
+	"github.com/mvanhorn/printing-press-library/library/productivity/slack/internal/cliutil"
 	"github.com/spf13/cobra"
 )
 
@@ -23,20 +26,71 @@ func newExportCmd(flags *rootFlags) *cobra.Command {
 		Short: "Export data to JSONL or JSON for backup, migration, or analysis",
 		Long: `Export paginated API data to a local file. Supports JSONL (one JSON object
 per line, streaming-friendly) and JSON (array). JSONL is recommended for
-large datasets as it has no memory pressure.
+large datasets as it has no memory pressure.`,
+		Example: `  # Export all items as JSONL (streaming, recommended for large datasets)
+  slack-pp-cli export <resource> --format jsonl --output data.jsonl
 
-Supports --data-source: local (from synced SQLite), live (from API), auto (local first, API fallback).`,
-		Example: `  # Export from local sync data (recommended)
-  slack-pp-cli export messages --data-source local --format jsonl
-
-  # Export from live API
-  slack-pp-cli export conversations --data-source live --format jsonl --output data.jsonl
+  # Export with limit
+  slack-pp-cli export <resource> --format jsonl --limit 1000
 
   # Pipe to another tool
-  slack-pp-cli export messages --format jsonl | jq '.id'`,
-		Args: cobra.MinimumNArgs(1),
+  slack-pp-cli export <resource> --format jsonl | jq '.id'`,
+		Args: cobra.RangeArgs(1, 2),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			validResources := map[string]bool{
+				"conversations":         true,
+				"emoji":                 true,
+				"files":                 true,
+				"files-remote-list":     true,
+				"pins":                  true,
+				"reactions":             true,
+				"reminders":             true,
+				"stars":                 true,
+				"team-integration-logs": true,
+				"usergroups":            true,
+				"users":                 true,
+				"users-conversations":   true,
+				"users-identity":        true,
+			}
+			validResourceList := []string{
+				"conversations",
+				"emoji",
+				"files",
+				"files-remote-list",
+				"pins",
+				"reactions",
+				"reminders",
+				"stars",
+				"team-integration-logs",
+				"usergroups",
+				"users",
+				"users-conversations",
+				"users-identity",
+			}
 			resource := args[0]
+			if !validResources[resource] {
+				return usageErr(fmt.Errorf("unknown resource %q; valid: %s", resource, strings.Join(validResourceList, ", ")))
+			}
+
+			c, err := flags.newClient()
+			if err != nil {
+				return err
+			}
+			if noCache {
+				c.NoCache = true
+			}
+
+			path, err := resourceReadPath(resource)
+			if err != nil {
+				return usageErr(err)
+			}
+			singleItem := len(args) > 1
+			if len(args) > 1 {
+				path, err = resourceDetailPath(resource, cliutil.EscapePathParam(args[1]))
+				if err != nil {
+					return usageErr(err)
+				}
+			}
 
 			var writer *bufio.Writer
 			if outputFile != "" {
@@ -52,67 +106,90 @@ Supports --data-source: local (from synced SQLite), live (from API), auto (local
 				defer writer.Flush()
 			}
 
-			// Try local data first when data-source is local or auto
-			if flags.dataSource == "local" || flags.dataSource == "auto" {
-				db, dbErr := openAnalyticsStore()
-				if dbErr == nil {
-					defer db.Close()
-					fetchLimit := limit
-					if fetchLimit <= 0 {
-						fetchLimit = 10000
-					}
-					// Messages are stored in a dedicated table, not the generic resources table.
-					var items []json.RawMessage
-					var listErr error
-					if resource == "messages" {
-						items, listErr = db.ListMessages(fetchLimit)
+			config := resourceReadConfigFor(resource)
+			allItems := []json.RawMessage{}
+			var singlePayload json.RawMessage
+			count, page, cursor := 0, 0, ""
+			for {
+				remaining := 0
+				if limit > 0 {
+					remaining = limit - count
+				}
+				params := map[string]string(nil)
+				if !singleItem && config.paginationType != "" {
+					params = resourcePageParams(config, cursor, page, remaining)
+				}
+				data, err := c.Get(cmd.Context(), path, params)
+				if err != nil {
+					return classifyAPIError(err, flags)
+				}
+				if singleItem {
+					count = 1
+					if format == "jsonl" {
+						fmt.Fprintln(writer, string(data))
 					} else {
-						items, listErr = db.List(resource, fetchLimit)
+						singlePayload = data
 					}
-					if listErr == nil && len(items) > 0 {
-						return writeExport(writer, items, format, limit, outputFile)
+					break
+				}
+				items, nextCursor, hasMore := extractResourcePage(data, config)
+				if items == nil {
+					items = []json.RawMessage{data}
+				}
+				for _, item := range items {
+					if limit > 0 && count >= limit {
+						break
 					}
-					if flags.dataSource == "local" {
-						if listErr != nil {
-							return fmt.Errorf("export from local store: %w", listErr)
-						}
-						return fmt.Errorf("no %s data in local store. Run 'slack-pp-cli sync' first", resource)
+					if format == "jsonl" {
+						fmt.Fprintln(writer, string(item))
+					} else {
+						allItems = append(allItems, item)
 					}
-				} else if flags.dataSource == "local" {
-					return fmt.Errorf("cannot open local store: %w\nRun 'slack-pp-cli sync' first", dbErr)
+					count++
+				}
+
+				if config.paginationType == "" || len(items) == 0 || (limit > 0 && count >= limit) {
+					break
+				}
+				page++
+				var stop bool
+				cursor, stop, err = resourceNextCursor(config, cursor, nextCursor, hasMore)
+				if err != nil {
+					return fmt.Errorf("export pagination for %q: %w", resource, err)
+				}
+				if stop {
+					break
+				}
+				if config.limitParam != "" && !hasMore {
+					requested, _ := strconv.Atoi(params[config.limitParam])
+					if requested > 0 && len(items) < requested {
+						break
+					}
+				}
+				if page > 100000 {
+					return fmt.Errorf("export pagination exceeded 100000 pages for %q", resource)
 				}
 			}
 
-			// Fall through to live API
-			c, err := flags.newClient()
-			if err != nil {
-				return err
-			}
-			if noCache {
-				c.NoCache = true
-			}
-
-			// Use the same endpoint mapping as sync
-			path := syncResourcePath(resource)
-			if len(args) > 1 {
-				path += "/" + args[1]
-			}
-
-			data, err := c.Get(path, nil)
-			if err != nil {
-				return classifyAPIError(err)
-			}
-
-			var items []json.RawMessage
-			if json.Unmarshal(data, &items) != nil {
-				// Not an array - output as single item
-				fmt.Fprintln(writer, string(data))
-				if outputFile != "" {
-					fmt.Fprintf(os.Stderr, "Exported 1 record to %s\n", outputFile)
+			if format != "jsonl" {
+				enc := json.NewEncoder(writer)
+				enc.SetIndent("", "  ")
+				output := any(allItems)
+				if singleItem {
+					var value any
+					if err := json.Unmarshal(singlePayload, &value); err != nil {
+						return fmt.Errorf("decoding exported resource: %w", err)
+					}
+					output = value
 				}
-				return nil
+				if err := enc.Encode(output); err != nil {
+					return err
+				}
 			}
-			return writeExport(writer, items, format, limit, outputFile)
+			if outputFile != "" {
+				fmt.Fprintf(os.Stderr, "Exported %d records to %s\n", count, outputFile)
+			}
+			return nil
 		},
 	}
 
@@ -122,29 +199,4 @@ Supports --data-source: local (from synced SQLite), live (from API), auto (local
 	cmd.Flags().BoolVar(&noCache, "no-cache", false, "Bypass response cache for fresh data")
 
 	return cmd
-}
-
-func writeExport(writer *bufio.Writer, items []json.RawMessage, format string, limit int, outputFile string) error {
-	switch format {
-	case "jsonl":
-		count := 0
-		for _, item := range items {
-			if limit > 0 && count >= limit {
-				break
-			}
-			fmt.Fprintln(writer, string(item))
-			count++
-		}
-		if outputFile != "" {
-			fmt.Fprintf(os.Stderr, "Exported %d records to %s\n", count, outputFile)
-		}
-	default:
-		enc := json.NewEncoder(writer)
-		enc.SetIndent("", "  ")
-		if limit > 0 && len(items) > limit {
-			items = items[:limit]
-		}
-		return enc.Encode(items)
-	}
-	return nil
 }

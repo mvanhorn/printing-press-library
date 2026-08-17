@@ -207,7 +207,7 @@ func abRunOne(ctx context.Context, c interface {
 
 	if wait && !isTerminalStatus(run.Status) {
 		deadline := time.Now().Add(15 * time.Minute)
-		polled, perr := pollRunUntilTerminal(ctx, c, run.ID, deadline)
+		polled, perr := pollRunUntilTerminal(ctx, c, run.ID, deadline, 0)
 		if perr != nil {
 			res.Error = perr.Error()
 			res.Status = run.Status

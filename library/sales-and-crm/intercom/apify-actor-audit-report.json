@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/intercom-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260723-000115-4f7ce34f",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

@@ -3,6 +3,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"os"
 	"path/filepath"
@@ -61,7 +62,7 @@ func TestExtract_ThreeStreams(t *testing.T) {
 
 	outDir := filepath.Join(tmp, "out")
 	// Force "local" data source via flag so the live API isn't dialed.
-	res, err := runExtract("abc", outDir, "", false)
+	res, err := runExtract(context.Background(), "abc", outDir, "", false)
 	if err != nil {
 		t.Fatalf("runExtract: %v", err)
 	}
@@ -122,7 +123,7 @@ func TestExtract_MissingTranscriptExits2(t *testing.T) {
 	data, _ := json.Marshal(cache)
 	_ = os.WriteFile(cachePath, data, 0o644)
 	t.Setenv("GRANOLA_CACHE_PATH", cachePath)
-	_, err := runExtract("xyz", filepath.Join(tmp, "o"), "", false)
+	_, err := runExtract(context.Background(), "xyz", filepath.Join(tmp, "o"), "", false)
 	if err == nil {
 		t.Fatalf("expected error")
 	}

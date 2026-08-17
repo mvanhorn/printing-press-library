@@ -4,6 +4,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -21,17 +22,17 @@ import (
 
 func newEpisodeGetCmd(flags *rootFlags) *cobra.Command {
 	var (
-		flagText      bool
-		flagJSON      bool
-		flagJSONL     bool
-		flagMD        bool
-		flagOut       string
-		flagPaid      bool
-		flagProvider  string
-		flagAutoPaid  bool
-		flagExplain   bool
-		flagBilingual string
-		flagNoCache   bool
+		flagText     bool
+		flagJSON     bool
+		flagJSONL    bool
+		flagMD       bool
+		flagOut      string
+		flagPaid     bool
+		flagProvider string
+		flagAutoPaid bool
+		flagExplain  bool
+		flagLang     string
+		flagNoCache  bool
 	)
 
 	cmd := &cobra.Command{
@@ -48,8 +49,8 @@ func newEpisodeGetCmd(flags *rootFlags) *cobra.Command {
 				return cmd.Help()
 			}
 			url := args[0]
-			if flagBilingual != "" {
-				return fmt.Errorf("the bilingual aligner (--bilingual %s) ships in v0.2; for now use --provider youtube (English only)", flagBilingual)
+			if err := validateLangFlag(flagLang); err != nil {
+				return err
 			}
 			providers := []string{}
 			if flagProvider != "" {
@@ -65,6 +66,7 @@ func newEpisodeGetCmd(flags *rootFlags) *cobra.Command {
 				AllowedProviders: providers,
 				DryRun:           flags.dryRun,
 				Explain:          flagExplain || flags.dryRun,
+				Lang:             flagLang,
 			}
 
 			if cliutil.IsVerifyEnv() && !flags.dryRun {
@@ -75,7 +77,7 @@ func newEpisodeGetCmd(flags *rootFlags) *cobra.Command {
 
 			res, err := dispatch.Dispatch(cmd.Context(), url, opts)
 			if err != nil {
-				return classifyDispatchErr(err)
+				return classifyDispatchErr(cmd.Context(), url, err)
 			}
 
 			// Dry-run / explain-only path: print trace and return.
@@ -88,8 +90,15 @@ func newEpisodeGetCmd(flags *rootFlags) *cobra.Command {
 				return fmt.Errorf("dispatcher returned no transcript and no error")
 			}
 
-			// Persist to local store unless --no-cache.
-			if !flagNoCache && !flags.noCache {
+			// Persist to local store unless --no-cache. Non-default --lang
+			// fetches are NOT cached: cache identity is per-URL and currently
+			// language-blind, so an it fetch would silently overwrite the en
+			// row (and vice versa), and search/quote would serve whichever
+			// language landed last. Skipping is declared, not silent.
+			if !cacheableLang(flagLang) {
+				fmt.Fprintf(cmd.ErrOrStderr(), "note: --lang %s transcript not written to the local cache (cache identity is per-URL and language-blind in v0.1); use --out to keep it\n", flagLang)
+			}
+			if !flagNoCache && !flags.noCache && cacheableLang(flagLang) {
 				if ps, perr := openPodcastStore(cmd.Context()); perr == nil {
 					_ = ps.UpsertTranscript(cmd.Context(), tr)
 					if tr.Tier == transcript.TierPaid && tr.CostCredits > 0 {
@@ -105,7 +114,7 @@ func newEpisodeGetCmd(flags *rootFlags) *cobra.Command {
 					return err
 				}
 				fmt.Fprintln(cmd.OutOrStdout(), flagOut)
-			} else if dest := defaultCachePath(tr, flagText, flagJSON, flagJSONL); dest != "" && !isTerminal(cmd.OutOrStdout()) {
+			} else if dest := defaultCachePath(tr, flagText, flagJSON, flagJSONL); dest != "" && cacheableLang(flagLang) && !isTerminal(cmd.OutOrStdout()) {
 				// When stdout is piped and no explicit --out, also persist a cache copy.
 				_ = writeFile(dest, body)
 				fmt.Fprint(cmd.OutOrStdout(), body)
@@ -128,14 +137,35 @@ func newEpisodeGetCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().BoolVar(&flagAutoPaid, "auto-paid", false, "Same as --paid; auto-confirm cost preview")
 	cmd.Flags().StringVar(&flagProvider, "provider", "", "Comma-separated allowed adapters (e.g. spoken,youtube)")
 	cmd.Flags().BoolVar(&flagExplain, "explain", false, "Print dispatcher trace alongside the transcript")
-	cmd.Flags().StringVar(&flagBilingual, "bilingual", "", "Reserved for v0.2 (zh-Hans,en bilingual aligner)")
+	cmd.Flags().StringVar(&flagLang, "lang", "", "Subtitle language for the YouTube source — one code per fetch, e.g. it (default: en). Rolling-cue de-dup applies to space-tokenized languages only; non-default languages are not written to the cache")
 	cmd.Flags().BoolVar(&flagNoCache, "fetch-only", false, "Skip writing the result to the local cache")
 	return cmd
 }
 
-func classifyDispatchErr(err error) error {
+// validateLangFlag enforces the v0.1 --lang contract: one language code per
+// fetch. Comma lists would make yt-dlp write several VTT files and the
+// adapter's file picker would grab an arbitrary one — silently returning the
+// wrong language.
+func validateLangFlag(lang string) error {
+	if strings.ContainsAny(lang, ", \t") {
+		return fmt.Errorf("--lang accepts one language code per fetch in v0.1 (got %q); run the command once per language", lang)
+	}
+	return nil
+}
+
+// cacheableLang reports whether a fetch with this --lang value may be written
+// to the local store. Only the default language is cached: cache identity is
+// per-URL with no language column, so other languages would overwrite it.
+func cacheableLang(lang string) bool {
+	return lang == "" || lang == "en"
+}
+
+func classifyDispatchErr(ctx context.Context, url string, err error) error {
 	var cm *source.CookieMissingError
 	if errors.As(err, &cm) {
+		if hint := alternateSourceHint(ctx, url); hint != "" {
+			return authErr(fmt.Errorf("%w\n%s", err, hint))
+		}
 		return authErr(err)
 	}
 	var km *source.KeyMissingError

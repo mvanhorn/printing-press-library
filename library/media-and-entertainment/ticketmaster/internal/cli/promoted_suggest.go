@@ -25,17 +25,19 @@ func newSuggestPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagIncludeTBD string
 	var flagSegmentId string
 	var flagGeoPoint string
+	var flagLocale string
+	var flagIncludeLicensedContent string
 	var flagIncludeSpellcheck string
 
 	cmd := &cobra.Command{
 		Use:         "suggest",
 		Short:       "Find search suggestions and filter your suggestions by location, source, etc.",
-		Long:        "Shortcut for 'suggest list'. Find search suggestions and filter your suggestions by location, source, etc.",
+		Long:        "Find search suggestions and filter your suggestions by location, source, etc.",
 		Example:     "  ticketmaster-pp-cli suggest",
 		Annotations: map[string]string{"pp:endpoint": "suggest.list", "pp:method": "GET", "pp:path": "/suggest", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("source") {
-				allowedSource := []string{"ticketmaster", " universe", " frontgate", " tmr"}
+				allowedSource := []string{"ticketmaster", "universe", "frontgate", "tmr"}
 				validSource := false
 				for _, v := range allowedSource {
 					if flagSource == v {
@@ -44,7 +46,7 @@ func newSuggestPromotedCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validSource {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "source", flagSource, allowedSource)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagSource, "source", allowedSource)
 				}
 			}
 			if cmd.Flags().Changed("unit") {
@@ -57,11 +59,11 @@ func newSuggestPromotedCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validUnit {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "unit", flagUnit, allowedUnit)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagUnit, "unit", allowedUnit)
 				}
 			}
 			if cmd.Flags().Changed("include-fuzzy") {
-				allowedIncludeFuzzy := []string{"yes", " no"}
+				allowedIncludeFuzzy := []string{"yes", "no"}
 				validIncludeFuzzy := false
 				for _, v := range allowedIncludeFuzzy {
 					if flagIncludeFuzzy == v {
@@ -70,11 +72,11 @@ func newSuggestPromotedCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validIncludeFuzzy {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "include-fuzzy", flagIncludeFuzzy, allowedIncludeFuzzy)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagIncludeFuzzy, "include-fuzzy", allowedIncludeFuzzy)
 				}
 			}
 			if cmd.Flags().Changed("include-tba") {
-				allowedIncludeTBA := []string{"yes", " no", " only"}
+				allowedIncludeTBA := []string{"yes", "no", "only"}
 				validIncludeTBA := false
 				for _, v := range allowedIncludeTBA {
 					if flagIncludeTBA == v {
@@ -83,11 +85,11 @@ func newSuggestPromotedCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validIncludeTBA {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "include-tba", flagIncludeTBA, allowedIncludeTBA)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagIncludeTBA, "include-tba", allowedIncludeTBA)
 				}
 			}
 			if cmd.Flags().Changed("include-tbd") {
-				allowedIncludeTBD := []string{"yes", " no", " only"}
+				allowedIncludeTBD := []string{"yes", "no", "only"}
 				validIncludeTBD := false
 				for _, v := range allowedIncludeTBD {
 					if flagIncludeTBD == v {
@@ -96,11 +98,24 @@ func newSuggestPromotedCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validIncludeTBD {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "include-tbd", flagIncludeTBD, allowedIncludeTBD)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagIncludeTBD, "include-tbd", allowedIncludeTBD)
+				}
+			}
+			if cmd.Flags().Changed("include-licensed-content") {
+				allowedIncludeLicensedContent := []string{"yes", "no"}
+				validIncludeLicensedContent := false
+				for _, v := range allowedIncludeLicensedContent {
+					if flagIncludeLicensedContent == v {
+						validIncludeLicensedContent = true
+						break
+					}
+				}
+				if !validIncludeLicensedContent {
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagIncludeLicensedContent, "include-licensed-content", allowedIncludeLicensedContent)
 				}
 			}
 			if cmd.Flags().Changed("include-spellcheck") {
-				allowedIncludeSpellcheck := []string{"yes", " no"}
+				allowedIncludeSpellcheck := []string{"yes", "no"}
 				validIncludeSpellcheck := false
 				for _, v := range allowedIncludeSpellcheck {
 					if flagIncludeSpellcheck == v {
@@ -109,7 +124,7 @@ func newSuggestPromotedCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validIncludeSpellcheck {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "include-spellcheck", flagIncludeSpellcheck, allowedIncludeSpellcheck)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagIncludeSpellcheck, "include-spellcheck", allowedIncludeSpellcheck)
 				}
 			}
 			c, err := flags.newClient()
@@ -120,57 +135,63 @@ func newSuggestPromotedCmd(flags *rootFlags) *cobra.Command {
 			path := "/suggest"
 			params := map[string]string{}
 			if flagKeyword != "" {
-				params["keyword"] = fmt.Sprintf("%v", flagKeyword)
+				params["keyword"] = formatCLIParamValue(flagKeyword)
 			}
 			if flagSource != "" {
-				params["source"] = fmt.Sprintf("%v", flagSource)
+				params["source"] = formatCLIParamValue(flagSource)
 			}
 			if flagLatlong != "" {
-				params["latlong"] = fmt.Sprintf("%v", flagLatlong)
+				params["latlong"] = formatCLIParamValue(flagLatlong)
 			}
 			if flagRadius != "" {
-				params["radius"] = fmt.Sprintf("%v", flagRadius)
+				params["radius"] = formatCLIParamValue(flagRadius)
 			}
 			if flagUnit != "" {
-				params["unit"] = fmt.Sprintf("%v", flagUnit)
+				params["unit"] = formatCLIParamValue(flagUnit)
 			}
 			if flagSize != "" {
-				params["size"] = fmt.Sprintf("%v", flagSize)
+				params["size"] = formatCLIParamValue(flagSize)
 			}
 			if flagIncludeFuzzy != "" {
-				params["includeFuzzy"] = fmt.Sprintf("%v", flagIncludeFuzzy)
+				params["includeFuzzy"] = formatCLIParamValue(flagIncludeFuzzy)
 			}
 			if flagClientVisibility != "" {
-				params["clientVisibility"] = fmt.Sprintf("%v", flagClientVisibility)
+				params["clientVisibility"] = formatCLIParamValue(flagClientVisibility)
 			}
 			if flagCountryCode != "" {
-				params["countryCode"] = fmt.Sprintf("%v", flagCountryCode)
+				params["countryCode"] = formatCLIParamValue(flagCountryCode)
 			}
 			if flagIncludeTBA != "" {
-				params["includeTBA"] = fmt.Sprintf("%v", flagIncludeTBA)
+				params["includeTBA"] = formatCLIParamValue(flagIncludeTBA)
 			}
 			if flagIncludeTBD != "" {
-				params["includeTBD"] = fmt.Sprintf("%v", flagIncludeTBD)
+				params["includeTBD"] = formatCLIParamValue(flagIncludeTBD)
 			}
 			if flagSegmentId != "" {
-				params["segmentId"] = fmt.Sprintf("%v", flagSegmentId)
+				params["segmentId"] = formatCLIParamValue(flagSegmentId)
 			}
 			if flagGeoPoint != "" {
-				params["geoPoint"] = fmt.Sprintf("%v", flagGeoPoint)
+				params["geoPoint"] = formatCLIParamValue(flagGeoPoint)
+			}
+			if flagLocale != "" {
+				params["locale"] = formatCLIParamValue(flagLocale)
+			}
+			if flagIncludeLicensedContent != "" {
+				params["includeLicensedContent"] = formatCLIParamValue(flagIncludeLicensedContent)
 			}
 			if flagIncludeSpellcheck != "" {
-				params["includeSpellcheck"] = fmt.Sprintf("%v", flagIncludeSpellcheck)
+				params["includeSpellcheck"] = formatCLIParamValue(flagIncludeSpellcheck)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "suggest", false, path, params, nil)
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "suggest", true, path, params, nil, "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			// Unwrap API response envelopes (e.g. {"status":"success","data":[...]})
-			// so output helpers see the inner data, not the wrapper.
-			data = extractResponseData(data)
-
-			// Print provenance to stderr
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_endpoint.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				if json.Unmarshal(data, &countItems) != nil {
 					// Single object, not an array
@@ -178,14 +199,12 @@ func newSuggestPromotedCmd(flags *rootFlags) *cobra.Command {
 				}
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// CSV bypasses JSON pipe path so --csv works when piped
-			if flags.csv {
-				return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
-			}
 			// For JSON output, wrap with provenance envelope. --select wins over
 			// --compact when both are set; --compact only runs when no explicit
-			// fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// fields were requested. Explicit format flags (--csv, --quiet, --plain)
+			// opt out of the auto-JSON path so piped consumers that asked for a
+			// non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -210,23 +229,25 @@ func newSuggestPromotedCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagKeyword, "keyword", "", "Keyword to search on")
-	cmd.Flags().StringVar(&flagSource, "source", "", "Filter entities by its source name (one of: ticketmaster,  universe,  frontgate,  tmr)")
-	cmd.Flags().StringVar(&flagLatlong, "latlong", "", "Filter events by latitude and longitude, this filter is deprecated and maybe removed in a future release, please use...")
+	cmd.Flags().StringVar(&flagSource, "source", "", "Filter entities by its source name (one of: ticketmaster, universe, frontgate, tmr)")
+	cmd.Flags().StringVar(&flagLatlong, "latlong", "", "Filter events by latitude and longitude, this filter is deprecated and maybe removed in a future release")
 	cmd.Flags().StringVar(&flagRadius, "radius", "100", "Radius of the area in which we want to search for events.")
 	cmd.Flags().StringVar(&flagUnit, "unit", "miles", "Unit of the radius (one of: miles, km)")
 	cmd.Flags().StringVar(&flagSize, "size", "5", "Size of every entity returned in the response")
-	cmd.Flags().StringVar(&flagIncludeFuzzy, "include-fuzzy", "no", "yes, to include fuzzy matches in the search. This has performance impact. (one of: yes,  no)")
+	cmd.Flags().StringVar(&flagIncludeFuzzy, "include-fuzzy", "no", "yes, to include fuzzy matches in the search. This has performance impact. (one of: yes, no)")
 	cmd.Flags().StringVar(&flagClientVisibility, "client-visibility", "", "Filter events to clientName")
 	cmd.Flags().StringVar(&flagCountryCode, "country-code", "", "Filter suggestions by country code")
-	cmd.Flags().StringVar(&flagIncludeTBA, "include-tba", "no if date parameter sent, yes otherwise", "True, to include events with date to be announce (TBA) (one of: yes,  no,  only)")
-	cmd.Flags().StringVar(&flagIncludeTBD, "include-tbd", "no if date parameter sent, yes otherwise", "True, to include event with a date to be defined (TBD) (one of: yes,  no,  only)")
+	cmd.Flags().StringVar(&flagIncludeTBA, "include-tba", "", "True, to include events with date to be announce (TBA) (one of: yes, no, only)")
+	cmd.Flags().StringVar(&flagIncludeTBD, "include-tbd", "", "True, to include event with a date to be defined (TBD) (one of: yes, no, only)")
 	cmd.Flags().StringVar(&flagSegmentId, "segment-id", "", "Filter suggestions by segment id")
 	cmd.Flags().StringVar(&flagGeoPoint, "geo-point", "", "filter events by geoHash")
-	cmd.Flags().StringVar(&flagIncludeSpellcheck, "include-spellcheck", "no", "yes, to include spell check suggestions in the response. (one of: yes,  no)")
+	cmd.Flags().StringVar(&flagLocale, "locale", "en", "The locale in ISO code format. Multiple comma-separated values can be provided.")
+	cmd.Flags().StringVar(&flagIncludeLicensedContent, "include-licensed-content", "no", "Yes if you want to display licensed content (one of: yes, no)")
+	cmd.Flags().StringVar(&flagIncludeSpellcheck, "include-spellcheck", "no", "yes, to include spell check suggestions in the response. (one of: yes, no)")
 
 	// Wire sibling endpoints and sub-resources as subcommands
 

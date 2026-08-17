@@ -9,9 +9,10 @@ import (
 
 func newContactsArchiveCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "archive",
-		Short: "Run archive operations for contacts",
-		RunE:  parentNoSubcommandRunE(flags),
+		Use:         "archive",
+		Short:       "Run archive operations for contacts",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newContactsArchiveContactCmd(flags))

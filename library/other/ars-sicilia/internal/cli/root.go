@@ -17,7 +17,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var version = "2026.6.1"
+var version = "2026.8.3"
 
 type rootFlags struct {
 	asJSON        bool
@@ -27,6 +27,7 @@ type rootFlags struct {
 	quiet         bool
 	dryRun        bool
 	noCache       bool
+	envelope      bool
 	noInput       bool
 	yes           bool
 	agent         bool
@@ -168,6 +169,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.PersistentFlags().DurationVar(&flags.timeout, "timeout", 60*time.Second, "Request timeout")
 	rootCmd.PersistentFlags().BoolVar(&flags.dryRun, "dry-run", false, "Show request without sending")
 	rootCmd.PersistentFlags().BoolVar(&flags.noCache, "no-cache", false, "Bypass response cache")
+	rootCmd.PersistentFlags().BoolVar(&flags.envelope, "envelope", false, "Sulle ricerche, avvolge i risultati in {risultati, troncato, hint}: il troncamento arriva a chi legge il JSON, non solo su stderr")
 	rootCmd.PersistentFlags().BoolVar(&flags.noInput, "no-input", false, "Disable all interactive prompts (for CI/agents)")
 	rootCmd.PersistentFlags().StringVar(&flags.selectFields, "select", "", "Comma-separated fields to include in output (e.g. --select id,name,status)")
 	rootCmd.PersistentFlags().BoolVar(&flags.yes, "yes", false, "Skip confirmation prompts (for agents and scripts)")
@@ -256,7 +258,9 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newNovelAnalyticsCmd(flags))
 	rootCmd.AddCommand(newNovelCommissioneCmd(flags))
 	rootCmd.AddCommand(newNovelDeputatoCmd(flags))
+	rootCmd.AddCommand(newNovelGruppiCmd(flags))
 	rootCmd.AddCommand(newNovelLeggeCmd(flags))
+	rootCmd.AddCommand(newNovelNovitaCmd(flags))
 	rootCmd.AddCommand(newVersionCliCmd())
 
 	return rootCmd

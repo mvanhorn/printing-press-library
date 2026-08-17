@@ -1,0 +1,75 @@
+Brands:
+  get:
+    tags: 
+      - Printer
+    summary: Get a list of all known printer brands
+    security:
+      - BearerAuth: []
+    parameters:
+      - in: path
+        name: include_user_defined
+        required: false
+        default: true
+        description: Should brands / printers defined by users be included?
+        schema:
+          type: boolean
+    responses:
+      '200':
+        description: List of printer brands
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    example: Ultimaker
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+Models:
+  get:
+    tags: 
+      - Printer
+    summary: Get a list of known printers
+    security:
+      - BearerAuth: []
+    parameters:
+      - in: path
+        name: include_user_defined
+        required: false
+        default: false
+        description: Should brands / printers defined by users be included?
+        schema:
+          type: boolean
+      - in: path
+        name: brand
+        required: false
+        description: By what brand should the results be filtered?
+        schema:
+          type: string
+          example: Ultimaker
+
+    responses:
+      '200':
+        description: List of known printers
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 0
+                  name:
+                    type: string
+                    example: Ultimaker S3
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"

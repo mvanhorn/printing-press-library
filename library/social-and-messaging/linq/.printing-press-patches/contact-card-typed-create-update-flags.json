@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "contact-card-typed-create-update-flags",
+  "applied_at": "2026-06-20",
+  "base_run_id": "20260617-193043",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Contact-card create and update commands must expose the documented phone_number, first_name, last_name, and image_url fields as CLI flags instead of requiring raw stdin JSON.",
+  "reason": "The OpenAPI spec models /v3/contact_card bodies as a generic object, so generation produced undiscoverable empty-body commands. Linq's public contact-card guide documents stable body fields that operators need for normal create/update workflows.",
+  "files": [
+    "internal/cli/contact-card.go",
+    "internal/cli/contact-card_body.go",
+    "internal/cli/contact-card_body_test.go",
+    "internal/cli/contact-card_setup.go",
+    "internal/cli/contact-card_update.go",
+    "internal/cli/which.go"
+  ],
+  "validated_outcome": "go test ./internal/cli ./internal/client"
+}

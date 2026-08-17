@@ -9,6 +9,7 @@ import (
 	"io"
 	"os"
 
+	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/intercom/internal/cliutil"
 	"github.com/spf13/cobra"
 )
 
@@ -22,23 +23,37 @@ func newDataAttributesUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "update <id>",
 		Short:       "You can update a data attribute.",
-		Example:     "  intercom-pp-cli data-attributes update 550e8400-e29b-41d4-a716-446655440000",
+		Example:     "  intercom-pp-cli data-attributes update 1",
 		Annotations: map[string]string{"pp:endpoint": "data-attributes.update", "pp:method": "PUT", "pp:path": "/data_attributes/{id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
-				return cmd.Help()
+				// A missing required positional is a usage error in every output
+				// mode (matches command_promoted.go.tmpl). Machine callers
+				// (--json/--agent) also get a JSON error envelope on stdout;
+				// usageErr sets exit 2.
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "missing required argument",
+						"usage": fmt.Sprintf("%s%s", cmd.CommandPath(), " <id>"),
+					}, flags); printErr != nil {
+						return printErr
+					}
+				}
+				return usageErr(fmt.Errorf("missing required argument\nUsage: %s%s", cmd.CommandPath(), " <id>"))
 			}
 			if !stdinBody {
 			}
+			path := "/data_attributes/{id}"
+			if len(args) < 1 || args[0] == "" {
+				return usageErr(fmt.Errorf("id is required\nUsage: %s <%s>", cmd.CommandPath(), "id"))
+			}
+			path = replacePathParam(path, "id", args[0])
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/data_attributes/{id}"
-			path = replacePathParam(path, "id", args[0])
 			params := map[string]string{}
-			var body map[string]any
+			var body any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
@@ -50,22 +65,23 @@ func newDataAttributesUpdateCmd(flags *rootFlags) *cobra.Command {
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
+				bodyMap := map[string]any{}
+				body = bodyMap
 				if cmd.Flags().Changed("archived") {
-					body["archived"] = bodyArchived
+					bodyMap["archived"] = bodyArchived
 				}
 				if bodyDescription != "" {
-					body["description"] = bodyDescription
+					bodyMap["description"] = bodyDescription
 				}
 				if cmd.Flags().Changed("messenger-writable") {
-					body["messenger_writable"] = bodyMessengerWritable
+					bodyMap["messenger_writable"] = bodyMessengerWritable
 				}
-				if bodyOptions != "" {
-					var parsedOptions any
-					if err := json.Unmarshal([]byte(bodyOptions), &parsedOptions); err != nil {
-						return fmt.Errorf("parsing --options JSON: %w", err)
+				if cmd.Flags().Changed("options") {
+					parsedOptions, parseErr := cliutil.ParseStringList(bodyOptions)
+					if parseErr != nil {
+						return fmt.Errorf("parsing --options list: %w", parseErr)
 					}
-					body["options"] = parsedOptions
+					bodyMap["options"] = parsedOptions
 				}
 			}
 			data, statusCode, err := c.PutWithParams(cmd.Context(), path, params, body)
@@ -91,7 +107,7 @@ func newDataAttributesUpdateCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 			if !flags.dryRun && statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure) {
-				writeMutationResponseToStore(cmd.Context(), "data-attributes", data, "")
+				writeMutationResponseToStore(cmd.Context(), "data-attributes", data, "options")
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")
@@ -135,6 +151,9 @@ func newDataAttributesUpdateCmd(flags *rootFlags) *cobra.Command {
 					"status":   statusCode,
 					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
 				}
+				if flags.agent {
+					envelope["meta"] = map[string]any{"source": "live"}
+				}
 				if partialFailure != nil {
 					envelope["partial_failure"] = partialFailure
 				}
@@ -173,7 +192,11 @@ func newDataAttributesUpdateCmd(flags *rootFlags) *cobra.Command {
 				if len(filtered) > 0 {
 					var parsed any
 					if err := json.Unmarshal(filtered, &parsed); err == nil {
-						envelope["data"] = parsed
+						if flags.agent {
+							envelope["results"] = parsed
+						} else {
+							envelope["data"] = parsed
+						}
 					}
 				}
 				envelopeJSON, err := json.Marshal(envelope)

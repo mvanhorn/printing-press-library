@@ -33,14 +33,13 @@ func newCompaniesCreateOrUpdateCompanyCmd(flags *rootFlags) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
 			}
+			path := "/companies"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/companies"
 			params := map[string]string{}
-			var body map[string]any
+			var body any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
@@ -52,37 +51,42 @@ func newCompaniesCreateOrUpdateCompanyCmd(flags *rootFlags) *cobra.Command {
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
+				bodyMap := map[string]any{}
+				body = bodyMap
 				if bodyCompanyId != "" {
-					body["company_id"] = bodyCompanyId
+					bodyMap["company_id"] = bodyCompanyId
 				}
 				if bodyCustomAttributes != "" {
 					var parsedCustomAttributes any
 					if err := json.Unmarshal([]byte(bodyCustomAttributes), &parsedCustomAttributes); err != nil {
 						return fmt.Errorf("parsing --custom-attributes JSON: %w", err)
 					}
-					body["custom_attributes"] = parsedCustomAttributes
+					asMap, ok := parsedCustomAttributes.(map[string]any)
+					if !ok {
+						return fmt.Errorf("--custom-attributes must be a JSON object, got JSON %T", parsedCustomAttributes)
+					}
+					bodyMap["custom_attributes"] = asMap
 				}
 				if bodyIndustry != "" {
-					body["industry"] = bodyIndustry
+					bodyMap["industry"] = bodyIndustry
 				}
 				if bodyMonthlySpend != 0 {
-					body["monthly_spend"] = bodyMonthlySpend
+					bodyMap["monthly_spend"] = bodyMonthlySpend
 				}
 				if bodyName != "" {
-					body["name"] = bodyName
+					bodyMap["name"] = bodyName
 				}
 				if bodyPlan != "" {
-					body["plan"] = bodyPlan
+					bodyMap["plan"] = bodyPlan
 				}
 				if bodyRemoteCreatedAt != 0 {
-					body["remote_created_at"] = bodyRemoteCreatedAt
+					bodyMap["remote_created_at"] = bodyRemoteCreatedAt
 				}
 				if bodySize != 0 {
-					body["size"] = bodySize
+					bodyMap["size"] = bodySize
 				}
 				if bodyWebsite != "" {
-					body["website"] = bodyWebsite
+					bodyMap["website"] = bodyWebsite
 				}
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
@@ -152,6 +156,9 @@ func newCompaniesCreateOrUpdateCompanyCmd(flags *rootFlags) *cobra.Command {
 					"status":   statusCode,
 					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
 				}
+				if flags.agent {
+					envelope["meta"] = map[string]any{"source": "live"}
+				}
 				if partialFailure != nil {
 					envelope["partial_failure"] = partialFailure
 				}
@@ -190,7 +197,11 @@ func newCompaniesCreateOrUpdateCompanyCmd(flags *rootFlags) *cobra.Command {
 				if len(filtered) > 0 {
 					var parsed any
 					if err := json.Unmarshal(filtered, &parsed); err == nil {
-						envelope["data"] = parsed
+						if flags.agent {
+							envelope["results"] = parsed
+						} else {
+							envelope["data"] = parsed
+						}
 					}
 				}
 				envelopeJSON, err := json.Marshal(envelope)

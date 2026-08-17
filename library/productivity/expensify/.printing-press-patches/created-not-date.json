@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "created-not-date",
+  "applied_at": "2026-06-22",
+  "base_run_id": "20260622-180206",
+  "base_printing_press_version": "4.25.0",
+  "summary": "expense create/edit/quick/from-line send the API's canonical `created` field instead of `date` (the user-facing --date flag is unchanged).",
+  "reason": "Expensify ignores `date` on /RequestMoney and /EditMoneyRequest, so every back-dated expense landed as today. `created` is what sync reads back. THE HEADLINE BUG.",
+  "files": [
+    "internal/cli/expense_create.go",
+    "internal/cli/expense_edit.go",
+    "internal/cli/expense_quick.go",
+    "internal/cli/expense_from_line.go"
+  ],
+  "validated_outcome": "Dry-run of `expense create --date 2025-11-17` emits form field created=2025-11-17."
+}

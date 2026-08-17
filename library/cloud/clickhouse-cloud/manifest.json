@@ -1,0 +1,47 @@
+{
+  "manifest_version": "0.3",
+  "name": "clickhouse-cloud-pp-mcp",
+  "display_name": "Clickhouse Cloud",
+  "version": "0.0.0",
+  "description": "Printing Press CLI for Clickhouse Cloud.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/clickhouse-cloud-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/clickhouse-cloud-pp-mcp",
+      "args": [],
+      "env": {
+        "CLICKHOUSE_CLOUD_PASSWORD": "${user_config.clickhouse_cloud_password}",
+        "CLICKHOUSE_CLOUD_USERNAME": "${user_config.clickhouse_cloud_username}"
+      }
+    }
+  },
+  "user_config": {
+    "clickhouse_cloud_password": {
+      "type": "string",
+      "title": "CLICKHOUSE_CLOUD_PASSWORD",
+      "description": "Sets CLICKHOUSE_CLOUD_PASSWORD for the Clickhouse Cloud MCP server. Get a credential from https://clickhouse.com/docs/cloud/manage/openapi.",
+      "sensitive": true,
+      "required": true
+    },
+    "clickhouse_cloud_username": {
+      "type": "string",
+      "title": "CLICKHOUSE_CLOUD_USERNAME",
+      "description": "Sets CLICKHOUSE_CLOUD_USERNAME for the Clickhouse Cloud MCP server. Get a credential from https://clickhouse.com/docs/cloud/manage/openapi.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

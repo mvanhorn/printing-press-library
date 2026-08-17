@@ -1,0 +1,56 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-07T06:13:57.3966187Z",
+  "printing_press_version": "4.29.0",
+  "api_name": "weaviate-collections",
+  "display_name": "Weaviate Collections",
+  "cli_name": "weaviate-collections-pp-cli",
+  "creator": {
+    "handle": "SomSamantray",
+    "name": "SomSamantray"
+  },
+  "owner": "somsamantray",
+  "printer": "SomSamantray",
+  "printer_name": "SomSamantray",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:67fc4544d28cb1a32b88e792389246304adf51696a9ab0a0eb6d0698d5327e73",
+  "run_id": "20260807-100645-wvc1",
+  "category": "developer-tools",
+  "description": "Full collection-config control for Weaviate Cloud, plus schema history, drift diffing, and lint that no other Weaviate tool has.",
+  "mcp_binary": "weaviate-collections-pp-mcp",
+  "mcp_tool_count": 21,
+  "mcp_ready": "full",
+  "api_version": "1.40.0-dev",
+  "auth_type": "bearer_token",
+  "auth_preference": "bearerAuth",
+  "auth_env_vars": [
+    "WEAVIATE_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Schema snapshot \u0026 history",
+      "command": "schema snapshot",
+      "description": "Save a point-in-time copy of every collection's config to the local store, then browse history over time."
+    },
+    {
+      "name": "Schema drift diff",
+      "command": "schema diff",
+      "description": "Diff a collection's live config against a saved snapshot or another collection."
+    },
+    {
+      "name": "Collection config lint",
+      "command": "collections lint",
+      "description": "Flag risky collection configs: no vectorizer set, replication factor of 1, unindexed high-cardinality properties."
+    },
+    {
+      "name": "Cross-collection tenant audit",
+      "command": "tenants audit",
+      "description": "See tenant counts and activity status across every collection in one view."
+    },
+    {
+      "name": "Schema export/import bundle",
+      "command": "schema export",
+      "description": "Export every collection's config as one portable JSON bundle for backup or promotion to another environment."
+    }
+  ]
+}

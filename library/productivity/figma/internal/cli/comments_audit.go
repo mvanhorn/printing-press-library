@@ -49,7 +49,10 @@ func parseAge(s string) (time.Time, error) {
 	}
 }
 
-func newCommentsAuditCmd(flags *rootFlags) *cobra.Command {
+// pp:data-source local
+// comments-audit aggregates over comments already synced into the local SQLite
+// store; it never calls the live API. Run 'figma-pp-cli sync' to populate it.
+func newNovelCommentsAuditCmd(flags *rootFlags) *cobra.Command {
 	var olderThan, groupBy, dbPath string
 
 	cmd := &cobra.Command{
@@ -164,6 +167,9 @@ structured output.`,
 					AgeDays:   int(now.Sub(t).Hours() / 24),
 				})
 			}
+			if err := rows.Err(); err != nil {
+				return fmt.Errorf("reading comments: %w", err)
+			}
 			if !seen {
 				return fmt.Errorf("local cache empty — run 'figma-pp-cli sync' first")
 			}
@@ -219,11 +225,11 @@ structured output.`,
 				fmt.Fprintln(w, "| age | author | created_at | message |")
 				fmt.Fprintln(w, "|---|---|---|---|")
 				for _, c := range grouped[k] {
-					msg := strings.ReplaceAll(c.Message, "\n", " ")
+					msg := escapeMarkdownTableCell(c.Message)
 					if len(msg) > 80 {
 						msg = msg[:77] + "..."
 					}
-					fmt.Fprintf(w, "| %dd | %s | %s | %s |\n", c.AgeDays, c.Author, c.CreatedAt, msg)
+					fmt.Fprintf(w, "| %dd | %s | %s | %s |\n", c.AgeDays, escapeMarkdownTableCell(c.Author), c.CreatedAt, msg)
 				}
 				fmt.Fprintln(w)
 			}
@@ -236,6 +242,12 @@ structured output.`,
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/figma-pp-cli/data.db)")
 
 	return cmd
+}
+
+func escapeMarkdownTableCell(value string) string {
+	value = strings.ReplaceAll(value, "\\", "\\\\")
+	value = strings.ReplaceAll(value, "|", "\\|")
+	return strings.NewReplacer("\r\n", " ", "\r", " ", "\n", " ").Replace(value)
 }
 
 func sortedKeys(m map[string]bool) []string {

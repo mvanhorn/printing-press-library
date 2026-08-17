@@ -1,0 +1,43 @@
+{
+  "api_name": "eero",
+  "base_url": "https://api-user.e2ro.com/2.2",
+  "description": "Inspect an eero mesh network from the terminal with agent-friendly output for networks, nodes, connected devices, diagnostics, and speed tests.",
+  "mcp_ready": "partial",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "visible"
+  },
+  "auth": {
+    "type": "cookie",
+    "header": "Cookie",
+    "format": "s=your-cookie-here",
+    "in": "header",
+    "env_vars": [
+      "EERO_SESSION_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "EERO_SESSION_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "cookie_domain": "api-user.e2ro.com",
+    "cookies": [
+      "s"
+    ]
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "eero-pp-cli/0.1 (unofficial; community API client)"
+    },
+    {
+      "name": "Accept",
+      "value": "application/json"
+    }
+  ],
+  "tools": []
+}

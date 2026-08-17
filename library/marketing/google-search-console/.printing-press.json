@@ -9,6 +9,12 @@
     "handle": "bossriceshark",
     "name": "Matt"
   },
+  "contributors": [
+    {
+      "handle": "tmchow",
+      "name": "Trevin Chow"
+    }
+  ],
   "run_id": "20260509-053752",
   "auth_type": "bearer_token",
   "auth_env_vars": [
@@ -43,7 +49,7 @@
     {
       "name": "Coverage drift",
       "command": "coverage-drift",
-      "description": "URLs whose inspection state flipped (indexed \u2192 not indexed, robots changed, canonical changed) within a window."
+      "description": "URLs whose inspection state flipped (indexed → not indexed, robots changed, canonical changed) within a window."
     },
     {
       "name": "Historical query (>16 months)",
@@ -63,7 +69,7 @@
     {
       "name": "Decaying pages",
       "command": "decaying",
-      "description": "Pages with monotonic click decline over a rolling window, ranked by total impressions \u00d7 negative slope -- the content-refresh queue."
+      "description": "Pages with monotonic click decline over a rolling window, ranked by total impressions × negative slope -- the content-refresh queue."
     },
     {
       "name": "New queries arriving",

@@ -1,0 +1,165 @@
+{
+  "api_name": "google-business-profile",
+  "novelty_score": 7,
+  "alternatives": null,
+  "gaps": [
+    "Google Business Profile operators usually end up mixing direct API calls with ad hoc spreadsheets for inventory, review triage, and rollout checks.",
+    "Existing tools expose endpoints but rarely package offline archive, local search, and polling workflows into one operator-friendly CLI."
+  ],
+  "patterns": [
+    "Read-heavy workflows dominate: audit accounts, inspect locations, verify metadata, and monitor changes.",
+    "Operators need safe, scriptable commands that can dry-run first and fall back to local data when live auth is unavailable."
+  ],
+  "recommendation": "proceed",
+  "researched_at": "0001-01-01T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "Offline account-and-location archive",
+      "command": "workflow archive",
+      "description": "Build a local SQLite archive of Google Business Profile resources so agents can inspect accounts and locations without re-hitting the API on every question.",
+      "rationale": "GBP work is often audit-heavy and benefits from a cached local store for repeated reads.",
+      "example": "google-business-profile-pp-cli workflow archive --agent",
+      "why_it_matters": "Lets an agent answer follow-up questions from a synchronized snapshot instead of burning quota and latency on repeated list calls.",
+      "group": "Local operator workflows"
+    },
+    {
+      "name": "Archive health snapshot",
+      "command": "workflow status",
+      "description": "Show local archive freshness and sync state across resource tables so operators know whether offline answers are still trustworthy.",
+      "rationale": "A local archive is only useful if the CLI exposes its freshness clearly.",
+      "example": "google-business-profile-pp-cli workflow status --agent",
+      "why_it_matters": "Prevents agents from making stale operational recommendations from an old archive.",
+      "group": "Local operator workflows"
+    },
+    {
+      "name": "Local GBP search fallback",
+      "command": "search",
+      "description": "Search locally synced Business Profile data with FTS5 when a native API search path is absent or live auth is unavailable.",
+      "rationale": "GBP discovery questions often need text search across cached entities, which the raw API does not optimize for.",
+      "example": "google-business-profile-pp-cli search \"Toronto\" --data-source local --type locations --limit 20 --json",
+      "why_it_matters": "Gives fast operator lookup across synced records without crafting custom filters for each API surface.",
+      "group": "Local operator workflows"
+    },
+    {
+      "name": "Archive analytics for rollout audits",
+      "command": "analytics",
+      "description": "Run grouped analytics over synced data to count resources and surface distribution patterns without exporting to spreadsheets first.",
+      "rationale": "Operators routinely need counts and grouped summaries during rollout or QA checks.",
+      "example": "google-business-profile-pp-cli analytics --type locations --group-by storeCode --limit 25 --json",
+      "why_it_matters": "Turns the CLI into a lightweight reporting surface for location inventory and QA work.",
+      "group": "Local operator workflows"
+    },
+    {
+      "name": "Live change tailing",
+      "command": "tail",
+      "description": "Poll the API and emit NDJSON change events so operators can watch location-related activity in near real time.",
+      "rationale": "Business Profile operations benefit from a simple stream for monitoring updates while debugging or verifying rollout changes.",
+      "example": "google-business-profile-pp-cli tail --resource locations --interval 30s --follow=false --agent",
+      "why_it_matters": "Makes the CLI useful for active monitoring, not just one-shot API calls.",
+      "group": "Monitoring and verification"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Offline account-and-location archive",
+      "command": "workflow archive",
+      "description": "Build a local SQLite archive of Google Business Profile resources so agents can inspect accounts and locations without re-hitting the API on every question.",
+      "rationale": "GBP work is often audit-heavy and benefits from a cached local store for repeated reads.",
+      "example": "google-business-profile-pp-cli workflow archive --agent",
+      "why_it_matters": "Lets an agent answer follow-up questions from a synchronized snapshot instead of burning quota and latency on repeated list calls.",
+      "group": "Local operator workflows"
+    },
+    {
+      "name": "Archive health snapshot",
+      "command": "workflow status",
+      "description": "Show local archive freshness and sync state across resource tables so operators know whether offline answers are still trustworthy.",
+      "rationale": "A local archive is only useful if the CLI exposes its freshness clearly.",
+      "example": "google-business-profile-pp-cli workflow status --agent",
+      "why_it_matters": "Prevents agents from making stale operational recommendations from an old archive.",
+      "group": "Local operator workflows"
+    },
+    {
+      "name": "Local GBP search fallback",
+      "command": "search",
+      "description": "Search locally synced Business Profile data with FTS5 when a native API search path is absent or live auth is unavailable.",
+      "rationale": "GBP discovery questions often need text search across cached entities, which the raw API does not optimize for.",
+      "example": "google-business-profile-pp-cli search \"Toronto\" --data-source local --type locations --limit 20 --json",
+      "why_it_matters": "Gives fast operator lookup across synced records without crafting custom filters for each API surface.",
+      "group": "Local operator workflows"
+    },
+    {
+      "name": "Archive analytics for rollout audits",
+      "command": "analytics",
+      "description": "Run grouped analytics over synced data to count resources and surface distribution patterns without exporting to spreadsheets first.",
+      "rationale": "Operators routinely need counts and grouped summaries during rollout or QA checks.",
+      "example": "google-business-profile-pp-cli analytics --type locations --group-by storeCode --limit 25 --json",
+      "why_it_matters": "Turns the CLI into a lightweight reporting surface for location inventory and QA work.",
+      "group": "Local operator workflows"
+    },
+    {
+      "name": "Live change tailing",
+      "command": "tail",
+      "description": "Poll the API and emit NDJSON change events so operators can watch location-related activity in near real time.",
+      "rationale": "Business Profile operations benefit from a simple stream for monitoring updates while debugging or verifying rollout changes.",
+      "example": "google-business-profile-pp-cli tail --resource locations --interval 30s --follow=false --agent",
+      "why_it_matters": "Makes the CLI useful for active monitoring, not just one-shot API calls.",
+      "group": "Monitoring and verification"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "GOOGLE_BUSINESS_PROFILE_OAUTH2"
+  },
+  "narrative": {
+    "display_name": "Google Business Profile",
+    "headline": "Google Business Profile operations plus a local archive, search, analytics, and monitoring workflow.",
+    "value_prop": "Use the Google Business Profile CLI to manage API resources, then archive them locally for fast search, grouped analytics, and rollout verification. It is designed for operator workflows where repeated read access and auditability matter as much as raw endpoint coverage.",
+    "auth_narrative": "Authenticate with OAuth2 using `google-business-profile-pp-cli login` so the CLI can mint and refresh access tokens for Google Business Profile APIs. The `GOOGLE_BUSINESS_PROFILE_OAUTH2` env var is a fallback only when you already have a short-lived access token and need a non-interactive run.",
+    "quickstart": [
+      {
+        "command": "google-business-profile-pp-cli doctor --json",
+        "comment": "Check auth and runtime health first."
+      },
+      {
+        "command": "google-business-profile-pp-cli workflow archive --agent",
+        "comment": "Archive the latest resources locally for search and analytics."
+      },
+      {
+        "command": "google-business-profile-pp-cli search \"Toronto\" --data-source local --type locations --limit 20 --json",
+        "comment": "Search the local archive for a location clue."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Search returns no local results",
+        "fix": "Run `google-business-profile-pp-cli workflow archive --agent` or `google-business-profile-pp-cli sync --agent` first so the SQLite archive has data."
+      },
+      {
+        "symptom": "Doctor reports missing OAuth credentials",
+        "fix": "Run `google-business-profile-pp-cli login` to establish OAuth2, or provide `GOOGLE_BUSINESS_PROFILE_OAUTH2` only for short-lived non-interactive runs."
+      }
+    ],
+    "when_to_use": "Reach for this CLI when an agent needs to inspect Google Business Profile accounts, locations, attributes, or verification-related surfaces and would benefit from a local archive for repeated queries or audit workflows.",
+    "anti_triggers": [
+      "Tasks that require Google Ads, Search Console, or other non-Business-Profile Google APIs",
+      "Workflows that need live browser interaction inside Google Business Profile UI rather than API-backed operations"
+    ],
+    "recipes": [
+      {
+        "title": "Archive then search for a location clue",
+        "command": "google-business-profile-pp-cli workflow archive --agent \u0026\u0026 google-business-profile-pp-cli search \"Main Street\" --data-source local --type locations --limit 10 --json",
+        "explanation": "Refresh the local store, then search it immediately for a location name, city, or other text clue."
+      },
+      {
+        "title": "Count locations by a local field",
+        "command": "google-business-profile-pp-cli analytics --type locations --group-by storeCode --limit 25 --json",
+        "explanation": "Get a quick grouped count from the synced archive without exporting records to another tool first."
+      }
+    ],
+    "trigger_phrases": [
+      "archive my Google Business Profile data",
+      "search local GBP locations",
+      "count Business Profile locations",
+      "tail GBP changes"
+    ]
+  }
+}

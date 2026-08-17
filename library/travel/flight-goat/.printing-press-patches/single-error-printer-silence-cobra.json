@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "single-error-printer-silence-cobra",
+  "applied_at": "2026-07-31",
+  "base_run_id": "20260712-220852",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Exactly one surface prints the returned error: root.go sets SilenceErrors so cobra stays quiet and main.go remains the single printer, and any user-facing hint (like the unknown-flag did-you-mean) must ride inside the wrapped error rather than a second stderr write.",
+  "reason": "With cobra and main.go both printing, every failure appeared twice on stderr — doubly noisy for multi-line rate-limit hints and confusing for agents parsing error output. A regen must keep the single-printer invariant regardless of which layer the generator template puts the print in.",
+  "files": [
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "existing root/suggestion tests pass; failing commands emit exactly one error block on stderr (verified live on unknown-flag and mode-conflict errors).",
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/1407"
+}

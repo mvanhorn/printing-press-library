@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "bambu-stable-task-history-identity",
+  "applied_at": "2026-07-11",
+  "base_run_id": "20260711-063302-c519dd7c",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Persisted print identity must prefer task_id, preserve payload ownership across stale subtask reuse, and keep printer-scoped history migration lossless.",
+  "reason": "Bambu can retain a prior subtask_id and remaining-time estimate when a new job starts. Keying by that transient value split one print, contaminated it with the preceding job, and duplicated legacy unscoped history.",
+  "files": [
+    "internal/bambu/history.go",
+    "internal/bambu/history_growth_test.go"
+  ],
+  "validated_outcome": "The live database migrated with integrity ok: the Benchy has one task-scoped run and exactly its own start/finish transitions, the preceding print remains separate, and no unscoped jobs remain."
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "1688",
+  "run_id": "20260612-083000-8f246b76",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 40,
+  "tests_passed": 40,
+  "tests_skipped": 49,
+  "auth_context": {
+    "type": "none"
+  }
+}

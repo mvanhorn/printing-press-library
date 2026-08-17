@@ -27,7 +27,7 @@
     {
       "name": "Portfolio Attribution",
       "command": "portfolio attribution",
-      "description": "See your realized P\u0026L broken down by market category and series over any time window — answer 'did politics actually make money this quarter?' in one command."
+      "description": "See your realized P&L broken down by market category and series over any time window — answer 'did politics actually make money this quarter?' in one command."
     },
     {
       "name": "Odds History Tracker",
@@ -74,5 +74,6 @@
       "command": "watch diff",
       "description": "Maintain a local watchlist of tickers; `watch diff` shows price/volume change vs the last sync per watched market — Riley's daily-snapshot ritual reduced to one command."
     }
-  ]
+  ],
+  "description": "Trade prediction markets, persist tick data, and answer category-level P&L questions Kalshi.com cannot."
 }

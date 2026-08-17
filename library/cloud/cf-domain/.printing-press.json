@@ -28,7 +28,7 @@
   "printer": "danny-shmueli",
   "run_id": "cf-domain-registrar-20260511-local-hardening",
   "category": "cloud",
-  "description": "Agent-native Cloudflare Registrar CLI for domain search, live pricing checks, and gated registration.",
+  "description": "Agent-native CLI for Cloudflare Registrar domain search, check, and registration.",
   "mcp_public_tool_count": 5,
   "novel_features": [
     {

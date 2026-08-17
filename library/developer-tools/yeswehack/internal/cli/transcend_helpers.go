@@ -297,6 +297,9 @@ func normalizeCWE(s string) string {
 	if s == "" {
 		return ""
 	}
+	if match := regexp.MustCompile(`CWE[-_ ]?(\d+)`).FindStringSubmatch(s); len(match) == 2 {
+		return "CWE-" + match[1]
+	}
 	if !strings.HasPrefix(s, "CWE-") {
 		if _, err := fmt.Sscanf(s, "%d", new(int)); err == nil {
 			s = "CWE-" + s
@@ -306,7 +309,23 @@ func normalizeCWE(s string) string {
 }
 
 func cweFromReport(obj map[string]any) string {
-	return normalizeCWE(stringField(obj, "vulnerable_part.code", "vulnerable_part_code", "cwe", "category.code"))
+	return normalizeCWE(stringField(obj,
+		"vulnerable_part.code",
+		"vulnerable_part",
+		"vulnerable_part_code",
+		"cwe",
+		"category.code",
+		"bug_type.slug",
+		"bug_type.name",
+		"data.vulnerable_part.code",
+		"data.vulnerable_part",
+		"data.bug_type.slug",
+		"data.bug_type.name",
+	))
+}
+
+func hacktivityDate(obj map[string]any) time.Time {
+	return parseFlexibleTime(stringField(obj, "disclosed_at", "date", "created_at", "data.disclosed_at", "data.date", "data.created_at"))
 }
 
 // -----------------------------------------------------------------------------

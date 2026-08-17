@@ -6,6 +6,24 @@ package types
 import "encoding/json"
 
 type Action struct {
+	AmountToSkip               float64         `json:"amountToSkip"`
+	ConditionalBlocks          json.RawMessage `json:"conditionalBlocks"`
+	DestinationId              string          `json:"destinationId"`
+	MediaAction                string          `json:"mediaAction"`
+	Navigation                 string          `json:"navigation"`
+	NewTimestamp               float64         `json:"newTimestamp"`
+	OverlayRelativePosition    json.RawMessage `json:"overlayRelativePosition"`
+	PreserveScrollPosition     bool            `json:"preserveScrollPosition"`
+	ResetInteractiveComponents bool            `json:"resetInteractiveComponents"`
+	ResetScrollPosition        bool            `json:"resetScrollPosition"`
+	ResetVideoPosition         bool            `json:"resetVideoPosition"`
+	Transition                 string          `json:"transition"`
+	Type                       string          `json:"type"`
+	Url                        string          `json:"url"`
+	VariableCollectionId       string          `json:"variableCollectionId"`
+	VariableId                 string          `json:"variableId"`
+	VariableModeId             string          `json:"variableModeId"`
+	VariableValue              json.RawMessage `json:"variableValue"`
 }
 
 type ActivityLog struct {
@@ -272,15 +290,6 @@ type CommentsDeleteReactionResponse struct {
 type CommentsDeleteResponse struct {
 	Error  bool    `json:"error"`
 	Status float64 `json:"status"`
-}
-
-type CommentsGetReactionsResponse struct {
-	Pagination json.RawMessage `json:"pagination"`
-	Reactions  json.RawMessage `json:"reactions"`
-}
-
-type CommentsGetResponse struct {
-	Comments json.RawMessage `json:"comments"`
 }
 
 type CommentsPostReactionResponse struct {
@@ -779,10 +788,6 @@ type DevResource struct {
 	Url     string `json:"url"`
 }
 
-type DevResourcesGetResponse struct {
-	DevResources json.RawMessage `json:"dev_resources"`
-}
-
 type DevResourcesPostResponse struct {
 	Errors       json.RawMessage `json:"errors"`
 	LinksCreated json.RawMessage `json:"links_created"`
@@ -1039,26 +1044,18 @@ type FigmaAnalyticsGetLibraryVariableUsagesResponse struct {
 	Rows     string `json:"rows"`
 }
 
-type FilesGetProjectResponse struct {
-	Files json.RawMessage `json:"files"`
-	Name  string          `json:"name"`
+type FilesGetItem struct {
+	Key          string `json:"key"`
+	LastModified string `json:"last_modified"`
+	Name         string `json:"name"`
+	ThumbnailUrl string `json:"thumbnail_url"`
 }
 
-type FilesGetResponse struct {
-	Branches      json.RawMessage `json:"branches"`
-	ComponentSets json.RawMessage `json:"componentSets"`
-	Components    json.RawMessage `json:"components"`
-	Document      string          `json:"document"`
-	EditorType    string          `json:"editorType"`
-	LastModified  string          `json:"lastModified"`
-	LinkAccess    string          `json:"linkAccess"`
-	MainFileKey   string          `json:"mainFileKey"`
-	Name          string          `json:"name"`
-	Role          string          `json:"role"`
-	SchemaVersion float64         `json:"schemaVersion"`
-	Styles        json.RawMessage `json:"styles"`
-	ThumbnailUrl  string          `json:"thumbnailUrl"`
-	Version       string          `json:"version"`
+type FilesGetProjectItem struct {
+	Key          string `json:"key"`
+	LastModified string `json:"last_modified"`
+	Name         string `json:"name"`
+	ThumbnailUrl string `json:"thumbnail_url"`
 }
 
 type FlowStartingPoint struct {
@@ -2094,11 +2091,6 @@ type Project struct {
 	Name string `json:"name"`
 }
 
-type ProjectsGetTeamResponse struct {
-	Name     string          `json:"name"`
-	Projects json.RawMessage `json:"projects"`
-}
-
 type PrototypeDevice struct {
 	PresetIdentifier string          `json:"presetIdentifier"`
 	Rotation         string          `json:"rotation"`
@@ -2405,10 +2397,6 @@ type RegularPolygonNode struct {
 	TransitionNodeID            string          `json:"transitionNodeID"`
 	Type                        string          `json:"type"`
 	Visible                     bool            `json:"visible"`
-}
-
-type RequestsGetWebhookResponse struct {
-	Requests json.RawMessage `json:"requests"`
 }
 
 type ResponseCursor struct {
@@ -3127,6 +3115,13 @@ type TransitionSourceTrait struct {
 }
 
 type Trigger struct {
+	Delay             float64         `json:"delay"`
+	DeprecatedVersion bool            `json:"deprecatedVersion"`
+	Device            string          `json:"device"`
+	KeyCodes          json.RawMessage `json:"keyCodes"`
+	MediaHitTime      float64         `json:"mediaHitTime"`
+	Timeout           float64         `json:"timeout"`
+	Type              string          `json:"type"`
 }
 
 type TypePropertiesTrait struct {
@@ -3171,6 +3166,11 @@ type TypeStyle struct {
 }
 
 type UpdateMediaRuntimeAction struct {
+	AmountToSkip  float64 `json:"amountToSkip"`
+	DestinationId string  `json:"destinationId"`
+	MediaAction   string  `json:"mediaAction"`
+	NewTimestamp  float64 `json:"newTimestamp"`
+	Type          string  `json:"type"`
 }
 
 type User struct {
@@ -3374,11 +3374,6 @@ type Version struct {
 	User         json.RawMessage `json:"user"`
 }
 
-type VersionsGetFileResponse struct {
-	Pagination json.RawMessage `json:"pagination"`
-	Versions   json.RawMessage `json:"versions"`
-}
-
 type WashiTapeNode struct {
 	AbsoluteBoundingBox         string          `json:"absoluteBoundingBox"`
 	AbsoluteRenderBounds        string          `json:"absoluteRenderBounds"`
@@ -3569,15 +3564,6 @@ type WebhookV2RequestInfo struct {
 type WebhookV2ResponseInfo struct {
 	ReceivedAt string `json:"received_at"`
 	Status     string `json:"status"`
-}
-
-type WebhooksGetResponse struct {
-	Pagination json.RawMessage `json:"pagination"`
-	Webhooks   json.RawMessage `json:"webhooks"`
-}
-
-type WebhooksGetTeamResponse struct {
-	Webhooks json.RawMessage `json:"webhooks"`
 }
 
 type WidgetNode struct {

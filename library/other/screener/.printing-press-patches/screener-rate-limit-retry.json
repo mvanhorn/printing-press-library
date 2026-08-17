@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "screener-rate-limit-retry",
+  "applied_at": "2026-08-14",
+  "base_run_id": "20260814-101839-1498209c",
+  "base_printing_press_version": "4.30.2",
+  "summary": "Allow 3 paced retries under the dogfood env and default --rate-limit to 1 req/s because screener.in throttles bursts.",
+  "reason": "Screener.in returns 429 on burst access with short Retry-After windows; the generated client disables retries under dogfood and defaults to no pacing.",
+  "files": ["internal/client/client.go", "internal/cli/root.go"],
+  "validated_outcome": "Live dogfood improved from 196/203 to 202/203 with retries; 16/16 commands pass with spacing."
+}

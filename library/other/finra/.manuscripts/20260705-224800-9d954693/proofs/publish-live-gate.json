@@ -1,0 +1,1308 @@
+{
+  "dir": "/Users/mschreiber/printing-press/library/finra",
+  "binary": "/Users/mschreiber/printing-press/library/finra/build/stage/bin/finra-pp-cli",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 74,
+  "passed": 74,
+  "failed": 0,
+  "skipped": 63,
+  "commands": [
+    "analytics",
+    "api",
+    "async",
+    "catalog",
+    "complaints list",
+    "complaints new",
+    "data get",
+    "data list",
+    "data query",
+    "doctor",
+    "feedback list",
+    "fixedincome health",
+    "metadata",
+    "otc weekly",
+    "partitions",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "registration firm",
+    "registration individual",
+    "registration timeline",
+    "registration validate-batch",
+    "regsho threshold-watch",
+    "regsho volume",
+    "search",
+    "sync",
+    "tail",
+    "trace liquidity",
+    "trace search",
+    "which",
+    "workflow archive",
+    "workflow status"
+  ],
+  "tests": [
+    {
+      "command": "analytics",
+      "kind": "help",
+      "args": [
+        "analytics",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Analyze locally synced data with count, group-by, and summary operations.\nData must be synced first with the sync command.\n\nUsage:\n  finra-pp-cli analytics [flags]\n\nExamples:\n  # Count records by type\n  finra-pp-cli analytics --type messages\n\n  # Group by a field\n  finra-pp-cli analytics --type messages --group-by author_id\n\n  # Top 10 most frequent values\n  finra-pp-cli analytics --type messages --group-by channel_id --limit 10 --json\n\nFlags:\n      --db string         SQLite database file path (default: resolved data directory data.db)\n      --group-by string   Field to group by\n  -h, --help              help for analytics\n      --limit int         Max groups to show (default 25)\n      --type string       Resource type to analyze\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'finra-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "happy_path",
+      "args": [
+        "analytics",
+        "--type",
+        "messages"
+      ],
+      "status": "pass",
+      "output_sample": "messages: 0 records\nhint: local store has not been synced yet. Run 'finra-pp-cli sync' before trusting local results.\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "json_fidelity",
+      "args": [
+        "analytics",
+        "--type",
+        "messages",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"count\": 0,\n  \"resource_type\": \"messages\"\n}\nhint: local store has not been synced yet. Run 'finra-pp-cli sync' before trusting local results.\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  finra-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  finra-pp-cli api\n\n  # Show methods for a specific interface\n  finra-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'finra-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'finra-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "async",
+      "kind": "help",
+      "args": [
+        "async",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Poll the status and results of an async data request\n\nUsage:\n  finra-pp-cli async \u003cgroup\u003e \u003cname\u003e \u003crequestId\u003e [flags]\n\nExamples:\n  finra-pp-cli async OTCMARKET REGSHODAILY req-12345\n\nFlags:\n  -h, --help   help for async\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'finra-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "async",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [async] has fewer segments than placeholders (3)"
+    },
+    {
+      "command": "async",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [async] has fewer segments than placeholders (3)"
+    },
+    {
+      "command": "async",
+      "kind": "error_path",
+      "args": [
+        "async",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: name is required\nUsage: finra-pp-cli async \u003cname\u003e\n"
+    },
+    {
+      "command": "catalog",
+      "kind": "help",
+      "args": [
+        "catalog",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List all available datasets, optionally filtered by group or name\n\nUsage:\n  finra-pp-cli catalog [flags]\n\nExamples:\n  finra-pp-cli catalog --group OTCMARKET\n\nFlags:\n      --group string   Filter by dataset group (e.g. OTCMARKET, FIXEDINCOMEMARKET, FIRM, REGISTRATION, finra)\n  -h, --help           help for catalog\n      --name string    Filter by dataset name within a group\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'finra-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "catalog",
+      "kind": "happy_path",
+      "args": [
+        "catalog",
+        "--group",
+        "OTCMARKET"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"datasets\":[{\"dataVersion\":1,\"description\":\"ATS Blocks Download Details\",\"group\":\"OTCMARKET\",\"name\":\"\u003credacted\u003e\",\"status\":\"Active\",\"supportedFormats\":[\"text/plain\",\"application/json\"],\"supportedMethods\":[\"GET\",\"POST\"],\"supportsGetById\":false,\"supportsQuery\":true,\"supportsRecordLimit\":true,\"supportsRecordOffset\":true},{\"dataVersion\":1,\"description\":\"OTC Transparency ATS Monthly Reports\",\"group\":\"OTCMARKET\",\"name\":\"\u003credacted\u003e\",\"status\":\"Active\",\"supportedFormats\":[\"text/plain\",\"application/json\"],\"supportedMethods\":[\"GET\",\"POST\"],\"supportsGetById\":false,\"supportsQuery\":true,\"supportsRecordLimit\":true,\"supportsRecordOffset\":true},{\"dataVersion\":1,\"description\":\"OTC Transparency ATS Block Trade Reports\",\"group\":\"OTCMARKET\",\"name\":\"\u003credacted\u003e\",\"status\":\"Active\",\"supportedFormats\":[\"text/plain\",\"application/json\"],\"supportedMethods\":[\"GET\",\"POST\"],\"supportsGetById\":false,\"supportsQuery\":true,\"supportsRecordLimit\":true,\"supportsRecordOffset\":true},{\"dataVersion\":1,\"description\":\"OTC Transparency ATS Block Trade Reports\",\"group\":\"OTCMARKET\",\"name\":\"\u003credacted\u003e\",\"status\":\"Active\",\"supportedFormats\":[\"text/plain\",\"application/json\"],\"supportedMethods\":[\"GET\",\"POST\"],\"supportsGetById\":false,\"supportsQuery\":true,\"supportsRecordLimit\":true,\"supportsRecordOffset\":true},{\"dataVersion\":1,\"description\":\"FINRA Rule 4560 requires FINRA member firms to report their short positions in all over-the-counter (\\\"OTC\\\") equity securities to FINRA. The Consolidated Short Interest data provides a single view of OTC short interest positions submissions across all exchanges. OTC equity short interest is available for view by issue, or by downloadable pipe-delimited text file containing all OTC equity securities reported with a short position. Data is available online for one rolling year based on the settlement date provided in the Short Interest Reporting Deadlines.\",\"group\":\"OTCMARKET\",\"name\":\"\u003credacted\u003e\",\"status\":\"Active\",\"supportedFormats\":[\"text/plain\",\"application/json\"],\"supportedMethods\":[\"GET\",\"POST\"],\"supportsGetById\":false,\"supportsQuery\":true,\"supportsRecordLimit\":true,\"supportsRecordOffset\":true},{\"dataVersion\":1,\"description\":\"FINRA Rule 4560 requires FINRA member firms to report their short positions in all over-the-counter (\\\"OTC\\\") equity securities to FINRA. The Consolidated Short Interest data provides a single view of OTC short interest positions submissions across all exchanges. OTC equity short interest is available for view by issue, or by downloadable pipe-delimited text file containing all OTC equity securities reported with a short position. Data is available online for one rolling year based on the settlement date provided in the Short Interest Reporting Deadlines.\",\"group\":\"OTCMARKET\",\"name\":\"\u003credacted\u003e\",\"status\":\"Active\",\"supportedFormats\":[\"text/plain\",\"application/json\"],\"supportedMethods\":[\"GET\",\"POST\"],\"supportsGetById\":false,\"supportsQuery\":true,\"supportsRecordLimit\":true,\"supportsRecordOffset\":true},{\"dataVersion\":1,\"description\":\"Each trading day, FINRA publishes a list of issuers that it believes are non-compliant with FINRA Rule 6530 (the \\\"Eligibility Rule\\\"). An issuer is generally added to this list on the date that the symbol is appended with an \\\"E\\\" modifier. This is generally two business days after notification is published on the OTCBB Daily List. An issue is removed from this list one business day after FINRA determines that it is eligible for quotation, or the issue is no longer quoted on the OTCBB.\",\"group\":\"OTCMARKET\",\"name\":\"\u003credacted\u003e\",\"status\":\"Active\",\"supportedFormats\":[\"text/plain\",\"application/json\"],\"supportedMethods\":[\"GET\",\"POST\"],\"supportsGetById\":false,\"supportsQuery\":true,\"supportsRecordLimit\":true,\"supportsRecordOffset\":true},{\"dataVersion\":1,\"description\":\"Each trading day, FINRA publishes a list of OTCBB issuers that are repeatedly late or otherwise delinquent in filing required reports and, thus, subject to ineligibility pursuant to FINRA Rule 6530(e).* Specifically, the list identifies OTCBB issuers that have either been delinquent in filing requi…[truncated]"
+    },
+    {
+      "command": "catalog",
+      "kind": "json_fidelity",
+      "args": [
+        "catalog",
+        "--group",
+        "OTCMARKET",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"datasets\":[{\"dataVersion\":1,\"description\":\"ATS Blocks Download Details\",\"group\":\"OTCMARKET\",\"name\":\"\u003credacted\u003e\",\"status\":\"Active\",\"supportedFormats\":[\"text/plain\",\"application/json\"],\"supportedMethods\":[\"GET\",\"POST\"],\"supportsGetById\":false,\"supportsQuery\":true,\"supportsRecordLimit\":true,\"supportsRecordOffset\":true},{\"dataVersion\":1,\"description\":\"OTC Transparency ATS Monthly Reports\",\"group\":\"OTCMARKET\",\"name\":\"\u003credacted\u003e\",\"status\":\"Active\",\"supportedFormats\":[\"text/plain\",\"application/json\"],\"supportedMethods\":[\"GET\",\"POST\"],\"supportsGetById\":false,\"supportsQuery\":true,\"supportsRecordLimit\":true,\"supportsRecordOffset\":true},{\"dataVersion\":1,\"description\":\"OTC Transparency ATS Block Trade Reports\",\"group\":\"OTCMARKET\",\"name\":\"\u003credacted\u003e\",\"status\":\"Active\",\"supportedFormats\":[\"text/plain\",\"application/json\"],\"supportedMethods\":[\"GET\",\"POST\"],\"supportsGetById\":false,\"supportsQuery\":true,\"supportsRecordLimit\":true,\"supportsRecordOffset\":true},{\"dataVersion\":1,\"description\":\"OTC Transparency ATS Block Trade Reports\",\"group\":\"OTCMARKET\",\"name\":\"\u003credacted\u003e\",\"status\":\"Active\",\"supportedFormats\":[\"text/plain\",\"application/json\"],\"supportedMethods\":[\"GET\",\"POST\"],\"supportsGetById\":false,\"supportsQuery\":true,\"supportsRecordLimit\":true,\"supportsRecordOffset\":true},{\"dataVersion\":1,\"description\":\"FINRA Rule 4560 requires FINRA member firms to report their short positions in all over-the-counter (\\\"OTC\\\") equity securities to FINRA. The Consolidated Short Interest data provides a single view of OTC short interest positions submissions across all exchanges. OTC equity short interest is available for view by issue, or by downloadable pipe-delimited text file containing all OTC equity securities reported with a short position. Data is available online for one rolling year based on the settlement date provided in the Short Interest Reporting Deadlines.\",\"group\":\"OTCMARKET\",\"name\":\"\u003credacted\u003e\",\"status\":\"Active\",\"supportedFormats\":[\"text/plain\",\"application/json\"],\"supportedMethods\":[\"GET\",\"POST\"],\"supportsGetById\":false,\"supportsQuery\":true,\"supportsRecordLimit\":true,\"supportsRecordOffset\":true},{\"dataVersion\":1,\"description\":\"FINRA Rule 4560 requires FINRA member firms to report their short positions in all over-the-counter (\\\"OTC\\\") equity securities to FINRA. The Consolidated Short Interest data provides a single view of OTC short interest positions submissions across all exchanges. OTC equity short interest is available for view by issue, or by downloadable pipe-delimited text file containing all OTC equity securities reported with a short position. Data is available online for one rolling year based on the settlement date provided in the Short Interest Reporting Deadlines.\",\"group\":\"OTCMARKET\",\"name\":\"\u003credacted\u003e\",\"status\":\"Active\",\"supportedFormats\":[\"text/plain\",\"application/json\"],\"supportedMethods\":[\"GET\",\"POST\"],\"supportsGetById\":false,\"supportsQuery\":true,\"supportsRecordLimit\":true,\"supportsRecordOffset\":true},{\"dataVersion\":1,\"description\":\"Each trading day, FINRA publishes a list of issuers that it believes are non-compliant with FINRA Rule 6530 (the \\\"Eligibility Rule\\\"). An issuer is generally added to this list on the date that the symbol is appended with an \\\"E\\\" modifier. This is generally two business days after notification is published on the OTCBB Daily List. An issue is removed from this list one business day after FINRA determines that it is eligible for quotation, or the issue is no longer quoted on the OTCBB.\",\"group\":\"OTCMARKET\",\"name\":\"\u003credacted\u003e\",\"status\":\"Active\",\"supportedFormats\":[\"text/plain\",\"application/json\"],\"supportedMethods\":[\"GET\",\"POST\"],\"supportsGetById\":false,\"supportsQuery\":true,\"supportsRecordLimit\":true,\"supportsRecordOffset\":true},{\"dataVersion\":1,\"description\":\"Each trading day, FINRA publishes a list of OTCBB issuers that are repeatedly late or otherwise delinquent in filing required reports and, thus, subject to ineligibility pursuant to FINRA Rule 6530(e).* Specifically, the list identifies OTCBB issuers that have either been delinquent in filing requi…[truncated]"
+    },
+    {
+      "command": "catalog",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "complaints list",
+      "kind": "help",
+      "args": [
+        "complaints",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Full 4530 customer complaint filing history for --firm.\n\n--since optionally narrows to a trailing window (e.g. 24h, 7d, 1w); omit it for the full\nhistory. Use this for the full history; use 'complaints new' to see only filings that\nappeared since your last sync instead.\n\nRequires a FINRA credential entitled for firm data — a basic-tier credential will receive a\n403 with a clear permission-denied message.\n\nUsage:\n  finra-pp-cli complaints list [flags]\n\nExamples:\n--firm 19847 --json\n\nFlags:\n      --firm string    Firm CRD number to list 4530 customer complaint filings for (required)\n      --group string   Dataset group for 4530 Customer Complaints (confirmed). Run 'finra-pp-cli catalog' to inspect all datasets. (default \"FIRM\")\n  -h, --help           help for list\n      --name string    Dataset name for 4530 Customer Complaints (confirmed). Run 'finra-pp-cli catalog' to inspect all datasets. (default \"4530FILINGS\")\n      --since string   Optionally narrow to a trailing window (e.g. 24h, 7d, 1w); omit for full history\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'finra-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "complaints list",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: requires auth tier \"entitled\""
+    },
+    {
+      "command": "complaints list",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: requires auth tier \"entitled\""
+    },
+    {
+      "command": "complaints list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: requires auth tier \"entitled\""
+    },
+    {
+      "command": "complaints new",
+      "kind": "help",
+      "args": [
+        "complaints",
+        "new",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "See 4530 customer complaint filings for a firm filed within a recent time window, without\nre-reading the full history.\n\n--since accepts a duration like 24h, 7d, or 1w (default 7d).\n\nRequires a FINRA credential entitled for firm data — a basic-tier credential will receive a\n403 with a clear permission-denied message.\n\nUsage:\n  finra-pp-cli complaints new [flags]\n\nExamples:\n--firm 19847 --since 7d --json\n\nFlags:\n      --firm string    Firm CRD number to check for new 4530 customer complaint filings (required)\n      --group string   Dataset group for 4530 Customer Complaints (confirmed). Run 'finra-pp-cli catalog' to inspect all datasets. (default \"FIRM\")\n  -h, --help           help for new\n      --name string    Dataset name for 4530 Customer Complaints (confirmed). Run 'finra-pp-cli catalog' to inspect all datasets. (default \"4530FILINGS\")\n      --since string   How far back to look for new filings (e.g. 24h, 7d, 1w) (default \"7d\")\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'finra-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "complaints new",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: requires auth tier \"entitled\""
+    },
+    {
+      "command": "complaints new",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: requires auth tier \"entitled\""
+    },
+    {
+      "command": "complaints new",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: requires auth tier \"entitled\""
+    },
+    {
+      "command": "data get",
+      "kind": "help",
+      "args": [
+        "data",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get a single dataset record by its primary ID (only for datasets where supportsGetById is true)\n\nUsage:\n  finra-pp-cli data get \u003cgroup\u003e \u003cname\u003e \u003cid\u003e [flags]\n\nExamples:\n  finra-pp-cli data get REGISTRATION REGISTRATIONVALIDATIONINDIVIDUAL 1234567\n\nFlags:\n  -h, --help   help for get\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'finra-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "data get",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [data get] has fewer segments than placeholders (3)"
+    },
+    {
+      "command": "data get",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [data get] has fewer segments than placeholders (3)"
+    },
+    {
+      "command": "data get",
+      "kind": "error_path",
+      "args": [
+        "data",
+        "get",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: name is required\nUsage: finra-pp-cli data get \u003cname\u003e\n"
+    },
+    {
+      "command": "data list",
+      "kind": "help",
+      "args": [
+        "data",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List/filter dataset records via query parameters\n\nUsage:\n  finra-pp-cli data list \u003cgroup\u003e \u003cname\u003e [flags]\n\nExamples:\n  finra-pp-cli data list OTCMARKET REGSHODAILY --limit 100\n\nFlags:\n      --delimiter string   Field delimiter for text/plain responses (default \",\")\n      --fields string      Comma-delimited list of field names to retrieve; default is all fields\n  -h, --help               help for list\n      --limit int          Max records to return (sync max 5000) (default 1000)\n      --offset string      Pagination offset (max 500000) (default \"0\")\n      --quote-values       Quote string values in text/plain responses (default true)\n      --sort string        Comma-delimited sort fields, prefix with - for descending.\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'finra-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "data list",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [data list] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "data list",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [data list] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "data list",
+      "kind": "error_path",
+      "args": [
+        "data",
+        "list",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: name is required\nUsage: finra-pp-cli data list \u003cname\u003e\n"
+    },
+    {
+      "command": "data query",
+      "kind": "help",
+      "args": [
+        "data",
+        "query",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Filter dataset records via a JSON request body (richer filtering than 'data list')\n\nUsage:\n  finra-pp-cli data query \u003cgroup\u003e \u003cname\u003e [flags]\n\nExamples:\n  finra-pp-cli data query OTCMARKET REGSHODAILY --date-range-filters '[{\"fieldName\":\"tradeReportDate\",\"startDate\":\"2026-06-01\",\"endDate\":\"2026-06-30\"}]'\n\nFlags:\n      --async                       Run as an async job for bulk extracts (\u003e5000 records); poll via 'async'\n      --compare-filters string      JSON array of {fieldName, fieldValue, compareType} objects.\n      --date-range-filters string   JSON array of {fieldName, startDate, endDate} objects. Dates are YYYY-MM-DD or YYYY-MM-DD HH:mm:ss.SSS.\n      --domain-filters string       JSON array of {fieldName, values: [...]} objects\n      --fields string               Field names to retrieve; default is all fields\n  -h, --help                        help for query\n      --limit int                   Max records to return (sync max 5000, async max 100000)\n      --offset string               Pagination offset (max 500000 sync)\n      --or-filters string           JSON array of OR-grouped compareFilters/domainFilters objects\n      --quote-values                Quote string values in text/plain responses\n      --sort-fields string          Sort fields, prefix with - for descending. Requires an EQUAL compareFilter on every partition field.\n      --stdin                       Read request body as JSON from stdin\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'finra-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "data query",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [data query] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "data query",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [data query] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "data query",
+      "kind": "error_path",
+      "args": [
+        "data",
+        "query",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: name is required\nUsage: finra-pp-cli data query \u003cname\u003e\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  finra-pp-cli doctor [flags]\n\nExamples:\n  finra-pp-cli doctor\n  finra-pp-cli doctor --json\n  finra-pp-cli doctor --fail-on warn\n  finra-pp-cli doctor --fail-on stale\n\nFlags:\n      --fail-on string   Exit non-zero for selected health gates. stale: cache freshness plus errors; warn: credential/path warnings plus errors; error: errors only. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'finra-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  OK Auth: configured\n  OK Env Vars: OK 2/2 available\n  OK Verify Mode: normal operation\n  OK API: reachable\n  INFO Credentials: present, not verified. Run any read command to confirm the token works end-to-end.\n  config_path: /var/folders/50/646lwj_d3d36zfs4ksysdy_40000gn/T/printing-press-subprocess-1165724/.config/finra-pp-cli/config.toml\n  base_url: https://api.finra.org\n  auth_source: oauth2\n  credentials_location: env:FINRA_CLIENT_SECRET\n  version: 1.0.0\n  INFO Cache: empty\n    db_path: /var/folders/50/646lwj_d3d36zfs4ksysdy_40000gn/T/printing-press-subprocess-1165724/.local/share/finra-pp-cli/data.db\n    schema_version: 4\n    db_bytes: 233472\n    stale_after: 6h0m0s\n    hint: Cache is empty; run 'finra-pp-cli sync' to hydrate.\n  Paths:\n    config: /var/folders/50/646lwj_d3d36zfs4ksysdy_40000gn/T/printing-press-subprocess-1165724/.config/finra-pp-cli (XDG_CONFIG_HOME)\n    data: /var/folders/50/646lwj_d3d36zfs4ksysdy_40000gn/T/printing-press-subprocess-1165724/.local/share/finra-pp-cli (XDG_DATA_HOME)\n    state: /var/folders/50/646lwj_d3d36zfs4ksysdy_40000gn/T/printing-press-subprocess-1165724/.local/state/finra-pp-cli (XDG_STATE_HOME)\n    cache: /var/folders/50/646lwj_d3d36zfs4ksysdy_40000gn/T/printing-press-subprocess-1165724/.cache/finra-pp-cli (XDG_CACHE_HOME)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"agentcookie\": \"not detected (optional)\",\n  \"api\": \"reachable\",\n  \"auth\": \"configured\",\n  \"auth_source\": \"oauth2\",\n  \"base_url\": \"https://api.finra.org\",\n  \"cache\": {\n    \"db_bytes\": 233472,\n    \"db_path\": \"/var/folders/50/646lwj_d3d36zfs4ksysdy_40000gn/T/printing-press-subprocess-1165724/.local/share/finra-pp-cli/data.db\",\n    \"hint\": \"Cache is empty; run 'finra-pp-cli sync' to hydrate.\",\n    \"resources\": null,\n    \"schema_version\": 4,\n    \"stale_after\": \"6h0m0s\",\n    \"status\": \"empty\"\n  },\n  \"config\": \"ok\",\n  \"config_path\": \"/var/folders/50/646lwj_d3d36zfs4ksysdy_40000gn/T/printing-press-subprocess-1165724/.config/finra-pp-cli/config.toml\",\n  \"credentials\": \"present, not verified. Run any read command to confirm the token works end-to-end.\",\n  \"credentials_location\": \"env:FINRA_CLIENT_SECRET\",\n  \"credentials_locations\": [\n    \"credentials file\"\n  ],\n  \"env_vars\": \"OK 2/2 available\",\n  \"paths\": {\n    \"cache\": {\n      \"dir\": \"/var/folders/50/646lwj_d3d36zfs4ksysdy_40000gn/T/printing-press-subprocess-1165724/.cache/finra-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CACHE_HOME\"\n    },\n    \"config\": {\n      \"dir\": \"/var/folders/50/646lwj_d3d36zfs4ksysdy_40000gn/T/printing-press-subprocess-1165724/.config/finra-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CONFIG_HOME\"\n    },\n    \"data\": {\n      \"dir\": \"/var/folders/50/646lwj_d3d36zfs4ksysdy_40000gn/T/printing-press-subprocess-1165724/.local/share/finra-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_DATA_HOME\"\n    },\n    \"state\": {\n      \"dir\": \"/var/folders/50/646lwj_d3d36zfs4ksysdy_40000gn/T/printing-press-subprocess-1165724/.local/state/finra-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_STATE_HOME\"\n    },\n    \"status\": \"ok\"\n  },\n  \"verify_mode\": \"normal operation\",\n  \"version\": \"1.0.0\"\n}\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  finra-pp-cli feedback list [flags]\n\nExamples:\n  finra-pp-cli feedback list\n  finra-pp-cli feedback list --limit 5\n  finra-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'finra-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "fixedincome health",
+      "kind": "help",
+      "args": [
+        "fixedincome",
+        "health",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "One market-condition report joining TRACE Monthly Volume, Corporate Market Breadth, Corporate\nMarket Sentiment, Agency Market Breadth, and Agency Market Sentiment over the trailing --since\nwindow (default 7d).\n\nTRACE Monthly Volume is a market-wide monthly aggregate with no CUSIP or per-bond identifier —\nper-CUSIP TRACE data requires a higher entitlement tier than this dataset.\n\nUsage:\n  finra-pp-cli fixedincome health [flags]\n\nExamples:\n--since 7d --json\n\nFlags:\n  -h, --help           help for health\n      --since string   How far back to look across all five fixed-income datasets (e.g. 24h, 7d, 1w) (default \"7d\")\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'finra-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "fixedincome health",
+      "kind": "happy_path",
+      "args": [
+        "fixedincome",
+        "health",
+        "--since",
+        "90d"
+      ],
+      "status": "pass",
+      "output_sample": "{\"datasets\":{\"agency_breadth\":{\"group\":\"FIXEDINCOMEMARKET\",\"name\":\"\u003credacted\u003e\",\"record_count\":244,\"records\":[{\"advances\":293,\"declines\":114,\"fiftyTwoWeekHigh\":57,\"fiftyTwoWeekLow\":46,\"productCategory\":\"all securities\",\"totalTrades\":562,\"totalVolume\":2917.928759,\"tradeReportDate\":\"2026-04-08\",\"unchanged\":31},{\"advances\":29,\"declines\":11,\"fiftyTwoWeekHigh\":4,\"fiftyTwoWeekLow\":1,\"productCategory\":\"freddie mac\",\"totalTrades\":52,\"totalVolume\":296.748,\"tradeReportDate\":\"2026-04-08\",\"unchanged\":1},{\"advances\":21,\"declines\":5,\"fiftyTwoWeekHigh\":3,\"fiftyTwoWeekLow\":7,\"productCategory\":\"fannie mae\",\"totalTrades\":43,\"totalVolume\":202.147402,\"tradeReportDate\":\"2026-04-08\",\"unchanged\":6},{\"advances\":127,\"declines\":43,\"fiftyTwoWeekHigh\":33,\"fiftyTwoWeekLow\":21,\"productCategory\":\"fhlb\",\"totalTrades\":247,\"totalVolume\":747.85,\"tradeReportDate\":\"2026-04-08\",\"unchanged\":20},{\"advances\":234,\"declines\":140,\"fiftyTwoWeekHigh\":56,\"fiftyTwoWeekLow\":41,\"productCategory\":\"all securities\",\"totalTrades\":513,\"totalVolume\":2757.248999,\"tradeReportDate\":\"2026-04-09\",\"unchanged\":34},{\"advances\":25,\"declines\":8,\"fiftyTwoWeekHigh\":2,\"fiftyTwoWeekLow\":1,\"productCategory\":\"freddie mac\",\"totalTrades\":42,\"totalVolume\":144.408,\"tradeReportDate\":\"2026-04-09\",\"unchanged\":1},{\"advances\":14,\"declines\":8,\"fiftyTwoWeekHigh\":6,\"fiftyTwoWeekLow\":6,\"productCategory\":\"fannie mae\",\"totalTrades\":32,\"totalVolume\":165.348,\"tradeReportDate\":\"2026-04-09\",\"unchanged\":3},{\"advances\":100,\"declines\":61,\"fiftyTwoWeekHigh\":37,\"fiftyTwoWeekLow\":19,\"productCategory\":\"fhlb\",\"totalTrades\":235,\"totalVolume\":536.839999,\"tradeReportDate\":\"2026-04-09\",\"unchanged\":21},{\"advances\":168,\"declines\":165,\"fiftyTwoWeekHigh\":39,\"fiftyTwoWeekLow\":31,\"productCategory\":\"all securities\",\"totalTrades\":460,\"totalVolume\":1301.398087,\"tradeReportDate\":\"2026-04-10\",\"unchanged\":40},{\"advances\":23,\"declines\":17,\"fiftyTwoWeekHigh\":4,\"fiftyTwoWeekLow\":6,\"productCategory\":\"freddie mac\",\"totalTrades\":53,\"totalVolume\":262.271,\"tradeReportDate\":\"2026-04-10\",\"unchanged\":1},{\"advances\":15,\"declines\":9,\"fiftyTwoWeekHigh\":5,\"fiftyTwoWeekLow\":2,\"productCategory\":\"fannie mae\",\"totalTrades\":38,\"totalVolume\":109.637,\"tradeReportDate\":\"2026-04-10\",\"unchanged\":5},{\"advances\":69,\"declines\":69,\"fiftyTwoWeekHigh\":19,\"fiftyTwoWeekLow\":19,\"productCategory\":\"fhlb\",\"totalTrades\":209,\"totalVolume\":689.735087,\"tradeReportDate\":\"2026-04-10\",\"unchanged\":25},{\"advances\":188,\"declines\":175,\"fiftyTwoWeekHigh\":38,\"fiftyTwoWeekLow\":60,\"productCategory\":\"all securities\",\"totalTrades\":500,\"totalVolume\":1603.689338,\"tradeReportDate\":\"2026-04-13\",\"unchanged\":40},{\"advances\":18,\"declines\":13,\"fiftyTwoWeekHigh\":4,\"fiftyTwoWeekLow\":10,\"productCategory\":\"freddie mac\",\"totalTrades\":54,\"totalVolume\":355.279,\"tradeReportDate\":\"2026-04-13\",\"unchanged\":3},{\"advances\":15,\"declines\":10,\"fiftyTwoWeekHigh\":2,\"fiftyTwoWeekLow\":7,\"productCategory\":\"fannie mae\",\"totalTrades\":33,\"totalVolume\":52.864363,\"tradeReportDate\":\"2026-04-13\",\"unchanged\":3},{\"advances\":80,\"declines\":70,\"fiftyTwoWeekHigh\":20,\"fiftyTwoWeekLow\":26,\"productCategory\":\"fhlb\",\"totalTrades\":221,\"totalVolume\":654.108974,\"tradeReportDate\":\"2026-04-13\",\"unchanged\":28},{\"advances\":295,\"declines\":150,\"fiftyTwoWeekHigh\":65,\"fiftyTwoWeekLow\":59,\"productCategory\":\"all securities\",\"totalTrades\":624,\"totalVolume\":2372.335111,\"tradeReportDate\":\"2026-04-14\",\"unchanged\":44},{\"advances\":34,\"declines\":19,\"fiftyTwoWeekHigh\":8,\"fiftyTwoWeekLow\":9,\"productCategory\":\"freddie mac\",\"totalTrades\":75,\"totalVolume\":122.109,\"tradeReportDate\":\"2026-04-14\",\"unchanged\":3},{\"advances\":23,\"declines\":9,\"fiftyTwoWeekHigh\":8,\"fiftyTwoWeekLow\":8,\"productCategory\":\"fannie mae\",\"totalTrades\":51,\"totalVolume\":215.981,\"tradeReportDate\":\"2026-04-14\",\"unchanged\":4},{\"advances\":112,\"declines\":68,\"fiftyTwoWeekHigh\":36,\"fiftyTwoWeekLow\":22,\"productCategory\":\"fhlb\",\"totalTrades\":262,\"totalVolume\":822.516111,\"tradeReportDate\":\"2026-04-14\",\"unchanged\":28},{\"advances\":271,\"declines\":169,\"fiftyTwoWeekHigh\":56,\"fiftyTwoWeekLow\":40,\"productCategory\":\"all securities\",\"totalTrades\":587,\"totalVolume\":2782.737735,\"tradeReportDate\":\"2026-04-15\",\"un…[truncated]"
+    },
+    {
+      "command": "fixedincome health",
+      "kind": "json_fidelity",
+      "args": [
+        "fixedincome",
+        "health",
+        "--since",
+        "90d",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"datasets\":{\"agency_breadth\":{\"group\":\"FIXEDINCOMEMARKET\",\"name\":\"\u003credacted\u003e\",\"record_count\":244,\"records\":[{\"advances\":293,\"declines\":114,\"fiftyTwoWeekHigh\":57,\"fiftyTwoWeekLow\":46,\"productCategory\":\"all securities\",\"totalTrades\":562,\"totalVolume\":2917.928759,\"tradeReportDate\":\"2026-04-08\",\"unchanged\":31},{\"advances\":29,\"declines\":11,\"fiftyTwoWeekHigh\":4,\"fiftyTwoWeekLow\":1,\"productCategory\":\"freddie mac\",\"totalTrades\":52,\"totalVolume\":296.748,\"tradeReportDate\":\"2026-04-08\",\"unchanged\":1},{\"advances\":21,\"declines\":5,\"fiftyTwoWeekHigh\":3,\"fiftyTwoWeekLow\":7,\"productCategory\":\"fannie mae\",\"totalTrades\":43,\"totalVolume\":202.147402,\"tradeReportDate\":\"2026-04-08\",\"unchanged\":6},{\"advances\":127,\"declines\":43,\"fiftyTwoWeekHigh\":33,\"fiftyTwoWeekLow\":21,\"productCategory\":\"fhlb\",\"totalTrades\":247,\"totalVolume\":747.85,\"tradeReportDate\":\"2026-04-08\",\"unchanged\":20},{\"advances\":234,\"declines\":140,\"fiftyTwoWeekHigh\":56,\"fiftyTwoWeekLow\":41,\"productCategory\":\"all securities\",\"totalTrades\":513,\"totalVolume\":2757.248999,\"tradeReportDate\":\"2026-04-09\",\"unchanged\":34},{\"advances\":25,\"declines\":8,\"fiftyTwoWeekHigh\":2,\"fiftyTwoWeekLow\":1,\"productCategory\":\"freddie mac\",\"totalTrades\":42,\"totalVolume\":144.408,\"tradeReportDate\":\"2026-04-09\",\"unchanged\":1},{\"advances\":14,\"declines\":8,\"fiftyTwoWeekHigh\":6,\"fiftyTwoWeekLow\":6,\"productCategory\":\"fannie mae\",\"totalTrades\":32,\"totalVolume\":165.348,\"tradeReportDate\":\"2026-04-09\",\"unchanged\":3},{\"advances\":100,\"declines\":61,\"fiftyTwoWeekHigh\":37,\"fiftyTwoWeekLow\":19,\"productCategory\":\"fhlb\",\"totalTrades\":235,\"totalVolume\":536.839999,\"tradeReportDate\":\"2026-04-09\",\"unchanged\":21},{\"advances\":168,\"declines\":165,\"fiftyTwoWeekHigh\":39,\"fiftyTwoWeekLow\":31,\"productCategory\":\"all securities\",\"totalTrades\":460,\"totalVolume\":1301.398087,\"tradeReportDate\":\"2026-04-10\",\"unchanged\":40},{\"advances\":23,\"declines\":17,\"fiftyTwoWeekHigh\":4,\"fiftyTwoWeekLow\":6,\"productCategory\":\"freddie mac\",\"totalTrades\":53,\"totalVolume\":262.271,\"tradeReportDate\":\"2026-04-10\",\"unchanged\":1},{\"advances\":15,\"declines\":9,\"fiftyTwoWeekHigh\":5,\"fiftyTwoWeekLow\":2,\"productCategory\":\"fannie mae\",\"totalTrades\":38,\"totalVolume\":109.637,\"tradeReportDate\":\"2026-04-10\",\"unchanged\":5},{\"advances\":69,\"declines\":69,\"fiftyTwoWeekHigh\":19,\"fiftyTwoWeekLow\":19,\"productCategory\":\"fhlb\",\"totalTrades\":209,\"totalVolume\":689.735087,\"tradeReportDate\":\"2026-04-10\",\"unchanged\":25},{\"advances\":188,\"declines\":175,\"fiftyTwoWeekHigh\":38,\"fiftyTwoWeekLow\":60,\"productCategory\":\"all securities\",\"totalTrades\":500,\"totalVolume\":1603.689338,\"tradeReportDate\":\"2026-04-13\",\"unchanged\":40},{\"advances\":18,\"declines\":13,\"fiftyTwoWeekHigh\":4,\"fiftyTwoWeekLow\":10,\"productCategory\":\"freddie mac\",\"totalTrades\":54,\"totalVolume\":355.279,\"tradeReportDate\":\"2026-04-13\",\"unchanged\":3},{\"advances\":15,\"declines\":10,\"fiftyTwoWeekHigh\":2,\"fiftyTwoWeekLow\":7,\"productCategory\":\"fannie mae\",\"totalTrades\":33,\"totalVolume\":52.864363,\"tradeReportDate\":\"2026-04-13\",\"unchanged\":3},{\"advances\":80,\"declines\":70,\"fiftyTwoWeekHigh\":20,\"fiftyTwoWeekLow\":26,\"productCategory\":\"fhlb\",\"totalTrades\":221,\"totalVolume\":654.108974,\"tradeReportDate\":\"2026-04-13\",\"unchanged\":28},{\"advances\":295,\"declines\":150,\"fiftyTwoWeekHigh\":65,\"fiftyTwoWeekLow\":59,\"productCategory\":\"all securities\",\"totalTrades\":624,\"totalVolume\":2372.335111,\"tradeReportDate\":\"2026-04-14\",\"unchanged\":44},{\"advances\":34,\"declines\":19,\"fiftyTwoWeekHigh\":8,\"fiftyTwoWeekLow\":9,\"productCategory\":\"freddie mac\",\"totalTrades\":75,\"totalVolume\":122.109,\"tradeReportDate\":\"2026-04-14\",\"unchanged\":3},{\"advances\":23,\"declines\":9,\"fiftyTwoWeekHigh\":8,\"fiftyTwoWeekLow\":8,\"productCategory\":\"fannie mae\",\"totalTrades\":51,\"totalVolume\":215.981,\"tradeReportDate\":\"2026-04-14\",\"unchanged\":4},{\"advances\":112,\"declines\":68,\"fiftyTwoWeekHigh\":36,\"fiftyTwoWeekLow\":22,\"productCategory\":\"fhlb\",\"totalTrades\":262,\"totalVolume\":822.516111,\"tradeReportDate\":\"2026-04-14\",\"unchanged\":28},{\"advances\":271,\"declines\":169,\"fiftyTwoWeekHigh\":56,\"fiftyTwoWeekLow\":40,\"productCategory\":\"all securities\",\"totalTrades\":587,\"totalVolume\":2782.737735,\"tradeReportDate\":\"2026-04-15\",\"un…[truncated]"
+    },
+    {
+      "command": "fixedincome health",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "metadata",
+      "kind": "help",
+      "args": [
+        "metadata",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get field list, types, and partition fields for a dataset\n\nUsage:\n  finra-pp-cli metadata \u003cgroup\u003e \u003cname\u003e [flags]\n\nExamples:\n  finra-pp-cli metadata OTCMARKET REGSHODAILY\n\nFlags:\n  -h, --help   help for metadata\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'finra-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "metadata",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [metadata] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "metadata",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [metadata] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "metadata",
+      "kind": "error_path",
+      "args": [
+        "metadata",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: name is required\nUsage: finra-pp-cli metadata \u003cname\u003e\n"
+    },
+    {
+      "command": "otc weekly",
+      "kind": "help",
+      "args": [
+        "otc",
+        "weekly",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "OTC weekly summary volume records for --symbol over the trailing --since window (default 90d).\n\nUsage:\n  finra-pp-cli otc weekly [flags]\n\nExamples:\n--symbol GME --since 90d --json\n\nFlags:\n      --group string    Dataset group for OTC Weekly Summary (confirmed). Run 'finra-pp-cli catalog' to inspect all datasets. (default \"OTCMARKET\")\n  -h, --help            help for weekly\n      --name string     Dataset name for OTC Weekly Summary (confirmed). Run 'finra-pp-cli catalog' to inspect all datasets. (default \"WEEKLYSUMMARY\")\n      --since string    How far back to look for weekly summary records (e.g. 30d, 90d, 6w) (default \"90d\")\n      --symbol string   Security symbol to pull OTC weekly summary records for (required)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'finra-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "otc weekly",
+      "kind": "happy_path",
+      "args": [
+        "otc",
+        "weekly",
+        "--symbol",
+        "AAPL"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"symbol\": \"AAPL\",\n  \"since\": \"90d\",\n  \"records\": [\n    {\n      \"MPID\": null,\n      \"firmCRDNumber\": 79,\n      \"initialPublishedDate\": \"2026-06-22\",\n      \"issueName\": \"Apple Inc. Common Stock\",\n      \"issueSymbolIdentifier\": \"AAPL\",\n      \"lastReportedDate\": \"2026-06-05\",\n      \"lastUpdateDate\": \"2026-06-22\",\n      \"marketParticipantName\": \"J.P. MORGAN SECURITIES LLC\",\n      \"productTypeCode\": null,\n      \"summaryStartDate\": \"2026-06-01\",\n      \"summaryTypeCode\": \"OTC_W_SMBL_FIRM\",\n      \"tierDescription\": \"NMS Tier 1\",\n      \"tierIdentifier\": \"T1\",\n      \"totalNotionalSum\": 126154349.415502,\n      \"totalWeeklyShareQuantity\": 406207.24642,\n      \"totalWeeklyTradeCount\": 3338,\n      \"weekStartDate\": \"2026-06-01\"\n    },\n    {\n      \"MPID\": null,\n      \"firmCRDNumber\": 361,\n      \"initialPublishedDate\": \"2026-06-22\",\n      \"issueName\": \"Apple Inc. Common Stock\",\n      \"issueSymbolIdentifier\": \"AAPL\",\n      \"lastReportedDate\": \"2026-06-05\",\n      \"lastUpdateDate\": \"2026-06-22\",\n      \"marketParticipantName\": \"GOLDMAN SACHS \\u0026 CO. LLC\",\n      \"productTypeCode\": null,\n      \"summaryStartDate\": \"2026-06-01\",\n      \"summaryTypeCode\": \"OTC_W_SMBL_FIRM\",\n      \"tierDescription\": \"NMS Tier 1\",\n      \"tierIdentifier\": \"T1\",\n      \"totalNotionalSum\": 3991405369.6143,\n      \"totalWeeklyShareQuantity\": 12877223,\n      \"totalWeeklyTradeCount\": 33187,\n      \"weekStartDate\": \"2026-06-01\"\n    },\n    {\n      \"MPID\": null,\n      \"firmCRDNumber\": 165429,\n      \"initialPublishedDate\": \"2026-06-22\",\n      \"issueName\": \"Apple Inc. Common Stock\",\n      \"issueSymbolIdentifier\": \"AAPL\",\n      \"lastReportedDate\": \"2026-06-05\",\n      \"lastUpdateDate\": \"2026-06-22\",\n      \"marketParticipantName\": \"DRIVEWEALTH, LLC\",\n      \"productTypeCode\": null,\n      \"summaryStartDate\": \"2026-06-01\",\n      \"summaryTypeCode\": \"OTC_W_SMBL_FIRM\",\n      \"tierDescription\": \"NMS Tier 1\",\n      \"tierIdentifier\": \"T1\",\n      \"totalNotionalSum\": 11167423.10044,\n      \"totalWeeklyShareQuantity\": 35871.976967,\n      \"totalWeeklyTradeCount\": 695650,\n      \"weekStartDate\": \"2026-06-01\"\n    },\n    {\n      \"MPID\": null,\n      \"firmCRDNumber\": 298769,\n      \"initialPublishedDate\": \"2026-06-22\",\n      \"issueName\": \"Apple Inc. Common Stock\",\n      \"issueSymbolIdentifier\": \"AAPL\",\n      \"lastReportedDate\": \"2026-06-05\",\n      \"lastUpdateDate\": \"2026-06-22\",\n      \"marketParticipantName\": \"FUTU CLEARING INC\",\n      \"productTypeCode\": null,\n      \"summaryStartDate\": \"2026-06-01\",\n      \"summaryTypeCode\": \"OTC_W_SMBL_FIRM\",\n      \"tierDescription\": \"NMS Tier 1\",\n      \"tierIdentifier\": \"T1\",\n      \"totalNotionalSum\": 366085.929145,\n      \"totalWeeklyShareQuantity\": 1178.0319,\n      \"totalWeeklyTradeCount\": 5749,\n      \"weekStartDate\": \"2026-06-01\"\n    },\n    {\n      \"MPID\": null,\n      \"firmCRDNumber\": 309266,\n      \"initialPublishedDate\": \"2026-06-22\",\n      \"issueName\": \"Apple Inc. Common Stock\",\n      \"issueSymbolIdentifier\": \"AAPL\",\n      \"lastReportedDate\": \"2026-06-05\",\n      \"lastUpdateDate\": \"2026-06-22\",\n      \"marketParticipantName\": \"XTX EXECUTION SERVICES LLC\",\n      \"productTypeCode\": null,\n      \"summaryStartDate\": \"2026-06-01\",\n      \"summaryTypeCode\": \"OTC_W_SMBL_FIRM\",\n      \"tierDescription\": \"NMS Tier 1\",\n      \"tierIdentifier\": \"T1\",\n      \"totalNotionalSum\": 114774444.842,\n      \"totalWeeklyShareQuantity\": 369018,\n      \"totalWeeklyTradeCount\": 3942,\n      \"weekStartDate\": \"2026-06-01\"\n    },\n    {\n      \"MPID\": null,\n      \"firmCRDNumber\": null,\n      \"initialPublishedDate\": \"2026-06-22\",\n      \"issueName\": \"Apple Inc. Common Stock\",\n      \"issueSymbolIdentifier\": \"AAPL\",\n      \"lastReportedDate\": \"2026-06-05\",\n      \"lastUpdateDate\": \"2026-06-22\",\n      \"marketParticipantName\": null,\n      \"productTypeCode\": \"UTP\",\n      \"summaryStartDate\": \"2026-06-01\",\n      \"summaryTypeCode\": \"ATS_W_SMBL\",\n      \"tierDescription\": \"NMS Tier 1\",\n      \"tierIdentifier\": \"T1\",\n      \"totalNotionalSum\": 12278140514.325998,\n      \"totalWeeklyShareQuantity\": 39490452,\n      \"totalWeeklyTradeCount\": 714646,\n      \"weekStartDate\": \"2026-06-01\"\n    },\n    {\n      \"MPID\": \"ITGP\",\n…[truncated]"
+    },
+    {
+      "command": "otc weekly",
+      "kind": "json_fidelity",
+      "args": [
+        "otc",
+        "weekly",
+        "--symbol",
+        "AAPL",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"symbol\": \"AAPL\",\n  \"since\": \"90d\",\n  \"records\": [\n    {\n      \"MPID\": null,\n      \"firmCRDNumber\": 79,\n      \"initialPublishedDate\": \"2026-06-22\",\n      \"issueName\": \"Apple Inc. Common Stock\",\n      \"issueSymbolIdentifier\": \"AAPL\",\n      \"lastReportedDate\": \"2026-06-05\",\n      \"lastUpdateDate\": \"2026-06-22\",\n      \"marketParticipantName\": \"J.P. MORGAN SECURITIES LLC\",\n      \"productTypeCode\": null,\n      \"summaryStartDate\": \"2026-06-01\",\n      \"summaryTypeCode\": \"OTC_W_SMBL_FIRM\",\n      \"tierDescription\": \"NMS Tier 1\",\n      \"tierIdentifier\": \"T1\",\n      \"totalNotionalSum\": 126154349.415502,\n      \"totalWeeklyShareQuantity\": 406207.24642,\n      \"totalWeeklyTradeCount\": 3338,\n      \"weekStartDate\": \"2026-06-01\"\n    },\n    {\n      \"MPID\": null,\n      \"firmCRDNumber\": 361,\n      \"initialPublishedDate\": \"2026-06-22\",\n      \"issueName\": \"Apple Inc. Common Stock\",\n      \"issueSymbolIdentifier\": \"AAPL\",\n      \"lastReportedDate\": \"2026-06-05\",\n      \"lastUpdateDate\": \"2026-06-22\",\n      \"marketParticipantName\": \"GOLDMAN SACHS \\u0026 CO. LLC\",\n      \"productTypeCode\": null,\n      \"summaryStartDate\": \"2026-06-01\",\n      \"summaryTypeCode\": \"OTC_W_SMBL_FIRM\",\n      \"tierDescription\": \"NMS Tier 1\",\n      \"tierIdentifier\": \"T1\",\n      \"totalNotionalSum\": 3991405369.6143,\n      \"totalWeeklyShareQuantity\": 12877223,\n      \"totalWeeklyTradeCount\": 33187,\n      \"weekStartDate\": \"2026-06-01\"\n    },\n    {\n      \"MPID\": null,\n      \"firmCRDNumber\": 165429,\n      \"initialPublishedDate\": \"2026-06-22\",\n      \"issueName\": \"Apple Inc. Common Stock\",\n      \"issueSymbolIdentifier\": \"AAPL\",\n      \"lastReportedDate\": \"2026-06-05\",\n      \"lastUpdateDate\": \"2026-06-22\",\n      \"marketParticipantName\": \"DRIVEWEALTH, LLC\",\n      \"productTypeCode\": null,\n      \"summaryStartDate\": \"2026-06-01\",\n      \"summaryTypeCode\": \"OTC_W_SMBL_FIRM\",\n      \"tierDescription\": \"NMS Tier 1\",\n      \"tierIdentifier\": \"T1\",\n      \"totalNotionalSum\": 11167423.10044,\n      \"totalWeeklyShareQuantity\": 35871.976967,\n      \"totalWeeklyTradeCount\": 695650,\n      \"weekStartDate\": \"2026-06-01\"\n    },\n    {\n      \"MPID\": null,\n      \"firmCRDNumber\": 298769,\n      \"initialPublishedDate\": \"2026-06-22\",\n      \"issueName\": \"Apple Inc. Common Stock\",\n      \"issueSymbolIdentifier\": \"AAPL\",\n      \"lastReportedDate\": \"2026-06-05\",\n      \"lastUpdateDate\": \"2026-06-22\",\n      \"marketParticipantName\": \"FUTU CLEARING INC\",\n      \"productTypeCode\": null,\n      \"summaryStartDate\": \"2026-06-01\",\n      \"summaryTypeCode\": \"OTC_W_SMBL_FIRM\",\n      \"tierDescription\": \"NMS Tier 1\",\n      \"tierIdentifier\": \"T1\",\n      \"totalNotionalSum\": 366085.929145,\n      \"totalWeeklyShareQuantity\": 1178.0319,\n      \"totalWeeklyTradeCount\": 5749,\n      \"weekStartDate\": \"2026-06-01\"\n    },\n    {\n      \"MPID\": null,\n      \"firmCRDNumber\": 309266,\n      \"initialPublishedDate\": \"2026-06-22\",\n      \"issueName\": \"Apple Inc. Common Stock\",\n      \"issueSymbolIdentifier\": \"AAPL\",\n      \"lastReportedDate\": \"2026-06-05\",\n      \"lastUpdateDate\": \"2026-06-22\",\n      \"marketParticipantName\": \"XTX EXECUTION SERVICES LLC\",\n      \"productTypeCode\": null,\n      \"summaryStartDate\": \"2026-06-01\",\n      \"summaryTypeCode\": \"OTC_W_SMBL_FIRM\",\n      \"tierDescription\": \"NMS Tier 1\",\n      \"tierIdentifier\": \"T1\",\n      \"totalNotionalSum\": 114774444.842,\n      \"totalWeeklyShareQuantity\": 369018,\n      \"totalWeeklyTradeCount\": 3942,\n      \"weekStartDate\": \"2026-06-01\"\n    },\n    {\n      \"MPID\": null,\n      \"firmCRDNumber\": null,\n      \"initialPublishedDate\": \"2026-06-22\",\n      \"issueName\": \"Apple Inc. Common Stock\",\n      \"issueSymbolIdentifier\": \"AAPL\",\n      \"lastReportedDate\": \"2026-06-05\",\n      \"lastUpdateDate\": \"2026-06-22\",\n      \"marketParticipantName\": null,\n      \"productTypeCode\": \"UTP\",\n      \"summaryStartDate\": \"2026-06-01\",\n      \"summaryTypeCode\": \"ATS_W_SMBL\",\n      \"tierDescription\": \"NMS Tier 1\",\n      \"tierIdentifier\": \"T1\",\n      \"totalNotionalSum\": 12278140514.325998,\n      \"totalWeeklyShareQuantity\": 39490452,\n      \"totalWeeklyTradeCount\": 714646,\n      \"weekStartDate\": \"2026-06-01\"\n    },\n    {\n      \"MPID\": \"ITGP\",\n…[truncated]"
+    },
+    {
+      "command": "otc weekly",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "partitions",
+      "kind": "help",
+      "args": [
+        "partitions",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List available partition values for a dataset, used for incremental sync\n\nUsage:\n  finra-pp-cli partitions \u003cgroup\u003e \u003cname\u003e [flags]\n\nExamples:\n  finra-pp-cli partitions OTCMARKET REGSHODAILY\n\nFlags:\n  -h, --help   help for partitions\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'finra-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "partitions",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [partitions] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "partitions",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [partitions] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "partitions",
+      "kind": "error_path",
+      "args": [
+        "partitions",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: name is required\nUsage: finra-pp-cli partitions \u003cname\u003e\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  finra-pp-cli profile delete \u003cname\u003e [flags]\n\nExamples:\n  finra-pp-cli profile delete my-defaults --yes\n  finra-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'finra-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  finra-pp-cli profile list [flags]\n\nExamples:\n  finra-pp-cli profile list\n  finra-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'finra-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under \u003cname\u003e. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile, --config, and --home, which are never\ncaptured: they control profile/config resolution and would never apply).\n\nUsage:\n  finra-pp-cli profile save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...] [flags]\n\nExamples:\n  finra-pp-cli profile save my-defaults --json --compact\n  finra-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'finra-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  finra-pp-cli profile show \u003cname\u003e [flags]\n\nExamples:\n  finra-pp-cli profile show my-defaults\n  finra-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'finra-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  finra-pp-cli profile use \u003cname\u003e [flags]\n\nExamples:\n  finra-pp-cli profile use my-defaults\n  finra-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'finra-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "registration firm",
+      "kind": "help",
+      "args": [
+        "registration",
+        "firm",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Firm profile lookup by --crd (the firm's organization CRD/ID).\n\nA POST query can't guarantee exactly one row without a confirmed unique-key field, so the\nfull match set is returned under 'records'; when exactly one record matches, it is also\nsurfaced under 'profile' for convenience.\n\nRequires a FINRA credential entitled for firm data — a basic-tier credential will receive a\n403 with a clear permission-denied message.\n\nUsage:\n  finra-pp-cli registration firm [flags]\n\nExamples:\n--crd 1234567 --json\n\nFlags:\n      --crd string     Firm organization CRD number to look up (required)\n      --group string   Dataset group for Firm Profile (confirmed). Run 'finra-pp-cli catalog' to inspect all datasets. (default \"FIRM\")\n  -h, --help           help for firm\n      --name string    Dataset name for Firm Profile (confirmed). Run 'finra-pp-cli catalog' to inspect all datasets. (default \"FIRMPROFILE\")\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'finra-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "registration firm",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: requires auth tier \"entitled\""
+    },
+    {
+      "command": "registration firm",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: requires auth tier \"entitled\""
+    },
+    {
+      "command": "registration firm",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: requires auth tier \"entitled\""
+    },
+    {
+      "command": "registration individual",
+      "kind": "help",
+      "args": [
+        "registration",
+        "individual",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Current registration snapshot for one person by --crd, via the confirmed Registration\nValidation Individual by-id lookup.\n\nUse this for a single current-snapshot lookup; use 'registration timeline' for the full\nchronological history instead.\n\nRequires a FINRA credential entitled for registration data — a basic-tier credential will\nreceive a 403 with a clear permission-denied message.\n\nUsage:\n  finra-pp-cli registration individual [flags]\n\nExamples:\n--crd 1234567 --json\n\nFlags:\n      --crd string   CRD number to look up (required)\n  -h, --help         help for individual\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'finra-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "registration individual",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: requires auth tier \"entitled\""
+    },
+    {
+      "command": "registration individual",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: requires auth tier \"entitled\""
+    },
+    {
+      "command": "registration individual",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: requires auth tier \"entitled\""
+    },
+    {
+      "command": "registration timeline",
+      "kind": "help",
+      "args": [
+        "registration",
+        "timeline",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Full chronological registration-status history for one person, joining Composite Individual,\nFirm Registration Status History, and Individual Delta records by CRD number.\n\nRequires a FINRA credential entitled for registration/firm data — a basic-tier credential\nwill receive a 403 with a clear permission-denied message.\n\nUsage:\n  finra-pp-cli registration timeline [flags]\n\nExamples:\n--crd 1234567 --json\n\nFlags:\n      --crd string   CRD number to build a registration timeline for (required)\n  -h, --help         help for timeline\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'finra-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "registration timeline",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: requires auth tier \"entitled\""
+    },
+    {
+      "command": "registration timeline",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: requires auth tier \"entitled\""
+    },
+    {
+      "command": "registration timeline",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: requires auth tier \"entitled\""
+    },
+    {
+      "command": "registration validate-batch",
+      "kind": "help",
+      "args": [
+        "registration",
+        "validate-batch",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Validate many CRDs from a file in one call instead of checking them one at a time.\n\n--file accepts either a plain newline-delimited list of CRDs, or a CSV file with a header row\ncontaining a \"crd\" column (case-insensitive).\n\nRequires a FINRA credential entitled for registration data — a basic-tier credential will\nreceive a 403 with a clear permission-denied message.\n\nUsage:\n  finra-pp-cli registration validate-batch [flags]\n\nExamples:\n--file crds.csv --json\n\nFlags:\n      --file string   Path to a file of CRDs to validate: one per line, or CSV with a 'crd' column (required)\n  -h, --help          help for validate-batch\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'finra-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "registration validate-batch",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: requires auth tier \"entitled\""
+    },
+    {
+      "command": "registration validate-batch",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: requires auth tier \"entitled\""
+    },
+    {
+      "command": "registration validate-batch",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: requires auth tier \"entitled\""
+    },
+    {
+      "command": "regsho threshold-watch",
+      "kind": "help",
+      "args": [
+        "regsho",
+        "threshold-watch",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "See which symbols just crossed the Reg SHO 5-day threshold escalation point before it triggers a mandatory close-out.\n\nScans the trailing --days calendar days of the Threshold List dataset and reports the current consecutive-day\nstreak for --symbol. FINRA requires mandatory close-out once a security has stayed on the threshold list for\n5 consecutive settlement days, so a streak of 5 or more is flagged as escalated.\n\nUsage:\n  finra-pp-cli regsho threshold-watch [flags]\n\nExamples:\n--symbol GME --json\n\nFlags:\n      --days int        Trailing calendar days to scan for a threshold-list streak (default 10)\n      --group string    Dataset group for the Threshold List (confirmed). Run 'finra-pp-cli catalog' to inspect all datasets. (default \"OTCMARKET\")\n  -h, --help            help for threshold-watch\n      --name string     Dataset name for the Threshold List (confirmed). Run 'finra-pp-cli catalog' to inspect all datasets. (default \"THRESHOLDLIST\")\n      --symbol string   Security symbol to check for a Reg SHO threshold-list streak (required)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'finra-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "regsho threshold-watch",
+      "kind": "happy_path",
+      "args": [
+        "regsho",
+        "threshold-watch",
+        "--symbol",
+        "AAPL"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"symbol\": \"AAPL\",\n  \"consecutive_days\": 0,\n  \"escalated\": false,\n  \"checked_through\": \"2026-07-07\",\n  \"note\": \"no threshold-list records found for AAPL in the trailing 10 day(s)\"\n}\n"
+    },
+    {
+      "command": "regsho threshold-watch",
+      "kind": "json_fidelity",
+      "args": [
+        "regsho",
+        "threshold-watch",
+        "--symbol",
+        "AAPL",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"symbol\": \"AAPL\",\n  \"consecutive_days\": 0,\n  \"escalated\": false,\n  \"checked_through\": \"2026-07-07\",\n  \"note\": \"no threshold-list records found for AAPL in the trailing 10 day(s)\"\n}\n"
+    },
+    {
+      "command": "regsho threshold-watch",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "regsho volume",
+      "kind": "help",
+      "args": [
+        "regsho",
+        "volume",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Reg SHO daily short sale volume records for --symbol over the trailing --since window (default 30d).\n\nWhen a returned record has both shortParQuantity and totalParQuantity, a short_volume_ratio\nis computed per record.\n\nUsage:\n  finra-pp-cli regsho volume [flags]\n\nExamples:\n--symbol GME --since 30d --json\n\nFlags:\n      --group string    Dataset group for Reg SHO Daily Short Sale Volume (confirmed). Run 'finra-pp-cli catalog' to inspect all datasets. (default \"OTCMARKET\")\n  -h, --help            help for volume\n      --name string     Dataset name for Reg SHO Daily Short Sale Volume (confirmed). Run 'finra-pp-cli catalog' to inspect all datasets. (default \"REGSHODAILY\")\n      --since string    How far back to look for short-volume records (e.g. 24h, 30d, 4w) (default \"30d\")\n      --symbol string   Security symbol to pull Reg SHO short-volume records for (required)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'finra-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "regsho volume",
+      "kind": "happy_path",
+      "args": [
+        "regsho",
+        "volume",
+        "--symbol",
+        "AAPL"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"symbol\": \"AAPL\",\n  \"since\": \"30d\",\n  \"records\": [\n    {\n      \"marketCode\": \"B\",\n      \"reportingFacilityCode\": \"NCTRF\",\n      \"securitiesInformationProcessorSymbolIdentifier\": \"AAPL\",\n      \"shortExemptParQuantity\": 30,\n      \"shortParQuantity\": 75452.091309,\n      \"short_volume_ratio\": 0.4905264295490471,\n      \"totalParQuantity\": 153818.605408,\n      \"tradeReportDate\": \"2026-07-06\"\n    },\n    {\n      \"marketCode\": \"Q\",\n      \"reportingFacilityCode\": \"NQTRF\",\n      \"securitiesInformationProcessorSymbolIdentifier\": \"AAPL\",\n      \"shortExemptParQuantity\": 56409,\n      \"shortParQuantity\": 7042494.208039,\n      \"short_volume_ratio\": 0.4590275460936668,\n      \"totalParQuantity\": 15342203.900334,\n      \"tradeReportDate\": \"2026-07-06\"\n    },\n    {\n      \"marketCode\": \"N\",\n      \"reportingFacilityCode\": \"NYTRF\",\n      \"securitiesInformationProcessorSymbolIdentifier\": \"AAPL\",\n      \"shortExemptParQuantity\": 0,\n      \"shortParQuantity\": 202256.83725,\n      \"short_volume_ratio\": 0.39506447506458253,\n      \"totalParQuantity\": 511959.05989,\n      \"tradeReportDate\": \"2026-07-06\"\n    },\n    {\n      \"marketCode\": \"B\",\n      \"reportingFacilityCode\": \"NCTRF\",\n      \"securitiesInformationProcessorSymbolIdentifier\": \"AAPL\",\n      \"shortExemptParQuantity\": 20,\n      \"shortParQuantity\": 58845.517271,\n      \"short_volume_ratio\": 0.441893112237026,\n      \"totalParQuantity\": 133166.85787,\n      \"tradeReportDate\": \"2026-06-29\"\n    },\n    {\n      \"marketCode\": \"Q\",\n      \"reportingFacilityCode\": \"NQTRF\",\n      \"securitiesInformationProcessorSymbolIdentifier\": \"AAPL\",\n      \"shortExemptParQuantity\": 74155,\n      \"shortParQuantity\": 6706750.054211,\n      \"short_volume_ratio\": 0.3431302811414121,\n      \"totalParQuantity\": 19545783.111596,\n      \"tradeReportDate\": \"2026-06-29\"\n    },\n    {\n      \"marketCode\": \"N\",\n      \"reportingFacilityCode\": \"NYTRF\",\n      \"securitiesInformationProcessorSymbolIdentifier\": \"AAPL\",\n      \"shortExemptParQuantity\": 5,\n      \"shortParQuantity\": 1232158,\n      \"short_volume_ratio\": 0.6903655544943609,\n      \"totalParQuantity\": 1784790.669202,\n      \"tradeReportDate\": \"2026-06-29\"\n    },\n    {\n      \"marketCode\": \"B\",\n      \"reportingFacilityCode\": \"NCTRF\",\n      \"securitiesInformationProcessorSymbolIdentifier\": \"AAPL\",\n      \"shortExemptParQuantity\": 1,\n      \"shortParQuantity\": 83488.963778,\n      \"short_volume_ratio\": 0.43337115129802667,\n      \"totalParQuantity\": 192650.026491,\n      \"tradeReportDate\": \"2026-06-30\"\n    },\n    {\n      \"marketCode\": \"Q\",\n      \"reportingFacilityCode\": \"NQTRF\",\n      \"securitiesInformationProcessorSymbolIdentifier\": \"AAPL\",\n      \"shortExemptParQuantity\": 34034,\n      \"shortParQuantity\": 7220639.989869,\n      \"short_volume_ratio\": 0.44032379509216496,\n      \"totalParQuantity\": 16398477.825523,\n      \"tradeReportDate\": \"2026-06-30\"\n    },\n    {\n      \"marketCode\": \"N\",\n      \"reportingFacilityCode\": \"NYTRF\",\n      \"securitiesInformationProcessorSymbolIdentifier\": \"AAPL\",\n      \"shortExemptParQuantity\": 0,\n      \"shortParQuantity\": 242052.29421,\n      \"short_volume_ratio\": 0.49996918238998833,\n      \"totalParQuantity\": 484134.428152,\n      \"tradeReportDate\": \"2026-06-30\"\n    },\n    {\n      \"marketCode\": \"B\",\n      \"reportingFacilityCode\": \"NCTRF\",\n      \"securitiesInformationProcessorSymbolIdentifier\": \"AAPL\",\n      \"shortExemptParQuantity\": 0,\n      \"shortParQuantity\": 115767.8569,\n      \"short_volume_ratio\": 0.4821625160641429,\n      \"totalParQuantity\": 240101.320702,\n      \"tradeReportDate\": \"2026-07-02\"\n    },\n    {\n      \"marketCode\": \"Q\",\n      \"reportingFacilityCode\": \"NQTRF\",\n      \"securitiesInformationProcessorSymbolIdentifier\": \"AAPL\",\n      \"shortExemptParQuantity\": 89137,\n      \"shortParQuantity\": 11479561.984835,\n      \"short_volume_ratio\": 0.4661845674114852,\n      \"totalParQuantity\": 24624500.224398,\n      \"tradeReportDate\": \"2026-07-02\"\n    },\n    {\n      \"marketCode\": \"N\",\n      \"reportingFacilityCode\": \"NYTRF\",\n      \"securitiesInformationProcessorSymbolIdentifier\": \"AAPL\",\n      \"shortExemptParQuantity\": 40,\n      \"shortParQuantity\": 436649.37637,\n      \"short_vo…[truncated]"
+    },
+    {
+      "command": "regsho volume",
+      "kind": "json_fidelity",
+      "args": [
+        "regsho",
+        "volume",
+        "--symbol",
+        "AAPL",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"symbol\": \"AAPL\",\n  \"since\": \"30d\",\n  \"records\": [\n    {\n      \"marketCode\": \"B\",\n      \"reportingFacilityCode\": \"NCTRF\",\n      \"securitiesInformationProcessorSymbolIdentifier\": \"AAPL\",\n      \"shortExemptParQuantity\": 30,\n      \"shortParQuantity\": 75452.091309,\n      \"short_volume_ratio\": 0.4905264295490471,\n      \"totalParQuantity\": 153818.605408,\n      \"tradeReportDate\": \"2026-07-06\"\n    },\n    {\n      \"marketCode\": \"Q\",\n      \"reportingFacilityCode\": \"NQTRF\",\n      \"securitiesInformationProcessorSymbolIdentifier\": \"AAPL\",\n      \"shortExemptParQuantity\": 56409,\n      \"shortParQuantity\": 7042494.208039,\n      \"short_volume_ratio\": 0.4590275460936668,\n      \"totalParQuantity\": 15342203.900334,\n      \"tradeReportDate\": \"2026-07-06\"\n    },\n    {\n      \"marketCode\": \"N\",\n      \"reportingFacilityCode\": \"NYTRF\",\n      \"securitiesInformationProcessorSymbolIdentifier\": \"AAPL\",\n      \"shortExemptParQuantity\": 0,\n      \"shortParQuantity\": 202256.83725,\n      \"short_volume_ratio\": 0.39506447506458253,\n      \"totalParQuantity\": 511959.05989,\n      \"tradeReportDate\": \"2026-07-06\"\n    },\n    {\n      \"marketCode\": \"B\",\n      \"reportingFacilityCode\": \"NCTRF\",\n      \"securitiesInformationProcessorSymbolIdentifier\": \"AAPL\",\n      \"shortExemptParQuantity\": 20,\n      \"shortParQuantity\": 58845.517271,\n      \"short_volume_ratio\": 0.441893112237026,\n      \"totalParQuantity\": 133166.85787,\n      \"tradeReportDate\": \"2026-06-29\"\n    },\n    {\n      \"marketCode\": \"Q\",\n      \"reportingFacilityCode\": \"NQTRF\",\n      \"securitiesInformationProcessorSymbolIdentifier\": \"AAPL\",\n      \"shortExemptParQuantity\": 74155,\n      \"shortParQuantity\": 6706750.054211,\n      \"short_volume_ratio\": 0.3431302811414121,\n      \"totalParQuantity\": 19545783.111596,\n      \"tradeReportDate\": \"2026-06-29\"\n    },\n    {\n      \"marketCode\": \"N\",\n      \"reportingFacilityCode\": \"NYTRF\",\n      \"securitiesInformationProcessorSymbolIdentifier\": \"AAPL\",\n      \"shortExemptParQuantity\": 5,\n      \"shortParQuantity\": 1232158,\n      \"short_volume_ratio\": 0.6903655544943609,\n      \"totalParQuantity\": 1784790.669202,\n      \"tradeReportDate\": \"2026-06-29\"\n    },\n    {\n      \"marketCode\": \"B\",\n      \"reportingFacilityCode\": \"NCTRF\",\n      \"securitiesInformationProcessorSymbolIdentifier\": \"AAPL\",\n      \"shortExemptParQuantity\": 1,\n      \"shortParQuantity\": 83488.963778,\n      \"short_volume_ratio\": 0.43337115129802667,\n      \"totalParQuantity\": 192650.026491,\n      \"tradeReportDate\": \"2026-06-30\"\n    },\n    {\n      \"marketCode\": \"Q\",\n      \"reportingFacilityCode\": \"NQTRF\",\n      \"securitiesInformationProcessorSymbolIdentifier\": \"AAPL\",\n      \"shortExemptParQuantity\": 34034,\n      \"shortParQuantity\": 7220639.989869,\n      \"short_volume_ratio\": 0.44032379509216496,\n      \"totalParQuantity\": 16398477.825523,\n      \"tradeReportDate\": \"2026-06-30\"\n    },\n    {\n      \"marketCode\": \"N\",\n      \"reportingFacilityCode\": \"NYTRF\",\n      \"securitiesInformationProcessorSymbolIdentifier\": \"AAPL\",\n      \"shortExemptParQuantity\": 0,\n      \"shortParQuantity\": 242052.29421,\n      \"short_volume_ratio\": 0.49996918238998833,\n      \"totalParQuantity\": 484134.428152,\n      \"tradeReportDate\": \"2026-06-30\"\n    },\n    {\n      \"marketCode\": \"B\",\n      \"reportingFacilityCode\": \"NCTRF\",\n      \"securitiesInformationProcessorSymbolIdentifier\": \"AAPL\",\n      \"shortExemptParQuantity\": 0,\n      \"shortParQuantity\": 115767.8569,\n      \"short_volume_ratio\": 0.4821625160641429,\n      \"totalParQuantity\": 240101.320702,\n      \"tradeReportDate\": \"2026-07-02\"\n    },\n    {\n      \"marketCode\": \"Q\",\n      \"reportingFacilityCode\": \"NQTRF\",\n      \"securitiesInformationProcessorSymbolIdentifier\": \"AAPL\",\n      \"shortExemptParQuantity\": 89137,\n      \"shortParQuantity\": 11479561.984835,\n      \"short_volume_ratio\": 0.4661845674114852,\n      \"totalParQuantity\": 24624500.224398,\n      \"tradeReportDate\": \"2026-07-02\"\n    },\n    {\n      \"marketCode\": \"N\",\n      \"reportingFacilityCode\": \"NYTRF\",\n      \"securitiesInformationProcessorSymbolIdentifier\": \"AAPL\",\n      \"shortExemptParQuantity\": 40,\n      \"shortParQuantity\": 436649.37637,\n      \"short_vo…[truncated]"
+    },
+    {
+      "command": "regsho volume",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "search",
+      "kind": "help",
+      "args": [
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search locally synced data using FTS5 full-text search.\n\nThis API has no dedicated search endpoint, so live mode is unavailable.\nRun sync first to populate the local search index.\n\nUsage:\n  finra-pp-cli search \u003cquery\u003e [flags]\n\nExamples:\n  # Search locally synced data\n  finra-pp-cli search \"status\"\n\n  # Force local search explicitly\n  finra-pp-cli search \"status\" --data-source local\n  # Search a specific resource type locally\n  finra-pp-cli search \"status\" --type async --data-source local\n  # JSON output for piping\n  finra-pp-cli search \"status\" --json --limit 20\n\nFlags:\n      --db string     SQLite database file path (default: resolved data directory data.db)\n  -h, --help          help for search\n      --limit int     Maximum results to return (default 50)\n      --type string   Filter by resource type\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'finra-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "search",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "error_path",
+      "args": [
+        "search",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"reason\": \"no_search_endpoint\",\n    \"resource_type\": \"search\",\n    \"source\": \"local\"\n  },\n  \"results\": []\n}\nThis API has no search endpoint. Searching local data.\nhint: local store has not been synced yet. Run 'finra-pp-cli sync' before trusting local results.\n"
+    },
+    {
+      "command": "sync",
+      "kind": "help",
+      "args": [
+        "sync",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Sync data from the API into a local SQLite database. This API does\nnot declare temporal sync filters, so sync performs full pagination unless an\nexplicit resource declares its own incremental filter.\nOnce synced, use the 'search' command for instant full-text search.\n\nExit codes \u0026 warnings:\n  Resources the API denies access to (HTTP 403, or HTTP 400 with an\n  access-policy body) are reported as warnings rather than failing the\n  run. In --json mode each is emitted as a {\"event\":\"sync_warning\",...}\n  line carrying status, reason, and message fields, and a final\n  {\"event\":\"sync_summary\",...} aggregates the run.\n\n  Exit 0 when at least one resource synced and no resource flagged in\n  the spec as critical (x-critical: true) failed; non-critical failures\n  emit {\"event\":\"sync_warning\",\"reason\":\"exit_policy_default_changed\",\n  ...} so callers can detect that a partial failure was tolerated. Pass\n  --strict to exit non-zero on any per-resource failure. Exit is always\n  non-zero when every selected resource failed, regardless of --strict.\n\nResource scoping:\n  --resources runs the named top-level resources, plus any parent-keyed\n  dependent whose own name is listed OR whose parent table is listed.\n  Naming a parent therefore cascades to its dependents (so \"sync this\n  parent and its children\" works without listing every nested resource\n  by hand). There is no flag today to suppress the cascade for a named\n  parent. To run a dependent without re-syncing its parent, list only\n  the dependent by name; the parent table must already be populated\n  from a prior sync.\n\nUsage:\n  finra-pp-cli sync [flags]\n\nExamples:\n  # Sync all resources\n  finra-pp-cli sync\n\n  # Sync specific resources only\n  finra-pp-cli sync --resources channels,messages\n\n  # Full resync (ignore previous checkpoint)\n  finra-pp-cli sync --full\n\n  # Incremental sync: only records from the last 7 days\n  finra-pp-cli sync --since 7d\n\n  # Parallel sync with 8 workers\n  finra-pp-cli sync --concurrency 8\n\n  # Latest-only: refresh head of each resource, no historical backfill\n  finra-pp-cli sync --latest-only\n\nFlags:\n      --concurrency int              Number of parallel sync workers (default 4)\n      --db string                    SQLite database file path (default: resolved data directory data.db)\n      --full                         Full resync (ignore previous checkpoint)\n      --global-param stringArray     Extra query param to inject into every sync request including dependent path-scoped calls (repeatable, key=value). Use when an API requires a scope on every call regardless of path nesting.\n  -h, --help                         help for sync\n      --latest-only                  Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).\n      --max-pages int                Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)\n      --no-prune                     Disable deletion reconciliation on --full (by default a full sync prunes local rows the API no longer returns for a fully-enumerated parent partition)\n      --param stringArray            Extra query param to inject into flat-list sync requests (repeatable, key=value). Skipped on path-scoped dependent requests so a top-level scope like workspace=\u003cid\u003e does not double up on /parents/\u003cid\u003e/children calls. Use --global-param to inject everywhere. Avoid pagination keys (limit/since/cursor) — overriding them corrupts resume state.\n      --resource-param stringArray   Per-resource extra query param (repeatable, resource:key=value). Wins over --param and --global-param when keys conflict.\n      --resources strings            Comma-separated resource types to sync. Naming a parent also runs its parent-keyed dependents (see Long help for scoping).\n      --since string                 Incremental sync duration (e.g. 7d, 24h, 1w, 30m)\n      --strict                       Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).\n\nGlobal Flags:\n      --agent           …[truncated]"
+    },
+    {
+      "command": "sync",
+      "kind": "happy_path",
+      "args": [
+        "sync"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_warning\",\"reason\":\"no_bulk_list_endpoints\",\"detail\":\"no default sync resources in spec; use --resources for explicit sync targets or populate the store via single-fetch commands\"}\n{\"event\":\"sync_summary\",\"total_records\":0,\"resources\":0,\"success\":0,\"warned\":0,\"errored\":0,\"duration_ms\":0}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "json_fidelity",
+      "args": [
+        "sync",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_warning\",\"reason\":\"no_bulk_list_endpoints\",\"detail\":\"no default sync resources in spec; use --resources for explicit sync targets or populate the store via single-fetch commands\"}\n{\"event\":\"sync_summary\",\"total_records\":0,\"resources\":0,\"success\":0,\"warned\":0,\"errored\":0,\"duration_ms\":0}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "tail",
+      "kind": "help",
+      "args": [
+        "tail",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Tail streams live data changes by polling the API at configurable intervals.\nEvents are emitted as NDJSON to stdout for piping to other tools.\nGracefully shuts down on SIGTERM/SIGINT.\n\nNote: For APIs with WebSocket or SSE support, a future version will use\nnative streaming instead of polling.\n\nUsage:\n  finra-pp-cli tail [resource] [flags]\n\nExamples:\n  # Tail all changes every 10 seconds\n  finra-pp-cli tail --interval 10s\n\n  # Tail a specific resource\n  finra-pp-cli tail messages --interval 5s\n\n  # Pipe to jq for filtering\n  finra-pp-cli tail events --interval 30s | jq 'select(.type == \"error\")'\n\nFlags:\n      --follow              Keep running (set --follow=false for single poll) (default true)\n  -h, --help                help for tail\n      --interval duration   Poll interval (default 10s)\n      --resource string     Resource type to tail\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'finra-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "tail",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [tail] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "tail",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [tail] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "tail",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no-error-path-probe annotation"
+    },
+    {
+      "command": "trace liquidity",
+      "kind": "help",
+      "args": [
+        "trace",
+        "liquidity",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Month-over-month trend in TRACE Monthly Volume trade count and volume over the trailing\n--since window (default 180d), optionally scoped to --sub-product. Omit --sub-product for a\nmarket-wide trend across all product categories.\n\nA basic-tier FINRA credential's only accessible TRACE dataset (TRACE Monthly Volume) is a\nmarket-wide monthly aggregate with no CUSIP, symbol, or bond-identifier field at all — a\nper-bond liquidity trend is not computable without a higher entitlement tier for per-CUSIP\nTRACE data. This instead trends totalTradeCount/totalVolumeQuantity for a product category\nmonth over month, which nothing else in this CLI computes.\n\nUsage:\n  finra-pp-cli trace liquidity [flags]\n\nExamples:\n--sub-product CORP --since 180d --json\n\nFlags:\n      --group string         Dataset group for TRACE Monthly Volume (confirmed). Run 'finra-pp-cli catalog' to inspect all datasets. (default \"FIXEDINCOMEMARKET\")\n  -h, --help                 help for liquidity\n      --name string          Dataset name for TRACE Monthly Volume (confirmed). Run 'finra-pp-cli catalog' to inspect all datasets. (default \"TRACEMONTHLYVOLUME\")\n      --since string         How far back to look for monthly TRACE records (e.g. 90d, 180d, 1y) (default \"180d\")\n      --sub-product string   Product category (subProductCode) to scope the trend to; omit for a market-wide trend\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'finra-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "trace liquidity",
+      "kind": "happy_path",
+      "args": [
+        "trace",
+        "liquidity",
+        "--sub-product",
+        "CORP"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"sub_product\": \"CORP\",\n  \"since\": \"180d\",\n  \"record_count\": 5,\n  \"avg_trades_per_month\": 2777174.6,\n  \"liquidity_trend\": \"stable\"\n}\n"
+    },
+    {
+      "command": "trace liquidity",
+      "kind": "json_fidelity",
+      "args": [
+        "trace",
+        "liquidity",
+        "--sub-product",
+        "CORP",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"sub_product\": \"CORP\",\n  \"since\": \"180d\",\n  \"record_count\": 5,\n  \"avg_trades_per_month\": 2777174.6,\n  \"liquidity_trend\": \"stable\"\n}\n"
+    },
+    {
+      "command": "trace liquidity",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "trace search",
+      "kind": "help",
+      "args": [
+        "trace",
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "TRACE monthly aggregate volume/trade-count records over the trailing --since window\n(default 90d), optionally narrowed to --sub-product.\n\nA basic-tier FINRA credential's only accessible TRACE dataset (TRACE Monthly Volume) is a\nmarket-wide monthly aggregate with no CUSIP, symbol, or bond-identifier field at all —\nper-CUSIP trade-level TRACE data requires a higher entitlement tier. Use this for raw\nmonthly aggregate lookups; use 'trace liquidity' for a computed month-over-month trend\ninstead.\n\nUsage:\n  finra-pp-cli trace search [flags]\n\nExamples:\n--sub-product CORP --since 90d --json\n\nFlags:\n      --group string         Dataset group for TRACE Monthly Volume (confirmed). Run 'finra-pp-cli catalog' to inspect all datasets. (default \"FIXEDINCOMEMARKET\")\n  -h, --help                 help for search\n      --name string          Dataset name for TRACE Monthly Volume (confirmed). Run 'finra-pp-cli catalog' to inspect all datasets. (default \"TRACEMONTHLYVOLUME\")\n      --since string         How far back to look for monthly TRACE records (e.g. 30d, 90d, 6mo) (default \"90d\")\n      --sub-product string   Product category (subProductCode) to narrow monthly TRACE records to; omit to return all\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'finra-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "trace search",
+      "kind": "happy_path",
+      "args": [
+        "trace",
+        "search",
+        "--sub-product",
+        "CORP"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"since\": \"90d\",\n  \"sub_product\": \"CORP\",\n  \"records\": [\n    {\n      \"ATSAverageDailyTradeCount\": 18382,\n      \"ATSAverageDailyVolumeQuantity\": 3998.2,\n      \"ATSTradeCount\": 367639,\n      \"ATSVolumeQuantity\": 79964.8,\n      \"beginningOfMonth\": \"2026-05-01\",\n      \"customerAverageDailyTradeCount\": 86043.4,\n      \"customerAverageDailyVolumeQuantity\": 47808.2,\n      \"customerTradeCount\": 1720867,\n      \"customerVolumeQuantity\": 956164.6,\n      \"dealerAverageDailyTradeCount\": 30104.4,\n      \"dealerAverageDailyVolumeQuantity\": 11367.1,\n      \"dealerTradeCount\": 602088,\n      \"dealerVolumeQuantity\": 227342.5,\n      \"month\": \"May\",\n      \"period\": \"2026-05\",\n      \"subProductCode\": \"CORP\",\n      \"totalAverageDailyTradeCount\": 134529.7,\n      \"totalAverageDailyVolumeQuantity\": 63173.6,\n      \"totalTradeCount\": 2690594,\n      \"totalVolumeQuantity\": 1263471.9\n    },\n    {\n      \"ATSAverageDailyTradeCount\": 19715.9,\n      \"ATSAverageDailyVolumeQuantity\": 4400.7,\n      \"ATSTradeCount\": 414034,\n      \"ATSVolumeQuantity\": 92414.5,\n      \"beginningOfMonth\": \"2026-06-01\",\n      \"customerAverageDailyTradeCount\": 80591.7,\n      \"customerAverageDailyVolumeQuantity\": 47143.5,\n      \"customerTradeCount\": 1692426,\n      \"customerVolumeQuantity\": 990013.2,\n      \"dealerAverageDailyTradeCount\": 28922.1,\n      \"dealerAverageDailyVolumeQuantity\": 10028.5,\n      \"dealerTradeCount\": 607365,\n      \"dealerVolumeQuantity\": 210598.6,\n      \"month\": \"June\",\n      \"period\": \"2026-06\",\n      \"subProductCode\": \"CORP\",\n      \"totalAverageDailyTradeCount\": 129229.8,\n      \"totalAverageDailyVolumeQuantity\": 61572.7,\n      \"totalTradeCount\": 2713825,\n      \"totalVolumeQuantity\": 1293026.3\n    }\n  ],\n  \"count\": 2\n}\n"
+    },
+    {
+      "command": "trace search",
+      "kind": "json_fidelity",
+      "args": [
+        "trace",
+        "search",
+        "--sub-product",
+        "CORP",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"since\": \"90d\",\n  \"sub_product\": \"CORP\",\n  \"records\": [\n    {\n      \"ATSAverageDailyTradeCount\": 18382,\n      \"ATSAverageDailyVolumeQuantity\": 3998.2,\n      \"ATSTradeCount\": 367639,\n      \"ATSVolumeQuantity\": 79964.8,\n      \"beginningOfMonth\": \"2026-05-01\",\n      \"customerAverageDailyTradeCount\": 86043.4,\n      \"customerAverageDailyVolumeQuantity\": 47808.2,\n      \"customerTradeCount\": 1720867,\n      \"customerVolumeQuantity\": 956164.6,\n      \"dealerAverageDailyTradeCount\": 30104.4,\n      \"dealerAverageDailyVolumeQuantity\": 11367.1,\n      \"dealerTradeCount\": 602088,\n      \"dealerVolumeQuantity\": 227342.5,\n      \"month\": \"May\",\n      \"period\": \"2026-05\",\n      \"subProductCode\": \"CORP\",\n      \"totalAverageDailyTradeCount\": 134529.7,\n      \"totalAverageDailyVolumeQuantity\": 63173.6,\n      \"totalTradeCount\": 2690594,\n      \"totalVolumeQuantity\": 1263471.9\n    },\n    {\n      \"ATSAverageDailyTradeCount\": 19715.9,\n      \"ATSAverageDailyVolumeQuantity\": 4400.7,\n      \"ATSTradeCount\": 414034,\n      \"ATSVolumeQuantity\": 92414.5,\n      \"beginningOfMonth\": \"2026-06-01\",\n      \"customerAverageDailyTradeCount\": 80591.7,\n      \"customerAverageDailyVolumeQuantity\": 47143.5,\n      \"customerTradeCount\": 1692426,\n      \"customerVolumeQuantity\": 990013.2,\n      \"dealerAverageDailyTradeCount\": 28922.1,\n      \"dealerAverageDailyVolumeQuantity\": 10028.5,\n      \"dealerTradeCount\": 607365,\n      \"dealerVolumeQuantity\": 210598.6,\n      \"month\": \"June\",\n      \"period\": \"2026-06\",\n      \"subProductCode\": \"CORP\",\n      \"totalAverageDailyTradeCount\": 129229.8,\n      \"totalAverageDailyVolumeQuantity\": 61572.7,\n      \"totalTradeCount\": 2713825,\n      \"totalVolumeQuantity\": 1293026.3\n    }\n  ],\n  \"count\": 2\n}\n"
+    },
+    {
+      "command": "trace search",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  finra-pp-cli which [query] [flags]\n\nExamples:\n  finra-pp-cli which \"stale tickets\"\n  finra-pp-cli which \"bottleneck\"\n  finra-pp-cli which --limit 1 \"send message\"\n  finra-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'finra-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"matches\": []\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "archive",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Archive fetches all syncable resources from the API and stores them in a\nlocal SQLite database. Supports incremental sync (only new data since last run)\nand full resync. After archiving, use 'search' for instant full-text search.\n\nUsage:\n  finra-pp-cli workflow archive [flags]\n\nExamples:\n  # Archive all resources\n  finra-pp-cli workflow archive\n\n  # Full re-archive (ignore previous sync state)\n  finra-pp-cli workflow archive --full\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n      --full        Full re-archive (ignore previous sync state)\n  -h, --help        help for archive\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'finra-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "archive"
+      ],
+      "status": "pass",
+      "output_sample": "Archived 0 items across 0 resources to /var/folders/50/646lwj_d3d36zfs4ksysdy_40000gn/T/printing-press-subprocess-1165724/.local/share/finra-pp-cli/data.db\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "archive",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"resources_synced\": 0,\n  \"store_path\": \"/var/folders/50/646lwj_d3d36zfs4ksysdy_40000gn/T/printing-press-subprocess-1165724/.local/share/finra-pp-cli/data.db\",\n  \"timestamp\": \"2026-07-07T00:11:26Z\",\n  \"total_items\": 0\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show local archive status and sync state for all resources\n\nUsage:\n  finra-pp-cli workflow status [flags]\n\nExamples:\n  # Show archive status\n  finra-pp-cli workflow status\n\n  # Show status as JSON\n  finra-pp-cli workflow status --json\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'finra-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "Archive Status:\n  catalog                        40 items\n\n  Total: 40 items\n  Store: /var/folders/50/646lwj_d3d36zfs4ksysdy_40000gn/T/printing-press-subprocess-1165724/.local/share/finra-pp-cli/data.db\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"catalog\": 40\n}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-07-07T00:11:17.782455Z"
+}

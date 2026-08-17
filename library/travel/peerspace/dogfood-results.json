@@ -1,0 +1,103 @@
+{
+  "dir": "\u003ccli-dir\u003e/peerspace",
+  "spec_path": "\u003crunstate\u003e/peerspace-browser-sniff-spec.yaml",
+  "spec_source": "caller",
+  "verdict": "PASS",
+  "path_check": {
+    "tested": 0,
+    "valid": 0,
+    "valid_pct": 0,
+    "skipped": true,
+    "detail": "internal-yaml spec: paths validated at parse time"
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "unknown",
+    "match": true,
+    "detail": "no bot/bearer/basic scheme detected"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "oauth_scope_coverage_check": {
+    "checked": 0,
+    "covered": 0,
+    "skipped": true,
+    "detail": "no OAuth-scoped endpoints in spec"
+  },
+  "dead_flags": {
+    "total": 22,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 73,
+    "dead": 0
+  },
+  "pipeline_check": {
+    "sync_calls_domain": true,
+    "search_calls_domain": false,
+    "domain_tables": 4,
+    "sync_file_emitted": true,
+    "sync_resources_present": true,
+    "detail": "sync uses domain-specific Upsert methods; search uses generic Search only; 4 domain tables found"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 10,
+    "valid_examples": 10,
+    "detail": "10/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 78,
+      "registered": 78
+    },
+    "config_consistency": {
+      "write_fields": [
+        ", token, "
+      ],
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 15,
+    "found": 15
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 15,
+    "exempted_via_store": 15
+  },
+  "description_drift_check": {
+    "expected": "Tech-event venue scout for Peerspace: search and filter spaces, rank fit for meetups/workshops, compare shortlists, export proposal packs for Luma/Eventbrite/Slack, and query markets offline."
+  },
+  "source_client_check": {
+    "checked": 6
+  },
+  "print_json_filtered_check": {
+    "checked": 64
+  },
+  "test_presence": {
+    "checked": 2
+  },
+  "naming_check": {
+    "checked": 64
+  },
+  "sync_param_drop_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "issues": null
+}

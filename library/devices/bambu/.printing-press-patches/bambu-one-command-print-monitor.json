@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "bambu-one-command-print-monitor",
+  "applied_at": "2026-07-11",
+  "base_run_id": "20260711-063302-c519dd7c",
+  "base_printing_press_version": "4.28.0",
+  "summary": "The primary automation workflow must monitor one print with one command, expose distinct embedded project/profile/object identities consistently through start and terminal events, and retain preview assets.",
+  "reason": "Requiring callers to construct timestamped directories, background a watcher, capture process IDs, and assemble post-run files leaks implementation plumbing into the core agent and notification use case.",
+  "files": [
+    "internal/cli/bambu_events.go",
+    "internal/cli/bambu_events_test.go",
+    "internal/bambu/ftps.go",
+    "internal/bambu/bambu_test.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "The live printer-side 3MF exposes embedded title Benchy Bambu Pla Basic, profile title 14min44s Bambu PLA Basic A1, and object 3DBenchy.stl; matching terminal events reuse the enriched identity while the unavailable local Studio window filename is documented honestly."
+}

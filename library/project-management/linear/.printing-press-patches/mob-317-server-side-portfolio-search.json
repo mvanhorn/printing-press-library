@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "mob-317-server-side-portfolio-search",
+  "applied_at": "2026-06-21",
+  "base_run_id": "20260518-232543",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Portfolio search and write-time name resolution must push project and initiative name filters into Linear GraphQL instead of scanning every portfolio object client-side.",
+  "reason": "Large Linear workspaces can make full-table project and initiative scans expensive or rate-sensitive during ordinary agent name lookups. The published CLI should keep full inventory commands available while search/resolve paths use Linear's server-side name filters where supported.",
+  "files": [
+    ".printing-press.json",
+    "README.md",
+    "NOTICE",
+    "internal/cli/portfolio_resolve.go",
+    "internal/cli/linear_agent_test.go"
+  ],
+  "validated_outcome": "Regression tests assert search and project-name write lookup queries send server-side name filters, list commands remain unfiltered and paginated for full inventory, irregular stored whitespace still survives local normalized matching, and UUID-based issue edits load the issue team before resolving `--project-name`."
+}

@@ -44,6 +44,7 @@ type ratingsSources struct {
 func newRatingsCmd(flags *rootFlags) *cobra.Command {
 	var flagType string
 	var flagRegion string
+	var flagYear string
 	cmd := &cobra.Command{
 		Use:         "ratings <id-or-title>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
@@ -52,11 +53,19 @@ func newRatingsCmd(flags *rootFlags) *cobra.Command {
 for the IMDb id), and overlay OMDb's IMDb / Rotten Tomatoes / Metacritic ratings
 into a single rating card.
 
-OMDb enrichment is optional: set OMDB_API_KEY in the environment to enable it.
-Without OMDB_API_KEY the IMDb / RT / Metacritic rows render "N/A" but TMDb
-ratings still work.`,
+OMDb enrichment is optional. Enable it with either
+"movie-goat-pp-cli auth set-omdb-token <token>" (saved to config.toml) or the
+OMDB_API_KEY environment variable, which takes precedence. Without a key the
+IMDb / RT / Metacritic rows render "N/A" but TMDb ratings still work.
+
+A title shared by an original and a remake resolves to whichever TMDb's search
+ranked first, which is not always the canonical edition. When that happens the
+alternatives are listed on stderr and recorded under meta.ambiguous in the JSON;
+pin the one you meant with --year, a "Title (YYYY)" suffix, or the TMDb id.`,
 		Example: `  movie-goat-pp-cli ratings 550
   movie-goat-pp-cli ratings "Fight Club" --json
+  movie-goat-pp-cli ratings "Sabrina" --year 1954
+  movie-goat-pp-cli ratings "Sabrina (1954)"
   movie-goat-pp-cli ratings 1396 --type tv
   movie-goat-pp-cli ratings 550 --json --select title,ratings`,
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -83,13 +92,18 @@ ratings still work.`,
 				return usageErr(fmt.Errorf("--type must be \"movie\" or \"tv\", got %q", flagType))
 			}
 			query := strings.Join(args, " ")
+			// PATCH(title-resolution-must-signal-ambiguity)
+			year, err := validateYearFlag(flagYear)
+			if err != nil {
+				return err
+			}
 
 			out := ratingsOutput{Kind: kind}
 			out.Sources.TMDB = true
 
 			switch kind {
 			case "movie":
-				id, _, err := resolveMovieID(c, query)
+				id, _, err := resolveMovieID(c, flags, query, year, "--year")
 				if err != nil {
 					return classifyAPIError(err)
 				}
@@ -111,7 +125,7 @@ ratings still work.`,
 					out.Ratings.TMDB = fmt.Sprintf("%.1f", detail.VoteAverage)
 				}
 			case "tv":
-				id, _, err := resolveTVID(c, query)
+				id, _, err := resolveTVID(c, flags, query, year, "--year")
 				if err != nil {
 					return classifyAPIError(err)
 				}
@@ -133,8 +147,10 @@ ratings still work.`,
 				}
 			}
 
-			// OMDb enrichment — env-only key, graceful degradation when unset.
-			omdbKey := strings.TrimSpace(os.Getenv("OMDB_API_KEY"))
+			// OMDb enrichment — config.toml or OMDB_API_KEY, graceful
+			// degradation when unset.
+			// PATCH(omdb-key-in-config-like-tmdb)
+			omdbKey := flags.omdbAPIKey()
 			if omdbKey != "" && out.IMDbID != "" {
 				res, oerr := omdb.Fetch(out.IMDbID, omdbKey)
 				if oerr != nil && !omdb.IsRateLimit(oerr) {
@@ -202,7 +218,8 @@ ratings still work.`,
 			}
 			if !out.Sources.OMDb && omdbKey == "" {
 				fmt.Fprintln(w, "")
-				fmt.Fprintln(w, "Tip: set OMDB_API_KEY to enable IMDb / Rotten Tomatoes / Metacritic ratings.")
+				fmt.Fprintln(w, "Tip: run 'movie-goat-pp-cli auth set-omdb-token <token>' (or set OMDB_API_KEY)")
+				fmt.Fprintln(w, "     to enable IMDb / Rotten Tomatoes / Metacritic ratings.")
 			}
 			_ = flagRegion // reserved for future region-specific renderings
 			return nil
@@ -210,6 +227,8 @@ ratings still work.`,
 	}
 	cmd.Flags().StringVar(&flagType, "type", "movie", "Media type: movie or tv")
 	cmd.Flags().StringVar(&flagRegion, "region", "US", "Region code (reserved for future use)")
+	// PATCH(title-resolution-must-signal-ambiguity)
+	cmd.Flags().StringVar(&flagYear, "year", "", "Release year (movies) or first-air year (tv) used to disambiguate a shared title")
 	return cmd
 }
 

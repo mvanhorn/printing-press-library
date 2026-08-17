@@ -27,8 +27,10 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -51,21 +53,26 @@ import (
 // bookResult is the agent-friendly JSON shape emitted to stdout.
 // Field names are stable; nullable when not applicable.
 type bookResult struct {
-	Network              string `json:"network"`
-	ReservationID        string `json:"reservation_id,omitempty"`
-	ConfirmationNumber   string `json:"confirmation_number,omitempty"`
-	RestaurantSlug       string `json:"restaurant_slug,omitempty"`
-	RestaurantName       string `json:"restaurant_name,omitempty"`
-	Date                 string `json:"date"`
-	Time                 string `json:"time"`
-	Party                int    `json:"party"`
-	CancellationDeadline string `json:"cancellation_deadline,omitempty"`
-	MatchedExisting      bool   `json:"matched_existing"`
-	Source               string `json:"source"` // "book" | "matched_existing" | "dry_run"
-	Hint                 string `json:"hint,omitempty"`
-	BookURL              string `json:"book_url,omitempty"` // for Tock fallback to website
-	Error                string `json:"error,omitempty"`    // typed category when Error is non-empty
+	Network              string          `json:"network"`
+	ReservationID        string          `json:"reservation_id,omitempty"`
+	ConfirmationNumber   string          `json:"confirmation_number,omitempty"`
+	RestaurantSlug       string          `json:"restaurant_slug,omitempty"`
+	RestaurantName       string          `json:"restaurant_name,omitempty"`
+	Date                 string          `json:"date"`
+	Time                 string          `json:"time"`
+	Party                int             `json:"party"`
+	CancellationDeadline string          `json:"cancellation_deadline,omitempty"`
+	MatchedExisting      bool            `json:"matched_existing"`
+	Source               string          `json:"source"` // "book" | "prepared" | "matched_existing" | "dry_run"
+	Hint                 string          `json:"hint,omitempty"`
+	BookURL              string          `json:"book_url,omitempty"`
+	Error                string          `json:"error,omitempty"`
+	ReadyToConfirm       bool            `json:"ready_to_confirm,omitempty"`
+	PageState            json.RawMessage `json:"page_state,omitempty"`
+	Warnings             []string        `json:"warnings,omitempty"`
 }
+
+const openTableWarningRestaurantIDUnresolved = "restaurant_id_unresolved"
 
 // newBookCmd constructs the `book` Cobra command.
 func newBookCmd(flags *rootFlags) *cobra.Command {
@@ -76,15 +83,19 @@ func newBookCmd(flags *rootFlags) *cobra.Command {
 		dryRun bool
 	)
 	cmd := &cobra.Command{
-		Use:     "book <network>:<slug>",
-		Short:   "Place a reservation on OpenTable, Tock, or Resy",
-		Long:    "Places a reservation for the given venue at the requested date/time/party. Free reservations only in v0.2; payment-required venues return a typed payment_required error pointing at v0.3.\n\nSafety: live commit fires only when TRG_ALLOW_BOOK=1 is set in the environment AND PRINTING_PRESS_VERIFY is unset (verify-mode floor). Without the env var, returns a dry-run envelope with a hint.",
-		Example: "  TRG_ALLOW_BOOK=1 table-reservation-goat-pp-cli book opentable:water-grill-bellevue --date 2026-05-13 --time 19:00 --party 2 --agent",
-		Args:    cobra.ExactArgs(1),
+		Use:   "book <network>:<slug>",
+		Short: "Place a reservation on OpenTable, Tock, or Resy",
+		Long:  "Places a reservation for the given venue at the requested date/time/party. Free reservations only in v0.2; payment-required venues return a typed payment_required error pointing at v0.3.\n\nSafety: live commit fires only when TRG_ALLOW_BOOK=1 is set in the environment AND PRINTING_PRESS_VERIFY is unset (verify-mode floor). Without the env var, returns a dry-run envelope with a hint. OpenTable attach mode also accepts TRG_ALLOW_BOOK=prepare to stop after locating an enabled final confirmation control without clicking it.",
+		Example: "  table-reservation-goat-pp-cli book opentable:water-grill-bellevue --date 2026-05-13 --time 19:00 --party 2 --agent\n" +
+			"  TRG_ALLOW_BOOK=1 table-reservation-goat-pp-cli book opentable:water-grill-bellevue --date 2026-05-13 --time 19:00 --party 2 --agent   # add TRG_ALLOW_BOOK=1 to actually book (default is dry-run)",
+		Args: cobra.ExactArgs(1),
 		Annotations: map[string]string{
 			// Write command — no mcp:read-only annotation.
 			// pp:typed-exit-codes accepts 0 (success/dry-run) and 2 (validation/lock errors).
 			"pp:typed-exit-codes": "0,2",
+			// Without TRG_ALLOW_BOOK the command dry-runs (never books); safe happy-path.
+			"pp:happy-args":          "opentable:water-grill-bellevue --date 2026-05-13 --time 19:00 --party 2 --agent",
+			"pp:no-error-path-probe": "true",
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
@@ -132,7 +143,7 @@ func newBookCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			// Step 5+6+7+8: dispatch to network handler.
-			result, err := bookOnNetwork(ctx, session, network, slug, date, hhmm, party, dryRun)
+			result, err := bookOnNetwork(ctx, session, network, slug, date, hhmm, party, dryRun, flags.noInput)
 			if err != nil {
 				return printJSONFiltered(cmd.OutOrStdout(), result, flags)
 			}
@@ -245,13 +256,13 @@ func normalizeTime(s string) string {
 // bookOnNetwork dispatches to the network-specific book flow. Returns the
 // agent-friendly result struct PLUS a non-nil error when the result has an
 // Error category (so the caller can propagate exit code).
-func bookOnNetwork(ctx context.Context, session *auth.Session, network, slug, date, hhmm string, party int, dryRun bool) (bookResult, error) {
+func bookOnNetwork(ctx context.Context, session *auth.Session, network, slug, date, hhmm string, party int, dryRun bool, noInput bool) (bookResult, error) {
 	out := bookResult{Network: network, RestaurantSlug: slug, Date: date, Time: hhmm, Party: party}
 	switch network {
 	case "opentable":
 		return bookOnOpenTable(ctx, session, slug, date, hhmm, party, dryRun, out)
 	case "tock":
-		return bookOnTock(ctx, session, slug, date, hhmm, party, dryRun, out)
+		return bookOnTock(ctx, session, slug, date, hhmm, party, dryRun, noInput, out)
 	case "resy":
 		return bookOnResy(ctx, session, slug, date, hhmm, party, dryRun, out)
 	}
@@ -424,9 +435,13 @@ func bookOnOpenTable(ctx context.Context, session *auth.Session, slug, date, hhm
 		return out, err
 	}
 
-	// Step 5: idempotency pre-flight via ListUpcomingReservations.
+	attachConfigured := opentable.ChromeAttachConfigured()
+
+	// Step 5: idempotency pre-flight via ListUpcomingReservations. Attach
+	// mode may continue when the direct HTTP path is blocked because the fresh
+	// browser target performs its own signed-in check before any final click.
 	upcoming, listErr := c.ListUpcomingReservations(ctx)
-	if listErr != nil {
+	if listErr != nil && !attachConfigured {
 		// Pre-flight failure aborts (R5). Don't fall through to book.
 		switch {
 		case errors.Is(listErr, opentable.ErrAuthExpired):
@@ -436,6 +451,10 @@ func bookOnOpenTable(ctx context.Context, session *auth.Session, slug, date, hhm
 		}
 		out.Hint = listErr.Error()
 		return out, listErr
+	}
+	if listErr != nil && attachConfigured {
+		out.Warnings = append(out.Warnings,
+			"OpenTable HTTP idempotency preflight was unavailable; attach mode continued to its signed-in browser pre-confirm check")
 	}
 	for _, r := range upcoming {
 		if matchedExistingOT(r, slug, date, hhmm, party) {
@@ -448,13 +467,94 @@ func bookOnOpenTable(ctx context.Context, session *auth.Session, slug, date, hhm
 		}
 	}
 
-	// Step 6: dry-run / commit gate.
-	if dryRun || os.Getenv("TRG_ALLOW_BOOK") != "1" {
+	// Step 6: dry-run / commit gate. "prepare" is attach-only and executes
+	// every browser step except the final confirmation click.
+	allowMode := os.Getenv("TRG_ALLOW_BOOK")
+	prepareOnly := attachConfigured && allowMode == "prepare"
+	if dryRun || (allowMode != "1" && !prepareOnly) {
 		out.Source = "dry_run"
 		out.MatchedExisting = false
 		if !dryRun {
-			out.Hint = "set TRG_ALLOW_BOOK=1 to commit"
+			if attachConfigured {
+				out.Hint = "set TRG_ALLOW_BOOK=prepare to verify the OpenTable attach flow without clicking final confirmation, or TRG_ALLOW_BOOK=1 to commit"
+			} else {
+				out.Hint = "set TRG_ALLOW_BOOK=1 to commit"
+			}
 		}
+		return out, nil
+	}
+
+	// Explicit debug configuration prefers the real signed-in Chrome path.
+	// Without it, preserve the existing Surf/REST behavior below.
+	if attachConfigured {
+		// Resolve the numeric restaurant ID up front (best-effort): the
+		// confirmation page does not always expose it, and the cancel-cutoff
+		// lookup after booking needs a real ID.
+		attachRestaurantID := 0
+		if resolvedID, _, _, resolveErr := c.RestaurantIDFromQuery(ctx, slug, 47.6062, -122.3321); resolveErr == nil {
+			attachRestaurantID = resolvedID
+		}
+		chromeResult, chromeErr := c.ChromeBook(ctx, opentable.ChromeBookRequest{
+			RestaurantID:        attachRestaurantID,
+			RestaurantSlug:      slug,
+			ReservationDateTime: date + "T" + hhmm,
+			PartySize:           party,
+			Confirm:             allowMode == "1",
+		})
+		if chromeErr != nil {
+			var typedChromeErr *opentable.ChromeBookError
+			if errors.As(chromeErr, &typedChromeErr) && typedChromeErr.PageState != "" {
+				out.PageState = json.RawMessage(typedChromeErr.PageState)
+			}
+			switch {
+			case errors.Is(chromeErr, opentable.ErrAttachUnreachable):
+				out.Error = "attach_unreachable"
+				out.Hint = "start the dedicated Chrome profile with remote debugging and verify TABLE_RESERVATION_GOAT_OT_CHROME_DEBUG_URL"
+			case errors.Is(chromeErr, opentable.ErrNotSignedIn):
+				out.Error = "not_signed_in"
+				out.Hint = "sign in to opentable.com in the attached Chrome profile, then retry"
+			case errors.Is(chromeErr, opentable.ErrSelectorDrift):
+				out.Error = "selector_drift"
+				out.Hint = chromeErr.Error()
+			case errors.Is(chromeErr, opentable.ErrFormValidation):
+				out.Error = "form_validation"
+				out.Hint = chromeErr.Error()
+			case errors.Is(chromeErr, opentable.ErrIncompleteConfirmation):
+				out.Error = "incomplete_confirmation"
+				out.Hint = "OpenTable showed a confirmation page but omitted every reservation identifier; inspect the attached browser before retrying or cancelling"
+			case errors.Is(chromeErr, opentable.ErrSlotTaken):
+				out.Error = "slot_taken"
+				out.Hint = "the slot disappeared during the browser flow; run `earliest` for a fresh slot"
+			default:
+				out.Error = "chromedp_book_failed"
+				out.Hint = chromeErr.Error()
+			}
+			out.BookURL = openTableFallbackBookURL(slug, date, hhmm, party)
+			return out, chromeErr
+		}
+		out.RestaurantName = chromeResult.RestaurantName
+		out.BookURL = openTableFallbackBookURL(slug, date, hhmm, party)
+		if prepareOnly {
+			out.Source = "prepared"
+			out.Hint = "final OpenTable confirmation control located and enabled; no reservation was placed"
+			out.ReadyToConfirm = chromeResult.ReadyToConfirm
+			out.PageState = json.RawMessage(chromeResult.PageState)
+			return out, nil
+		}
+		if chromeResult.BookResponse == nil {
+			out.Error = "incomplete_confirmation"
+			out.Hint = "OpenTable attach flow returned without a confirmation response"
+			return out, fmt.Errorf("opentable attach returned no confirmation response")
+		}
+		resp := chromeResult.BookResponse
+		out.Source = "book"
+		if resp.ReservationID > 0 {
+			out.ReservationID = fmt.Sprintf("%d", resp.ReservationID)
+		}
+		if resp.ConfirmationNumber > 0 {
+			out.ConfirmationNumber = fmt.Sprintf("%d", resp.ConfirmationNumber)
+		}
+		out = enrichOpenTableAttachBook(ctx, c, resp, out)
 		return out, nil
 	}
 
@@ -536,10 +636,88 @@ func bookOnOpenTable(ctx context.Context, session *auth.Session, slug, date, hhm
 	return out, nil
 }
 
+type openTableAttachPostBookClient interface {
+	ListUpcomingReservations(context.Context) ([]opentable.UpcomingReservation, error)
+	FetchCancelCutoff(context.Context, int, int, string) (string, error)
+}
+
+// enrichOpenTableAttachBook fills in identifiers that OpenTable sometimes
+// omits from the attach-flow confirmation state. The reservation has already
+// been committed, so both the dashboard refresh and cutoff lookup are strictly
+// best-effort and must never turn a successful booking into an error.
+func enrichOpenTableAttachBook(ctx context.Context, c openTableAttachPostBookClient, resp *opentable.BookResponse, out bookResult) bookResult {
+	if resp.RestaurantID == 0 {
+		if upcoming, err := c.ListUpcomingReservations(ctx); err == nil {
+			resp.RestaurantID = restaurantIDForBookedReservation(upcoming, resp)
+		}
+	}
+	if resp.RestaurantID == 0 {
+		out.Warnings = append(out.Warnings, openTableWarningRestaurantIDUnresolved)
+		out.Hint = "cancellation deadline unavailable: restaurant id could not be resolved"
+		return out
+	}
+
+	cutoff, _ := c.FetchCancelCutoff(ctx, resp.RestaurantID, resp.ConfirmationNumber, resp.SecurityToken)
+	out.CancellationDeadline = cutoff
+	return out
+}
+
+func restaurantIDForBookedReservation(upcoming []opentable.UpcomingReservation, resp *opentable.BookResponse) int {
+	if resp.ConfirmationNumber > 0 {
+		if restaurantID := uniqueRestaurantID(upcoming, func(reservation opentable.UpcomingReservation) bool {
+			if reservation.ConfirmationNumber != resp.ConfirmationNumber {
+				return false
+			}
+			// When both representations carry the reservation identifier,
+			// require it to agree as well. This disambiguates stale or reused
+			// confirmation numbers without rejecting older dashboard shapes
+			// that omit confirmationId.
+			return resp.ReservationID == 0 || reservation.ConfirmationID == 0 || reservation.ConfirmationID == resp.ReservationID
+		}); restaurantID > 0 {
+			return restaurantID
+		}
+	}
+
+	// The dashboard names the booking's reservation identifier confirmationId.
+	// Use it only as a same-field fallback; cross-field numeric matches can pick
+	// an unrelated reservation from a stale dashboard list.
+	if resp.ReservationID > 0 {
+		return uniqueRestaurantID(upcoming, func(reservation opentable.UpcomingReservation) bool {
+			return reservation.ConfirmationID == resp.ReservationID
+		})
+	}
+	return 0
+}
+
+func uniqueRestaurantID(upcoming []opentable.UpcomingReservation, matches func(opentable.UpcomingReservation) bool) int {
+	matchedID := 0
+	for _, reservation := range upcoming {
+		if reservation.RestaurantID <= 0 || !matches(reservation) {
+			continue
+		}
+		if matchedID == 0 {
+			matchedID = reservation.RestaurantID
+			continue
+		}
+		if reservation.RestaurantID != matchedID {
+			return 0
+		}
+	}
+	return matchedID
+}
+
+func openTableFallbackBookURL(slug, date, hhmm string, party int) string {
+	if id, err := strconv.Atoi(slug); err == nil && id > 0 {
+		return fmt.Sprintf("https://www.opentable.com/restaurant/profile/%d?covers=%d&dateTime=%sT%s", id, party, date, hhmm)
+	}
+	return fmt.Sprintf("https://www.opentable.com/r/%s?covers=%d&dateTime=%sT%s", slug, party, date, hhmm)
+}
+
 // bookOnTock handles steps 5–8 for Tock via chromedp-attach (real Chrome).
-// Card-required venues prompt the user for CVC interactively before
-// driving the browser through the click-flow.
-func bookOnTock(ctx context.Context, session *auth.Session, slug, date, hhmm string, party int, dryRun bool, out bookResult) (bookResult, error) {
+// Interactive mode may prompt for the per-transaction CVC; machine mode never
+// prompts, uses TRG_TOCK_CVC when present, and otherwise gets a typed
+// cvc_required result only if checkout actually blocks on an empty CVC field.
+func bookOnTock(ctx context.Context, session *auth.Session, slug, date, hhmm string, party int, dryRun bool, noInput bool, out bookResult) (bookResult, error) {
 	c, err := tock.New(session)
 	if err != nil {
 		out.Error = "client_init_failed"
@@ -569,9 +747,16 @@ func bookOnTock(ctx context.Context, session *auth.Session, slug, date, hhmm str
 		}
 		return out, nil
 	}
-	// Step 7: prompt for CVC (Tock card-required venues need it; free
-	// venues ignore the value). User can skip by pressing Enter.
-	cvc := promptCVC(os.Stdin, os.Stderr)
+	// Step 7: collect CVC before opening Chrome. Agent/no-input mode must
+	// never prompt; callers pass TRG_TOCK_CVC when a card-required venue needs
+	// per-transaction CVC re-entry.
+	cvc, cvcErr := tockCVCForBooking(noInput, os.Stdin, os.Stderr)
+	if cvcErr != nil {
+		out.Error = "cvc_required"
+		out.Hint = "TRG_TOCK_CVC must be 3 or 4 digits; the value was not used"
+		out.BookURL = fmt.Sprintf("https://www.exploretock.com/%s?date=%s&size=%d&time=%s", slug, date, party, hhmm)
+		return out, cvcErr
+	}
 	resp, bookErr := c.Book(ctx, tock.BookRequest{
 		VenueSlug:       slug,
 		ReservationDate: date,
@@ -580,17 +765,7 @@ func bookOnTock(ctx context.Context, session *auth.Session, slug, date, hhmm str
 		CVC:             cvc,
 	})
 	if bookErr != nil {
-		switch {
-		case errors.Is(bookErr, tock.ErrPaymentRequired):
-			out.Error = "payment_required"
-			out.Hint = "venue requires full prepayment (v0.3 work)"
-		case errors.Is(bookErr, tock.ErrCanaryUnrecognizedBody):
-			out.Error = "discriminator_drift"
-		default:
-			out.Error = "chromedp_book_failed"
-			out.Hint = bookErr.Error()
-			out.BookURL = fmt.Sprintf("https://www.exploretock.com/%s?date=%s&size=%d&time=%s", slug, date, party, hhmm)
-		}
+		out = applyTockBookError(out, bookErr, slug, date, hhmm, party)
 		return out, bookErr
 	}
 	out.Source = "book"
@@ -605,28 +780,79 @@ func bookOnTock(ctx context.Context, session *auth.Session, slug, date, hhmm str
 	return out, nil
 }
 
-// promptCVC reads a CVC from the given reader, displaying the prompt to
-// stderr (so it doesn't pollute the JSON output on stdout). Returns empty
-// string on read error or when the user skips by pressing Enter — Tock free
-// venues don't need a CVC, so empty is acceptable.
-//
-// Per system rules + user direction: only the CVC (3-4 digits) is prompted;
-// the full credit card number is never asked.
-func promptCVC(in *os.File, errOut *os.File) string {
-	// Skip prompt entirely in non-interactive contexts (e.g., MCP tool calls).
-	// Detect via TRG_TOCK_CVC env var: if set, use that value; else prompt.
-	if v := os.Getenv("TRG_TOCK_CVC"); v != "" {
-		return v
+func applyTockBookError(out bookResult, bookErr error, slug, date, hhmm string, party int) bookResult {
+	switch {
+	case errors.Is(bookErr, tock.ErrPaymentRequired):
+		out.Error = "payment_required"
+		out.Hint = "venue requires full prepayment (v0.3 work)"
+	case errors.Is(bookErr, tock.ErrCanaryUnrecognizedBody):
+		out.Error = "discriminator_drift"
+	case errors.Is(bookErr, tock.ErrSlotControlNotFound):
+		out.Error = "selector_drift"
+		out.Hint = bookErr.Error()
+		out.BookURL = fmt.Sprintf("https://www.exploretock.com/%s?date=%s&size=%d&time=%s", slug, date, party, hhmm)
+	case errors.Is(bookErr, tock.ErrCVCRequired):
+		out.Error = "cvc_required"
+		out.Hint = "this venue requires card CVC re-entry per booking: set TRG_TOCK_CVC for this booking, rerun interactively, or book via the URL"
+		out.BookURL = fmt.Sprintf("https://www.exploretock.com/%s?date=%s&size=%d&time=%s", slug, date, party, hhmm)
+	default:
+		out.Error = "chromedp_book_failed"
+		out.Hint = bookErr.Error()
+		out.BookURL = fmt.Sprintf("https://www.exploretock.com/%s?date=%s&size=%d&time=%s", slug, date, party, hhmm)
+	}
+	return out
+}
+
+var (
+	errTockCVCInvalid = errors.New("tock: cvc must be 3 or 4 digits")
+)
+
+// tockCVCForBooking reads only the per-transaction CVC. It never asks for or
+// logs full card data. Machine mode never prompts; invalid configured values
+// fail immediately, while a missing value is classified later from checkout.
+func tockCVCForBooking(noInput bool, in *os.File, errOut io.Writer) (string, error) {
+	if v := strings.TrimSpace(os.Getenv("TRG_TOCK_CVC")); v != "" {
+		if !validTockCVC(v) {
+			return "", errTockCVCInvalid
+		}
+		return v, nil
+	}
+	if noInput {
+		// Attempt with an empty CVC — the interactive flow allows skipping,
+		// and card-on-file / free venues complete without one. A venue that
+		// truly blocks on CVC surfaces tock.ErrCVCRequired from the checkout
+		// stage, which maps to the typed cvc_required output below.
+		return "", nil
+	}
+	if in == nil {
+		return "", nil
 	}
 	stat, err := in.Stat()
 	if err != nil || (stat.Mode()&os.ModeCharDevice) == 0 {
-		// Non-interactive (piped stdin) — skip prompt; proceed without CVC.
-		return ""
+		return "", nil
 	}
-	fmt.Fprint(errOut, "Tock card-required venues need CVC re-entry per booking. Enter CVC (or press Enter to skip): ")
+	if errOut != nil {
+		fmt.Fprint(errOut, "Tock card-required venues need CVC re-entry per booking. Enter CVC (or press Enter to skip): ")
+	}
 	var cvc string
 	_, _ = fmt.Fscanln(in, &cvc)
-	return strings.TrimSpace(cvc)
+	cvc = strings.TrimSpace(cvc)
+	if cvc != "" && !validTockCVC(cvc) {
+		return "", errTockCVCInvalid
+	}
+	return cvc, nil
+}
+
+func validTockCVC(cvc string) bool {
+	if len(cvc) != 3 && len(cvc) != 4 {
+		return false
+	}
+	for _, r := range cvc {
+		if r < '0' || r > '9' {
+			return false
+		}
+	}
+	return true
 }
 
 // matchedExistingTock applies R13 normalization for Tock upcoming-reservations.

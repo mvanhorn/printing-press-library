@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "screener-novel-commands",
+  "applied_at": "2026-08-14",
+  "base_run_id": "20260814-101839-1498209c",
+  "base_printing_press_version": "4.30.2",
+  "summary": "Hand-authored 5 transcendence commands (compare, qtrend, overlap, rank, insider-flow) with a shared Screener.in HTML parser.",
+  "reason": "Novel features require live HTML parsing (top-ratios, financial tables, screen tables, insider trade rows) that the generator's link-extraction cannot provide.",
+  "files": ["internal/cli/compare.go", "internal/cli/qtrend.go", "internal/cli/overlap.go", "internal/cli/rank.go", "internal/cli/insider_flow.go", "internal/cli/screener_parse.go", "internal/cli/novel_register.go"],
+  "validated_outcome": "All 5 commands verified live (compare/qtrend/overlap/rank/insider-flow pass 5/5 scorecard probes); 13/13 test packages pass."
+}

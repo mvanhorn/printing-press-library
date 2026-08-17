@@ -1,0 +1,85 @@
+name: read-only-lint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  no-trade:
+    name: structural read-only guarantee
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reject trading endpoint paths
+        run: |
+          set -euo pipefail
+          banned=(
+            "/clob/orders"
+            "/cancel-orders"
+            "/post-orders"
+            "/cancel-all"
+            "/portfolio/orders"
+            "/portfolio/orders/batched"
+            "/order_groups"
+            "/markets/[^/]*/orderbook/place"
+            "/api_keys/generate"
+          )
+          fail=0
+          for path in "${banned[@]}"; do
+            if grep -RnE "\"$path\"|'$path'" --include='*.go' . | grep -v -E '_test\.go|/testdata/|/golden/|read-only-lint|read_only_policy_test\.go|review.md|github.com/mvanhorn/printing-press-library/library/payments/prediction-goat/internal/source/.*/types\.go'; then
+              echo "::error::Banned trading endpoint path detected: $path"
+              fail=1
+            fi
+          done
+          if [ $fail -ne 0 ]; then
+            echo "::error::This CLI is read-only by structural CI policy. No PR may add a trading or order-placement endpoint path."
+            exit 1
+          fi
+      - name: Reject wallet / signing / private-key imports
+        run: |
+          set -euo pipefail
+          banned_imports=(
+            "github.com/ethereum/go-ethereum/crypto"
+            "github.com/ethereum/go-ethereum/accounts"
+            "github.com/ethereum/go-ethereum/signer"
+            "github.com/ethereum/go-ethereum/wallet"
+            "crypto/ecdsa"
+            "github.com/polymarket/go-order-utils"
+            "github.com/polymarket/go-clob-client"
+          )
+          fail=0
+          for imp in "${banned_imports[@]}"; do
+            if grep -RnF "\"$imp\"" --include='*.go' . | grep -v -E '_test\.go|/testdata/|read_only_policy_test\.go'; then
+              echo "::error::Banned import for read-only policy: $imp"
+              fail=1
+            fi
+          done
+          if [ $fail -ne 0 ]; then
+            echo "::error::This CLI structurally cannot trade. Adding signing, wallet, or order-utils imports is rejected by CI."
+            exit 1
+          fi
+      - name: Reject order placement / signing helpers
+        run: |
+          set -euo pipefail
+          banned_symbols=(
+            "func.*[Pp]laceOrder"
+            "func.*[Cc]reateOrder"
+            "func.*[Ss]ignOrder"
+            "func.*[Ss]ubmitTrade"
+            "func.*[Ss]ignAndSubmit"
+          )
+          fail=0
+          for sym in "${banned_symbols[@]}"; do
+            if grep -RnE "$sym" --include='*.go' . | grep -v -E '_test\.go|/testdata/|read_only_policy_test\.go'; then
+              echo "::error::Banned trading helper symbol matched pattern: $sym"
+              fail=1
+            fi
+          done
+          if [ $fail -ne 0 ]; then
+            echo "::error::Order-placement helpers are not permitted in this CLI."
+            exit 1
+          fi

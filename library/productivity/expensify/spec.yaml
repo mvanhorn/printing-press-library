@@ -1,0 +1,883 @@
+name: expensify
+description: "File expenses and submit reports to Expensify from the command line"
+version: "0.1.0"
+base_url: "https://www.expensify.com/api"
+kind: synthetic
+spec_source: sniffed
+website_url: "https://www.expensify.com/"
+category: productivity
+
+# Primary auth is the New Expensify session token (authToken) captured via
+# `expensify auth login`. Integration Server key pair is optional for admin
+# commands and lives in env vars.
+auth:
+  type: api_key
+  header: "Authorization"
+  format: "ExpensifyToken {authToken}"
+  optional: false
+  in: header
+  env_vars:
+    - EXPENSIFY_AUTH_TOKEN
+    - EXPENSIFY_PARTNER_USER_ID
+    - EXPENSIFY_PARTNER_USER_SECRET
+  key_url: "https://www.expensify.com/tools/integrations/"
+  cookie_domain: ".expensify.com"
+  cookies:
+    - authToken
+    - email
+
+config:
+  format: toml
+  path: "~/.config/expensify-pp-cli/config.toml"
+
+resources:
+  expense:
+    description: "Create, list, and manage personal expenses"
+    endpoints:
+      list:
+        method: POST
+        path: "/Search"
+        description: "List your expenses with filters"
+        body:
+          - name: hash
+            type: string
+            description: "Search query hash (auto-built from filters)"
+          - name: policyID
+            type: string
+            description: "Filter to a specific workspace"
+          - name: status
+            type: string
+            description: "Filter by status (draft, submitted, approved)"
+            enum: ["all", "draft", "submitted", "approved", "paid"]
+        response:
+          type: array
+          item: Expense
+      get:
+        method: POST
+        path: "/OpenReport"
+        description: "Get expense detail by transaction ID"
+        body:
+          - name: transactionID
+            type: string
+            required: true
+            positional: true
+            description: "Expense transaction ID"
+        response:
+          type: object
+          item: Expense
+      create:
+        method: POST
+        path: "/RequestMoney"
+        description: "Create a new expense"
+        body:
+          - name: amount
+            type: int
+            required: true
+            description: "Amount in cents (e.g. 4250 for $42.50)"
+          - name: merchant
+            type: string
+            required: true
+            description: "Merchant name"
+          - name: category
+            type: string
+            description: "Expense category"
+          - name: tag
+            type: string
+            description: "Expense tag"
+          - name: date
+            type: string
+            description: "Expense date (YYYY-MM-DD, default today)"
+          - name: comment
+            type: string
+            description: "Optional comment or description"
+          - name: policyID
+            type: string
+            description: "Workspace to bill this expense to"
+          - name: currency
+            type: string
+            default: "USD"
+            description: "ISO 4217 currency code"
+          - name: billable
+            type: bool
+            description: "Mark as billable to a client"
+          - name: reimbursable
+            type: bool
+            default: true
+            description: "Reimbursable by employer"
+        response:
+          type: object
+          item: Expense
+      delete:
+        method: POST
+        path: "/DeleteMoneyRequest"
+        description: "Delete an expense"
+        body:
+          - name: transactionID
+            type: string
+            required: true
+            positional: true
+            description: "Expense transaction ID"
+        response:
+          type: object
+          item: Expense
+      edit:
+        method: POST
+        path: "/EditMoneyRequest"
+        description: "Edit an existing expense"
+        body:
+          - name: transactionID
+            type: string
+            required: true
+            positional: true
+            description: "Expense transaction ID"
+          - name: amount
+            type: int
+            description: "New amount in cents"
+          - name: merchant
+            type: string
+            description: "New merchant name"
+          - name: category
+            type: string
+            description: "New category"
+          - name: tag
+            type: string
+            description: "New tag"
+          - name: date
+            type: string
+            description: "New date (YYYY-MM-DD)"
+          - name: comment
+            type: string
+            description: "New comment"
+        response:
+          type: object
+          item: Expense
+      attach:
+        method: POST
+        path: "/ReplaceReceipt"
+        description: "Attach or replace a receipt on an expense"
+        body:
+          - name: transactionID
+            type: string
+            required: true
+            positional: true
+            description: "Expense transaction ID"
+          - name: receipt_path
+            type: string
+            required: true
+            description: "Local path to a receipt image (jpg, png, pdf)"
+        response:
+          type: object
+          item: Expense
+
+  report:
+    description: "Create, manage, and submit expense reports"
+    endpoints:
+      list:
+        method: POST
+        path: "/Search"
+        description: "List your reports"
+        body:
+          - name: policyID
+            type: string
+            description: "Filter by workspace"
+          - name: status
+            type: string
+            description: "Filter by status"
+            enum: ["open", "submitted", "approved", "reimbursed", "archived", "all"]
+          - name: since
+            type: string
+            description: "Earliest report date (YYYY-MM-DD)"
+          - name: until
+            type: string
+            description: "Latest report date (YYYY-MM-DD)"
+        response:
+          type: array
+          item: Report
+      get:
+        method: POST
+        path: "/OpenReport"
+        description: "Get report detail"
+        body:
+          - name: reportID
+            type: string
+            required: true
+            positional: true
+            description: "Report ID"
+        response:
+          type: object
+          item: Report
+      create:
+        method: POST
+        path: "/CreateReport"
+        description: "Create a new report"
+        body:
+          - name: title
+            type: string
+            required: true
+            description: "Report title"
+          - name: policyID
+            type: string
+            required: true
+            description: "Workspace ID"
+          - name: notes
+            type: string
+            description: "Report description"
+        response:
+          type: object
+          item: Report
+      add:
+        method: POST
+        path: "/AddExpensesToReport"
+        description: "Add expenses to a report"
+        body:
+          - name: reportID
+            type: string
+            required: true
+            positional: true
+            description: "Target report ID"
+          - name: transactionIDs
+            type: string
+            required: true
+            description: "Comma-separated expense transaction IDs"
+        response:
+          type: object
+          item: Report
+      submit:
+        method: POST
+        path: "/SubmitReport"
+        description: "Submit a report for approval"
+        body:
+          - name: reportID
+            type: string
+            required: true
+            positional: true
+            description: "Report ID to submit"
+          - name: note
+            type: string
+            description: "Note to approver"
+        response:
+          type: object
+          item: Report
+      comment:
+        method: POST
+        path: "/AddComment"
+        description: "Add a comment to a report thread"
+        body:
+          - name: reportID
+            type: string
+            required: true
+            positional: true
+            description: "Report ID"
+          - name: text
+            type: string
+            required: true
+            description: "Comment text"
+        response:
+          type: object
+          item: Report
+      approve:
+        method: POST
+        path: "/ApproveMoneyRequest"
+        description: "Approve a report (manager action)"
+        body:
+          - name: reportID
+            type: string
+            required: true
+            positional: true
+            description: "Report ID to approve"
+        response:
+          type: object
+          item: Report
+      pay:
+        method: POST
+        path: "/PayMoneyRequest"
+        description: "Mark a report as reimbursed"
+        body:
+          - name: reportID
+            type: string
+            required: true
+            positional: true
+            description: "Report ID"
+          - name: method
+            type: string
+            description: "Payment method label"
+            enum: ["ach", "manual", "wire", "check"]
+        response:
+          type: object
+          item: Report
+      reopen:
+        method: POST
+        path: "/ReopenReport"
+        description: "Reopen a submitted report back to draft"
+        body:
+          - name: reportID
+            type: string
+            required: true
+            positional: true
+            description: "Report ID to reopen"
+        response:
+          type: object
+          item: Report
+      delete:
+        method: POST
+        path: "/DeleteReport"
+        description: "Delete a draft report"
+        body:
+          - name: reportID
+            type: string
+            required: true
+            positional: true
+            description: "Report ID to delete"
+        response:
+          type: object
+          item: Report
+
+  workspace:
+    description: "View workspaces (policies) you have access to"
+    endpoints:
+      list:
+        method: POST
+        path: "/ReconnectApp"
+        description: "List workspaces accessible to your account"
+        response:
+          type: array
+          item: Workspace
+      get:
+        method: POST
+        path: "/OpenPolicyMoreFeaturesPage"
+        description: "Get workspace detail"
+        body:
+          - name: policyID
+            type: string
+            required: true
+            positional: true
+            description: "Workspace ID"
+        response:
+          type: object
+          item: Workspace
+
+  category:
+    description: "Workspace categories (for expense classification)"
+    endpoints:
+      list:
+        method: POST
+        path: "/OpenPolicyCategoriesPage"
+        description: "List categories for a workspace"
+        body:
+          - name: policyID
+            type: string
+            required: true
+            description: "Workspace ID"
+        response:
+          type: array
+          item: Category
+
+  tag:
+    description: "Workspace tags (multi-level, for expense classification)"
+    endpoints:
+      list:
+        method: POST
+        path: "/OpenPolicyTagsPage"
+        description: "List tags for a workspace"
+        body:
+          - name: policyID
+            type: string
+            required: true
+            description: "Workspace ID"
+        response:
+          type: array
+          item: Tag
+
+  me:
+    description: "Current user profile"
+    endpoints:
+      get:
+        method: POST
+        path: "/OpenPublicProfile"
+        description: "Get current user profile"
+        response:
+          type: object
+          item: User
+
+  export_resource:
+    description: "Integration Server: export reports to accounting systems (admin)"
+    endpoints:
+      run:
+        method: POST
+        path: "/Integration-Server/ExpensifyIntegrations"
+        description: "Export reports via Report Exporter (Integration Server)"
+        body:
+          - name: template
+            type: string
+            required: true
+            description: "Export template name (netsuite, qbo, xero, sage, csv, json)"
+            enum: ["netsuite", "qbo", "xero", "sage", "csv", "json"]
+          - name: since
+            type: string
+            description: "Earliest report date (YYYY-MM-DD)"
+          - name: until
+            type: string
+            description: "Latest report date (YYYY-MM-DD)"
+          - name: policyID
+            type: string
+            description: "Limit to one workspace"
+          - name: markAsExported
+            type: string
+            description: "Label to mark exports (e.g. 'NetSuite 2026-04'); idempotent cursor"
+        response:
+          type: object
+          item: ExportJob
+      download:
+        method: POST
+        path: "/Integration-Server/ExpensifyIntegrations"
+        description: "Download a previously generated export file"
+        body:
+          - name: fileName
+            type: string
+            required: true
+            positional: true
+            description: "Export filename returned by `export run`"
+        response:
+          type: object
+          item: ExportFile
+
+  recon:
+    description: "Integration Server: corporate card reconciliation (admin)"
+    endpoints:
+      export:
+        method: POST
+        path: "/Integration-Server/ExpensifyIntegrations"
+        description: "Export reconciliation data for a domain"
+        body:
+          - name: domain
+            type: string
+            required: true
+            description: "Corporate domain (e.g. mycompany.com)"
+          - name: since
+            type: string
+            description: "Earliest date (YYYY-MM-DD)"
+          - name: until
+            type: string
+            description: "Latest date (YYYY-MM-DD)"
+        response:
+          type: object
+          item: ReconExport
+
+  admin:
+    description: "Integration Server: policy, employee, and rules admin"
+    endpoints:
+      policy_list:
+        method: POST
+        path: "/Integration-Server/ExpensifyIntegrations"
+        description: "List all policies you admin (Policy List Getter)"
+        response:
+          type: array
+          item: Policy
+      policy_get:
+        method: POST
+        path: "/Integration-Server/ExpensifyIntegrations"
+        description: "Get a policy's full config (Policy Getter)"
+        body:
+          - name: policyID
+            type: string
+            required: true
+            positional: true
+            description: "Policy ID"
+        response:
+          type: object
+          item: Policy
+      policy_new:
+        method: POST
+        path: "/Integration-Server/ExpensifyIntegrations"
+        description: "Create a new policy (Policy Creator)"
+        body:
+          - name: type
+            type: string
+            required: true
+            description: "Policy type"
+            enum: ["corporate", "team", "personal"]
+          - name: name
+            type: string
+            required: true
+            description: "Policy name"
+        response:
+          type: object
+          item: Policy
+      policy_set_categories:
+        method: POST
+        path: "/Integration-Server/ExpensifyIntegrations"
+        description: "Update categories for a policy from YAML"
+        body:
+          - name: policyID
+            type: string
+            required: true
+            positional: true
+            description: "Policy ID"
+          - name: file
+            type: string
+            required: true
+            description: "Path to YAML file with categories"
+        response:
+          type: object
+          item: Policy
+      policy_set_tags:
+        method: POST
+        path: "/Integration-Server/ExpensifyIntegrations"
+        description: "Update tags for a policy from YAML"
+        body:
+          - name: policyID
+            type: string
+            required: true
+            positional: true
+            description: "Policy ID"
+          - name: file
+            type: string
+            required: true
+            description: "Path to YAML file with tags"
+        response:
+          type: object
+          item: Policy
+      policy_set_fields:
+        method: POST
+        path: "/Integration-Server/ExpensifyIntegrations"
+        description: "Update report fields for a policy"
+        body:
+          - name: policyID
+            type: string
+            required: true
+            positional: true
+            description: "Policy ID"
+          - name: file
+            type: string
+            required: true
+            description: "Path to YAML file with report fields"
+        response:
+          type: object
+          item: Policy
+      employee_add:
+        method: POST
+        path: "/Integration-Server/ExpensifyIntegrations"
+        description: "Add an employee to a policy (Advanced Employee Updater)"
+        body:
+          - name: policyID
+            type: string
+            required: true
+            description: "Policy ID"
+          - name: email
+            type: string
+            required: true
+            description: "Employee email"
+          - name: role
+            type: string
+            description: "Role"
+            enum: ["user", "admin", "auditor"]
+          - name: approver
+            type: string
+            description: "Approver's email"
+        response:
+          type: object
+          item: Employee
+      employee_update:
+        method: POST
+        path: "/Integration-Server/ExpensifyIntegrations"
+        description: "Update an employee (Advanced Employee Updater)"
+        body:
+          - name: policyID
+            type: string
+            required: true
+            description: "Policy ID"
+          - name: email
+            type: string
+            required: true
+            description: "Employee email"
+          - name: role
+            type: string
+            description: "New role"
+          - name: approver
+            type: string
+            description: "New approver email"
+        response:
+          type: object
+          item: Employee
+      employee_remove:
+        method: POST
+        path: "/Integration-Server/ExpensifyIntegrations"
+        description: "Remove an employee from a policy"
+        body:
+          - name: policyID
+            type: string
+            required: true
+            description: "Policy ID"
+          - name: email
+            type: string
+            required: true
+            description: "Employee email"
+        response:
+          type: object
+          item: Employee
+      cards_list:
+        method: POST
+        path: "/Integration-Server/ExpensifyIntegrations"
+        description: "List domain cards (Domain Cards Getter)"
+        body:
+          - name: domain
+            type: string
+            required: true
+            description: "Corporate domain"
+        response:
+          type: array
+          item: DomainCard
+      cards_owners:
+        method: POST
+        path: "/Integration-Server/ExpensifyIntegrations"
+        description: "List card owners (Card Owner Data)"
+        body:
+          - name: domain
+            type: string
+            required: true
+            description: "Corporate domain"
+        response:
+          type: array
+          item: CardOwner
+      rules_new:
+        method: POST
+        path: "/Integration-Server/ExpensifyIntegrations"
+        description: "Create an expense rule (Expense Rules Creator)"
+        body:
+          - name: policyID
+            type: string
+            required: true
+            description: "Policy ID"
+          - name: pattern
+            type: string
+            required: true
+            description: "Merchant name pattern to match"
+          - name: category
+            type: string
+            description: "Auto-applied category"
+          - name: tag
+            type: string
+            description: "Auto-applied tag"
+        response:
+          type: object
+          item: ExpenseRule
+      rules_update:
+        method: POST
+        path: "/Integration-Server/ExpensifyIntegrations"
+        description: "Update an expense rule"
+        body:
+          - name: ruleID
+            type: string
+            required: true
+            positional: true
+            description: "Rule ID"
+          - name: pattern
+            type: string
+            description: "New pattern"
+          - name: category
+            type: string
+            description: "New category"
+        response:
+          type: object
+          item: ExpenseRule
+      tag_approvers_set:
+        method: POST
+        path: "/Integration-Server/ExpensifyIntegrations"
+        description: "Set tag approvers (Tag Approvers Updater)"
+        body:
+          - name: policyID
+            type: string
+            required: true
+            description: "Policy ID"
+          - name: tag
+            type: string
+            required: true
+            description: "Tag name"
+          - name: email
+            type: string
+            required: true
+            description: "Approver email"
+        response:
+          type: object
+          item: Policy
+      report_set_status:
+        method: POST
+        path: "/Integration-Server/ExpensifyIntegrations"
+        description: "Force a report status transition (Report Status Updater)"
+        body:
+          - name: reportID
+            type: string
+            required: true
+            positional: true
+            description: "Report ID"
+          - name: status
+            type: string
+            required: true
+            description: "New status"
+            enum: ["OPEN", "SUBMITTED", "APPROVED", "REIMBURSED", "ARCHIVED"]
+        response:
+          type: object
+          item: Report
+
+types:
+  Expense:
+    fields:
+      - name: transactionID
+        type: string
+      - name: reportID
+        type: string
+      - name: merchant
+        type: string
+      - name: amount
+        type: int
+      - name: currency
+        type: string
+      - name: category
+        type: string
+      - name: tag
+        type: string
+      - name: date
+        type: string
+      - name: comment
+        type: string
+      - name: created
+        type: string
+      - name: receipt
+        type: string
+      - name: billable
+        type: bool
+      - name: reimbursable
+        type: bool
+
+  Report:
+    fields:
+      - name: reportID
+        type: string
+      - name: policyID
+        type: string
+      - name: title
+        type: string
+      - name: status
+        type: string
+      - name: total
+        type: int
+      - name: currency
+        type: string
+      - name: created
+        type: string
+      - name: lastUpdated
+        type: string
+      - name: expenseCount
+        type: int
+
+  Workspace:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: type
+        type: string
+      - name: role
+        type: string
+      - name: ownerEmail
+        type: string
+
+  Category:
+    fields:
+      - name: name
+        type: string
+      - name: enabled
+        type: bool
+      - name: glCode
+        type: string
+
+  Tag:
+    fields:
+      - name: name
+        type: string
+      - name: enabled
+        type: bool
+      - name: level
+        type: int
+
+  User:
+    fields:
+      - name: email
+        type: string
+      - name: accountID
+        type: string
+      - name: defaultPolicyID
+        type: string
+
+  Policy:
+    fields:
+      - name: policyID
+        type: string
+      - name: name
+        type: string
+      - name: type
+        type: string
+      - name: categoryCount
+        type: int
+      - name: tagCount
+        type: int
+      - name: employeeCount
+        type: int
+
+  Employee:
+    fields:
+      - name: email
+        type: string
+      - name: role
+        type: string
+      - name: approver
+        type: string
+
+  DomainCard:
+    fields:
+      - name: cardID
+        type: string
+      - name: last4
+        type: string
+      - name: owner
+        type: string
+
+  CardOwner:
+    fields:
+      - name: email
+        type: string
+      - name: cardCount
+        type: int
+
+  ExpenseRule:
+    fields:
+      - name: ruleID
+        type: string
+      - name: pattern
+        type: string
+      - name: category
+        type: string
+      - name: tag
+        type: string
+
+  ExportJob:
+    fields:
+      - name: fileName
+        type: string
+      - name: status
+        type: string
+
+  ExportFile:
+    fields:
+      - name: fileName
+        type: string
+      - name: content
+        type: string
+
+  ReconExport:
+    fields:
+      - name: domain
+        type: string
+      - name: fileName
+        type: string

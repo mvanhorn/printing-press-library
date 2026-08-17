@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "xtext-vuln-floor-reachable-via-http3-and-store",
+  "applied_at": "2026-08-03",
+  "base_run_id": "20260512-151223",
+  "base_printing_press_version": "4.5.1",
+  "summary": "golang.org/x/text is reachable in this CLI, not merely required, so its vulnerability floor is a real gate rather than an advisory one.",
+  "reason": "Two ordinary code paths pull golang.org/x/text/unicode/norm into the reachable set: cliutil.ProbeReachable closes an HTTP/3 response body, and store.UpsertBatch formats through fmt. That makes govulncheck's package-reachability scan fail the CLI on x/text advisories that most catalog entries can ignore. A regen must keep x/text at or above the current fixed version rather than accepting whatever the module graph resolves.",
+  "files": [
+    "go.mod",
+    "go.sum"
+  ],
+  "validated_outcome": "GO-2026-5970 reported five reachable traces at x/text v0.37.0; govulncheck ./... reports no vulnerabilities at v0.39.0, with go build, go vet, and go test ./... all passing."
+}

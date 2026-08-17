@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "dnsmadeeasy-review-correctness",
+  "applied_at": "2026-07-20",
+  "base_run_id": "20260709-145756-391a5493",
+  "base_printing_press_version": "4.27.1",
+  "summary": "Keep DNS audit, drift detection, filtered-search counters, empty-mirror output, truncation state, BIND export, and ACME reporting aligned with their public contracts.",
+  "reason": "Cross-zone commands must not miss renamed or retyped records, report a broader scan boundary than requested, change JSON shape before the first sync, accept a DMARC policy at the wrong owner name, hide limited results, emit unloadable BIND records, or report planned ACME zones as successful.",
+  "files": [
+    "internal/cli/health.go",
+    "internal/cli/where_used.go",
+    "internal/cli/export.go",
+    "internal/cli/acme_purge.go",
+    "internal/cli/root.go",
+    "internal/cli/which.go",
+    "internal/cli/drift.go"
+  ],
+  "validated_outcome": "Focused regression tests cover stable empty-mirror JSON shapes, DMARC owner/value validation, filtered scan metrics, drift across name/type/value/TTL changes, explicit truncation state, per-target ACME outcomes, BIND-safe TXT escaping, and loadable ANAME handling."
+}

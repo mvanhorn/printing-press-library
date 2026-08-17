@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "api_name": "woot",
+  "run_id": "20260702-011047",
+  "generated_at": "2026-07-21T05:54:20Z",
+  "status": "pass",
+  "commands": [
+    "woot-pp-cli doctor --json",
+    "woot-pp-cli deals rayon --limit 1000 --json",
+    "woot-pp-cli sync --full --db <temporary-data.db>",
+    "woot-pp-cli search rayon --type deals --data-source local --db <temporary-data.db> --json",
+    "woot-pp-cli export deals --db <temporary-data.db> --format json --limit 2"
+  ],
+  "assertions": {
+    "auth_configured": true,
+    "api_reachable": true,
+    "full_sync_reported_total_hits": 8586,
+    "first_pass_rows_fetched": 8577,
+    "first_pass_unique_rows": 8552,
+    "duplicate_rows_observed": 25,
+    "unfilled_reported_slots": 9,
+    "catalog_verified": false,
+    "pruning_skipped": true,
+    "incomplete_cursor": "0",
+    "sync_exit_code": 1,
+    "live_sample_reported_total_hits": 8548,
+    "live_rows_scanned": 1000,
+    "live_unique_rows_scanned": 1000,
+    "live_duplicate_rows": 0,
+    "live_missing_id_rows": 0,
+    "live_window_incomplete": false,
+    "live_search_count": 1,
+    "live_priced_count": 1,
+    "local_search_count": 13,
+    "local_priced_count": 13,
+    "local_meta_incomplete": true,
+    "local_resume_cursor": "0",
+    "local_export_count": 2,
+    "target_title": "Rayon From Bamboo 1800TC Luxury Sheet Sets",
+    "target_url": "https://www.woot.com/offers/rayon-from-bamboo-1800tc-luxury-sheet-sets-4",
+    "target_min_price": 19.99,
+    "target_max_price": 25.99,
+    "target_found_live": true,
+    "target_found_locally": true
+  },
+  "notes": [
+    "During the full sync, the live API reported 8586 deals, but the BestSelling offset scan returned 8577 rows containing only 8552 unique deal IDs.",
+    "A later 1000-row live search sample reported a then-current total of 8548 and returned a complete requested window with 1000 unique IDs; the differing totals show that the catalog changed between invocations.",
+    "Because Woot did not provide a complete stable enumeration, the CLI skipped pruning, retained cursor 0, and exited with an explicit incomplete-snapshot warning.",
+    "Local search remained useful and surfaced prices, while its JSON provenance correctly warned that missing matches were not authoritative.",
+    "No API key or other credential value is stored in this proof."
+  ]
+}

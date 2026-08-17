@@ -1,0 +1,20 @@
+{
+  "merchant": {
+    "id": "merchant-fixture",
+    "deliveryMethods": [
+      {
+        "id": "delivery-disabled",
+        "mode": "DELIVERY",
+        "deliveredBy": "MERCHANT",
+        "available": false
+      },
+      {
+        "id": "delivery-default",
+        "mode": "DELIVERY",
+        "deliveredBy": "IFOOD",
+        "available": true,
+        "schedule": {"now": true}
+      }
+    ]
+  }
+}

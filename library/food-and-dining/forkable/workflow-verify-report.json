@@ -1,0 +1,8 @@
+{
+  "dir": "/Users/alew/printing-press/library/forkable",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

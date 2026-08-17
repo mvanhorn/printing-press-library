@@ -47,11 +47,6 @@
       "name": "Dialogue Cast",
       "command": "dialogue cast",
       "description": "Render speaker-labelled dialogue lines by resolving speaker-to-voice assignments and saving audio."
-    },
-    {
-      "name": "Voice budget",
-      "command": "voice-budget",
-      "description": "Compose the subscription and voices reads into remaining character credits, tier limits, reset timing, and voice-slot headroom before a large TTS batch."
     }
   ],
   "catalog_description": "Create and manage ElevenLabs audio workflows: text-to-speech, voice conversion, transcription, dubbing, music, voices, and agents."

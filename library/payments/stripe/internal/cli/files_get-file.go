@@ -29,10 +29,12 @@ func newFilesGetFileCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/v1/files/{file}"
-			if len(args) < 2 {
+
+			// PATCH: Bind path placeholders from Cobra positional args in Use order.
+			if len(args) < 1 {
 				return usageErr(fmt.Errorf("file is required\nUsage: %s <%s>", cmd.CommandPath(), "file"))
 			}
-			path = replacePathParam(path, "file", args[1])
+			path = replacePathParam(path, "file", args[0])
 			params := map[string]string{}
 			if flagExpand != "" {
 				params["expand"] = fmt.Sprintf("%v", flagExpand)

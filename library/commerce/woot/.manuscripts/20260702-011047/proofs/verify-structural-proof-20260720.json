@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "api_name": "woot",
+  "run_id": "20260702-011047",
+  "generated_at": "2026-07-21T06:33:36Z",
+  "status": "pass",
+  "command": "cli-printing-press verify --dir . --no-spec --write-manifest .printing-press.json --json --cleanup",
+  "assertions": {
+    "mode": "structural",
+    "total": 18,
+    "passed": 18,
+    "failed": 0,
+    "critical": 0,
+    "pass_rate": 100,
+    "verdict": "PASS"
+  },
+  "supplemental_validation": [
+    "go test -count=1 ./...",
+    "go test -race -count=1 ./...",
+    "go vet ./...",
+    "govulncheck ./...",
+    "live doctor, deals, full sync, local search, and export proof"
+  ],
+  "spec_backed_mock_limitations": [
+    "The generic resource-path check assumes export.go reads from an HTTP resource path, while Woot export intentionally reads only from the local SQLite archive.",
+    "The generic mock pipeline recognizes GraphQL CLIs by an internal/client/graphql.go filename; Woot's promoted read-only GraphQL command and guard use different package files, so the mock attempts an inapplicable OpenAPI-style sync."
+  ],
+  "notes": [
+    "Structural verification is the documented verifier mode for CLIs whose real workflow cannot be synthesized from the supplied API spec.",
+    "The two disclosed mock-mode limitations are Printing Press classifier mismatches, not suppressed Woot runtime failures.",
+    "No credential value or private filesystem path is stored in this proof."
+  ]
+}

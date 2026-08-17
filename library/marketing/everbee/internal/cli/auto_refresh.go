@@ -21,42 +21,35 @@ import (
 // Populated from generated syncable resource commands and any custom
 // command-path coverage declared in spec.Cache.Commands.
 var readCommandResources = map[string][]string{
-	"everbee-pp-cli folders":                  {"folders"},
-	"everbee-pp-cli folders list":             {"folders"},
-	"everbee-pp-cli folders get":              {"folders"},
-	"everbee-pp-cli folders search":           {"folders"},
-	"everbee-pp-cli keyword_research":         {"keyword_research"},
-	"everbee-pp-cli keyword_research list":    {"keyword_research"},
-	"everbee-pp-cli keyword_research get":     {"keyword_research"},
-	"everbee-pp-cli keyword_research search":  {"keyword_research"},
-	"everbee-pp-cli product_analytics":        {"product_analytics"},
-	"everbee-pp-cli product_analytics list":   {"product_analytics"},
-	"everbee-pp-cli product_analytics get":    {"product_analytics"},
-	"everbee-pp-cli product_analytics search": {"product_analytics"},
-	"everbee-pp-cli shops":                    {"shops"},
-	"everbee-pp-cli shops list":               {"shops"},
-	"everbee-pp-cli shops get":                {"shops"},
-	"everbee-pp-cli shops search":             {"shops"},
-	"everbee-pp-cli opportunity shortlist": {
-		"product_analytics",
-		"keyword_research",
-	},
-	"everbee-pp-cli competitors watch": {
-		"shops",
-	},
-	"everbee-pp-cli report export": {
-		"product_analytics",
-		"keyword_research",
-		"shops",
-	},
+	"everbee-pp-cli keyword-research":        {"keyword_research"},
+	"everbee-pp-cli keyword-research list":   {"keyword_research"},
+	"everbee-pp-cli keyword-research get":    {"keyword_research"},
+	"everbee-pp-cli keyword-research search": {"keyword_research"},
+	"everbee-pp-cli products":                {"products"},
+	"everbee-pp-cli products list":           {"products"},
+	"everbee-pp-cli products get":            {"products"},
+	"everbee-pp-cli products search":         {"products"},
+	"everbee-pp-cli shops":                   {"shops"},
+	"everbee-pp-cli shops list":              {"shops"},
+	"everbee-pp-cli shops get":               {"shops"},
+	"everbee-pp-cli shops search":            {"shops"},
 }
 
 // cachePolicy returns the cache freshness policy assembled from spec
 // configuration. Defaults: 6h global stale-after, env opt-out named after
 // the CLI. Per-resource overrides from spec.Cache.Resources take priority.
 func cachePolicy() cliutil.Policy {
-	staleAfter := 6 * time.Hour
+	staleAfter := 15 * time.Minute
 	perResource := map[string]time.Duration{}
+	if d, err := time.ParseDuration("15m"); err == nil {
+		perResource["keyword_research"] = d
+	}
+	if d, err := time.ParseDuration("15m"); err == nil {
+		perResource["products"] = d
+	}
+	if d, err := time.ParseDuration("15m"); err == nil {
+		perResource["shops"] = d
+	}
 	envOptOut := "EVERBEE_NO_AUTO_REFRESH"
 	return cliutil.Policy{
 		StaleAfter:   staleAfter,
@@ -104,7 +97,7 @@ func autoRefreshIfStale(ctx context.Context, flags *rootFlags, resources []strin
 		meta.Reason = "env_opt_out"
 		return meta
 	}
-	dbPath := defaultDBPath("github.com/mvanhorn/printing-press-library/library/marketing/everbee")
+	dbPath := defaultDBPath("everbee-pp-cli")
 	db, err := store.OpenWithContext(ctx, dbPath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "warning: auto-refresh skipped (open: %v)\n", err)
@@ -212,7 +205,7 @@ func runAutoRefresh(ctx context.Context, flags *rootFlags, db *store.Store, reso
 			return ctx.Err()
 		default:
 		}
-		result := syncResource(ctx, c, db, resource, "", false, 1, true, nil)
+		result := syncResource(ctx, c, db, resource, "", false, 1, true, false, nil, os.Stderr)
 		if result.Err != nil {
 			failures = append(failures, fmt.Sprintf("%s: %v", resource, result.Err))
 		}

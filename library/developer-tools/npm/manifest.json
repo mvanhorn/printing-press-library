@@ -1,0 +1,29 @@
+{
+  "manifest_version": "0.3",
+  "name": "npm-pp-mcp",
+  "display_name": "npm",
+  "version": "4.24.0",
+  "description": "Research npm packages by metadata, downloads, maintainers, freshness, and dependency risk.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/npm-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/npm-pp-mcp",
+      "args": [],
+      "env": {}
+    }
+  },
+  "user_config": {},
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

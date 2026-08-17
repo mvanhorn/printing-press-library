@@ -1,0 +1,51 @@
+version: 2
+project_name: 3cx-xapi-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: 3cx-xapi-pp-cli
+    main: ./cmd/3cx-xapi-pp-cli
+    binary: 3cx-xapi-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/social-and-messaging/3cx-xapi/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: 3cx-xapi-pp-mcp
+    main: ./cmd/3cx-xapi-pp-mcp
+    binary: 3cx-xapi-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: 3cx-xapi-pp-cli
+    repository:
+      owner: 
+      name: homebrew-tap
+    homepage: "https://github.com//3cx-xapi-pp-cli"
+    description: "Every 3CX Configuration API (XAPI) object in one Go binary, with a local mirror of your whole PBX, offline search, config diffing, and cross-entity auditing no 3CX tool has."
+    install: |
+      bin.install "3cx-xapi-pp-cli"
+      bin.install "3cx-xapi-pp-mcp"

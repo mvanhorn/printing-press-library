@@ -1,0 +1,77 @@
+{
+  "api_name": "costco",
+  "base_url": "https://ecom-api.costco.com/ebusiness/order/v1",
+  "description": "Your complete Costco receipt history as data — past the website's 2-year wall, in a local database the site never gives you.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "costco-x-authorization",
+    "format": "Bearer {COSTCO_ID_TOKEN}",
+    "env_vars": [
+      "COSTCO_ID_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "COSTCO_ID_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [
+    {
+      "name": "client-identifier",
+      "value": "481b1aec-aa3b-454b-b81b-48187e28f205"
+    },
+    {
+      "name": "costco-x-wcs-clientId",
+      "value": "4900eb1f-0c10-4bd9-99c3-c59e6c1ecebf"
+    },
+    {
+      "name": "costco.env",
+      "value": "ecom"
+    },
+    {
+      "name": "costco.service",
+      "value": "restOrders"
+    },
+    {
+      "name": "Content-Type",
+      "value": "application/json-patch+json"
+    },
+    {
+      "name": "Origin",
+      "value": "https://www.costco.com"
+    },
+    {
+      "name": "Referer",
+      "value": "https://www.costco.com/"
+    }
+  ],
+  "tools": [
+    {
+      "name": "raw_query",
+      "description": "Execute a raw GraphQL query against the Costco orders endpoint. Required: query. Optional: variables. Returns the new GraphQLResponse.",
+      "method": "POST",
+      "path": "/orders/graphql",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "GraphQL document",
+          "required": true
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "GraphQL variables JSON"
+        }
+      ]
+    }
+  ]
+}

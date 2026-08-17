@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/x-twitter/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/x-twitter/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/x-twitter/internal/config"
 	"github.com/spf13/cobra"
@@ -30,6 +31,7 @@ func newAuthCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newAuthSetTokenCmd(flags))
 	cmd.AddCommand(newAuthImportOAuth2Cmd(flags))
 	cmd.AddCommand(newAuthOAuth2LoginCmd(flags))
+	cmd.AddCommand(newAuthRefreshCmd(flags))
 	cmd.AddCommand(newAuthLogoutCmd(flags))
 
 	return cmd
@@ -115,6 +117,60 @@ func newAuthImportOAuth2Cmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&scopes, "scopes", "", "Comma-separated OAuth2 scopes granted to the token")
 	cmd.Flags().StringVar(&expiresAt, "expires-at", "", "Token expiry as RFC3339 timestamp")
 	cmd.Flags().StringVar(&expiresIn, "expires-in", "", "Token lifetime from now, such as 2h or 90m")
+	return cmd
+}
+
+func newAuthRefreshCmd(flags *rootFlags) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:     "refresh",
+		Short:   "Refresh the stored OAuth2 user-context token",
+		Example: "  x-twitter-pp-cli auth refresh --agent",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cfg, err := config.Load(flags.configPath)
+			if err != nil {
+				return configErr(err)
+			}
+			if strings.TrimSpace(cfg.RefreshToken) == "" {
+				return authErr(fmt.Errorf("OAuth2 user-context refresh token is missing; run `x-twitter-pp-cli auth oauth2-login --client-id <client-id>` or import a token with --refresh-token"))
+			}
+			if strings.TrimSpace(cfg.ClientID) == "" {
+				return authErr(fmt.Errorf("OAuth2 client ID is missing; run `x-twitter-pp-cli auth oauth2-login --client-id <client-id>` or import credentials with --client-id"))
+			}
+			oldRefresh := strings.TrimSpace(cfg.RefreshToken)
+			c := client.New(cfg, flags.timeout, flags.rateLimit)
+			refreshed, err := c.RefreshOAuth2UserContext(cmd.Context(), true)
+			if err != nil {
+				return authErr(fmt.Errorf("OAuth2 user-context refresh failed: %s\nhint: if X rejected the refresh token, it cannot be repaired locally; rerun `x-twitter-pp-cli auth oauth2-login --client-id <client-id>` to mint a new access+refresh token", cliutil.SanitizeErrorBody(err.Error())))
+			}
+			out := map[string]any{
+				"auth_lane":             "oauth2_user_context",
+				"refreshed":             refreshed,
+				"saved":                 refreshed,
+				"config_path":           cfg.Path,
+				"refresh_token_present": strings.TrimSpace(cfg.RefreshToken) != "",
+				"refresh_token_rotated": oldRefresh != "" && strings.TrimSpace(cfg.RefreshToken) != "" && oldRefresh != strings.TrimSpace(cfg.RefreshToken),
+				"client_id_present":     strings.TrimSpace(cfg.ClientID) != "",
+				"client_secret_present": strings.TrimSpace(cfg.ClientSecret) != "",
+			}
+			if !cfg.TokenExpiry.IsZero() {
+				out["expires_at"] = cfg.TokenExpiry.UTC().Format(time.RFC3339)
+			}
+			if len(cfg.Scopes) > 0 {
+				out["scopes"] = cfg.Scopes
+			}
+			if flags.asJSON {
+				return printJSONFiltered(cmd.OutOrStdout(), out, flags)
+			}
+			fmt.Fprintf(cmd.OutOrStdout(), "OAuth2 user-context token refreshed and saved to %s\n", cfg.Path)
+			if !cfg.TokenExpiry.IsZero() {
+				fmt.Fprintf(cmd.OutOrStdout(), "Expires: %s\n", cfg.TokenExpiry.UTC().Format(time.RFC3339))
+			}
+			if out["refresh_token_rotated"] == true {
+				fmt.Fprintln(cmd.OutOrStdout(), "Refresh token rotated and persisted.")
+			}
+			return nil
+		},
+	}
 	return cmd
 }
 

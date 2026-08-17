@@ -1,0 +1,1172 @@
+{
+  "dir": "/Users/kerrymorrison/printing-press/.runstate/printing-press-5943d980/runs/20260713-105453-29114a9d/working/google-trends-pp-cli",
+  "binary": "/Users/kerrymorrison/printing-press/.runstate/printing-press-5943d980/runs/20260713-105453-29114a9d/working/google-trends-pp-cli/build/stage/bin/google-trends-pp-cli",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 65,
+  "passed": 65,
+  "failed": 0,
+  "skipped": 53,
+  "commands": [
+    "doctor",
+    "feedback list",
+    "import",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "search",
+    "sync",
+    "trends changes",
+    "trends explore",
+    "trends geo-gap",
+    "trends history search",
+    "trends interest",
+    "trends opportunities",
+    "trends pickers-category",
+    "trends pickers-geo",
+    "trends region",
+    "trends related",
+    "trends seasonality",
+    "trends stale",
+    "trends trending at",
+    "trends widget-comparedgeo",
+    "trends widget-multiline",
+    "trends widget-relatedsearches",
+    "which",
+    "workflow archive",
+    "workflow status"
+  ],
+  "tests": [
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  google-trends-pp-cli doctor [flags]\n\nExamples:\n  google-trends-pp-cli doctor\n  google-trends-pp-cli doctor --json\n  google-trends-pp-cli doctor --fail-on warn\n  google-trends-pp-cli doctor --fail-on stale\n\nFlags:\n      --fail-on string   Exit non-zero for selected health gates. stale: cache freshness plus errors; warn: credential/path warnings plus errors; error: errors only. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'google-trends-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  FAIL Auth: not configured\n  OK Verify Mode: normal operation\n  OK API: reachable\n  config_path: /var/folders/10/cmmmh_pj78197d1h69tb3pnr0000gn/T/printing-press-subprocess-2124182032/.config/google-trends-pp-cli/config.toml\n  base_url: https://trends.google.com\n  credentials_location: none\n  version: 0.0.0-dev\n  INFO Cache: empty\n    db_path: /var/folders/10/cmmmh_pj78197d1h69tb3pnr0000gn/T/printing-press-subprocess-2124182032/.local/share/google-trends-pp-cli/data.db\n    schema_version: 4\n    db_bytes: 49152\n    stale_after: 6h0m0s\n    hint: Cache is empty; run 'google-trends-pp-cli sync' to hydrate.\n  Paths:\n    config: /var/folders/10/cmmmh_pj78197d1h69tb3pnr0000gn/T/printing-press-subprocess-2124182032/.config/google-trends-pp-cli (XDG_CONFIG_HOME)\n    data: /var/folders/10/cmmmh_pj78197d1h69tb3pnr0000gn/T/printing-press-subprocess-2124182032/.local/share/google-trends-pp-cli (XDG_DATA_HOME)\n    state: /var/folders/10/cmmmh_pj78197d1h69tb3pnr0000gn/T/printing-press-subprocess-2124182032/.local/state/google-trends-pp-cli (XDG_STATE_HOME)\n    cache: /var/folders/10/cmmmh_pj78197d1h69tb3pnr0000gn/T/printing-press-subprocess-2124182032/.cache/google-trends-pp-cli (XDG_CACHE_HOME)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"api\": \"reachable\",\n  \"auth\": \"not configured\",\n  \"auth_hint\": \"google-trends-pp-cli auth login --chrome\",\n  \"base_url\": \"https://trends.google.com\",\n  \"cache\": {\n    \"db_bytes\": 49152,\n    \"db_path\": \"/var/folders/10/cmmmh_pj78197d1h69tb3pnr0000gn/T/printing-press-subprocess-2124182032/.local/share/google-trends-pp-cli/data.db\",\n    \"hint\": \"Cache is empty; run 'google-trends-pp-cli sync' to hydrate.\",\n    \"resources\": null,\n    \"schema_version\": 4,\n    \"stale_after\": \"6h0m0s\",\n    \"status\": \"empty\"\n  },\n  \"config\": \"ok\",\n  \"config_path\": \"/var/folders/10/cmmmh_pj78197d1h69tb3pnr0000gn/T/printing-press-subprocess-2124182032/.config/google-trends-pp-cli/config.toml\",\n  \"cookie_tool\": \"not found (install: pip install pycookiecheat)\",\n  \"credentials_location\": \"none\",\n  \"paths\": {\n    \"cache\": {\n      \"dir\": \"/var/folders/10/cmmmh_pj78197d1h69tb3pnr0000gn/T/printing-press-subprocess-2124182032/.cache/google-trends-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CACHE_HOME\"\n    },\n    \"config\": {\n      \"dir\": \"/var/folders/10/cmmmh_pj78197d1h69tb3pnr0000gn/T/printing-press-subprocess-2124182032/.config/google-trends-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CONFIG_HOME\"\n    },\n    \"data\": {\n      \"dir\": \"/var/folders/10/cmmmh_pj78197d1h69tb3pnr0000gn/T/printing-press-subprocess-2124182032/.local/share/google-trends-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_DATA_HOME\"\n    },\n    \"state\": {\n      \"dir\": \"/var/folders/10/cmmmh_pj78197d1h69tb3pnr0000gn/T/printing-press-subprocess-2124182032/.local/state/google-trends-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_STATE_HOME\"\n    },\n    \"status\": \"ok\"\n  },\n  \"verify_mode\": \"normal operation\",\n  \"version\": \"0.0.0-dev\"\n}\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  google-trends-pp-cli feedback list [flags]\n\nExamples:\n  google-trends-pp-cli feedback list\n  google-trends-pp-cli feedback list --limit 5\n  google-trends-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'google-trends-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "import",
+      "kind": "help",
+      "args": [
+        "import",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "google-trends has no create/upsert endpoints to import into — every\nendpoint in this API is read-only. This command always returns a usage error.\n\nUsage:\n  google-trends-pp-cli import \u003cresource\u003e [flags]\n\nExamples:\n  google-trends-pp-cli import trends  # always errors: no importable resource exists\n\nFlags:\n  -h, --help   help for import\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'google-trends-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "import",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "error_path",
+      "args": [
+        "import",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: import: \"__printing_press_invalid__\" is not an importable resource; google-trends has no bulk-import target (all endpoints are read-only)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  google-trends-pp-cli profile delete \u003cname\u003e [flags]\n\nExamples:\n  google-trends-pp-cli profile delete my-defaults --yes\n  google-trends-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'google-trends-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  google-trends-pp-cli profile list [flags]\n\nExamples:\n  google-trends-pp-cli profile list\n  google-trends-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'google-trends-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under \u003cname\u003e. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile, --config, and --home, which are never\ncaptured: they control profile/config resolution and would never apply).\n\nUsage:\n  google-trends-pp-cli profile save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...] [flags]\n\nExamples:\n  google-trends-pp-cli profile save my-defaults --json --compact\n  google-trends-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'google-trends-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  google-trends-pp-cli profile show \u003cname\u003e [flags]\n\nExamples:\n  google-trends-pp-cli profile show my-defaults\n  google-trends-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'google-trends-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  google-trends-pp-cli profile use \u003cname\u003e [flags]\n\nExamples:\n  google-trends-pp-cli profile use my-defaults\n  google-trends-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'google-trends-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "search",
+      "kind": "help",
+      "args": [
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search data using FTS5 full-text search on locally synced data,\nor hit the API's search endpoint when available.\n\nIn auto mode (default): uses the API search endpoint if the API has one,\notherwise searches local data. Falls back to local on network failure.\nIn live mode: uses the API search endpoint only.\nIn local mode: searches locally synced data only.\n\nUsage:\n  google-trends-pp-cli search \u003cquery\u003e [flags]\n\nExamples:\n  # Search (uses API endpoint if available, local FTS otherwise)\n  google-trends-pp-cli search \"error timeout\"\n\n  # Force local search only\n  google-trends-pp-cli search \"status\" --data-source local\n  # Search a specific resource type locally\n  google-trends-pp-cli search \"status\" --type trends --data-source local\n  # JSON output for piping\n  google-trends-pp-cli search \"critical\" --json --limit 20\n\nFlags:\n      --db string     SQLite database file path (default: resolved data directory data.db)\n  -h, --help          help for search\n      --limit int     Maximum results to return (default 50)\n      --type string   Filter by resource type\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'google-trends-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "search",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "error_path",
+      "args": [
+        "search",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "exit_code": 5,
+      "output_sample": "Error: GET /trends/api/widgetdata/relatedsearches returned HTTP 400: \u003chtml lang=\"en\" dir=ltr\u003e\u003cmeta charset=utf-8\u003e\u003cmeta name=viewport content=\"initial-scale=1, minimum-scale=1, width=device-width\"\u003e\u003ctitle\u003eError 400 (Bad Request)!!1\u003c/title\u003e\u003cstyle nonce=\"q0NbHfcDo4FwzKT7uk3HZA\"\u003e*{margin:0;padding:0}html,code{font:15px/22px arial,sans-serif}html{background:#fff;color:#222;padding:15px}body{color:#222;text-align:unset;margin:7% auto 0;max-width:390px;min-height:180px;padding:30px 0 15px;}* \u003e body{background:url(//www.google.com/images/errors/robot.png) 100% 5px no-repeat;padding-right:205px}p{margin:11px 0 22px;overflow:hidden}pre{white-space:pre-wrap;}ins{color:#777;text-decoration:none}a img{border:0}@media screen and (max-width:772px){body{background:none;margin-top:0;max-width:none;padding-right:0}}#logo{background:url(//www.google.com/images/branding/googlelogo/1x/googlelogo_color_150x54dp.png) no-repeat;margin-left:-5px}@media only screen and (min-resolution:192dpi){#logo{background:url(//www.google.com/images/branding/googlelogo/2x/googlelogo_color_150x54dp.png) no-repeat 0% 0%/100% 100%;-moz-border-image:url(//www.google.com/images/branding/googlelogo/2x/googlelogo_color_150x54dp.png) 0}}@media only screen and (-webkit-min-device-pixel-ratio:2){#logo{background:url(//www.google.com/images/branding/googlelogo/2x/googlelogo_color_150x54dp.png) no-repeat;-webkit-background-size:100% 100%}}#logo{display:inline-block;height:54px;width:150px}\u003c/style\u003e\u003cmain id=\"af-error-container\" role=\"main\"\u003e\u003ca href=//www.google.com\u003e\u003cspan id=logo aria-label=Google role=img\u003e\u003c/span\u003e\u003c/a\u003e\u003cp\u003e\u003cb\u003e400.\u003c/b\u003e \u003cins\u003eThat’s an error.\u003c/ins\u003e\u003cp\u003eThe server cannot process the request because it is malformed. It should not be retried. \u003cins\u003eThat’s all we know.\u003c/ins\u003e\u003c/main\u003e\n"
+    },
+    {
+      "command": "sync",
+      "kind": "help",
+      "args": [
+        "sync",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Sync data from the API into a local SQLite database. This API does\nnot declare temporal sync filters, so sync performs full pagination unless an\nexplicit resource declares its own incremental filter.\nOnce synced, use the 'search' command for instant full-text search.\n\nExit codes \u0026 warnings:\n  Resources the API denies access to (HTTP 403, or HTTP 400 with an\n  access-policy body) are reported as warnings rather than failing the\n  run. In --json mode each is emitted as a {\"event\":\"sync_warning\",...}\n  line carrying status, reason, and message fields, and a final\n  {\"event\":\"sync_summary\",...} aggregates the run.\n\n  Exit 0 when at least one resource synced and no resource flagged in\n  the spec as critical (x-critical: true) failed; non-critical failures\n  emit {\"event\":\"sync_warning\",\"reason\":\"exit_policy_default_changed\",\n  ...} so callers can detect that a partial failure was tolerated. Pass\n  --strict to exit non-zero on any per-resource failure. Exit is always\n  non-zero when every selected resource failed, regardless of --strict.\n\nResource scoping:\n  --resources runs the named top-level resources, plus any parent-keyed\n  dependent whose own name is listed OR whose parent table is listed.\n  Naming a parent therefore cascades to its dependents (so \"sync this\n  parent and its children\" works without listing every nested resource\n  by hand). There is no flag today to suppress the cascade for a named\n  parent. To run a dependent without re-syncing its parent, list only\n  the dependent by name; the parent table must already be populated\n  from a prior sync.\n\nUsage:\n  google-trends-pp-cli sync [flags]\n\nExamples:\n  # Sync all resources\n  google-trends-pp-cli sync\n\n  # Sync specific resources only\n  google-trends-pp-cli sync --resources channels,messages\n\n  # Full resync (ignore previous checkpoint)\n  google-trends-pp-cli sync --full\n\n  # Incremental sync: only records from the last 7 days\n  google-trends-pp-cli sync --since 7d\n\n  # Parallel sync with 8 workers\n  google-trends-pp-cli sync --concurrency 8\n\n  # Latest-only: refresh head of each resource, no historical backfill\n  google-trends-pp-cli sync --latest-only\n\nFlags:\n      --concurrency int              Number of parallel sync workers (default 4)\n      --db string                    SQLite database file path (default: resolved data directory data.db)\n      --full                         Full resync (ignore previous checkpoint)\n      --global-param stringArray     Extra query param to inject into every sync request including dependent path-scoped calls (repeatable, key=value). Use when an API requires a scope on every call regardless of path nesting.\n  -h, --help                         help for sync\n      --latest-only                  Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).\n      --max-pages int                Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)\n      --no-prune                     Disable deletion reconciliation on --full (by default a full sync prunes local rows the API no longer returns for a fully-enumerated parent partition)\n      --param stringArray            Extra query param to inject into flat-list sync requests (repeatable, key=value). Skipped on path-scoped dependent requests so a top-level scope like workspace=\u003cid\u003e does not double up on /parents/\u003cid\u003e/children calls. Use --global-param to inject everywhere. Avoid pagination keys (limit/since/cursor) — overriding them corrupts resume state.\n      --resource-param stringArray   Per-resource extra query param (repeatable, resource:key=value). Wins over --param and --global-param when keys conflict.\n      --resources strings            Comma-separated resource types to sync. Naming a parent also runs its parent-keyed dependents (see Long help for scoping).\n      --since string                 Incremental sync duration (e.g. 7d, 24h, 1w, 30m)\n      --strict                       Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure…[truncated]"
+    },
+    {
+      "command": "sync",
+      "kind": "happy_path",
+      "args": [
+        "sync"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_warning\",\"reason\":\"no_bulk_list_endpoints\",\"detail\":\"no default sync resources in spec; use --resources for explicit sync targets or populate the store via single-fetch commands\"}\n{\"event\":\"sync_summary\",\"total_records\":0,\"resources\":0,\"success\":0,\"warned\":0,\"errored\":0,\"duration_ms\":0}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "json_fidelity",
+      "args": [
+        "sync",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_warning\",\"reason\":\"no_bulk_list_endpoints\",\"detail\":\"no default sync resources in spec; use --resources for explicit sync targets or populate the store via single-fetch commands\"}\n{\"event\":\"sync_summary\",\"total_records\":0,\"resources\":0,\"success\":0,\"warned\":0,\"errored\":0,\"duration_ms\":0}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "trends changes",
+      "kind": "help",
+      "args": [
+        "trends",
+        "changes",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "See exactly what changed for a keyword's related terms and interest score since your last sync.\n\nUsage:\n  google-trends-pp-cli trends changes \u003ckeyword\u003e [flags]\n\nExamples:\n  google-trends-pp-cli trends changes coffee --since 7d --agent\n\nFlags:\n  -h, --help           help for changes\n      --since string   Compare against the most recent sync at least this long ago (e.g. 7d, 24h); default 7d\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'google-trends-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "trends changes",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"keyword\" at depth 0"
+    },
+    {
+      "command": "trends changes",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"keyword\" at depth 0"
+    },
+    {
+      "command": "trends changes",
+      "kind": "error_path",
+      "args": [
+        "trends",
+        "changes",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: no history at all for \"__printing_press_invalid__\" in the local store; run 'trends related __printing_press_invalid__' and 'trends interest __printing_press_invalid__' first\n"
+    },
+    {
+      "command": "trends explore",
+      "kind": "help",
+      "args": [
+        "trends",
+        "explore",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Requests per-widget tokens for a comparison of up to 5 keywords.\n\nUsage:\n  google-trends-pp-cli trends explore [flags]\n\nExamples:\n  google-trends-pp-cli trends explore --hl en-US --tz 42 --req '{}'\n\nFlags:\n  -h, --help         help for explore\n      --hl string    UI/response language, e.g. en-US\n      --req string   JSON-encoded object: {'comparisonItem':[{'keyword':str,'geo':str,'time':str}, ...\n      --tz int       Timezone offset in minutes (e.g. 420 for PDT)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'google-trends-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "trends explore",
+      "kind": "happy_path",
+      "args": [
+        "trends",
+        "explore",
+        "--hl",
+        "en-US",
+        "--tz",
+        "42",
+        "--req",
+        "{}",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/trends/api/explore\",\n  \"resource\": \"trends\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://trends.google.com/trends/api/explore\n  ?hl=en-US\n  \u0026tz=42\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "trends explore",
+      "kind": "json_fidelity",
+      "args": [
+        "trends",
+        "explore",
+        "--hl",
+        "en-US",
+        "--tz",
+        "42",
+        "--req",
+        "{}",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/trends/api/explore\",\n  \"resource\": \"trends\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://trends.google.com/trends/api/explore\n  ?hl=en-US\n  \u0026tz=42\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "trends explore",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "trends explore",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "trends geo-gap",
+      "kind": "help",
+      "args": [
+        "trends",
+        "geo-gap",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Ranks the regions where two keywords' interest diverges most\n\nUsage:\n  google-trends-pp-cli trends geo-gap \u003ckeywordA\u003e \u003ckeywordB\u003e [flags]\n\nExamples:\n  google-trends-pp-cli trends geo-gap nike adidas --resolution REGION --agent\n\nFlags:\n      --category int        Google Trends category ID\n      --geo string          Restrict comparison to this geo (default: worldwide)\n  -h, --help                help for geo-gap\n      --limit int           Maximum number of regions to return (default 15)\n      --resolution string   Geo resolution: COUNTRY, REGION, DMA, or CITY (best-effort — patches the widget's own request if present)\n      --timeframe string    Time range, e.g. 'today 12-m' (default \"today 12-m\")\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'google-trends-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "trends geo-gap",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [trends geo-gap] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "trends geo-gap",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [trends geo-gap] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "trends geo-gap",
+      "kind": "error_path",
+      "args": [
+        "trends",
+        "geo-gap",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: two keyword arguments are required: \u003ckeywordA\u003e \u003ckeywordB\u003e\n"
+    },
+    {
+      "command": "trends history search",
+      "kind": "help",
+      "args": [
+        "trends",
+        "history",
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Full-text search across every related-term and trending-topic result you've ever synced, offline.\n\nUsage:\n  google-trends-pp-cli trends history search \u003cquery\u003e [flags]\n\nExamples:\n  google-trends-pp-cli trends history search \"electric vehicle\" --table related --agent\n\nFlags:\n  -h, --help           help for search\n      --limit int      Maximum results to return (default 20)\n      --table string   Restrict search to one table: related, trending (default: both)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'google-trends-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "trends history search",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "trends history search",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "trends history search",
+      "kind": "error_path",
+      "args": [
+        "trends",
+        "history",
+        "search",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "trends interest",
+      "kind": "help",
+      "args": [
+        "trends",
+        "interest",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Interest-over-time for a keyword, optionally compared against up to 4 others.\n\nUsage:\n  google-trends-pp-cli trends interest \u003ckeyword\u003e [flags]\n\nExamples:\n  google-trends-pp-cli trends interest coffee --compare tea,latte --geo US --agent\n\nFlags:\n      --category int       Google Trends category ID\n      --compare string     Comma-separated additional keywords to compare (up to 4 more, 5 total)\n      --geo string         Geo code (e.g. US); default: worldwide\n  -h, --help               help for interest\n      --property string    Search property: '' (web), images, news, youtube, froogle\n      --timeframe string   Time range, e.g. 'today 12-m', 'now 7-d' (default \"today 12-m\")\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'google-trends-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "trends interest",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"keyword\" at depth 0"
+    },
+    {
+      "command": "trends interest",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"keyword\" at depth 0"
+    },
+    {
+      "command": "trends interest",
+      "kind": "error_path",
+      "args": [
+        "trends",
+        "interest",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: no interest-over-time data for \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "trends opportunities",
+      "kind": "help",
+      "args": [
+        "trends",
+        "opportunities",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Ranks a keyword's related/rising terms by rising-momentum times parent-topic growth\n\nUsage:\n  google-trends-pp-cli trends opportunities \u003ckeyword\u003e [flags]\n\nExamples:\n  google-trends-pp-cli trends opportunities \"meal prep\" --agent\n\nFlags:\n  -h, --help        help for opportunities\n      --limit int   Maximum number of opportunities to return (default 10)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'google-trends-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "trends opportunities",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"keyword\" at depth 0"
+    },
+    {
+      "command": "trends opportunities",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"keyword\" at depth 0"
+    },
+    {
+      "command": "trends opportunities",
+      "kind": "error_path",
+      "args": [
+        "trends",
+        "opportunities",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: no rising related terms found in the local store for \"__printing_press_invalid__\"; run 'trends related __printing_press_invalid__' first\n"
+    },
+    {
+      "command": "trends pickers-category",
+      "kind": "help",
+      "args": [
+        "trends",
+        "pickers-category",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Full category id-to-name lookup tree. Openly accessible, no clearance cookie required.\n\nUsage:\n  google-trends-pp-cli trends pickers-category [flags]\n\nExamples:\n  google-trends-pp-cli trends pickers-category --hl en-US --tz 42\n\nFlags:\n  -h, --help        help for pickers-category\n      --hl string   UI language, e.g. en-US\n      --tz int      Timezone offset in minutes\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'google-trends-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "trends pickers-category",
+      "kind": "happy_path",
+      "args": [
+        "trends",
+        "pickers-category",
+        "--hl",
+        "en-US",
+        "--tz",
+        "42"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"children\":[{\"children\":[{\"id\":184,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":1104,\"name\":\"\u003credacted\u003e\"},{\"id\":317,\"name\":\"\u003credacted\u003e\"},{\"id\":319,\"name\":\"\u003credacted\u003e\"},{\"id\":318,\"name\":\"\u003credacted\u003e\"}],\"id\":316,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"children\":[{\"id\":1108,\"name\":\"\u003credacted\u003e\"},{\"id\":1117,\"name\":\"\u003credacted\u003e\"}],\"id\":1116,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":1113,\"name\":\"\u003credacted\u003e\"},{\"id\":1114,\"name\":\"\u003credacted\u003e\"}],\"id\":1115,\"name\":\"\u003credacted\u003e\"}],\"id\":612,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":188,\"name\":\"\u003credacted\u003e\"},{\"id\":891,\"name\":\"\u003credacted\u003e\"},{\"id\":1086,\"name\":\"\u003credacted\u003e\"},{\"id\":1273,\"name\":\"\u003credacted\u003e\"},{\"id\":1085,\"name\":\"\u003credacted\u003e\"},{\"id\":614,\"name\":\"\u003credacted\u003e\"}],\"id\":569,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":1173,\"name\":\"\u003credacted\u003e\"},{\"id\":447,\"name\":\"\u003credacted\u003e\"},{\"id\":1174,\"name\":\"\u003credacted\u003e\"}],\"id\":539,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":1095,\"name\":\"\u003credacted\u003e\"},{\"id\":895,\"name\":\"\u003credacted\u003e\"},{\"id\":1180,\"name\":\"\u003credacted\u003e\"},{\"id\":1244,\"name\":\"\u003credacted\u003e\"},{\"id\":1047,\"name\":\"\u003credacted\u003e\"}],\"id\":182,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"children\":[{\"id\":1101,\"name\":\"\u003credacted\u003e\"},{\"id\":1100,\"name\":\"\u003credacted\u003e\"},{\"id\":1099,\"name\":\"\u003credacted\u003e\"}],\"id\":1097,\"name\":\"\u003credacted\u003e\"},{\"id\":1104,\"name\":\"\u003credacted\u003e\"},{\"id\":360,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":1098,\"name\":\"\u003credacted\u003e\"}],\"id\":1102,\"name\":\"\u003credacted\u003e\"},{\"id\":1095,\"name\":\"\u003credacted\u003e\"},{\"id\":1103,\"name\":\"\u003credacted\u003e\"},{\"id\":1072,\"name\":\"\u003credacted\u003e\"},{\"id\":1094,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":1145,\"name\":\"\u003credacted\u003e\"}],\"id\":210,\"name\":\"\u003credacted\u003e\"},{\"id\":1291,\"name\":\"\u003credacted\u003e\"},{\"id\":1108,\"name\":\"\u003credacted\u003e\"},{\"id\":1086,\"name\":\"\u003credacted\u003e\"},{\"id\":615,\"name\":\"\u003credacted\u003e\"},{\"id\":213,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":1107,\"name\":\"\u003credacted\u003e\"}],\"id\":1106,\"name\":\"\u003credacted\u003e\"},{\"id\":1105,\"name\":\"\u003credacted\u003e\"},{\"id\":1310,\"name\":\"\u003credacted\u003e\"},{\"id\":616,\"name\":\"\u003credacted\u003e\"},{\"id\":1096,\"name\":\"\u003credacted\u003e\"}],\"id\":34,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":217,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":1185,\"name\":\"\u003credacted\u003e\"}],\"id\":586,\"name\":\"\u003credacted\u003e\"},{\"id\":587,\"name\":\"\u003credacted\u003e\"},{\"id\":588,\"name\":\"\u003credacted\u003e\"},{\"id\":1022,\"name\":\"\u003credacted\u003e\"},{\"id\":1023,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":1040,\"name\":\"\u003credacted\u003e\"},{\"id\":42,\"name\":\"\u003credacted\u003e\"}],\"id\":589,\"name\":\"\u003credacted\u003e\"},{\"id\":1285,\"name\":\"\u003credacted\u003e\"},{\"id\":218,\"name\":\"\u003credacted\u003e\"},{\"id\":1087,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":1025,\"name\":\"\u003credacted\u003e\"},{\"id\":1026,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":1327,\"name\":\"\u003credacted\u003e\"},{\"id\":1325,\"name\":\"\u003credacted\u003e\"},{\"id\":1326,\"name\":\"\u003credacted\u003e\"}],\"id\":216,\"name\":\"\u003credacted\u003e\"},{\"id\":1091,\"name\":\"\u003credacted\u003e\"}],\"id\":1024,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":1028,\"name\":\"\u003credacted\u003e\"},{\"id\":892,\"name\":\"\u003credacted\u003e\"},{\"id\":617,\"name\":\"\u003credacted\u003e\"}],\"id\":1027,\"name\":\"\u003credacted\u003e\"},{\"id\":220,\"name\":\"\u003credacted\u003e\"},{\"id\":1021,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":809,\"name\":\"\u003credacted\u003e\"},{\"id\":1186,\"name\":\"\u003credacted\u003e\"}],\"id\":215,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":585,\"name\":\"\u003credacted\u003e\"}],\"id\":1020,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":1037,\"name\":\"\u003credacted\u003e\"},{\"id\":1035,\"name\":\"\u003credacted\u003e\"},{\"id\":1038,\"name\":\"\u003credacted\u003e\"},{\"id\":1036,\"name\":\"\u003credacted\u003e\"},{\"id\":1041,\"name\":\"\u003credacted\u003e\"}],\"id\":590,\"name\":\"\u003credacted\u003e\"},{\"id\":893,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":1030,\"name\":\"\u003credacted\u003e\"},{\"id\":1242,\"name\":\"\u003credacted\u003e\"},{\"id\":1039,\"name\":\"\u003credacted\u003e\"}],\"id\":592,\"name\":\"\u003credacted\u003e\"},{\"id\":618,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":1208,\"name\":\"\u003credacted\u003e\"},{\"id\":1034,\"name\":\"\u003credacted\u003e\"},{\"id\":1033,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":1287,\"name\":\"\u003credacted\u003e\"},{\"id\":1285,\"name\":\"\u003credacted\u003e\"},{\"id\":1242,\"name\":\"\u003credacted\u003e\"},{\"id\":1286,\"name\":\"\u003credacted\u003e\"}],\"id\":591,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":1242,\"name\":\"\u003credacted\u003e\"}],\"id\":1031,\"name\":\"\u003credacted\u003e\"},{\"id\":1032,\"name\":\"\u003credacted\u003e\"}],\"id\":593,\"name\":\"\u003credacted\u003e\"}],\"id\":35,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":538,\"name\":\"\u003credacted\u003e\"},{\"id\":449,\"name\":\"\u003credacted\u003e\"}],\"id\":33,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":447,\"name\":\"\u003c…[truncated]"
+    },
+    {
+      "command": "trends pickers-category",
+      "kind": "json_fidelity",
+      "args": [
+        "trends",
+        "pickers-category",
+        "--hl",
+        "en-US",
+        "--tz",
+        "42",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"children\":[{\"children\":[{\"id\":184,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":1104,\"name\":\"\u003credacted\u003e\"},{\"id\":317,\"name\":\"\u003credacted\u003e\"},{\"id\":319,\"name\":\"\u003credacted\u003e\"},{\"id\":318,\"name\":\"\u003credacted\u003e\"}],\"id\":316,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"children\":[{\"id\":1108,\"name\":\"\u003credacted\u003e\"},{\"id\":1117,\"name\":\"\u003credacted\u003e\"}],\"id\":1116,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":1113,\"name\":\"\u003credacted\u003e\"},{\"id\":1114,\"name\":\"\u003credacted\u003e\"}],\"id\":1115,\"name\":\"\u003credacted\u003e\"}],\"id\":612,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":188,\"name\":\"\u003credacted\u003e\"},{\"id\":891,\"name\":\"\u003credacted\u003e\"},{\"id\":1086,\"name\":\"\u003credacted\u003e\"},{\"id\":1273,\"name\":\"\u003credacted\u003e\"},{\"id\":1085,\"name\":\"\u003credacted\u003e\"},{\"id\":614,\"name\":\"\u003credacted\u003e\"}],\"id\":569,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":1173,\"name\":\"\u003credacted\u003e\"},{\"id\":447,\"name\":\"\u003credacted\u003e\"},{\"id\":1174,\"name\":\"\u003credacted\u003e\"}],\"id\":539,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":1095,\"name\":\"\u003credacted\u003e\"},{\"id\":895,\"name\":\"\u003credacted\u003e\"},{\"id\":1180,\"name\":\"\u003credacted\u003e\"},{\"id\":1244,\"name\":\"\u003credacted\u003e\"},{\"id\":1047,\"name\":\"\u003credacted\u003e\"}],\"id\":182,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"children\":[{\"id\":1101,\"name\":\"\u003credacted\u003e\"},{\"id\":1100,\"name\":\"\u003credacted\u003e\"},{\"id\":1099,\"name\":\"\u003credacted\u003e\"}],\"id\":1097,\"name\":\"\u003credacted\u003e\"},{\"id\":1104,\"name\":\"\u003credacted\u003e\"},{\"id\":360,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":1098,\"name\":\"\u003credacted\u003e\"}],\"id\":1102,\"name\":\"\u003credacted\u003e\"},{\"id\":1095,\"name\":\"\u003credacted\u003e\"},{\"id\":1103,\"name\":\"\u003credacted\u003e\"},{\"id\":1072,\"name\":\"\u003credacted\u003e\"},{\"id\":1094,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":1145,\"name\":\"\u003credacted\u003e\"}],\"id\":210,\"name\":\"\u003credacted\u003e\"},{\"id\":1291,\"name\":\"\u003credacted\u003e\"},{\"id\":1108,\"name\":\"\u003credacted\u003e\"},{\"id\":1086,\"name\":\"\u003credacted\u003e\"},{\"id\":615,\"name\":\"\u003credacted\u003e\"},{\"id\":213,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":1107,\"name\":\"\u003credacted\u003e\"}],\"id\":1106,\"name\":\"\u003credacted\u003e\"},{\"id\":1105,\"name\":\"\u003credacted\u003e\"},{\"id\":1310,\"name\":\"\u003credacted\u003e\"},{\"id\":616,\"name\":\"\u003credacted\u003e\"},{\"id\":1096,\"name\":\"\u003credacted\u003e\"}],\"id\":34,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":217,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":1185,\"name\":\"\u003credacted\u003e\"}],\"id\":586,\"name\":\"\u003credacted\u003e\"},{\"id\":587,\"name\":\"\u003credacted\u003e\"},{\"id\":588,\"name\":\"\u003credacted\u003e\"},{\"id\":1022,\"name\":\"\u003credacted\u003e\"},{\"id\":1023,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":1040,\"name\":\"\u003credacted\u003e\"},{\"id\":42,\"name\":\"\u003credacted\u003e\"}],\"id\":589,\"name\":\"\u003credacted\u003e\"},{\"id\":1285,\"name\":\"\u003credacted\u003e\"},{\"id\":218,\"name\":\"\u003credacted\u003e\"},{\"id\":1087,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":1025,\"name\":\"\u003credacted\u003e\"},{\"id\":1026,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":1327,\"name\":\"\u003credacted\u003e\"},{\"id\":1325,\"name\":\"\u003credacted\u003e\"},{\"id\":1326,\"name\":\"\u003credacted\u003e\"}],\"id\":216,\"name\":\"\u003credacted\u003e\"},{\"id\":1091,\"name\":\"\u003credacted\u003e\"}],\"id\":1024,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":1028,\"name\":\"\u003credacted\u003e\"},{\"id\":892,\"name\":\"\u003credacted\u003e\"},{\"id\":617,\"name\":\"\u003credacted\u003e\"}],\"id\":1027,\"name\":\"\u003credacted\u003e\"},{\"id\":220,\"name\":\"\u003credacted\u003e\"},{\"id\":1021,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":809,\"name\":\"\u003credacted\u003e\"},{\"id\":1186,\"name\":\"\u003credacted\u003e\"}],\"id\":215,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":585,\"name\":\"\u003credacted\u003e\"}],\"id\":1020,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":1037,\"name\":\"\u003credacted\u003e\"},{\"id\":1035,\"name\":\"\u003credacted\u003e\"},{\"id\":1038,\"name\":\"\u003credacted\u003e\"},{\"id\":1036,\"name\":\"\u003credacted\u003e\"},{\"id\":1041,\"name\":\"\u003credacted\u003e\"}],\"id\":590,\"name\":\"\u003credacted\u003e\"},{\"id\":893,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":1030,\"name\":\"\u003credacted\u003e\"},{\"id\":1242,\"name\":\"\u003credacted\u003e\"},{\"id\":1039,\"name\":\"\u003credacted\u003e\"}],\"id\":592,\"name\":\"\u003credacted\u003e\"},{\"id\":618,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":1208,\"name\":\"\u003credacted\u003e\"},{\"id\":1034,\"name\":\"\u003credacted\u003e\"},{\"id\":1033,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":1287,\"name\":\"\u003credacted\u003e\"},{\"id\":1285,\"name\":\"\u003credacted\u003e\"},{\"id\":1242,\"name\":\"\u003credacted\u003e\"},{\"id\":1286,\"name\":\"\u003credacted\u003e\"}],\"id\":591,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":1242,\"name\":\"\u003credacted\u003e\"}],\"id\":1031,\"name\":\"\u003credacted\u003e\"},{\"id\":1032,\"name\":\"\u003credacted\u003e\"}],\"id\":593,\"name\":\"\u003credacted\u003e\"}],\"id\":35,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":538,\"name\":\"\u003credacted\u003e\"},{\"id\":449,\"name\":\"\u003credacted\u003e\"}],\"id\":33,\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":447,\"name\":\"\u003c…[truncated]"
+    },
+    {
+      "command": "trends pickers-category",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "trends pickers-geo",
+      "kind": "help",
+      "args": [
+        "trends",
+        "pickers-geo",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Full geo code-to-name lookup tree (country/region/DMA/city). Openly accessible, no clearance cookie required.\n\nUsage:\n  google-trends-pp-cli trends pickers-geo [flags]\n\nExamples:\n  google-trends-pp-cli trends pickers-geo --hl en-US --tz 42\n\nFlags:\n  -h, --help        help for pickers-geo\n      --hl string   UI language, e.g. en-US\n      --tz int      Timezone offset in minutes\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'google-trends-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "trends pickers-geo",
+      "kind": "happy_path",
+      "args": [
+        "trends",
+        "pickers-geo",
+        "--hl",
+        "en-US",
+        "--tz",
+        "42"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"children\":[{\"children\":[{\"id\":\"BDS\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"BDG\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"BGL\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"BAL\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"BAM\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"DAY\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"FRA\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"FYB\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"GHA\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"GHO\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"HEL\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"HER\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"JOW\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"KAB\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"KAN\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"KAP\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"KHO\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"KNR\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"KDZ\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"LAG\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"LOG\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"NAN\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"NIM\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"NUR\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"URU\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"PIA\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"PKA\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"PAN\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"PAR\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"SAM\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"SAR\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"TAK\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"WAR\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"ZAB\",\"name\":\"\u003credacted\u003e\"}],\"id\":\"AF\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"AX\",\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":\"01\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"09\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"02\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"03\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"04\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"05\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"06\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"07\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"08\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"10\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"11\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"12\",\"name\":\"\u003credacted\u003e\"}],\"id\":\"AL\",\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":\"01\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"44\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"46\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"16\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"23\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"05\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"08\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"06\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"07\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"09\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"34\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"10\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"35\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"02\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"25\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"17\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"32\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"39\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"36\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"47\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"24\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"33\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"18\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"40\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"03\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"28\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"29\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"26\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"43\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"27\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"45\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"31\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"30\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"04\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"11\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"48\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"20\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"19\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"22\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"21\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"41\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"12\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"14\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"37\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"42\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"38\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"15\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"13\",\"name\":\"\u003credacted\u003e\"}],\"id\":\"DZ\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"AS\",\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":\"07\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"02\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"03\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"08\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"04\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"05\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"06\",\"name\":\"\u003credacted\u003e\"}],\"id\":\"AD\",\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":\"BGO\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"BGU\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"BIE\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"CAB\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"CCU\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"CNO\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"CUS\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"CNN\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"HUA\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"HUI\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"LUA\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"LNO\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"LSU\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"MAL\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"MOX\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"NAM\",\"name\":\"\u003credacted\u003e…[truncated]"
+    },
+    {
+      "command": "trends pickers-geo",
+      "kind": "json_fidelity",
+      "args": [
+        "trends",
+        "pickers-geo",
+        "--hl",
+        "en-US",
+        "--tz",
+        "42",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"children\":[{\"children\":[{\"id\":\"BDS\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"BDG\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"BGL\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"BAL\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"BAM\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"DAY\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"FRA\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"FYB\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"GHA\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"GHO\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"HEL\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"HER\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"JOW\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"KAB\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"KAN\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"KAP\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"KHO\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"KNR\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"KDZ\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"LAG\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"LOG\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"NAN\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"NIM\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"NUR\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"URU\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"PIA\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"PKA\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"PAN\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"PAR\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"SAM\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"SAR\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"TAK\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"WAR\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"ZAB\",\"name\":\"\u003credacted\u003e\"}],\"id\":\"AF\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"AX\",\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":\"01\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"09\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"02\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"03\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"04\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"05\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"06\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"07\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"08\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"10\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"11\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"12\",\"name\":\"\u003credacted\u003e\"}],\"id\":\"AL\",\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":\"01\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"44\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"46\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"16\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"23\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"05\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"08\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"06\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"07\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"09\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"34\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"10\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"35\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"02\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"25\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"17\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"32\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"39\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"36\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"47\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"24\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"33\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"18\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"40\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"03\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"28\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"29\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"26\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"43\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"27\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"45\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"31\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"30\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"04\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"11\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"48\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"20\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"19\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"22\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"21\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"41\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"12\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"14\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"37\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"42\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"38\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"15\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"13\",\"name\":\"\u003credacted\u003e\"}],\"id\":\"DZ\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"AS\",\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":\"07\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"02\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"03\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"08\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"04\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"05\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"06\",\"name\":\"\u003credacted\u003e\"}],\"id\":\"AD\",\"name\":\"\u003credacted\u003e\"},{\"children\":[{\"id\":\"BGO\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"BGU\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"BIE\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"CAB\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"CCU\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"CNO\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"CUS\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"CNN\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"HUA\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"HUI\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"LUA\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"LNO\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"LSU\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"MAL\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"MOX\",\"name\":\"\u003credacted\u003e\"},{\"id\":\"NAM\",\"name\":\"\u003credacted\u003e…[truncated]"
+    },
+    {
+      "command": "trends pickers-geo",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "trends region",
+      "kind": "help",
+      "args": [
+        "trends",
+        "region",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Interest-by-region for a keyword.\n\nUsage:\n  google-trends-pp-cli trends region \u003ckeyword\u003e [flags]\n\nExamples:\n  google-trends-pp-cli trends region coffee --resolution REGION --geo US --agent\n\nFlags:\n      --category int        Google Trends category ID\n      --geo string          Geo code to scope the comparison (e.g. US); default: worldwide\n  -h, --help                help for region\n      --resolution string   Geo resolution: COUNTRY, REGION, DMA, or CITY (best-effort)\n      --timeframe string    Time range, e.g. 'today 12-m' (default \"today 12-m\")\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'google-trends-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "trends region",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"keyword\" at depth 0"
+    },
+    {
+      "command": "trends region",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"keyword\" at depth 0"
+    },
+    {
+      "command": "trends region",
+      "kind": "error_path",
+      "args": [
+        "trends",
+        "region",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: no interest data for \"__printing_press_invalid__\"; nothing to show by region\n"
+    },
+    {
+      "command": "trends related",
+      "kind": "help",
+      "args": [
+        "trends",
+        "related",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Related queries and/or topics for a keyword (top + rising).\n\nUsage:\n  google-trends-pp-cli trends related \u003ckeyword\u003e [flags]\n\nExamples:\n  google-trends-pp-cli trends related coffee --facet queries --geo US --agent\n\nFlags:\n      --category int       Google Trends category ID\n      --facet string       Which related data to fetch: queries, topics, or both (default \"both\")\n      --geo string         Geo code (e.g. US); default: worldwide\n  -h, --help               help for related\n      --timeframe string   Time range, e.g. 'today 12-m' (default \"today 12-m\")\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'google-trends-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "trends related",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"keyword\" at depth 0"
+    },
+    {
+      "command": "trends related",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"keyword\" at depth 0"
+    },
+    {
+      "command": "trends related",
+      "kind": "error_path",
+      "args": [
+        "trends",
+        "related",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: no related terms for \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "trends seasonality",
+      "kind": "help",
+      "args": [
+        "trends",
+        "seasonality",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Computes monthly averages, peak month, and a seasonality strength score for a keyword from cached history.\n\nUsage:\n  google-trends-pp-cli trends seasonality \u003ckeyword\u003e [flags]\n\nExamples:\n  google-trends-pp-cli trends seasonality \"pumpkin spice\" --geo US --agent\n\nFlags:\n      --geo string   Geo code to scope the seasonality calculation (e.g. US); default: all cached geos\n  -h, --help         help for seasonality\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'google-trends-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "trends seasonality",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"keyword\" at depth 0"
+    },
+    {
+      "command": "trends seasonality",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"keyword\" at depth 0"
+    },
+    {
+      "command": "trends seasonality",
+      "kind": "error_path",
+      "args": [
+        "trends",
+        "seasonality",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: no interest-over-time history in the local store for \"__printing_press_invalid__\"; run 'trends interest __printing_press_invalid__' first\n"
+    },
+    {
+      "command": "trends stale",
+      "kind": "help",
+      "args": [
+        "trends",
+        "stale",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Lists tracked keywords whose local data hasn't been refreshed recently\n\nUsage:\n  google-trends-pp-cli trends stale [flags]\n\nExamples:\n  google-trends-pp-cli trends stale --older-than 14d --agent\n\nFlags:\n  -h, --help                help for stale\n      --older-than string   Consider keywords stale if not synced within this window (e.g. 7d, 24h); default 7d\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'google-trends-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "trends stale",
+      "kind": "happy_path",
+      "args": [
+        "trends",
+        "stale",
+        "--older-than",
+        "14d",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": []\n}\n"
+    },
+    {
+      "command": "trends stale",
+      "kind": "json_fidelity",
+      "args": [
+        "trends",
+        "stale",
+        "--older-than",
+        "14d",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": []\n}\n"
+    },
+    {
+      "command": "trends stale",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "trends trending at",
+      "kind": "help",
+      "args": [
+        "trends",
+        "trending",
+        "at",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "See what was trending on a specific past date and geo — a question Google Trends' own live UI cannot answer.\n\nUsage:\n  google-trends-pp-cli trends trending at [flags]\n\nExamples:\n  google-trends-pp-cli trends trending at --date 2026-06-15 --geo US --agent\n\nFlags:\n      --date string   Date to look up (YYYY-MM-DD), required\n      --geo string    Filter by geo code (e.g. US)\n  -h, --help          help for at\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'google-trends-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "trends trending at",
+      "kind": "happy_path",
+      "args": [
+        "trends",
+        "trending",
+        "at",
+        "--date",
+        "2026-06-15",
+        "--geo",
+        "US",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": []\n}\n"
+    },
+    {
+      "command": "trends trending at",
+      "kind": "json_fidelity",
+      "args": [
+        "trends",
+        "trending",
+        "at",
+        "--date",
+        "2026-06-15",
+        "--geo",
+        "US",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": []\n}\n"
+    },
+    {
+      "command": "trends trending at",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "trends widget-comparedgeo",
+      "kind": "help",
+      "args": [
+        "trends",
+        "widget-comparedgeo",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Interest-by-region data for the GEO_MAP widget.\n\nUsage:\n  google-trends-pp-cli trends widget-comparedgeo [flags]\n\nExamples:\n  google-trends-pp-cli trends widget-comparedgeo --hl en-US --tz 42 --req example-value --token your-token-here\n\nFlags:\n  -h, --help           help for widget-comparedgeo\n      --hl string      UI/response language, e.g. en-US\n      --req string     JSON-encoded widget.request object copied verbatim from the matching explore() widget entry\n      --token string   Widget token copied verbatim from the matching explore() widget entry\n      --tz int         Timezone offset in minutes\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'google-trends-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "trends widget-comparedgeo",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "trends widget-comparedgeo",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "trends widget-comparedgeo",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "trends widget-multiline",
+      "kind": "help",
+      "args": [
+        "trends",
+        "widget-multiline",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Interest-over-time data for the TIMESERIES widget.\n\nUsage:\n  google-trends-pp-cli trends widget-multiline [flags]\n\nExamples:\n  google-trends-pp-cli trends widget-multiline --hl en-US --tz 42 --req example-value --token your-token-here\n\nFlags:\n  -h, --help           help for widget-multiline\n      --hl string      UI/response language, e.g. en-US\n      --req string     JSON-encoded widget.request object copied verbatim from the matching explore() widget entry\n      --token string   Widget token copied verbatim from the matching explore() widget entry\n      --tz int         Timezone offset in minutes\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'google-trends-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "trends widget-multiline",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "trends widget-multiline",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "trends widget-multiline",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "trends widget-relatedsearches",
+      "kind": "help",
+      "args": [
+        "trends",
+        "widget-relatedsearches",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Related queries and related topics (both top and rising) for the RELATED_QUERIES/RELATED_TOPICS widgets.\n\nUsage:\n  google-trends-pp-cli trends widget-relatedsearches [flags]\n\nExamples:\n  google-trends-pp-cli trends widget-relatedsearches --hl en-US --tz 42 --req example-value --token your-token-here\n\nFlags:\n  -h, --help           help for widget-relatedsearches\n      --hl string      UI/response language, e.g. en-US\n      --req string     JSON-encoded widget.request object copied verbatim from the matching explore() widget entry\n      --token string   Widget token copied verbatim from the matching explore() widget entry\n      --tz int         Timezone offset in minutes\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'google-trends-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "trends widget-relatedsearches",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "trends widget-relatedsearches",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "trends widget-relatedsearches",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  google-trends-pp-cli which [query] [flags]\n\nExamples:\n  google-trends-pp-cli which \"stale tickets\"\n  google-trends-pp-cli which \"bottleneck\"\n  google-trends-pp-cli which --limit 1 \"send message\"\n  google-trends-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'google-trends-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"matches\": []\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "archive",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Archive fetches all syncable resources from the API and stores them in a\nlocal SQLite database. Supports incremental sync (only new data since last run)\nand full resync. After archiving, use 'search' for instant full-text search.\n\nUsage:\n  google-trends-pp-cli workflow archive [flags]\n\nExamples:\n  # Archive all resources\n  google-trends-pp-cli workflow archive\n\n  # Full re-archive (ignore previous sync state)\n  google-trends-pp-cli workflow archive --full\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n      --full        Full re-archive (ignore previous sync state)\n  -h, --help        help for archive\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'google-trends-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "archive"
+      ],
+      "status": "pass",
+      "output_sample": "Archived 0 items across 0 resources to /var/folders/10/cmmmh_pj78197d1h69tb3pnr0000gn/T/printing-press-subprocess-2124182032/.local/share/google-trends-pp-cli/data.db\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "archive",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"resources_synced\": 0,\n  \"store_path\": \"/var/folders/10/cmmmh_pj78197d1h69tb3pnr0000gn/T/printing-press-subprocess-2124182032/.local/share/google-trends-pp-cli/data.db\",\n  \"timestamp\": \"2026-07-14T04:34:55Z\",\n  \"total_items\": 0\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show local archive status and sync state for all resources\n\nUsage:\n  google-trends-pp-cli workflow status [flags]\n\nExamples:\n  # Show archive status\n  google-trends-pp-cli workflow status\n\n  # Show status as JSON\n  google-trends-pp-cli workflow status --json\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'google-trends-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "Archive Status:\n  trends                         2 items\n  gt_keyword_query               1 items\n\n  Total: 3 items\n  Store: /var/folders/10/cmmmh_pj78197d1h69tb3pnr0000gn/T/printing-press-subprocess-2124182032/.local/share/google-trends-pp-cli/data.db\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"gt_keyword_query\": 1,\n  \"trends\": 2\n}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-07-14T04:34:51.045999Z"
+}

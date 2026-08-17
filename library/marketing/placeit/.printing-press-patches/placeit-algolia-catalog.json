@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "placeit-algolia-catalog",
+  "applied_at": "2026-06-16",
+  "base_run_id": "20260616-010520-922cfd05",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Hand-built Algolia catalog client and core catalog commands (search, sync, template, facets, industries, open).",
+  "reason": "Placeit has no REST catalog API; the catalog is served via a public search-only Algolia key. The generator's spec models only the placeit.net cookie-auth endpoints, so the catalog core is hand-authored on a sibling internal/algolia client with rate limiting.",
+  "files": ["internal/algolia/algolia.go", "internal/algolia/algolia_test.go", "internal/cli/catalog.go", "internal/cli/root.go"],
+  "validated_outcome": "search/sync/template/facets/industries verified live against Algolia; sync mirrored 1000 templates into SQLite; full dogfood 70/70."
+}

@@ -1,0 +1,51 @@
+version: 2
+project_name: ikon-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: ikon-pp-cli
+    main: ./cmd/ikon-pp-cli
+    binary: ikon-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X ikon-pp-cli/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: ikon-pp-mcp
+    main: ./cmd/ikon-pp-mcp
+    binary: ikon-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: ikon-pp-cli
+    repository:
+      owner: stellato
+      name: homebrew-tap
+    homepage: "https://github.com/stellato/ikon-pp-cli"
+    description: "Every reservation, pass, Friends & Family voucher"
+    install: |
+      bin.install "ikon-pp-cli"
+      bin.install "ikon-pp-mcp"

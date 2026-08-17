@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/finra",
+  "research_dir": "\u003ccli-dir\u003e/20260705-224800-9d954693",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

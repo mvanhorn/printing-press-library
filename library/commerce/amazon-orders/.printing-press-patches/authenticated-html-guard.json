@@ -1,0 +1,33 @@
+{
+  "schema_version": 2,
+  "id": "authenticated-html-guard",
+  "applied_at": "2026-06-30",
+  "base_run_id": "20260510-105710",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Reject Amazon sign-in, claim, CAPTCHA, and identity-challenge HTML before parsing or caching authenticated buyer pages.",
+  "reason": "Amazon can return login/interstitial pages with HTTP 200, so status-code-only success made doctor, order reads, search, and sync trust unauthenticated HTML as real order data.",
+  "files": [
+    "internal/parser/auth_interstitial.go",
+    "internal/parser/auth_interstitial_test.go",
+    "internal/cli/auth.go",
+    "internal/cli/auth_guard_command_test.go",
+    "internal/cli/auth_interstitial_cli_test.go",
+    "internal/cli/channel_workflow.go",
+    "internal/cli/data_source.go",
+    "internal/cli/data_source_test.go",
+    "internal/cli/doctor.go",
+    "internal/cli/doctor_test.go",
+    "internal/cli/helpers.go",
+    "internal/cli/novel_helpers.go",
+    "internal/cli/orders_get.go",
+    "internal/cli/orders_get_test.go",
+    "internal/cli/orders_invoice.go",
+    "internal/cli/orders_list.go",
+    "internal/cli/promoted_gift-cards.go",
+    "internal/cli/promoted_shipments.go",
+    "internal/cli/promoted_transactions.go",
+    "internal/cli/sync.go",
+    "internal/cli/track.go"
+  ],
+  "validated_outcome": "Focused tests reject sign-in HTML from live reads, local cache, sync, doctor probes, and mismatched order-detail pages."
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "dnsmadeeasy-hmac-signing",
+  "applied_at": "2026-07-10",
+  "base_run_id": "20260709-145756-391a5493",
+  "base_printing_press_version": "4.27.1",
+  "summary": "HMAC-SHA1 request signing transport wired into client.New via a one-line hook.",
+  "reason": "DNS Made Easy signs every request (x-dnsme-apiKey/x-dnsme-requestDate/x-dnsme-hmac); the generator has no signing auth mode, so a signing http.RoundTripper covers all generated + novel requests. Computes the RFC1123 date once for both header and HMAC (stricter than the official SDK). Host-gated so credentials never leak on cross-host redirects.",
+  "files": ["internal/client/dnsmadeeasy_signing.go", "internal/client/dnsmadeeasy_signing_test.go", "internal/client/client.go"],
+  "validated_outcome": "doctor + all live commands authenticate against api.dnsmadeeasy.com; signing unit tests pass (contract, all-3-headers, cross-host no-leak, no-cred passthrough).",
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/2913"
+}

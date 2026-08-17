@@ -20,17 +20,16 @@ func newAdminsListCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  intercom-pp-cli admins list",
 		Annotations: map[string]string{"pp:endpoint": "admins.list", "pp:method": "GET", "pp:path": "/admins", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			path := "/admins"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/admins"
 			params := map[string]string{}
 			if flagDisplayAvatar != false {
-				params["display_avatar"] = fmt.Sprintf("%v", flagDisplayAvatar)
+				params["display_avatar"] = formatCLIParamValue(flagDisplayAvatar)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "admins", true, path, params, nil, cmd.ErrOrStderr())
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "admins", true, path, params, nil, "admins", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -75,7 +74,7 @@ func newAdminsListCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().BoolVar(&flagDisplayAvatar, "display-avatar", false, "If set to true, the response will include the admin's avatar object containing the image URL. Defaults to false.")

@@ -1,0 +1,149 @@
+{
+  "api_name": "zillow",
+  "base_url": "https://files.zillowstatic.com/research/public_csvs",
+  "description": "Sync official Zillow Research housing datasets into SQLite and run explainable affordability, supply, demand, negotiation, and relocation workflows without scraping Zillow.com.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "research_days_pending",
+      "description": "Download monthly metro mean days-to-pending observations.",
+      "method": "GET",
+      "path": "/mean_doz_pending/Metro_mean_doz_pending_uc_sfrcondo_sm_month.csv",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "research_homeowner_income",
+      "description": "Download monthly metro income-needed estimates for a typical home purchase with 20 percent down.",
+      "method": "GET",
+      "path": "/new_homeowner_income_needed/Metro_new_homeowner_income_needed_downpayment_0.20_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "research_inventory",
+      "description": "Download monthly metro for-sale inventory observations.",
+      "method": "GET",
+      "path": "/invt_fs/Metro_invt_fs_uc_sfrcondo_sm_month.csv",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "research_market_temperature",
+      "description": "Download monthly metro market-temperature index observations.",
+      "method": "GET",
+      "path": "/market_temp_index/Metro_market_temp_index_uc_sfrcondo_month.csv",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "research_new_con_price",
+      "description": "Download monthly metro new-construction median sale prices.",
+      "method": "GET",
+      "path": "/new_con_median_sale_price/Metro_new_con_median_sale_price_uc_sfrcondo_month.csv",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "research_new_con_price_per_sqft",
+      "description": "Download monthly metro new-construction median sale price per square foot.",
+      "method": "GET",
+      "path": "/new_con_median_sale_price_per_sqft/Metro_new_con_median_sale_price_per_sqft_uc_sfrcondo_month.csv",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "research_new_con_sales",
+      "description": "Download monthly metro new-construction sales counts.",
+      "method": "GET",
+      "path": "/new_con_sales_count_raw/Metro_new_con_sales_count_raw_uc_sfrcondo_month.csv",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "research_price_cut_share",
+      "description": "Download monthly metro share of listings with a price cut.",
+      "method": "GET",
+      "path": "/perc_listings_price_cut/Metro_perc_listings_price_cut_uc_sfrcondo_sm_month.csv",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "research_sale_to_list",
+      "description": "Download monthly metro mean sale-to-list ratio observations.",
+      "method": "GET",
+      "path": "/mean_sale_to_list/Metro_mean_sale_to_list_uc_sfrcondo_sm_month.csv",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "research_sales",
+      "description": "Download monthly metro sales-count nowcast observations.",
+      "method": "GET",
+      "path": "/sales_count_now/Metro_sales_count_now_uc_sfrcondo_month.csv",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "research_total_monthly_payment",
+      "description": "Download monthly metro total housing payment estimates for a typical home purchase with 20 percent down.",
+      "method": "GET",
+      "path": "/total_monthly_payment/Metro_total_monthly_payment_downpayment_0.20_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "research_zhvf",
+      "description": "Download monthly metro Zillow Home Value Forecast growth observations.",
+      "method": "GET",
+      "path": "/zhvf_growth/Metro_zhvf_growth_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "research_zhvi",
+      "description": "Download monthly metro Zillow Home Value Index observations.",
+      "method": "GET",
+      "path": "/zhvi/Metro_zhvi_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "research_zhvi_bottom_tier",
+      "description": "Download monthly metro bottom-tier Zillow Home Value Index observations.",
+      "method": "GET",
+      "path": "/zhvi/Metro_zhvi_uc_sfrcondo_tier_0.0_0.33_sm_sa_month.csv",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "research_zhvi_top_tier",
+      "description": "Download monthly metro top-tier Zillow Home Value Index observations.",
+      "method": "GET",
+      "path": "/zhvi/Metro_zhvi_uc_sfrcondo_tier_0.67_1.0_sm_sa_month.csv",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "research_zordi",
+      "description": "Download monthly metro Zillow Observed Renter Demand Index observations.",
+      "method": "GET",
+      "path": "/zordi/Metro_zordi_uc_sfrcondomfr_month.csv",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "research_zori",
+      "description": "Download monthly metro Zillow Observed Rent Index observations.",
+      "method": "GET",
+      "path": "/zori/Metro_zori_uc_sfrcondomfr_sm_month.csv",
+      "no_auth": true,
+      "params": []
+    }
+  ]
+}

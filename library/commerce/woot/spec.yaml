@@ -1,0 +1,117 @@
+name: woot
+description: Search Woot's live All Deals catalog with filters, prices, offline full-text search, and read-only GraphQL access.
+version: 0.1.0
+base_url: https://d24qg5zsx8xdc4.cloudfront.net
+spec_source: sniffed
+auth:
+    type: api_key
+    header: x-api-key
+    format: ""
+    env_vars:
+        - D24QG5ZSX8XDC4_CLOUDFRONT_API_KEY
+    env_var_specs:
+        - name: D24QG5ZSX8XDC4_CLOUDFRONT_API_KEY
+          kind: per_call
+          required: true
+          sensitive: true
+          inferred: true
+    in: header
+auth_warnings:
+    - 'rejected auth candidate "query" from query: search input'
+config:
+    format: toml
+    path: ~/.config/woot-pp-cli/config.toml
+resources:
+    graphql:
+        description: Read-only access to Woot's browser GraphQL API
+        endpoints:
+            list_graphql:
+                method: GET
+                path: /graphql
+                description: Execute a read-only GraphQL query against Woot's browser API.
+                params:
+                    - name: query
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: GraphQL query document; mutation and subscription operations are rejected.
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: Graphql
+                pagination: null
+                observed_auth:
+                    - x-api-key
+types:
+    Data:
+        fields:
+            - name: getActiveSpotlights
+              type: '[]ref:GetActiveSpotlight'
+              omit_empty: true
+            - name: getFeaturedEvent
+              type: ref:GetFeaturedEvent
+              omit_empty: true
+            - name: getFeaturedEvents
+              type: '[]ref:GetFeaturedEvent2'
+              omit_empty: true
+            - name: searchOffers
+              type: ref:SearchOffers
+              omit_empty: true
+    GetActiveSpotlight:
+        fields:
+            - name: SiteIds
+              type: array
+            - name: Slot
+              type: integer
+    GetFeaturedEvent:
+        fields:
+            - name: EndDate
+              type: string
+              format: date-time
+            - name: Offers
+              type: array
+            - name: Slug
+              type: string
+            - name: SoldOut
+              type: bool
+            - name: Title
+              type: string
+            - name: Type
+              type: string
+    GetFeaturedEvent2:
+        fields:
+            - name: EndDate
+              type: string
+              format: date-time
+            - name: Id
+              type: string
+              format: uuid
+            - name: IsAppFeatured
+              type: bool
+            - name: IsMainDaily
+              type: bool
+            - name: Offers
+              type: array
+            - name: Site
+              type: object
+            - name: SiteId
+              type: string
+              format: uuid
+            - name: Slug
+              type: string
+            - name: Title
+              type: string
+            - name: Type
+              type: string
+    Graphql:
+        fields:
+            - name: data
+              type: ref:Data
+    SearchOffers:
+        fields:
+            - name: Offers
+              type: array
+            - name: TotalHits
+              type: integer

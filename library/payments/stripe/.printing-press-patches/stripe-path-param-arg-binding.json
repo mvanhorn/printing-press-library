@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "stripe-path-param-arg-binding",
+  "applied_at": "2026-06-03",
+  "base_run_id": "20260509-093200",
+  "base_printing_press_version": "4.1.0",
+  "summary": "Bind generated path parameters from Cobra positional args in Use placeholder order.",
+  "reason": "Some generated single-resource commands indexed args as if command path tokens were still present, so commands like products get-id rejected valid positional IDs.",
+  "files": [
+    "internal/cli/*.go (102 generated path-param command files)",
+    "internal/cli/path_params_test.go"
+  ],
+  "validated_outcome": "A static audit reports zero replacePathParam index mismatches and zero required-arg check mismatches."
+}

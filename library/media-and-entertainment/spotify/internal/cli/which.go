@@ -11,10 +11,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// whichEntry is one row of the curated capability index. The index is
-// seeded at generation time from the same NovelFeature list that drives
-// the SKILL.md feature section, so the command a `which` query returns
-// is guaranteed to exist and to match what the skill advertises.
+// whichEntry is one row of the curated capability index. The index is seeded
+// at generation time from the verified NovelFeature list that drives the
+// SKILL.md feature section, so the command a `which` query returns is
+// guaranteed to exist and to match what the skill advertises.
 type whichEntry struct {
 	Command      string `json:"command"`
 	Description  string `json:"description"`
@@ -26,20 +26,7 @@ type whichEntry struct {
 // its hero features. Endpoint-level commands are discoverable via
 // `--help`; `which` exists to resolve a natural-language capability
 // query to one of the commands the skill says matter most.
-var whichIndex = []whichEntry{
-	{Command: "playlists diff", Description: "Compare a playlist's current state against any prior snapshot to see exactly which tracks were added, removed, or reordered.", Group: "Playlist maintenance", WhyItMatters: "Reach for this when a user asks 'what changed in this playlist?' or wants to undo an algorithmic refresh on a collab playlist."},
-	{Command: "playlists dedupe", Description: "Find duplicate tracks in a playlist by ISRC (catches the album/single/EP/deluxe-reissue dupe class), report by default, --apply to remove.", Group: "Playlist maintenance", WhyItMatters: "Use this when a curator's playlist has the same recording on three different albums; Spotify's app treats them as distinct."},
-	{Command: "playlists merge", Description: "Combine multiple playlists into one with built-in dedupe and ordering controls.", Group: "Playlist maintenance", WhyItMatters: "Reach for this when a DJ wants to consolidate retired set playlists into a deep-archive without manually de-duplicating."},
-	{Command: "top drift", Description: "Compare two top-tracks snapshots and show who rose, fell, or stayed stable across a time window.", Group: "Listening drift", WhyItMatters: "Use this when a user asks 'which artists fell off my top-50 between Q1 and Q4?' or wants to track their own listening identity over time."},
-	{Command: "releases since", Description: "List new albums and singles released since a date by artists you follow, sorted newest first.", Group: "Listening drift", WhyItMatters: "Reach for this when a user asks 'what's new from artists I follow' and the deprecated Release Radar is no longer reachable."},
-	{Command: "tracks where", Description: "For a given track, find every place it appears in your data: which playlists, whether saved, last played, and on which devices.", Group: "Cross-collection lookup", WhyItMatters: "Use this before adding a track to a playlist to avoid duping it, or to answer 'have I played this before' questions."},
-	{Command: "play history", Description: "Bucket your recent play history by the playlist or album that drove each play, ranked by play count and total duration.", Group: "Listening drift", WhyItMatters: "Reach for this when a DJ asks 'which of my set lists is actually getting played this week' or when a journalist wants column data on listening patterns."},
-	{Command: "queue from-saved", Description: "Pick N tracks from your saved library (optionally filtered by artist or playlist origin) and queue them in one command.", Group: "Agent-native playback", WhyItMatters: "Use this when an agent should 'queue something from my chillout saved tracks' or 'queue 10 more from this artist' without resorting to URI manipulation."},
-	{Command: "discover artists", Description: "Find artists you don't follow yet who match the genres of your top, saved, or followed artists, ranked by popularity within each genre.", Group: "Music discovery", WhyItMatters: "Reach for this when the user asks 'find me new artists like the ones I already listen to' and the deprecated recommendations endpoint isn't an option."},
-	{Command: "discover via-playlists", Description: "Find artists frequently co-curated with a seed artist by searching public playlists that contain them and ranking other artists by co-occurrence count.", Group: "Music discovery", WhyItMatters: "Use this for the 'who sounds like X' question Spotify used to answer with related-artists; curator-driven co-occurrence is often a better signal anyway."},
-	{Command: "discover artist-gaps", Description: "For an artist, show their full discography chronologically with each album marked as saved or unsaved against your library.", Group: "Music discovery", WhyItMatters: "Reach for this when a user says 'I love this artist, what have I missed?' — surfaces the gap in their own collection."},
-	{Command: "discover new-releases", Description: "Filter Spotify's global new-releases feed down to releases whose artists share a genre with your top or followed artists; optionally exclude artists you already follow.", Group: "Music discovery", WhyItMatters: "Use this for 'what new music came out this week in genres I actually listen to' — broader than just-from-followed-artists (T5) since it surfaces adjacent artists too."},
-}
+var whichIndex = []whichEntry{}
 
 // whichMatch pairs an index entry with its ranking score for a query.
 // Higher score means stronger match. The ranker is naive (exact token
@@ -142,6 +129,7 @@ func newWhichCmd(flags *rootFlags) *cobra.Command {
 		Use:   "which [query]",
 		Short: "Find the command that implements a capability",
 		Annotations: map[string]string{
+			"mcp:read-only":       "true",
 			"pp:typed-exit-codes": "0,2",
 		},
 		Long: `which resolves a natural-language capability query (for example, "search messages" or "stale tickets") to the best matching command from this CLI's curated feature index.

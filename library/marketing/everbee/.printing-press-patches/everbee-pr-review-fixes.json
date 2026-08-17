@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "everbee-pr-review-fixes",
+  "applied_at": "2026-07-12",
+  "base_run_id": "20260711-203553-d9c009c7",
+  "base_printing_press_version": "4.28.0",
+  "summary": "PR-review fixes: EvidenceSet carries an explicit SeedMetricsPresent flag so LowCompetition refuses with the seed-evidence reason when EverBee omits searched_keyword; FetchProducts unwraps *client.APIError so real 402/429 statuses classify as plan caps; runtime version var kept in root.go at the base-stamped value per the library's release-ledger guard.",
+  "reason": "Greptile P1s on PR #1506 (suggestions-only responses produced a misleading low-competition refusal reason; product-path plan caps relied on body-text matching) plus the verify-release-ledger guard, which forbids moving or restamping var version lines in a publish PR.",
+  "files": [
+    "internal/research/types.go",
+    "internal/research/relevance.go",
+    "internal/research/pipeline.go",
+    "internal/research/fetch.go",
+    "internal/cli/root.go",
+    "internal/cli/version.go",
+    "cmd/everbee-pp-mcp/main.go"
+  ],
+  "validated_outcome": "go build/vet/test ./... pass; TestLowCompetition gained a missing-seed-metrics regression case."
+}

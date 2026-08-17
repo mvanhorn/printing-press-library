@@ -1,0 +1,28 @@
+{
+  "manifest_version": "0.3",
+  "name": "greenhouse-pp-mcp",
+  "display_name": "Greenhouse",
+  "version": "0.1.0",
+  "description": "Greenhouse Job Board API surface as MCP tools. Query any company's public Greenhouse job board (jobs, departments, offices) without authentication.",
+  "author": {
+    "name": "Hunter Veltri"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/greenhouse-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/greenhouse-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  },
+  "cli_binary": "greenhouse-pp-cli"
+}

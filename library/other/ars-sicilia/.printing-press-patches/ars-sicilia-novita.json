@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "ars-sicilia-novita",
+  "applied_at": "2026-08-14",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.18.0",
+  "summary": "Nuovo comando `novita --since 7d`: cosa e' comparso in tutti gli archivi datati da una certa data in qua, con accanto il ritardo di pubblicazione della fonte archivio per archivio. Nel farlo si e' scoperto e corretto un difetto del riuso di sessione che colpiva anche `sync coverage`: la stessa ricerca ripetuta sullo stesso client non riparte da capo, la continua.",
+  "reason": "Il monitoraggio aveva un solo comando, `ddl drift`, su un archivio su dodici. Ma drift risponde a «cosa si e' MOSSO» e per farlo confronta lo stato dell'iter fra due deep sync: quello stato esiste solo sui ddl, quindi drift resta per forza su un archivio solo. «Cosa e' NUOVO» non ha bisogno di nessun confronto — la data sta dentro il dato — e dopo l'introduzione di data_iso e' una chiave uniforme su tutti gli archivi: e' una domanda che si poteva gia' fare, ma costava una ricerca per archivio piu' un filtro a mano. La seconda meta' del comando e' cio' che lo rende leggibile: su questo portale il ritardo di pubblicazione va dai 9 giorni (resoconti) ai 45 (mozioni), quindi «gli ultimi 7 giorni» sulle mozioni sara' vuoto per un mese e mezzo, e senza il ritardo accanto quello zero si legge come «l'Assemblea e' ferma». Quando la finestra chiesta cade tutta dentro il ritardo il comando lo dice esplicitamente.",
+  "files": [
+    "internal/cli/novita.go",
+    "internal/cli/novita_test.go",
+    "internal/cli/root.go",
+    "internal/cli/sync_coverage.go",
+    "internal/cli/which.go",
+    "internal/cli/which_confini_test.go",
+    "SKILL.md",
+    "README.md"
+  ],
+  "validated_outcome": "`novita --since 30d --archivi ddl,interrogazioni,resoconti,mozioni` -> 62 interrogazioni (ultima 2026-08-03), 12 ddl (2026-07-28), 6 resoconti (2026-08-05), 0 mozioni con la nota «la fonte e' ferma al 2026-06-30: la finestra parte dal 2026-07-15, questo zero e' latenza, non assenza». I ritardi coincidono con quelli di `sync coverage` (11/17/9/45), che e' il controllo incrociato che conta. DIFETTO SCOPERTO E CORRETTO: la stessa query ripetuta sullo stesso client icaro non riparte da capo. Misurato sulle interrogazioni 2026, tre chiamate identiche a 30 righe: stesso client -> prima riga 2026-08-03, poi 2026-07-28, poi 2026-07-28; client nuovo ogni volta -> 2026-08-03 tutte e tre. Una scansione a passi di 30 (30..180, due giri ciascuno) mostra che non esiste una soglia di righe oltre la quale succede: la testa si perde a ogni chiamata successiva, di quanto e' lungo il giro precedente. Non e' quindi un tetto da fissare ma una sessione da rinnovare. Corretto anche in `massimoDellAnno` (sync_coverage), che ripete la stessa ricerca due volte: li' il risultato non cambia oggi (l'archivio interessato, `leggi`, esce in ordine crescente e perdere la testa non tocca il massimo) ma il difetto era latente e silenzioso. TRAPPOLA CORRETTA: `--since 2m` passato a time.ParseDuration dava due MINUTI, quindi zero risultati ovunque; ora `m` vale mesi e l'help lo dice. `--since 2m --archivi mozioni` -> 6 mozioni dal 2026-06-15. go test ./... e go vet verdi."
+}

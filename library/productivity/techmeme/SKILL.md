@@ -29,7 +29,7 @@ This skill drives the `techmeme-pp-cli` binary. **You must verify the CLI is ins
 2. Verify: `techmeme-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.6 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/productivity/techmeme/cmd/techmeme-pp-cli@latest
@@ -152,6 +152,14 @@ techmeme-pp-cli search 'Apple' --agent --select title,source,link
 ```
 
 Find all recent Techmeme headlines about Apple
+
+### Windowed archive search
+
+```bash
+techmeme-pp-cli search 'Apple' --days 30 --json
+```
+
+`search` queries Techmeme's live archive (back to ~2005). Each JSON record carries a `date` field (ISO `YYYY-MM-DD`, empty string when the results page shows no parseable date). `--days N` keeps only results dated within the last N days (undated records are dropped when the filter is active). Zero hits in JSON mode emit an empty JSON array `[]` on stdout, so piped consumers always get valid JSON.
 
 ### Media landscape
 

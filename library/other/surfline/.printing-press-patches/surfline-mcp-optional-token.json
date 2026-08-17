@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "surfline-mcp-optional-token",
+  "applied_at": "2026-06-15",
+  "base_run_id": "20260614-164025-61e51520",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Mark the MCPB user_config token optional (required:false); Surfline auth is optional.",
+  "reason": "Generator emitted required:true in the MCPB manifest despite auth.optional:true; basic forecasts work with no token, so a hard requirement is wrong. Same optional-auth-not-propagated class as the doctor patch.",
+  "files": ["manifest.json"],
+  "upstream_issue": ""
+}

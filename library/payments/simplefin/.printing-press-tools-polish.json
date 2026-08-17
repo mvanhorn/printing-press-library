@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-06-29T14:44:14.755216Z",
+  "cli_dir": "\u003ccli-dir\u003e/simplefin-pp-cli",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-06-29T14:39:03.583611Z"
+  }
+}

@@ -1,0 +1,11 @@
+grants-pp-cli
+Copyright 2026 laci141 and contributors
+
+Created by laci141 (@laci141).
+
+This CLI queries the public, keyless Grants.gov Search2, NIH RePORTER, and
+NSF Awards APIs. It is built with the Go standard library only and follows
+the printed-CLI conventions of CLI Printing Press
+(https://github.com/mvanhorn/cli-printing-press) by Matt Van Horn.
+
+CLI Printing Press is licensed separately under the MIT License.

@@ -9,8 +9,11 @@ import (
 
 func newPlaylistsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "playlists",
-		Short: "Manage playlists (incl. snapshot-aware diff, ISRC dedupe, merge)",
+		Use:         "playlists",
+		Short:       "Get and update playlists",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newPlaylistsChangeDetailsCmd(flags))
@@ -19,7 +22,6 @@ func newPlaylistsCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newPlaylistsImagesCmd(flags))
 	cmd.AddCommand(newPlaylistsItemsCmd(flags))
 	cmd.AddCommand(newPlaylistsTracksCmd(flags))
-	// Transcendence subcommands
 	cmd.AddCommand(newPlaylistsDiffCmd(flags))
 	cmd.AddCommand(newPlaylistsDedupeCmd(flags))
 	cmd.AddCommand(newPlaylistsMergeCmd(flags))

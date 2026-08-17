@@ -7,18 +7,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"strconv"
-	"strings"
-
-	"github.com/mvanhorn/printing-press-library/library/productivity/slack/internal/client"
 
 	"github.com/spf13/cobra"
 )
 
 func newConversationsHistoryCmd(flags *rootFlags) *cobra.Command {
 	var flagChannel string
-	var flagUser string
-	var flagLimit string
+	var flagLimit int
 	var flagCursor string
 	var flagOldest string
 	var flagLatest string
@@ -26,182 +21,107 @@ func newConversationsHistoryCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "history",
 		Short: "Fetch message history for a channel",
-		Example: `  slack-pp-cli conversations history --channel C0123456789
-  slack-pp-cli conversations history --user U0123456789`,
+		// TODO: replace placeholder example values before relying on this for live dogfood.
+		Example:     "  slack-pp-cli conversations history --channel example-value",
+		Annotations: map[string]string{"pp:endpoint": "conversations.history", "pp:method": "GET", "pp:path": "/conversations.history", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if !cmd.Flags().Changed("channel") && !cmd.Flags().Changed("user") && !flags.dryRun {
-				return fmt.Errorf("provide --channel CHANNEL_ID or --user USER_ID")
+			// Bare invocation of a command with required input prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only read commands fall through so a bare call still executes.
+			// Machine callers (--json/--agent, which sets asJSON) get a usage
+			// error + exit 2 instead of silent exit-0 help, so an incomplete
+			// invocation is never mistaken for success.
+			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "requires input",
+						"usage": cmd.CommandPath() + " --help",
+					}, flags); printErr != nil {
+						return printErr
+					}
+					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
+				}
+				return cmd.Help()
 			}
-			// PATCH(amend-2026-05-26: DM/IM history routing) — --channel and --user
-			// resolve to different DMs; accepting both would silently discard
-			// --channel, so reject the conflict explicitly.
-			if cmd.Flags().Changed("channel") && cmd.Flags().Changed("user") {
-				return fmt.Errorf("--channel and --user are mutually exclusive; provide one or the other")
+			if !cmd.Flags().Changed("channel") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "channel")
 			}
+			path := "/conversations.history"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
 			params := map[string]string{}
-			if flagLimit != "" {
-				if _, parseErr := strconv.Atoi(flagLimit); parseErr != nil {
-					return fmt.Errorf("invalid --limit %q: expected a positive integer", flagLimit)
-				}
-				params["limit"] = fmt.Sprintf("%v", flagLimit)
+			if flagChannel != "" {
+				params["channel"] = formatCLIParamValue(flagChannel)
+			}
+			if flagLimit != 0 {
+				params["limit"] = formatCLIParamValue(flagLimit)
 			}
 			if flagCursor != "" {
-				params["cursor"] = fmt.Sprintf("%v", flagCursor)
+				params["cursor"] = formatCLIParamValue(flagCursor)
 			}
 			if flagOldest != "" {
-				params["oldest"] = fmt.Sprintf("%v", flagOldest)
+				params["oldest"] = formatCLIParamValue(flagOldest)
 			}
 			if flagLatest != "" {
-				params["latest"] = fmt.Sprintf("%v", flagLatest)
+				params["latest"] = formatCLIParamValue(flagLatest)
 			}
-
-			// PATCH(amend-2026-05-26: DM/IM history routing) — conversations.history
-			// rejects raw IM (D-prefixed) channel ids from conversations.list with
-			// channel_not_found unless the DM is first opened/resolved with a user
-			// token. The --user path and any D-prefixed --channel are routed through
-			// conversations.open + the user-token history fetch (slackHistoryEnvelope).
-			// This also activates the previously unused DM helpers in slack_dm_helpers.go.
-			if flagUser != "" {
-				data, histErr := slackHistoryFetchDM(c, "", flagUser, params)
-				if histErr != nil {
-					return classifyAPIError(histErr)
-				}
-				return printConversationsHistory(cmd, flags, data, DataProvenance{Source: "live"})
-			}
-			if slackIsDMChannel(flagChannel) {
-				data, histErr := slackHistoryFetchDM(c, flagChannel, "", params)
-				if histErr != nil {
-					return classifyAPIError(histErr)
-				}
-				return printConversationsHistory(cmd, flags, data, DataProvenance{Source: "live"})
-			}
-
-			params["channel"] = fmt.Sprintf("%v", flagChannel)
-			data, prov, err := resolveRead(c, flags, "conversations", false, "/conversations.history", params)
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "conversations", false, path, params, nil, "", cmd.ErrOrStderr())
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
-			return printConversationsHistory(cmd, flags, data, prov)
+			// Honor --limit when the API accepts but ignores ?limit=N.
+			data = truncateJSONArray(data, flagLimit)
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
+				var countItems []json.RawMessage
+				_ = json.Unmarshal(data, &countItems)
+				printProvenance(cmd, len(countItems), prov)
+			}
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
+			// --plain) opt out of the auto-JSON path so piped consumers that asked for
+			// a non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
+				filtered := data
+				if flags.selectFields != "" {
+					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
+				}
+				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
+				if wrapErr != nil {
+					return wrapErr
+				}
+				return printOutput(cmd.OutOrStdout(), wrapped, true)
+			}
+			// For all other output modes (table, csv, plain, quiet), use the standard pipeline
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
+				var items []map[string]any
+				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
+					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
+						return err
+					}
+					if len(items) >= 25 {
+						fmt.Fprintf(os.Stderr, "\nShowing %d results. To narrow: add --limit, --json --select, or filter flags.\n", len(items))
+					}
+					return nil
+				}
+			}
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
-	cmd.Flags().StringVar(&flagChannel, "channel", "", "Channel ID (public, private, or IM); IM (D...) ids are auto-resolved via conversations.open")
-	cmd.Flags().StringVar(&flagUser, "user", "", "User ID; opens/resolves a DM with this user and fetches its history (requires SLACK_USER_TOKEN)")
-	cmd.Flags().StringVar(&flagLimit, "limit", "", "Number of messages to return (max 1000)")
+	cmd.Flags().StringVar(&flagChannel, "channel", "", "Channel ID")
+	cmd.Flags().IntVar(&flagLimit, "limit", 0, "Number of messages to return (max 1000)")
 	cmd.Flags().StringVar(&flagCursor, "cursor", "", "Pagination cursor")
 	cmd.Flags().StringVar(&flagOldest, "oldest", "", "Only messages after this Unix timestamp")
 	cmd.Flags().StringVar(&flagLatest, "latest", "", "Only messages before this Unix timestamp")
 
 	return cmd
-}
-
-// PATCH(amend-2026-05-26: DM/IM history routing) — resolves a DM channel from
-// either a user id (via conversations.open) or a D-prefixed channel id, then
-// fetches its history with the user token. On channel_not_found for a raw IM
-// id, the DM is re-opened from its members and retried before surfacing a hint
-// that points the user at --user.
-func slackHistoryFetchDM(c *client.Client, channel, userID string, params map[string]string) (json.RawMessage, error) {
-	resolved := channel
-	if userID != "" {
-		opened, err := slackResolveDMChannel(c, userID)
-		if err != nil {
-			return nil, err
-		}
-		resolved = opened
-	}
-
-	data, err := slackHistoryEnvelope(c, resolved, params, true)
-	if err == nil {
-		// Return the bare messages array, not the raw {ok,messages,...}
-		// envelope, so the DM/--user path matches the shape the channel path
-		// (resolveRead) produces and printConversationsHistory consumes.
-		return slackEnvelopeMessages(data)
-	}
-
-	// A raw IM id from conversations.list can be stale or unopened for the
-	// current token; re-open the DM by its peer and retry once.
-	if userID == "" && strings.Contains(err.Error(), "channel_not_found") {
-		peer, peerErr := slackPeerForIM(c, channel)
-		if peerErr == nil && peer != "" {
-			if opened, openErr := slackResolveDMChannel(c, peer); openErr == nil {
-				if retryData, retryErr := slackHistoryEnvelope(c, opened, params, true); retryErr == nil {
-					return slackEnvelopeMessages(retryData)
-				}
-			}
-		}
-		return nil, fmt.Errorf("%w\nhint: IM channel ids from 'conversations list --types im' must be opened before reading history."+
-			"\n      Use --user USER_ID instead, which resolves the DM automatically.", err)
-	}
-	return nil, err
-}
-
-// PATCH(amend-2026-05-26: DM/IM history routing) — looks up the non-self member
-// of an IM channel so a stale D-prefixed id can be re-opened via the user id.
-func slackPeerForIM(c *client.Client, channel string) (string, error) {
-	headers, err := slackUserAuthHeaders()
-	if err != nil {
-		return "", err
-	}
-	oldNoCache := c.NoCache
-	c.NoCache = true
-	defer func() { c.NoCache = oldNoCache }()
-
-	data, err := c.GetWithHeaders("/conversations.info", map[string]string{"channel": channel}, headers)
-	if err != nil {
-		return "", err
-	}
-	if apiErr := checkSlackAPIError(data); apiErr != nil {
-		return "", apiErr
-	}
-	var resp struct {
-		Channel struct {
-			User string `json:"user"`
-		} `json:"channel"`
-	}
-	if err := json.Unmarshal(data, &resp); err != nil {
-		return "", err
-	}
-	return resp.Channel.User, nil
-}
-
-func printConversationsHistory(cmd *cobra.Command, flags *rootFlags, data json.RawMessage, prov DataProvenance) error {
-	// Print provenance to stderr for human-facing output
-	{
-		var countItems []json.RawMessage
-		_ = json.Unmarshal(data, &countItems)
-		printProvenance(cmd, len(countItems), prov)
-	}
-	// For JSON output, wrap with provenance envelope before passing through flags
-	if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
-		filtered := data
-		if flags.compact {
-			filtered = compactFields(filtered)
-		}
-		if flags.selectFields != "" {
-			filtered = filterFields(filtered, flags.selectFields)
-		}
-		wrapped, wrapErr := wrapWithProvenance(filtered, prov)
-		if wrapErr != nil {
-			return wrapErr
-		}
-		return printOutput(cmd.OutOrStdout(), wrapped, true)
-	}
-	// For all other output modes (table, csv, plain, quiet), use the standard pipeline
-	if wantsHumanTable(cmd.OutOrStdout(), flags) {
-		var items []map[string]any
-		if json.Unmarshal(data, &items) == nil && len(items) > 0 {
-			if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
-				return err
-			}
-			if len(items) >= 25 {
-				fmt.Fprintf(os.Stderr, "\nShowing %d results. To narrow: add --limit, --json --select, or filter flags.\n", len(items))
-			}
-			return nil
-		}
-	}
-	return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 }

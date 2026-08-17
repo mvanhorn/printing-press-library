@@ -50,7 +50,7 @@ func newDigestCmd(flags *rootFlags) *cobra.Command {
 			now := time.Now().UTC()
 			start := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC).Format(time.RFC3339)
 			end := time.Date(now.Year(), now.Month(), now.Day(), 23, 59, 59, 0, time.UTC).Format(time.RFC3339)
-			if raw, err := c.Get(fmt.Sprintf("/airports/%s/flights/departures", airport),
+			if raw, err := c.Get(cmd.Context(), fmt.Sprintf("/airports/%s/flights/departures", airport),
 				map[string]string{"start": start, "end": end, "max_pages": "3"}); err == nil {
 				var page scheduledDeparturesPage
 				_ = json.Unmarshal(raw, &page)
@@ -84,10 +84,10 @@ func newDigestCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 
-			if raw, err := c.Get(fmt.Sprintf("/airports/%s/delays", airport), nil); err == nil {
+			if raw, err := c.Get(cmd.Context(), fmt.Sprintf("/airports/%s/delays", airport), nil); err == nil {
 				d.ActiveDelays = raw
 			}
-			if raw, err := c.Get(fmt.Sprintf("/airports/%s/weather/observations", airport), nil); err == nil {
+			if raw, err := c.Get(cmd.Context(), fmt.Sprintf("/airports/%s/weather/observations", airport), nil); err == nil {
 				d.Weather = raw
 			}
 

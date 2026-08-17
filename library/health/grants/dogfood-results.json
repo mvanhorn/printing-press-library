@@ -1,0 +1,112 @@
+{
+  "dir": ".",
+  "verdict": "WARN",
+  "path_check": {
+    "tested": 0,
+    "valid": 0,
+    "valid_pct": 0
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "",
+    "match": true,
+    "detail": "spec not provided; auth protocol check skipped"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "spec not provided; browser-session auth check skipped"
+  },
+  "oauth_scope_coverage_check": {
+    "checked": 0,
+    "covered": 0,
+    "skipped": true,
+    "detail": "spec not provided; OAuth scope coverage check skipped"
+  },
+  "dead_flags": {
+    "total": 0,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 0,
+    "dead": 0
+  },
+  "pipeline_check": {
+    "sync_calls_domain": false,
+    "search_calls_domain": true,
+    "domain_tables": 0,
+    "sync_file_emitted": false,
+    "sync_resources_present": false,
+    "detail": "sync Upsert calls not found; search uses domain-specific Search methods"
+  },
+  "example_check": {
+    "tested": 0,
+    "with_examples": 0,
+    "valid_examples": 0,
+    "skipped": true,
+    "detail": "could not discover command tree from agent-context: agent-context failed: ismeretlen parancs / unknown command: \"agent-context\"\n\ngrants-pp-cli 1.0.0 \u2014 nyitott kutat\u00e1si p\u00e1ly\u00e1zatok, kulcs n\u00e9lk\u00fcl / open research grants, keyless\n\nHASZN\u00c1LAT / USAGE:\n  grants-pp-cli search <kulcssz\u00f3>   nyitott ki\u00edr\u00e1sok (Grants.gov: NIH, NSF, minden sz\u00f6vets\u00e9gi)\n      --closing-before YYYY-MM-DD   csak eddig a hat\u00e1rid\u0151ig nyitottak\n      --agency K\u00d3D                  \u00fcgyn\u00f6ks\u00e9g-sz\u0171r\u0151 (pl. HHS-NIH11, NSF)\n      --rows N                      tal\u00e1latok sz\u00e1ma (default 15)\n      --details                     keret + jogosults\u00e1g lek\u00e9r\u00e9se soronk\u00e9nt\n      --min-award N                 min. keret\u00f6sszeg USD (bekapcsolja a --details-t)\n      --eligibility SZ\u00d6VEG          jogosults\u00e1g-sz\u0171r\u0151, pl. \"small business\" (bekapcsolja a --details-t)\n      --json                        nyers JSON kimenet\n\n  grants-pp-cli nih <kulcssz\u00f3>      meg\u00edt\u00e9lt NIH grantek (RePORTER) \u2014 \"mennyit adnak erre\"\n      --min-amount N  --year YYYY  --rows N  --json\n\n  grants-pp-cli nsf <kulcssz\u00f3>      meg\u00edt\u00e9lt NSF grantek\n      --min-amount N  --rows N (max 25)  --json\n\n  grants-pp-cli doctor              mindh\u00e1rom API el\u00e9rhet\u0151s\u00e9g\u00e9nek ellen\u0151rz\u00e9se\n  grants-pp-cli version | help"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 0,
+      "registered": 0
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 0,
+    "found": 0,
+    "skipped": true
+  },
+  "mcp_surface_parity": {
+    "state": "missing",
+    "pass": true,
+    "skipped": true,
+    "detail": "no internal/mcp/tools.go; CLI does not ship an MCP surface"
+  },
+  "reimplementation_check": {
+    "checked": 0,
+    "exempted_via_store": 0,
+    "skipped": true
+  },
+  "source_client_check": {
+    "checked": 5,
+    "findings": [
+      {
+        "package": "sources",
+        "file": "internal/sources/http.go",
+        "reason": "outbound HTTP without rate limiter or typed 429 handling"
+      }
+    ]
+  },
+  "print_json_filtered_check": {
+    "checked": 6
+  },
+  "test_presence": {
+    "checked": 1,
+    "missing_tests": [
+      "sources"
+    ]
+  },
+  "naming_check": {
+    "checked": 6
+  },
+  "sync_param_drop_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "issues": [
+    "sync uses generic Upsert only",
+    "example check skipped: could not discover command tree from agent-context: agent-context failed: ismeretlen parancs / unknown command: \"agent-context\"\n\ngrants-pp-cli 1.0.0 \u2014 nyitott kutat\u00e1si p\u00e1ly\u00e1zatok, kulcs n\u00e9lk\u00fcl / open research grants, keyless\n\nHASZN\u00c1LAT / USAGE:\n  grants-pp-cli search <kulcssz\u00f3>   nyitott ki\u00edr\u00e1sok (Grants.gov: NIH, NSF, minden sz\u00f6vets\u00e9gi)\n      --closing-before YYYY-MM-DD   csak eddig a hat\u00e1rid\u0151ig nyitottak\n      --agency K\u00d3D                  \u00fcgyn\u00f6ks\u00e9g-sz\u0171r\u0151 (pl. HHS-NIH11, NSF)\n      --rows N                      tal\u00e1latok sz\u00e1ma (default 15)\n      --details                     keret + jogosults\u00e1g lek\u00e9r\u00e9se soronk\u00e9nt\n      --min-award N                 min. keret\u00f6sszeg USD (bekapcsolja a --details-t)\n      --eligibility SZ\u00d6VEG          jogosults\u00e1g-sz\u0171r\u0151, pl. \"small business\" (bekapcsolja a --details-t)\n      --json                        nyers JSON kimenet\n\n  grants-pp-cli nih <kulcssz\u00f3>      meg\u00edt\u00e9lt NIH grantek (RePORTER) \u2014 \"mennyit adnak erre\"\n      --min-amount N  --year YYYY  --rows N  --json\n\n  grants-pp-cli nsf <kulcssz\u00f3>      meg\u00edt\u00e9lt NSF grantek\n      --min-amount N  --rows N (max 25)  --json\n\n  grants-pp-cli doctor              mindh\u00e1rom API el\u00e9rhet\u0151s\u00e9g\u00e9nek ellen\u0151rz\u00e9se\n  grants-pp-cli version | help",
+    "1 source client file(s) without rate-limit handling: internal/sources/http.go \u2014 outbound HTTP without rate limiter or typed 429 handling",
+    "pure-logic packages with no tests: sources"
+  ]
+}

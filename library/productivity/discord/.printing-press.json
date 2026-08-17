@@ -1,0 +1,70 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-08-10T20:44:27.25544Z",
+  "printing_press_version": "4.30.1",
+  "api_name": "discord",
+  "display_name": "Discord",
+  "cli_name": "discord-pp-cli",
+  "creator": {
+    "handle": "mvanhorn",
+    "name": "Hunter Veltri"
+  },
+  "owner": "mvanhorn",
+  "printer": "mvanhorn",
+  "printer_name": "Hunter Veltri",
+  "spec_url": "https://github.com/discord/discord-api-spec/blob/main/specs/openapi.json",
+  "spec_path": "discord-openapi.json",
+  "spec_format": "openapi3",
+  "spec_source": "official",
+  "spec_checksum": "sha256:f6cd197cbe47eeb6967a606980636b7fab3f72863255e17cd087cbbfe2f03bd2",
+  "run_id": "20260810-204427",
+  "category": "productivity",
+  "description": "Preview of the Discord v10 HTTP API specification. See https://discord.com/developers/docs for more details.",
+  "mcp_binary": "discord-pp-mcp",
+  "mcp_tool_count": 242,
+  "mcp_public_tool_count": 22,
+  "mcp_ready": "full",
+  "api_version": "10",
+  "auth_type": "api_key",
+  "auth_preference": "BotToken",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "endpoint_template_vars": [
+    "application_id",
+    "channel_id",
+    "guild_id",
+    "guild_scheduled_event_id",
+    "sku_id"
+  ],
+  "novel_features": [
+    {
+      "name": "Guild snapshot",
+      "command": "guild snapshot <guild_id>",
+      "description": "One-call-batch guild inventory: name, member count, sorted channel tree with category labels, and role list with color and mentionable flags. Built for audits and agent-driven guild reports."
+    },
+    {
+      "name": "Whois identity card",
+      "command": "whois <user_id> [--guild <id>]",
+      "description": "Resolve a user id into a card: username, display name, bot flag, account creation date derived from the snowflake, plus guild nick, roles, and join date when --guild is given."
+    },
+    {
+      "name": "Catch-up digest",
+      "command": "catch-up [--guild <id>] [--since 24h]",
+      "description": "Per-channel new-message volume inside the window across every guild the bot can see (or one guild). Reads only; never marks anything read."
+    },
+    {
+      "name": "Channel history digest",
+      "command": "channel history <channel_id> [--limit N]",
+      "description": "Recent message digest for a channel: author, timestamp, type, and content, newest first. Read-only."
+    }
+  ]
+}

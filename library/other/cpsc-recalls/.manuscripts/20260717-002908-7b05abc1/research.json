@@ -1,0 +1,98 @@
+{
+  "api_name": "cpsc-recalls",
+  "novelty_score": 0,
+  "alternatives": null,
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "",
+  "researched_at": "0001-01-01T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "Evidence-preserving inventory check",
+      "command": "inventory-check",
+      "description": "Screen a bounded CSV inventory against CPSC product fields and expose exact identifiers and token-overlap evidence for every candidate.",
+      "rationale": ""
+    },
+    {
+      "name": "Brand/product change watch",
+      "command": "watch changes",
+      "description": "Compare a bounded brand or product recall observation with its prior local snapshot and report new or materially changed records.",
+      "rationale": ""
+    },
+    {
+      "name": "Hazard pulse",
+      "command": "hazard-pulse",
+      "description": "Flatten recent hazard, remedy, injury, and product relationships while keeping recall counts distinct from incident rates.",
+      "rationale": ""
+    },
+    {
+      "name": "Actionable recall packet",
+      "command": "packet",
+      "description": "Join one recall's affected products, remedy, contact, images, incidents, and official URL into an action packet.",
+      "rationale": ""
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Evidence-preserving inventory check",
+      "command": "inventory-check",
+      "description": "Screen a bounded CSV inventory against CPSC product fields and expose exact identifiers and token-overlap evidence for every candidate.",
+      "rationale": ""
+    },
+    {
+      "name": "Brand/product change watch",
+      "command": "watch changes",
+      "description": "Compare a bounded brand or product recall observation with its prior local snapshot and report new or materially changed records.",
+      "rationale": ""
+    },
+    {
+      "name": "Hazard pulse",
+      "command": "hazard-pulse",
+      "description": "Flatten recent hazard, remedy, injury, and product relationships while keeping recall counts distinct from incident rates.",
+      "rationale": ""
+    },
+    {
+      "name": "Actionable recall packet",
+      "command": "packet",
+      "description": "Join one recall's affected products, remedy, contact, images, incidents, and official URL into an action packet.",
+      "rationale": ""
+    }
+  ],
+  "narrative": {
+    "value_prop": "Turn CPSC recall records into bounded inventory candidates, change observations, hazard composition tables, and actionable source packets without overstating fuzzy matches.",
+    "quickstart": [
+      {
+        "command": "cpsc-recalls-pp-cli cpsc-recall-retrieval-recall --recall-id 10000 --agent --dry-run",
+        "comment": "Inspect one official recall record."
+      },
+      {
+        "command": "cpsc-recalls-pp-cli packet 10000 --agent --dry-run",
+        "comment": "Build an actionable remedy and contact packet."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "An inventory candidate is ambiguous",
+        "fix": ""
+      }
+    ],
+    "when_to_use": "Use to screen household, school, or retail inventory against published CPSC recall evidence.",
+    "anti_triggers": [
+      "Do not treat fuzzy matches as definitive product identity.",
+      "Do not infer incident rates without sales or exposure denominators.",
+      "Do not use this CLI to report a new unsafe product."
+    ],
+    "recipes": [
+      {
+        "title": "Screen an inventory",
+        "command": "cpsc-recalls-pp-cli inventory-check --inventory products.csv --agent --dry-run",
+        "explanation": "Return candidate matches with exact fields and token-overlap evidence."
+      },
+      {
+        "title": "Review recent hazards",
+        "command": "cpsc-recalls-pp-cli hazard-pulse --window 30d --agent --dry-run",
+        "explanation": "Describe recent recall composition without rate claims."
+      }
+    ]
+  }
+}

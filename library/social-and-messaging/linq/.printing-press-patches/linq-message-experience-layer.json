@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "linq-message-experience-layer",
+  "applied_at": "2026-06-20",
+  "base_run_id": "20260617-193043",
+  "base_printing_press_version": "4.24.0",
+  "summary": "The published Linq CLI must expose generic rich messaging workflows through validated experience commands.",
+  "reason": "Raw endpoint mirrors make it easy for agents to send malformed message bodies, mix invalid link preview parts, or miss protocol-specific constraints. The curated layer centralizes the nested message body contract, protocol warnings, and media/link/reaction/contact-share validation.",
+  "files": [
+    "internal/cli/message_body.go",
+    "internal/cli/message_experience.go",
+    "internal/cli/attachments.go",
+    "internal/cli/root.go",
+    "internal/cli/agent_context.go",
+    "internal/cli/which.go"
+  ],
+  "validated_outcome": "Focused message-builder and command-wrapper tests pass; full validation is recorded in the PR."
+}

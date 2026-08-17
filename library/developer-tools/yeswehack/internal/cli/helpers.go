@@ -7,6 +7,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/yeswehack/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/yeswehack/internal/cliutil"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"io"
@@ -14,12 +16,11 @@ import (
 	"path/filepath"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"text/tabwriter"
 	"time"
 	"unicode"
-	"github.com/mvanhorn/printing-press-library/library/developer-tools/yeswehack/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/developer-tools/yeswehack/internal/cliutil"
 )
 
 var As = errors.As
@@ -290,8 +291,20 @@ func paginatedGet(c interface {
 	// Fetch all pages
 	allItems := make([]json.RawMessage, 0)
 	page := 0
+	if _, ok := params["page"]; ok {
+		page = 1
+		if requested := clean["page"]; requested != "" {
+			if n, err := strconv.Atoi(requested); err == nil && n > 0 {
+				page = n
+			}
+		}
+	}
 	for {
-		page++
+		if _, ok := params["page"]; ok {
+			clean["page"] = strconv.Itoa(page)
+		} else {
+			page++
+		}
 		if humanFriendly {
 			fmt.Fprintf(os.Stderr, "fetching page %d...\n", page)
 		} else {
@@ -313,6 +326,11 @@ func paginatedGet(c interface {
 			if json.Unmarshal(data, &obj) == nil {
 				if nested, ok := extractPaginatedItems(obj); ok {
 					allItems = append(allItems, nested...)
+				}
+
+				if next, ok := nextPageFromPagination(obj); ok {
+					page = next
+					continue
 				}
 
 				// Check for next cursor
@@ -351,6 +369,24 @@ func paginatedGet(c interface {
 	}
 	result, _ := json.Marshal(allItems)
 	return json.RawMessage(result), nil
+}
+
+func nextPageFromPagination(obj map[string]json.RawMessage) (int, bool) {
+	raw, ok := obj["pagination"]
+	if !ok {
+		return 0, false
+	}
+	var pagination struct {
+		Page    int `json:"page"`
+		NBPages int `json:"nb_pages"`
+	}
+	if err := json.Unmarshal(raw, &pagination); err != nil {
+		return 0, false
+	}
+	if pagination.Page <= 0 || pagination.NBPages <= 0 || pagination.Page >= pagination.NBPages {
+		return 0, false
+	}
+	return pagination.Page + 1, true
 }
 
 func extractPaginatedItems(obj map[string]json.RawMessage) ([]json.RawMessage, bool) {
@@ -560,6 +596,24 @@ func extractResponseData(data json.RawMessage) json.RawMessage {
 	default:
 		return data
 	}
+}
+
+func extractResponseItems(data json.RawMessage) json.RawMessage {
+	var arr []json.RawMessage
+	if json.Unmarshal(data, &arr) == nil {
+		return data
+	}
+	var envelope map[string]json.RawMessage
+	if json.Unmarshal(data, &envelope) != nil {
+		return data
+	}
+	if raw, ok := envelope["items"]; ok {
+		var items []json.RawMessage
+		if json.Unmarshal(raw, &items) == nil {
+			return raw
+		}
+	}
+	return extractResponseData(data)
 }
 
 // compactFields keeps only the most important fields for agent consumption.

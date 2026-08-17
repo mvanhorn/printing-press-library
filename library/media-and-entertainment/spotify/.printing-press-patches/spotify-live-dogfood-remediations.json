@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "spotify-live-dogfood-remediations",
+  "applied_at": "2026-07-07",
+  "base_run_id": "20260707-145126",
+  "base_printing_press_version": "4.27.1",
+  "summary": "Playback reads treat Spotify's 204 No Content as data ({is_playing:false}) instead of an error; recommendations get-genres converted to a deprecated-endpoint stub (Spotify 404s it for new apps); replaced generator placeholder examples on check-library-contains and spotify-web-search with runnable values.",
+  "reason": "Live dogfood happy-path probes run each command's Example verbatim and require exit 0. The 204-empty-body case is documented Spotify behavior for no-active-session; available-genre-seeds was removed in the 2024-11-27 Web API change; the two placeholder examples 400'd against the live API (the generator's own TODO comments flagged them).",
+  "files": [
+    "internal/cli/me_get-information-about-the-users-current-playback.go",
+    "internal/cli/me_get-the-users-currently-playing-track.go",
+    "internal/cli/recommendations_get-genres.go",
+    "internal/cli/me_check-library-contains.go",
+    "internal/cli/promoted_spotify-web-search.go"
+  ],
+  "validated_outcome": "All five commands exit 0 against the live API (204 envelope, stub payload, and real reads respectively)."
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "ars-sicilia-ddl-cerca-data",
+  "applied_at": "2026-08-15",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.18.0",
+  "summary": "`ddl cerca` guadagna --data (YYYY-MM-DD, range con YYYY-MM-DD:YYYY-MM-DD), l'ultimo archivio di ricerca che ne era privo. Il campo era gia' mappato (ddl.FieldMap[\"data\"] -> DATPRE, usato da `deputato profilo --data`) e normalizeParams converte gia' qualunque valore `data` in AAMMGG: mancava solo la registrazione della flag. Su ddl --data e --anno qualificano lo stesso campo DATPRE, quindi sono dichiarati mutuamente esclusivi. Il tool MCP ddl_cerca dichiara il parametro data: l'handler lo inoltrava gia' (i parametri non dichiarati passano comunque alla CLI), ma senza la dichiarazione nessun agente sapeva che esiste.",
+  "reason": "Su ddl l'intervallo di date era l'unico criterio ordinario che richiedeva --isis-query e la forma AAMMGG, cioe' una sintassi del motore ISIS che nessun utente non tecnico indovina; l'analisi di copertura sulle notizie del 15 agosto 2026 (docs/news-agent/2026-08-15_09-02.md) lo ha ritrovato come unico gap CLI fra sei notizie provate, in mezzo a limiti che erano tutti latenza della fonte. La mutua esclusione con --anno non e' cautela astratta: BuildQuery emette un qualificatore per chiave unendoli con `E`, quindi --anno 2026 --data 2026-07-01:2026-07-28 avrebbe prodotto (260101/261231.DATPRE E 260701/260728.DATPRE), due range in AND sullo stesso campo — zero risultati in silenzio invece dell'intersezione attesa, che e' il modo peggiore di sbagliare su un archivio dove lo zero e' gia' ambiguo per via della latenza. La documentazione affermava il contrario in quattro punti e uno di essi era falso da prima: which.go e SKILL.md indicavano --isis-query in AAMMGG come ripiego «su ddl e leggi», ma su leggi non funziona affatto — l'archivio non indicizza nessuna data (LEGANN, l'anno, e' l'unico campo temporale) e sia (18.LEGISL E 260101/260722.DATPRE) sia la variante DATLEG rispondono []. Ora i documenti dicono quel che l'archivio fa davvero.",
+  "files": [
+    "internal/cli/ddl_cerca.go",
+    "internal/cli/which.go",
+    "internal/mcp/tools.go",
+    "internal/cli/icaro_helpers_test.go",
+    "SKILL.md",
+    "README.md",
+    "docs/isis-query-syntax.md"
+  ],
+  "validated_outcome": "`ddl cerca --legisl 18 --data 2026-07-01:2026-07-28 --dry-run` emette (260701/260728.DATPRE E 18.LEGISL); con una data singola, (260728.DATPRE E 18.LEGISL). Sul campo la stessa ricerca rende 23 righe, identiche in numero a quelle della query grezza --isis-query \"(260701/260728.DATPRE E 18.LEGISL)\", e nessuna delle 23 ha data_iso fuori da luglio 2026. Con --anno e --data insieme il comando esce 1 con «if any flags in the group [anno data] are set none of the others can be», invece di restituire []. `which \"quali ddl sono stati presentati questa settimana\"` mette `ddl cerca` al primo posto. Due test nuovi in icaro_helpers_test.go (query costruita su DATPRE per range e data singola; mutua esclusione via cmd.Execute). go build, go vet e go test ./... verdi; binario reinstallato in ~/.local/bin. Via MCP: tools/list espone data fra le proprieta' di ddl_cerca, e tools/call con data 2026-07-20:2026-07-28 rende righe di quel periodo."
+}

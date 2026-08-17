@@ -1,0 +1,51 @@
+version: 2
+project_name: shodhganga-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: shodhganga-pp-cli
+    main: ./cmd/shodhganga-pp-cli
+    binary: shodhganga-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/productivity/shodhganga/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: shodhganga-pp-mcp
+    main: ./cmd/shodhganga-pp-mcp
+    binary: shodhganga-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: shodhganga-pp-cli
+    repository:
+      owner: 
+      name: homebrew-tap
+    homepage: "https://github.com//shodhganga-pp-cli"
+    description: "Structured, scriptable, agent-native access to India's national reservoir of PhD theses — the machine API Shodhganga never shipped."
+    install: |
+      bin.install "shodhganga-pp-cli"
+      bin.install "shodhganga-pp-mcp"

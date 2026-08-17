@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "v0-client-poststream",
+  "applied_at": "2026-08-05",
+  "base_run_id": "20260804-232309-9bd8d5ce",
+  "base_printing_press_version": "4.30.1",
+  "summary": "internal/client gains PostStream: a streaming POST that returns the live response body reader instead of io.ReadAll-buffered bytes, using a transport without a total-request deadline so SSE generations render events as they arrive and are not killed by the 60s request timeout.",
+  "reason": "Greptile review P1: the chats stream command buffered the whole SSE response via the generic client, so no events rendered until EOF and generations exceeding the HTTP timeout failed with no partial progress. Fix in the shared client so any future streaming endpoint reuses it.",
+  "files": ["internal/client/client.go"],
+  "validated_outcome": "go test ./internal/client -run TestPostStream passes; live dogfood 192/192"
+}

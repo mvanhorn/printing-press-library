@@ -38,7 +38,7 @@ npx -y @mvanhorn/printing-press-library install facebook-marketplace --agent cla
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.6 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/commerce/facebook-marketplace/cmd/facebook-marketplace-pp-cli@latest
@@ -206,6 +206,7 @@ Sell-side composer helper operations.
 Marketplace inbox and messaging operations.
 
 - **`facebook-marketplace-pp-cli inbox list`** - Fetch Marketplace inbox overview.
+- **`facebook-marketplace-pp-cli inbox thread`** - Fetch a direct Marketplace/Messenger thread by thread id.
 - **`facebook-marketplace-pp-cli inbox message_seller`** - Send a Marketplace seller message.
 - **`facebook-marketplace-pp-cli inbox seller_threads`** - Fetch Marketplace seller inbox threads.
 - **`facebook-marketplace-pp-cli inbox seller_threads_page`** - Fetch a page of Marketplace seller inbox threads.

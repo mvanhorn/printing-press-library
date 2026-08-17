@@ -1,0 +1,15 @@
+{
+  "timestamp": "2026-06-22T20:07:13.001029Z",
+  "cli_dir": "\u003ccli-dir\u003e/forgejo",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "version",
+      "file": "root.go",
+      "line": 343,
+      "evidence": "Print version",
+      "status": "accepted",
+      "note": "Standard 'version' command; 'Print version' is brief but precise — agents understand this without elaboration"
+    }
+  ]
+}

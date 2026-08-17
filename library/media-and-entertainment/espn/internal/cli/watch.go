@@ -43,7 +43,7 @@ func newWatchCmd(flags *rootFlags) *cobra.Command {
 
 			var lastScore string
 			for {
-				data, err := c.Get(path, nil)
+				data, err := c.Get(cmd.Context(), path, nil)
 				if err != nil {
 					fmt.Fprintf(cmd.ErrOrStderr(), "[%s] error: %v\n", time.Now().Format("15:04:05"), err)
 					time.Sleep(interval)

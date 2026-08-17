@@ -1,0 +1,613 @@
+{
+  "api_name": "morgen",
+  "base_url": "https://api.morgen.so/v3",
+  "description": "Morgen calendar \u0026 tasks API CLI — unified access to calendars, events, tasks, and tags across connected providers",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "Authorization",
+    "format": "ApiKey {MORGEN_API_KEY}",
+    "env_vars": [
+      "MORGEN_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "MORGEN_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [
+    {
+      "name": "Accept",
+      "value": "application/json"
+    }
+  ],
+  "tools": [
+    {
+      "name": "calendars_list",
+      "description": "List calendars across all connected accounts. Returns array of Calendar.",
+      "method": "GET",
+      "path": "/calendars/list",
+      "params": []
+    },
+    {
+      "name": "calendars_update",
+      "description": "Update Morgen-specific metadata for a calendar (busy, color, name overrides). Required: id, accountId, metadata. Returns the new Calendar.",
+      "method": "POST",
+      "path": "/calendars/update",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Calendar identifier",
+          "required": true
+        },
+        {
+          "name": "accountId",
+          "type": "string",
+          "location": "body",
+          "description": "Account identifier the calendar belongs to",
+          "required": true
+        },
+        {
+          "name": "metadata",
+          "wire_name": "morgen.so:metadata",
+          "type": "string",
+          "location": "body",
+          "description": "JSON object of Morgen metadata, e.g. {'busy':true,'overrideColor':'#FF0000','overrideName':'Work'}",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_create",
+      "description": "Create an event in a calendar. Required: accountId, calendarId, title, start, duration, timeZone, showWithoutTime. Optional: description, location. Returns the new Event.",
+      "method": "POST",
+      "path": "/events/create",
+      "params": [
+        {
+          "name": "accountId",
+          "type": "string",
+          "location": "body",
+          "description": "Calendar account ID",
+          "required": true
+        },
+        {
+          "name": "calendarId",
+          "type": "string",
+          "location": "body",
+          "description": "Calendar to create the event in",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Event title",
+          "required": true
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "location": "body",
+          "description": "ISO 8601 start datetime",
+          "required": true
+        },
+        {
+          "name": "duration",
+          "type": "string",
+          "location": "body",
+          "description": "ISO 8601 duration (e.g. PT30M for 30 minutes)",
+          "required": true
+        },
+        {
+          "name": "timeZone",
+          "type": "string",
+          "location": "body",
+          "description": "IANA time zone (e.g. America/New_York)",
+          "required": true
+        },
+        {
+          "name": "showWithoutTime",
+          "type": "bool",
+          "location": "body",
+          "description": "True for all-day events",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Event description / notes"
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "location": "body",
+          "description": "Event location"
+        }
+      ]
+    },
+    {
+      "name": "events_delete",
+      "description": "Delete an event. Use --series-update-mode for recurring events. Required: accountId, calendarId, id. Optional: seriesUpdateMode (default: single).",
+      "method": "POST",
+      "path": "/events/delete",
+      "params": [
+        {
+          "name": "seriesUpdateMode",
+          "type": "string",
+          "location": "query",
+          "description": "Scope of delete for recurring events"
+        },
+        {
+          "name": "accountId",
+          "type": "string",
+          "location": "body",
+          "description": "Calendar account ID",
+          "required": true
+        },
+        {
+          "name": "calendarId",
+          "type": "string",
+          "location": "body",
+          "description": "Calendar ID",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Event ID to delete",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_list",
+      "description": "List events from one or more calendars in a time window. Required: accountId, calendarIds, start, end. Returns array of Event.",
+      "method": "GET",
+      "path": "/events/list",
+      "params": [
+        {
+          "name": "accountId",
+          "type": "string",
+          "location": "query",
+          "description": "Calendar account ID",
+          "required": true
+        },
+        {
+          "name": "calendarIds",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated calendar IDs",
+          "required": true
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "location": "query",
+          "description": "ISO 8601 window start (e.g. 2026-06-15T00:00:00Z)",
+          "required": true
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "query",
+          "description": "ISO 8601 window end",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_update",
+      "description": "Update an event (patch). Use --series-update-mode for recurring events. Required: accountId, calendarId, id. Optional: seriesUpdateMode (default: single), title, start (plus 4 more). Returns the new Event.",
+      "method": "POST",
+      "path": "/events/update",
+      "params": [
+        {
+          "name": "seriesUpdateMode",
+          "type": "string",
+          "location": "query",
+          "description": "Scope of update for recurring events"
+        },
+        {
+          "name": "accountId",
+          "type": "string",
+          "location": "body",
+          "description": "Calendar account ID",
+          "required": true
+        },
+        {
+          "name": "calendarId",
+          "type": "string",
+          "location": "body",
+          "description": "Calendar ID",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Event ID to update",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "New title"
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "location": "body",
+          "description": "New ISO 8601 start"
+        },
+        {
+          "name": "duration",
+          "type": "string",
+          "location": "body",
+          "description": "New ISO 8601 duration"
+        },
+        {
+          "name": "timeZone",
+          "type": "string",
+          "location": "body",
+          "description": "New IANA time zone"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "New description"
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "location": "body",
+          "description": "New location"
+        }
+      ]
+    },
+    {
+      "name": "integrations_accounts",
+      "description": "List connected calendar/task accounts. Returns array of Account.",
+      "method": "GET",
+      "path": "/integrations/accounts/list",
+      "params": []
+    },
+    {
+      "name": "integrations_providers",
+      "description": "List available integration providers (Google, Microsoft 365, iCloud, Todoist, etc.). Returns array of Provider.",
+      "method": "GET",
+      "path": "/integrations/list",
+      "params": []
+    },
+    {
+      "name": "tags_create",
+      "description": "Create a tag. Required: name. Optional: color. Returns the new Tag.",
+      "method": "POST",
+      "path": "/tags/create",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Tag name",
+          "required": true
+        },
+        {
+          "name": "color",
+          "type": "string",
+          "location": "body",
+          "description": "Hex color code (e.g. #FF0000)"
+        }
+      ]
+    },
+    {
+      "name": "tags_delete",
+      "description": "Delete a tag. Required: id.",
+      "method": "POST",
+      "path": "/tags/delete",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Tag ID to delete",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tags_get",
+      "description": "Get a single tag by ID. Required: id. Returns the Tag.",
+      "method": "GET",
+      "path": "/tags",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Tag ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tags_list",
+      "description": "List tags. Optional: limit, updatedAfter. Returns array of Tag.",
+      "method": "GET",
+      "path": "/tags/list",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max tags to return"
+        },
+        {
+          "name": "updatedAfter",
+          "type": "string",
+          "location": "query",
+          "description": "Only tags updated after this ISO 8601 datetime (includes deleted tags)"
+        }
+      ]
+    },
+    {
+      "name": "tags_update",
+      "description": "Update a tag. Required: id. Optional: name, color. Returns the new Tag.",
+      "method": "POST",
+      "path": "/tags/update",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Tag ID to update",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "New tag name"
+        },
+        {
+          "name": "color",
+          "type": "string",
+          "location": "body",
+          "description": "New hex color code"
+        }
+      ]
+    },
+    {
+      "name": "tasks_close",
+      "description": "Mark a task complete. Required: id. Optional: occurrenceStart. Returns the new Task.",
+      "method": "POST",
+      "path": "/tasks/close",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Task ID to close",
+          "required": true
+        },
+        {
+          "name": "occurrenceStart",
+          "type": "string",
+          "location": "body",
+          "description": "For recurring tasks, the occurrence start to close"
+        }
+      ]
+    },
+    {
+      "name": "tasks_create",
+      "description": "Create a task. Required: title. Optional: description, due, timeZone (plus 3 more). Returns the new Task.",
+      "method": "POST",
+      "path": "/tasks/create",
+      "params": [
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Task title",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Task description"
+        },
+        {
+          "name": "due",
+          "type": "string",
+          "location": "body",
+          "description": "ISO 8601 due datetime"
+        },
+        {
+          "name": "timeZone",
+          "type": "string",
+          "location": "body",
+          "description": "IANA time zone"
+        },
+        {
+          "name": "estimatedDuration",
+          "type": "string",
+          "location": "body",
+          "description": "ISO 8601 estimated duration (e.g. PT1H)"
+        },
+        {
+          "name": "taskListId",
+          "type": "string",
+          "location": "body",
+          "description": "Task list to create the task in"
+        },
+        {
+          "name": "priority",
+          "type": "int",
+          "location": "body",
+          "description": "Priority (JSCalendar 0-9; lower is higher priority)"
+        }
+      ]
+    },
+    {
+      "name": "tasks_delete",
+      "description": "Delete a task. Required: id.",
+      "method": "POST",
+      "path": "/tasks/delete",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Task ID to delete",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tasks_get",
+      "description": "Get a single task by ID. Required: id. Returns the Task.",
+      "method": "GET",
+      "path": "/tasks",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Task ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tasks_list",
+      "description": "List tasks. Optional: limit (default: 100), updatedAfter. Returns array of Task.",
+      "method": "GET",
+      "path": "/tasks/list",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max tasks to return (max 100)"
+        },
+        {
+          "name": "updatedAfter",
+          "type": "string",
+          "location": "query",
+          "description": "Only tasks updated after this ISO 8601 datetime"
+        }
+      ]
+    },
+    {
+      "name": "tasks_move",
+      "description": "Reorder or re-parent a task. Required: id. Optional: previousId, parentId. Returns the new Task.",
+      "method": "POST",
+      "path": "/tasks/move",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Task ID to move",
+          "required": true
+        },
+        {
+          "name": "previousId",
+          "type": "string",
+          "location": "body",
+          "description": "Place after this task ID"
+        },
+        {
+          "name": "parentId",
+          "type": "string",
+          "location": "body",
+          "description": "New parent task ID (for subtasks)"
+        }
+      ]
+    },
+    {
+      "name": "tasks_reopen",
+      "description": "Reopen a completed task. Required: id. Optional: occurrenceStart. Returns the new Task.",
+      "method": "POST",
+      "path": "/tasks/reopen",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Task ID to reopen",
+          "required": true
+        },
+        {
+          "name": "occurrenceStart",
+          "type": "string",
+          "location": "body",
+          "description": "For recurring tasks, the occurrence start to reopen"
+        }
+      ]
+    },
+    {
+      "name": "tasks_update",
+      "description": "Update a task (patch). Required: id. Optional: title, description, due (plus 3 more). Returns the new Task.",
+      "method": "POST",
+      "path": "/tasks/update",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Task ID to update",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "New title"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "New description"
+        },
+        {
+          "name": "due",
+          "type": "string",
+          "location": "body",
+          "description": "New ISO 8601 due datetime"
+        },
+        {
+          "name": "timeZone",
+          "type": "string",
+          "location": "body",
+          "description": "New IANA time zone"
+        },
+        {
+          "name": "taskListId",
+          "type": "string",
+          "location": "body",
+          "description": "Move to this task list"
+        },
+        {
+          "name": "priority",
+          "type": "int",
+          "location": "body",
+          "description": "New priority (0-9)"
+        }
+      ]
+    }
+  ]
+}

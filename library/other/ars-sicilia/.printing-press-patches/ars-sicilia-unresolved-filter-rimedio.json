@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-08-01",
+  "base_run_id": "20260528-181840",
+  "base_printing_press_version": "4.18.0",
+  "id": "ars-sicilia-unresolved-filter-rimedio",
+  "summary": "UnresolvedFilterError porta un campo Rimedio valorizzato da chi costruisce l'errore, invece di chiudere sempre con la stessa frase. --oratore mantiene 'prova con il solo cognome'; --codcom spiega che il codice va da 1 a 6 e rimanda a --commissione; --commissione elenca i nomi ordinali ammessi.",
+  "reason": "Il messaggio era unico per tutti i filtri risolti sull'anagrafica del form /bd/, e chiudeva sempre con 'Prova con il solo cognome, o con una porzione del nome'. Giusto per --oratore, che cerca una persona; fuorviante per --codcom, che vuole un codice numerico da 1 a 6, e per --commissione, che vuole un nome ordinale: il rimedio suggerito manda a sbattere invece di sbloccare.",
+  "files": [
+    "internal/icaroclient/bd.go"
+  ],
+  "validated_outcome": "`commissioni sommari --codcom 122` -> '... Il codice commissione va da 1 a 6 (1=PRIMA, 2=SECONDA, ... 6=SESTA); per cercarla per nome usa --commissione.'; `--commissione Pippo` -> '... Usa il nome ordinale della commissione: PRIMA, SECONDA, TERZA, QUARTA, QUINTA, SESTA.'; `resoconti cerca --oratore Zzzz` -> messaggio invariato. Il ramo con i nomi vicini ('Forse cercavi:') resta prioritario e non mostra il rimedio."
+}

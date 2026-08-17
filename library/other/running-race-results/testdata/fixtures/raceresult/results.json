@@ -1,0 +1,21 @@
+{
+  "_meta": {
+    "url": "https://my-us-1.raceresult.com/390537/results/list?key=93941475da0e781fdf01c051062b7423&listname=Ergebnislisten%7CInternet-einzel%20-%20Frauen&page=results&contest=1&r=leaders&l=10&fav=&openedGroups=%7B%7D&term=",
+    "event": "17. REWE Team Challenge Dresden, 2026-06-17",
+    "eventId": 390537,
+    "listName": "Ergebnislisten|Internet-einzel - Frauen",
+    "capturedAt": "2026-06-18",
+    "note": "DataFields names the columns; data is object keyed by group name, each value is array of rows"
+  },
+  "DataFields": ["BIB", "ID", "RANK2p", "AnzeigeName", "CLUB", "Organisation", "TIME1", "\">>> Details ▨\""],
+  "data": {
+    "#1_Frauen": [
+      ["1286", "1286", "1.", "Runner Alpha", "Sample Club", "Sample Club", "0:17:43", ">>> Details ▨"],
+      ["4444", "4444", "2.", "Runner Bravo", "Sample Company", "Sample Company", "0:17:46", ">>> Details ▨"],
+      ["1283", "1283", "3.", "Runner Charlie", "Sample Club", "Sample Club", "0:18:05", ">>> Details ▨"],
+      ["22795", "22795", "4.", "Runner Delta", "Running Insights", "AOK PLUS - Die Gesundheitskasse für Sachsen und Thüringen", "0:18:28", ">>> Details ▨"],
+      ["4431", "4431", "5.", "Runner Echo", "Sample Club", "Sample Company", "0:19:17", ">>> Details ▨"]
+    ]
+  },
+  "mid": 607506
+}

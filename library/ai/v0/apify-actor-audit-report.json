@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/v0-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260804-232309-9bd8d5ce",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

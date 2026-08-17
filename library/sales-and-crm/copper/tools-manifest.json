@@ -1,0 +1,2086 @@
+{
+  "api_name": "copper",
+  "base_url": "https://api.copper.com/developer_api/v1",
+  "description": "The Copper CRM command line no one else built: full CRUD plus a local database, weighted pipeline forecasting, stale-deal detection, and the bulk operations Copper's own API refuses to provide.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "api_key",
+    "header": "X-PW-AccessToken",
+    "format": "{COPPER_API_KEY}",
+    "env_vars": [
+      "COPPER_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "COPPER_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [
+    {
+      "name": "X-PW-Application",
+      "value": "developer_api"
+    }
+  ],
+  "tools": [
+    {
+      "name": "account_get",
+      "description": "Fetch account details. Returns the Account.",
+      "method": "GET",
+      "path": "/account",
+      "params": []
+    },
+    {
+      "name": "activities_create",
+      "description": "Create a new activity. Required: parent, type. Optional: details, activity_date. Returns the new Activity.",
+      "method": "POST",
+      "path": "/activities",
+      "params": [
+        {
+          "name": "parent",
+          "type": "string",
+          "location": "body",
+          "description": "JSON parent object, e.g. {'type':'person','id':27140359}",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "JSON type object, e.g. {'category':'user','id':0}",
+          "required": true
+        },
+        {
+          "name": "details",
+          "type": "string",
+          "location": "body",
+          "description": "Activity description/body"
+        },
+        {
+          "name": "activity_date",
+          "type": "int",
+          "location": "body",
+          "description": "Activity date (unix timestamp)"
+        }
+      ]
+    },
+    {
+      "name": "activities_delete",
+      "description": "Delete an activity. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/activities/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Activity id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "activities_get",
+      "description": "Fetch an activity by id. Required: id. Returns the Activity.",
+      "method": "GET",
+      "path": "/activities/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Activity id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "activities_search",
+      "description": "List/search activities. Optional: page_number (default: 1), page_size (default: 20), sort_by (plus 4 more). Returns array of Activity.",
+      "method": "POST",
+      "path": "/activities/search",
+      "params": [
+        {
+          "name": "page_number",
+          "type": "int",
+          "location": "body",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "page_size",
+          "type": "int",
+          "location": "body",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "sort_by",
+          "type": "string",
+          "location": "body",
+          "description": "Field to sort by"
+        },
+        {
+          "name": "sort_direction",
+          "type": "string",
+          "location": "body",
+          "description": "Sort direction: asc or desc"
+        },
+        {
+          "name": "parent",
+          "type": "string",
+          "location": "body",
+          "description": "JSON parent object, e.g. {'type':'person','id':123}"
+        },
+        {
+          "name": "minimum_activity_date",
+          "type": "int",
+          "location": "body",
+          "description": "Minimum activity date (unix timestamp)"
+        },
+        {
+          "name": "maximum_activity_date",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum activity date (unix timestamp)"
+        }
+      ]
+    },
+    {
+      "name": "activity-types_list",
+      "description": "List all activity types.",
+      "method": "GET",
+      "path": "/activity_types",
+      "params": []
+    },
+    {
+      "name": "companies_activities",
+      "description": "List a company's activities. Required: id. Optional: page_number (default: 1), page_size (default: 20). Returns array of Activity.",
+      "method": "POST",
+      "path": "/companies/{id}/activities",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Company id",
+          "required": true
+        },
+        {
+          "name": "page_number",
+          "type": "int",
+          "location": "body",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "page_size",
+          "type": "int",
+          "location": "body",
+          "description": "Results per page (max 200)"
+        }
+      ]
+    },
+    {
+      "name": "companies_create",
+      "description": "Create a new company. Required: name. Optional: address, email_domain, details (plus 4 more). Returns the new Company.",
+      "method": "POST",
+      "path": "/companies",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Company name",
+          "required": true
+        },
+        {
+          "name": "address",
+          "type": "string",
+          "location": "body",
+          "description": "JSON address object"
+        },
+        {
+          "name": "email_domain",
+          "type": "string",
+          "location": "body",
+          "description": "Primary email domain"
+        },
+        {
+          "name": "details",
+          "type": "string",
+          "location": "body",
+          "description": "Free-text details/notes"
+        },
+        {
+          "name": "phone_numbers",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of phone number objects"
+        },
+        {
+          "name": "assignee_id",
+          "type": "int",
+          "location": "body",
+          "description": "Owner (user) id"
+        },
+        {
+          "name": "contact_type_id",
+          "type": "int",
+          "location": "body",
+          "description": "Contact type id"
+        },
+        {
+          "name": "tags",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of tag strings"
+        }
+      ]
+    },
+    {
+      "name": "companies_delete",
+      "description": "Delete a company. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/companies/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Company id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "companies_get",
+      "description": "Fetch a company by id. Required: id. Returns the Company.",
+      "method": "GET",
+      "path": "/companies/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Company id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "companies_search",
+      "description": "List/search companies. Optional: page_number (default: 1), page_size (default: 20), sort_by (plus 5 more). Returns array of Company.",
+      "method": "POST",
+      "path": "/companies/search",
+      "params": [
+        {
+          "name": "page_number",
+          "type": "int",
+          "location": "body",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "page_size",
+          "type": "int",
+          "location": "body",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "sort_by",
+          "type": "string",
+          "location": "body",
+          "description": "Field to sort by"
+        },
+        {
+          "name": "sort_direction",
+          "type": "string",
+          "location": "body",
+          "description": "Sort direction: asc or desc"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Filter by company name"
+        },
+        {
+          "name": "email_domains",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of email domains to filter by"
+        },
+        {
+          "name": "assignee_ids",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of assignee (user) ids to filter by"
+        },
+        {
+          "name": "tags",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of tag strings to filter by"
+        }
+      ]
+    },
+    {
+      "name": "companies_update",
+      "description": "Update a company. Required: id. Optional: name, address, email_domain (plus 4 more). Returns the updated Company.",
+      "method": "PUT",
+      "path": "/companies/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Company id",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Company name"
+        },
+        {
+          "name": "address",
+          "type": "string",
+          "location": "body",
+          "description": "JSON address object"
+        },
+        {
+          "name": "email_domain",
+          "type": "string",
+          "location": "body",
+          "description": "Primary email domain"
+        },
+        {
+          "name": "details",
+          "type": "string",
+          "location": "body",
+          "description": "Free-text details/notes"
+        },
+        {
+          "name": "phone_numbers",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of phone number objects"
+        },
+        {
+          "name": "assignee_id",
+          "type": "int",
+          "location": "body",
+          "description": "Owner (user) id"
+        },
+        {
+          "name": "tags",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of tag strings"
+        }
+      ]
+    },
+    {
+      "name": "contact-types_list",
+      "description": "List all contact types. Returns array.",
+      "method": "GET",
+      "path": "/contact_types",
+      "params": []
+    },
+    {
+      "name": "custom-activity-types_create",
+      "description": "Create a new custom activity type. Required: name. Optional: icon_type.",
+      "method": "POST",
+      "path": "/custom_activity_types",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Activity type name",
+          "required": true
+        },
+        {
+          "name": "icon_type",
+          "type": "string",
+          "location": "body",
+          "description": "Icon type (e.g. Phone)"
+        }
+      ]
+    },
+    {
+      "name": "custom-activity-types_get",
+      "description": "Fetch a custom activity type by id. Required: id.",
+      "method": "GET",
+      "path": "/custom_activity_types/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Custom activity type id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "custom-activity-types_list",
+      "description": "List all custom activity types. Returns array.",
+      "method": "GET",
+      "path": "/custom_activity_types",
+      "params": []
+    },
+    {
+      "name": "custom-activity-types_update",
+      "description": "Update a custom activity type. Required: id. Optional: name, icon_type.",
+      "method": "PUT",
+      "path": "/custom_activity_types/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Custom activity type id",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Activity type name"
+        },
+        {
+          "name": "icon_type",
+          "type": "string",
+          "location": "body",
+          "description": "Icon type (e.g. Phone)"
+        }
+      ]
+    },
+    {
+      "name": "custom-field-definitions_create",
+      "description": "Create a new custom field definition. Required: name, data_type. Optional: available_on, options.",
+      "method": "POST",
+      "path": "/custom_field_definitions",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Field name",
+          "required": true
+        },
+        {
+          "name": "data_type",
+          "type": "string",
+          "location": "body",
+          "description": "Data type (String, Text, Dropdown, Date, etc.)",
+          "required": true
+        },
+        {
+          "name": "available_on",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of entity types this field applies to"
+        },
+        {
+          "name": "options",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of option objects for Dropdown/MultiSelect fields"
+        }
+      ]
+    },
+    {
+      "name": "custom-field-definitions_delete",
+      "description": "Delete a custom field definition. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/custom_field_definitions/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Custom field definition id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "custom-field-definitions_get",
+      "description": "Fetch a custom field definition by id. Required: id.",
+      "method": "GET",
+      "path": "/custom_field_definitions/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Custom field definition id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "custom-field-definitions_list",
+      "description": "List all custom field definitions. Returns array.",
+      "method": "GET",
+      "path": "/custom_field_definitions",
+      "params": []
+    },
+    {
+      "name": "custom-field-definitions_update",
+      "description": "Update a custom field definition. Required: id. Optional: name, options.",
+      "method": "PUT",
+      "path": "/custom_field_definitions/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Custom field definition id",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Field name"
+        },
+        {
+          "name": "options",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of option objects"
+        }
+      ]
+    },
+    {
+      "name": "customer-sources_list",
+      "description": "List all customer sources. Returns array.",
+      "method": "GET",
+      "path": "/customer_sources",
+      "params": []
+    },
+    {
+      "name": "lead-statuses_list",
+      "description": "List all lead statuses. Returns array.",
+      "method": "GET",
+      "path": "/lead_statuses",
+      "params": []
+    },
+    {
+      "name": "leads_activities",
+      "description": "List a lead's activities. Required: id. Optional: page_number (default: 1), page_size (default: 20). Returns array of Activity.",
+      "method": "POST",
+      "path": "/leads/{id}/activities",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Lead id",
+          "required": true
+        },
+        {
+          "name": "page_number",
+          "type": "int",
+          "location": "body",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "page_size",
+          "type": "int",
+          "location": "body",
+          "description": "Results per page (max 200)"
+        }
+      ]
+    },
+    {
+      "name": "leads_convert",
+      "description": "Convert a lead into a person/company/opportunity. Required: id. Optional: details. Returns the new Lead.",
+      "method": "POST",
+      "path": "/leads/{id}/convert",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Lead id",
+          "required": true
+        },
+        {
+          "name": "details",
+          "type": "string",
+          "location": "body",
+          "description": "JSON details object describing the conversion (person, company, opportunity)"
+        }
+      ]
+    },
+    {
+      "name": "leads_create",
+      "description": "Create a new lead. Required: name. Optional: email, phone_numbers, address (plus 7 more). Returns the new Lead.",
+      "method": "POST",
+      "path": "/leads",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Lead name",
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "JSON email object, e.g. {'email':'a@b.com','category':'work'}"
+        },
+        {
+          "name": "phone_numbers",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of phone number objects"
+        },
+        {
+          "name": "address",
+          "type": "string",
+          "location": "body",
+          "description": "JSON address object"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Job title"
+        },
+        {
+          "name": "company_name",
+          "type": "string",
+          "location": "body",
+          "description": "Company name"
+        },
+        {
+          "name": "customer_source_id",
+          "type": "int",
+          "location": "body",
+          "description": "Customer source id"
+        },
+        {
+          "name": "assignee_id",
+          "type": "int",
+          "location": "body",
+          "description": "Owner (user) id"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Lead status"
+        },
+        {
+          "name": "details",
+          "type": "string",
+          "location": "body",
+          "description": "Free-text details/notes"
+        },
+        {
+          "name": "tags",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of tag strings"
+        }
+      ]
+    },
+    {
+      "name": "leads_delete",
+      "description": "Delete a lead. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/leads/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Lead id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "leads_get",
+      "description": "Fetch a lead by id. Required: id. Returns the Lead.",
+      "method": "GET",
+      "path": "/leads/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Lead id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "leads_search",
+      "description": "List/search leads. Optional: page_number (default: 1), page_size (default: 20), sort_by (plus 8 more). Returns array of Lead.",
+      "method": "POST",
+      "path": "/leads/search",
+      "params": [
+        {
+          "name": "page_number",
+          "type": "int",
+          "location": "body",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "page_size",
+          "type": "int",
+          "location": "body",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "sort_by",
+          "type": "string",
+          "location": "body",
+          "description": "Field to sort by"
+        },
+        {
+          "name": "sort_direction",
+          "type": "string",
+          "location": "body",
+          "description": "Sort direction: asc or desc"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Filter by lead name"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Filter by email address"
+        },
+        {
+          "name": "phone_number",
+          "type": "string",
+          "location": "body",
+          "description": "Filter by phone number"
+        },
+        {
+          "name": "assignee_ids",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of assignee (user) ids to filter by"
+        },
+        {
+          "name": "status_ids",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of lead status ids to filter by"
+        },
+        {
+          "name": "customer_source_ids",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of customer source ids to filter by"
+        },
+        {
+          "name": "tags",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of tag strings to filter by"
+        }
+      ]
+    },
+    {
+      "name": "leads_update",
+      "description": "Update a lead. Required: id. Optional: name, email, phone_numbers (plus 8 more). Returns the updated Lead.",
+      "method": "PUT",
+      "path": "/leads/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Lead id",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Lead name"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "JSON email object"
+        },
+        {
+          "name": "phone_numbers",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of phone number objects"
+        },
+        {
+          "name": "address",
+          "type": "string",
+          "location": "body",
+          "description": "JSON address object"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Job title"
+        },
+        {
+          "name": "company_name",
+          "type": "string",
+          "location": "body",
+          "description": "Company name"
+        },
+        {
+          "name": "customer_source_id",
+          "type": "int",
+          "location": "body",
+          "description": "Customer source id"
+        },
+        {
+          "name": "assignee_id",
+          "type": "int",
+          "location": "body",
+          "description": "Owner (user) id"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Lead status"
+        },
+        {
+          "name": "details",
+          "type": "string",
+          "location": "body",
+          "description": "Free-text details/notes"
+        },
+        {
+          "name": "tags",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of tag strings"
+        }
+      ]
+    },
+    {
+      "name": "leads_upsert",
+      "description": "Create or update a lead, matched by email or a custom field. Optional: name, email, details (plus 1 more). Returns the updated Lead.",
+      "method": "PUT",
+      "path": "/leads/upsert",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Lead name"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "JSON email object used as the match key"
+        },
+        {
+          "name": "details",
+          "type": "string",
+          "location": "body",
+          "description": "Free-text details/notes"
+        },
+        {
+          "name": "customer_source_id",
+          "type": "int",
+          "location": "body",
+          "description": "Customer source id"
+        }
+      ]
+    },
+    {
+      "name": "loss-reasons_list",
+      "description": "List all loss reasons. Returns array.",
+      "method": "GET",
+      "path": "/loss_reasons",
+      "params": []
+    },
+    {
+      "name": "opportunities_create",
+      "description": "Create a new opportunity. Required: name. Optional: pipeline_id, pipeline_stage_id, monetary_value (plus 8 more). Returns the new Opportunity.",
+      "method": "POST",
+      "path": "/opportunities",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Opportunity name",
+          "required": true
+        },
+        {
+          "name": "pipeline_id",
+          "type": "int",
+          "location": "body",
+          "description": "Pipeline id"
+        },
+        {
+          "name": "pipeline_stage_id",
+          "type": "int",
+          "location": "body",
+          "description": "Pipeline stage id"
+        },
+        {
+          "name": "monetary_value",
+          "type": "float",
+          "location": "body",
+          "description": "Monetary value of the deal"
+        },
+        {
+          "name": "win_probability",
+          "type": "int",
+          "location": "body",
+          "description": "Win probability (0-100)"
+        },
+        {
+          "name": "close_date",
+          "type": "string",
+          "location": "body",
+          "description": "Expected close date (MM/DD/YYYY)"
+        },
+        {
+          "name": "primary_contact_id",
+          "type": "int",
+          "location": "body",
+          "description": "Primary contact (person) id"
+        },
+        {
+          "name": "company_id",
+          "type": "int",
+          "location": "body",
+          "description": "Associated company id"
+        },
+        {
+          "name": "assignee_id",
+          "type": "int",
+          "location": "body",
+          "description": "Owner (user) id"
+        },
+        {
+          "name": "customer_source_id",
+          "type": "int",
+          "location": "body",
+          "description": "Customer source id"
+        },
+        {
+          "name": "details",
+          "type": "string",
+          "location": "body",
+          "description": "Free-text details/notes"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Status: Open, Won, Lost, or Abandoned"
+        }
+      ]
+    },
+    {
+      "name": "opportunities_delete",
+      "description": "Delete an opportunity. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/opportunities/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Opportunity id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "opportunities_get",
+      "description": "Fetch an opportunity by id. Required: id. Returns the Opportunity.",
+      "method": "GET",
+      "path": "/opportunities/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Opportunity id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "opportunities_search",
+      "description": "List/search opportunities. Optional: page_number (default: 1), page_size (default: 20), sort_by (plus 20 more). Returns array of Opportunity.",
+      "method": "POST",
+      "path": "/opportunities/search",
+      "params": [
+        {
+          "name": "page_number",
+          "type": "int",
+          "location": "body",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "page_size",
+          "type": "int",
+          "location": "body",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "sort_by",
+          "type": "string",
+          "location": "body",
+          "description": "Field to sort by"
+        },
+        {
+          "name": "sort_direction",
+          "type": "string",
+          "location": "body",
+          "description": "Sort direction: asc or desc"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Filter by opportunity name"
+        },
+        {
+          "name": "assignee_ids",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of assignee (user) ids"
+        },
+        {
+          "name": "status_ids",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of status ids"
+        },
+        {
+          "name": "pipeline_ids",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of pipeline ids"
+        },
+        {
+          "name": "pipeline_stage_ids",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of pipeline stage ids"
+        },
+        {
+          "name": "primary_contact_ids",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of primary contact (person) ids"
+        },
+        {
+          "name": "customer_source_ids",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of customer source ids"
+        },
+        {
+          "name": "loss_reason_ids",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of loss reason ids"
+        },
+        {
+          "name": "company_ids",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of company ids"
+        },
+        {
+          "name": "tags",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of tag strings"
+        },
+        {
+          "name": "followed",
+          "type": "int",
+          "location": "body",
+          "description": "Filter by followed state (1 = followed, 2 = not followed)"
+        },
+        {
+          "name": "minimum_monetary_value",
+          "type": "float",
+          "location": "body",
+          "description": "Minimum monetary value"
+        },
+        {
+          "name": "maximum_monetary_value",
+          "type": "float",
+          "location": "body",
+          "description": "Maximum monetary value"
+        },
+        {
+          "name": "minimum_close_date",
+          "type": "string",
+          "location": "body",
+          "description": "Minimum close date (YYYY-MM-DD or unix timestamp)"
+        },
+        {
+          "name": "maximum_close_date",
+          "type": "string",
+          "location": "body",
+          "description": "Maximum close date (YYYY-MM-DD or unix timestamp)"
+        },
+        {
+          "name": "minimum_interaction_date",
+          "type": "int",
+          "location": "body",
+          "description": "Minimum interaction date (unix timestamp)"
+        },
+        {
+          "name": "maximum_interaction_date",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum interaction date (unix timestamp)"
+        },
+        {
+          "name": "minimum_modified_date",
+          "type": "int",
+          "location": "body",
+          "description": "Minimum modified date (unix timestamp)"
+        },
+        {
+          "name": "maximum_modified_date",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum modified date (unix timestamp)"
+        }
+      ]
+    },
+    {
+      "name": "opportunities_update",
+      "description": "Update an opportunity. Required: id. Optional: name, pipeline_id, pipeline_stage_id (plus 9 more). Returns the updated Opportunity.",
+      "method": "PUT",
+      "path": "/opportunities/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Opportunity id",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Opportunity name"
+        },
+        {
+          "name": "pipeline_id",
+          "type": "int",
+          "location": "body",
+          "description": "Pipeline id"
+        },
+        {
+          "name": "pipeline_stage_id",
+          "type": "int",
+          "location": "body",
+          "description": "Pipeline stage id"
+        },
+        {
+          "name": "monetary_value",
+          "type": "float",
+          "location": "body",
+          "description": "Monetary value of the deal"
+        },
+        {
+          "name": "win_probability",
+          "type": "int",
+          "location": "body",
+          "description": "Win probability (0-100)"
+        },
+        {
+          "name": "close_date",
+          "type": "string",
+          "location": "body",
+          "description": "Expected close date (MM/DD/YYYY)"
+        },
+        {
+          "name": "primary_contact_id",
+          "type": "int",
+          "location": "body",
+          "description": "Primary contact (person) id"
+        },
+        {
+          "name": "company_id",
+          "type": "int",
+          "location": "body",
+          "description": "Associated company id"
+        },
+        {
+          "name": "assignee_id",
+          "type": "int",
+          "location": "body",
+          "description": "Owner (user) id"
+        },
+        {
+          "name": "customer_source_id",
+          "type": "int",
+          "location": "body",
+          "description": "Customer source id"
+        },
+        {
+          "name": "details",
+          "type": "string",
+          "location": "body",
+          "description": "Free-text details/notes"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Status: Open, Won, Lost, or Abandoned"
+        }
+      ]
+    },
+    {
+      "name": "people_activities",
+      "description": "List a person's activities. Required: id. Optional: page_number (default: 1), page_size (default: 20). Returns array of Activity.",
+      "method": "POST",
+      "path": "/people/{id}/activities",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Person id",
+          "required": true
+        },
+        {
+          "name": "page_number",
+          "type": "int",
+          "location": "body",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "page_size",
+          "type": "int",
+          "location": "body",
+          "description": "Results per page (max 200)"
+        }
+      ]
+    },
+    {
+      "name": "people_create",
+      "description": "Create a new person. Required: name. Optional: emails, phone_numbers, address (plus 6 more). Returns the new Person.",
+      "method": "POST",
+      "path": "/people",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Full name",
+          "required": true
+        },
+        {
+          "name": "emails",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of email objects, e.g. [{'email':'a@b.com','category':'work'}]"
+        },
+        {
+          "name": "phone_numbers",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of phone number objects"
+        },
+        {
+          "name": "address",
+          "type": "string",
+          "location": "body",
+          "description": "JSON address object (street, city, state, postal_code, country)"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Job title"
+        },
+        {
+          "name": "company_id",
+          "type": "int",
+          "location": "body",
+          "description": "Primary company id"
+        },
+        {
+          "name": "assignee_id",
+          "type": "int",
+          "location": "body",
+          "description": "Owner (user) id"
+        },
+        {
+          "name": "contact_type_id",
+          "type": "int",
+          "location": "body",
+          "description": "Contact type id"
+        },
+        {
+          "name": "details",
+          "type": "string",
+          "location": "body",
+          "description": "Free-text details/notes"
+        },
+        {
+          "name": "tags",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of tag strings"
+        }
+      ]
+    },
+    {
+      "name": "people_delete",
+      "description": "Delete a person. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/people/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Person id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "people_fetch-by-email",
+      "description": "Fetch a person by email address. Required: email. Returns the new Person.",
+      "method": "POST",
+      "path": "/people/fetch_by_email",
+      "params": [
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email address to look up",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "people_get",
+      "description": "Fetch a person by id. Required: id. Returns the Person.",
+      "method": "GET",
+      "path": "/people/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Person id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "people_search",
+      "description": "List/search people. Optional: page_number (default: 1), page_size (default: 20), sort_by (plus 7 more). Returns array of Person.",
+      "method": "POST",
+      "path": "/people/search",
+      "params": [
+        {
+          "name": "page_number",
+          "type": "int",
+          "location": "body",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "page_size",
+          "type": "int",
+          "location": "body",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "sort_by",
+          "type": "string",
+          "location": "body",
+          "description": "Field to sort by (e.g. name, date_created)"
+        },
+        {
+          "name": "sort_direction",
+          "type": "string",
+          "location": "body",
+          "description": "Sort direction: asc or desc"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Filter by full name"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Filter by email address"
+        },
+        {
+          "name": "phone_number",
+          "type": "string",
+          "location": "body",
+          "description": "Filter by phone number"
+        },
+        {
+          "name": "assignee_ids",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of assignee (user) ids to filter by"
+        },
+        {
+          "name": "company_ids",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of company ids to filter by"
+        },
+        {
+          "name": "tags",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of tag strings to filter by"
+        }
+      ]
+    },
+    {
+      "name": "people_update",
+      "description": "Update a person. Required: id. Optional: name, emails, phone_numbers (plus 6 more). Returns the updated Person.",
+      "method": "PUT",
+      "path": "/people/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Person id",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Full name"
+        },
+        {
+          "name": "emails",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of email objects"
+        },
+        {
+          "name": "phone_numbers",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of phone number objects"
+        },
+        {
+          "name": "address",
+          "type": "string",
+          "location": "body",
+          "description": "JSON address object"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Job title"
+        },
+        {
+          "name": "company_id",
+          "type": "int",
+          "location": "body",
+          "description": "Primary company id"
+        },
+        {
+          "name": "assignee_id",
+          "type": "int",
+          "location": "body",
+          "description": "Owner (user) id"
+        },
+        {
+          "name": "details",
+          "type": "string",
+          "location": "body",
+          "description": "Free-text details/notes"
+        },
+        {
+          "name": "tags",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of tag strings"
+        }
+      ]
+    },
+    {
+      "name": "pipeline-stages_list",
+      "description": "List all pipeline stages. Returns array.",
+      "method": "GET",
+      "path": "/pipeline_stages",
+      "params": []
+    },
+    {
+      "name": "pipelines_list",
+      "description": "List all pipelines. Returns array.",
+      "method": "GET",
+      "path": "/pipelines",
+      "params": []
+    },
+    {
+      "name": "pipelines_stages",
+      "description": "List stages within a specific pipeline. Required: pipeline_id. Returns array.",
+      "method": "GET",
+      "path": "/pipeline_stages/pipeline/{pipeline_id}",
+      "params": [
+        {
+          "name": "pipeline_id",
+          "type": "int",
+          "location": "path",
+          "description": "Pipeline id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_create",
+      "description": "Create a new project. Required: name. Optional: assignee_id, status, details (plus 1 more). Returns the new Project.",
+      "method": "POST",
+      "path": "/projects",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Project name",
+          "required": true
+        },
+        {
+          "name": "assignee_id",
+          "type": "int",
+          "location": "body",
+          "description": "Owner (user) id"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Status: Open or Completed"
+        },
+        {
+          "name": "details",
+          "type": "string",
+          "location": "body",
+          "description": "Free-text details/notes"
+        },
+        {
+          "name": "tags",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of tag strings"
+        }
+      ]
+    },
+    {
+      "name": "projects_delete",
+      "description": "Delete a project. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/projects/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Project id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_get",
+      "description": "Fetch a project by id. Required: id. Returns the Project.",
+      "method": "GET",
+      "path": "/projects/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Project id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_search",
+      "description": "List/search projects. Optional: page_number (default: 1), page_size (default: 20), sort_by (plus 5 more). Returns array of Project.",
+      "method": "POST",
+      "path": "/projects/search",
+      "params": [
+        {
+          "name": "page_number",
+          "type": "int",
+          "location": "body",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "page_size",
+          "type": "int",
+          "location": "body",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "sort_by",
+          "type": "string",
+          "location": "body",
+          "description": "Field to sort by"
+        },
+        {
+          "name": "sort_direction",
+          "type": "string",
+          "location": "body",
+          "description": "Sort direction: asc or desc"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Filter by project name"
+        },
+        {
+          "name": "assignee_ids",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of assignee (user) ids to filter by"
+        },
+        {
+          "name": "status_ids",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of status ids to filter by"
+        },
+        {
+          "name": "tags",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of tag strings to filter by"
+        }
+      ]
+    },
+    {
+      "name": "projects_update",
+      "description": "Update a project. Required: id. Optional: name, assignee_id, status (plus 2 more). Returns the updated Project.",
+      "method": "PUT",
+      "path": "/projects/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Project id",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Project name"
+        },
+        {
+          "name": "assignee_id",
+          "type": "int",
+          "location": "body",
+          "description": "Owner (user) id"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Status: Open or Completed"
+        },
+        {
+          "name": "details",
+          "type": "string",
+          "location": "body",
+          "description": "Free-text details/notes"
+        },
+        {
+          "name": "tags",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of tag strings"
+        }
+      ]
+    },
+    {
+      "name": "tags_list",
+      "description": "List all tags. Optional: tag_names_only. Returns array.",
+      "method": "GET",
+      "path": "/tags",
+      "params": [
+        {
+          "name": "tag_names_only",
+          "type": "bool",
+          "location": "query",
+          "description": "Return only tag name strings"
+        }
+      ]
+    },
+    {
+      "name": "tasks_create",
+      "description": "Create a new task. Required: name. Optional: related_resource, assignee_id, due_date (plus 5 more). Returns the new Task.",
+      "method": "POST",
+      "path": "/tasks",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Task name",
+          "required": true
+        },
+        {
+          "name": "related_resource",
+          "type": "string",
+          "location": "body",
+          "description": "JSON object linking the task, e.g. {'id':144296,'type':'project'}"
+        },
+        {
+          "name": "assignee_id",
+          "type": "int",
+          "location": "body",
+          "description": "Owner (user) id"
+        },
+        {
+          "name": "due_date",
+          "type": "int",
+          "location": "body",
+          "description": "Due date (unix timestamp)"
+        },
+        {
+          "name": "reminder_date",
+          "type": "int",
+          "location": "body",
+          "description": "Reminder date (unix timestamp)"
+        },
+        {
+          "name": "priority",
+          "type": "string",
+          "location": "body",
+          "description": "Priority: None or High"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Status: Open or Completed"
+        },
+        {
+          "name": "details",
+          "type": "string",
+          "location": "body",
+          "description": "Free-text details/notes"
+        },
+        {
+          "name": "tags",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of tag strings"
+        }
+      ]
+    },
+    {
+      "name": "tasks_delete",
+      "description": "Delete a task. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/tasks/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Task id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tasks_get",
+      "description": "Fetch a task by id. Required: id. Returns the Task.",
+      "method": "GET",
+      "path": "/tasks/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Task id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tasks_search",
+      "description": "List/search tasks. Optional: page_number (default: 1), page_size (default: 20), sort_by (plus 5 more). Returns array of Task.",
+      "method": "POST",
+      "path": "/tasks/search",
+      "params": [
+        {
+          "name": "page_number",
+          "type": "int",
+          "location": "body",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "page_size",
+          "type": "int",
+          "location": "body",
+          "description": "Results per page (max 200)"
+        },
+        {
+          "name": "sort_by",
+          "type": "string",
+          "location": "body",
+          "description": "Field to sort by"
+        },
+        {
+          "name": "sort_direction",
+          "type": "string",
+          "location": "body",
+          "description": "Sort direction: asc or desc"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Filter by task name"
+        },
+        {
+          "name": "assignee_ids",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of assignee (user) ids to filter by"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Filter by status: Open or Completed"
+        },
+        {
+          "name": "tags",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of tag strings to filter by"
+        }
+      ]
+    },
+    {
+      "name": "tasks_update",
+      "description": "Update a task. Required: id. Optional: name, related_resource, assignee_id (plus 6 more). Returns the updated Task.",
+      "method": "PUT",
+      "path": "/tasks/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Task id",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Task name"
+        },
+        {
+          "name": "related_resource",
+          "type": "string",
+          "location": "body",
+          "description": "JSON object linking the task"
+        },
+        {
+          "name": "assignee_id",
+          "type": "int",
+          "location": "body",
+          "description": "Owner (user) id"
+        },
+        {
+          "name": "due_date",
+          "type": "int",
+          "location": "body",
+          "description": "Due date (unix timestamp)"
+        },
+        {
+          "name": "reminder_date",
+          "type": "int",
+          "location": "body",
+          "description": "Reminder date (unix timestamp)"
+        },
+        {
+          "name": "priority",
+          "type": "string",
+          "location": "body",
+          "description": "Priority: None or High"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Status: Open or Completed"
+        },
+        {
+          "name": "details",
+          "type": "string",
+          "location": "body",
+          "description": "Free-text details/notes"
+        },
+        {
+          "name": "tags",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of tag strings"
+        }
+      ]
+    },
+    {
+      "name": "users_get",
+      "description": "Fetch a user by id. Required: id. Returns the User.",
+      "method": "GET",
+      "path": "/users/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_search",
+      "description": "List/search users. Optional: page_number (default: 1), page_size (default: 20). Returns array of User.",
+      "method": "POST",
+      "path": "/users/search",
+      "params": [
+        {
+          "name": "page_number",
+          "type": "int",
+          "location": "body",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "page_size",
+          "type": "int",
+          "location": "body",
+          "description": "Results per page (max 200)"
+        }
+      ]
+    },
+    {
+      "name": "webhooks_create",
+      "description": "Create a new webhook subscription. Required: target, type. Optional: event, secret.",
+      "method": "POST",
+      "path": "/webhooks",
+      "params": [
+        {
+          "name": "target",
+          "type": "string",
+          "location": "body",
+          "description": "Target URL to receive notifications",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Entity type to subscribe to (lead, person, company, opportunity, project, task)",
+          "required": true
+        },
+        {
+          "name": "event",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of events (new, update, delete) or a single event string"
+        },
+        {
+          "name": "secret",
+          "type": "string",
+          "location": "body",
+          "description": "JSON secret object for signed payloads"
+        }
+      ]
+    },
+    {
+      "name": "webhooks_delete",
+      "description": "Delete (unsubscribe) a webhook subscription. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/webhooks/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Webhook id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_get",
+      "description": "Fetch a webhook subscription by id. Required: id.",
+      "method": "GET",
+      "path": "/webhooks/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Webhook id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_list",
+      "description": "List all webhook subscriptions. Returns array.",
+      "method": "GET",
+      "path": "/webhooks",
+      "params": []
+    }
+  ]
+}

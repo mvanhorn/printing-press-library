@@ -78,6 +78,30 @@ func TestEnvelopeBlockedErrUnrecognizedShape(t *testing.T) {
 	}
 }
 
+// Google now sometimes returns a compact gated-RPC envelope with only the
+// status-code metadata slot (`[13]`) and no ErrorResponse type URL. It should
+// trigger the same HTML fallback as the older verbose ErrorResponse envelope.
+func TestParseOffersResponseDetectsCompactBlockedEnvelope(t *testing.T) {
+	body := []byte(googleResponsePrefix + `
+[["wrb.fr",null,null,null,null,[13]],["di",39],["af.httprm",38,"redacted",6]]`)
+	flights, err := parseOffersResponse(body, "USD")
+	if !errors.Is(err, errShoppingBlocked) {
+		t.Fatalf("parseOffersResponse error = %v, want errShoppingBlocked", err)
+	}
+	if flights != nil {
+		t.Fatalf("parseOffersResponse returned %d flights alongside the blocked error", len(flights))
+	}
+}
+
+func TestParseDatesResponseDetectsCompactBlockedEnvelope(t *testing.T) {
+	body := []byte(googleResponsePrefix + `
+[["wrb.fr",null,null,null,null,[13]],["di",39],["af.httprm",38,"redacted",6]]`)
+	_, err := parseDatesResponse(body, "USD")
+	if !errors.Is(err, errShoppingBlocked) {
+		t.Fatalf("parseDatesResponse error = %v, want errShoppingBlocked", err)
+	}
+}
+
 // The existing old-format fixtures must keep parsing — the blocked-envelope
 // detection must not regress the happy path.
 func TestParseOffersResponseOldFormatStillParses(t *testing.T) {
@@ -148,6 +172,32 @@ func TestFlightsFromHTMLParsesEmbeddedPayload(t *testing.T) {
 	}
 }
 
+func TestFlightsFromHTMLParsesStandaloneDS1ScriptPayload(t *testing.T) {
+	html := `<!doctype html><html><body>
+<script class="ds:1">window._unused = {data:` + string(loadFixture(t, "aus_lax_embedded_ds1.json")) + `, sideChannel:{}};</script>
+</body></html>`
+
+	flights := flightsFromHTML(html, "USD")
+	if len(flights) == 0 {
+		t.Fatal("flightsFromHTML parsed 0 flights from standalone script.ds:1 payload")
+	}
+	if pageMissingFlightData(html) {
+		t.Fatal("script.ds:1 payload misclassified as missing flight data")
+	}
+}
+
+func TestFlightsFromHTMLSkipsUnclosedScriptBeforeDS1Payload(t *testing.T) {
+	html := `<!doctype html><html><body>
+<script class="decoy">var unfinished = true;
+<script class="ds:1">window._unused = {data:` + string(loadFixture(t, "aus_lax_embedded_ds1.json")) + `, sideChannel:{}};</script>
+</body></html>`
+
+	flights := flightsFromHTML(html, "USD")
+	if len(flights) == 0 {
+		t.Fatal("flightsFromHTML parsed 0 flights after unclosed decoy script")
+	}
+}
+
 func TestSortFlightsClientSide(t *testing.T) {
 	mk := func(price float64, duration int, dep, arr string) Flight {
 		return Flight{Price: price, DurationMinutes: duration, Legs: []Leg{{
@@ -197,6 +247,13 @@ func TestPageMissingFlightData(t *testing.T) {
 	}
 	if pageMissingFlightData(wrapDs1HTML([]byte(`[null,[],[]]`))) {
 		t.Fatal("page with embedded callbacks misclassified as missing data")
+	}
+}
+
+func TestPageErrorStatusIsMissingFlightData(t *testing.T) {
+	html := `<html><body><script class="ds:1">AF_initDataCallback({key:'ds:1', data:[null,[],[]], errorHasStatus: true});</script></body></html>`
+	if !pageMissingFlightData(html) {
+		t.Fatal("embedded ds:1 errorHasStatus page not detected")
 	}
 }
 
@@ -321,5 +378,21 @@ func TestFilterFlightsClientSide(t *testing.T) {
 	passthrough := filterFlightsClientSide(append([]Flight(nil), flights...), SearchOptions{})
 	if len(passthrough) != 3 {
 		t.Fatalf("no-filter passthrough returned %d flights, want 3", len(passthrough))
+	}
+}
+
+// PATCH(review-2026-07-31): a 429 across the whole per-day fallback fan-out
+// must surface as the typed rate-limit error, not a generic all-days failure.
+func TestDatesViaHTMLAllRateLimitedReturnsErrRateLimited(t *testing.T) {
+	origFetch := fetchSearchPage
+	defer func() { fetchSearchPage = origFetch }()
+	fetchSearchPage = func(context.Context, string) (string, error) {
+		return "", fmt.Errorf("fallback search page: %w", ErrRateLimited)
+	}
+	from, _ := time.Parse("2006-01-02", "2026-09-14")
+	to, _ := time.Parse("2006-01-02", "2026-09-17")
+	_, _, err := datesViaHTML(context.Background(), DatesOptions{Origin: "SEA", Destination: "DEN"}, from, to, "EUR")
+	if !errors.Is(err, ErrRateLimited) {
+		t.Fatalf("err = %v, want ErrRateLimited", err)
 	}
 }

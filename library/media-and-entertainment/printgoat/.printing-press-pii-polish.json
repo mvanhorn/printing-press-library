@@ -1,0 +1,50 @@
+{
+  "timestamp": "2026-08-11T21:51:22.028948Z",
+  "cli_dir": "\u003ccli-dir\u003e/printgoat",
+  "findings": [
+    {
+      "kind": "email",
+      "file": ".manuscripts/20260721-105814-1da3c401/research/specs/thingiverse-openapi/resources/email.yaml",
+      "line": 38,
+      "column": 26,
+      "matched_span": "test@gmail.com",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "resources/email.yaml, vendor Thingiverse OpenAPI fragment: 'forgot_email: ... type: string / example: test@gmail.com' — the spec author's synthetic example for the forgot-password email field, published with the vendor spec source."
+    },
+    {
+      "kind": "email",
+      "file": ".manuscripts/20260721-105814-1da3c401/research/specs/thingiverse-openapi/resources/footer.yaml",
+      "line": 19,
+      "column": 26,
+      "matched_span": "john@meep.com",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "resources/footer.yaml, vendor Thingiverse OpenAPI fragment: 'email: description: the email to subscribe to the newsletter / example: john@meep.com' — synthetic placeholder example baked into the vendor's published newsletter-subscribe operation."
+    },
+    {
+      "kind": "email",
+      "file": ".manuscripts/20260721-105814-1da3c401/research/specs/thingiverse-openapi/schemas/user_schema.yaml",
+      "line": 20,
+      "column": 14,
+      "matched_span": "thingiverse@creativetools.se",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "schemas/user_schema.yaml, vendor Thingiverse OpenAPI fragment: 'email: type: string / example: thingiverse@creativetools.se' — the vendor spec's example user object is the public CreativeTools vendor account; this is that company's published business contact address, not a customer value."
+    },
+    {
+      "kind": "email",
+      "file": ".manuscripts/20260721-105814-1da3c401/research/specs/thingiverse-openapi/schemas/user_schema.yaml",
+      "line": 32,
+      "column": 293,
+      "matched_span": "thingiverse@creativetools.se",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "schemas/user_schema.yaml line 32, inside the example 'bio' markdown of the same public CreativeTools vendor account: 'Please [let us know](mailto:thingiverse@creativetools.se) if you have comments' — public corporate contact republished from the vendor's docs example."
+    }
+  ],
+  "findings_count_before": 0,
+  "progress": {
+    "last_processed_finding_id": "8922a924a622"
+  }
+}

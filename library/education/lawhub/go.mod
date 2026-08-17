@@ -1,6 +1,6 @@
 module github.com/mvanhorn/printing-press-library/library/education/lawhub
 
-go 1.26.3
+go 1.26.5
 
 require (
 	github.com/go-rod/rod v0.116.2

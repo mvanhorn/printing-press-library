@@ -1,0 +1,290 @@
+{
+  "api_name": "google-trends",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "pytrends",
+      "url": "https://github.com/GeneralMills/pytrends",
+      "language": "Python",
+      "install_method": "",
+      "stars": 3700,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "trendspyg",
+      "url": "https://github.com/flack0x/trendspyg",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "pytrends-modern",
+      "url": "https://github.com/yiromo/pytrends-modern",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "gogtrends",
+      "url": "https://github.com/groovili/gogtrends",
+      "language": "Go",
+      "install_method": "",
+      "stars": 89,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "google-trends-api",
+      "url": "https://github.com/pat310/google-trends-api",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 966,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "google-trends-cli",
+      "url": "https://github.com/Nao-30/google-trends-cli",
+      "language": "Python",
+      "install_method": "",
+      "stars": 6,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [
+    "Long-range historical stitching beyond the native 5-year daily cap (overlapping-window rescaling) is stubbed, not built \u2014 deferred to v2 unless explicitly approved as shipping scope."
+  ],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-13T18:00:00Z",
+  "novel_features": [
+    {
+      "name": "Time-Travel Trending Lookup",
+      "command": "trends trending at",
+      "description": "See what was trending on a specific past date and geo \u2014 a question Google Trends' own live UI cannot answer.",
+      "rationale": "Queries the local trending_topic table populated by every prior sync; the live site only ever exposes the current window.",
+      "example": "google-trends-pp-cli trends trending at --date 2026-06-15 --geo US --agent",
+      "why_it_matters": "Reach for this when reconstructing what was trending on a specific past day instead of scraping the live site, which cannot show historical trending snapshots at all.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Trend History Search",
+      "command": "trends history search",
+      "description": "Full-text search across every related-term and trending-topic result you've ever synced, offline.",
+      "rationale": "Runs a SQLite FTS5 query over locally cached data with no live API call \u2014 no other tool retains this history at all.",
+      "example": "google-trends-pp-cli trends history search \"electric vehicle\" --table related --agent",
+      "why_it_matters": "Use this to check whether a term you tracked weeks ago ever surfaced as related or trending, without re-querying the rate-limited live API.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Snapshot Diff / Rising-Term Watchlist",
+      "command": "trends changes",
+      "description": "See exactly what changed for a keyword's related terms and interest score since your last sync.",
+      "rationale": "Diffs two dated local snapshots of the same keyword in SQLite \u2014 nothing to diff against without a persisted history.",
+      "example": "google-trends-pp-cli trends changes coffee --since 7d --agent",
+      "why_it_matters": "Reach for this instead of re-eyeballing a chart when you need to know precisely what's new since last week.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Content Opportunity Ranking",
+      "command": "trends opportunities",
+      "description": "Ranks a keyword's related/rising terms by rising-momentum times parent-topic growth, surfacing the best content ideas first.",
+      "rationale": "Joins related_term rising values against interest_over_time trend slope, both already in local SQLite \u2014 a mechanical ranking, not a raw list.",
+      "example": "google-trends-pp-cli trends opportunities \"meal prep\" --agent",
+      "why_it_matters": "Use this when you need a shortlist of content ideas ranked by momentum, not the raw related-queries dump.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Seasonality Index",
+      "command": "trends seasonality",
+      "description": "Computes monthly averages, peak month, and a seasonality strength score for a keyword from cached history.",
+      "rationale": "Pure computation over already-synced interest_over_time rows \u2014 no external call, no dependency on long-range stitching.",
+      "example": "google-trends-pp-cli trends seasonality \"pumpkin spice\" --geo US --agent",
+      "why_it_matters": "Reach for this to detect a keyword's seasonal pattern from cached history instead of eyeballing a chart by hand.",
+      "group": "Computed insight"
+    },
+    {
+      "name": "Stale Query Report",
+      "command": "trends stale",
+      "description": "Lists tracked keywords whose local data hasn't been refreshed recently, so you know what to re-sync before you hit a rate limit.",
+      "rationale": "Reads last-synced timestamps from local SQLite \u2014 directly mitigates this API's confirmed aggressive, unpredictable 429 throttling.",
+      "example": "google-trends-pp-cli trends stale --older-than 14d --agent",
+      "why_it_matters": "Check this before a bulk re-sync so you refresh only what's actually stale, given this API's confirmed rate-limit fragility.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Geo-Divergence Finder",
+      "command": "trends geo-gap",
+      "description": "Ranks the regions where two keywords' interest diverges most, instead of raw per-region values you'd have to compare by hand.",
+      "rationale": "Calls comparedgeo for two keywords in one request, then computes and ranks the delta locally \u2014 a synthesis step no single API call provides.",
+      "example": "google-trends-pp-cli trends geo-gap nike adidas --resolution REGION --agent",
+      "why_it_matters": "Use this for a ranked list of the biggest regional gaps between two keywords, not the raw per-region compare.",
+      "group": "Computed insight"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Time-Travel Trending Lookup",
+      "command": "trends trending at",
+      "description": "See what was trending on a specific past date and geo \u2014 a question Google Trends' own live UI cannot answer.",
+      "rationale": "Queries the local trending_topic table populated by every prior sync; the live site only ever exposes the current window.",
+      "example": "google-trends-pp-cli trends trending at --date 2026-06-15 --geo US --agent",
+      "why_it_matters": "Reach for this when reconstructing what was trending on a specific past day instead of scraping the live site, which cannot show historical trending snapshots at all.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Trend History Search",
+      "command": "trends history search",
+      "description": "Full-text search across every related-term and trending-topic result you've ever synced, offline.",
+      "rationale": "Runs a SQLite FTS5 query over locally cached data with no live API call \u2014 no other tool retains this history at all.",
+      "example": "google-trends-pp-cli trends history search \"electric vehicle\" --table related --agent",
+      "why_it_matters": "Use this to check whether a term you tracked weeks ago ever surfaced as related or trending, without re-querying the rate-limited live API.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Snapshot Diff / Rising-Term Watchlist",
+      "command": "trends changes",
+      "description": "See exactly what changed for a keyword's related terms and interest score since your last sync.",
+      "rationale": "Diffs two dated local snapshots of the same keyword in SQLite \u2014 nothing to diff against without a persisted history.",
+      "example": "google-trends-pp-cli trends changes coffee --since 7d --agent",
+      "why_it_matters": "Reach for this instead of re-eyeballing a chart when you need to know precisely what's new since last week.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Content Opportunity Ranking",
+      "command": "trends opportunities",
+      "description": "Ranks a keyword's related/rising terms by rising-momentum times parent-topic growth, surfacing the best content ideas first.",
+      "rationale": "Joins related_term rising values against interest_over_time trend slope, both already in local SQLite \u2014 a mechanical ranking, not a raw list.",
+      "example": "google-trends-pp-cli trends opportunities \"meal prep\" --agent",
+      "why_it_matters": "Use this when you need a shortlist of content ideas ranked by momentum, not the raw related-queries dump.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Seasonality Index",
+      "command": "trends seasonality",
+      "description": "Computes monthly averages, peak month, and a seasonality strength score for a keyword from cached history.",
+      "rationale": "Pure computation over already-synced interest_over_time rows \u2014 no external call, no dependency on long-range stitching.",
+      "example": "google-trends-pp-cli trends seasonality \"pumpkin spice\" --geo US --agent",
+      "why_it_matters": "Reach for this to detect a keyword's seasonal pattern from cached history instead of eyeballing a chart by hand.",
+      "group": "Computed insight"
+    },
+    {
+      "name": "Stale Query Report",
+      "command": "trends stale",
+      "description": "Lists tracked keywords whose local data hasn't been refreshed recently, so you know what to re-sync before you hit a rate limit.",
+      "rationale": "Reads last-synced timestamps from local SQLite \u2014 directly mitigates this API's confirmed aggressive, unpredictable 429 throttling.",
+      "example": "google-trends-pp-cli trends stale --older-than 14d --agent",
+      "why_it_matters": "Check this before a bulk re-sync so you refresh only what's actually stale, given this API's confirmed rate-limit fragility.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Geo-Divergence Finder",
+      "command": "trends geo-gap",
+      "description": "Ranks the regions where two keywords' interest diverges most, instead of raw per-region values you'd have to compare by hand.",
+      "rationale": "Calls comparedgeo for two keywords in one request, then computes and ranks the delta locally \u2014 a synthesis step no single API call provides.",
+      "example": "google-trends-pp-cli trends geo-gap nike adidas --resolution REGION --agent",
+      "why_it_matters": "Use this for a ranked list of the biggest regional gaps between two keywords, not the raw per-region compare.",
+      "group": "Computed insight"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "Google Trends",
+    "headline": "Every Google Trends workflow pytrends offered, plus the local history and rate-limit resilience that archived, frozen wrapper never had.",
+    "value_prop": "pytrends \u2014 the de-facto standard Python wrapper \u2014 was archived in April 2025, and Google Trends throttles anonymous access aggressively and unpredictably. This CLI absorbs the full explore-to-widget contract with built-in retry/backoff, caches every query locally so history compounds instead of evaporating, and answers questions the live site simply cannot: what was trending three weeks ago, what changed since your last check, and which related terms are actually worth a content brief.",
+    "auth_narrative": "Google Trends has no login and no API key. Plain, unfingerprinted HTTP clients (a bare curl, Go's default net/http) get blocked (HTTP 429) on first contact with the explore/widget API \u2014 confirmed live during generation. This CLI's built-in Chrome-TLS-fingerprinted transport gets past that block on its own; no setup step is required. `auth login --chrome` is optional \u2014 it imports a clearance cookie from the user's logged-in Chrome session, which can help under sustained heavy-use rate-limiting, but it is not a prerequisite for normal use.",
+    "quickstart": [
+      {
+        "command": "google-trends-pp-cli doctor --dry-run",
+        "comment": "Confirms the CLI and local database are set up correctly before you make any live calls."
+      },
+      {
+        "command": "google-trends-pp-cli trends interest coffee --geo US --timeframe \"today 12-m\" --json",
+        "comment": "The most common call: interest-over-time for a single keyword. Works out of the box, no auth step needed."
+      },
+      {
+        "command": "google-trends-pp-cli trends related \"meal prep\" --geo US",
+        "comment": "Syncs related/rising search terms locally \u2014 this is what powers the local-only commands below."
+      },
+      {
+        "command": "google-trends-pp-cli trends opportunities \"meal prep\" --agent",
+        "comment": "A transcendence command: ranks content ideas from what's already synced, no extra API call."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "HTTP 429 on every call",
+        "fix": "Google Trends throttles aggressively and inconsistently. Wait a minute and retry \u2014 the CLI's built-in adaptive backoff handles routine cases, but sustained blocking may benefit from running `auth login --chrome` for a clearance cookie."
+      },
+      {
+        "symptom": "`trends trending` fails with \"server returned an error frame\"",
+        "fix": "Known gap, not a transient failure. The Trending Now page's batchexecute RPC is Google's undocumented internal protocol; this CLI sends the same request shape and session tokens a real browser sends, but the server currently returns an error frame instead of trending-terms data. auth login --chrome and retrying will not fix this. Every other trends command is unaffected and confirmed working live."
+      },
+      {
+        "symptom": "Related/rising query counts look different from the live website",
+        "fix": "This is expected \u2014 Google's own server-side sampling means identical queries can return different numbers, especially for low-volume terms and small geographies. Not a CLI bug."
+      }
+    ],
+    "when_to_use": "Use this CLI for programmatic Google Trends research: interest-over-time pulls, multi-keyword and cross-geo comparisons, related/rising query discovery for content planning, and tracking trending topics over time via the local cache. It is the right tool whenever you need history Google Trends' own UI discards, or when you're automating what used to be a manual pytrends script.",
+    "anti_triggers": [
+      "Do not use this CLI for absolute search volume \u2014 Google Trends only exposes relative 0-100 interest, never real query counts.",
+      "Do not use this CLI for real-time (sub-hourly) trend monitoring at scale \u2014 the API's aggressive rate limiting makes tight polling loops unreliable.",
+      "Do not use this CLI for authenticated Google Ads Keyword Planner-style volume data \u2014 that requires a separate Google Ads account and API, not Trends."
+    ],
+    "recipes": [
+      {
+        "title": "Compare a brand against two competitors",
+        "command": "google-trends-pp-cli trends interest nike --compare adidas,puma --geo US --timeframe \"today 3-m\" --json",
+        "explanation": "Returns all three keywords on the same 0-100 scale in one call, the shared-scale comparison pytrends required manual payload construction for."
+      },
+      {
+        "title": "Find this week's best content ideas from a topic",
+        "command": "google-trends-pp-cli trends opportunities \"home workout\" --agent",
+        "explanation": "Ranks rising related terms by momentum instead of dumping the raw related-queries list."
+      },
+      {
+        "title": "See what changed since last week without re-scraping",
+        "command": "google-trends-pp-cli trends changes coffee --since 7d --agent",
+        "explanation": "Diffs the last two local snapshots \u2014 a question the live site cannot answer since it has no history."
+      },
+      {
+        "title": "Pull a large regional breakdown and narrow to the fields that matter",
+        "command": "google-trends-pp-cli trends region coffee --resolution CITY --geo US --agent --select region_name,value",
+        "explanation": "City-level breakdowns return dozens of rows with extra metadata; --select trims the response to just the two fields an agent typically needs."
+      },
+      {
+        "title": "Check what was trending on a specific past date",
+        "command": "google-trends-pp-cli trends trending at --date 2026-06-01 --geo US --json",
+        "explanation": "Answers a question the live Trending Now page cannot \u2014 it only ever shows the current window."
+      }
+    ],
+    "trigger_phrases": [
+      "check google trends for",
+      "interest over time for",
+      "what's trending right now",
+      "compare search interest",
+      "related queries for",
+      "search interest by region",
+      "use google-trends",
+      "run google-trends-pp-cli"
+    ]
+  }
+}

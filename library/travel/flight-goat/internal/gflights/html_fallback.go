@@ -80,6 +80,19 @@ func envelopeBlockedErr(stripped string) error {
 	if strings.Contains(stripped, errorResponseMarker) {
 		return errShoppingBlocked
 	}
+	var outer [][]any
+	if err := json.Unmarshal([]byte(stripped), &outer); err == nil {
+		for _, row := range outer {
+			if len(row) < 6 {
+				continue
+			}
+			tag, _ := row[0].(string)
+			status, ok := row[5].([]any)
+			if tag == "wrb.fr" && ok && len(status) > 0 && int(numericFloat(status[0])) == 13 {
+				return errShoppingBlocked
+			}
+		}
+	}
 	return fmt.Errorf("response wrb.fr payload is not a string (unrecognized envelope; Google response format may have changed)")
 }
 
@@ -173,6 +186,11 @@ var fetchSearchPage = func(ctx context.Context, pageURL string) (string, error) 
 	if err != nil {
 		return "", fmt.Errorf("reading fallback search page: %w", err)
 	}
+	if resp.StatusCode == http.StatusTooManyRequests {
+		// PATCH(amend-2026-07-31): same sentinel as the RPC path — the block
+		// is IP-level and the HTML body is a useless interstitial.
+		return "", fmt.Errorf("fallback search page: %w", ErrRateLimited)
+	}
 	if resp.StatusCode != http.StatusOK {
 		snippet := string(body)
 		if len(snippet) > 200 {
@@ -219,6 +237,57 @@ func extractInitDataBlobs(html string) []string {
 		}
 		blobs = append(blobs, seg[j:j+end])
 		rest = seg[j+end:]
+	}
+	return blobs
+}
+
+func extractDS1ScriptBlobs(html string) []string {
+	const scriptMark = "<script"
+	const dataMark = "data:"
+	var blobs []string
+	rest := html
+	for {
+		si := strings.Index(rest, scriptMark)
+		if si < 0 {
+			break
+		}
+		rest = rest[si+len(scriptMark):]
+		closeTag := strings.Index(rest, ">")
+		if closeTag < 0 {
+			continue
+		}
+		attrs := rest[:closeTag]
+		afterOpen := rest[closeTag+1:]
+		endTag := strings.Index(afterOpen, "</script>")
+		if endTag < 0 {
+			continue
+		}
+		body := afterOpen[:endTag]
+		if nested := strings.Index(body, scriptMark); nested >= 0 {
+			rest = afterOpen[nested:]
+			continue
+		}
+		rest = afterOpen[endTag+len("</script>"):]
+		if !strings.Contains(attrs, "ds:1") {
+			continue
+		}
+		di := strings.Index(body, dataMark)
+		if di < 0 {
+			continue
+		}
+		seg := body[di+len(dataMark):]
+		j := 0
+		for j < len(seg) && (seg[j] == ' ' || seg[j] == '\n' || seg[j] == '\t' || seg[j] == '\r') {
+			j++
+		}
+		if j >= len(seg) || seg[j] != '[' {
+			continue
+		}
+		end, ok := scanBalancedArray(seg[j:])
+		if !ok {
+			continue
+		}
+		blobs = append(blobs, seg[j:j+end])
 	}
 	return blobs
 }
@@ -290,7 +359,8 @@ func flightsFromEmbeddedPayload(inner []any, currency string) []Flight {
 // several unrelated blobs; only one embeds the shopping results).
 func flightsFromHTML(html, currency string) []Flight {
 	var best []Flight
-	for _, blob := range extractInitDataBlobs(html) {
+	blobs := append(extractInitDataBlobs(html), extractDS1ScriptBlobs(html)...)
+	for _, blob := range blobs {
 		var inner []any
 		if err := json.Unmarshal([]byte(blob), &inner); err != nil {
 			continue
@@ -335,7 +405,9 @@ func searchViaHTML(ctx context.Context, opts SearchOptions, currencyCode string)
 // redesign, as opposed to a legitimately empty result set (which still embeds
 // AF_initDataCallback blobs).
 func pageMissingFlightData(html string) bool {
-	return strings.Contains(html, "consent.google.com") || !strings.Contains(html, "AF_initDataCallback(")
+	return strings.Contains(html, "consent.google.com") ||
+		strings.Contains(html, "errorHasStatus: true") ||
+		(!strings.Contains(html, "AF_initDataCallback(") && !strings.Contains(html, "ds:1"))
 }
 
 // sortFlightsClientSide orders fallback results for the sort keys the page
@@ -486,9 +558,13 @@ func datesViaHTML(ctx context.Context, opts DatesOptions, from, to time.Time, cu
 	var out []DatePrice
 	var firstErr error
 	failedDays := 0
+	rateLimited := false
 	for _, r := range results {
 		if r.err != nil {
 			failedDays++
+			if errors.Is(r.err, ErrRateLimited) {
+				rateLimited = true
+			}
 			if firstErr == nil {
 				firstErr = r.err
 			}
@@ -497,12 +573,23 @@ func datesViaHTML(ctx context.Context, opts DatesOptions, from, to time.Time, cu
 			out = append(out, *r.price)
 		}
 	}
+	// PATCH(review-2026-07-31): a 429 mid-range must never read as a clean
+	// success. With zero usable days, surface the typed rate-limit error so
+	// the CLI exits 7 with the pacing hint; with partial days, keep the data
+	// (partial results are the point) but name the rate limit in the note so
+	// agents see the coverage is incomplete and why.
+	if len(out) == 0 && rateLimited {
+		return nil, "", fmt.Errorf("dates HTML fallback: %w", ErrRateLimited)
+	}
 	if len(out) == 0 && firstErr != nil {
 		return nil, "", fmt.Errorf("dates HTML fallback failed for every day in range: %w", firstErr)
 	}
 	note := htmlFallbackNote
 	if failedDays > 0 {
 		note += fmt.Sprintf("; %d day(s) in range could not be fetched and are absent from the result", failedDays)
+		if rateLimited {
+			note += " (google rate limited some fetches — HTTP 429; date coverage is incomplete, retry later or space queries)"
+		}
 	}
 	return out, note, nil
 }

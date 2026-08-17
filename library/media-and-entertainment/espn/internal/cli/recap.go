@@ -37,9 +37,9 @@ func newRecapCmd(flags *rootFlags) *cobra.Command {
 			path := fmt.Sprintf("/%s/%s/summary", sport, league)
 			params := map[string]string{"event": eventID}
 
-			data, err := c.Get(path, params)
+			data, err := c.Get(cmd.Context(), path, params)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 
 			// JSON output

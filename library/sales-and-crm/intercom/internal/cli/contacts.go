@@ -9,10 +9,11 @@ import (
 
 func newContactsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:    "contacts",
-		Short:  "Everything about your contacts",
-		Hidden: true,
-		RunE:   parentNoSubcommandRunE(flags),
+		Use:         "contacts",
+		Short:       "Everything about your contacts",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newContactsCreateCmd(flags))

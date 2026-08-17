@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "slack-absent-vs-false",
+  "applied_at": "2026-08-03",
+  "base_run_id": "20260801-150754-271fdf29",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Stop two local-mirror commands from reporting a zero value as a fact: users whois omits its derived boolean/numeric fields when the user did not resolve, and the four --channel-filtered archive commands warn on stderr when the filter matches no mirrored channel.",
+  "reason": "Both defects share a shape \u2014 an empty result and a wrong-but-plausible result are indistinguishable to the reader. (1) `users whois nobody` returned resolved:false alongside is_bot:false, deleted:false, days_since_seen:0 and exit 0. Read field-by-field, that is 'a live human, not a bot, seen today' for somebody the mirror never held; an agent filtering on `deleted == false` would happily act on a user that does not exist. The fields are now *bool/*float64 with omitempty, so absent is absent and false still means false. (2) `--channel` on archive recall, archive coverage, catchup, and threads stale silently matched nothing when the value was a typo: empty output, exit 0, no note. A mistyped '#genral' looked exactly like a quiet channel. The mirror is now checked for the filter before querying, mirroring the 'does not resolve to a mirrored user' error users activity already raises for --from \u2014 but as a warning, not an error, because a partially synced mirror legitimately holds messages from channels whose conversation record was never fetched.",
+  "validated_outcome": "Verified against the live 991-message mirror, read-only. `users whois nobody-here --agent` now emits a card with resolved:false and no is_bot/deleted/days_since_seen keys; `users whois chris --agent` still emits resolved:true, is_bot:false, deleted:false, days_since_seen:0.98. `--channel '#genral'`, `--channel C0NOPE`, and `--channel '#nope'` each print the named warning on recall, threads stale, and archive coverage; `--channel '#alexa'` prints none. Table-driven tests cover id/name/#name/case-insensitive matches, the empty filter, an ID present in messages but absent from the channels map (the partial-mirror case a naive membership check would wrongly warn about), a nil channels map, and that the warning text names the offending filter value.",
+  "files": [
+    "internal/cli/users_whois.go",
+    "internal/cli/slack_local.go",
+    "internal/cli/slack_local_test.go",
+    "internal/cli/archive_recall.go",
+    "internal/cli/archive_coverage.go",
+    "internal/cli/catchup.go",
+    "internal/cli/threads_stale.go"
+  ],
+  "upstream": "Generic enough to belong in the press. Two scaffold conventions would prevent the whole class: (a) a not-found result must not carry derived fields as zero values \u2014 generate nullable types for fields that are only meaningful once a lookup succeeded; (b) any filter flag resolved against a local mirror should get a generated 'matched nothing' warning, the same way generated commands already get a 'store not synced' hint. Today each novel command re-derives both by hand, and whichever one the author forgets ships silently."
+}

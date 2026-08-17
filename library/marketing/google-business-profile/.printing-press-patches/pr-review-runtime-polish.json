@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "pr-review-runtime-polish",
+  "applied_at": "2026-07-04",
+  "base_run_id": "20260616-220217",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Fix PR review findings around CLI naming, tail single-poll behavior, bounded OAuth shutdown, and terminal detection fallback.",
+  "reason": "Greptile review found generated runtime strings and storage paths using the Go module path instead of the shipped binary name, a documented --follow=false flag that never exited, and two defensive runtime issues. These local fixes keep the published CLI usable while preserving module imports for builds.",
+  "files": [
+    "internal/cli/*.go",
+    "internal/client/client.go",
+    "internal/config/config.go",
+    "internal/mcp/tools.go",
+    "internal/mcp/cobratree/cli_path.go",
+    "internal/store/store.go"
+  ],
+  "validated_outcome": "go test ./... passed; cli-printing-press publish validate --dir . --json passed; built google-business-profile-pp-cli help/version now show google-business-profile-pp-cli, doctor reports ~/.config/google-business-profile-pp-cli plus ~/.local/share/google-business-profile-pp-cli/data.db, and tail --follow=false exits after one poll."
+}

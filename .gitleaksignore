@@ -1,0 +1,7 @@
+# Synthetic JWT test fixture, not a credential. The token is built at runtime
+# from strings.Repeat("a", 430) + "." + strings.Repeat("b", 344) to exercise
+# LooksLikeJWT size detection; its own comment states "Synthetic — not a
+# credential." It is shipped verbatim by the canonical cli-printing-press
+# framework in every printed CLI (already merged across 9+ library CLIs).
+# gitleaks' generic-api-key rule matches the base64 JWT header — false positive.
+library/developer-tools/framer/internal/cliutil/jwtshape_test.go:generic-api-key:16

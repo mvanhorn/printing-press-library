@@ -41,23 +41,37 @@ func newProjectsUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "update <pk>",
 		Short:       "Partially update an existing project's properties like name, description, or settings.",
-		Example:     "  plane-pp-cli projects update example-value",
+		Example:     "  plane-pp-cli projects update 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "projects.update", "pp:method": "PATCH", "pp:path": "/projects/{pk}/"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
-				return cmd.Help()
+				// A missing required positional is a usage error in every output
+				// mode (matches command_promoted.go.tmpl). Machine callers
+				// (--json/--agent) also get a JSON error envelope on stdout;
+				// usageErr sets exit 2.
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "missing required argument",
+						"usage": fmt.Sprintf("%s%s", cmd.CommandPath(), " <pk>"),
+					}, flags); printErr != nil {
+						return printErr
+					}
+				}
+				return usageErr(fmt.Errorf("missing required argument\nUsage: %s%s", cmd.CommandPath(), " <pk>"))
 			}
 			if !stdinBody {
 			}
+			path := "/projects/{pk}/"
+			if len(args) < 1 || args[0] == "" {
+				return usageErr(fmt.Errorf("pk is required\nUsage: %s <%s>", cmd.CommandPath(), "pk"))
+			}
+			path = replacePathParam(path, "pk", args[0])
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/projects/{pk}/"
-			path = replacePathParam(path, "pk", args[0])
 			params := map[string]string{}
-			var body map[string]any
+			var body any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
@@ -69,75 +83,76 @@ func newProjectsUpdateCmd(flags *rootFlags) *cobra.Command {
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
+				bodyMap := map[string]any{}
+				body = bodyMap
 				if bodyArchiveIn != 0 {
-					body["archive_in"] = bodyArchiveIn
+					bodyMap["archive_in"] = bodyArchiveIn
 				}
 				if bodyCloseIn != 0 {
-					body["close_in"] = bodyCloseIn
+					bodyMap["close_in"] = bodyCloseIn
 				}
 				if bodyCoverImage != "" {
-					body["cover_image"] = bodyCoverImage
+					bodyMap["cover_image"] = bodyCoverImage
 				}
 				if cmd.Flags().Changed("cycle-view") {
-					body["cycle_view"] = bodyCycleView
+					bodyMap["cycle_view"] = bodyCycleView
 				}
 				if bodyDefaultAssignee != "" {
-					body["default_assignee"] = bodyDefaultAssignee
+					bodyMap["default_assignee"] = bodyDefaultAssignee
 				}
 				if bodyDefaultState != "" {
-					body["default_state"] = bodyDefaultState
+					bodyMap["default_state"] = bodyDefaultState
 				}
 				if bodyDescription != "" {
-					body["description"] = bodyDescription
+					bodyMap["description"] = bodyDescription
 				}
 				if bodyEmoji != "" {
-					body["emoji"] = bodyEmoji
+					bodyMap["emoji"] = bodyEmoji
 				}
 				if bodyEstimate != "" {
-					body["estimate"] = bodyEstimate
+					bodyMap["estimate"] = bodyEstimate
 				}
 				if bodyExternalId != "" {
-					body["external_id"] = bodyExternalId
+					bodyMap["external_id"] = bodyExternalId
 				}
 				if bodyExternalSource != "" {
-					body["external_source"] = bodyExternalSource
+					bodyMap["external_source"] = bodyExternalSource
 				}
 				if cmd.Flags().Changed("guest-view-all-features") {
-					body["guest_view_all_features"] = bodyGuestViewAllFeatures
+					bodyMap["guest_view_all_features"] = bodyGuestViewAllFeatures
 				}
 				if bodyIconProp != "" {
-					body["icon_prop"] = bodyIconProp
+					bodyMap["icon_prop"] = bodyIconProp
 				}
 				if bodyIdentifier != "" {
-					body["identifier"] = bodyIdentifier
+					bodyMap["identifier"] = bodyIdentifier
 				}
 				if cmd.Flags().Changed("intake-view") {
-					body["intake_view"] = bodyIntakeView
+					bodyMap["intake_view"] = bodyIntakeView
 				}
 				if cmd.Flags().Changed("is-issue-type-enabled") {
-					body["is_issue_type_enabled"] = bodyIsIssueTypeEnabled
+					bodyMap["is_issue_type_enabled"] = bodyIsIssueTypeEnabled
 				}
 				if cmd.Flags().Changed("is-time-tracking-enabled") {
-					body["is_time_tracking_enabled"] = bodyIsTimeTrackingEnabled
+					bodyMap["is_time_tracking_enabled"] = bodyIsTimeTrackingEnabled
 				}
 				if cmd.Flags().Changed("issue-views-view") {
-					body["issue_views_view"] = bodyIssueViewsView
+					bodyMap["issue_views_view"] = bodyIssueViewsView
 				}
 				if cmd.Flags().Changed("module-view") {
-					body["module_view"] = bodyModuleView
+					bodyMap["module_view"] = bodyModuleView
 				}
 				if bodyName != "" {
-					body["name"] = bodyName
+					bodyMap["name"] = bodyName
 				}
 				if cmd.Flags().Changed("page-view") {
-					body["page_view"] = bodyPageView
+					bodyMap["page_view"] = bodyPageView
 				}
 				if bodyProjectLead != "" {
-					body["project_lead"] = bodyProjectLead
+					bodyMap["project_lead"] = bodyProjectLead
 				}
 				if bodyTimezone != "" {
-					body["timezone"] = bodyTimezone
+					bodyMap["timezone"] = bodyTimezone
 				}
 			}
 			data, statusCode, err := c.PatchWithParams(cmd.Context(), path, params, body)
@@ -207,6 +222,9 @@ func newProjectsUpdateCmd(flags *rootFlags) *cobra.Command {
 					"status":   statusCode,
 					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
 				}
+				if flags.agent {
+					envelope["meta"] = map[string]any{"source": "live"}
+				}
 				if partialFailure != nil {
 					envelope["partial_failure"] = partialFailure
 				}
@@ -245,7 +263,11 @@ func newProjectsUpdateCmd(flags *rootFlags) *cobra.Command {
 				if len(filtered) > 0 {
 					var parsed any
 					if err := json.Unmarshal(filtered, &parsed); err == nil {
-						envelope["data"] = parsed
+						if flags.agent {
+							envelope["results"] = parsed
+						} else {
+							envelope["data"] = parsed
+						}
 					}
 				}
 				envelopeJSON, err := json.Marshal(envelope)

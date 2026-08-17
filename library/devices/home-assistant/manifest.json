@@ -1,0 +1,76 @@
+{
+  "manifest_version": "0.3",
+  "name": "home-assistant-pp-mcp",
+  "display_name": "Home Assistant",
+  "version": "4.29.0",
+  "description": "Safe household actions, offline memory, and evidence-backed answers on top of the full Home Assistant control surface.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/home-assistant-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/home-assistant-pp-mcp",
+      "args": [],
+      "env": {
+        "HASS_CONFIG_DIR": "${user_config.hass_config_dir}",
+        "HASS_SUPERVISOR_URL": "${user_config.hass_supervisor_url}",
+        "HASS_TOKEN": "${user_config.hass_token}",
+        "HOME_ASSISTANT_BEARER_AUTH": "${user_config.home_assistant_bearer_auth}",
+        "HOME_ASSISTANT_SERVER": "${user_config.home_assistant_server}",
+        "SUPERVISOR_TOKEN": "${user_config.supervisor_token}"
+      }
+    }
+  },
+  "user_config": {
+    "hass_config_dir": {
+      "type": "string",
+      "title": "HASS_CONFIG_DIR",
+      "description": "Sets HASS_CONFIG_DIR for the Home Assistant MCP server. Required by the generated client for credential refresh or hand-written auth flow.",
+      "sensitive": true,
+      "required": true
+    },
+    "hass_supervisor_url": {
+      "type": "string",
+      "title": "HASS_SUPERVISOR_URL",
+      "description": "Sets HASS_SUPERVISOR_URL for the Home Assistant MCP server. Required by the generated client for credential refresh or hand-written auth flow.",
+      "sensitive": true,
+      "required": true
+    },
+    "hass_token": {
+      "type": "string",
+      "title": "HASS_TOKEN",
+      "description": "Optional. Sets HASS_TOKEN for the Home Assistant MCP server.",
+      "sensitive": true
+    },
+    "home_assistant_bearer_auth": {
+      "type": "string",
+      "title": "HOME_ASSISTANT_BEARER_AUTH",
+      "description": "Optional. Sets HOME_ASSISTANT_BEARER_AUTH for the Home Assistant MCP server.",
+      "sensitive": true
+    },
+    "home_assistant_server": {
+      "type": "string",
+      "title": "HOME_ASSISTANT_SERVER",
+      "description": "Sets HOME_ASSISTANT_SERVER for the endpoint template variable {server}.",
+      "default": "http://homeassistant.local:8123"
+    },
+    "supervisor_token": {
+      "type": "string",
+      "title": "SUPERVISOR_TOKEN",
+      "description": "Sets SUPERVISOR_TOKEN for the Home Assistant MCP server. Required by the generated client for credential refresh or hand-written auth flow.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -9,11 +9,13 @@ import (
 	"text/tabwriter"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/project-management/linear/internal/groups"
 	"github.com/mvanhorn/printing-press-library/library/project-management/linear/internal/store"
 
 	"github.com/spf13/cobra"
 )
 
+// pp:data-source computed
 // newProjectsBurndownCmd implements the prior `projects burndown` transcendence
 // feature that shipped deferred under v1's ship-with-gaps verdict. Linear
 // regresses remaining estimate against measured velocity to project a project
@@ -21,6 +23,7 @@ import (
 func newProjectsBurndownCmd(flags *rootFlags) *cobra.Command {
 	var dbPath string
 	var weeks int
+	var completedGroup string
 	cmd := &cobra.Command{
 		Use:   "burndown <project>",
 		Short: "Project a project's landing date from estimate vs measured velocity",
@@ -31,16 +34,21 @@ recent N-week velocity (default 4 weeks).
 
 Output:
   scope                total issues attached to the project
-  completed            issues whose state.type == "completed"
-  remaining_estimate   sum of estimate field across non-completed issues
+  completed            issues in the --completed-group state group
+  remaining_estimate   sum of estimate field across every other issue
   weekly_velocity      avg estimate-points completed per week over last N weeks
   projected_landing    the calendar date when remaining_estimate hits zero
                        at the measured velocity (with confidence band)
   target_date          the project's static target_date (for comparison)
-  delta_days           projected_landing - target_date (negative = early)`,
+  delta_days           projected_landing - target_date (negative = early)
+
+What counts as delivered is the 'completed' state group by default. Run
+'groups list' to see it, redeclare it in groups.toml, or pass
+--completed-group for one run.`,
 		Example: `  linear-pp-cli projects burndown PROJ-42
   linear-pp-cli projects burndown "Q3 Migration" --weeks 8
-  linear-pp-cli projects burndown PROJ-42 --json`,
+  linear-pp-cli projects burndown PROJ-42 --json
+  linear-pp-cli projects burndown PROJ-42 --completed-group shipped`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		Args:        cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -69,7 +77,17 @@ Output:
 				return fmt.Errorf("no issues attached to project %q in local store; sync may be incomplete", proj.Name)
 			}
 
-			stats := computeBurndownStats(issues, weeks)
+			// "Delivered" is a declared group, not a hardcoded type
+			// comparison, so a workspace that ships out of a custom column
+			// can say so once in groups.toml. It resolves at the project's
+			// own team scope, so a team that redeclares "completed" gets
+			// its own definition here rather than the workspace one.
+			completedSet, err := resolveStateSet(flags, proj.TeamKey, completedGroup)
+			if err != nil {
+				return err
+			}
+
+			stats := computeBurndownStats(issues, weeks, completedSet)
 			summary := map[string]any{
 				"project": map[string]any{
 					"id":          proj.ID,
@@ -137,6 +155,7 @@ Output:
 	}
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
 	cmd.Flags().IntVar(&weeks, "weeks", 4, "Velocity window: number of recent weeks to average completed estimate-points across")
+	cmd.Flags().StringVar(&completedGroup, "completed-group", "completed", completedGroupFlagUsage)
 	return cmd
 }
 
@@ -145,6 +164,10 @@ type projectRef struct {
 	Name       string `json:"name"`
 	State      string `json:"state"`
 	TargetDate string `json:"targetDate"`
+	// TeamKey is the project's sole team, or empty when the project spans
+	// several teams or records none. It is the scope every state group in
+	// this project's arithmetic resolves at.
+	TeamKey string `json:"-"`
 }
 
 func resolveProjectByNameOrID(db *store.Store, q string) (*projectRef, error) {
@@ -157,6 +180,7 @@ func resolveProjectByNameOrID(db *store.Store, q string) (*projectRef, error) {
 		Name       string `json:"name"`
 		State      string `json:"state"`
 		TargetDate string `json:"targetDate"`
+		TeamKey    string `json:"-"`
 	}
 	var matches []proj
 	qLower := strings.ToLower(q)
@@ -165,6 +189,7 @@ func resolveProjectByNameOrID(db *store.Store, q string) (*projectRef, error) {
 		if err := json.Unmarshal(raw, &p); err != nil {
 			continue
 		}
+		p.TeamKey = projectTeamKeyForGroups(raw)
 		if p.ID == q || p.Name == q {
 			matches = append(matches, p)
 			continue
@@ -181,10 +206,10 @@ func resolveProjectByNameOrID(db *store.Store, q string) (*projectRef, error) {
 		for _, p := range matches {
 			names = append(names, p.Name)
 		}
-		return nil, fmt.Errorf("project %q matched %d projects: %s — be more specific", q, len(matches), strings.Join(names, ", "))
+		return nil, fmt.Errorf("project %q matched %d projects: %s — be more specific.", q, len(matches), strings.Join(names, ", "))
 	}
 	m := matches[0]
-	return &projectRef{ID: m.ID, Name: m.Name, State: m.State, TargetDate: m.TargetDate}, nil
+	return &projectRef{ID: m.ID, Name: m.Name, State: m.State, TargetDate: m.TargetDate, TeamKey: m.TeamKey}, nil
 }
 
 type burndownStats struct {
@@ -195,10 +220,11 @@ type burndownStats struct {
 	WeeklyVelocity    float64
 }
 
-func computeBurndownStats(issues []json.RawMessage, weeks int) burndownStats {
+func computeBurndownStats(issues []json.RawMessage, weeks int, completed groups.Set) burndownStats {
 	type issueSlim struct {
 		Estimate float64 `json:"estimate"`
 		State    struct {
+			Name string `json:"name"`
 			Type string `json:"type"`
 		} `json:"state"`
 		CompletedAt string `json:"completedAt"`
@@ -211,7 +237,7 @@ func computeBurndownStats(issues []json.RawMessage, weeks int) burndownStats {
 			continue
 		}
 		s.Scope++
-		if i.State.Type == "completed" {
+		if completed.Matches(i.State.Type, i.State.Name) {
 			s.Completed++
 			s.CompletedEstimate += i.Estimate
 			if i.CompletedAt != "" {

@@ -1,0 +1,51 @@
+version: 2
+project_name: iclasspro-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: iclasspro-pp-cli
+    main: ./cmd/iclasspro-pp-cli
+    binary: iclasspro-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/productivity/iclasspro/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: iclasspro-pp-mcp
+    main: ./cmd/iclasspro-pp-mcp
+    binary: iclasspro-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: iclasspro-pp-cli
+    repository:
+      owner: bobeglz
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "The only iClassPro tool that remembers yesterday — a queryable local mirror of any gym's catalog, with the search and filter surface the portal keeps to itself."
+    install: |
+      bin.install "iclasspro-pp-cli"
+      bin.install "iclasspro-pp-mcp"

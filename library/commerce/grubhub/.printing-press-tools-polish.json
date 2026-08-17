@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-06-17T20:04:10.10486Z",
+  "cli_dir": "\u003ccli-dir\u003e/grubhub-pp-cli",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-06-17T19:52:28.79955Z"
+  }
+}

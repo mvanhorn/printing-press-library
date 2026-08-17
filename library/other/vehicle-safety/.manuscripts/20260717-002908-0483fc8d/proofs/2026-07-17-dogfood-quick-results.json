@@ -1,0 +1,243 @@
+{
+  "dir": "/Users/alderik/printing-press/.runstate/cli-printing-press-7a294ee1/runs/20260717-002908-0483fc8d/working/vehicle-safety-pp-cli",
+  "binary": "/Users/alderik/printing-press/.runstate/cli-printing-press-7a294ee1/runs/20260717-002908-0483fc8d/working/vehicle-safety-pp-cli/build/stage/bin/vehicle-safety-pp-cli",
+  "level": "quick",
+  "verdict": "FAIL",
+  "matrix_size": 14,
+  "passed": 9,
+  "failed": 5,
+  "skipped": 10,
+  "commands": [
+    "api",
+    "bulletin-bridge",
+    "compare",
+    "complaints",
+    "doctor",
+    "dossier"
+  ],
+  "tests": [
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  vehicle-safety-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  vehicle-safety-pp-cli api\n\n  # Show methods for a specific interface\n  vehicle-safety-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'vehicle-safety-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'vehicle-safety-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "bulletin-bridge",
+      "kind": "help",
+      "args": [
+        "bulletin-bridge",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show structured complaint and manufacturer-communication co-occurrence candidates.\n\nUsage:\n  vehicle-safety-pp-cli bulletin-bridge --year YEAR --make MAKE --model MODEL [flags]\n\nExamples:\n--year 2020 --make Honda --model Civic --agent\n\nFlags:\n      --communications-file string   Extracted NHTSA manufacturer-communications TSV flat file\n  -h, --help                         help for bulletin-bridge\n      --make string                  Vehicle manufacturer\n      --model string                 Vehicle model\n      --year int                     Vehicle model year\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'vehicle-safety-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "bulletin-bridge",
+      "kind": "happy_path",
+      "args": [
+        "bulletin-bridge"
+      ],
+      "status": "fail",
+      "reason": "missing runnable example"
+    },
+    {
+      "command": "bulletin-bridge",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "missing runnable example"
+    },
+    {
+      "command": "bulletin-bridge",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "missing runnable example"
+    },
+    {
+      "command": "compare",
+      "kind": "help",
+      "args": [
+        "compare",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Compare two model years while keeping raw complaint counts and missing denominators explicit.\n\nUsage:\n  vehicle-safety-pp-cli compare 'YEAR MAKE MODEL' 'YEAR MAKE MODEL' [flags]\n\nExamples:\ncompare '2020 Honda Civic' '2020 Toyota Corolla' --agent\n\nFlags:\n  -h, --help   help for compare\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'vehicle-safety-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "compare",
+      "kind": "happy_path",
+      "args": [
+        "compare"
+      ],
+      "status": "fail",
+      "reason": "missing runnable example"
+    },
+    {
+      "command": "compare",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "missing runnable example"
+    },
+    {
+      "command": "compare",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "missing runnable example"
+    },
+    {
+      "command": "complaints",
+      "kind": "help",
+      "args": [
+        "complaints",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List owner complaints for a model year, make, and model\n\nUsage:\n  vehicle-safety-pp-cli complaints [flags]\n\nExamples:\n  vehicle-safety-pp-cli complaints --make example-value --model example-value --model-year 42\n\nFlags:\n  -h, --help             help for complaints\n      --make string      Make\n      --model string     Model\n      --model-year int   Model year\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'vehicle-safety-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "complaints",
+      "kind": "happy_path",
+      "args": [
+        "complaints",
+        "--make",
+        "example-value",
+        "--model",
+        "example-value",
+        "--model-year",
+        "42"
+      ],
+      "status": "fail",
+      "exit_code": 5,
+      "reason": "exit 5",
+      "output_sample": "Error: GET /complaints/complaintsByVehicle returned HTTP 400: {\"count\":0,\"message\":\"Results returned successfully\",\"results\":[]}\n"
+    },
+    {
+      "command": "complaints",
+      "kind": "json_fidelity",
+      "args": [
+        "complaints",
+        "--make",
+        "example-value",
+        "--model",
+        "example-value",
+        "--model-year",
+        "42",
+        "--json"
+      ],
+      "status": "fail",
+      "exit_code": 5,
+      "reason": "exit 5",
+      "output_sample": "Error: GET /complaints/complaintsByVehicle returned HTTP 400: {\"count\":0,\"message\":\"Results returned successfully\",\"results\":[]}\n"
+    },
+    {
+      "command": "complaints",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  vehicle-safety-pp-cli doctor [flags]\n\nExamples:\n  vehicle-safety-pp-cli doctor\n  vehicle-safety-pp-cli doctor --json\n  vehicle-safety-pp-cli doctor --fail-on warn\n  vehicle-safety-pp-cli doctor --fail-on stale\n\nFlags:\n      --fail-on string   Exit non-zero for selected health gates. stale: cache freshness plus errors; warn: credential/path warnings plus errors; error: errors only. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'vehicle-safety-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  OK Auth: not required\n  OK Verify Mode: normal operation\n  OK API: reachable\n  config_path: /var/folders/yj/fhwt5vj52ps3ntb9vstmjjz40000gn/T/printing-press-subprocess-3257815336/.config/vehicle-safety-pp-cli/config.toml\n  base_url: https://api.nhtsa.gov\n  version: 0.0.0-dev\n  INFO Cache: empty\n    db_path: /var/folders/yj/fhwt5vj52ps3ntb9vstmjjz40000gn/T/printing-press-subprocess-3257815336/.local/share/vehicle-safety-pp-cli/data.db\n    schema_version: 9\n    db_bytes: 159744\n    stale_after: 6h0m0s\n    hint: Cache is empty; run 'vehicle-safety-pp-cli sync' to hydrate.\n  Paths:\n    config: /var/folders/yj/fhwt5vj52ps3ntb9vstmjjz40000gn/T/printing-press-subprocess-3257815336/.config/vehicle-safety-pp-cli (XDG_CONFIG_HOME)\n    data: /var/folders/yj/fhwt5vj52ps3ntb9vstmjjz40000gn/T/printing-press-subprocess-3257815336/.local/share/vehicle-safety-pp-cli (XDG_DATA_HOME)\n    state: /var/folders/yj/fhwt5vj52ps3ntb9vstmjjz40000gn/T/printing-press-subprocess-3257815336/.local/state/vehicle-safety-pp-cli (XDG_STATE_HOME)\n    cache: /var/folders/yj/fhwt5vj52ps3ntb9vstmjjz40000gn/T/printing-press-subprocess-3257815336/.cache/vehicle-safety-pp-cli (XDG_CACHE_HOME)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"api\": \"reachable\",\n  \"auth\": \"not required\",\n  \"base_url\": \"https://api.nhtsa.gov\",\n  \"cache\": {\n    \"db_bytes\": 159744,\n    \"db_path\": \"/var/folders/yj/fhwt5vj52ps3ntb9vstmjjz40000gn/T/printing-press-subprocess-3257815336/.local/share/vehicle-safety-pp-cli/data.db\",\n    \"hint\": \"Cache is empty; run 'vehicle-safety-pp-cli sync' to hydrate.\",\n    \"resources\": null,\n    \"schema_version\": 9,\n    \"stale_after\": \"6h0m0s\",\n    \"status\": \"empty\"\n  },\n  \"config\": \"ok\",\n  \"config_path\": \"/var/folders/yj/fhwt5vj52ps3ntb9vstmjjz40000gn/T/printing-press-subprocess-3257815336/.config/vehicle-safety-pp-cli/config.toml\",\n  \"paths\": {\n    \"cache\": {\n      \"dir\": \"/var/folders/yj/fhwt5vj52ps3ntb9vstmjjz40000gn/T/printing-press-subprocess-3257815336/.cache/vehicle-safety-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CACHE_HOME\"\n    },\n    \"config\": {\n      \"dir\": \"/var/folders/yj/fhwt5vj52ps3ntb9vstmjjz40000gn/T/printing-press-subprocess-3257815336/.config/vehicle-safety-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CONFIG_HOME\"\n    },\n    \"data\": {\n      \"dir\": \"/var/folders/yj/fhwt5vj52ps3ntb9vstmjjz40000gn/T/printing-press-subprocess-3257815336/.local/share/vehicle-safety-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_DATA_HOME\"\n    },\n    \"state\": {\n      \"dir\": \"/var/folders/yj/fhwt5vj52ps3ntb9vstmjjz40000gn/T/printing-press-subprocess-3257815336/.local/state/vehicle-safety-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_STATE_HOME\"\n    },\n    \"status\": \"ok\"\n  },\n  \"verify_mode\": \"normal operation\",\n  \"version\": \"0.0.0-dev\"\n}\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "dossier",
+      "kind": "help",
+      "args": [
+        "dossier",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "See identity, recalls, complaints, ratings, investigations, and communications in one source-attributed report.\n\nUsage:\n  vehicle-safety-pp-cli dossier --year YEAR --make MAKE --model MODEL [flags]\n\nExamples:\n--year 2020 --make Honda --model Civic --agent\n\nFlags:\n  -h, --help              help for dossier\n      --include-records   Include complete recall and complaint source records\n      --make string       Vehicle manufacturer\n      --model string      Vehicle model\n      --year int          Vehicle model year\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --no-learn             Disable the teach/recall learning loop for this invocation\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'vehicle-safety-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "dossier",
+      "kind": "happy_path",
+      "args": [
+        "dossier"
+      ],
+      "status": "fail",
+      "reason": "missing runnable example"
+    },
+    {
+      "command": "dossier",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "missing runnable example"
+    },
+    {
+      "command": "dossier",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "missing runnable example"
+    }
+  ],
+  "ran_at": "2026-07-18T04:03:26.763068Z"
+}

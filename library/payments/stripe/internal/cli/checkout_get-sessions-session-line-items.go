@@ -33,10 +33,12 @@ func newCheckoutGetSessionsSessionLineItemsCmd(flags *rootFlags) *cobra.Command 
 			}
 
 			path := "/v1/checkout/sessions/{session}/line_items"
-			if len(args) < 4 {
+
+			// PATCH: Bind path placeholders from Cobra positional args in Use order.
+			if len(args) < 1 {
 				return usageErr(fmt.Errorf("session is required\nUsage: %s <%s>", cmd.CommandPath(), "session"))
 			}
-			path = replacePathParam(path, "session", args[3])
+			path = replacePathParam(path, "session", args[0])
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "checkout", path, map[string]string{
 				"ending_before":  fmt.Sprintf("%v", flagEndingBefore),
 				"expand":         fmt.Sprintf("%v", flagExpand),

@@ -11,7 +11,8 @@ func newNovelLeggeCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "legge",
-		Short:       "Comandi relativi alle leggi regionali",
+		Short:       "Da una legge promulgata risale al DDL d'origine e ai passaggi parlamentari (cronologia).",
+		Long:        "Parte da una legge regionale (archivio 201) e risale al DDL d'origine e ai passaggi d'iter. Per cercare o scaricare leggi usa il gruppo leggi (cerca e get).",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE:        parentNoSubcommandRunE(flags),
 	}

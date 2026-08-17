@@ -1,0 +1,1261 @@
+{
+  "api_name": "v0",
+  "base_url": "https://api.v0.dev/v2",
+  "description": "Generate and iterate on web apps with v0 from the terminal: create chats from prompts, stream agent output, sync history to a local SQLite mirror, and track credit spend across models.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "format": "Bearer {V0_API_KEY}",
+    "in": "header",
+    "env_vars": [
+      "V0_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "V0_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "chats_connect_status",
+      "description": "Get the setup status of a Vercel Connect integration. Required: chatId, requestId. Returns the ConnectStatus.",
+      "method": "GET",
+      "path": "/chats/{chatId}/connect/status",
+      "params": [
+        {
+          "name": "chatId",
+          "type": "string",
+          "location": "path",
+          "description": "The unique identifier of the chat",
+          "required": true
+        },
+        {
+          "name": "requestId",
+          "type": "string",
+          "location": "query",
+          "description": "The requestId from the configure_vercel_connect agent action data",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chats_create",
+      "description": "Create a chat from a prompt (blocks until the model response is complete). Required: message. Optional: systemPrompt, modelConfiguration, attachments (plus 5 more). Returns the new ChatResult.",
+      "method": "POST",
+      "path": "/chats",
+      "params": [
+        {
+          "name": "message",
+          "type": "string",
+          "location": "body",
+          "description": "The prompt or instruction to send to the model",
+          "required": true
+        },
+        {
+          "name": "systemPrompt",
+          "type": "string",
+          "location": "body",
+          "description": "System-level context for the chat, such as frameworks or development environment details"
+        },
+        {
+          "name": "model-configuration-model-id",
+          "wire_name": "modelConfiguration.modelId",
+          "type": "string",
+          "location": "body",
+          "description": "Model to use for the generation"
+        },
+        {
+          "name": "model-configuration-image-generations",
+          "wire_name": "modelConfiguration.imageGenerations",
+          "type": "bool",
+          "location": "body",
+          "description": "Enables image generations to generate up to 5 images per version"
+        },
+        {
+          "name": "attachments",
+          "type": "array",
+          "location": "body",
+          "description": "Files or assets to include with the message"
+        },
+        {
+          "name": "mcpServerIds",
+          "type": "array",
+          "location": "body",
+          "description": "MCP server IDs to enable. When omitted, uses default enabled servers"
+        },
+        {
+          "name": "skills",
+          "type": "array",
+          "location": "body",
+          "description": "Skills to force-attach to the chat (remote, memory, or project). Maximum 3"
+        },
+        {
+          "name": "privacy",
+          "type": "string",
+          "location": "body",
+          "description": "Visibility setting for the new chat"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title for the new chat"
+        },
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "body",
+          "description": "Arbitrary key-value data to attach to the chat"
+        }
+      ]
+    },
+    {
+      "name": "chats_create_async",
+      "description": "Create a chat asynchronously; poll the returned messageId for completion. Required: message. Optional: systemPrompt, modelConfiguration, attachments (plus 5 more). Returns the new AsyncResult.",
+      "method": "POST",
+      "path": "/chats/async",
+      "params": [
+        {
+          "name": "message",
+          "type": "string",
+          "location": "body",
+          "description": "The prompt or instruction to send to the model",
+          "required": true
+        },
+        {
+          "name": "systemPrompt",
+          "type": "string",
+          "location": "body",
+          "description": "System-level context for the chat"
+        },
+        {
+          "name": "model-configuration-model-id",
+          "wire_name": "modelConfiguration.modelId",
+          "type": "string",
+          "location": "body",
+          "description": "Model to use for the generation"
+        },
+        {
+          "name": "model-configuration-image-generations",
+          "wire_name": "modelConfiguration.imageGenerations",
+          "type": "bool",
+          "location": "body",
+          "description": "Enables image generations to generate up to 5 images per version"
+        },
+        {
+          "name": "attachments",
+          "type": "array",
+          "location": "body",
+          "description": "Files or assets to include with the message"
+        },
+        {
+          "name": "mcpServerIds",
+          "type": "array",
+          "location": "body",
+          "description": "MCP server IDs to enable"
+        },
+        {
+          "name": "skills",
+          "type": "array",
+          "location": "body",
+          "description": "Skills to force-attach to the chat. Maximum 3"
+        },
+        {
+          "name": "privacy",
+          "type": "string",
+          "location": "body",
+          "description": "Visibility setting for the new chat"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title for the new chat"
+        },
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "body",
+          "description": "Arbitrary key-value data to attach to the chat"
+        }
+      ]
+    },
+    {
+      "name": "chats_create_from_files",
+      "description": "Create a chat from source files. Required: files. Optional: privacy, title, metadata. Returns the new ChatResult.",
+      "method": "POST",
+      "path": "/chats/from-files",
+      "params": [
+        {
+          "name": "files",
+          "type": "array",
+          "location": "body",
+          "description": "Source files used to seed the new chat",
+          "required": true
+        },
+        {
+          "name": "privacy",
+          "type": "string",
+          "location": "body",
+          "description": "Visibility setting for the new chat"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title for the new chat"
+        },
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "body",
+          "description": "Arbitrary key-value data to attach to the chat"
+        }
+      ]
+    },
+    {
+      "name": "chats_create_from_repo",
+      "description": "Create a chat from a GitHub repository. Required: repo. Optional: privacy, title, metadata. Returns the new ChatResult.",
+      "method": "POST",
+      "path": "/chats/from-repo",
+      "params": [
+        {
+          "name": "repo-url",
+          "wire_name": "repo.url",
+          "type": "string",
+          "location": "body",
+          "description": "GitHub repository URL, for example https://github.com/vercel/next.js"
+        },
+        {
+          "name": "repo-branch",
+          "wire_name": "repo.branch",
+          "type": "string",
+          "location": "body",
+          "description": "Branch to import. If omitted, v0 uses the repository default branch"
+        },
+        {
+          "name": "privacy",
+          "type": "string",
+          "location": "body",
+          "description": "Visibility setting for the new chat"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title for the new chat"
+        },
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "body",
+          "description": "Arbitrary key-value data to attach to the chat"
+        }
+      ]
+    },
+    {
+      "name": "chats_create_from_zip",
+      "description": "Create a chat from a ZIP archive URL. Required: url. Optional: privacy, title, metadata. Returns the new ChatResult.",
+      "method": "POST",
+      "path": "/chats/from-zip",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "Zip archive used to seed the new chat",
+          "required": true
+        },
+        {
+          "name": "privacy",
+          "type": "string",
+          "location": "body",
+          "description": "Visibility setting for the new chat"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title for the new chat"
+        },
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "body",
+          "description": "Arbitrary key-value data to attach to the chat"
+        }
+      ]
+    },
+    {
+      "name": "chats_create_stream",
+      "description": "Create a chat and stream the model response as Server-Sent Events. Required: message. Optional: systemPrompt, modelConfiguration, attachments (plus 5 more). Returns the new StreamEvent.",
+      "method": "POST",
+      "path": "/chats/stream",
+      "params": [
+        {
+          "name": "message",
+          "type": "string",
+          "location": "body",
+          "description": "The prompt or instruction to send to the model",
+          "required": true
+        },
+        {
+          "name": "systemPrompt",
+          "type": "string",
+          "location": "body",
+          "description": "System-level context for the chat"
+        },
+        {
+          "name": "model-configuration-model-id",
+          "wire_name": "modelConfiguration.modelId",
+          "type": "string",
+          "location": "body",
+          "description": "Model to use for the generation"
+        },
+        {
+          "name": "model-configuration-image-generations",
+          "wire_name": "modelConfiguration.imageGenerations",
+          "type": "bool",
+          "location": "body",
+          "description": "Enables image generations to generate up to 5 images per version"
+        },
+        {
+          "name": "attachments",
+          "type": "array",
+          "location": "body",
+          "description": "Files or assets to include with the message"
+        },
+        {
+          "name": "mcpServerIds",
+          "type": "array",
+          "location": "body",
+          "description": "MCP server IDs to enable"
+        },
+        {
+          "name": "skills",
+          "type": "array",
+          "location": "body",
+          "description": "Skills to force-attach to the chat. Maximum 3"
+        },
+        {
+          "name": "privacy",
+          "type": "string",
+          "location": "body",
+          "description": "Visibility setting for the new chat"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title for the new chat"
+        },
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "body",
+          "description": "Arbitrary key-value data to attach to the chat"
+        }
+      ]
+    },
+    {
+      "name": "chats_create_vercel_project",
+      "description": "Create a Vercel project for a chat. Required: chatId. Optional: name. Returns the new VercelProject.",
+      "method": "POST",
+      "path": "/chats/{chatId}/vercel-project",
+      "params": [
+        {
+          "name": "chatId",
+          "type": "string",
+          "location": "path",
+          "description": "The unique identifier of the chat",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name for the Vercel project. When omitted, the chat's title is used"
+        }
+      ]
+    },
+    {
+      "name": "chats_delete",
+      "description": "Delete a chat permanently. Required: chatId. Returns the DeleteResult. Destructive.",
+      "method": "DELETE",
+      "path": "/chats/{chatId}",
+      "params": [
+        {
+          "name": "chatId",
+          "type": "string",
+          "location": "path",
+          "description": "The unique identifier of the chat",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chats_deploy",
+      "description": "Deploy a chat to Vercel. Required: chatId. Returns the new Deployment.",
+      "method": "POST",
+      "path": "/chats/{chatId}/deploy",
+      "params": [
+        {
+          "name": "chatId",
+          "type": "string",
+          "location": "path",
+          "description": "The unique identifier of the chat",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chats_download_files",
+      "description": "Download all chat files as an archive. Required: chatId.",
+      "method": "GET",
+      "path": "/chats/{chatId}/files/download",
+      "params": [
+        {
+          "name": "chatId",
+          "type": "string",
+          "location": "path",
+          "description": "The unique identifier of the chat",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chats_duplicate",
+      "description": "Duplicate a chat. Required: chatId, privacy. Optional: title. Returns the new Chat.",
+      "method": "POST",
+      "path": "/chats/{chatId}/duplicate",
+      "params": [
+        {
+          "name": "chatId",
+          "type": "string",
+          "location": "path",
+          "description": "The unique identifier of the chat",
+          "required": true
+        },
+        {
+          "name": "privacy",
+          "type": "string",
+          "location": "body",
+          "description": "Visibility setting for the duplicated chat",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Custom title for the duplicated chat"
+        }
+      ]
+    },
+    {
+      "name": "chats_files",
+      "description": "Get all source files in a chat. Required: chatId. Returns the FileList.",
+      "method": "GET",
+      "path": "/chats/{chatId}/files",
+      "params": [
+        {
+          "name": "chatId",
+          "type": "string",
+          "location": "path",
+          "description": "The unique identifier of the chat",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chats_get",
+      "description": "Get a chat by ID. Required: chatId. Returns the Chat.",
+      "method": "GET",
+      "path": "/chats/{chatId}",
+      "params": [
+        {
+          "name": "chatId",
+          "type": "string",
+          "location": "path",
+          "description": "Unique chat identifier",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chats_list",
+      "description": "List chats accessible to the authenticated user. Optional: limit (default: 20), cursor, authorId (plus 2 more). Returns array of Chat.",
+      "method": "GET",
+      "path": "/chats",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of chats to return (1-100, default 20)"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor returned from a previous response"
+        },
+        {
+          "name": "authorId",
+          "type": "string",
+          "location": "query",
+          "description": "Restrict results to chats created by this user"
+        },
+        {
+          "name": "vercelProjectId",
+          "type": "string",
+          "location": "query",
+          "description": "Restrict results to chats associated with this Vercel project"
+        },
+        {
+          "name": "metadata",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by metadata, e.g. metadata[environment]=production"
+        }
+      ]
+    },
+    {
+      "name": "chats_preview",
+      "description": "Get the preview URL and short-lived access token for a chat. Required: chatId. Returns the Preview.",
+      "method": "GET",
+      "path": "/chats/{chatId}/preview",
+      "params": [
+        {
+          "name": "chatId",
+          "type": "string",
+          "location": "path",
+          "description": "The unique identifier of the chat",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chats_restore_message",
+      "description": "Restore files from a previous assistant message. Required: chatId, messageId. Returns the new MessageList.",
+      "method": "POST",
+      "path": "/chats/{chatId}/restore-message",
+      "params": [
+        {
+          "name": "chatId",
+          "type": "string",
+          "location": "path",
+          "description": "The unique identifier of the chat",
+          "required": true
+        },
+        {
+          "name": "messageId",
+          "type": "string",
+          "location": "body",
+          "description": "The unique identifier of the assistant message whose files to restore",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chats_resume_stream",
+      "description": "Reconnect to an active chat stream. Required: chatId. Returns the new StreamEvent.",
+      "method": "POST",
+      "path": "/chats/{chatId}/resume",
+      "params": [
+        {
+          "name": "chatId",
+          "type": "string",
+          "location": "path",
+          "description": "The unique identifier of the chat",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chats_update",
+      "description": "Update a chat title, privacy, or metadata. Required: chatId. Optional: title, privacy, metadata. Returns the updated Chat.",
+      "method": "PATCH",
+      "path": "/chats/{chatId}",
+      "params": [
+        {
+          "name": "chatId",
+          "type": "string",
+          "location": "path",
+          "description": "Unique chat identifier",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "A new title to assign to the chat"
+        },
+        {
+          "name": "privacy",
+          "type": "string",
+          "location": "body",
+          "description": "Updated visibility setting for the chat"
+        },
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "body",
+          "description": "User-defined key-value metadata. Merged with existing entries"
+        }
+      ]
+    },
+    {
+      "name": "chats_update_files",
+      "description": "Create, update, or delete files in a chat. Required: chatId, files. Returns the updated MessageList.",
+      "method": "PATCH",
+      "path": "/chats/{chatId}/files",
+      "params": [
+        {
+          "name": "chatId",
+          "type": "string",
+          "location": "path",
+          "description": "The unique identifier of the chat",
+          "required": true
+        },
+        {
+          "name": "files",
+          "type": "array",
+          "location": "body",
+          "description": "The files to create, update, or delete. Each path must be unique",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "hooks_create",
+      "description": "Create a webhook subscribed to chat and message events. Required: name, events, url. Optional: chatId. Returns the new Webhook.",
+      "method": "POST",
+      "path": "/hooks",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "A human-readable name for the webhook",
+          "required": true
+        },
+        {
+          "name": "events",
+          "type": "array",
+          "location": "body",
+          "description": "Event types the webhook subscribes to",
+          "required": true
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "The target URL to receive the webhook payloads",
+          "required": true
+        },
+        {
+          "name": "chatId",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of a chat to scope the webhook to"
+        }
+      ]
+    },
+    {
+      "name": "hooks_delete",
+      "description": "Delete a webhook. Required: hookId. Returns the WebhookDeleteResult. Destructive.",
+      "method": "DELETE",
+      "path": "/hooks/{hookId}",
+      "params": [
+        {
+          "name": "hookId",
+          "type": "string",
+          "location": "path",
+          "description": "The unique identifier of the webhook to delete",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "hooks_get",
+      "description": "Get a webhook by ID. Required: hookId. Returns the Webhook.",
+      "method": "GET",
+      "path": "/hooks/{hookId}",
+      "params": [
+        {
+          "name": "hookId",
+          "type": "string",
+          "location": "path",
+          "description": "The unique identifier of the webhook",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "hooks_list",
+      "description": "List all webhooks in the workspace. Returns array of Webhook.",
+      "method": "GET",
+      "path": "/hooks",
+      "params": []
+    },
+    {
+      "name": "hooks_update",
+      "description": "Update a webhook configuration. Required: hookId. Optional: name, events, url. Returns the updated Webhook.",
+      "method": "PATCH",
+      "path": "/hooks/{hookId}",
+      "params": [
+        {
+          "name": "hookId",
+          "type": "string",
+          "location": "path",
+          "description": "The unique identifier of the webhook",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "A new display name for the webhook"
+        },
+        {
+          "name": "events",
+          "type": "array",
+          "location": "body",
+          "description": "Updated list of event types to subscribe to"
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "A new target URL to receive webhook payloads"
+        }
+      ]
+    },
+    {
+      "name": "mcp-servers_create",
+      "description": "Register a new MCP server. Required: name, url, enabled, auth, scope. Optional: description. Returns the new MCPServer.",
+      "method": "POST",
+      "path": "/mcp-servers",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Display name for the MCP server",
+          "required": true
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "URL endpoint of the MCP server",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Optional description of the MCP server"
+        },
+        {
+          "name": "enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the server should be enabled",
+          "required": true
+        },
+        {
+          "name": "auth",
+          "type": "string",
+          "location": "body",
+          "description": "Authentication configuration",
+          "required": true
+        },
+        {
+          "name": "scope",
+          "type": "string",
+          "location": "body",
+          "description": "Scope of the MCP server configuration",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "mcp-servers_delete",
+      "description": "Delete an MCP server. Required: mcpServerId. Returns the SuccessResult. Destructive.",
+      "method": "DELETE",
+      "path": "/mcp-servers/{mcpServerId}",
+      "params": [
+        {
+          "name": "mcpServerId",
+          "type": "string",
+          "location": "path",
+          "description": "The unique identifier of the MCP server to delete",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "mcp-servers_get",
+      "description": "Get an MCP server by ID. Required: mcpServerId. Returns the MCPServer.",
+      "method": "GET",
+      "path": "/mcp-servers/{mcpServerId}",
+      "params": [
+        {
+          "name": "mcpServerId",
+          "type": "string",
+          "location": "path",
+          "description": "The unique identifier of the MCP server",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "mcp-servers_list",
+      "description": "List MCP servers configured for the account. Returns array of MCPServer.",
+      "method": "GET",
+      "path": "/mcp-servers",
+      "params": []
+    },
+    {
+      "name": "mcp-servers_update",
+      "description": "Update an MCP server configuration. Required: mcpServerId. Optional: name, url, description (plus 3 more). Returns the updated MCPServer.",
+      "method": "PATCH",
+      "path": "/mcp-servers/{mcpServerId}",
+      "params": [
+        {
+          "name": "mcpServerId",
+          "type": "string",
+          "location": "path",
+          "description": "The unique identifier of the MCP server",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "New display name"
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "New URL endpoint"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "New description"
+        },
+        {
+          "name": "enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable or disable"
+        },
+        {
+          "name": "auth",
+          "type": "string",
+          "location": "body",
+          "description": "New authentication configuration"
+        },
+        {
+          "name": "scope",
+          "type": "string",
+          "location": "body",
+          "description": "New scope"
+        }
+      ]
+    },
+    {
+      "name": "messages_get",
+      "description": "Get a single message. Required: chatId, messageId. Returns the Message.",
+      "method": "GET",
+      "path": "/chats/{chatId}/messages/{messageId}",
+      "params": [
+        {
+          "name": "chatId",
+          "type": "string",
+          "location": "path",
+          "description": "The unique identifier of the chat",
+          "required": true
+        },
+        {
+          "name": "messageId",
+          "type": "string",
+          "location": "path",
+          "description": "The unique identifier of the message",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "messages_list",
+      "description": "List messages in a chat, newest first. Required: chatId. Optional: limit (default: 20), cursor. Returns array of Message.",
+      "method": "GET",
+      "path": "/chats/{chatId}/messages",
+      "params": [
+        {
+          "name": "chatId",
+          "type": "string",
+          "location": "path",
+          "description": "The unique identifier of the chat",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of messages to return (1-100, default 20)"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor returned from a previous response"
+        }
+      ]
+    },
+    {
+      "name": "messages_resolve_task",
+      "description": "Resolve a chat blocked waiting for user input. Required: chatId, task. Optional: modelConfiguration. Returns the new Message.",
+      "method": "POST",
+      "path": "/chats/{chatId}/messages/resolve",
+      "params": [
+        {
+          "name": "chatId",
+          "type": "string",
+          "location": "path",
+          "description": "The unique identifier of the chat",
+          "required": true
+        },
+        {
+          "name": "task",
+          "type": "object",
+          "location": "body",
+          "description": "The task resolution data",
+          "required": true
+        },
+        {
+          "name": "model-configuration-model-id",
+          "wire_name": "modelConfiguration.modelId",
+          "type": "string",
+          "location": "body",
+          "description": "Model to use for the generation"
+        },
+        {
+          "name": "model-configuration-image-generations",
+          "wire_name": "modelConfiguration.imageGenerations",
+          "type": "bool",
+          "location": "body",
+          "description": "Enables image generations to generate up to 5 images per version"
+        }
+      ]
+    },
+    {
+      "name": "messages_resolve_task_async",
+      "description": "Resolve a blocked chat asynchronously. Required: chatId, task. Optional: modelConfiguration. Returns the new AsyncResult.",
+      "method": "POST",
+      "path": "/chats/{chatId}/messages/resolve/async",
+      "params": [
+        {
+          "name": "chatId",
+          "type": "string",
+          "location": "path",
+          "description": "The unique identifier of the chat",
+          "required": true
+        },
+        {
+          "name": "task",
+          "type": "object",
+          "location": "body",
+          "description": "The task resolution data",
+          "required": true
+        },
+        {
+          "name": "model-configuration-model-id",
+          "wire_name": "modelConfiguration.modelId",
+          "type": "string",
+          "location": "body",
+          "description": "Model to use for the generation"
+        },
+        {
+          "name": "model-configuration-image-generations",
+          "wire_name": "modelConfiguration.imageGenerations",
+          "type": "bool",
+          "location": "body",
+          "description": "Enables image generations to generate up to 5 images per version"
+        }
+      ]
+    },
+    {
+      "name": "messages_resolve_task_stream",
+      "description": "Resolve a blocked chat and stream the response. Required: chatId, task. Optional: modelConfiguration. Returns the new StreamEvent.",
+      "method": "POST",
+      "path": "/chats/{chatId}/messages/resolve/stream",
+      "params": [
+        {
+          "name": "chatId",
+          "type": "string",
+          "location": "path",
+          "description": "The unique identifier of the chat",
+          "required": true
+        },
+        {
+          "name": "task",
+          "type": "object",
+          "location": "body",
+          "description": "The task resolution data",
+          "required": true
+        },
+        {
+          "name": "model-configuration-model-id",
+          "wire_name": "modelConfiguration.modelId",
+          "type": "string",
+          "location": "body",
+          "description": "Model to use for the generation"
+        },
+        {
+          "name": "model-configuration-image-generations",
+          "wire_name": "modelConfiguration.imageGenerations",
+          "type": "bool",
+          "location": "body",
+          "description": "Enables image generations to generate up to 5 images per version"
+        }
+      ]
+    },
+    {
+      "name": "messages_send",
+      "description": "Send a message and wait for the model response. Required: chatId, message. Optional: systemPrompt, modelConfiguration, mcpServerIds (plus 2 more). Returns the new Message.",
+      "method": "POST",
+      "path": "/chats/{chatId}/messages",
+      "params": [
+        {
+          "name": "chatId",
+          "type": "string",
+          "location": "path",
+          "description": "The unique identifier of the chat",
+          "required": true
+        },
+        {
+          "name": "message",
+          "type": "string",
+          "location": "body",
+          "description": "The prompt or instruction to send to the model",
+          "required": true
+        },
+        {
+          "name": "systemPrompt",
+          "type": "string",
+          "location": "body",
+          "description": "System-level context for the chat"
+        },
+        {
+          "name": "model-configuration-model-id",
+          "wire_name": "modelConfiguration.modelId",
+          "type": "string",
+          "location": "body",
+          "description": "Model to use for the generation"
+        },
+        {
+          "name": "model-configuration-image-generations",
+          "wire_name": "modelConfiguration.imageGenerations",
+          "type": "bool",
+          "location": "body",
+          "description": "Enables image generations to generate up to 5 images per version"
+        },
+        {
+          "name": "mcpServerIds",
+          "type": "array",
+          "location": "body",
+          "description": "MCP server IDs to enable"
+        },
+        {
+          "name": "attachments",
+          "type": "array",
+          "location": "body",
+          "description": "Files or assets to include with the message"
+        },
+        {
+          "name": "skills",
+          "type": "array",
+          "location": "body",
+          "description": "Skills to force-attach to the message. Maximum 3"
+        }
+      ]
+    },
+    {
+      "name": "messages_send_async",
+      "description": "Send a message asynchronously; poll the returned messageId for completion. Required: chatId, message. Optional: systemPrompt, modelConfiguration, mcpServerIds (plus 2 more). Returns the new AsyncResult.",
+      "method": "POST",
+      "path": "/chats/{chatId}/messages/async",
+      "params": [
+        {
+          "name": "chatId",
+          "type": "string",
+          "location": "path",
+          "description": "The unique identifier of the chat",
+          "required": true
+        },
+        {
+          "name": "message",
+          "type": "string",
+          "location": "body",
+          "description": "The prompt or instruction to send to the model",
+          "required": true
+        },
+        {
+          "name": "systemPrompt",
+          "type": "string",
+          "location": "body",
+          "description": "System-level context for the chat"
+        },
+        {
+          "name": "model-configuration-model-id",
+          "wire_name": "modelConfiguration.modelId",
+          "type": "string",
+          "location": "body",
+          "description": "Model to use for the generation"
+        },
+        {
+          "name": "model-configuration-image-generations",
+          "wire_name": "modelConfiguration.imageGenerations",
+          "type": "bool",
+          "location": "body",
+          "description": "Enables image generations to generate up to 5 images per version"
+        },
+        {
+          "name": "mcpServerIds",
+          "type": "array",
+          "location": "body",
+          "description": "MCP server IDs to enable"
+        },
+        {
+          "name": "attachments",
+          "type": "array",
+          "location": "body",
+          "description": "Files or assets to include with the message"
+        },
+        {
+          "name": "skills",
+          "type": "array",
+          "location": "body",
+          "description": "Skills to force-attach to the message. Maximum 3"
+        }
+      ]
+    },
+    {
+      "name": "messages_send_stream",
+      "description": "Send a message and stream the response as Server-Sent Events. Required: chatId, message. Optional: systemPrompt, modelConfiguration, mcpServerIds (plus 2 more). Returns the new StreamEvent.",
+      "method": "POST",
+      "path": "/chats/{chatId}/messages/stream",
+      "params": [
+        {
+          "name": "chatId",
+          "type": "string",
+          "location": "path",
+          "description": "The unique identifier of the chat",
+          "required": true
+        },
+        {
+          "name": "message",
+          "type": "string",
+          "location": "body",
+          "description": "The prompt or instruction to send to the model",
+          "required": true
+        },
+        {
+          "name": "systemPrompt",
+          "type": "string",
+          "location": "body",
+          "description": "System-level context for the chat"
+        },
+        {
+          "name": "model-configuration-model-id",
+          "wire_name": "modelConfiguration.modelId",
+          "type": "string",
+          "location": "body",
+          "description": "Model to use for the generation"
+        },
+        {
+          "name": "model-configuration-image-generations",
+          "wire_name": "modelConfiguration.imageGenerations",
+          "type": "bool",
+          "location": "body",
+          "description": "Enables image generations to generate up to 5 images per version"
+        },
+        {
+          "name": "mcpServerIds",
+          "type": "array",
+          "location": "body",
+          "description": "MCP server IDs to enable"
+        },
+        {
+          "name": "attachments",
+          "type": "array",
+          "location": "body",
+          "description": "Files or assets to include with the message"
+        },
+        {
+          "name": "skills",
+          "type": "array",
+          "location": "body",
+          "description": "Skills to force-attach to the message. Maximum 3"
+        }
+      ]
+    },
+    {
+      "name": "messages_stop",
+      "description": "Stop an in-flight message generation. Required: chatId, messageId. Returns the new StopResult.",
+      "method": "POST",
+      "path": "/chats/{chatId}/messages/{messageId}/stop",
+      "params": [
+        {
+          "name": "chatId",
+          "type": "string",
+          "location": "path",
+          "description": "The unique identifier of the chat",
+          "required": true
+        },
+        {
+          "name": "messageId",
+          "type": "string",
+          "location": "path",
+          "description": "The unique identifier of the assistant message to stop",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "settings_preview_hosts",
+      "description": "Get trusted hostname patterns allowed to embed previews. Returns array of string.",
+      "method": "GET",
+      "path": "/settings/preview-hosts",
+      "params": []
+    },
+    {
+      "name": "settings_set_preview_hosts",
+      "description": "Set the complete list of trusted preview hosts. Required: hosts. Returns array of string.",
+      "method": "PUT",
+      "path": "/settings/preview-hosts",
+      "params": [
+        {
+          "name": "hosts",
+          "type": "array",
+          "location": "body",
+          "description": "The complete list of exact or wildcard hostname patterns trusted to embed previews",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

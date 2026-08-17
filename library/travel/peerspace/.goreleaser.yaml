@@ -1,0 +1,51 @@
+version: 2
+project_name: peerspace-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: peerspace-pp-cli
+    main: ./cmd/peerspace-pp-cli
+    binary: peerspace-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/travel/peerspace/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: peerspace-pp-mcp
+    main: ./cmd/peerspace-pp-mcp
+    binary: peerspace-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: peerspace-pp-cli
+    repository:
+      owner: nspage
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library/tree/main/library/travel/peerspace"
+    description: "Tech-event venue scout for Peerspace: rank fit, gap-check shortlists, and export proposal packs for Luma/Eventbrite."
+    install: |
+      bin.install "peerspace-pp-cli"
+      bin.install "peerspace-pp-mcp"

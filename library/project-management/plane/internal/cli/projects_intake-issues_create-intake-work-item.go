@@ -30,26 +30,52 @@ func newProjectsIntakeIssuesCreateIntakeWorkItemCmd(flags *rootFlags) *cobra.Com
 			// Bare invocation of a command with required input prints help
 			// instead of pflag's terse "required flag not set" error. Optional-
 			// only read commands fall through so a bare call still executes.
-			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
+			// Machine callers (--json/--agent, which sets asJSON) get a usage
+			// error + exit 2 instead of silent exit-0 help, so an incomplete
+			// invocation is never mistaken for success.
+			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "requires input",
+						"usage": cmd.CommandPath() + " --help",
+					}, flags); printErr != nil {
+						return printErr
+					}
+					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
+				}
 				return cmd.Help()
 			}
 			if len(args) == 0 {
-				return cmd.Help()
+				// A missing required positional is a usage error in every output
+				// mode (matches command_promoted.go.tmpl). Machine callers
+				// (--json/--agent) also get a JSON error envelope on stdout;
+				// usageErr sets exit 2.
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "missing required argument",
+						"usage": fmt.Sprintf("%s%s", cmd.CommandPath(), " <project_id>"),
+					}, flags); printErr != nil {
+						return printErr
+					}
+				}
+				return usageErr(fmt.Errorf("missing required argument\nUsage: %s%s", cmd.CommandPath(), " <project_id>"))
 			}
 			if !stdinBody {
 				if !cmd.Flags().Changed("issue-name") && !flags.dryRun {
 					return fmt.Errorf("required flag \"%s\" not set", "issue-name")
 				}
 			}
+			path := "/projects/{project_id}/intake-issues/"
+			if len(args) < 1 || args[0] == "" {
+				return usageErr(fmt.Errorf("project_id is required\nUsage: %s <%s>", cmd.CommandPath(), "project_id"))
+			}
+			path = replacePathParam(path, "project_id", args[0])
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/projects/{project_id}/intake-issues/"
-			path = replacePathParam(path, "project_id", args[0])
 			params := map[string]string{}
-			var body map[string]any
+			var body any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
@@ -61,7 +87,8 @@ func newProjectsIntakeIssuesCreateIntakeWorkItemCmd(flags *rootFlags) *cobra.Com
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
+				bodyMap := map[string]any{}
+				body = bodyMap
 				{
 					nestedIssue := map[string]any{}
 					if bodyIssueDescription != "" {
@@ -80,7 +107,7 @@ func newProjectsIntakeIssuesCreateIntakeWorkItemCmd(flags *rootFlags) *cobra.Com
 						nestedIssue["priority"] = bodyIssuePriority
 					}
 					if len(nestedIssue) > 0 {
-						body["issue"] = nestedIssue
+						bodyMap["issue"] = nestedIssue
 					}
 				}
 			}
@@ -151,6 +178,9 @@ func newProjectsIntakeIssuesCreateIntakeWorkItemCmd(flags *rootFlags) *cobra.Com
 					"status":   statusCode,
 					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
 				}
+				if flags.agent {
+					envelope["meta"] = map[string]any{"source": "live"}
+				}
 				if partialFailure != nil {
 					envelope["partial_failure"] = partialFailure
 				}
@@ -189,7 +219,11 @@ func newProjectsIntakeIssuesCreateIntakeWorkItemCmd(flags *rootFlags) *cobra.Com
 				if len(filtered) > 0 {
 					var parsed any
 					if err := json.Unmarshal(filtered, &parsed); err == nil {
-						envelope["data"] = parsed
+						if flags.agent {
+							envelope["results"] = parsed
+						} else {
+							envelope["data"] = parsed
+						}
 					}
 				}
 				envelopeJSON, err := json.Marshal(envelope)

@@ -1,0 +1,26 @@
+{
+  "api_name": "placeit",
+  "base_url": "https://placeit.net",
+  "description": "Every one of Placeit's 164k mockup, logo, video, and design templates — searchable, sortable by real popularity, and cached offline from your terminal, with catalog analytics Placeit's own UI can't do.",
+  "mcp_ready": "partial",
+  "http_transport": "browser-chrome",
+  "auth": {
+    "type": "cookie",
+    "in": "cookie",
+    "cookie_domain": "placeit.net",
+    "cookies": [
+      "logged_session"
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "campaigns_list",
+      "description": "List active Placeit campaigns and promotions. Returns the CampaignSet.",
+      "method": "GET",
+      "path": "/api/v2/get_active_campaigns",
+      "no_auth": true,
+      "params": []
+    }
+  ]
+}

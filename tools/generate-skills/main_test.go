@@ -494,3 +494,136 @@ func TestPruneOrphanSkills_DirMissing(t *testing.T) {
 		t.Fatalf("removed = %d, want 0 for missing dir", removed)
 	}
 }
+
+func TestValidateLibrarySkills(t *testing.T) {
+	root := t.TempDir()
+
+	// Build a fixture with three entries: good, missing, empty-whitespace.
+	goodDir := filepath.Join(root, "library", "good-cat", "good")
+	if err := os.MkdirAll(goodDir, 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(goodDir, "SKILL.md"), []byte("---\nname: pp-good\n---\n\n# Good skill\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	missingDir := filepath.Join(root, "library", "missing-cat", "missing")
+	if err := os.MkdirAll(missingDir, 0755); err != nil {
+		t.Fatal(err)
+	}
+	// no SKILL.md written
+
+	emptyDir := filepath.Join(root, "library", "empty-cat", "empty")
+	if err := os.MkdirAll(emptyDir, 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(emptyDir, "SKILL.md"), []byte("   \n\t\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	skills := []LibrarySkill{
+		{Name: "good", Path: goodDir},
+		{Name: "missing", Path: missingDir},
+		{Name: "empty", Path: emptyDir},
+	}
+
+	errs := validateLibrarySkills(skills)
+	if len(errs) != 2 {
+		t.Fatalf("expected 2 errors (missing + empty), got %d: %v", len(errs), errs)
+	}
+
+	joined := strings.Join(errs, "\n")
+	for _, want := range []string{
+		"missing: SKILL.md missing",
+		"empty: SKILL.md is empty",
+	} {
+		if !strings.Contains(joined, want) {
+			t.Errorf("missing substring %q in validateLibrarySkills output:\n%s", want, joined)
+		}
+	}
+	// The "good" entry must not appear in the error report.
+	if strings.Contains(joined, "good:") {
+		t.Errorf("valid entry should not be reported as failing:\n%s", joined)
+	}
+}
+
+func TestValidateLibrarySkills_AllValid(t *testing.T) {
+	root := t.TempDir()
+	dir := filepath.Join(root, "library", "cat", "ok")
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "SKILL.md"), []byte("# Real content\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	if errs := validateLibrarySkills([]LibrarySkill{{Name: "ok", Path: dir}}); len(errs) != 0 {
+		t.Fatalf("expected no errors for valid fixture, got: %v", errs)
+	}
+}
+
+func TestValidateLibrarySkills_EmptyInput(t *testing.T) {
+	if errs := validateLibrarySkills(nil); len(errs) != 0 {
+		t.Fatalf("nil input should produce no errors, got: %v", errs)
+	}
+}
+
+func TestIntegration_ValidateMode_PassesOnHappyFixture(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test in -short mode")
+	}
+	bin := buildTool(t)
+	root := t.TempDir()
+
+	upstreamDir := writeManifest(t, root, "commerce", "happy", "happy")
+	if err := os.WriteFile(filepath.Join(upstreamDir, "SKILL.md"), []byte("# Real content\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	cmd := exec.Command(bin, "--validate")
+	cmd.Dir = root
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("--validate should exit 0 on happy fixture: %v\n%s", err, out)
+	}
+	if !strings.Contains(string(out), "validation passed") {
+		t.Errorf("expected 'validation passed' in output, got:\n%s", out)
+	}
+	// No cli-skills/ directory should be created.
+	if _, err := os.Stat(filepath.Join(root, "cli-skills")); !os.IsNotExist(err) {
+		t.Errorf("--validate must not create cli-skills/, stat err = %v", err)
+	}
+}
+
+func TestIntegration_ValidateMode_FailsOnMissingSkillAndDoesNotWrite(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test in -short mode")
+	}
+	bin := buildTool(t)
+	root := t.TempDir()
+
+	// One valid entry, one entry with no SKILL.md.
+	goodDir := writeManifest(t, root, "commerce", "good", "good")
+	if err := os.WriteFile(filepath.Join(goodDir, "SKILL.md"), []byte("# Good\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	writeManifest(t, root, "commerce", "broken", "broken") // no SKILL.md
+
+	cmd := exec.Command(bin, "--validate")
+	cmd.Dir = root
+	out, err := cmd.CombinedOutput()
+	if err == nil {
+		t.Fatalf("--validate should exit non-zero when an entry is missing SKILL.md; output:\n%s", out)
+	}
+	outStr := string(out)
+	if !strings.Contains(outStr, "broken") {
+		t.Errorf("error output should name the broken slug, got:\n%s", outStr)
+	}
+	if !strings.Contains(outStr, "SKILL.md missing") {
+		t.Errorf("expected 'SKILL.md missing' diagnostic, got:\n%s", outStr)
+	}
+	// Crucially: no cli-skills/ writes happened despite the valid entry being
+	// processable. validate-mode short-circuits before any mirror writes.
+	if _, err := os.Stat(filepath.Join(root, "cli-skills")); !os.IsNotExist(err) {
+		t.Errorf("--validate must not write cli-skills/ even when partial entries are valid, stat err = %v", err)
+	}
+}

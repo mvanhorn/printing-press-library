@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/parallel-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260720-202045-1a2cb7d8",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

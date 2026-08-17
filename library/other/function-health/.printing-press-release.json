@@ -2,15 +2,17 @@
   "schema_version": 1,
   "slug": "function-health",
   "cli_name": "function-health-pp-cli",
-  "version": "2026.6.1",
-  "released_at": "2026-06-08T00:00:00Z",
-  "source_commit": "40610a4e649ed7db2f033b1abff765949bbad99d",
+  "version": "2026.7.2",
+  "released_at": "2026-07-16T22:20:37Z",
+  "source_commit": "b1088e5f321b4b04815550498a820005484c93a6",
   "printing_press_version": "4.19.0",
   "run_id": "20260528-084148",
   "changes": [
     {
-      "title": "Baseline release metadata added for this published CLI.",
-      "commit": "40610a4e649ed7db2f033b1abff765949bbad99d"
+      "title": "fix(function-health): hardcode completed requisition filter",
+      "pr": 1527,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1527",
+      "commit": "b1088e5f321b4b04815550498a820005484c93a6"
     }
   ]
 }

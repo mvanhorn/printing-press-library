@@ -4,7 +4,6 @@
 package cli
 
 import (
-	"encoding/json"
 	"fmt"
 	"sort"
 	"strings"
@@ -12,10 +11,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// whichEntry is one row of the curated capability index. The index is
-// seeded at generation time from the same NovelFeature list that drives
-// the SKILL.md feature section, so the command a `which` query returns
-// is guaranteed to exist and to match what the skill advertises.
+// whichEntry is one row of the curated capability index. The index is seeded
+// at generation time from the verified NovelFeature list that drives the
+// SKILL.md feature section, so the command a `which` query returns is
+// guaranteed to exist and to match what the skill advertises.
 type whichEntry struct {
 	Command      string `json:"command"`
 	Description  string `json:"description"`
@@ -28,19 +27,20 @@ type whichEntry struct {
 // `--help`; `which` exists to resolve a natural-language capability
 // query to one of the commands the skill says matter most.
 var whichIndex = []whichEntry{
-	{Command: "creator find", Description: "Given a single handle, see which of 11+ platforms the creator is on, with follower counts side-by-side.", Group: "Cross-platform compounding", WhyItMatters: "When an agent needs a creator's full footprint before writing outreach or analysis, this returns it in one call instead of 11."},
-	{Command: "trends triangulate", Description: "Snapshot a hashtag or keyword on TikTok, YouTube, Reddit, and Threads in one call to see which platform it's rising fastest on.", Group: "Cross-platform compounding", WhyItMatters: "Marketers asking 'is this trend cresting on TikTok' can see the answer plus the leading-indicator platform in one command."},
-	{Command: "transcripts search", Description: "FTS5-indexed search across all transcripts you've synced — TikTok, YouTube, Instagram, Facebook, and Twitter videos.", Group: "Local state that compounds", WhyItMatters: "Agents doing brand-mention or keyword-monitoring across video content can grep their entire synced corpus offline."},
-	{Command: "ads search", Description: "Search Facebook, Google, and LinkedIn ad libraries in one query — see every ad a brand is currently running.", Group: "Cross-platform compounding", WhyItMatters: "Competitive intel without juggling three vendors and three APIs."},
-	{Command: "content spikes", Description: "Find videos that performed significantly above a creator's average — the ones that actually went viral.", Group: "Local state that compounds", WhyItMatters: "When asked 'which videos took off,' the agent can answer with statistical confidence instead of guessing."},
-	{Command: "profile compare", Description: "Compare two or more creators side-by-side on follower count, engagement rate, posting cadence, and content volume.", Group: "Local state that compounds", WhyItMatters: "Influencer-shortlist work that used to take a spreadsheet now takes one command."},
-	{Command: "profile track", Description: "Snapshot a creator's follower count daily across every platform; chart their growth trajectory over time.", Group: "Local state that compounds", WhyItMatters: "Trend lines for momentum decisions (sponsorship, partnership timing)."},
-	{Command: "content cadence", Description: "See when a creator posts — by day of week and hour — across every platform you've synced for them.", Group: "Local state that compounds", WhyItMatters: "Benchmark a competitor's publishing strategy or recommend the right slot for a creator partner."},
-	{Command: "content analyze", Description: "Rank a creator's synced content by engagement rate (not raw likes) so you see their true best performers.", Group: "Local state that compounds", WhyItMatters: "Surfaces over-performers that raw view counts hide."},
-	{Command: "trends delta", Description: "Track whether a hashtag is growing or shrinking by comparing video counts across snapshot intervals.", Group: "Local state that compounds", WhyItMatters: "Distinguish a stable hashtag from a rising or dying one in seconds."},
-	{Command: "ads monitor", Description: "Snapshot a brand's ads on Facebook, Google, and LinkedIn into SQLite; on rerun, diff new ads vs ones that disappeared.", Group: "Cross-platform compounding", WhyItMatters: "Cron-friendly competitive monitoring without glue code."},
-	{Command: "bio resolve", Description: "Paste any linktree.ee, komi.io, pillar.io, linkbio, or linkme URL and get the unified destination list.", Group: "Cross-platform compounding", WhyItMatters: "Lead-research tasks that need a creator's full link footprint stop caring which bio service they used."},
-	{Command: "account budget", Description: "See how fast you're spending API credits and how many days remain at current pace, fused with the API's own usage history.", Group: "Operator ergonomics", WhyItMatters: "Catches runaway sync jobs before they exhaust the plan."},
+	{Command: "comments thread", Description: "Fetch one post's complete comment threads, automatically picking the cheaper route between the 15-credit flat include_replies call and 1-credit per-comment reply calls (don't trust child_comment_count to decide: it's unreliable).", Group: "Comment-thread completeness", WhyItMatters: "Reach for this when you need every reply on a post without doing credit arithmetic by hand."},
+	{Command: "comments coverage", Description: "Rank synced posts by how many comments the API reported versus how many actually landed in your local store — ground truth where the API's child_comment_count is unreliable as a thread filter.", Group: "Comment-thread completeness", WhyItMatters: "Reach for this after a sweep to find which posts are silently missing their replies."},
+	{Command: "account estimate", Description: "Project the credit cost of a planned run against your live balance and exit non-zero if it would exhaust the budget.", Group: "Credit governance", WhyItMatters: "Run this before any bulk sweep so an agent never burns the balance mid-pipeline."},
+	{Command: "creator find", Description: "Given one handle, see which of 12 creator platforms the creator is on with follower counts side-by-side.", Group: "Cross-platform intelligence", WhyItMatters: "Start any collab qualification here before pulling per-platform detail."},
+	{Command: "transcripts search", Description: "FTS5 full-text search across every platform transcript you've synced — nine resource types spanning YouTube, TikTok, Instagram, Facebook, LinkedIn, Rumble, and more.", Group: "Local state that compounds", WhyItMatters: "Search transcripts you already paid for instead of re-fetching them."},
+	{Command: "ads monitor", Description: "Snapshot a brand's live ads across Facebook, TikTok, Google, and LinkedIn ad libraries; on rerun, diff new ads versus ones that disappeared.", Group: "Local state that compounds", WhyItMatters: "Rerun weekly and read only the delta of a competitor's ad activity."},
+	{Command: "comments sweep", Description: "Pull recent posts for a handle and their comments in one command, stopping cleanly at a credit budget you set.", Group: "Comment-thread completeness", WhyItMatters: "The one-command version of a multi-hundred-post comment-mining ritual, budget-gated."},
+	{Command: "comments search", Description: "Full-text search across every synced comment and reply, offline.", Group: "Local state that compounds", WhyItMatters: "Mine questions and complaints from comments you already pulled without spending credits."},
+	{Command: "account budget", Description: "See how fast you're spending API credits and how many days remain at the current pace.", Group: "Credit governance", WhyItMatters: "Check runway before committing to a new recurring pipeline."},
+	{Command: "creator compare", Description: "Compare two or more creators side-by-side on follower count, engagement rate, and content volume.", Group: "Cross-platform intelligence", WhyItMatters: "Strip vanity follower counts out of a collab decision."},
+	{Command: "content spikes", Description: "Surface the videos that performed far above a creator's own baseline — the ones that actually went viral.", Group: "Cross-platform intelligence", WhyItMatters: "Find outlier content without eyeballing hundreds of posts."},
+	{Command: "trends triangulate", Description: "Snapshot a hashtag or topic across platforms in one call to see which platform it is biggest on.", Group: "Cross-platform intelligence", WhyItMatters: "Decide where to publish before creating the content."},
+	{Command: "creator track", Description: "Append a follower snapshot per run on a chosen platform, then read the growth trajectory over time.", Group: "Local state that compounds", WhyItMatters: "Track a partner's growth on a schedule you control."},
+	{Command: "creator tagged", Description: "Snapshot the posts a creator or brand is tagged in and diff new mentions on rerun.", Group: "Local state that compounds", WhyItMatters: "Weekly UGC check for a client brand without re-reading the full list."},
 }
 
 // whichMatch pairs an index entry with its ranking score for a query.
@@ -59,6 +59,7 @@ type whichMatch struct {
 //	+3  exact token match on the command's leaf or full path
 //	+2  substring match on the command (any part)
 //	+2  substring match on the description
+//	+2  per-token match on the description
 //	+1  group tag contains the query as a word
 //
 // Ties break on declaration order in the index. An empty query returns
@@ -76,7 +77,9 @@ func rankWhich(index []whichEntry, query string, limit int) []whichMatch {
 		}
 		return out
 	}
-	qTokens := strings.Fields(q)
+	// Sub-tokenize the query the same way command paths are split, so a
+	// pasted hyphenated capability (repos-list-for-authenticated) matches.
+	qTokens := whichSubTokens(q)
 
 	scored := make([]whichMatch, 0, len(index))
 	for i, e := range index {
@@ -86,7 +89,14 @@ func rankWhich(index []whichEntry, query string, limit int) []whichMatch {
 	}
 
 	sort.SliceStable(scored, func(i, j int) bool {
-		return scored[i].Score > scored[j].Score
+		if scored[i].Score != scored[j].Score {
+			return scored[i].Score > scored[j].Score
+		}
+		// Specificity tie-break: at equal score prefer the command with the
+		// fewest capability sub-tokens - the canonical operation over variants
+		// carrying extra words the request never used.
+		return len(whichSubTokens(strings.ToLower(scored[i].Entry.Command))) <
+			len(whichSubTokens(strings.ToLower(scored[j].Entry.Command)))
 	})
 	// Drop zero-score matches when the query was non-empty; agents
 	// branching on exit code rely on "no match" meaning no confidence.
@@ -105,14 +115,19 @@ func rankWhich(index []whichEntry, query string, limit int) []whichMatch {
 func whichScoreEntry(e whichEntry, query string, qTokens []string) int {
 	score := 0
 	cmd := strings.ToLower(e.Command)
-	cmdTokens := strings.Fields(cmd)
+	// Sub-token split (spaces, hyphens, underscores, slashes): a capability
+	// word buried in a hyphenated leaf (repos-list-for-authenticated) must be
+	// matchable by the words a human asks with, or every command in a group
+	// ties on the group token alone and index order decides the answer.
+	cmdTokens := whichSubTokens(cmd)
 	desc := strings.ToLower(e.Description)
+	descTokens := strings.Fields(desc)
 	group := strings.ToLower(e.Group)
 
 	// Exact token match on the command path (any token).
 	for _, qt := range qTokens {
 		for _, ct := range cmdTokens {
-			if qt == ct {
+			if whichTokenMatch(qt, ct) {
 				score += 3
 				break
 			}
@@ -126,6 +141,23 @@ func whichScoreEntry(e whichEntry, query string, qTokens []string) int {
 	if strings.Contains(desc, query) {
 		score += 2
 	}
+	// Per-token description match, CAPPED: natural-language requests often say
+	// "top coins by market cap" and the endpoint doc uses the same words - but
+	// uncapped description credit lets long token-soup descriptions outrank the
+	// precise command path, so the credit saturates at 3.
+	descCredit := 0
+	for _, qt := range qTokens {
+		for _, dt := range descTokens {
+			if whichTokenMatch(qt, dt) {
+				descCredit++
+				break
+			}
+		}
+		if descCredit == 3 {
+			break
+		}
+	}
+	score += descCredit
 	// Group tag match.
 	if group != "" {
 		for _, qt := range qTokens {
@@ -135,7 +167,121 @@ func whichScoreEntry(e whichEntry, query string, qTokens []string) int {
 			}
 		}
 	}
+	// Possessive aliasing: "my/mine/me/current" in a request is API-speak for
+	// the authenticated caller; commands scoped to the authenticated user must
+	// outrank generic listings for possessive asks.
+	possessive := false
+	for _, qt := range qTokens {
+		switch qt {
+		case "my", "mine", "me", "current":
+			possessive = true
+		}
+	}
+	if possessive {
+		for _, ct := range cmdTokens {
+			if ct == "authenticated" || ct == "me" {
+				score += 3
+				break
+			}
+		}
+	}
+	// Read-intent default: penalize write-verb commands when the request never
+	// asked for a write, so neutral asks can never rank a destructive command
+	// first on a tie.
+	if score > 0 {
+		queryWrite := false
+		for _, qt := range qTokens {
+			if whichWriteVerbs[qt] {
+				queryWrite = true
+				break
+			}
+		}
+		if !queryWrite {
+			for _, ct := range cmdTokens {
+				if whichWriteVerbs[ct] {
+					score -= 2
+					break
+				}
+			}
+		}
+	}
+	// Specificity: a command leaf carrying capability sub-tokens the request never
+	// used is a variant, not the canonical answer ("activity-list-repos-
+	// starred-by-authenticated" for a repositories ask). Parent resource tokens
+	// are excluded so a valid nested command is not erased by its path.
+	if score > 0 && len(qTokens) > 1 {
+		unmatched := 0
+		commandParts := strings.Fields(cmd)
+		leafTokens := whichSubTokens(commandParts[len(commandParts)-1])
+		for _, ct := range leafTokens {
+			hit := false
+			for _, qt := range qTokens {
+				if whichTokenMatch(qt, ct) {
+					hit = true
+					break
+				}
+			}
+			if !hit {
+				unmatched++
+			}
+		}
+		if unmatched > 3 {
+			unmatched = 3
+		}
+		score -= unmatched
+	}
 	return score
+}
+
+func whichTokenMatch(a, b string) bool {
+	a = strings.Trim(strings.ToLower(a), ".,:;!?()[]{}\"'")
+	b = strings.Trim(strings.ToLower(b), ".,:;!?()[]{}\"'")
+	if a == "" || b == "" {
+		return false
+	}
+	if a == b {
+		return true
+	}
+	if whichSingular(a) == whichSingular(b) {
+		return true
+	}
+	return whichTokenAliases[a] != "" && whichTokenAliases[a] == whichTokenAliases[b]
+}
+
+func whichSubTokens(cmd string) []string {
+	return strings.FieldsFunc(cmd, func(r rune) bool {
+		return r == ' ' || r == '-' || r == '_' || r == '/'
+	})
+}
+
+// The closed API-verb set for write-shaped commands. A request that never
+// asked for a write must not tie-break into a destructive command.
+var whichWriteVerbs = map[string]bool{
+	"delete": true, "remove": true, "update": true, "create": true, "set": true,
+	"add": true, "replace": true, "rename": true, "transfer": true, "merge": true,
+	"lock": true, "unlock": true, "star": true, "unstar": true, "follow": true,
+	"unfollow": true, "block": true, "unblock": true, "mute": true, "archive": true,
+	"unarchive": true, "cancel": true, "send": true, "upload": true, "subscribe": true,
+	"unsubscribe": true, "dismiss": true, "approve": true, "decline": true,
+	"post": true, "put": true, "write": true, "edit": true, "modify": true,
+	"publish": true, "share": true, "comment": true, "grant": true, "revoke": true,
+}
+
+var whichTokenAliases = map[string]string{
+	"repo": "repository", "repos": "repository", "repository": "repository", "repositories": "repository",
+}
+
+func whichSingular(s string) string {
+	if len(s) > 3 && strings.HasSuffix(s, "ies") {
+		return strings.TrimSuffix(s, "ies") + "y"
+	}
+	if len(s) > 3 && strings.HasSuffix(s, "es") {
+		return strings.TrimSuffix(s, "es")
+	}
+	if len(s) > 2 && strings.HasSuffix(s, "s") {
+		return strings.TrimSuffix(s, "s")
+	}
+	return s
 }
 
 func newWhichCmd(flags *rootFlags) *cobra.Command {
@@ -143,6 +289,10 @@ func newWhichCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "which [query]",
 		Short: "Find the command that implements a capability",
+		Annotations: map[string]string{
+			"mcp:read-only":       "true",
+			"pp:typed-exit-codes": "0,2",
+		},
 		Long: `which resolves a natural-language capability query (for example, "search messages" or "stale tickets") to the best matching command from this CLI's curated feature index.
 
 Exit codes:
@@ -165,6 +315,15 @@ Exit codes:
 			}
 
 			if len(matches) == 0 {
+				// Under --json, return an empty matches envelope at exit 0
+				// so agents can branch on `matches.length == 0` instead of
+				// parsing a usage error message. Non-JSON keeps the typed
+				// exit-2 path so terminal users see the help hint.
+				if flags.asJSON {
+					return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"matches": []whichMatch{},
+					}, flags)
+				}
 				return usageErr(fmt.Errorf("no match for %q; try '%s --help' for the full command list", query, cmd.Root().Name()))
 			}
 			return renderWhich(cmd, flags, matches)
@@ -195,9 +354,15 @@ func renderWhich(cmd *cobra.Command, flags *rootFlags, matches []whichMatch) err
 		asJSON = true
 	}
 	if asJSON {
-		enc := json.NewEncoder(w)
-		enc.SetIndent("", "  ")
-		return enc.Encode(matches)
+		// JSON envelope: {matches: [...]}. The wrap is critical:
+		// printJSONFiltered's --compact path uses compactListFields
+		// (allowlist) for top-level arrays, which would strip
+		// entry/score keys; routing through compactObjectFields
+		// (blocklist) via an object envelope preserves them.
+		if matches == nil {
+			matches = []whichMatch{}
+		}
+		return printJSONFiltered(w, map[string]any{"matches": matches}, flags)
 	}
 	fmt.Fprintf(w, "%-24s  %-8s  %s\n", "COMMAND", "SCORE", "DESCRIPTION")
 	for _, m := range matches {

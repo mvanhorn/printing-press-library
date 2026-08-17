@@ -4,6 +4,7 @@
 package cli
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -55,6 +56,13 @@ func newItemsListCmd(flags *rootFlags) *cobra.Command {
 
 			list, err := st.FindListByName(bodyListName)
 			if err != nil {
+				if errors.Is(err, store.ErrListNotFound) {
+					if flags.asJSON {
+						return printJSONWithFreshness(cmd.OutOrStdout(), []any{}, flags)
+					}
+					fmt.Fprintf(cmd.OutOrStdout(), "No items found in %q\n", bodyListName)
+					return nil
+				}
 				return err
 			}
 

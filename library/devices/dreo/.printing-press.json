@@ -40,7 +40,7 @@
     {
       "name": "Live WebSocket state stream",
       "command": "watch",
-      "description": "Tail-f for Dreo device state \u2014 every WebSocket update as a JSON line on stdout."
+      "description": "Tail-f for Dreo device state — every WebSocket update as a JSON line on stdout."
     },
     {
       "name": "Sensor timeseries history",
@@ -69,6 +69,6 @@
     }
   ],
   "narrative": {
-    "auth_narrative": "Dreo has no public developer API. Authentication uses your Dreo account email and password against the same OAuth endpoint the Dreo iOS app calls; the password is MD5-hashed before the wire. Three ways to supply credentials in order of preference: (1) env vars DREO_USERNAME and DREO_PASSWORD (recommended, used by the MCPB and Claude Desktop integration); (2) --password-stdin for piping from a secret manager like 1Password or pass (Docker-style, no leak); (3) --password <value> flag, which works but prints a stderr warning because plaintext leaks into ps/proc/cmdline/audit/shell-history. Credentials and the bearer token are persisted to ~/.config/dreo-pp-cli/config.toml (mode 0600) because Dreo's OAuth flow has no refresh token \u2014 caching them is what lets 401-aware re-login transparently mint fresh bearers for cron jobs and long-running sessions. auth logout wipes both."
+    "auth_narrative": "Dreo has no public developer API. Authentication uses your Dreo account email and password against the same OAuth endpoint the Dreo iOS app calls; the password is MD5-hashed before the wire. Three ways to supply credentials in order of preference: (1) env vars DREO_USERNAME and DREO_PASSWORD (recommended, used by the MCPB and Claude Desktop integration); (2) --password-stdin for piping from a secret manager like 1Password or pass (Docker-style, no leak); (3) --password <value> flag, which works but prints a stderr warning because plaintext leaks into ps/proc/cmdline/audit/shell-history. Credentials and the bearer token are persisted to ~/.config/dreo-pp-cli/config.toml (mode 0600) because Dreo's OAuth flow has no refresh token — caching them is what lets 401-aware re-login transparently mint fresh bearers for cron jobs and long-running sessions. auth logout wipes both."
   }
 }

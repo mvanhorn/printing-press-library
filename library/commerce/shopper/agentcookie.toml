@@ -3,7 +3,7 @@
 schema_version = 2
 name = "shopper-pp-cli"
 display_name = "Shopper"
-description = "The first CLI for Shopper — every catalog, cart, and delivery surface plus a local price/basket history the web app throws away each cycle."
+description = "Every Shopper storefront in one CLI — catalog, cart, delivery schedule, charge calendar, and spend analytics no web UI surfaces."
 project_kind = "cli"
 
 [secrets.file]
