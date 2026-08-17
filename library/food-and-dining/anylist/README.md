@@ -35,7 +35,7 @@ npx -y @mvanhorn/printing-press-library install anylist --agent claude-code --ag
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.5 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.6 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/food-and-dining/anylist/cmd/anylist-pp-cli@latest
@@ -194,6 +194,14 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   anylist-pp-cli items search --query "almond milk" --agent
   ```
+- **`items lookup`** — Resolve a UPC/EAN barcode through AnyList's product catalog and return the canonical name, structured package size, UPC, prices, and thumbnail URL.
+
+  _Use this before adding a packaged product. Passing the returned barcode to `items add` lets AnyList receive the identifier first and enrich the item when its catalog has a match._
+
+  ```bash
+  anylist-pp-cli items lookup --barcode 049000028904 --json
+  anylist-pp-cli items add --list Groceries --item "Coca-Cola" --barcode 049000028904 --package-size "12 count, 12 fl oz"
+  ```
 
 ### Agent-native plumbing
 
@@ -269,11 +277,12 @@ Manage items within a shopping list
 - **`anylist-pp-cli items add`** - Add an item to a shopping list
 - **`anylist-pp-cli items check`** - Mark one or more items as checked (bought)
 - **`anylist-pp-cli items list`** - List items in a shopping list
+- **`anylist-pp-cli items lookup`** - Look up product details by UPC/EAN barcode
 - **`anylist-pp-cli items recent`** - Show recently added items across all lists
 - **`anylist-pp-cli items remove`** - Remove an item from a shopping list
 - **`anylist-pp-cli items search`** - Search for items by name across all shopping lists
 - **`anylist-pp-cli items uncheck`** - Mark one or more items as unchecked
-- **`anylist-pp-cli items update`** - Update an existing item's quantity or notes
+- **`anylist-pp-cli items update`** - Update an existing item's quantity, notes, or barcode
 
 ### lists
 
@@ -393,8 +402,8 @@ anylist-pp-cli meal add-to-list --week --list Groceries             # apply
 **Find recipes by ingredient and scale servings:**
 
 ```bash
-anylist-pp-cli recipes search --ingredient chicken --json | jq '.[0].name'
-anylist-pp-cli recipes scale --recipe "Chicken Tikka" --servings 8
+anylist-pp-cli recipes search --query chicken --ingredient --json | jq '.[0].name'
+anylist-pp-cli recipes scale --name "Chicken Tikka" --servings 8
 ```
 
 **Sync, filter, and pipe items to another tool:**
@@ -402,6 +411,14 @@ anylist-pp-cli recipes scale --recipe "Chicken Tikka" --servings 8
 ```bash
 anylist-pp-cli sync && anylist-pp-cli items list --list Groceries --unchecked --json \
   | jq -r '.[].name' | sort
+```
+
+**Look up a packaged product before adding it:**
+
+```bash
+anylist-pp-cli items lookup --barcode 049000028904 --json
+anylist-pp-cli items add --list Groceries --item "Coca-Cola" \
+  --barcode 049000028904 --package-size "12 count, 12 fl oz"
 ```
 
 **Check authentication and connectivity:**

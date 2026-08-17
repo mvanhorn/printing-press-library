@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/anylist/internal/anylist"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/anylist/internal/anylist/pb"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/anylist/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/anylist/internal/store"
 
@@ -19,6 +20,11 @@ func newItemsAddCmd(flags *rootFlags) *cobra.Command {
 	var bodyQuantity string
 	var bodyNotes string
 	var bodyCategory string
+	var bodyBarcode string
+	var bodyPackageSize string
+	var bodyPrice float64
+	var bodyPriceStore string
+	var bodyPriceDetails string
 
 	cmd := &cobra.Command{
 		Use:         "add",
@@ -58,16 +64,27 @@ func newItemsAddCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			alClient := anylist.New(cfg)
-			if err := alClient.AddItem(ctx, list.ID, bodyName, bodyQuantity, bodyNotes, bodyCategory); err != nil {
+			var price *pb.PBItemPrice
+			if bodyPrice != 0 {
+				price = &pb.PBItemPrice{Amount: bodyPrice, StoreId: bodyPriceStore, Details: bodyPriceDetails}
+			}
+			if err := alClient.AddItemWithOptions(ctx, list.ID, bodyName, anylist.ItemAddOptions{
+				Quantity: bodyQuantity, Details: bodyNotes, Category: bodyCategory,
+				ProductUpc: bodyBarcode, PackageSize: bodyPackageSize, Price: price,
+			}); err != nil {
 				return fmt.Errorf("adding item: %w", err)
 			}
 
 			if flags.asJSON {
 				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
-					"added":   true,
-					"item":    bodyName,
-					"list":    list.Name,
-					"list_id": list.ID,
+					"added":        true,
+					"item":         bodyName,
+					"list":         list.Name,
+					"list_id":      list.ID,
+					"barcode":      bodyBarcode,
+					"package_size": bodyPackageSize,
+					"price":        bodyPrice,
+					"price_store":  bodyPriceStore,
 				}, flags)
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "Added %q to %q\n", bodyName, list.Name)
@@ -80,6 +97,12 @@ func newItemsAddCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyQuantity, "quantity", "", "Quantity (e.g. '2', '1 lb', 'a dozen')")
 	cmd.Flags().StringVar(&bodyNotes, "notes", "", "Item notes or details")
 	cmd.Flags().StringVar(&bodyCategory, "category", "", "Category to assign")
+	cmd.Flags().StringVar(&bodyBarcode, "barcode", "", "UPC/EAN barcode; AnyList can resolve product metadata from it")
+	cmd.Flags().StringVar(&bodyBarcode, "upc", "", "Alias for --barcode")
+	cmd.Flags().StringVar(&bodyPackageSize, "package-size", "", "Package size (for example, '16 oz' or '12 count')")
+	cmd.Flags().Float64Var(&bodyPrice, "price", 0, "Store price for this item")
+	cmd.Flags().StringVar(&bodyPriceStore, "price-store", "", "AnyList store ID associated with --price")
+	cmd.Flags().StringVar(&bodyPriceDetails, "price-details", "", "Optional details for --price")
 
 	return cmd
 }

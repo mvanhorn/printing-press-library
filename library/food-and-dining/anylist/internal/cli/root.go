@@ -43,9 +43,10 @@ type rootFlags struct {
 
 	// deliverBuf captures command output when --deliver is set to a
 	// non-stdout sink. Flushed to the sink after Execute returns.
-	deliverBuf  *bytes.Buffer
-	deliverSink DeliverSink
-	requestCtx  context.Context
+	deliverBuf    *bytes.Buffer
+	deliverSink   DeliverSink
+	requestCtx    context.Context
+	outputWritten bool
 }
 
 // RootCmd returns the Cobra command tree without executing it. The MCP server
@@ -227,6 +228,14 @@ See README.md or the bundled SKILL.md for recipes.`,
 			flags.freshnessMeta = autoRefreshIfStale(cmd.Context(), flags, resources)
 		}
 		return nil
+	}
+	rootCmd.PersistentPostRun = func(cmd *cobra.Command, args []string) {
+		if flags.dryRun && flags.asJSON && !flags.quiet && !flags.outputWritten {
+			_ = printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+				"dry_run": true,
+				"status":  "preview",
+			}, flags)
+		}
 	}
 	rootCmd.AddCommand(newCollectionsCmd(flags))
 	rootCmd.AddCommand(newFoldersCmd(flags))
