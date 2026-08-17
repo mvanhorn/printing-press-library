@@ -13,10 +13,10 @@ import (
 )
 
 type firmwareRow struct {
-	DeviceType      string   `json:"device_type"`
-	DeviceLabel     string   `json:"device_label,omitempty"`
-	FirmwareVersion *float64 `json:"fw_version"`
-	EndTS           float64  `json:"end_ts,omitempty"`
+	DeviceType      string  `json:"device_type"`
+	DeviceLabel     string  `json:"device_label,omitempty"`
+	FirmwareVersion *string `json:"fw_version"`
+	EndTS           float64 `json:"end_ts,omitempty"`
 }
 
 func newNovelFirmwareCheckCmd(flags *rootFlags) *cobra.Command {
@@ -51,10 +51,7 @@ func newNovelFirmwareCheckCmd(flags *rootFlags) *cobra.Command {
 				if deviceType == "" {
 					continue
 				}
-				firmwareVersion, hasFirmware := gnum(summary.Data, "fw_version", "firmware_version")
-				if !hasFirmware {
-					firmwareVersion, hasFirmware = gnum(summary.Item, "fw_version", "firmware_version")
-				}
+				firmwareVersion, hasFirmware := summaryFirmwareVersion(summary)
 				_, hasBatteryStatus := gnum(summary.Data, "battery_status")
 				if !hasBatteryStatus {
 					_, hasBatteryStatus = gnum(summary.Item, "battery_status")
@@ -69,7 +66,7 @@ func newNovelFirmwareCheckCmd(flags *rootFlags) *cobra.Command {
 				if row, ok := latest[deviceType]; ok && row.EndTS > endTS {
 					continue
 				}
-				var firmwarePtr *float64
+				var firmwarePtr *string
 				if hasFirmware {
 					firmwarePtr = &firmwareVersion
 				}
@@ -96,11 +93,26 @@ func newNovelFirmwareCheckCmd(flags *rootFlags) *cobra.Command {
 			}
 			tableRows := [][]string{}
 			for _, row := range rows {
-				tableRows = append(tableRows, []string{row.DeviceType, row.DeviceLabel, trimFloatPtr(row.FirmwareVersion), trimFloat(row.EndTS)})
+				tableRows = append(tableRows, []string{row.DeviceType, row.DeviceLabel, stringPtrValue(row.FirmwareVersion), trimFloat(row.EndTS)})
 			}
 			return flags.printTable(cmd, []string{"DEVICE_TYPE", "DEVICE", "FW_VERSION", "END_TS"}, tableRows)
 		},
 	}
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
 	return cmd
+}
+
+func summaryFirmwareVersion(summary summaryResource) (string, bool) {
+	version := firstNonEmpty(
+		gstr(summary.Data, "fw_version", "firmware_version"),
+		gstr(summary.Item, "fw_version", "firmware_version"),
+	)
+	return version, version != ""
+}
+
+func stringPtrValue(value *string) string {
+	if value == nil {
+		return ""
+	}
+	return *value
 }

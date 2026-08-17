@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "axs-firmware-version-type",
+  "applied_at": "2026-08-17",
+  "base_run_id": "20260614-174950-dcc2e342",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Firmware summary views must preserve semantic string versions while remaining tolerant of numeric JSON values.",
+  "reason": "AXS models firmware versions as strings, and dotted versions such as 2.47.0 cannot be represented as JSON numbers; numeric-only extraction silently produced null firmware columns.",
+  "files": [
+    "internal/cli/firmware_check.go"
+  ],
+  "validated_outcome": "String firmware versions retain every segment, numeric fallbacks stringify safely, and focused tests plus Go test, vet, and build pass."
+}

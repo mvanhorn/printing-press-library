@@ -133,3 +133,21 @@ func TestApplyWearShiftCountsDoesNotDoubleCountTotal(t *testing.T) {
 		t.Fatalf("counts = total:%v rd:%v fd:%v, want 20/17/3", row.ShiftCount, row.RDShiftCount, row.FDShiftCount)
 	}
 }
+
+func TestSummaryFirmwareVersionPreservesStringVersion(t *testing.T) {
+	got, ok := summaryFirmwareVersion(summaryResource{
+		Data: map[string]any{"fw_version": "2.47.0"},
+	})
+	if !ok || got != "2.47.0" {
+		t.Fatalf("summaryFirmwareVersion() = %q, %v; want 2.47.0, true", got, ok)
+	}
+}
+
+func TestSummaryFirmwareVersionAcceptsNumericFallback(t *testing.T) {
+	got, ok := summaryFirmwareVersion(summaryResource{
+		Item: map[string]any{"firmware_version": float64(12)},
+	})
+	if !ok || got != "12" {
+		t.Fatalf("summaryFirmwareVersion() = %q, %v; want 12, true", got, ok)
+	}
+}
