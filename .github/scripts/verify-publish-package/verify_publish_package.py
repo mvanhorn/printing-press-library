@@ -156,6 +156,21 @@ def read_json(path: Path, problems: list[Problem]) -> dict | None:
     return data
 
 
+def cli_entrypoint(cli_dir: Path, cli_name: str) -> Path | None:
+    direct = cli_dir / "cmd" / cli_name / "main.go"
+    if direct.exists():
+        return direct
+
+    nested = sorted(
+        path
+        for path in cli_dir.glob(f"*/cmd/{cli_name}/main.go")
+        if path.is_file()
+    )
+    if len(nested) == 1:
+        return nested[0]
+    return None
+
+
 def validate_required_artifacts(cli_dir: Path, manifest: dict | None) -> list[Problem]:
     problems: list[Problem] = []
     for artifact in ROOT_ARTIFACTS:
@@ -225,7 +240,7 @@ def validate_manifest_identity(cli_dir: Path, manifest: dict | None, strict: boo
     cli_name = manifest.get("cli_name")
     if not cli_name:
         problems.append(Problem(manifest_path, "cli_name is empty"))
-    elif not (cli_dir / "cmd" / str(cli_name) / "main.go").exists():
+    elif cli_entrypoint(cli_dir, str(cli_name)) is None:
         problems.append(
             Problem(
                 cli_dir / "cmd" / str(cli_name) / "main.go",
