@@ -25,11 +25,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/productivity/google-calendar/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/productivity/google-calendar/internal/gauth"
 	"github.com/mvanhorn/printing-press-library/library/productivity/google-calendar/internal/manifest"
 	"github.com/mvanhorn/printing-press-library/library/productivity/google-calendar/internal/verdict"
-	"github.com/spf13/cobra"
 )
 
 // exitFindings wraps a verdict "findings present" outcome as exit code 3
@@ -436,7 +436,15 @@ func wantsVerdictJSON(flags *rootFlags) bool {
 // terminal-facing output.
 func emitVerdict(cmd *cobra.Command, flags *rootFlags, v any, human func(w io.Writer)) error {
 	if wantsVerdictJSON(flags) {
-		return printJSONFiltered(cmd.OutOrStdout(), v, flags)
+		raw, err := json.Marshal(v)
+		if err != nil {
+			return err
+		}
+		// Verdict commands always fetch live through the manifest clients
+		// (pp:data-source live); the generic printer's "local" default was
+		// mislabeling the evidence trail (operator's assistant bug report,
+		// 2026-08-17). Coverage per-source stamps remain the fine-grained truth.
+		return printOutputWithFlagsMeta(cmd.OutOrStdout(), json.RawMessage(raw), flags, map[string]any{"source": "live"})
 	}
 	human(cmd.OutOrStdout())
 	return nil
