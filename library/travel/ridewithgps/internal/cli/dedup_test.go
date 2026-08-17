@@ -3,8 +3,28 @@
 
 package cli
 
-import "testing"
+import (
+	"sort"
+	"testing"
+)
 
 func TestNovelDedupCommandTODO(t *testing.T) {
 	t.Skip("TODO: implement table-driven tests for dedup")
+}
+
+func TestCanonicalRouteLessSortsUnknownDatesLast(t *testing.T) {
+	routes := []dedupRoute{
+		{ID: "unknown", CreatedAt: ""},
+		{ID: "newer", CreatedAt: "2026-06-02T00:00:00Z"},
+		{ID: "oldest", CreatedAt: "2026-06-01T00:00:00Z"},
+	}
+
+	sort.Slice(routes, func(i, j int) bool { return canonicalRouteLess(routes[i], routes[j]) })
+
+	if routes[0].ID != "oldest" {
+		t.Fatalf("canonical route = %q, want oldest known route", routes[0].ID)
+	}
+	if routes[len(routes)-1].ID != "unknown" {
+		t.Fatalf("last route = %q, want unknown-date route", routes[len(routes)-1].ID)
+	}
 }

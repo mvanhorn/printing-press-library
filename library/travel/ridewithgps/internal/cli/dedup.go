@@ -171,9 +171,11 @@ For quality issues other than duplication (stale, private) use 'audit'.`,
 				if len(members) < 2 {
 					continue
 				}
-				// Canonical = earliest created_at (fallback: first member).
+				// Canonical = earliest known created_at. Unknown dates sort last
+				// so --apply never deletes a dated route in favor of one whose
+				// age cannot be established.
 				sort.Slice(members, func(a, b int) bool {
-					return routes[members[a]].CreatedAt < routes[members[b]].CreatedAt
+					return canonicalRouteLess(routes[members[a]], routes[members[b]])
 				})
 				canonical := routes[members[0]]
 				cluster := dedupClusterView{
@@ -234,4 +236,17 @@ For quality issues other than duplication (stale, private) use 'audit'.`,
 	cmd.Flags().BoolVar(&apply, "apply", false, "Delete duplicate routes (keeps the oldest in each cluster)")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: local mirror)")
 	return cmd
+}
+
+func canonicalRouteLess(a, b dedupRoute) bool {
+	if a.CreatedAt == "" && b.CreatedAt != "" {
+		return false
+	}
+	if a.CreatedAt != "" && b.CreatedAt == "" {
+		return true
+	}
+	if a.CreatedAt == b.CreatedAt {
+		return a.ID < b.ID
+	}
+	return a.CreatedAt < b.CreatedAt
 }
