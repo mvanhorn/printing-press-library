@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-08-04T19:50:36.958115Z",
+  "cli_dir": "\u003ccli-dir\u003e/v0-pp-cli",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-08-04T19:49:31.213482Z"
+  }
+}

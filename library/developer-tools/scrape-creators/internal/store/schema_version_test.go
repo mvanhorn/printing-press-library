@@ -7,13 +7,111 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
+	"os"
 	"path/filepath"
+	"runtime"
+	"strings"
 	"sync"
 	"testing"
 	"time"
 
 	_ "modernc.org/sqlite"
 )
+
+func TestOpenHardensSQLiteFilePermissions(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("Windows does not expose Unix permission bits")
+	}
+
+	for _, tc := range []struct {
+		name        string
+		precreateDB bool
+		wantDirMode os.FileMode
+	}{
+		{name: "fresh store", wantDirMode: 0o700},
+		{name: "pre-existing permissive store", precreateDB: true, wantDirMode: 0o755},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			dbPath := filepath.Join(t.TempDir(), "private", "data.db")
+			if tc.precreateDB {
+				if err := os.MkdirAll(filepath.Dir(dbPath), 0o755); err != nil {
+					t.Fatalf("create permissive store dir: %v", err)
+				}
+				if err := os.WriteFile(dbPath, nil, 0o644); err != nil {
+					t.Fatalf("create permissive store: %v", err)
+				}
+			}
+
+			s, err := Open(dbPath)
+			if err != nil {
+				t.Fatalf("open store: %v", err)
+			}
+			defer s.Close()
+
+			assertPrivateMode(t, filepath.Dir(dbPath), tc.wantDirMode)
+			assertPrivateMode(t, dbPath, 0o600)
+			assertPrivateMode(t, dbPath+"-wal", 0o600)
+			assertPrivateMode(t, dbPath+"-shm", 0o600)
+		})
+	}
+}
+
+func TestOpenWithRelativePathDoesNotChmodWorkingDirectory(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("Windows does not expose Unix permission bits")
+	}
+
+	workingDir := t.TempDir()
+	info, err := os.Stat(workingDir)
+	if err != nil {
+		t.Fatalf("stat working directory: %v", err)
+	}
+	wantDirMode := info.Mode().Perm()
+	t.Chdir(workingDir)
+
+	s, err := Open("data.db")
+	if err != nil {
+		t.Fatalf("open relative store: %v", err)
+	}
+	defer s.Close()
+
+	assertPrivateMode(t, ".", wantDirMode)
+	assertPrivateMode(t, "data.db", 0o600)
+	assertPrivateMode(t, "data.db-wal", 0o600)
+	assertPrivateMode(t, "data.db-shm", 0o600)
+}
+
+func TestHardenSQLiteFilesSkipsSymlinkSidecars(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("Windows does not expose Unix permission bits")
+	}
+
+	dir := t.TempDir()
+	targetPath := filepath.Join(dir, "unrelated")
+	if err := os.WriteFile(targetPath, nil, 0o644); err != nil {
+		t.Fatalf("create unrelated file: %v", err)
+	}
+	dbPath := filepath.Join(dir, "data.db")
+	if err := os.Symlink(targetPath, dbPath+"-wal"); err != nil {
+		t.Fatalf("create WAL symlink: %v", err)
+	}
+
+	hardenSQLiteFiles(dbPath)
+
+	assertPrivateMode(t, targetPath, 0o644)
+}
+
+func assertPrivateMode(t *testing.T, path string, want os.FileMode) {
+	t.Helper()
+	info, err := os.Stat(path)
+	if err != nil {
+		t.Fatalf("stat %s: %v", path, err)
+	}
+	if got := info.Mode().Perm(); got != want {
+		t.Fatalf("%s mode = %04o, want %04o", path, got, want)
+	}
+}
 
 // TestSchemaVersion_StampedOnFreshDB verifies that opening a brand-new
 // database stamps the current schema version. This is the contract that
@@ -36,10 +134,87 @@ func TestSchemaVersion_StampedOnFreshDB(t *testing.T) {
 	}
 }
 
+// TestOpenAppliesPragmas pins the connection-string contract: the store
+// must open in WAL journal mode with a non-zero busy_timeout so a read
+// concurrent with a write waits on the lock instead of failing immediately
+// with SQLITE_BUSY. It fails the instant the DSN regresses to the mattn-
+// style _journal_mode=WAL form, which modernc.org/sqlite silently drops —
+// see the OpenReadOnly comment for the driver-syntax detail.
+func TestOpenAppliesPragmas(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	requirePragma(t, s.DB(), "journal_mode", "wal")
+	requirePragma(t, s.DB(), "busy_timeout", "5000")
+
+	// The read-only handle (MCP sql/search, analytics) must see the same WAL
+	// file mode and carry the busy_timeout so it waits on a concurrent writer
+	// rather than erroring.
+	ro, err := OpenReadOnly(dbPath)
+	if err != nil {
+		t.Fatalf("open read-only: %v", err)
+	}
+	defer ro.Close()
+
+	requirePragma(t, ro.DB(), "journal_mode", "wal")
+	requirePragma(t, ro.DB(), "busy_timeout", "5000")
+}
+
+// requirePragma fails the test unless `PRAGMA <name>` reports want. It reads
+// the value as text so one helper covers both string pragmas (journal_mode)
+// and integer pragmas (busy_timeout).
+func requirePragma(t *testing.T, db *sql.DB, name, want string) {
+	t.Helper()
+	var got string
+	if err := db.QueryRow("PRAGMA " + name).Scan(&got); err != nil {
+		t.Fatalf("read pragma %s: %v", name, err)
+	}
+	if got != want {
+		t.Fatalf("PRAGMA %s = %q, want %q", name, got, want)
+	}
+}
+
+// TestOpenReadOnly_DeleteModeDBDoesNotWrite guards the read-only DSN against
+// mutating the database. journal_mode is a file-level property set by the
+// read-write open, not the connection — issuing PRAGMA journal_mode=WAL on a
+// read-only handle to a DB still in the default delete journal mode (a pre-WAL
+// database from an older binary, read before its first read-write open) fails
+// with "attempt to write a readonly database". OpenReadOnly must read such a
+// DB without error, so its DSN carries no journal_mode pragma.
+func TestOpenReadOnly_DeleteModeDBDoesNotWrite(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+
+	// Create a delete-journal-mode DB directly (no WAL conversion), mirroring
+	// a database written by a binary that predated the WAL DSN.
+	raw, err := sql.Open("sqlite", dbPath)
+	if err != nil {
+		t.Fatalf("open raw: %v", err)
+	}
+	if _, err := raw.Exec(`CREATE TABLE resources (id TEXT)`); err != nil {
+		t.Fatalf("seed table: %v", err)
+	}
+	raw.Close()
+
+	ro, err := OpenReadOnly(dbPath)
+	if err != nil {
+		t.Fatalf("open read-only: %v", err)
+	}
+	defer ro.Close()
+
+	var n int
+	if err := ro.DB().QueryRow(`SELECT count(*) FROM resources`).Scan(&n); err != nil {
+		t.Fatalf("read-only query on delete-mode DB: %v", err)
+	}
+}
+
 // TestSchemaVersion_StampExistingZeroDB verifies the stamp-and-continue
 // rule for existing deployed databases. A DB that predates the gate has
 // user_version = 0; opening it with this binary should stamp the version
-// to 1 without touching any data.
+// to StoreSchemaVersion without touching any data.
 func TestSchemaVersion_StampExistingZeroDB(t *testing.T) {
 	dbPath := filepath.Join(t.TempDir(), "data.db")
 
@@ -133,7 +308,7 @@ func TestMigrate_ConcurrentFreshDB(t *testing.T) {
 // to construct contention scenarios in the migration tests.
 func holdWriteLock(t *testing.T, dbPath string) (cleanup func()) {
 	t.Helper()
-	holder, err := sql.Open("sqlite", dbPath+"?_journal_mode=WAL&_busy_timeout=5000")
+	holder, err := sql.Open("sqlite", dbPath+"?_pragma=busy_timeout(5000)&_pragma=journal_mode(WAL)")
 	if err != nil {
 		t.Fatalf("open holder: %v", err)
 	}
@@ -254,999 +429,934 @@ func TestSchemaVersion_ReopenIsIdempotent(t *testing.T) {
 	}
 }
 
-// TestMigrate_AddsColumnsOnUpgrade_Twitter verifies that opening a
-// database created by an older binary succeeds and adds newly generated
-// columns before CREATE INDEX runs against the pre-existing table. Regression
-// coverage for parent_id upgrades and indexed generated columns.
-func TestMigrate_AddsColumnsOnUpgrade_Twitter(t *testing.T) {
+func TestResources_CompositeKeyPreservesOverlappingIDs(t *testing.T) {
 	dbPath := filepath.Join(t.TempDir(), "data.db")
-
-	// Pre-create the DB with the older table shape: id, data, synced_at and
-	// none of the newer generated columns. user_version stays 0 (pre-gate).
-	raw, err := sql.Open("sqlite", dbPath)
-	if err != nil {
-		t.Fatalf("open raw: %v", err)
-	}
-	if _, err := raw.Exec(`CREATE TABLE twitter (
-		id TEXT PRIMARY KEY,
-		data JSON NOT NULL,
-		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
-	)`); err != nil {
-		raw.Close()
-		t.Fatalf("create old table: %v", err)
-	}
-	raw.Close()
-
-	// Opening with the new binary must run CREATE INDEX statements without
-	// erroring on missing generated columns.
 	s, err := Open(dbPath)
 	if err != nil {
-		t.Fatalf("open upgraded db: %v", err)
+		t.Fatalf("open db: %v", err)
 	}
 	defer s.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(twitter)`)
+	if err := s.Upsert("biz", "shared", []byte(`{"kind":"biz","name":"Pinky restaurant"}`)); err != nil {
+		t.Fatalf("upsert biz: %v", err)
+	}
+	if err := s.Upsert("bookmark", "shared", []byte(`{"kind":"bookmark","note":"anniversary"}`)); err != nil {
+		t.Fatalf("upsert bookmark: %v", err)
+	}
+
+	biz, err := s.Get("biz", "shared")
 	if err != nil {
-		t.Fatalf("table_info: %v", err)
+		t.Fatalf("get biz: %v", err)
 	}
-	defer rows.Close()
-
-	hasColumn := make(map[string]bool)
-	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
-			t.Fatalf("scan: %v", err)
-		}
-		hasColumn[name] = true
-	}
-	if err := rows.Err(); err != nil {
-		t.Fatalf("rows: %v", err)
+	if string(biz) != `{"kind":"biz","name":"Pinky restaurant"}` {
+		t.Fatalf("biz payload = %s", biz)
 	}
 
-	for _, want := range []string{
-		"handle",
-		"url",
-		"trim",
-	} {
-		if !hasColumn[want] {
-			t.Fatalf("%s column missing from twitter after migrate", want)
-		}
+	bookmark, err := s.Get("bookmark", "shared")
+	if err != nil {
+		t.Fatalf("get bookmark: %v", err)
+	}
+	if string(bookmark) != `{"kind":"bookmark","note":"anniversary"}` {
+		t.Fatalf("bookmark payload = %s", bookmark)
+	}
+
+	var count int
+	if err := s.DB().QueryRow(`SELECT COUNT(*) FROM resources WHERE id = 'shared'`).Scan(&count); err != nil {
+		t.Fatalf("count overlapping rows: %v", err)
+	}
+	if count != 2 {
+		t.Fatalf("overlapping row count = %d, want 2", count)
+	}
+
+	matches, err := s.Search("restaurant", 10)
+	if err != nil {
+		t.Fatalf("search restaurant: %v", err)
+	}
+	if len(matches) != 1 || string(matches[0]) != `{"kind":"biz","name":"Pinky restaurant"}` {
+		t.Fatalf("restaurant search = %q, want only biz payload", matches)
 	}
 }
 
-// TestMigrate_AddsColumnsOnUpgrade_Youtube verifies that opening a
-// database created by an older binary succeeds and adds newly generated
-// columns before CREATE INDEX runs against the pre-existing table. Regression
-// coverage for parent_id upgrades and indexed generated columns.
-func TestMigrate_AddsColumnsOnUpgrade_Youtube(t *testing.T) {
+// Callers detect missing rows via errors.Is(err, sql.ErrNoRows); present
+// rows return the JSON payload with a nil error.
+func TestGet_MissingRowReturnsErrNoRows(t *testing.T) {
 	dbPath := filepath.Join(t.TempDir(), "data.db")
-
-	// Pre-create the DB with the older table shape: id, data, synced_at and
-	// none of the newer generated columns. user_version stays 0 (pre-gate).
-	raw, err := sql.Open("sqlite", dbPath)
-	if err != nil {
-		t.Fatalf("open raw: %v", err)
-	}
-	if _, err := raw.Exec(`CREATE TABLE youtube (
-		id TEXT PRIMARY KEY,
-		data JSON NOT NULL,
-		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
-	)`); err != nil {
-		raw.Close()
-		t.Fatalf("create old table: %v", err)
-	}
-	raw.Close()
-
-	// Opening with the new binary must run CREATE INDEX statements without
-	// erroring on missing generated columns.
 	s, err := Open(dbPath)
 	if err != nil {
-		t.Fatalf("open upgraded db: %v", err)
+		t.Fatalf("open: %v", err)
 	}
 	defer s.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(youtube)`)
+	data, err := s.Get("missing_type", "missing_id")
+	if !errors.Is(err, sql.ErrNoRows) {
+		t.Fatalf("Get missing row err = %v, want sql.ErrNoRows", err)
+	}
+	if data != nil {
+		t.Fatalf("Get missing row data = %s, want nil", data)
+	}
+
+	if err := s.Upsert("present_type", "present_id", []byte(`{"ok":true}`)); err != nil {
+		t.Fatalf("upsert: %v", err)
+	}
+	got, err := s.Get("present_type", "present_id")
 	if err != nil {
-		t.Fatalf("table_info: %v", err)
+		t.Fatalf("Get present row: %v", err)
 	}
-	defer rows.Close()
-
-	hasColumn := make(map[string]bool)
-	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
-			t.Fatalf("scan: %v", err)
-		}
-		hasColumn[name] = true
-	}
-	if err := rows.Err(); err != nil {
-		t.Fatalf("rows: %v", err)
-	}
-
-	for _, want := range []string{
-		"url",
-		"continuation_token",
-		"order",
-		"language",
-		"channel_id",
-		"handle",
-		"sort",
-		"include_extras",
-		"playlist_id",
-		"query",
-		"upload_date",
-		"sort_by",
-		"type",
-		"duration",
-		"region",
-		"hashtag",
-	} {
-		if !hasColumn[want] {
-			t.Fatalf("%s column missing from youtube after migrate", want)
-		}
+	if string(got) != `{"ok":true}` {
+		t.Fatalf("Get present row data = %s, want {\"ok\":true}", got)
 	}
 }
 
-// TestMigrate_AddsColumnsOnUpgrade_Bluesky verifies that opening a
-// database created by an older binary succeeds and adds newly generated
-// columns before CREATE INDEX runs against the pre-existing table. Regression
-// coverage for parent_id upgrades and indexed generated columns.
-func TestMigrate_AddsColumnsOnUpgrade_Bluesky(t *testing.T) {
+func TestMigrate_ResourcesCompositeKeyUpgrade(t *testing.T) {
 	dbPath := filepath.Join(t.TempDir(), "data.db")
 
-	// Pre-create the DB with the older table shape: id, data, synced_at and
-	// none of the newer generated columns. user_version stays 0 (pre-gate).
 	raw, err := sql.Open("sqlite", dbPath)
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE bluesky (
+	if _, err := raw.Exec(`CREATE TABLE resources (
 		id TEXT PRIMARY KEY,
+		resource_type TEXT NOT NULL,
 		data JSON NOT NULL,
-		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 	)`); err != nil {
 		raw.Close()
-		t.Fatalf("create old table: %v", err)
+		t.Fatalf("create v1 resources: %v", err)
+	}
+	if _, err := raw.Exec(`CREATE VIRTUAL TABLE resources_fts USING fts5(
+		id, resource_type, content, tokenize='porter unicode61'
+	)`); err != nil {
+		raw.Close()
+		t.Fatalf("create v1 resources_fts: %v", err)
+	}
+	if _, err := raw.Exec(`INSERT INTO resources (id, resource_type, data) VALUES ('shared', 'biz', '{"kind":"biz","name":"legacy restaurant"}')`); err != nil {
+		raw.Close()
+		t.Fatalf("insert v1 resource: %v", err)
+	}
+	if _, err := raw.Exec(`INSERT INTO resources_fts (rowid, id, resource_type, content) VALUES (1, 'shared', 'biz', '{"kind":"biz","name":"legacy restaurant"}')`); err != nil {
+		raw.Close()
+		t.Fatalf("insert v1 fts row: %v", err)
+	}
+	if _, err := raw.Exec(`PRAGMA user_version = 1`); err != nil {
+		raw.Close()
+		t.Fatalf("stamp v1: %v", err)
 	}
 	raw.Close()
 
-	// Opening with the new binary must run CREATE INDEX statements without
-	// erroring on missing generated columns.
 	s, err := Open(dbPath)
 	if err != nil {
 		t.Fatalf("open upgraded db: %v", err)
 	}
 	defer s.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(bluesky)`)
+	v, err := s.SchemaVersion()
 	if err != nil {
-		t.Fatalf("table_info: %v", err)
+		t.Fatalf("read schema version: %v", err)
+	}
+	if v != StoreSchemaVersion {
+		t.Fatalf("upgraded version = %d, want %d", v, StoreSchemaVersion)
+	}
+
+	rows, err := s.DB().Query(`PRAGMA table_info(resources)`)
+	if err != nil {
+		t.Fatalf("table_info resources: %v", err)
 	}
 	defer rows.Close()
 
-	hasColumn := make(map[string]bool)
+	pk := map[string]int{}
 	for rows.Next() {
 		var cid int
 		var name, typ string
-		var notnull, pk int
+		var notnull, pkOrder int
 		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
-			t.Fatalf("scan: %v", err)
+		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pkOrder); err != nil {
+			t.Fatalf("scan table_info: %v", err)
 		}
-		hasColumn[name] = true
+		pk[name] = pkOrder
 	}
 	if err := rows.Err(); err != nil {
-		t.Fatalf("rows: %v", err)
+		t.Fatalf("table_info rows: %v", err)
+	}
+	if pk["resource_type"] != 1 || pk["id"] != 2 {
+		t.Fatalf("resources primary key order = resource_type:%d id:%d, want resource_type:1 id:2", pk["resource_type"], pk["id"])
 	}
 
-	for _, want := range []string{
-		"url",
-		"handle",
-		"user_id",
-	} {
-		if !hasColumn[want] {
-			t.Fatalf("%s column missing from bluesky after migrate", want)
-		}
+	if err := s.Upsert("bookmark", "shared", []byte(`{"kind":"bookmark","note":"after upgrade"}`)); err != nil {
+		t.Fatalf("upsert overlapping resource after upgrade: %v", err)
+	}
+
+	biz, err := s.Get("biz", "shared")
+	if err != nil {
+		t.Fatalf("get migrated biz: %v", err)
+	}
+	if string(biz) != `{"kind":"biz","name":"legacy restaurant"}` {
+		t.Fatalf("migrated biz payload = %s", biz)
+	}
+
+	bookmark, err := s.Get("bookmark", "shared")
+	if err != nil {
+		t.Fatalf("get upgraded bookmark: %v", err)
+	}
+	if string(bookmark) != `{"kind":"bookmark","note":"after upgrade"}` {
+		t.Fatalf("upgraded bookmark payload = %s", bookmark)
+	}
+
+	matches, err := s.Search("legacy", 10)
+	if err != nil {
+		t.Fatalf("search migrated fts: %v", err)
+	}
+	if len(matches) != 1 || string(matches[0]) != `{"kind":"biz","name":"legacy restaurant"}` {
+		t.Fatalf("legacy search = %q, want migrated biz payload", matches)
 	}
 }
 
-// TestMigrate_AddsColumnsOnUpgrade_Linkedin verifies that opening a
-// database created by an older binary succeeds and adds newly generated
-// columns before CREATE INDEX runs against the pre-existing table. Regression
-// coverage for parent_id upgrades and indexed generated columns.
-func TestMigrate_AddsColumnsOnUpgrade_Linkedin(t *testing.T) {
+func TestMigrate_V2ResourcesFTSRowIDUpgrade(t *testing.T) {
 	dbPath := filepath.Join(t.TempDir(), "data.db")
 
-	// Pre-create the DB with the older table shape: id, data, synced_at and
-	// none of the newer generated columns. user_version stays 0 (pre-gate).
 	raw, err := sql.Open("sqlite", dbPath)
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE linkedin (
-		id TEXT PRIMARY KEY,
+	if _, err := raw.Exec(`CREATE TABLE resources (
+		id TEXT NOT NULL,
+		resource_type TEXT NOT NULL,
 		data JSON NOT NULL,
-		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		PRIMARY KEY (resource_type, id)
 	)`); err != nil {
 		raw.Close()
-		t.Fatalf("create old table: %v", err)
+		t.Fatalf("create v2 resources: %v", err)
+	}
+	if _, err := raw.Exec(`CREATE VIRTUAL TABLE resources_fts USING fts5(
+		id, resource_type, content, tokenize='porter unicode61'
+	)`); err != nil {
+		raw.Close()
+		t.Fatalf("create stale resources_fts: %v", err)
+	}
+	if _, err := raw.Exec(`INSERT INTO resources (id, resource_type, data) VALUES ('shared', 'biz', '{"kind":"biz","name":"legacy restaurant"}')`); err != nil {
+		raw.Close()
+		t.Fatalf("seed v2 resource: %v", err)
+	}
+	if _, err := raw.Exec(`INSERT INTO resources_fts (rowid, id, resource_type, content) VALUES (1, 'shared', 'biz', '{"kind":"biz","name":"legacy restaurant"}')`); err != nil {
+		raw.Close()
+		t.Fatalf("seed stale resources_fts row: %v", err)
+	}
+	if _, err := raw.Exec(`PRAGMA user_version = 2`); err != nil {
+		raw.Close()
+		t.Fatalf("stamp v2: %v", err)
 	}
 	raw.Close()
 
-	// Opening with the new binary must run CREATE INDEX statements without
-	// erroring on missing generated columns.
 	s, err := Open(dbPath)
 	if err != nil {
 		t.Fatalf("open upgraded db: %v", err)
 	}
 	defer s.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(linkedin)`)
+	v, err := s.SchemaVersion()
 	if err != nil {
-		t.Fatalf("table_info: %v", err)
+		t.Fatalf("read schema version: %v", err)
 	}
-	defer rows.Close()
-
-	hasColumn := make(map[string]bool)
-	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
-			t.Fatalf("scan: %v", err)
-		}
-		hasColumn[name] = true
-	}
-	if err := rows.Err(); err != nil {
-		t.Fatalf("rows: %v", err)
+	if v != StoreSchemaVersion {
+		t.Fatalf("upgraded version = %d, want %d", v, StoreSchemaVersion)
 	}
 
-	for _, want := range []string{
-		"url",
-		"company",
-		"keyword",
-		"company_id",
-		"countries",
-		"start_date",
-		"end_date",
-		"pagination_token",
-		"page",
-	} {
-		if !hasColumn[want] {
-			t.Fatalf("%s column missing from linkedin after migrate", want)
-		}
+	var count int
+	if err := s.DB().QueryRow(`SELECT COUNT(*) FROM resources_fts WHERE id = 'shared' AND resource_type = 'biz'`).Scan(&count); err != nil {
+		t.Fatalf("count rebuilt resources_fts rows: %v", err)
+	}
+	if count != 1 {
+		t.Fatalf("resources_fts row count = %d, want 1", count)
+	}
+
+	var rowid int64
+	if err := s.DB().QueryRow(`SELECT rowid FROM resources_fts WHERE id = 'shared' AND resource_type = 'biz'`).Scan(&rowid); err != nil {
+		t.Fatalf("read rebuilt resources_fts rowid: %v", err)
+	}
+	if want := ftsRowID("biz", "shared"); rowid != want {
+		t.Fatalf("resources_fts rowid = %d, want %d", rowid, want)
+	}
+
+	data, err := s.Get("biz", "shared")
+	if err != nil {
+		t.Fatalf("get preserved v2 resource after rowid migration: %v", err)
+	}
+	if string(data) != `{"kind":"biz","name":"legacy restaurant"}` {
+		t.Fatalf("preserved v2 resource payload = %s, want original", data)
+	}
+
+	if err := s.Upsert("biz", "shared", []byte(`{"kind":"biz","name":"legacy cafe"}`)); err != nil {
+		t.Fatalf("upsert after rowid migration: %v", err)
+	}
+	matches, err := s.Search("legacy", 10)
+	if err != nil {
+		t.Fatalf("search rebuilt fts: %v", err)
+	}
+	if len(matches) != 1 || string(matches[0]) != `{"kind":"biz","name":"legacy cafe"}` {
+		t.Fatalf("legacy search = %q, want exactly one updated payload", matches)
 	}
 }
 
-// TestMigrate_AddsColumnsOnUpgrade_Threads verifies that opening a
-// database created by an older binary succeeds and adds newly generated
-// columns before CREATE INDEX runs against the pre-existing table. Regression
-// coverage for parent_id upgrades and indexed generated columns.
-func TestMigrate_AddsColumnsOnUpgrade_Threads(t *testing.T) {
+func TestMigrate_V3ResourcesFTSRebuildsSearchableContent(t *testing.T) {
 	dbPath := filepath.Join(t.TempDir(), "data.db")
 
-	// Pre-create the DB with the older table shape: id, data, synced_at and
-	// none of the newer generated columns. user_version stays 0 (pre-gate).
 	raw, err := sql.Open("sqlite", dbPath)
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE threads (
-		id TEXT PRIMARY KEY,
+	if _, err := raw.Exec(`CREATE TABLE resources (
+		id TEXT NOT NULL,
+		resource_type TEXT NOT NULL,
 		data JSON NOT NULL,
-		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		PRIMARY KEY (resource_type, id)
 	)`); err != nil {
 		raw.Close()
-		t.Fatalf("create old table: %v", err)
+		t.Fatalf("create v3 resources: %v", err)
+	}
+	if _, err := raw.Exec(`CREATE VIRTUAL TABLE resources_fts USING fts5(
+		id, resource_type, content, tokenize='porter unicode61'
+	)`); err != nil {
+		raw.Close()
+		t.Fatalf("create v3 resources_fts: %v", err)
+	}
+	if _, err := raw.Exec(`INSERT INTO resources (id, resource_type, data) VALUES ('shared', 'biz', '{"kind":"biz","name":"canonical resource"}')`); err != nil {
+		raw.Close()
+		t.Fatalf("seed v3 resource: %v", err)
+	}
+	if _, err := raw.Exec(`INSERT INTO resources_fts (rowid, id, resource_type, content) VALUES (?, 'shared', 'biz', '{"kind":"biz","name":"sentinel fts"}')`, ftsRowID("biz", "shared")); err != nil {
+		raw.Close()
+		t.Fatalf("seed v3 resources_fts row: %v", err)
+	}
+	if _, err := raw.Exec(`PRAGMA user_version = 3`); err != nil {
+		raw.Close()
+		t.Fatalf("stamp v3: %v", err)
 	}
 	raw.Close()
 
-	// Opening with the new binary must run CREATE INDEX statements without
-	// erroring on missing generated columns.
 	s, err := Open(dbPath)
 	if err != nil {
-		t.Fatalf("open upgraded db: %v", err)
+		t.Fatalf("open v3 db: %v", err)
 	}
 	defer s.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(threads)`)
+	v, err := s.SchemaVersion()
 	if err != nil {
-		t.Fatalf("table_info: %v", err)
+		t.Fatalf("read schema version: %v", err)
 	}
-	defer rows.Close()
-
-	hasColumn := make(map[string]bool)
-	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
-			t.Fatalf("scan: %v", err)
-		}
-		hasColumn[name] = true
-	}
-	if err := rows.Err(); err != nil {
-		t.Fatalf("rows: %v", err)
+	if v != StoreSchemaVersion {
+		t.Fatalf("schema version = %d, want %d", v, StoreSchemaVersion)
 	}
 
-	for _, want := range []string{
-		"url",
-		"trim",
-		"handle",
-		"query",
-		"start_date",
-		"end_date",
-	} {
-		if !hasColumn[want] {
-			t.Fatalf("%s column missing from threads after migrate", want)
-		}
+	var content string
+	if err := s.DB().QueryRow(`SELECT content FROM resources_fts WHERE id = 'shared' AND resource_type = 'biz'`).Scan(&content); err != nil {
+		t.Fatalf("read resources_fts content: %v", err)
+	}
+	if strings.Contains(content, "sentinel") || strings.Contains(content, "name") || !strings.Contains(content, "canonical resource") {
+		t.Fatalf("resources_fts content = %s, want rebuilt searchable values only", content)
 	}
 }
 
-// TestMigrate_AddsColumnsOnUpgrade_Tiktok verifies that opening a
-// database created by an older binary succeeds and adds newly generated
-// columns before CREATE INDEX runs against the pre-existing table. Regression
-// coverage for parent_id upgrades and indexed generated columns.
-func TestMigrate_AddsColumnsOnUpgrade_Tiktok(t *testing.T) {
+func TestMigrate_ResourcesFTSContentSchemaVersionNoRebuild(t *testing.T) {
 	dbPath := filepath.Join(t.TempDir(), "data.db")
 
-	// Pre-create the DB with the older table shape: id, data, synced_at and
-	// none of the newer generated columns. user_version stays 0 (pre-gate).
 	raw, err := sql.Open("sqlite", dbPath)
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE tiktok (
-		id TEXT PRIMARY KEY,
+	if _, err := raw.Exec(`CREATE TABLE resources (
+		id TEXT NOT NULL,
+		resource_type TEXT NOT NULL,
 		data JSON NOT NULL,
-		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		PRIMARY KEY (resource_type, id)
 	)`); err != nil {
 		raw.Close()
-		t.Fatalf("create old table: %v", err)
+		t.Fatalf("create resources: %v", err)
+	}
+	if _, err := raw.Exec(resourcesFTSCreateSQL); err != nil {
+		raw.Close()
+		t.Fatalf("create resources_fts: %v", err)
+	}
+	if _, err := raw.Exec(`INSERT INTO resources (id, resource_type, data) VALUES ('shared', 'biz', '{"kind":"biz","name":"canonical resource"}')`); err != nil {
+		raw.Close()
+		t.Fatalf("seed resource: %v", err)
+	}
+	if _, err := raw.Exec(`INSERT INTO resources_fts (rowid, id, resource_type, content) VALUES (?, 'shared', 'biz', 'sentinel fts')`, ftsRowID("biz", "shared")); err != nil {
+		raw.Close()
+		t.Fatalf("seed resources_fts row: %v", err)
+	}
+	if _, err := raw.Exec(fmt.Sprintf(`PRAGMA user_version = %d`, resourcesFTSContentSchemaVersion)); err != nil {
+		raw.Close()
+		t.Fatalf("stamp resources fts content schema version: %v", err)
 	}
 	raw.Close()
 
-	// Opening with the new binary must run CREATE INDEX statements without
-	// erroring on missing generated columns.
 	s, err := Open(dbPath)
 	if err != nil {
-		t.Fatalf("open upgraded db: %v", err)
+		t.Fatalf("open db: %v", err)
 	}
 	defer s.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(tiktok)`)
-	if err != nil {
-		t.Fatalf("table_info: %v", err)
+	var content string
+	if err := s.DB().QueryRow(`SELECT content FROM resources_fts WHERE id = 'shared' AND resource_type = 'biz'`).Scan(&content); err != nil {
+		t.Fatalf("read resources_fts content: %v", err)
 	}
-	defer rows.Close()
-
-	hasColumn := make(map[string]bool)
-	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
-			t.Fatalf("scan: %v", err)
-		}
-		hasColumn[name] = true
-	}
-	if err := rows.Err(); err != nil {
-		t.Fatalf("rows: %v", err)
-	}
-
-	for _, want := range []string{
-		"hashtag",
-		"region",
-		"cursor",
-		"trim",
-		"query",
-		"url",
-		"handle",
-		"user_id",
-		"min_time",
-		"sort_by",
-		"max_cursor",
-		"clip_id",
-		"period",
-		"page",
-		"country_code",
-		"new_on_board",
-		"industry",
-		"language",
-		"use_ai_as_fallback",
-		"comment_id",
-		"get_transcript",
-		"download_media",
-		"product_id",
-		"follower_count",
-		"creator_country",
-		"audience_country",
-		"date_posted",
-		"publish_time",
-	} {
-		if !hasColumn[want] {
-			t.Fatalf("%s column missing from tiktok after migrate", want)
-		}
+	if content != "sentinel fts" {
+		t.Fatalf("resources_fts content = %s, want sentinel row preserved", content)
 	}
 }
 
-// TestMigrate_AddsColumnsOnUpgrade_Facebook verifies that opening a
-// database created by an older binary succeeds and adds newly generated
-// columns before CREATE INDEX runs against the pre-existing table. Regression
-// coverage for parent_id upgrades and indexed generated columns.
-func TestMigrate_AddsColumnsOnUpgrade_Facebook(t *testing.T) {
+// TestMigrate_V3ToV6IsAdditive verifies that opening a v3-stamped database
+// preserves existing resources rows after the learn-table migrations run.
+// The learn migrations only add tables when the spec enables them — never
+// drop or rewrite resources. Without this regression coverage, a future
+// refactor that turns the additive step into a destructive one would silently
+// nuke every existing library CLI's local data on first reopen.
+func TestMigrate_V3ToV6IsAdditive(t *testing.T) {
 	dbPath := filepath.Join(t.TempDir(), "data.db")
 
-	// Pre-create the DB with the older table shape: id, data, synced_at and
-	// none of the newer generated columns. user_version stays 0 (pre-gate).
 	raw, err := sql.Open("sqlite", dbPath)
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE facebook (
-		id TEXT PRIMARY KEY,
+	if _, err := raw.Exec(`CREATE TABLE resources (
+		id TEXT NOT NULL,
+		resource_type TEXT NOT NULL,
 		data JSON NOT NULL,
-		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		PRIMARY KEY (resource_type, id)
 	)`); err != nil {
 		raw.Close()
-		t.Fatalf("create old table: %v", err)
+		t.Fatalf("create v2 resources: %v", err)
+	}
+	if _, err := raw.Exec(`INSERT INTO resources (id, resource_type, data) VALUES ('user-1', 'user', '{"id":"user-1","name":"alice"}')`); err != nil {
+		raw.Close()
+		t.Fatalf("seed v2 row: %v", err)
+	}
+	if _, err := raw.Exec(`PRAGMA user_version = 3`); err != nil {
+		raw.Close()
+		t.Fatalf("stamp v3: %v", err)
 	}
 	raw.Close()
 
-	// Opening with the new binary must run CREATE INDEX statements without
-	// erroring on missing generated columns.
 	s, err := Open(dbPath)
 	if err != nil {
 		t.Fatalf("open upgraded db: %v", err)
 	}
 	defer s.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(facebook)`)
+	v, err := s.SchemaVersion()
 	if err != nil {
-		t.Fatalf("table_info: %v", err)
+		t.Fatalf("read schema version: %v", err)
 	}
-	defer rows.Close()
-
-	hasColumn := make(map[string]bool)
-	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
-			t.Fatalf("scan: %v", err)
-		}
-		hasColumn[name] = true
-	}
-	if err := rows.Err(); err != nil {
-		t.Fatalf("rows: %v", err)
+	if v != StoreSchemaVersion {
+		t.Fatalf("upgraded version = %d, want %d", v, StoreSchemaVersion)
 	}
 
-	for _, want := range []string{
-		"url",
-		"group_id",
-		"sort_by",
-		"cursor",
-		"next_page_id",
-		"query",
-		"search_type",
-		"ad_type",
-		"country",
-		"status",
-		"media_type",
-		"start_date",
-		"end_date",
-		"trim",
-		"get_business_hours",
-		"get_transcript",
-		"feedback_id",
-		"page_id",
-		"company_name",
-		"language",
-	} {
-		if !hasColumn[want] {
-			t.Fatalf("%s column missing from facebook after migrate", want)
-		}
+	data, err := s.Get("user", "user-1")
+	if err != nil {
+		t.Fatalf("get preserved row: %v", err)
+	}
+	if string(data) != `{"id":"user-1","name":"alice"}` {
+		t.Fatalf("preserved row payload = %s, want original", data)
 	}
 }
 
-// TestMigrate_AddsColumnsOnUpgrade_Google verifies that opening a
-// database created by an older binary succeeds and adds newly generated
-// columns before CREATE INDEX runs against the pre-existing table. Regression
-// coverage for parent_id upgrades and indexed generated columns.
-func TestMigrate_AddsColumnsOnUpgrade_Google(t *testing.T) {
+// TestSchemaVersion_FreshDBHasPlaybooksTable verifies that a fresh learn-
+// enabled database carries the learning_playbooks table after Open. The
+// v7 migration is the canonical home of the playbook primitive; opening a
+// new DB must leave it queryable without an upgrade step.
+func TestSchemaVersion_FreshDBHasPlaybooksTable(t *testing.T) {
 	dbPath := filepath.Join(t.TempDir(), "data.db")
-
-	// Pre-create the DB with the older table shape: id, data, synced_at and
-	// none of the newer generated columns. user_version stays 0 (pre-gate).
-	raw, err := sql.Open("sqlite", dbPath)
-	if err != nil {
-		t.Fatalf("open raw: %v", err)
-	}
-	if _, err := raw.Exec(`CREATE TABLE google (
-		id TEXT PRIMARY KEY,
-		data JSON NOT NULL,
-		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
-	)`); err != nil {
-		raw.Close()
-		t.Fatalf("create old table: %v", err)
-	}
-	raw.Close()
-
-	// Opening with the new binary must run CREATE INDEX statements without
-	// erroring on missing generated columns.
 	s, err := Open(dbPath)
 	if err != nil {
-		t.Fatalf("open upgraded db: %v", err)
+		t.Fatalf("open fresh db: %v", err)
 	}
 	defer s.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(google)`)
+	var name string
+	err = s.DB().QueryRow(
+		`SELECT name FROM sqlite_master WHERE type='table' AND name='learning_playbooks'`,
+	).Scan(&name)
 	if err != nil {
-		t.Fatalf("table_info: %v", err)
+		t.Fatalf("learning_playbooks table should exist after Open on a fresh learn-enabled DB: %v", err)
 	}
-	defer rows.Close()
-
-	hasColumn := make(map[string]bool)
-	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
-			t.Fatalf("scan: %v", err)
-		}
-		hasColumn[name] = true
-	}
-	if err := rows.Err(); err != nil {
-		t.Fatalf("rows: %v", err)
+	if name != "learning_playbooks" {
+		t.Fatalf("expected learning_playbooks, got %q", name)
 	}
 
-	for _, want := range []string{
-		"url",
-		"query",
-		"region",
-		"date_posted",
-		"page",
-		"domain",
-		"advertiser_id",
-		"topic",
-		"start_date",
-		"end_date",
-		"get_ad_details",
-		"cursor",
-	} {
-		if !hasColumn[want] {
-			t.Fatalf("%s column missing from google after migrate", want)
-		}
+	// Schema sanity: inserting a row exercises the NOT NULL + DEFAULT
+	// constraints in the migration. If the canonical column shape ever
+	// drifts (e.g., a NOT NULL added without a DEFAULT), this fails fast.
+	if _, err := s.DB().Exec(
+		`INSERT INTO learning_playbooks (query_family, playbook_json) VALUES (?, ?)`,
+		"odds_for_X", `{"slots":["X"]}`,
+	); err != nil {
+		t.Fatalf("insert into learning_playbooks: %v", err)
 	}
 }
 
-// TestMigrate_AddsColumnsOnUpgrade_Instagram verifies that opening a
-// database created by an older binary succeeds and adds newly generated
-// columns before CREATE INDEX runs against the pre-existing table. Regression
-// coverage for parent_id upgrades and indexed generated columns.
-func TestMigrate_AddsColumnsOnUpgrade_Instagram(t *testing.T) {
+// TestMigrate_V6ToV7AddsPlaybooks verifies that opening a v6-stamped
+// database upgrades to v7 by adding the learning_playbooks table without
+// touching any existing data. The v7 migration is purely additive; a
+// future refactor that turns it destructive would silently nuke every
+// existing library CLI's learn-loop state on first reopen.
+func TestMigrate_V6ToV7AddsPlaybooks(t *testing.T) {
 	dbPath := filepath.Join(t.TempDir(), "data.db")
 
-	// Pre-create the DB with the older table shape: id, data, synced_at and
-	// none of the newer generated columns. user_version stays 0 (pre-gate).
 	raw, err := sql.Open("sqlite", dbPath)
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE instagram (
-		id TEXT PRIMARY KEY,
-		data JSON NOT NULL,
-		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
-	)`); err != nil {
-		raw.Close()
-		t.Fatalf("create old table: %v", err)
+	// Mirror the v6-stamped shape: resources composite key plus the
+	// learn-loop tables that existed at v6 (search_learnings,
+	// entity_lookups, search_patterns). Seed a row in each so we can
+	// prove the upgrade preserves them.
+	stmts := []string{
+		`CREATE TABLE resources (
+			id TEXT NOT NULL,
+			resource_type TEXT NOT NULL,
+			data JSON NOT NULL,
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY (resource_type, id)
+		)`,
+		`INSERT INTO resources (id, resource_type, data) VALUES ('user-1', 'user', '{"id":"user-1","name":"alice"}')`,
+		`CREATE TABLE search_learnings (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			query_pattern TEXT NOT NULL,
+			query_entities TEXT,
+			venue TEXT,
+			resource_type TEXT,
+			resource_id TEXT NOT NULL,
+			action TEXT NOT NULL,
+			alias_target TEXT,
+			source TEXT NOT NULL,
+			confidence INTEGER DEFAULT 1,
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			last_observed_at DATETIME,
+			notes TEXT
+		)`,
+		`INSERT INTO search_learnings (query_pattern, resource_id, action, source) VALUES ('alice', 'user-1', 'boost', 'taught')`,
+		`PRAGMA user_version = 6`,
+	}
+	for _, stmt := range stmts {
+		if _, err := raw.Exec(stmt); err != nil {
+			raw.Close()
+			t.Fatalf("seed v6 db (%s): %v", stmt, err)
+		}
 	}
 	raw.Close()
 
-	// Opening with the new binary must run CREATE INDEX statements without
-	// erroring on missing generated columns.
 	s, err := Open(dbPath)
 	if err != nil {
 		t.Fatalf("open upgraded db: %v", err)
 	}
 	defer s.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(instagram)`)
+	v, err := s.SchemaVersion()
 	if err != nil {
-		t.Fatalf("table_info: %v", err)
+		t.Fatalf("read schema version: %v", err)
 	}
-	defer rows.Close()
-
-	hasColumn := make(map[string]bool)
-	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
-			t.Fatalf("scan: %v", err)
-		}
-		hasColumn[name] = true
-	}
-	if err := rows.Err(); err != nil {
-		t.Fatalf("rows: %v", err)
+	if v != StoreSchemaVersion {
+		t.Fatalf("upgraded version = %d, want %d", v, StoreSchemaVersion)
 	}
 
-	for _, want := range []string{
-		"user_id",
-		"url",
-		"region",
-		"trim",
-		"download_media",
-		"audio_id",
-		"max_id",
-		"handle",
-		"cursor",
-		"query",
-		"date_posted",
-		"page",
-		"next_max_id",
-	} {
-		if !hasColumn[want] {
-			t.Fatalf("%s column missing from instagram after migrate", want)
-		}
+	// learning_playbooks must exist post-upgrade and be writable.
+	var name string
+	if err := s.DB().QueryRow(
+		`SELECT name FROM sqlite_master WHERE type='table' AND name='learning_playbooks'`,
+	).Scan(&name); err != nil {
+		t.Fatalf("learning_playbooks should exist after v6->v7 upgrade: %v", err)
+	}
+	if _, err := s.DB().Exec(
+		`INSERT INTO learning_playbooks (query_family, notes_text) VALUES (?, ?)`,
+		"family_X", "hand-authored notes",
+	); err != nil {
+		t.Fatalf("insert into upgraded learning_playbooks: %v", err)
+	}
+
+	// Pre-existing data preserved: resources row, search_learnings row.
+	data, err := s.Get("user", "user-1")
+	if err != nil {
+		t.Fatalf("get preserved resources row: %v", err)
+	}
+	if string(data) != `{"id":"user-1","name":"alice"}` {
+		t.Fatalf("preserved row payload = %s, want original", data)
+	}
+	var learnedCount int
+	if err := s.DB().QueryRow(`SELECT COUNT(*) FROM search_learnings WHERE resource_id = 'user-1'`).Scan(&learnedCount); err != nil {
+		t.Fatalf("count preserved search_learnings: %v", err)
+	}
+	if learnedCount != 1 {
+		t.Fatalf("preserved search_learnings count = %d, want 1", learnedCount)
 	}
 }
 
-// TestMigrate_AddsColumnsOnUpgrade_Pinterest verifies that opening a
-// database created by an older binary succeeds and adds newly generated
-// columns before CREATE INDEX runs against the pre-existing table. Regression
-// coverage for parent_id upgrades and indexed generated columns.
-func TestMigrate_AddsColumnsOnUpgrade_Pinterest(t *testing.T) {
+// TestMigrate_V6ToV7IsIdempotent verifies that running Open twice on a
+// learn-enabled DB does not double-migrate or trip a duplicate-table /
+// duplicate-index error. Every v7 migration statement uses IF NOT EXISTS,
+// so the second Open should reach the version stamp without an error and
+// leave learning_playbooks untouched.
+func TestMigrate_V6ToV7IsIdempotent(t *testing.T) {
 	dbPath := filepath.Join(t.TempDir(), "data.db")
 
-	// Pre-create the DB with the older table shape: id, data, synced_at and
-	// none of the newer generated columns. user_version stays 0 (pre-gate).
-	raw, err := sql.Open("sqlite", dbPath)
+	s1, err := Open(dbPath)
 	if err != nil {
-		t.Fatalf("open raw: %v", err)
+		t.Fatalf("first open: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE pinterest (
-		id TEXT PRIMARY KEY,
-		data JSON NOT NULL,
-		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
-	)`); err != nil {
-		raw.Close()
-		t.Fatalf("create old table: %v", err)
+	if _, err := s1.DB().Exec(
+		`INSERT INTO learning_playbooks (query_family, playbook_json) VALUES (?, ?)`,
+		"family_idem", `{"slots":["X"]}`,
+	); err != nil {
+		s1.Close()
+		t.Fatalf("seed playbook row: %v", err)
 	}
-	raw.Close()
+	s1.Close()
 
-	// Opening with the new binary must run CREATE INDEX statements without
-	// erroring on missing generated columns.
-	s, err := Open(dbPath)
+	s2, err := Open(dbPath)
 	if err != nil {
-		t.Fatalf("open upgraded db: %v", err)
+		t.Fatalf("second open: %v", err)
 	}
-	defer s.Close()
+	defer s2.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(pinterest)`)
+	v, err := s2.SchemaVersion()
 	if err != nil {
-		t.Fatalf("table_info: %v", err)
+		t.Fatalf("read schema version after re-open: %v", err)
 	}
-	defer rows.Close()
-
-	hasColumn := make(map[string]bool)
-	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
-			t.Fatalf("scan: %v", err)
-		}
-		hasColumn[name] = true
-	}
-	if err := rows.Err(); err != nil {
-		t.Fatalf("rows: %v", err)
+	if v != StoreSchemaVersion {
+		t.Fatalf("re-opened version = %d, want %d", v, StoreSchemaVersion)
 	}
 
-	for _, want := range []string{
-		"url",
-		"cursor",
-		"trim",
-		"query",
-		"handle",
-	} {
-		if !hasColumn[want] {
-			t.Fatalf("%s column missing from pinterest after migrate", want)
-		}
+	var count int
+	if err := s2.DB().QueryRow(`SELECT COUNT(*) FROM learning_playbooks WHERE query_family = 'family_idem'`).Scan(&count); err != nil {
+		t.Fatalf("count seeded playbook row: %v", err)
+	}
+	if count != 1 {
+		t.Fatalf("playbook row count after re-open = %d, want 1", count)
 	}
 }
 
-// TestMigrate_AddsColumnsOnUpgrade_Truthsocial verifies that opening a
-// database created by an older binary succeeds and adds newly generated
-// columns before CREATE INDEX runs against the pre-existing table. Regression
-// coverage for parent_id upgrades and indexed generated columns.
-func TestMigrate_AddsColumnsOnUpgrade_Truthsocial(t *testing.T) {
-	dbPath := filepath.Join(t.TempDir(), "data.db")
-
-	// Pre-create the DB with the older table shape: id, data, synced_at and
-	// none of the newer generated columns. user_version stays 0 (pre-gate).
-	raw, err := sql.Open("sqlite", dbPath)
-	if err != nil {
-		t.Fatalf("open raw: %v", err)
-	}
-	if _, err := raw.Exec(`CREATE TABLE truthsocial (
-		id TEXT PRIMARY KEY,
-		data JSON NOT NULL,
-		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
-	)`); err != nil {
-		raw.Close()
-		t.Fatalf("create old table: %v", err)
-	}
-	raw.Close()
-
-	// Opening with the new binary must run CREATE INDEX statements without
-	// erroring on missing generated columns.
-	s, err := Open(dbPath)
-	if err != nil {
-		t.Fatalf("open upgraded db: %v", err)
-	}
-	defer s.Close()
-
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(truthsocial)`)
-	if err != nil {
-		t.Fatalf("table_info: %v", err)
-	}
-	defer rows.Close()
-
-	hasColumn := make(map[string]bool)
-	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
-			t.Fatalf("scan: %v", err)
-		}
-		hasColumn[name] = true
-	}
-	if err := rows.Err(); err != nil {
-		t.Fatalf("rows: %v", err)
-	}
-
-	for _, want := range []string{
-		"url",
-		"handle",
-		"user_id",
-		"next_max_id",
-		"trim",
-	} {
-		if !hasColumn[want] {
-			t.Fatalf("%s column missing from truthsocial after migrate", want)
-		}
+// requireTableExists fails unless name is a real table in the open store.
+func requireTableExists(t *testing.T, s *Store, name string) {
+	t.Helper()
+	var got string
+	if err := s.DB().QueryRow(
+		`SELECT name FROM sqlite_master WHERE type='table' AND name=?`, name,
+	).Scan(&got); err != nil {
+		t.Fatalf("table %s should exist: %v", name, err)
 	}
 }
 
-// TestMigrate_AddsColumnsOnUpgrade_Reddit verifies that opening a
-// database created by an older binary succeeds and adds newly generated
-// columns before CREATE INDEX runs against the pre-existing table. Regression
-// coverage for parent_id upgrades and indexed generated columns.
-func TestMigrate_AddsColumnsOnUpgrade_Reddit(t *testing.T) {
+// TestSchemaVersion_FreshDBHasCandidateAndEventTables verifies a fresh
+// learn-enabled database opens at the current (v9) version with both new
+// tables queryable and their CHECK constraints enforced. Candidates are the
+// structural quarantine for CLI-derived observations; events are the
+// measurement substrate — neither may silently regress to a missing table
+// or an unchecked enum column.
+func TestSchemaVersion_FreshDBHasCandidateAndEventTables(t *testing.T) {
 	dbPath := filepath.Join(t.TempDir(), "data.db")
-
-	// Pre-create the DB with the older table shape: id, data, synced_at and
-	// none of the newer generated columns. user_version stays 0 (pre-gate).
-	raw, err := sql.Open("sqlite", dbPath)
-	if err != nil {
-		t.Fatalf("open raw: %v", err)
-	}
-	if _, err := raw.Exec(`CREATE TABLE reddit (
-		id TEXT PRIMARY KEY,
-		data JSON NOT NULL,
-		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
-	)`); err != nil {
-		raw.Close()
-		t.Fatalf("create old table: %v", err)
-	}
-	raw.Close()
-
-	// Opening with the new binary must run CREATE INDEX statements without
-	// erroring on missing generated columns.
 	s, err := Open(dbPath)
 	if err != nil {
-		t.Fatalf("open upgraded db: %v", err)
+		t.Fatalf("open fresh db: %v", err)
 	}
 	defer s.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(reddit)`)
+	v, err := s.SchemaVersion()
 	if err != nil {
-		t.Fatalf("table_info: %v", err)
+		t.Fatalf("read schema version: %v", err)
 	}
-	defer rows.Close()
-
-	hasColumn := make(map[string]bool)
-	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
-			t.Fatalf("scan: %v", err)
-		}
-		hasColumn[name] = true
-	}
-	if err := rows.Err(); err != nil {
-		t.Fatalf("rows: %v", err)
+	if v != StoreSchemaVersion {
+		t.Fatalf("fresh learn db version = %d, want %d", v, StoreSchemaVersion)
 	}
 
-	for _, want := range []string{
-		"query",
-		"sort",
-		"timeframe",
-		"after",
-		"trim",
-		"subreddit",
-		"industries",
-		"budgets",
-		"formats",
-		"placements",
-		"objectives",
-		"url",
-		"cursor",
-	} {
-		if !hasColumn[want] {
-			t.Fatalf("%s column missing from reddit after migrate", want)
-		}
+	requireTableExists(t, s, "learn_candidates")
+	requireTableExists(t, s, "learn_events")
+
+	if _, err := s.DB().Exec(
+		`INSERT INTO learn_candidates (class, payload, derivation_signature, query_family, command_path, created_at, updated_at, last_seen_at)
+		 VALUES ('flag_alias', '{"from":"--fmt","to":"--format"}', 'sig-1', 'family_X', 'items list', '2026-01-01T00:00:00Z', '2026-01-01T00:00:00Z', '2026-01-01T00:00:00Z')`,
+	); err != nil {
+		t.Fatalf("insert valid candidate: %v", err)
+	}
+	if _, err := s.DB().Exec(
+		`INSERT INTO learn_candidates (class, payload, derivation_signature, created_at, updated_at, last_seen_at)
+		 VALUES ('bogus_class', '{}', 'sig-2', '2026-01-01T00:00:00Z', '2026-01-01T00:00:00Z', '2026-01-01T00:00:00Z')`,
+	); err == nil {
+		t.Fatalf("candidate class CHECK should reject an unknown class")
+	}
+
+	if _, err := s.DB().Exec(
+		`INSERT INTO learn_events (ts, event, query_family_hash, matched_row_id, entity_match, surface)
+		 VALUES ('2026-01-01T00:00:00Z', 'recall_hit', 'hash-1', 1, 1, 'cli')`,
+	); err != nil {
+		t.Fatalf("insert valid event: %v", err)
+	}
+	if _, err := s.DB().Exec(
+		`INSERT INTO learn_events (ts, event) VALUES ('2026-01-01T00:00:00Z', 'bogus_event')`,
+	); err == nil {
+		t.Fatalf("event CHECK should reject an unknown event name")
 	}
 }
 
-// TestMigrate_AddsColumnsOnUpgrade_Account verifies that opening a
-// database created by an older binary succeeds and adds newly generated
-// columns before CREATE INDEX runs against the pre-existing table. Regression
-// coverage for parent_id upgrades and indexed generated columns.
-func TestMigrate_AddsColumnsOnUpgrade_Account(t *testing.T) {
+// TestMigrate_V4ToV9AdditiveNoFTSContentRewrite verifies the FTS decouple:
+// a v4-stamped store opened by the v9 binary takes the additive-only path.
+// The learn tables are created, the version advances, and the FTS content
+// rewrite does NOT run — resourcesFTSContentSchemaVersion is pinned at 4,
+// so a store stamped at 4 already carries extracted-leaf content and a
+// sentinel FTS row must survive the open byte-for-byte at its rowid.
+func TestMigrate_V4ToV9AdditiveNoFTSContentRewrite(t *testing.T) {
 	dbPath := filepath.Join(t.TempDir(), "data.db")
 
-	// Pre-create the DB with the older table shape: id, data, synced_at and
-	// none of the newer generated columns. user_version stays 0 (pre-gate).
 	raw, err := sql.Open("sqlite", dbPath)
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE account (
-		id TEXT PRIMARY KEY,
+	if _, err := raw.Exec(`CREATE TABLE resources (
+		id TEXT NOT NULL,
+		resource_type TEXT NOT NULL,
 		data JSON NOT NULL,
-		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		PRIMARY KEY (resource_type, id)
 	)`); err != nil {
 		raw.Close()
-		t.Fatalf("create old table: %v", err)
+		t.Fatalf("create v4 resources: %v", err)
+	}
+	if _, err := raw.Exec(resourcesFTSCreateSQL); err != nil {
+		raw.Close()
+		t.Fatalf("create v4 resources_fts: %v", err)
+	}
+	if _, err := raw.Exec(`INSERT INTO resources (id, resource_type, data) VALUES ('user-1', 'user', '{"id":"user-1","name":"alice"}')`); err != nil {
+		raw.Close()
+		t.Fatalf("seed v4 resource: %v", err)
+	}
+	if _, err := raw.Exec(`INSERT INTO resources_fts (rowid, id, resource_type, content) VALUES (?, 'user-1', 'user', 'sentinel fts')`, ftsRowID("user", "user-1")); err != nil {
+		raw.Close()
+		t.Fatalf("seed v4 resources_fts row: %v", err)
+	}
+	if _, err := raw.Exec(`PRAGMA user_version = 4`); err != nil {
+		raw.Close()
+		t.Fatalf("stamp v4: %v", err)
 	}
 	raw.Close()
 
-	// Opening with the new binary must run CREATE INDEX statements without
-	// erroring on missing generated columns.
 	s, err := Open(dbPath)
 	if err != nil {
-		t.Fatalf("open upgraded db: %v", err)
+		t.Fatalf("open v4 db with v9 binary: %v", err)
 	}
 	defer s.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(account)`)
+	v, err := s.SchemaVersion()
 	if err != nil {
-		t.Fatalf("table_info: %v", err)
+		t.Fatalf("read schema version: %v", err)
 	}
-	defer rows.Close()
-
-	hasColumn := make(map[string]bool)
-	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
-			t.Fatalf("scan: %v", err)
-		}
-		hasColumn[name] = true
-	}
-	if err := rows.Err(); err != nil {
-		t.Fatalf("rows: %v", err)
+	if v != StoreSchemaVersion {
+		t.Fatalf("upgraded version = %d, want %d", v, StoreSchemaVersion)
 	}
 
-	for _, want := range []string{
-		"page",
-		"endpoint",
-		"status_code",
-		"start_time",
-		"end_time",
-	} {
-		if !hasColumn[want] {
-			t.Fatalf("%s column missing from account after migrate", want)
-		}
+	requireTableExists(t, s, "learn_candidates")
+	requireTableExists(t, s, "learn_events")
+
+	// The rewrite gate must not have fired: the sentinel content is still
+	// exactly what the v4 binary wrote, at the same content-addressed rowid.
+	var content string
+	var rowid int64
+	if err := s.DB().QueryRow(`SELECT rowid, content FROM resources_fts WHERE id = 'user-1' AND resource_type = 'user'`).Scan(&rowid, &content); err != nil {
+		t.Fatalf("read resources_fts after v4 open: %v", err)
+	}
+	if content != "sentinel fts" {
+		t.Fatalf("resources_fts content = %q; the v4->v9 open must not rewrite FTS content", content)
+	}
+	if want := ftsRowID("user", "user-1"); rowid != want {
+		t.Fatalf("resources_fts rowid = %d, want preserved %d", rowid, want)
+	}
+
+	data, err := s.Get("user", "user-1")
+	if err != nil {
+		t.Fatalf("get preserved v4 row: %v", err)
+	}
+	if string(data) != `{"id":"user-1","name":"alice"}` {
+		t.Fatalf("preserved v4 row payload = %s, want original", data)
 	}
 }
 
-// TestMigrate_AddsColumnsOnUpgrade_Twitch verifies that opening a
-// database created by an older binary succeeds and adds newly generated
-// columns before CREATE INDEX runs against the pre-existing table. Regression
-// coverage for parent_id upgrades and indexed generated columns.
-func TestMigrate_AddsColumnsOnUpgrade_Twitch(t *testing.T) {
+// TestMigrate_V8ToV9AddsCandidatesAndEvents verifies the v8->v9 upgrade is
+// purely additive: a v8-stamped store (learn tables through
+// learning_playbooks) gains learn_candidates and learn_events, keeps every
+// learn row intact, and never touches FTS content.
+func TestMigrate_V8ToV9AddsCandidatesAndEvents(t *testing.T) {
 	dbPath := filepath.Join(t.TempDir(), "data.db")
 
-	// Pre-create the DB with the older table shape: id, data, synced_at and
-	// none of the newer generated columns. user_version stays 0 (pre-gate).
 	raw, err := sql.Open("sqlite", dbPath)
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE twitch (
-		id TEXT PRIMARY KEY,
-		data JSON NOT NULL,
-		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
-	)`); err != nil {
+	stmts := []string{
+		`CREATE TABLE resources (
+			id TEXT NOT NULL,
+			resource_type TEXT NOT NULL,
+			data JSON NOT NULL,
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY (resource_type, id)
+		)`,
+		`INSERT INTO resources (id, resource_type, data) VALUES ('user-1', 'user', '{"id":"user-1","name":"alice"}')`,
+		resourcesFTSCreateSQL,
+		`CREATE TABLE search_learnings (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			query_pattern TEXT NOT NULL,
+			query_entities TEXT,
+			venue TEXT,
+			resource_type TEXT,
+			resource_id TEXT NOT NULL,
+			action TEXT NOT NULL,
+			alias_target TEXT,
+			source TEXT NOT NULL,
+			confidence INTEGER DEFAULT 1,
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			last_observed_at DATETIME,
+			notes TEXT
+		)`,
+		`INSERT INTO search_learnings (query_pattern, resource_id, action, source) VALUES ('alice', 'user-1', 'boost', 'taught')`,
+		`CREATE TABLE learning_playbooks (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			query_family TEXT NOT NULL UNIQUE,
+			playbook_json TEXT,
+			notes_text TEXT,
+			source TEXT NOT NULL DEFAULT 'taught',
+			confidence INTEGER NOT NULL DEFAULT 2,
+			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			last_observed_at TIMESTAMP
+		)`,
+		`INSERT INTO learning_playbooks (query_family, notes_text) VALUES ('family_X', 'hand-authored notes')`,
+		`PRAGMA user_version = 8`,
+	}
+	for _, stmt := range stmts {
+		if _, err := raw.Exec(stmt); err != nil {
+			raw.Close()
+			t.Fatalf("seed v8 db (%s): %v", stmt, err)
+		}
+	}
+	if _, err := raw.Exec(`INSERT INTO resources_fts (rowid, id, resource_type, content) VALUES (?, 'user-1', 'user', 'sentinel fts')`, ftsRowID("user", "user-1")); err != nil {
 		raw.Close()
-		t.Fatalf("create old table: %v", err)
+		t.Fatalf("seed v8 resources_fts row: %v", err)
 	}
 	raw.Close()
 
-	// Opening with the new binary must run CREATE INDEX statements without
-	// erroring on missing generated columns.
 	s, err := Open(dbPath)
 	if err != nil {
 		t.Fatalf("open upgraded db: %v", err)
 	}
 	defer s.Close()
 
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(twitch)`)
+	v, err := s.SchemaVersion()
 	if err != nil {
-		t.Fatalf("table_info: %v", err)
+		t.Fatalf("read schema version: %v", err)
 	}
-	defer rows.Close()
-
-	hasColumn := make(map[string]bool)
-	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
-			t.Fatalf("scan: %v", err)
-		}
-		hasColumn[name] = true
-	}
-	if err := rows.Err(); err != nil {
-		t.Fatalf("rows: %v", err)
+	if v != StoreSchemaVersion {
+		t.Fatalf("upgraded version = %d, want %d", v, StoreSchemaVersion)
 	}
 
-	for _, want := range []string{
-		"handle",
-		"filter_by",
-		"sort_by",
-		"url",
-	} {
-		if !hasColumn[want] {
-			t.Fatalf("%s column missing from twitch after migrate", want)
+	// New tables exist and accept rows post-upgrade.
+	requireTableExists(t, s, "learn_candidates")
+	requireTableExists(t, s, "learn_events")
+	if _, err := s.DB().Exec(
+		`INSERT INTO learn_candidates (class, payload, derivation_signature, created_at, updated_at, last_seen_at)
+		 VALUES ('playbook_candidate', '{}', 'sig-up', '2026-01-01T00:00:00Z', '2026-01-01T00:00:00Z', '2026-01-01T00:00:00Z')`,
+	); err != nil {
+		t.Fatalf("insert into upgraded learn_candidates: %v", err)
+	}
+	if _, err := s.DB().Exec(
+		`INSERT INTO learn_events (ts, event, surface) VALUES ('2026-01-01T00:00:00Z', 'teach', 'mcp')`,
+	); err != nil {
+		t.Fatalf("insert into upgraded learn_events: %v", err)
+	}
+
+	// Pre-existing learn data preserved.
+	var learnedCount int
+	if err := s.DB().QueryRow(`SELECT COUNT(*) FROM search_learnings WHERE resource_id = 'user-1'`).Scan(&learnedCount); err != nil {
+		t.Fatalf("count preserved search_learnings: %v", err)
+	}
+	if learnedCount != 1 {
+		t.Fatalf("preserved search_learnings count = %d, want 1", learnedCount)
+	}
+	var notes string
+	if err := s.DB().QueryRow(`SELECT notes_text FROM learning_playbooks WHERE query_family = 'family_X'`).Scan(&notes); err != nil {
+		t.Fatalf("read preserved playbook: %v", err)
+	}
+	if notes != "hand-authored notes" {
+		t.Fatalf("preserved playbook notes = %q, want original", notes)
+	}
+
+	// v8 is past the FTS content pin (4), so the rewrite must not run.
+	var content string
+	if err := s.DB().QueryRow(`SELECT content FROM resources_fts WHERE id = 'user-1' AND resource_type = 'user'`).Scan(&content); err != nil {
+		t.Fatalf("read resources_fts after v8 open: %v", err)
+	}
+	if content != "sentinel fts" {
+		t.Fatalf("resources_fts content = %q; the v8->v9 open must not rewrite FTS content", content)
+	}
+}
+
+// TestOpenReadOnly_RejectsWrites pins the contract: direct and CTE-wrapped
+// writes against the main DB fail under mode=ro. Deliberately does not
+// assert VACUUM INTO and ATTACH DATABASE — modernc.org/sqlite allows both
+// under mode=ro, so those defenses live in the handleSQL keyword blocklist.
+func TestOpenReadOnly_RejectsWrites(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+
+	rw, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("seed open: %v", err)
+	}
+	if _, err := rw.DB().Exec(`INSERT INTO resources (id, resource_type, data) VALUES ('seed', 'thing', '{}')`); err != nil {
+		t.Fatalf("seed insert: %v", err)
+	}
+	rw.Close()
+
+	ro, err := OpenReadOnly(dbPath)
+	if err != nil {
+		t.Fatalf("open read-only: %v", err)
+	}
+	defer ro.Close()
+
+	writes := []struct {
+		name string
+		stmt string
+	}{
+		{"insert", `INSERT INTO resources (id, resource_type, data) VALUES ('x', 'y', '{}')`},
+		{"update", `UPDATE resources SET resource_type = 'hijacked' WHERE id = 'seed'`},
+		{"delete", `DELETE FROM resources WHERE id = 'seed'`},
+		{"replace", `REPLACE INTO resources (id, resource_type, data) VALUES ('seed', 'evil', '{}')`},
+		// CTE-wrapped INSERT is load-bearing: it justifies leaving WITH
+		// out of the handleSQL blocklist so SELECT-form CTEs work.
+		{"cte_insert", `WITH stale AS (SELECT id FROM resources) INSERT INTO resources (id, resource_type, data) SELECT id || '-evil', 'thing', '{}' FROM stale`},
+	}
+	for _, w := range writes {
+		if _, err := ro.DB().Exec(w.stmt); err == nil {
+			t.Errorf("%s succeeded under mode=ro; expected rejection. stmt=%q", w.name, w.stmt)
 		}
+	}
+
+	var count int
+	if err := ro.DB().QueryRow(`SELECT COUNT(*) FROM resources`).Scan(&count); err != nil {
+		t.Fatalf("read-only SELECT failed: %v", err)
+	}
+	if count != 1 {
+		t.Fatalf("SELECT returned %d rows, want 1 (only the seed should remain)", count)
+	}
+	if err := ro.DB().QueryRow(`WITH r AS (SELECT id FROM resources WHERE id = 'seed') SELECT COUNT(*) FROM r`).Scan(&count); err != nil {
+		t.Fatalf("read-only WITH...SELECT CTE failed: %v", err)
+	}
+	if count != 1 {
+		t.Fatalf("CTE SELECT returned %d rows, want 1", count)
 	}
 }
 
@@ -1263,7 +1373,7 @@ func TestMigrate_AddsColumnsOnUpgrade_SyncState(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE sync_state (
+	if _, err := raw.Exec(`CREATE TABLE "sync_state" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -1282,7 +1392,7 @@ func TestMigrate_AddsColumnsOnUpgrade_SyncState(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(sync_state)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("sync_state")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}

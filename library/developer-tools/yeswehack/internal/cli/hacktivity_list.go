@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -29,6 +30,17 @@ func newHacktivityListCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
+			// PATCH(program-hacktivity): the global /v2/hacktivity endpoint does
+			// not reliably filter by program slug. Use the same per-program
+			// endpoint as the web app for single-slug requests.
+			if slug := singleProgramSlug(flagPrograms); slug != "" && flagVulnerablePart == "" {
+				data, prov, err := readProgramHacktivity(cmd, c, flags, slug, flagPage, flagResultsPerPage, flagAll)
+				if err != nil {
+					return classifyAPIError(err, flags)
+				}
+				return printHacktivityListOutput(cmd, flags, data, prov)
+			}
+
 			path := "/v2/hacktivity"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "hacktivity", path, map[string]string{
 				"page":            fmt.Sprintf("%v", flagPage),
@@ -39,42 +51,7 @@ func newHacktivityListCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
-				var countItems []json.RawMessage
-				_ = json.Unmarshal(data, &countItems)
-				printProvenance(cmd, len(countItems), prov)
-			}
-			// For JSON output, wrap with provenance envelope before passing through flags.
-			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
-				filtered := data
-				if flags.selectFields != "" {
-					filtered = filterFields(filtered, flags.selectFields)
-				} else if flags.compact {
-					filtered = compactFields(filtered)
-				}
-				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
-				if wrapErr != nil {
-					return wrapErr
-				}
-				return printOutput(cmd.OutOrStdout(), wrapped, true)
-			}
-			// For all other output modes (table, csv, plain, quiet), use the standard pipeline
-			if wantsHumanTable(cmd.OutOrStdout(), flags) {
-				var items []map[string]any
-				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
-					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
-						return err
-					}
-					if len(items) >= 25 {
-						fmt.Fprintf(os.Stderr, "\nShowing %d results. To narrow: add --limit, --json --select, or filter flags.\n", len(items))
-					}
-					return nil
-				}
-			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printHacktivityListOutput(cmd, flags, data, prov)
 		},
 	}
 	cmd.Flags().StringVar(&flagPage, "page", "", "Page number")
@@ -84,4 +61,51 @@ func newHacktivityListCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
 	return cmd
+}
+
+func singleProgramSlug(programs string) string {
+	programs = strings.TrimSpace(programs)
+	if programs == "" || strings.Contains(programs, ",") {
+		return ""
+	}
+	return programs
+}
+
+func printHacktivityListOutput(cmd *cobra.Command, flags *rootFlags, data json.RawMessage, prov DataProvenance) error {
+	// Print provenance to stderr for human-facing output
+	{
+		var countItems []json.RawMessage
+		_ = json.Unmarshal(data, &countItems)
+		printProvenance(cmd, len(countItems), prov)
+	}
+	// For JSON output, wrap with provenance envelope before passing through flags.
+	// --select wins over --compact when both are set; --compact only runs when
+	// no explicit fields were requested.
+	if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+		filtered := data
+		if flags.selectFields != "" {
+			filtered = filterFields(filtered, flags.selectFields)
+		} else if flags.compact {
+			filtered = compactFields(filtered)
+		}
+		wrapped, wrapErr := wrapWithProvenance(filtered, prov)
+		if wrapErr != nil {
+			return wrapErr
+		}
+		return printOutput(cmd.OutOrStdout(), wrapped, true)
+	}
+	// For all other output modes (table, csv, plain, quiet), use the standard pipeline
+	if wantsHumanTable(cmd.OutOrStdout(), flags) {
+		var items []map[string]any
+		if json.Unmarshal(data, &items) == nil && len(items) > 0 {
+			if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
+				return err
+			}
+			if len(items) >= 25 {
+				fmt.Fprintf(os.Stderr, "\nShowing %d results. To narrow: add --limit, --json --select, or filter flags.\n", len(items))
+			}
+			return nil
+		}
+	}
+	return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 }

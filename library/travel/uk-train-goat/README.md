@@ -216,7 +216,7 @@ Multi-origin fan-out + dotted-path field selection; tight payload for an LLM con
 ### Why is my train late
 
 ```bash
-uk-train-goat-pp-cli why $SERVICE_ID --json
+uk-train-goat-pp-cli why "$SERVICE_ID" --json
 ```
 
 Surfaces one service's scheduled vs expected times, platform, operator, and calling points, with a plain-prose status line (on time, running late, or cancelled). The delay-reason text and NRCC operator alerts (including strike notices) live on the live board, not the service-detail payload. See `board`/`arrivals`, where `messages[]` carries the alert banners and `delay_reason` carries the cause.
@@ -249,6 +249,30 @@ Internal placeholder resource. Real commands are hand-authored against the OpenL
 
 - **`uk-train-goat-pp-cli status`** - Placeholder; deleted post-generate. Real CLI commands live in internal/cli/board.go etc.
 
+### fare
+
+Look up walk-up adult fares between two UK stations from the official National Rail RJFAF static fares feed. Returns results sorted by price with ticket name, route code, restriction description, and single/return flag. Run `fare sync` before the first lookup.
+
+```bash
+# Look up walk-up fares between Paddington and Reading
+uk-train-goat-pp-cli fare PAD RDG --json
+
+# Specify a travel date
+uk-train-goat-pp-cli fare PAD RDG --date 2026-07-01 --json
+
+# Skip freshness probe, serve from local store as-is
+uk-train-goat-pp-cli fare PAD RDG --offline --json
+```
+
+**Not supported:** railcard discounts, advance fares, operator-specific/split fares, booking.
+
+### fare sync
+
+Download and load the RJFAF fares feed from National Rail Open Data into the local SQLite store. Re-run when the freshness warning appears (feed has a 35-day staleness backstop). Requires `NR_OPENDATA_USERNAME` and `NR_OPENDATA_PASSWORD`.
+
+```bash
+NR_OPENDATA_USERNAME=user NR_OPENDATA_PASSWORD=pass uk-train-goat-pp-cli fare sync --json
+```
 
 ## Output Formats
 
@@ -302,6 +326,8 @@ Environment variables:
 | Name | Kind | Required | Description |
 | --- | --- | --- | --- |
 | `LDBWS_API_TOKEN` | per_call | Yes | Set to your API credential. |
+| `NR_OPENDATA_USERNAME` | per_call | For `fare sync` | National Rail Open Data account username. |
+| `NR_OPENDATA_PASSWORD` | per_call | For `fare sync` | National Rail Open Data account password. |
 
 ### agentcookie (optional)
 
@@ -319,7 +345,7 @@ If you use agentcookie to sync secrets across machines, this CLI auto-adopts age
 
 - **401 Unauthorized when calling board / journey** — Re-run `uk-train-goat-pp-cli auth login` with a token from realtime.nationalrail.co.uk/OpenLDBWSRegistration. The CLI uses LDBWS_API_TOKEN, not the wrapper's NR_ACCESS_TOKEN.
 - **stations --search returns nothing** — Run `uk-train-goat-pp-cli sync` to populate the local station table; first install ships an empty store.
-- **fare command returns experimental warning** — fare scrapes nationalrail.co.uk and is marked experimental; if the upstream layout drifted, file an issue. Do not depend on fare data for booking.
+- **fare returns "fares data not ready"** — Run `uk-train-goat-pp-cli fare sync` first (requires `NR_OPENDATA_USERNAME` and `NR_OPENDATA_PASSWORD`). Fares are sourced from the official National Rail RJFAF static feed, not scraped; the local store must be populated before lookup. Walk-up fares only; advance and railcard fares are not supported.
 - **doctor reports OpenLDBWS unreachable** — Check connectivity to lite.realtime.nationalrail.co.uk; the API runs there over HTTPS.
 
 ---

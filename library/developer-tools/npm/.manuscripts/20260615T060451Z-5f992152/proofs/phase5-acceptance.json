@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "npm",
+  "run_id": "20260615T060451Z-5f992152",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 5,
+  "tests_passed": 5,
+  "tests_skipped": 3,
+  "auth_context": {
+    "type": "none"
+  }
+}

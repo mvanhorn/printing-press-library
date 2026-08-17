@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "scrape-creators-compact-payload-array",
+  "applied_at": "2026-07-31",
+  "base_run_id": "20260629-130731-9b35150a",
+  "base_printing_press_version": "4.27.0",
+  "summary": "Stop --agent/--compact from stripping a blocked key (comments) when it is the response's only payload array; resolve the verbose-object blocklist per response instead of applying it unconditionally.",
+  "reason": "compactVerboseObjectFields lists 'comments' as a verbose sidecar, but on the comments commands that key IS the payload. Stripping it returned {\"success\":true,\"cursor\":\"...\"} with exit 0 and no data on every comments-shaped command across six platforms - a credit spent per call, nothing returned. Durable rule for reprints: never strip the only array in a single-object response, where 'array' for competitor-counting means a compactObjectArrayValue-shaped payload (non-empty array of objects), so scalar or empty sidecar arrays cannot re-trigger the loss.",
+  "files": [
+    "internal/cli/helpers.go",
+    "internal/cli/amend_compact_comments_test.go"
+  ],
+  "validated_outcome": "Live verification with --agent on all six comments commands (instagram, tiktok, youtube, facebook, reddit, rumble): 0 comments before, 10-25 after, envelope fields intact; empty-comments responses return comments: [] rather than dropping the key. Unit tests pin payload-kept, empty-array-kept, scalar-array-competitor, empty-sidecar-competitor, sidecar-stripped, and description-stripped cases."
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "twitch",
+  "run_id": "20260620-151417",
+  "status": "skip",
+  "skip_reason": "credential_rotated_after_manual_live_verification",
+  "auth_context": {
+    "type": "bearer_token",
+    "grant": "client_credentials",
+    "api_key_available": false
+  },
+  "notes": "Live API access was verified manually this session against the real Twitch Helix API with an app access token (client_credentials): auth login minted a token, and games get-top, streams get, sync (349 records, 0 warnings), search, and analytics all returned source:live real data. The application client secret was rotated immediately afterward for security, invalidating the token, so the automated dogfood --live --write-acceptance run was not captured. See proofs/2026-06-20-151417-fix-twitch-pp-cli-shipcheck.md (Live Smoke section) for the manual verification record. Mock-mode shipcheck is 6/6 PASS, scorecard 94/100 Grade A."
+}

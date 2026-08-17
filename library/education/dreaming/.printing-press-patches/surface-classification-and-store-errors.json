@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "surface-classification-and-store-errors",
+  "applied_at": "2026-07-20",
+  "base_run_id": "20260618T050021Z-649b15eb",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Require real user statistics for automatic recommendation levels, preserve user-fetch failures, and keep timezone-sensitive analytics or transcript-import output from presenting misleading states.",
+  "reason": "Defaulting to Level 1, masking auth and network errors, or anchoring streaks to UTC can misrepresent learner state; discarded database errors or upsert failures can also hide incomplete corpus imports.",
+  "files": [
+    "internal/cli/next.go",
+    "internal/cli/next_test.go",
+    "internal/cli/concordance.go",
+    "internal/cli/diet.go",
+    "internal/cli/diet_test.go",
+    "internal/cli/dreaming_data.go",
+    "internal/cli/dreaming_data_test.go",
+    "internal/cli/transcript_corpus.go",
+    "internal/cli/transcript_corpus_test.go"
+  ]
+}

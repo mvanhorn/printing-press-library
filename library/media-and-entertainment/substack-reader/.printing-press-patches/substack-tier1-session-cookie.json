@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-07-10",
+  "base_run_id": "20260710-081225",
+  "base_printing_press_version": "4.28.0",
+  "id": "substack-tier1-session-cookie",
+  "summary": "Hand-added Tier-1 own-session cookie path: substack.sid precedence chain, value masking, 0600 hygiene, and the cookie-only-on-*.substack.com invariant enforced in the client.",
+  "reason": "Reading paid posts the user already subscribes to requires their own Substack session cookie (substack.sid) — optional, never-required, never-redistributed (same posture as Medium Reader Tier 1, which uses MEDIUM_SESSION). Hand-built in internal/substack/session.go: precedence SUBSTACK_SESSION env > config-dir cookie.json > SUBSTACK_COOKIE_FILE env (service-scoped names matching the medium-reader precedent and README copy); value masked in every output path; any persisted copy written 0600 under a 0700 parent with a loose-perms warning (POSIX-gated). internal/substack/client.go self-enforces that the cookie is attached only on *.substack.com hosts (the universal Tier-1 path is substack.com/api/v1/posts/by-id/<id> authed). A printed-CLI credential concern, not a generator defect.",
+  "files": [
+    "internal/substack/session.go",
+    "internal/substack/client.go"
+  ],
+  "validated_outcome": "Hermetic unit tests for the precedence chain, masking, and cookie-host invariant pass (internal/substack session_test.go green under go1.26.5). Cookie values never logged, printed, or committed. Greptile P2 hardening (PR #1486): a non-empty SUBSTACK_SESSION that parses to no substack.sid (e.g. \"token=abc\" — an '=' but no known cookie key) now warns on stderr and falls through, instead of silently behaving as if unset, so a misconfigured opt-in credential is visible to the user. Regression: internal/substack session_test.go TestLoadSessionUnparseableEnvWarns. Also corrected a test-hygiene bug in the same file: the LoadSession tests used the ineffective env var SUBSTACK_HOME (the real override is SUBSTACK_READER_HOME), so they read/wrote the operator's real ~/.config cookie file; now hermetic (verified: real cookie file mtime unchanged across a full go test run)."
+}

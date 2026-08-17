@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "surfline-pp-mcp",
+  "display_name": "Surfline",
+  "version": "0.0.0",
+  "description": "Every Surfline forecast, scriptable from your terminal — plus multi-spot ranking, a local forecast journal, and cron-able alerts no Surfline tool has.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/surfline-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/surfline-pp-mcp",
+      "args": [],
+      "env": {
+        "SURFLINE_ACCESS_TOKEN": "${user_config.surfline_access_token}"
+      }
+    }
+  },
+  "user_config": {
+    "surfline_access_token": {
+      "type": "string",
+      "title": "SURFLINE_ACCESS_TOKEN",
+      "description": "Optional. Sets SURFLINE_ACCESS_TOKEN for the Surfline MCP server; unlocks 7-17 day forecasts and premium cams. Basic forecasts work without it.",
+      "sensitive": true,
+      "required": false
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

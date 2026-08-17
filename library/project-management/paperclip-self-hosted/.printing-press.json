@@ -1,0 +1,86 @@
+{
+  "api_name": "paperclip-self-hosted",
+  "api_version": "1.0",
+  "auth_type": "composed",
+  "auth_env_vars": [
+    "PAPERCLIP_AUTH_MODE",
+    "PAPERCLIP_SESSION_COOKIE",
+    "PAPERCLIP_API_KEY",
+    "PAPERCLIP_AGENT_TOKEN"
+  ],
+  "auth_description": "Choose a browser session cookie, board API key, or agent bearer token. PAPERCLIP_AUTH_MODE can explicitly select board-session, board-api-key, agent-bearer, or none; otherwise the CLI auto-detects the supplied credential.",
+  "auth_env_var_specs": [
+    {
+      "name": "PAPERCLIP_AUTH_MODE",
+      "kind": "mode",
+      "required": false,
+      "sensitive": false,
+      "description": "Explicit auth mode: board-session, board-api-key, agent-bearer, or none."
+    },
+    {
+      "name": "PAPERCLIP_SESSION_COOKIE",
+      "kind": "cookie",
+      "required": false,
+      "sensitive": true,
+      "description": "Browser session cookie value for board-session authentication."
+    },
+    {
+      "name": "PAPERCLIP_API_KEY",
+      "kind": "api_key",
+      "required": false,
+      "sensitive": true,
+      "description": "Board API key used as a bearer credential."
+    },
+    {
+      "name": "PAPERCLIP_AGENT_TOKEN",
+      "kind": "bearer_token",
+      "required": false,
+      "sensitive": true,
+      "description": "Agent bearer token."
+    }
+  ],
+  "cli_name": "paperclip-pp-cli",
+  "creator": {
+    "handle": "veltri-23",
+    "name": "Hunter Veltri"
+  },
+  "description": "Mirror-read CLI for the self-hosted Paperclip board. Offline SQLite cache with FTS5 over issues/comments, agent-friendly compound queries, and a local MCP surface for the same endpoints.",
+  "display_name": "Paperclip CLI",
+  "generated_at": "2026-07-11T16:46:42Z",
+  "mcp_binary": "paperclip-pp-mcp",
+  "mcp_public_tool_count": 448,
+  "mcp_ready": "full",
+  "mcp_tool_count": 448,
+  "owner": "veltri-23",
+  "printer": "mvanhorn",
+  "printer_name": "cli-printing-press",
+  "printing_press_version": "4.28.0",
+  "run_id": "pp-pp-local-2026-07-11",
+  "schema_version": 2,
+  "spec_checksum": "sha256:33e77b88f18a5d27bc2333a00939e9f8ec011ccbc10f364e43ba87822644c8ba",
+  "spec_format": "openapi3",
+  "spec_path": "spec.json",
+  "spec_url": "",
+  "novel_features": [
+    {
+      "name": "Pre-discovery recall loop",
+      "command": "paperclip-pp-cli recall",
+      "description": "Before any discovery fetch, recall checks the local search_learnings table for a previously-taught query->resource mapping. If entity_match is exact and confidence >= 2, skips discovery and goes straight to the live fetch for the returned resource IDs. Cold store (no recall + no candidates) causes recall to be skipped for the rest of the session."
+    },
+    {
+      "name": "Post-fetch teach loop",
+      "command": "paperclip-pp-cli teach",
+      "description": "After answering a question, fires teach --query --resource --resource-type in the background to record the question -> resource mapping. Unconditional; anchors playbook synthesis for families taught without one."
+    },
+    {
+      "name": "Candidate confirm/reject flow",
+      "command": "paperclip-pp-cli learnings confirm <id> | learnings reject <id>",
+      "description": "Surfaces trial-then-confirm candidates derived from failed-flag + corrected-retry pairs. Confirms install them as durable learnings; rejects mark them dead. Catches skill-side alias drift without manual bookkeeping."
+    },
+    {
+      "name": "CompanyId auto-resolution for single-tenant mirrors",
+      "command": "paperclip-pp-cli search <query>",
+      "description": "When a Paperclip endpoint requires companyId in the path (e.g. /api/companies/{companyId}/search), the CLI reads the first cached row from the local companies table and substitutes it automatically. Removes a manual --company flag for single-tenant deployments."
+    }
+  ]
+}

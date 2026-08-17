@@ -1,0 +1,51 @@
+version: 2
+project_name: janeapp-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: janeapp-pp-cli
+    main: ./cmd/janeapp-pp-cli
+    binary: janeapp-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/health/janeapp/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: janeapp-pp-mcp
+    main: ./cmd/janeapp-pp-mcp
+    binary: janeapp-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: janeapp-pp-cli
+    repository:
+      owner: omarshahine
+      name: homebrew-tap
+    homepage: "https://github.com/omarshahine/janeapp-pp-cli"
+    description: "Book, view, and manage your Jane (janeapp.com) appointments across every clinic from the terminal — unified agenda, next-opening finder, and availability watch the patient portal can't do."
+    install: |
+      bin.install "janeapp-pp-cli"
+      bin.install "janeapp-pp-mcp"

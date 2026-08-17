@@ -1,0 +1,4 @@
+{ "schema_version": 1, "api_name": "flight-goat", "run_id": "20260712-220852",
+  "status": "skip", "level": "none", "skip_reason": "no-api-credential-in-harness",
+  "auth_context": { "type": "api_key", "env": "FLIGHT_GOAT_API_KEY",
+    "note": "aerodatabox OpenAPI endpoints require FLIGHT_GOAT_API_KEY (maintainer credential, not in this harness). The no-auth Google Flights surface + learn loop were exercised live; gflights/kayak/soar package tests pass." } }

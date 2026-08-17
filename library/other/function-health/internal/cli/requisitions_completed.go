@@ -12,33 +12,22 @@ import (
 )
 
 func newRequisitionsCompletedCmd(flags *rootFlags) *cobra.Command {
-	var flagPending bool
-
 	cmd := &cobra.Command{
 		Use:         "completed",
 		Short:       "Completed requisitions (your past test rounds, keyed by requisitionId).",
-		Example:     "  function-health-pp-cli requisitions completed --pending true",
+		Example:     "  function-health-pp-cli requisitions completed",
 		Annotations: map[string]string{"pp:endpoint": "requisitions.completed", "pp:method": "GET", "pp:path": "/requisitions", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// Bare invocation of a command with required input prints help
-			// instead of pflag's terse "required flag not set" error. Optional-
-			// only read commands fall through so a bare call still executes.
-			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
-				return cmd.Help()
-			}
-			if !cmd.Flags().Changed("pending") && !flags.dryRun {
-				return fmt.Errorf("required flag \"%s\" not set", "pending")
-			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
 			path := "/requisitions"
-			params := map[string]string{}
-			if flagPending != false {
-				params["pending"] = fmt.Sprintf("%v", flagPending)
-			}
+			// The command name selects completed requisitions. Keep the fixed
+			// false filter inside the command so callers cannot accidentally turn
+			// `completed` into the pending query with boolean-flag syntax.
+			params := completedRequisitionParams()
 			data, prov, err := resolveReadWithStrategy(cmd.Context(), c, flags, "auto", "requisitions", false, path, params, nil, cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
@@ -87,7 +76,10 @@ func newRequisitionsCompletedCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().BoolVar(&flagPending, "pending", false, "Always pass false to filter to completed requisitions.")
 
 	return cmd
+}
+
+func completedRequisitionParams() map[string]string {
+	return map[string]string{"pending": "false"}
 }

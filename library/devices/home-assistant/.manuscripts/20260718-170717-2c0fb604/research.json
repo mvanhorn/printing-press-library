@@ -1,0 +1,269 @@
+{
+  "api_name": "home-assistant",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "homeassistant-ai/ha-mcp",
+      "url": "https://github.com/homeassistant-ai/ha-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 4019,
+      "last_updated": "",
+      "command_count": 87,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "home-assistant-ecosystem/home-assistant-cli",
+      "url": "https://github.com/home-assistant-ecosystem/home-assistant-cli",
+      "language": "Python",
+      "install_method": "",
+      "stars": 575,
+      "last_updated": "",
+      "command_count": 14,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [
+    "Live testing requires the user's Home Assistant URL and Long-Lived Access Token.",
+    "Some Supervisor, HACS, radio, or custom-component operations vary by installation and must fail honestly when the capability is unavailable."
+  ],
+  "patterns": [
+    "Use REST for common reads and mutations, then open a temporary WebSocket for subscriptions, richer registry/config flows, and post-action verification.",
+    "Reject ambiguous friendly names and require exact IDs instead of guessing.",
+    "All multi-entity mutations follow plan, apply, and verify stages."
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-18T21:30:00Z",
+  "novel_features": [
+    {
+      "name": "Verified household mode",
+      "command": "mode run",
+      "description": "Preview a scene or script, run it, and verify every resulting entity state.",
+      "rationale": "Requires resolving registry metadata, comparing current state, applying service calls, and tracking live WebSocket outcomes as one operation.",
+      "example": "home-assistant-pp-cli mode run movie-night --agent",
+      "why_it_matters": "Use this when an agent must change several household devices safely instead of firing an unverified scene or service call.",
+      "group": "Safe household action"
+    },
+    {
+      "name": "Household exception check",
+      "command": "house check",
+      "description": "See open windows, unlocked locks, lights left on, low batteries, and unavailable safety devices in one answer.",
+      "rationale": "Requires domain-aware joins across states, device classes, rooms, devices, and labels rather than one API response.",
+      "example": "home-assistant-pp-cli house check --agent --select category,entity_id,friendly_name,area,state,severity",
+      "why_it_matters": "Use this for immediate household safety and comfort questions that span several entity domains.",
+      "group": "Household awareness"
+    },
+    {
+      "name": "Routine incident explanation",
+      "command": "routine why",
+      "description": "Reconstruct why an automation or script failed from traces, state changes, logbook entries, and errors.",
+      "rationale": "Requires a bounded time correlation across several records that Home Assistant exposes separately.",
+      "example": "home-assistant-pp-cli routine why automation.movie_night --agent",
+      "why_it_matters": "Use this when an agent needs evidence for one failed routine instead of dumping an opaque trace.",
+      "group": "Routine intelligence"
+    },
+    {
+      "name": "Routine reference lint",
+      "command": "routine lint",
+      "description": "Find missing entities, unavailable services, disabled dependencies, ambiguous names, and stale routine references.",
+      "rationale": "Requires validating scene, script, and automation configuration against live registries and service catalogs.",
+      "example": "home-assistant-pp-cli routine lint --agent",
+      "why_it_matters": "Use this before configuration changes or upgrades to catch deterministic breakage before Home Assistant executes a routine.",
+      "group": "Routine intelligence"
+    },
+    {
+      "name": "Routine impact graph",
+      "command": "routine impact",
+      "description": "See every automation, script, scene, helper, and service target affected by changing one entity or routine.",
+      "rationale": "Requires a forward and reverse dependency graph built from synced configurations and registry identifiers.",
+      "example": "home-assistant-pp-cli routine impact light.living_room --agent",
+      "why_it_matters": "Use this before renaming, disabling, or removing something that other household routines may depend on.",
+      "group": "Routine intelligence"
+    },
+    {
+      "name": "Mechanical household recap",
+      "command": "house recap",
+      "description": "Review factual household activity, routine failures, presence changes, openings, and unavailable time for a recent period.",
+      "rationale": "Requires local SQLite aggregation across time-series history, logbook, traces, states, and registries without relying on an LLM.",
+      "example": "home-assistant-pp-cli house recap --since 7d --agent",
+      "why_it_matters": "Use this for a compact, evidence-based household summary that remains useful offline.",
+      "group": "Household awareness"
+    },
+    {
+      "name": "Health hotspot grouping",
+      "command": "health hotspots",
+      "description": "Group recurring unavailable, stale, low-battery, and disconnecting entities into device, room, integration, and radio hotspots.",
+      "rationale": "Requires correlating live state, system health, registry ownership, radio metadata, and local availability history.",
+      "example": "home-assistant-pp-cli health hotspots --agent",
+      "why_it_matters": "Use this when many entity symptoms may share one failing device, integration, room, or radio network.",
+      "group": "Self-hosted maintenance"
+    },
+    {
+      "name": "Standby energy finder",
+      "command": "energy standby",
+      "description": "Find devices drawing persistent power during explicit periods when related household states show inactivity.",
+      "rationale": "Requires local time-series correlation between power data and occupancy, media, light, and appliance states.",
+      "example": "home-assistant-pp-cli energy standby --since 7d --agent",
+      "why_it_matters": "Use this to turn household energy history into a short list of actionable standby loads.",
+      "group": "Self-hosted maintenance"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Verified household mode",
+      "command": "mode run",
+      "description": "Preview a scene or script, run it, and verify every resulting entity state.",
+      "rationale": "Requires resolving registry metadata, comparing current state, applying service calls, and tracking live WebSocket outcomes as one operation.",
+      "example": "home-assistant-pp-cli mode run movie-night --agent",
+      "why_it_matters": "Use this when an agent must change several household devices safely instead of firing an unverified scene or service call.",
+      "group": "Safe household action"
+    },
+    {
+      "name": "Household exception check",
+      "command": "house check",
+      "description": "See open windows, unlocked locks, lights left on, low batteries, and unavailable safety devices in one answer.",
+      "rationale": "Requires domain-aware joins across states, device classes, rooms, devices, and labels rather than one API response.",
+      "example": "home-assistant-pp-cli house check --agent --select category,entity_id,friendly_name,area,state,severity",
+      "why_it_matters": "Use this for immediate household safety and comfort questions that span several entity domains.",
+      "group": "Household awareness"
+    },
+    {
+      "name": "Routine incident explanation",
+      "command": "routine why",
+      "description": "Reconstruct why an automation or script failed from traces, state changes, logbook entries, and errors.",
+      "rationale": "Requires a bounded time correlation across several records that Home Assistant exposes separately.",
+      "example": "home-assistant-pp-cli routine why automation.movie_night --agent",
+      "why_it_matters": "Use this when an agent needs evidence for one failed routine instead of dumping an opaque trace.",
+      "group": "Routine intelligence"
+    },
+    {
+      "name": "Routine reference lint",
+      "command": "routine lint",
+      "description": "Find missing entities, unavailable services, disabled dependencies, ambiguous names, and stale routine references.",
+      "rationale": "Requires validating scene, script, and automation configuration against live registries and service catalogs.",
+      "example": "home-assistant-pp-cli routine lint --agent",
+      "why_it_matters": "Use this before configuration changes or upgrades to catch deterministic breakage before Home Assistant executes a routine.",
+      "group": "Routine intelligence"
+    },
+    {
+      "name": "Routine impact graph",
+      "command": "routine impact",
+      "description": "See every automation, script, scene, helper, and service target affected by changing one entity or routine.",
+      "rationale": "Requires a forward and reverse dependency graph built from synced configurations and registry identifiers.",
+      "example": "home-assistant-pp-cli routine impact light.living_room --agent",
+      "why_it_matters": "Use this before renaming, disabling, or removing something that other household routines may depend on.",
+      "group": "Routine intelligence"
+    },
+    {
+      "name": "Mechanical household recap",
+      "command": "house recap",
+      "description": "Review factual household activity, routine failures, presence changes, openings, and unavailable time for a recent period.",
+      "rationale": "Requires local SQLite aggregation across time-series history, logbook, traces, states, and registries without relying on an LLM.",
+      "example": "home-assistant-pp-cli house recap --since 7d --agent",
+      "why_it_matters": "Use this for a compact, evidence-based household summary that remains useful offline.",
+      "group": "Household awareness"
+    },
+    {
+      "name": "Health hotspot grouping",
+      "command": "health hotspots",
+      "description": "Group recurring unavailable, stale, low-battery, and disconnecting entities into device, room, integration, and radio hotspots.",
+      "rationale": "Requires correlating live state, system health, registry ownership, radio metadata, and local availability history.",
+      "example": "home-assistant-pp-cli health hotspots --agent",
+      "why_it_matters": "Use this when many entity symptoms may share one failing device, integration, room, or radio network.",
+      "group": "Self-hosted maintenance"
+    },
+    {
+      "name": "Standby energy finder",
+      "command": "energy standby",
+      "description": "Find devices drawing persistent power during explicit periods when related household states show inactivity.",
+      "rationale": "Requires local time-series correlation between power data and occupancy, media, light, and appliance states.",
+      "example": "home-assistant-pp-cli energy standby --since 7d --agent",
+      "why_it_matters": "Use this to turn household energy history into a short list of actionable standby loads.",
+      "group": "Self-hosted maintenance"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "HASS_TOKEN"
+  },
+  "narrative": {
+    "display_name": "Home Assistant",
+    "headline": "Safe household actions, offline memory, and evidence-backed answers on top of the full Home Assistant control surface.",
+    "value_prop": "Match the useful breadth of hass-cli and ha-mcp, then add preview/apply/verify modes, routine debugging, reference linting, health hotspots, and household exception checks. The same typed Go command tree works for people, scripts, agents, and MCP clients.",
+    "auth_narrative": "Set HASS_SERVER to your Home Assistant instance URL and HASS_TOKEN to a Long-Lived Access Token created from your Home Assistant profile. The CLI sends the token as a bearer credential to REST and as an access token during WebSocket authentication; it never prints or syncs the token.",
+    "quickstart": [
+      {
+        "command": "home-assistant-pp-cli doctor --dry-run",
+        "comment": "Validate configuration and see the exact server/auth prerequisites without making a request."
+      },
+      {
+        "command": "home-assistant-pp-cli sync --resources states,devices,areas --full",
+        "comment": "Create a local household snapshot for offline search and compound commands."
+      },
+      {
+        "command": "home-assistant-pp-cli house check --agent --select category,entity_id,friendly_name,area,state,severity",
+        "comment": "Get a context-efficient answer to the most common whole-home question."
+      },
+      {
+        "command": "home-assistant-pp-cli mode run movie-night --dry-run --agent",
+        "comment": "Preview every resolved target and expected action before changing the home."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized",
+        "fix": "Create a fresh Long-Lived Access Token in the Home Assistant profile and export it as HASS_TOKEN."
+      },
+      {
+        "symptom": "Home Assistant server is unreachable",
+        "fix": "Set HASS_SERVER to a URL reachable from this machine, including port 8123 when required, then run home-assistant-pp-cli doctor."
+      },
+      {
+        "symptom": "A friendly name matches multiple entities",
+        "fix": "Re-run with the exact entity_id returned in the ambiguity error; the CLI will not guess."
+      },
+      {
+        "symptom": "A command reports that the installation lacks a capability",
+        "fix": "Run home-assistant-pp-cli system info --agent and use the reported stock Core, Supervisor, or integration-supported command path."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent needs to inspect or control a Home Assistant household, debug routines, maintain a self-hosted installation, or answer questions that span multiple entities and histories. It is especially useful when changes must be previewed, machine-readable, and verified rather than guessed from friendly names.",
+    "anti_triggers": [
+      "Do not use this CLI to control Apple's Home app or HomeKit devices that are not bridged into Home Assistant.",
+      "Do not use this CLI to bypass Home Assistant authentication or expose a private instance directly to the public internet.",
+      "Do not use destructive registry, restore, restart, or update commands without reviewing their dry-run or plan output.",
+      "Do not use local-only compound commands before syncing the required resources."
+    ],
+    "recipes": [
+      {
+        "title": "Check the home",
+        "command": "home-assistant-pp-cli house check --agent --select category,entity_id,friendly_name,area,state,severity",
+        "explanation": "Narrow the whole-home exception report to the fields an agent needs to decide what to do next."
+      },
+      {
+        "title": "Preview movie night",
+        "command": "home-assistant-pp-cli mode run movie-night --dry-run --agent",
+        "explanation": "Resolve the household mode and inspect every action without changing any device."
+      },
+      {
+        "title": "Explain a failed routine",
+        "command": "home-assistant-pp-cli routine why automation.movie_night --agent",
+        "explanation": "Join the relevant trace, state, logbook, and error evidence into one incident timeline."
+      },
+      {
+        "title": "Review maintenance hotspots",
+        "command": "home-assistant-pp-cli health hotspots --agent",
+        "explanation": "Group recurring symptoms into the devices, integrations, areas, or radios most likely to need attention."
+      }
+    ],
+    "trigger_phrases": [
+      "turn the apartment into movie-night mode",
+      "which windows are open",
+      "why did my automation fail",
+      "check my Home Assistant health",
+      "use Home Assistant",
+      "run Home Assistant"
+    ]
+  }
+}

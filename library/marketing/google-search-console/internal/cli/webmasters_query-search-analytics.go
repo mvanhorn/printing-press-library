@@ -8,9 +8,35 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
+
+func parseSearchAnalyticsDimensionsFlag(raw string) ([]string, error) {
+	raw = strings.TrimSpace(raw)
+	if raw == "" {
+		return nil, fmt.Errorf("empty dimensions")
+	}
+	if strings.HasPrefix(raw, "[") {
+		var parsed []string
+		if err := json.Unmarshal([]byte(raw), &parsed); err != nil {
+			return nil, fmt.Errorf("parsing JSON array: %w", err)
+		}
+		return parsed, nil
+	}
+
+	parts := strings.Split(raw, ",")
+	dimensions := make([]string, 0, len(parts))
+	for _, part := range parts {
+		part = strings.TrimSpace(part)
+		if part == "" {
+			return nil, fmt.Errorf("empty dimension in comma-separated list")
+		}
+		dimensions = append(dimensions, part)
+	}
+	return dimensions, nil
+}
 
 func newWebmastersQuerySearchAnalyticsCmd(flags *rootFlags) *cobra.Command {
 	var bodyAggregationType string
@@ -29,7 +55,7 @@ func newWebmastersQuerySearchAnalyticsCmd(flags *rootFlags) *cobra.Command {
 		Use:         "query-search-analytics <siteUrl>",
 		Aliases:     []string{"create"},
 		Short:       "Returns clicks, impressions, CTR, and average position grouped by the dimensions you specify (query, page, country,...",
-		Example:     "  google-search-console-pp-cli webmasters query-search-analytics https://example.com/resource --end-date 2026-01-15",
+		Example:     "  google-search-console-pp-cli webmasters query-search-analytics https://example.com/resource --start-date 2026-01-01 --end-date 2026-01-15 --dimensions QUERY,PAGE",
 		Annotations: map[string]string{"pp:endpoint": "webmasters.query-search-analytics", "pp:method": "POST", "pp:path": "/webmasters/v3/sites/{siteUrl}/searchAnalytics/query"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -77,9 +103,9 @@ func newWebmastersQuerySearchAnalyticsCmd(flags *rootFlags) *cobra.Command {
 					body["dimensionFilterGroups"] = parsedDimensionFilterGroups
 				}
 				if bodyDimensions != "" {
-					var parsedDimensions any
-					if err := json.Unmarshal([]byte(bodyDimensions), &parsedDimensions); err != nil {
-						return fmt.Errorf("parsing --dimensions JSON: %w", err)
+					parsedDimensions, err := parseSearchAnalyticsDimensionsFlag(bodyDimensions)
+					if err != nil {
+						return fmt.Errorf("parsing --dimensions: %w", err)
 					}
 					body["dimensions"] = parsedDimensions
 				}
@@ -172,7 +198,7 @@ func newWebmastersQuerySearchAnalyticsCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyAggregationType, "aggregation-type", "AUTO", "How to aggregate. `AUTO` is default. Use `BY_PAGE` for page-level metrics, `BY_PROPERTY` for property-level totals,...")
 	cmd.Flags().StringVar(&bodyDataState, "data-state", "", "`FINAL` returns only finalized data (excludes the most recent 2-3 days). `ALL` includes fresh data flagged as...")
 	cmd.Flags().StringVar(&bodyDimensionFilterGroups, "dimension-filter-groups", "", "Filter result rows by dimension values")
-	cmd.Flags().StringVar(&bodyDimensions, "dimensions", "", "Group results by these dimensions. Accepts: QUERY, PAGE, COUNTRY, DEVICE, SEARCH_APPEARANCE, DATE. Order matters:...")
+	cmd.Flags().StringVar(&bodyDimensions, "dimensions", "", "Group results by these dimensions. Accepts comma-separated names (QUERY,PAGE) or a JSON array ([\"QUERY\",\"PAGE\"]). Accepts: QUERY, PAGE, COUNTRY, DEVICE, SEARCH_APPEARANCE, DATE. Order matters:...")
 	cmd.Flags().StringVar(&bodyEndDate, "end-date", "", "End date (YYYY-MM-DD). Latest is typically 2-3 days ago due to data lag.")
 	cmd.Flags().IntVar(&bodyRowLimit, "row-limit", 1000, "Max rows to return (default 1000, max 25000). Use with startRow for pagination.")
 	cmd.Flags().StringVar(&bodySearchType, "search-type", "", "(Deprecated) Use `type` instead.")

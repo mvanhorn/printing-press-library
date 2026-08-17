@@ -17,7 +17,9 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"reflect"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -165,12 +167,14 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 	targetURL := c.BaseURL + path
 
 	var bodyBytes []byte
+	var contentType string
 	if body != nil {
-		b, err := json.Marshal(body)
+		b, ct, err := encodeRequestBody(method, body)
 		if err != nil {
-			return nil, 0, fmt.Errorf("marshaling body: %w", err)
+			return nil, 0, err
 		}
 		bodyBytes = b
+		contentType = ct
 	}
 
 	// Resolve auth material before the dry-run branch so --dry-run can preview
@@ -184,7 +188,7 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 
 	// Build the request for dry-run display or actual execution
 	if c.DryRun {
-		return c.dryRun(method, targetURL, path, params, bodyBytes, headerOverrides, authHeader)
+		return c.dryRun(method, targetURL, path, params, bodyBytes, contentType, headerOverrides, authHeader)
 	}
 
 	const maxRetries = 3
@@ -195,7 +199,7 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 		c.limiter.Wait()
 		var bodyReader io.Reader
 		if bodyBytes != nil {
-			bodyReader = strings.NewReader(string(bodyBytes))
+			bodyReader = bytes.NewReader(bodyBytes)
 		}
 
 		req, err := http.NewRequest(method, targetURL, bodyReader)
@@ -203,7 +207,7 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 			return nil, 0, fmt.Errorf("creating request: %w", err)
 		}
 		if bodyBytes != nil {
-			req.Header.Set("Content-Type", "application/json")
+			req.Header.Set("Content-Type", contentType)
 		}
 
 		if params != nil {
@@ -282,10 +286,151 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 	return nil, 0, lastErr
 }
 
+func encodeRequestBody(method string, body any) ([]byte, string, error) {
+	if body == nil {
+		return nil, "", nil
+	}
+	// PATCH: Stripe write endpoints require application/x-www-form-urlencoded
+	// bodies, so flatten generated JSON-shaped command maps into Stripe's
+	// bracket notation at the shared client boundary.
+	if isFormEncodedMethod(method) {
+		// MCP write adapters marshal their argument maps to plain JSON bytes
+		// before calling Post/Put/Patch. Decode those back to a structured
+		// value so the flattener sees the underlying map rather than treating
+		// the raw byte slice as an unsupported top-level array.
+		if raw, ok := body.([]byte); ok {
+			var decoded any
+			if err := json.Unmarshal(raw, &decoded); err != nil {
+				return nil, "", fmt.Errorf("form-encoding body: parsing JSON body: %w", err)
+			}
+			body = decoded
+		}
+		values := url.Values{}
+		if err := appendFormValue(values, "", body); err != nil {
+			return nil, "", fmt.Errorf("form-encoding body: %w", err)
+		}
+		return []byte(values.Encode()), "application/x-www-form-urlencoded", nil
+	}
+	b, err := json.Marshal(body)
+	if err != nil {
+		return nil, "", fmt.Errorf("marshaling body: %w", err)
+	}
+	return b, "application/json", nil
+}
+
+func isFormEncodedMethod(method string) bool {
+	switch method {
+	case http.MethodPost, http.MethodPut, http.MethodPatch:
+		return true
+	default:
+		return false
+	}
+}
+
+func appendFormValue(values url.Values, key string, value any) error {
+	if value == nil {
+		return nil
+	}
+	if raw, ok := value.(json.RawMessage); ok {
+		var decoded any
+		if err := json.Unmarshal(raw, &decoded); err != nil {
+			return fmt.Errorf("%s: parsing raw JSON: %w", key, err)
+		}
+		return appendFormValue(values, key, decoded)
+	}
+
+	v := reflect.ValueOf(value)
+	for v.Kind() == reflect.Interface || v.Kind() == reflect.Pointer {
+		if v.IsNil() {
+			return nil
+		}
+		v = v.Elem()
+	}
+
+	switch v.Kind() {
+	case reflect.Map:
+		if v.Type().Key().Kind() != reflect.String {
+			return fmt.Errorf("%s: map keys must be strings", key)
+		}
+		keys := v.MapKeys()
+		sort.Slice(keys, func(i, j int) bool {
+			return keys[i].String() < keys[j].String()
+		})
+		for _, mapKey := range keys {
+			childKey := mapKey.String()
+			if key != "" {
+				childKey = key + "[" + childKey + "]"
+			}
+			if err := appendFormValue(values, childKey, v.MapIndex(mapKey).Interface()); err != nil {
+				return err
+			}
+		}
+	case reflect.Slice, reflect.Array:
+		if key == "" {
+			return fmt.Errorf("top-level arrays are not supported")
+		}
+		// If any element is a composite (map/slice), use indexed keys for
+		// every element so scalars and objects in the same array share one
+		// consistent bracket notation. Stripe rejects a mixed request that
+		// combines key[] scalars with key[i][...] objects.
+		indexed := false
+		for i := 0; i < v.Len(); i++ {
+			switch derefKind(v.Index(i)) {
+			case reflect.Map, reflect.Slice, reflect.Array:
+				indexed = true
+			}
+		}
+		for i := 0; i < v.Len(); i++ {
+			elem := v.Index(i)
+			if derefKind(elem) == reflect.Invalid {
+				continue
+			}
+			childKey := key + "[]"
+			if indexed {
+				childKey = fmt.Sprintf("%s[%d]", key, i)
+			}
+			if err := appendFormValue(values, childKey, elem.Interface()); err != nil {
+				return err
+			}
+		}
+	case reflect.Bool:
+		return addFormScalar(values, key, strconv.FormatBool(v.Bool()))
+	case reflect.String:
+		return addFormScalar(values, key, v.String())
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return addFormScalar(values, key, strconv.FormatInt(v.Int(), 10))
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
+		return addFormScalar(values, key, strconv.FormatUint(v.Uint(), 10))
+	case reflect.Float32, reflect.Float64:
+		return addFormScalar(values, key, strconv.FormatFloat(v.Float(), 'f', -1, v.Type().Bits()))
+	default:
+		return fmt.Errorf("%s: unsupported value type %T", key, value)
+	}
+	return nil
+}
+
+func derefKind(v reflect.Value) reflect.Kind {
+	for v.Kind() == reflect.Interface || v.Kind() == reflect.Pointer {
+		if v.IsNil() {
+			return reflect.Invalid
+		}
+		v = v.Elem()
+	}
+	return v.Kind()
+}
+
+func addFormScalar(values url.Values, key, value string) error {
+	if key == "" {
+		return fmt.Errorf("top-level scalar values are not supported")
+	}
+	values.Add(key, value)
+	return nil
+}
+
 // dryRun prints the outgoing request exactly as the live path would send it,
 // using the auth material already resolved in `do()`. Never triggers a network
 // call — the caller is responsible for passing cached auth material only.
-func (c *Client) dryRun(method, targetURL, path string, params map[string]string, body []byte, headerOverrides map[string]string, authHeader string) (json.RawMessage, int, error) {
+func (c *Client) dryRun(method, targetURL, path string, params map[string]string, body []byte, contentType string, headerOverrides map[string]string, authHeader string) (json.RawMessage, int, error) {
 	fmt.Fprintf(os.Stderr, "%s %s\n", method, targetURL)
 	queryPrinted := false
 	if params != nil {
@@ -307,12 +452,20 @@ func (c *Client) dryRun(method, targetURL, path string, params map[string]string
 	}
 	_ = queryPrinted
 	if body != nil {
-		var pretty json.RawMessage
-		if json.Unmarshal(body, &pretty) == nil {
-			enc := json.NewEncoder(os.Stderr)
-			enc.SetIndent("  ", "  ")
+		if contentType != "" {
+			fmt.Fprintf(os.Stderr, "  Content-Type: %s\n", contentType)
+		}
+		if contentType == "application/json" {
+			var pretty json.RawMessage
+			if json.Unmarshal(body, &pretty) == nil {
+				enc := json.NewEncoder(os.Stderr)
+				enc.SetIndent("  ", "  ")
+				fmt.Fprintf(os.Stderr, "  Body:\n")
+				enc.Encode(pretty)
+			}
+		} else {
 			fmt.Fprintf(os.Stderr, "  Body:\n")
-			enc.Encode(pretty)
+			fmt.Fprintf(os.Stderr, "  %s\n", string(body))
 		}
 	}
 	if authHeader != "" {

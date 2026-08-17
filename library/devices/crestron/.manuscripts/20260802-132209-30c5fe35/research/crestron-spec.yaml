@@ -1,0 +1,472 @@
+name: crestron
+description: "Crestron.com product catalog, documentation, and firmware release CLI"
+version: "0.1.0"
+base_url: "https://www.crestron.com"
+category: devices
+http_transport: standard
+health_check_path: "/Support/Resource-Library"
+
+required_headers:
+  - name: User-Agent
+    value: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+  - name: Accept-Language
+    value: "en-US,en;q=0.9"
+
+# Crestron.com has no public API. Everything below is a server-rendered page or
+# an internal AJAX handler verified live over plain HTTP. Auth is the ASP.NET
+# forms-auth cookie set imported from Chrome; it is required ONLY for firmware
+# release notes and firmware binaries. All catalog and documentation surfaces
+# are public.
+auth:
+  type: cookie
+  # Must be www: .ASPXFORMSAUTH, ASP.NET_SessionId and CMSCsrfCookie are all
+  # scoped to host www.crestron.com. Querying the bare apex domain returns only
+  # the .crestron.com-scoped cookies and misses the forms-auth ticket entirely.
+  cookie_domain: www.crestron.com
+  cookies:
+    - .ASPXFORMSAUTH
+    - .WebApp.Cookies
+    - ASP.NET_SessionId
+    - CMSCsrfCookie
+
+config:
+  format: toml
+  path: "~/.config/crestron-pp-cli/config.toml"
+
+cache:
+  enabled: true
+  stale_after: 168h
+  refresh_timeout: 30s
+
+learn:
+  ticker_patterns:
+    - "^dm-nvx-[a-z0-9]+$"
+    - "^dm-nax-[a-z0-9]+$"
+    - "^ts[wsc]?-[0-9]{3,4}[a-z-]*$"
+    - "^cp[0-9]n?$"
+    - "^uc-[a-z0-9-]+$"
+    - "^mpc[0-9]-[0-9]+[a-z-]*$"
+    - "^hd-[a-z0-9-]+$"
+  stopwords:
+    - crestron
+    - series
+  synonyms:
+    "most recent": "latest"
+    "newest": "latest"
+    "current version": "latest"
+    "eol": "end-of-sale"
+    "end of life": "end-of-sale"
+    "discontinued notice": "end-of-sale"
+    "cut sheet": "spec sheet"
+    "data sheet": "spec sheet"
+    "user manual": "product manual"
+    "fw": "firmware"
+  entity_lookup_seeds:
+    product_series:
+      - canonical: DM-NVX-35 Series
+        aliases: [nvx 35, dm nvx 35, nvx-35]
+      - canonical: DM NVX AV Over IP
+        aliases: [nvx, dm nvx, av over ip, avoip]
+      - canonical: DM NAX Intelligent Audio
+        aliases: [nax, dm nax, intelligent audio]
+      - canonical: 4-Series Control Systems
+        aliases: [4 series, 4-series, control processor, cp4]
+      - canonical: Touchpanels
+        aliases: [touch panel, touchpanel, tsw, tss]
+      - canonical: Crestron Flex
+        aliases: [flex, uc kit, flex kit]
+    resource_category:
+      - canonical: Software & Firmware
+        aliases: [firmware, software, fw]
+      - canonical: Spec Sheets
+        aliases: [spec sheet, spec sheets, cut sheet, data sheet]
+      - canonical: Guides & Manuals
+        aliases: [manual, manuals, guide, guides, product manual]
+      - canonical: Product Certificates
+        aliases: [certificate, certificates, cert, certs, doc, nrtl]
+      - canonical: Multimedia
+        aliases: [drawing, drawings, cad, web drawings]
+      - canonical: Specifier Resources
+        aliases: [specifier, guide spec, csi, revit]
+
+mcp:
+  transport: [stdio, http]
+
+resources:
+  resource:
+    description: "Search Crestron's documentation and firmware resource library"
+    endpoints:
+      search:
+        method: GET
+        path: "/Support/Search-Results"
+        no_auth: true
+        description: "Search spec sheets, manuals, firmware, certificates, and drawings"
+        example: "  crestron-pp-cli resource search --query DM-NVX --category 5"
+        happy_args: "--query=DM-NVX;--category=5"
+        response_format: html
+        html_extract:
+          mode: page
+        params:
+          - name: q
+            flag_name: query
+            aliases: [q]
+            type: string
+            required: false
+            description: "Search text, typically a model number or product family (e.g. DM-NVX-384)"
+          - name: c
+            flag_name: category
+            aliases: [c]
+            type: string
+            required: false
+            default: "0"
+            description: "Resource category: 0 all, 1 marketing, 3 technical, 4 software & firmware, 5 spec sheets, 6 guides & manuals, 7 specifier, 11 certificates, 8 multimedia"
+            enum: ["0", "1", "3", "4", "5", "6", "7", "8", "11"]
+          - name: type
+            flag_name: resource-type
+            aliases: [type]
+            type: string
+            required: false
+            description: "Sub-type within a category, e.g. Firmware, Software, Manuals-Guides, Spec Sheets, Web CAD Drawings"
+          - name: o
+            flag_name: sort
+            aliases: [o]
+            type: string
+            required: false
+            description: "Sort order: empty for relevance, Created:desc for newest first, Name_Search.keyword:asc for A-Z"
+            enum: ["", "Created:desc", "Name_Search.keyword:asc", "Name_Search.keyword:desc"]
+          - name: p
+            flag_name: page
+            aliases: [p]
+            type: int
+            required: false
+            default: 1
+            description: "Result page number, starting at 1"
+          - name: m
+            flag_name: per-page
+            aliases: [m]
+            type: int
+            required: false
+            default: 25
+            description: "Results per page (10, 25, or 50)"
+            enum: ["10", "25", "50"]
+
+  catalog:
+    description: "Browse the Crestron product catalog taxonomy"
+    endpoints:
+      tree:
+        method: GET
+        path: "/sitemap"
+        no_auth: true
+        description: "List every product category path in the catalog"
+        example: "  crestron-pp-cli catalog tree"
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: ["/Products/Catalog"]
+      category:
+        method: GET
+        path: "/Products/Catalog/{path}"
+        no_auth: true
+        description: "Open a catalog category page and read its subcategories and product counts"
+        example: "  crestron-pp-cli catalog category AV-Over-IP/DM-NVX-AV-Over-IP"
+        happy_args: "path=AV-Over-IP/DM-NVX-AV-Over-IP"
+        response_format: html
+        html_extract:
+          mode: page
+        params:
+          - name: path
+            type: string
+            required: true
+            positional: true
+            description: "Category path below /Products/Catalog, e.g. AV-Over-IP/DM-NVX-AV-Over-IP"
+      products:
+        method: GET
+        path: "/CMSPages/ProductSubcategoryItemTemplate.aspx"
+        no_auth: true
+        description: "List the products in a catalog category (needs the category's document and node ids)"
+        example: "  crestron-pp-cli catalog products --document-id 30989 --node-id 31385 --per-page 50"
+        happy_args: "--document-id=30989;--node-id=31385;--per-page=50"
+        response_format: html
+        html_extract:
+          mode: page
+        params:
+          - name: dId
+            flag_name: document-id
+            aliases: [did]
+            type: string
+            required: true
+            description: "Category document id, read from the category page's request block"
+          - name: nId
+            flag_name: node-id
+            aliases: [nid]
+            type: string
+            required: true
+            description: "Category node id, read from the category page's request block"
+          - name: ps
+            flag_name: per-page
+            aliases: [ps]
+            type: int
+            required: false
+            default: 50
+            description: "Products per request"
+          - name: os
+            flag_name: offset
+            aliases: [os]
+            # Typed as string, not int: Crestron requires os=0 on the first page,
+            # and the generator omits zero-valued int params from the query.
+            type: string
+            required: false
+            default: "0"
+            description: "Result offset, advance by per-page until offset reaches the category's product count"
+          - name: cult
+            flag_name: culture
+            aliases: [cult]
+            type: string
+            required: false
+            default: "en-us"
+            description: "Content culture code"
+          - name: sn
+            flag_name: site-name
+            aliases: [sn]
+            type: string
+            required: false
+            default: "Crestron"
+            description: "Kentico site name"
+          - name: sort
+            type: string
+            required: false
+            default: "PageViews"
+            description: "Product sort order"
+          - name: fltr
+            flag_name: filter
+            aliases: [fltr]
+            type: string
+            required: false
+            description: "Facet filter as semicolon-separated name:value pairs"
+
+  product:
+    description: "Look up Crestron products, specifications, and their documentation"
+    endpoints:
+      page:
+        method: GET
+        path: "/Products/Catalog/{path}"
+        no_auth: true
+        description: "Fetch a product detail page including its JSON-LD, specification table, and document id"
+        example: "  crestron-pp-cli product page AV-Over-IP/DM-NVX-AV-Over-IP/Video-Endpoint/DM-NVX-360"
+        happy_args: "path=AV-Over-IP/DM-NVX-AV-Over-IP/Video-Endpoint/DM-NVX-360"
+        response_format: html
+        html_extract:
+          mode: page
+        params:
+          - name: path
+            type: string
+            required: true
+            positional: true
+            description: "Product path below /Products/Catalog, ending in the model number"
+      resources:
+        method: GET
+        path: "/Handlers/ResourceHandler.ashx"
+        no_auth: true
+        description: "List every documentation asset for a product by its document id"
+        example: "  crestron-pp-cli product resources --document-id 21965"
+        happy_args: "--document-id=21965"
+        response_format: html
+        html_extract:
+          mode: page
+        params:
+          - name: dID
+            flag_name: document-id
+            aliases: [did]
+            type: string
+            required: true
+            description: "Product document id, read from data-id on the product page"
+      variants:
+        method: GET
+        path: "/Handlers/VariantProduct.ashx"
+        no_auth: true
+        description: "List the member models of a product series"
+        example: "  crestron-pp-cli product variants --series 'DM-NVX-35 Series' --class-name Crestron.Crestron_Video_Product"
+        happy_args: "--series=DM-NVX-35 Series;--class-name=Crestron.Crestron_Video_Product"
+        response_format: html
+        html_extract:
+          mode: page
+        params:
+          - name: load
+            type: string
+            required: false
+            default: "list"
+            description: "Render mode: list or dropdown"
+          - name: Product_Name
+            flag_name: series
+            type: string
+            required: true
+            description: "Series name as shown on the product page, e.g. DM-NVX-35 Series"
+          - name: ClassName
+            flag_name: class-name
+            type: string
+            required: false
+            default: "Crestron.Crestron_Video_Product"
+            description: "Kentico product class name"
+          - name: DocumentCulture
+            flag_name: culture
+            type: string
+            required: false
+            default: "en-US"
+            description: "Content culture code"
+          - name: IncludedAcessories
+            flag_name: included-accessories
+            type: string
+            required: false
+            description: "Included accessory ids"
+      accessories:
+        method: GET
+        path: "/Handlers/OptionalAccessoriesHandler.ashx"
+        no_auth: true
+        description: "List optional accessories for a product"
+        example: "  crestron-pp-cli product accessories --ids '2984;13047;13046'"
+        happy_args: "--ids=2984\\;13047"
+        response_format: html
+        html_extract:
+          mode: page
+        params:
+          - name: ids
+            type: string
+            required: true
+            description: "Semicolon-separated accessory ids from the product page's data-ids attribute"
+      replacements:
+        method: GET
+        path: "/Handlers/ReplacementProductsHandler.ashx"
+        no_auth: true
+        description: "List replacement products for a discontinued item"
+        example: "  crestron-pp-cli product replacements --ids '22053;22054' "
+        happy_args: "--ids=22053\\;22054"
+        response_format: html
+        html_extract:
+          mode: page
+        params:
+          - name: ids
+            type: string
+            required: true
+            description: "Semicolon-separated replacement product ids from the discontinued product page"
+          - name: label
+            type: string
+            required: false
+            description: "Optional display label"
+          - name: culture
+            type: string
+            required: false
+            default: "en-US"
+            description: "Content culture code"
+
+  firmware:
+    description: "Crestron firmware and software releases"
+    endpoints:
+      search:
+        method: GET
+        path: "/Support/Search-Results"
+        description: "Find firmware and software releases for a model or family"
+        example: "  crestron-pp-cli firmware search --query DM-NVX-384 --sort Created:desc"
+        happy_args: "--query=DM-NVX-384;--sort=Created:desc"
+        response_format: html
+        html_extract:
+          mode: page
+        params:
+          - name: q
+            flag_name: query
+            aliases: [q]
+            type: string
+            required: false
+            description: "Model number or product family, e.g. DM-NVX-384"
+          - name: c
+            flag_name: category
+            type: string
+            required: false
+            default: "4"
+            description: "Resource category; 4 is Software and Firmware"
+          - name: type
+            flag_name: release-type
+            aliases: [type]
+            type: string
+            required: false
+            description: "Release type: Firmware, Software, or Advanced-Support-Tools"
+          - name: o
+            flag_name: sort
+            aliases: [o]
+            type: string
+            required: false
+            default: "Created:desc"
+            description: "Sort order; Created:desc lists newest releases first"
+          - name: p
+            flag_name: page
+            aliases: [p]
+            type: int
+            required: false
+            default: 1
+            description: "Result page number"
+          - name: m
+            flag_name: per-page
+            aliases: [m]
+            type: int
+            required: false
+            default: 25
+            description: "Results per page (10, 25, or 50)"
+      release:
+        method: GET
+        path: "/Software-Firmware/{path}"
+        description: "Read a firmware release page including its version, date, release notes, and change log (requires sign-in)"
+        example: "  crestron-pp-cli firmware release 'Firmware/DigitalMedia/DM-NVX-384(C)/7-4-0255-22319'"
+        happy_args: "path=Firmware/DigitalMedia/DM-NVX-384(C)/7-4-0255-22319"
+        response_format: html
+        html_extract:
+          mode: page
+        params:
+          - name: path
+            type: string
+            required: true
+            positional: true
+            description: "Release path below /Software-Firmware, taken from a firmware search result"
+
+  asset:
+    description: "Download Crestron documentation and firmware files"
+    endpoints:
+      get:
+        method: GET
+        path: "/getmedia/{guid}/{filename}"
+        no_auth: true
+        description: "Download a public documentation asset such as a spec sheet, manual, certificate, CAD drawing, or Revit family"
+        example: "  crestron-pp-cli asset get b7bbcc41-13c3-4ed8-bcdb-9e5cb7da92f0 ss_DM-NVX-385"
+        happy_args: "guid=b7bbcc41-13c3-4ed8-bcdb-9e5cb7da92f0;filename=ss_DM-NVX-385"
+        response_format: binary
+        params:
+          - name: guid
+            type: string
+            required: true
+            positional: true
+            description: "Asset guid from a resource search or product resource listing"
+          - name: filename
+            type: string
+            required: true
+            positional: true
+            description: "Asset filename from the same listing"
+
+  account:
+    description: "Crestron.com sign-in state"
+    endpoints:
+      status:
+        method: GET
+        path: "/handlers/Header.ashx"
+        no_auth: true
+        description: "Check whether the stored Crestron.com session is still signed in"
+        example: "  crestron-pp-cli account status"
+        happy_args: "--part=authlinks"
+        response_format: html
+        html_extract:
+          mode: page
+        params:
+          - name: p
+            flag_name: part
+            aliases: [p]
+            type: string
+            required: false
+            default: "authlinks"
+            description: "Header fragment to render"

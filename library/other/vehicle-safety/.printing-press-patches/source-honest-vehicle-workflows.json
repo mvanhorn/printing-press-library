@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "source-honest-vehicle-workflows",
+  "applied_at": "2026-07-18",
+  "base_run_id": "20260717-002908-0483fc8d",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Preserve the six evidence-first NHTSA workflows, stable identifier decoding, bounded source joins, and runnable live examples.",
+  "reason": "NHTSA's surfaces require explicit cross-source caveats, numeric identifier fidelity, and realistic examples to avoid false risk or coverage claims.",
+  "files": ["internal/cli/nhtsa_novel_support.go", "internal/cli/dossier.go", "internal/cli/compare.go", "internal/cli/signals.go", "internal/cli/watch.go", "internal/cli/recall_coverage.go", "internal/cli/bulletin_bridge.go", "internal/cli/promoted_complaints.go"],
+  "validated_outcome": "Shipcheck passed 7/7 and live quick dogfood passed with zero failures."
+}

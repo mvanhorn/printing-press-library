@@ -36,7 +36,7 @@ npx -y @mvanhorn/printing-press-library install skool --agent claude-code --agen
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.6 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/skool/cmd/skool-pp-cli@latest
@@ -125,28 +125,28 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 ## Authentication
 
-Skool has no public API. Authenticate with the auth_token JWT cookie from your logged-in browser session: `skool-pp-cli auth set-token` (writes ~/.config/skool-pp-cli/config.toml). Same cookie covers reads and writes; CloudFront requires a realistic User-Agent which the CLI sets automatically.
+Skool has no public API. Authenticate with the auth_token JWT cookie from your logged-in browser session: `skool-pp-cli auth login` (writes ~/.config/skool-pp-cli/config.toml). Add `--chrome` to read the cookie straight out of a logged-in Chrome profile. `skool-pp-cli auth status` shows the current state and `skool-pp-cli auth logout` clears it. Same cookie covers reads and writes; CloudFront requires a realistic User-Agent which the CLI sets automatically.
 
 ## Quick Start
 
 ```bash
-# Paste your auth_token cookie value once; lives in TOML config
-skool-pp-cli auth set-token
+# Store your auth_token cookie once; lives in TOML config
+skool-pp-cli auth login --chrome
 
-# First-time sync of the community into the local store
-skool-pp-cli sync bewarethedefault
+# First-time sync of a community into the local store
+skool-pp-cli sync --community <community-slug>
 
 # List recent posts with field selection
-skool-pp-cli posts list --limit 10 --json --select id,name,user.name
+skool-pp-cli posts list --community <community-slug> --limit 10 --json --select id,name,user.name
 
-# Current 30-day leaderboard
-skool-pp-cli leaderboard --type 30d --top 25
+# List community members
+skool-pp-cli members list --community <community-slug> --json
 
-# Transcendence: members whose engagement velocity is dropping
-skool-pp-cli members at-risk --weeks 4 --json
+# Current leaderboard
+skool-pp-cli leaderboard --community <community-slug> --top 25
 
 # What's new in the last day across the community
-skool-pp-cli digest since 24h
+skool-pp-cli digest since 24h --community <community-slug>
 
 ```
 
@@ -182,6 +182,15 @@ These capabilities aren't available in any other tool for this API.
 
   ```bash
   skool-pp-cli sql 'SELECT community, COUNT(*) FROM posts GROUP BY community'
+  ```
+
+- **`sync --resources posts,members`** — Hydrate the local SQLite mirror with a community's posts and members, unwrapped out of the Next.js page envelope.
+
+  _Pick this before using `search` or `sql` — until the mirror holds posts and members, both have nothing to read._
+
+  ```bash
+  skool-pp-cli sync --community <community-slug> --resources posts,members
+  skool-pp-cli search "onboarding" --limit 10
   ```
 
 ### Agent-native plumbing
@@ -238,6 +247,7 @@ Current authenticated user dashboard
 
 Community members and moderation
 
+- **`skool-pp-cli members list`** - List members of a community
 - **`skool-pp-cli members approve`** - Approve a pending member request
 - **`skool-pp-cli members ban`** - Ban a member from the community
 - **`skool-pp-cli members pending`** - List pending member join requests
@@ -254,6 +264,7 @@ User notifications
 
 Posts (forum threads) inside a community
 
+- **`skool-pp-cli posts list`** - List posts in a community (newest first)
 - **`skool-pp-cli posts comment`** - Add a comment to a post
 - **`skool-pp-cli posts create`** - Create a new post (body = TipTap JSON; use --md to convert markdown)
 - **`skool-pp-cli posts delete`** - Delete a post
@@ -342,8 +353,10 @@ Config file: `~/.config/skool-pp-cli/config.toml`
 ### API-specific
 
 - **404 on read endpoints** — Run `skool-pp-cli doctor`; the buildId likely rotated. The CLI auto-refetches but you can force `skool-pp-cli buildid refresh`.
-- **403 from CloudFront** — Your auth_token expired or User-Agent is missing. Run `skool-pp-cli auth status` then `auth set-token` with a fresh cookie.
-- **Empty leaderboard delta** — Need at least two snapshots. Run `skool-pp-cli sync` over multiple days, or `sync --snapshot-now` to seed two points.
+- **403 from CloudFront** — Your auth_token expired or User-Agent is missing. Run `skool-pp-cli auth status`, then `skool-pp-cli auth login --chrome` for a fresh cookie.
+- **Empty leaderboard delta** — Need at least two snapshots. Run `skool-pp-cli sync --community <community-slug>` over multiple days to accumulate them.
+- **`404 {"notFound":true}` on a read** — Skool rotates its Next.js buildId on every deploy. The CLI now drops the cached buildId and retries once automatically; if it persists, the community slug or course slug is wrong.
+- **`sync` reports a failed resource with no reason** — Re-run with `--agent`; each failure now emits its own `{"event":"sync_error","resource":...,"error":...}` line before the summary.
 
 ## HTTP Transport
 

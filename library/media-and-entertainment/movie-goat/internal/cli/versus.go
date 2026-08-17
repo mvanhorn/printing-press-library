@@ -3,7 +3,6 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -52,10 +51,11 @@ func newVersusCmd(flags *rootFlags) *cobra.Command {
 		Short:       "Compare two titles head-to-head: ratings, runtime, cast overlap",
 		Long: `Resolve two ids or titles, fetch detail with credits, external_ids, and
 watch/providers appended, overlay OMDb (IMDb / Rotten Tomatoes / Metacritic)
-when OMDB_API_KEY is set, and emit the side-by-side comparison plus the
+when an OMDb key is configured, and emit the side-by-side comparison plus the
 top-billed cast overlap (people credited as cast on both titles).`,
 		Example: `  movie-goat-pp-cli versus 550 27205
   movie-goat-pp-cli versus "The Dark Knight" "Inception"
+  movie-goat-pp-cli versus "Sabrina (1954)" "Sabrina (1995)"
   movie-goat-pp-cli versus 1396 60625 --type tv --json`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
@@ -79,14 +79,15 @@ top-billed cast overlap (people credited as cast on both titles).`,
 			if region == "" {
 				region = "US"
 			}
-			omdbKey := strings.TrimSpace(os.Getenv("OMDB_API_KEY"))
+			// PATCH(omdb-key-in-config-like-tmdb)
+			omdbKey := flags.omdbAPIKey()
 
 			loadOne := func(arg string) (versusTitle, *tmdbCredits, error) {
 				vt := versusTitle{Kind: kind}
 				appendStr := "credits,external_ids,watch/providers"
 				switch kind {
 				case "movie":
-					id, _, rerr := resolveMovieID(c, arg)
+					id, _, rerr := resolveMovieID(c, flags, arg, "", "")
 					if rerr != nil {
 						return vt, nil, classifyAPIError(rerr)
 					}
@@ -113,7 +114,7 @@ top-billed cast overlap (people credited as cast on both titles).`,
 					vt.Providers, _, _ = parseAppendedProviders(detail.WatchProviders, region)
 					return vt, detail.Credits, nil
 				case "tv":
-					id, _, rerr := resolveTVID(c, arg)
+					id, _, rerr := resolveTVID(c, flags, arg, "", "")
 					if rerr != nil {
 						return vt, nil, classifyAPIError(rerr)
 					}

@@ -9,6 +9,8 @@ on:
       - 'library/**/SKILL.md'
       - 'library/**/README.md'
       - 'tools/generate-skills/main.go'
+      - '.github/scripts/push-generated-artifact/**'
+      - '.github/workflows/generate-skills.yml'
   workflow_dispatch:
 
 jobs:
@@ -20,7 +22,7 @@ jobs:
     # generated-artifact workflows. GitHub keeps only one pending run per
     # concurrency group, so a shared group lets unrelated workflows evict a
     # pending skills run. Push races with sibling workflows are handled by the
-    # rebase-before-push step below.
+    # bounded retry below.
     concurrency:
       group: generate-skills-main
       cancel-in-progress: false
@@ -49,10 +51,7 @@ jobs:
             echo "No skill changes to commit"
           else
             git commit -m "chore(skills): regenerate per-app skills [skip ci]"
-            # Defense-in-depth against sibling generated-artifact workflows
-            # landing between our checkout and push. They touch disjoint paths
-            # (cli-skills/ vs registry.json + README.md or library release
-            # metadata), so the rebase is conflict-free in practice.
-            git pull --rebase origin main
-            git push
+            # A sibling writer can land after a rebase but before the push.
+            # Retry the complete fetch/rebase/push sequence.
+            bash .github/scripts/push-generated-artifact/push.sh main
           fi

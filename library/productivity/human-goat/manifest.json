@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "human-goat-pp-mcp",
+  "display_name": "Human-Goat",
+  "version": "0.1.0",
+  "description": "Hire real humans from the terminal — autonomous TaskRabbit checkout with a verified undo, plus Magic remote errands, in one agent-native binary.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/human-goat-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/human-goat-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

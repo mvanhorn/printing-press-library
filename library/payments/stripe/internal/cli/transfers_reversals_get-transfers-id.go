@@ -34,10 +34,12 @@ func newTransfersReversalsGetTransfersIdCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/v1/transfers/{id}/reversals"
-			if len(args) < 3 {
+
+			// PATCH: Bind path placeholders from Cobra positional args in Use order.
+			if len(args) < 1 {
 				return usageErr(fmt.Errorf("id is required\nUsage: %s <%s>", cmd.CommandPath(), "id"))
 			}
-			path = replacePathParam(path, "id", args[2])
+			path = replacePathParam(path, "id", args[0])
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "reversals", path, map[string]string{
 				"ending_before":  fmt.Sprintf("%v", flagEndingBefore),
 				"expand":         fmt.Sprintf("%v", flagExpand),

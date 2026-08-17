@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "greptile-recall-state-integrity",
+  "applied_at": "2026-07-18",
+  "base_run_id": "20260717-002908-0483fc8d",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Normalize timeline dates and preserve recall campaign lifecycle state across incomplete or changing API responses.",
+  "reason": "Raw dates could sort incorrectly, while empty responses, missing IDs, and removed campaigns could corrupt later watch deltas.",
+  "files": ["internal/cli/signals.go", "internal/cli/signals_test.go", "internal/cli/watch.go", "internal/cli/watch_test.go"],
+  "validated_outcome": "Regression tests cover normalized/unknown dates, empty-response preservation, and added/restored/removed campaign transitions."
+}

@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "cookunity-pp-mcp",
+  "display_name": "CookUnity",
+  "version": "0.1.0",
+  "description": "Mirror CookUnity's full weekly menu into a local database so you can plan meals offline — filter by macros, diet, and budget, and diff the menu week over week, none of which the web app can do.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/cookunity-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/cookunity-pp-mcp",
+      "args": [],
+      "env": {
+        "COOKUNITY_TOKEN": "${user_config.cookunity_token}"
+      }
+    }
+  },
+  "user_config": {
+    "cookunity_token": {
+      "type": "string",
+      "title": "COOKUNITY_TOKEN",
+      "description": "Sets COOKUNITY_TOKEN for the CookUnity MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

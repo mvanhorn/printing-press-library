@@ -24,6 +24,7 @@ import (
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
+	"github.com/mvanhorn/printing-press-library/library/project-management/plane/internal/mcp/bound"
 )
 
 // RegisterCodeOrchestrationTools registers the two agent-facing tools that
@@ -44,10 +45,11 @@ func RegisterCodeOrchestrationTools(s *server.MCPServer) {
 			mcplib.WithDescription("Execute one plane API endpoint by its endpoint_id (from plane_search). Params are passed as a JSON object; path placeholders and query strings are resolved automatically."),
 			mcplib.WithString("endpoint_id", mcplib.Required(), mcplib.Description("Endpoint identifier returned by plane_search (e.g., \"users.list\").")),
 			mcplib.WithObject("params", mcplib.Description("Parameters for the endpoint. Path placeholders match by name; remaining entries become query string on GET/DELETE or JSON body on POST/PUT/PATCH.")),
-			// PATCH(mcp-workspace): per-call workspace targeting, the MCP twin of
-			// the CLI's --workspace flag (top precedence over $PLANE_SLUG and the
-			// config default_workspace).
-			mcplib.WithString("workspace", mcplib.Description("Plane workspace slug to target for THIS call (top precedence: overrides $PLANE_SLUG and the config default_workspace, like the CLI's --workspace flag). Take it from the browser URL app.plane.so/<slug>/. Omit to use the configured default. The public API cannot enumerate workspaces, so a wrong slug fails loudly (404/403) rather than silently hitting the wrong one.")),
+			// PATCH(mcp-workspace): declare the per-call workspace override in the
+			// schema so schema-validating MCP clients don't strip it before
+			// handleCodeOrchExecute reaches applyWorkspaceArg (it's consumed there,
+			// never forwarded to the endpoint's path/query/body).
+			mcplib.WithString("workspace", mcplib.Description("Plane workspace slug to target for this call. Overrides PLANE_SLUG and the configured default workspace.")),
 		),
 		handleCodeOrchExecute,
 	)
@@ -263,7 +265,7 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Retrieve all projects in a workspace or get details of a specific project.",
 		Positional:     []string{},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "cursor", WireName: "cursor"}, {PublicName: "expand", WireName: "expand"}, {PublicName: "fields", WireName: "fields"}, {PublicName: "order_by", WireName: "order_by"}, {PublicName: "per_page", WireName: "per_page"}, {PublicName: "updated_at__gt", WireName: "updated_at__gt"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "expand", WireName: "expand"}, {PublicName: "fields", WireName: "fields"}, {PublicName: "order_by", WireName: "order_by"}, {PublicName: "per_page", WireName: "per_page"}, {PublicName: "updated_at__gt", WireName: "updated_at__gt"}},
 		keywords:       codeOrchKeywords("projects", "list", "Retrieve all projects in a workspace or get details of a specific project.", "/projects/"),
 	},
 	{
@@ -313,7 +315,7 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Retrieve all cycles that have been archived in the project.",
 		Positional:     []string{"project_id"},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "cursor", WireName: "cursor"}, {PublicName: "per_page", WireName: "per_page"}, {PublicName: "updated_at__gt", WireName: "updated_at__gt"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "per_page", WireName: "per_page"}, {PublicName: "updated_at__gt", WireName: "updated_at__gt"}},
 		keywords:       codeOrchKeywords("projects", "list", "Retrieve all cycles that have been archived in the project.", "/projects/{project_id}/archived-cycles/"),
 	},
 	{
@@ -333,7 +335,7 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Retrieve all modules that have been archived in the project.",
 		Positional:     []string{"project_id"},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "cursor", WireName: "cursor"}, {PublicName: "expand", WireName: "expand"}, {PublicName: "fields", WireName: "fields"}, {PublicName: "order_by", WireName: "order_by"}, {PublicName: "per_page", WireName: "per_page"}, {PublicName: "updated_at__gt", WireName: "updated_at__gt"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "expand", WireName: "expand"}, {PublicName: "fields", WireName: "fields"}, {PublicName: "order_by", WireName: "order_by"}, {PublicName: "per_page", WireName: "per_page"}, {PublicName: "updated_at__gt", WireName: "updated_at__gt"}},
 		keywords:       codeOrchKeywords("projects", "list", "Retrieve all modules that have been archived in the project.", "/projects/{project_id}/archived-modules/"),
 	},
 	{
@@ -403,7 +405,7 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Retrieve all cycles in a project. Supports filtering by cycle status like current, upcoming, completed, or draft.",
 		Positional:     []string{"project_id"},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "cursor", WireName: "cursor"}, {PublicName: "cycle_view", WireName: "cycle_view"}, {PublicName: "expand", WireName: "expand"}, {PublicName: "fields", WireName: "fields"}, {PublicName: "order_by", WireName: "order_by"}, {PublicName: "per_page", WireName: "per_page"}, {PublicName: "updated_at__gt", WireName: "updated_at__gt"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "cycle_view", WireName: "cycle_view"}, {PublicName: "expand", WireName: "expand"}, {PublicName: "fields", WireName: "fields"}, {PublicName: "order_by", WireName: "order_by"}, {PublicName: "per_page", WireName: "per_page"}, {PublicName: "updated_at__gt", WireName: "updated_at__gt"}},
 		keywords:       codeOrchKeywords("projects", "list", "Retrieve all cycles in a project. Supports filtering by cycle status like current, upcoming, completed, or draft.", "/projects/{project_id}/cycles/"),
 	},
 	{
@@ -413,7 +415,7 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Retrieve all work items assigned to a cycle.",
 		Positional:     []string{"cycle_id", "project_id"},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "cursor", WireName: "cursor"}, {PublicName: "per_page", WireName: "per_page"}, {PublicName: "updated_at__gt", WireName: "updated_at__gt"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "per_page", WireName: "per_page"}, {PublicName: "updated_at__gt", WireName: "updated_at__gt"}},
 		keywords:       codeOrchKeywords("projects", "list-work-items", "Retrieve all work items assigned to a cycle.", "/projects/{project_id}/cycles/{cycle_id}/cycle-issues/"),
 	},
 	{
@@ -483,7 +485,7 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Retrieve all work items in the project's intake queue. Returns paginated results when listing all intake work items.",
 		Positional:     []string{"project_id"},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "cursor", WireName: "cursor"}, {PublicName: "expand", WireName: "expand"}, {PublicName: "fields", WireName: "fields"}, {PublicName: "per_page", WireName: "per_page"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "expand", WireName: "expand"}, {PublicName: "fields", WireName: "fields"}, {PublicName: "per_page", WireName: "per_page"}},
 		keywords:       codeOrchKeywords("projects", "get-intake-work-items-list", "Retrieve all work items in the project's intake queue. Returns paginated results when listing all intake work items.", "/projects/{project_id}/intake-issues/"),
 	},
 	{
@@ -593,7 +595,7 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Retrieve all activities for a work item. Supports filtering by activity type and date range.",
 		Positional:     []string{"issue_id", "project_id"},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "cursor", WireName: "cursor"}, {PublicName: "expand", WireName: "expand"}, {PublicName: "fields", WireName: "fields"}, {PublicName: "order_by", WireName: "order_by"}, {PublicName: "per_page", WireName: "per_page"}, {PublicName: "updated_at__gt", WireName: "updated_at__gt"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "expand", WireName: "expand"}, {PublicName: "fields", WireName: "fields"}, {PublicName: "order_by", WireName: "order_by"}, {PublicName: "per_page", WireName: "per_page"}, {PublicName: "updated_at__gt", WireName: "updated_at__gt"}},
 		keywords:       codeOrchKeywords("projects", "list-work-item-activities", "Retrieve all activities for a work item. Supports filtering by activity type and date range.", "/projects/{project_id}/issues/{issue_id}/activities/"),
 	},
 	{
@@ -613,7 +615,7 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Retrieve all comments for a work item.",
 		Positional:     []string{"issue_id", "project_id"},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "cursor", WireName: "cursor"}, {PublicName: "expand", WireName: "expand"}, {PublicName: "fields", WireName: "fields"}, {PublicName: "order_by", WireName: "order_by"}, {PublicName: "per_page", WireName: "per_page"}, {PublicName: "updated_at__gt", WireName: "updated_at__gt"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "expand", WireName: "expand"}, {PublicName: "fields", WireName: "fields"}, {PublicName: "order_by", WireName: "order_by"}, {PublicName: "per_page", WireName: "per_page"}, {PublicName: "updated_at__gt", WireName: "updated_at__gt"}},
 		keywords:       codeOrchKeywords("projects", "list-work-item-comments", "Retrieve all comments for a work item.", "/projects/{project_id}/issues/{issue_id}/comments/"),
 	},
 	{
@@ -623,7 +625,7 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Retrieve all links associated with a work item. Supports filtering by URL, title, and metadata.",
 		Positional:     []string{"issue_id", "project_id"},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "cursor", WireName: "cursor"}, {PublicName: "expand", WireName: "expand"}, {PublicName: "fields", WireName: "fields"}, {PublicName: "order_by", WireName: "order_by"}, {PublicName: "per_page", WireName: "per_page"}, {PublicName: "updated_at__gt", WireName: "updated_at__gt"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "expand", WireName: "expand"}, {PublicName: "fields", WireName: "fields"}, {PublicName: "order_by", WireName: "order_by"}, {PublicName: "per_page", WireName: "per_page"}, {PublicName: "updated_at__gt", WireName: "updated_at__gt"}},
 		keywords:       codeOrchKeywords("projects", "list-work-item-links", "Retrieve all links associated with a work item. Supports filtering by URL, title, and metadata.", "/projects/{project_id}/issues/{issue_id}/links/"),
 	},
 	{
@@ -633,7 +635,7 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Retrieve a paginated list of all work items in a project.",
 		Positional:     []string{"project_id"},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "cursor", WireName: "cursor"}, {PublicName: "expand", WireName: "expand"}, {PublicName: "external_id", WireName: "external_id"}, {PublicName: "external_source", WireName: "external_source"}, {PublicName: "fields", WireName: "fields"}, {PublicName: "order_by", WireName: "order_by"}, {PublicName: "per_page", WireName: "per_page"}, {PublicName: "updated_at__gt", WireName: "updated_at__gt"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "expand", WireName: "expand"}, {PublicName: "external_id", WireName: "external_id"}, {PublicName: "external_source", WireName: "external_source"}, {PublicName: "fields", WireName: "fields"}, {PublicName: "order_by", WireName: "order_by"}, {PublicName: "per_page", WireName: "per_page"}, {PublicName: "updated_at__gt", WireName: "updated_at__gt"}},
 		keywords:       codeOrchKeywords("projects", "list-work-items", "Retrieve a paginated list of all work items in a project.", "/projects/{project_id}/issues/"),
 	},
 	{
@@ -653,7 +655,7 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Retrieve details of a specific activity.",
 		Positional:     []string{"issue_id", "pk", "project_id"},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "cursor", WireName: "cursor"}, {PublicName: "expand", WireName: "expand"}, {PublicName: "fields", WireName: "fields"}, {PublicName: "order_by", WireName: "order_by"}, {PublicName: "per_page", WireName: "per_page"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "expand", WireName: "expand"}, {PublicName: "fields", WireName: "fields"}, {PublicName: "order_by", WireName: "order_by"}, {PublicName: "per_page", WireName: "per_page"}},
 		keywords:       codeOrchKeywords("projects", "retrieve-work-item-activity", "Retrieve details of a specific activity.", "/projects/{project_id}/issues/{issue_id}/activities/{pk}/"),
 	},
 	{
@@ -683,7 +685,7 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Retrieve details of a specific work item link.",
 		Positional:     []string{"issue_id", "pk", "project_id"},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "cursor", WireName: "cursor"}, {PublicName: "expand", WireName: "expand"}, {PublicName: "fields", WireName: "fields"}, {PublicName: "per_page", WireName: "per_page"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "expand", WireName: "expand"}, {PublicName: "fields", WireName: "fields"}, {PublicName: "per_page", WireName: "per_page"}},
 		keywords:       codeOrchKeywords("projects", "retrieve-work-item-link", "Retrieve details of a specific work item link.", "/projects/{project_id}/issues/{issue_id}/links/{pk}/"),
 	},
 	{
@@ -763,7 +765,7 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Retrieve all labels in a project. Supports filtering by name and color.",
 		Positional:     []string{"project_id"},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "cursor", WireName: "cursor"}, {PublicName: "expand", WireName: "expand"}, {PublicName: "fields", WireName: "fields"}, {PublicName: "order_by", WireName: "order_by"}, {PublicName: "per_page", WireName: "per_page"}, {PublicName: "updated_at__gt", WireName: "updated_at__gt"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "expand", WireName: "expand"}, {PublicName: "fields", WireName: "fields"}, {PublicName: "order_by", WireName: "order_by"}, {PublicName: "per_page", WireName: "per_page"}, {PublicName: "updated_at__gt", WireName: "updated_at__gt"}},
 		keywords:       codeOrchKeywords("projects", "list", "Retrieve all labels in a project. Supports filtering by name and color.", "/projects/{project_id}/labels/"),
 	},
 	{
@@ -883,7 +885,7 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Retrieve all modules in a project.",
 		Positional:     []string{"project_id"},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "cursor", WireName: "cursor"}, {PublicName: "expand", WireName: "expand"}, {PublicName: "fields", WireName: "fields"}, {PublicName: "order_by", WireName: "order_by"}, {PublicName: "per_page", WireName: "per_page"}, {PublicName: "updated_at__gt", WireName: "updated_at__gt"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "expand", WireName: "expand"}, {PublicName: "fields", WireName: "fields"}, {PublicName: "order_by", WireName: "order_by"}, {PublicName: "per_page", WireName: "per_page"}, {PublicName: "updated_at__gt", WireName: "updated_at__gt"}},
 		keywords:       codeOrchKeywords("projects", "list", "Retrieve all modules in a project.", "/projects/{project_id}/modules/"),
 	},
 	{
@@ -893,7 +895,7 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Retrieve all work items assigned to a module with detailed information.",
 		Positional:     []string{"module_id", "project_id"},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "cursor", WireName: "cursor"}, {PublicName: "expand", WireName: "expand"}, {PublicName: "fields", WireName: "fields"}, {PublicName: "order_by", WireName: "order_by"}, {PublicName: "per_page", WireName: "per_page"}, {PublicName: "updated_at__gt", WireName: "updated_at__gt"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "expand", WireName: "expand"}, {PublicName: "fields", WireName: "fields"}, {PublicName: "order_by", WireName: "order_by"}, {PublicName: "per_page", WireName: "per_page"}, {PublicName: "updated_at__gt", WireName: "updated_at__gt"}},
 		keywords:       codeOrchKeywords("projects", "list-work-items", "Retrieve all work items assigned to a module with detailed information.", "/projects/{project_id}/modules/{module_id}/module-issues/"),
 	},
 	{
@@ -993,7 +995,7 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Retrieve all workflow states for a project.",
 		Positional:     []string{"project_id"},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "cursor", WireName: "cursor"}, {PublicName: "expand", WireName: "expand"}, {PublicName: "fields", WireName: "fields"}, {PublicName: "per_page", WireName: "per_page"}, {PublicName: "updated_at__gt", WireName: "updated_at__gt"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "expand", WireName: "expand"}, {PublicName: "fields", WireName: "fields"}, {PublicName: "per_page", WireName: "per_page"}, {PublicName: "updated_at__gt", WireName: "updated_at__gt"}},
 		keywords:       codeOrchKeywords("projects", "list", "Retrieve all workflow states for a project.", "/projects/{project_id}/states/"),
 	},
 	{
@@ -1123,7 +1125,7 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Retrieve a paginated list of all work items in a project.",
 		Positional:     []string{"project_id"},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "cursor", WireName: "cursor"}, {PublicName: "expand", WireName: "expand"}, {PublicName: "external_id", WireName: "external_id"}, {PublicName: "external_source", WireName: "external_source"}, {PublicName: "fields", WireName: "fields"}, {PublicName: "order_by", WireName: "order_by"}, {PublicName: "per_page", WireName: "per_page"}, {PublicName: "updated_at__gt", WireName: "updated_at__gt"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "expand", WireName: "expand"}, {PublicName: "external_id", WireName: "external_id"}, {PublicName: "external_source", WireName: "external_source"}, {PublicName: "fields", WireName: "fields"}, {PublicName: "order_by", WireName: "order_by"}, {PublicName: "per_page", WireName: "per_page"}, {PublicName: "updated_at__gt", WireName: "updated_at__gt"}},
 		keywords:       codeOrchKeywords("projects", "list-2", "Retrieve a paginated list of all work items in a project.", "/projects/{project_id}/work-items/"),
 	},
 	{
@@ -1133,7 +1135,7 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Retrieve all activities for a work item. Supports filtering by activity type and date range.",
 		Positional:     []string{"issue_id", "project_id"},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "cursor", WireName: "cursor"}, {PublicName: "expand", WireName: "expand"}, {PublicName: "fields", WireName: "fields"}, {PublicName: "order_by", WireName: "order_by"}, {PublicName: "per_page", WireName: "per_page"}, {PublicName: "updated_at__gt", WireName: "updated_at__gt"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "expand", WireName: "expand"}, {PublicName: "fields", WireName: "fields"}, {PublicName: "order_by", WireName: "order_by"}, {PublicName: "per_page", WireName: "per_page"}, {PublicName: "updated_at__gt", WireName: "updated_at__gt"}},
 		keywords:       codeOrchKeywords("projects", "list-activities-2", "Retrieve all activities for a work item. Supports filtering by activity type and date range.", "/projects/{project_id}/work-items/{issue_id}/activities/"),
 	},
 	{
@@ -1153,7 +1155,7 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Retrieve all comments for a work item.",
 		Positional:     []string{"issue_id", "project_id"},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "cursor", WireName: "cursor"}, {PublicName: "expand", WireName: "expand"}, {PublicName: "fields", WireName: "fields"}, {PublicName: "order_by", WireName: "order_by"}, {PublicName: "per_page", WireName: "per_page"}, {PublicName: "updated_at__gt", WireName: "updated_at__gt"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "expand", WireName: "expand"}, {PublicName: "fields", WireName: "fields"}, {PublicName: "order_by", WireName: "order_by"}, {PublicName: "per_page", WireName: "per_page"}, {PublicName: "updated_at__gt", WireName: "updated_at__gt"}},
 		keywords:       codeOrchKeywords("projects", "list-comments-2", "Retrieve all comments for a work item.", "/projects/{project_id}/work-items/{issue_id}/comments/"),
 	},
 	{
@@ -1163,7 +1165,7 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Retrieve all links associated with a work item. Supports filtering by URL, title, and metadata.",
 		Positional:     []string{"issue_id", "project_id"},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "cursor", WireName: "cursor"}, {PublicName: "expand", WireName: "expand"}, {PublicName: "fields", WireName: "fields"}, {PublicName: "order_by", WireName: "order_by"}, {PublicName: "per_page", WireName: "per_page"}, {PublicName: "updated_at__gt", WireName: "updated_at__gt"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "expand", WireName: "expand"}, {PublicName: "fields", WireName: "fields"}, {PublicName: "order_by", WireName: "order_by"}, {PublicName: "per_page", WireName: "per_page"}, {PublicName: "updated_at__gt", WireName: "updated_at__gt"}},
 		keywords:       codeOrchKeywords("projects", "list-links-2", "Retrieve all links associated with a work item. Supports filtering by URL, title, and metadata.", "/projects/{project_id}/work-items/{issue_id}/links/"),
 	},
 	{
@@ -1173,7 +1175,7 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Retrieve all relationships for a work item including blocking, blocked_by, duplicate, relates_to, start_before",
 		Positional:     []string{"issue_id", "project_id"},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "cursor", WireName: "cursor"}, {PublicName: "expand", WireName: "expand"}, {PublicName: "fields", WireName: "fields"}, {PublicName: "order_by", WireName: "order_by"}, {PublicName: "per_page", WireName: "per_page"}, {PublicName: "updated_at__gt", WireName: "updated_at__gt"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "expand", WireName: "expand"}, {PublicName: "fields", WireName: "fields"}, {PublicName: "order_by", WireName: "order_by"}, {PublicName: "per_page", WireName: "per_page"}, {PublicName: "updated_at__gt", WireName: "updated_at__gt"}},
 		keywords:       codeOrchKeywords("projects", "list-relations", "Retrieve all relationships for a work item including blocking, blocked_by, duplicate, relates_to, start_before", "/projects/{project_id}/work-items/{issue_id}/relations/"),
 	},
 	{
@@ -1193,7 +1195,7 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Retrieve details of a specific activity.",
 		Positional:     []string{"issue_id", "pk", "project_id"},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "cursor", WireName: "cursor"}, {PublicName: "expand", WireName: "expand"}, {PublicName: "fields", WireName: "fields"}, {PublicName: "order_by", WireName: "order_by"}, {PublicName: "per_page", WireName: "per_page"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "expand", WireName: "expand"}, {PublicName: "fields", WireName: "fields"}, {PublicName: "order_by", WireName: "order_by"}, {PublicName: "per_page", WireName: "per_page"}},
 		keywords:       codeOrchKeywords("projects", "retrieve-activity-2", "Retrieve details of a specific activity.", "/projects/{project_id}/work-items/{issue_id}/activities/{pk}/"),
 	},
 	{
@@ -1223,7 +1225,7 @@ var codeOrchEndpoints = []codeOrchEndpoint{
 		Summary:        "Retrieve details of a specific work item link.",
 		Positional:     []string{"issue_id", "pk", "project_id"},
 		TemplateParams: []codeOrchParamBinding{},
-		QueryParams:    []codeOrchParamBinding{{PublicName: "cursor", WireName: "cursor"}, {PublicName: "expand", WireName: "expand"}, {PublicName: "fields", WireName: "fields"}, {PublicName: "per_page", WireName: "per_page"}},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "expand", WireName: "expand"}, {PublicName: "fields", WireName: "fields"}, {PublicName: "per_page", WireName: "per_page"}},
 		keywords:       codeOrchKeywords("projects", "retrieve-link-2", "Retrieve details of a specific work item link.", "/projects/{project_id}/work-items/{issue_id}/links/{pk}/"),
 	},
 	{
@@ -1434,8 +1436,11 @@ func handleCodeOrchSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcp
 			"score":       r.score,
 		})
 	}
-	data, _ := json.Marshal(map[string]any{"count": len(out), "results": out})
-	return mcplib.NewToolResultText(string(data)), nil
+	text, err := bound.JSON(map[string]any{"count": len(out), "results": out})
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("encoding search results: %v", err)), nil
+	}
+	return mcplib.NewToolResultText(text), nil
 }
 
 func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
@@ -1465,6 +1470,7 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 	if err != nil {
 		return mcplib.NewToolResultError(err.Error()), nil
 	}
+
 	// PATCH(mcp-workspace): honor a per-call "workspace" arg before issuing the
 	// request, and strip it so it never leaks into the path/query/body below.
 	applyWorkspaceArg(c, args)
@@ -1472,7 +1478,7 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 	path := ep.Path
 	for _, p := range ep.Positional {
 		if v, ok := params[p]; ok {
-			path = strings.ReplaceAll(path, "{"+p+"}", fmt.Sprintf("%v", v))
+			path = strings.ReplaceAll(path, "{"+p+"}", mcpPathValue(v))
 			delete(params, p)
 		}
 	}
@@ -1483,7 +1489,7 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 	query := map[string]string{}
 	if ep.Method == "GET" || ep.Method == "DELETE" {
 		for k, v := range params {
-			query[codeOrchWireQueryName(ep.QueryParams, k)] = fmt.Sprintf("%v", v)
+			query[codeOrchWireQueryName(ep.QueryParams, k)] = formatMCPParamValue(v)
 		}
 	} else {
 		// Route spec-declared in:query params to the query string for write
@@ -1548,7 +1554,7 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 	if err != nil {
 		return mcplib.NewToolResultError(err.Error()), nil
 	}
-	return mcplib.NewToolResultText(string(data)), nil
+	return mcplib.NewToolResultText(bound.EndpointResponse(ep.Method, data)), nil
 }
 
 // codeOrchWriteBody returns the value handed to the client layer as the
@@ -1595,7 +1601,7 @@ func codeOrchSplitQuery(queryParams []codeOrchParamBinding, params map[string]an
 				continue
 			}
 			if v, ok := params[key]; ok {
-				uv.Set(q.WireName, fmt.Sprintf("%v", v))
+				uv.Set(q.WireName, formatMCPParamValue(v))
 				delete(params, key)
 				break
 			}

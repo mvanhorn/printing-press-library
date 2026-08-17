@@ -1,0 +1,49 @@
+{
+  "run_id": "20260807-162902",
+  "generated_at": "2026-08-07T16:40:00Z",
+  "cli": "opensky-pp-cli",
+  "api": "OpenSky Network API (opensky-network.org/api)",
+  "auth": "none",
+  "checks": [
+    {
+      "name": "version",
+      "result": "pass",
+      "detail": "--version responds (0.0.0-dev, pre-release stamp)"
+    },
+    {
+      "name": "doctor",
+      "result": "pass",
+      "detail": "doctor reachable, endpoints classified (generate pipeline PASS + shipcheck verify leg)"
+    },
+    {
+      "name": "states bbox",
+      "result": "pass",
+      "detail": "states --lamin 40.5 --lomin -74.5 --lamax 41.5 --lomax -73.5 live: ~40 state vectors over the JFK metro box (UAL2679, JBU508, UAL3024, CXK1061 with position, velocity, altitude)"
+    },
+    {
+      "name": "departures bare invocation",
+      "result": "pass",
+      "detail": "flights get-departures --airport KJFK with no window: 23 flights returned; dry-run confirms begin/end injected as now-1h..now (patch 001)"
+    },
+    {
+      "name": "departures explicit window",
+      "result": "pass",
+      "detail": "flights get-departures --airport KJFK --begin <now-1h> --end <now>: 26 flights (ASA41, AAL493, ...)"
+    },
+    {
+      "name": "trajectory bare invocation",
+      "result": "pass",
+      "detail": "flights get-aircraft-trajectory --icao24 aa07f9 with no window: full flight record (UAL3024, estDepartureAirport KEWR, firstSeen/lastSeen)"
+    },
+    {
+      "name": "empty-window 404 normalization",
+      "result": "pass",
+      "detail": "flights get-aircraft-trajectory --icao24 000001 (never-seen transponder): OpenSky 404-with-empty-array normalized to {\"results\":[]}, exit 0 (patch 002)"
+    },
+    {
+      "name": "local suite",
+      "result": "pass",
+      "detail": "go build ./..., go vet ./..., go test ./... all pass (12 packages) after patch 003 (Windows test isolation)"
+    }
+  ]
+}

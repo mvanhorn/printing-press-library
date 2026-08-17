@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "ht-ml-remove-dead-helper",
+  "applied_at": "2026-06-26",
+  "base_run_id": "20260625-202846-acc7c150",
+  "base_printing_press_version": "4.26.0",
+  "summary": "Remove the unused formatCLIParamValue helper.",
+  "reason": "Dead code: the generated helper was unreferenced after the hand-built command set replaced the generic param-formatting path. Dogfood dead_functions flagged it.",
+  "files": [
+    "internal/cli/helpers.go"
+  ],
+  "validated_outcome": "dogfood dead_functions: 0; go build ./... passes."
+}

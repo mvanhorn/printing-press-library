@@ -10,9 +10,8 @@ import (
 func newCatalogCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "catalog",
-		Short:       "List, get, and create catalog",
-		Hidden:      true,
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Short:       "Product catalog: search, departments, banners, suggestions",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:api-resource": "true", "pp:typed-exit-codes": "0,2"},
 		RunE:        parentNoSubcommandRunE(flags),
 	}
 
@@ -24,6 +23,6 @@ func newCatalogCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newCatalogListDepartmentsCmd(flags))
 	cmd.AddCommand(newCatalogListNewsCmd(flags))
 	cmd.AddCommand(newCatalogListSuggestCmd(flags))
-	cmd.AddCommand(newNovelCatalogDriftCmd(flags))
+	addNovelCommandIfAbsent(cmd, newNovelCatalogDriftCmd(flags))
 	return cmd
 }

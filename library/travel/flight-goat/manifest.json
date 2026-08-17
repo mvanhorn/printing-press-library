@@ -2,8 +2,8 @@
   "manifest_version": "0.3",
   "name": "flight-goat-pp-mcp",
   "display_name": "Flight GOAT",
-  "version": "3.6.0",
-  "description": "Flight GOAT API surface as MCP tools.",
+  "version": "4.17.1",
+  "description": "AeroAPI is a simple, query-based API that gives software developers access to a variety of FlightAware's flight data.",
   "author": {
     "name": "CLI Printing Press"
   },
@@ -15,17 +15,24 @@
       "command": "${__dirname}/bin/flight-goat-pp-mcp",
       "args": [],
       "env": {
-        "FLIGHT_GOAT_API_KEY_AUTH": "${user_config.flight_goat_api_key_auth}"
+        "FLIGHT_GOAT_API_KEY": "${user_config.flight_goat_api_key}",
+        "FLIGHT_GOAT_ENV": "${user_config.flight_goat_env}"
       }
     }
   },
   "user_config": {
-    "flight_goat_api_key_auth": {
+    "flight_goat_api_key": {
       "type": "string",
-      "title": "FlightAware AeroAPI Key",
-      "description": "Optional. FlightGoat wraps FlightAware's AeroAPI; set this to your AeroAPI key (exposed to the server as FLIGHT_GOAT_API_KEY_AUTH) to unlock the full tool set. Register at https://flightaware.com/commercial/aeroapi/.",
+      "title": "FLIGHT_GOAT_API_KEY",
+      "description": "Sets FLIGHT_GOAT_API_KEY for the Flight GOAT MCP server.",
       "sensitive": true,
-      "required": false
+      "required": true
+    },
+    "flight_goat_env": {
+      "type": "string",
+      "title": "FLIGHT_GOAT_ENV",
+      "description": "Sets FLIGHT_GOAT_ENV for the endpoint template variable {env}.",
+      "default": "aeroapi"
     }
   },
   "compatibility": {

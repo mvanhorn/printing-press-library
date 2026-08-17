@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "source-honest-recall-screening",
+  "applied_at": "2026-07-18",
+  "base_run_id": "20260717-002908-7b05abc1",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Preserve provider-error detection, bounded retries, structured dry runs, multi-field inventory evidence, product hazard aggregation, and canonical recall watch diffs.",
+  "reason": "The CPSC provider can return error records with HTTP 200 and inventory matches remain candidates unless exact product identifiers are shown separately.",
+  "files": ["internal/cli/cpsc_novel_support.go", "internal/cli/packet.go", "internal/cli/hazard_pulse.go", "internal/cli/inventory_check.go", "internal/cli/watch_changes.go", "internal/cli/promoted_cpsc-recall-retrieval-recall.go"],
+  "validated_outcome": "Shipcheck passed 7/7 and live quick dogfood passed 16/16."
+}

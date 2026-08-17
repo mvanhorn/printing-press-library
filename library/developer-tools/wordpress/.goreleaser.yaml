@@ -1,0 +1,51 @@
+version: 2
+project_name: wordpress-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: wordpress-pp-cli
+    main: ./cmd/wordpress-pp-cli
+    binary: wordpress-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/developer-tools/wordpress/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: wordpress-pp-mcp
+    main: ./cmd/wordpress-pp-mcp
+    binary: wordpress-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: wordpress-pp-cli
+    repository:
+      owner: bobeglz
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "WP-CLI-grade control over any WordPress site through plain HTTPS — no SSH, no server-side plugin, one static binary."
+    install: |
+      bin.install "wordpress-pp-cli"
+      bin.install "wordpress-pp-mcp"

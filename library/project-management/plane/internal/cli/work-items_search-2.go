@@ -19,33 +19,45 @@ func newWorkItemsSearch2Cmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:         "search-2",
-		Aliases:     []string{"list"},
-		Short:       "Perform semantic search across issue names, sequence IDs, and project identifiers.",
+		Use:     "search-2",
+		Aliases: []string{"list"},
+		Short:   "Perform semantic search across issue names, sequence IDs, and project identifiers.",
+		// TODO: replace placeholder example values before relying on this for live dogfood.
 		Example:     "  plane-pp-cli work-items search-2 --search example-value",
 		Annotations: map[string]string{"pp:endpoint": "work-items.search-2", "pp:method": "GET", "pp:path": "/work-items/search/", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Bare invocation of a command with required input prints help
 			// instead of pflag's terse "required flag not set" error. Optional-
 			// only read commands fall through so a bare call still executes.
-			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
+			// Machine callers (--json/--agent, which sets asJSON) get a usage
+			// error + exit 2 instead of silent exit-0 help, so an incomplete
+			// invocation is never mistaken for success.
+			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "requires input",
+						"usage": cmd.CommandPath() + " --help",
+					}, flags); printErr != nil {
+						return printErr
+					}
+					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
+				}
 				return cmd.Help()
 			}
 			if !cmd.Flags().Changed("search") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "search")
 			}
+			path := "/work-items/search/"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/work-items/search/"
 			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "work-items", path, map[string]string{
-				"limit":            fmt.Sprintf("%v", flagLimit),
-				"project_id":       fmt.Sprintf("%v", flagProjectId),
-				"search":           fmt.Sprintf("%v", flagSearch),
-				"workspace_search": fmt.Sprintf("%v", flagWorkspaceSearch),
-			}, nil, flagAll, "", "offset", "limit", "", "", cmd.ErrOrStderr())
+				"limit":            formatCLIParamValue(flagLimit),
+				"project_id":       formatCLIParamValue(flagProjectId),
+				"search":           formatCLIParamValue(flagSearch),
+				"workspace_search": formatCLIParamValue(flagWorkspaceSearch),
+			}, nil, flagAll, "", "offset", "limit", 100, "", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -90,7 +102,7 @@ func newWorkItemsSearch2Cmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().IntVar(&flagLimit, "limit", 0, "Maximum number of results to return")

@@ -1,0 +1,179 @@
+{
+  "api_name": "eero",
+  "novelty_score": 7,
+  "alternatives": [
+    {
+      "name": "eero-cli",
+      "url": "https://github.com/dciobanu/eero-cli",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "eeroctl",
+      "url": "https://github.com/fulviofreitas/eeroctl",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "eero",
+      "url": "https://github.com/erikh/eero",
+      "language": "Rust",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [
+    "Existing tools do not combine a single installable binary with an agent-first JSON contract and MCP transport.",
+    "Existing tools expose useful device and profile operations, but do not provide one read-oriented network snapshot surface.",
+    "The eero API is unofficial and requires a browser-derived session cookie or session token, so live coverage needs operator credentials."
+  ],
+  "patterns": [
+    "Noun-first commands for networks, eeros, devices, profiles, diagnostics, and speed tests.",
+    "EERO_SESSION_TOKEN is the practical non-interactive credential for automation.",
+    "Read-only inspection is the safest initial scope; reboot, blocking, guest Wi-Fi, and port-forward mutations need explicit follow-up proof."
+  ],
+  "recommendation": "proceed-with-gaps",
+  "researched_at": "2026-08-09T17:32:00Z",
+  "novel_features": [
+    {
+      "name": "Network health snapshot",
+      "command": "network",
+      "description": "One agent-friendly read combines network status, speed summary, client count, node count, DNS, and feature settings.",
+      "rationale": "The reference CLIs make operators assemble several network reads to answer the basic health question.",
+      "example": "eero-pp-cli network 550e8400-e29b-41d4-a716-446655440000 --agent",
+      "why_it_matters": "Use this first when diagnosing whether an eero network is healthy before drilling into a node or client.",
+      "group": "Read-first network operations"
+    },
+    {
+      "name": "Eero inventory",
+      "command": "eero list",
+      "description": "List all eero nodes in a network with compact agent-friendly output.",
+      "rationale": "Node inventory is a core operational query and is surfaced as a single stable command in this package.",
+      "example": "eero-pp-cli eero list 550e8400-e29b-41d4-a716-446655440000 --agent",
+      "why_it_matters": "Use it to identify the node to inspect when coverage or topology is the problem.",
+      "group": "Read-first network operations"
+    },
+    {
+      "name": "Connected-device inventory",
+      "command": "device list",
+      "description": "List connected client devices for a network, with filters and compact JSON for downstream automation.",
+      "rationale": "The generated command turns the API device collection into a direct inventory query without requiring local database setup.",
+      "example": "eero-pp-cli device list 550e8400-e29b-41d4-a716-446655440000 --agent",
+      "why_it_matters": "Use it to answer which clients are connected before investigating one device in detail.",
+      "group": "Read-first network operations"
+    },
+    {
+      "name": "Diagnostic report lookup",
+      "command": "diagnostics",
+      "description": "Fetch the latest diagnostic report for a network through the same authenticated CLI surface.",
+      "rationale": "Diagnostics are useful during incidents but are separated from ordinary network status in the reference tools.",
+      "example": "eero-pp-cli diagnostics 550e8400-e29b-41d4-a716-446655440000 --agent",
+      "why_it_matters": "Use it when the health snapshot shows a problem and you need the provider's latest diagnostic signal.",
+      "group": "Read-first network operations"
+    },
+    {
+      "name": "Speed-test history lookup",
+      "command": "speed-test",
+      "description": "Read the latest available speed-test results for a network as structured output.",
+      "rationale": "The command keeps performance evidence adjacent to network health without introducing a write or test-triggering operation.",
+      "example": "eero-pp-cli speed-test 550e8400-e29b-41d4-a716-446655440000 --agent",
+      "why_it_matters": "Use it to distinguish topology or client issues from an upstream throughput problem.",
+      "group": "Read-first network operations"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Network health snapshot",
+      "command": "network",
+      "description": "One agent-friendly read combines network status, speed summary, client count, node count, DNS, and feature settings.",
+      "rationale": "The reference CLIs make operators assemble several network reads to answer the basic health question.",
+      "example": "eero-pp-cli network 550e8400-e29b-41d4-a716-446655440000 --agent",
+      "why_it_matters": "Use this first when diagnosing whether an eero network is healthy before drilling into a node or client.",
+      "group": "Read-first network operations"
+    },
+    {
+      "name": "Eero inventory",
+      "command": "eero list",
+      "description": "List all eero nodes in a network with compact agent-friendly output.",
+      "rationale": "Node inventory is a core operational query and is surfaced as a single stable command in this package.",
+      "example": "eero-pp-cli eero list 550e8400-e29b-41d4-a716-446655440000 --agent",
+      "why_it_matters": "Use it to identify the node to inspect when coverage or topology is the problem.",
+      "group": "Read-first network operations"
+    },
+    {
+      "name": "Connected-device inventory",
+      "command": "device list",
+      "description": "List connected client devices for a network, with filters and compact JSON for downstream automation.",
+      "rationale": "The generated command turns the API device collection into a direct inventory query without requiring local database setup.",
+      "example": "eero-pp-cli device list 550e8400-e29b-41d4-a716-446655440000 --agent",
+      "why_it_matters": "Use it to answer which clients are connected before investigating one device in detail.",
+      "group": "Read-first network operations"
+    },
+    {
+      "name": "Diagnostic report lookup",
+      "command": "diagnostics",
+      "description": "Fetch the latest diagnostic report for a network through the same authenticated CLI surface.",
+      "rationale": "Diagnostics are useful during incidents but are separated from ordinary network status in the reference tools.",
+      "example": "eero-pp-cli diagnostics 550e8400-e29b-41d4-a716-446655440000 --agent",
+      "why_it_matters": "Use it when the health snapshot shows a problem and you need the provider's latest diagnostic signal.",
+      "group": "Read-first network operations"
+    },
+    {
+      "name": "Speed-test history lookup",
+      "command": "speed-test",
+      "description": "Read the latest available speed-test results for a network as structured output.",
+      "rationale": "The command keeps performance evidence adjacent to network health without introducing a write or test-triggering operation.",
+      "example": "eero-pp-cli speed-test 550e8400-e29b-41d4-a716-446655440000 --agent",
+      "why_it_matters": "Use it to distinguish topology or client issues from an upstream throughput problem.",
+      "group": "Read-first network operations"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "EERO_SESSION_TOKEN"
+  },
+  "narrative": {
+    "display_name": "eero",
+    "headline": "Inspect an eero mesh network from the terminal with agent-friendly output for networks, nodes, connected devices, diagnostics, and speed tests.",
+    "value_prop": "eero-pp-cli turns the unofficial eero account API into a small, read-first command surface for networks, nodes, connected devices, diagnostics, and speed tests. It supports browser-cookie login for local use and EERO_SESSION_TOKEN for non-interactive automation.",
+    "auth_narrative": "The eero service uses a session cookie rather than a conventional API key. Run `eero-pp-cli auth login --chrome` to harvest the eero session from Chrome, or set EERO_SESSION_TOKEN when an existing session token is already available. Never commit cookie files or tokens.",
+    "quickstart": [
+      {
+        "command": "eero-pp-cli auth login --chrome",
+        "comment": "Harvest a logged-in eero browser session for local use."
+      },
+      {
+        "command": "eero-pp-cli account --agent",
+        "comment": "Discover the account and available network IDs."
+      },
+      {
+        "command": "eero-pp-cli network 550e8400-e29b-41d4-a716-446655440000 --agent",
+        "comment": "Read one compact health snapshot before drilling into nodes or devices."
+      }
+    ],
+    "when_to_use": "Use this CLI when you need current eero account, network, node, client, diagnostic, or speed-test data from a shell or agent workflow. It is intentionally read-first while the unofficial API's mutation semantics and live compatibility are still being validated.",
+    "anti_triggers": [
+      "Do not use this CLI to reboot nodes, block clients, change guest Wi-Fi, or edit port forwards yet; those mutation paths are intentionally outside this first package.",
+      "Do not use this CLI as proof of internet reachability when no eero session token or browser session is available."
+    ],
+    "trigger_phrases": [
+      "inspect my eero network",
+      "list eero devices",
+      "check eero network health",
+      "show the latest eero speed test"
+    ]
+  }
+}

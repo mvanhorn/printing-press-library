@@ -29,7 +29,7 @@ type whichEntry struct {
 var whichIndex = []whichEntry{
 	{Command: "frame extract", Description: "Extract a single frame as a compact codegen-ready payload that fuses simplified node tree, in-scope variables, dev resources, and Code Connect mappings.", Group: "Agent-native plumbing", WhyItMatters: "First call when an AI agent needs Figma frame context for code generation — returns a compact payload that fits in the context window instead of the raw 10MB file response."},
 	{Command: "dev-mode dump", Description: "Emit a portable Markdown bundle that fuses dev-resource links, variables in scope, render permalink, and Code Connect mapping for one node.", Group: "Agent-native plumbing", WhyItMatters: "Use when an agent or engineer needs the full Dev Mode context for one frame as a single Markdown blob — no Desktop pairing required."},
-	{Command: "comments audit", Description: "Aggregate unresolved comments across every synced team file with age and group-by filters.", Group: "Local state that compounds", WhyItMatters: "Run this on Monday morning before design review — surfaces every stale unresolved thread across the team."},
+	{Command: "comments-audit", Description: "Aggregate unresolved comments across every synced team file with age and group-by filters.", Group: "Local state that compounds", WhyItMatters: "Run this on Monday morning before design review — surfaces every stale unresolved thread across the team."},
 	{Command: "orphans", Description: "Find published library entities (components, styles, variables) with zero usage over a window by joining team-library publish list with library-analytics usage data.", Group: "Local state that compounds", WhyItMatters: "First command for the quarterly design-system cleanup — returns the list of entities safe to deprecate."},
 	{Command: "tokens diff", Description: "Diff Figma variables across two file versions with mode-awareness; emits a Markdown or JSON change set.", Group: "Local state that compounds", WhyItMatters: "Run before merging a design-tokens PR to see what actually changed in Figma since the last release."},
 	{Command: "fingerprint", Description: "Stable hash of a Figma file's token + component + style surface; exits non-zero if --expect doesn't match.", Group: "Local state that compounds", WhyItMatters: "Wire this into CI to fail builds when the upstream Figma file's design-system surface drifts from the committed snapshot."},
@@ -138,6 +138,7 @@ func newWhichCmd(flags *rootFlags) *cobra.Command {
 		Use:   "which [query]",
 		Short: "Find the command that implements a capability",
 		Annotations: map[string]string{
+			"mcp:read-only":       "true",
 			"pp:typed-exit-codes": "0,2",
 		},
 		Long: `which resolves a natural-language capability query (for example, "search messages" or "stale tickets") to the best matching command from this CLI's curated feature index.

@@ -76,7 +76,7 @@ type playlistTrackItem struct {
 // that snapshot a playlist (T1, T2) and the source-walking pass in T3
 // route through here so the truncation cannot recur per call-site.
 func fetchFullPlaylist(c *client.Client, playlistID string) (id, name, snapshotID string, items []playlistTrackItem, err error) {
-	metaData, err := c.Get("/playlists/"+playlistID+"?fields=id,name,snapshot_id", nil)
+	metaData, err := c.Get(context.Background(), "/playlists/"+playlistID+"?fields=id,name,snapshot_id", nil)
 	if err != nil {
 		return "", "", "", nil, err
 	}
@@ -117,7 +117,7 @@ func fetchAllPaged(c *client.Client, path string, params map[string]string, limi
 	cursor := path
 	cursorParams := params
 	for {
-		data, err := c.Get(cursor, cursorParams)
+		data, err := c.Get(context.Background(), cursor, cursorParams)
 		if err != nil {
 			return nil, err
 		}
@@ -170,7 +170,7 @@ func splitURL(full string) (string, map[string]string, error) {
 // fetchCurrentUserID returns the authenticated user's Spotify ID. Used to
 // scope per-user tables (saved_tracks, followed_artists, etc.).
 func fetchCurrentUserID(c *client.Client) (string, error) {
-	data, err := c.Get("/me", nil)
+	data, err := c.Get(context.Background(), "/me", nil)
 	if err != nil {
 		return "", err
 	}
@@ -193,4 +193,21 @@ func bareID(s string) string {
 		return s[i+1:]
 	}
 	return s
+}
+
+// validSpotifyID reports whether s has the shape of a Spotify resource ID:
+// 22 base62 characters. Used to reject malformed positionals with a usage
+// error instead of silently returning an empty (or stubbed) result.
+func validSpotifyID(s string) bool {
+	if len(s) != 22 {
+		return false
+	}
+	for _, r := range s {
+		switch {
+		case r >= '0' && r <= '9', r >= 'A' && r <= 'Z', r >= 'a' && r <= 'z':
+		default:
+			return false
+		}
+	}
+	return true
 }

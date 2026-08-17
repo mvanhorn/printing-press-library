@@ -9,8 +9,10 @@ import (
 
 func newAirportsWeatherCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "weather",
-		Short: "Manage weather",
+		Use:         "weather",
+		Short:       "Get weather for airports",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newAirportsWeatherGetAirportForecastCmd(flags))

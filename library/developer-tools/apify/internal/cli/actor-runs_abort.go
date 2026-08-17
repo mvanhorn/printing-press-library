@@ -8,12 +8,32 @@ import (
 )
 
 func newActorRunsAbortCmd(flags *rootFlags) *cobra.Command {
+	// PATCH(amend: accept a run id at the `abort` level so
+	// `actor-runs abort <runId>` works directly instead of only printing
+	// parent help; the previous shape forced users to discover the
+	// `actor-run-post` leaf to stop a running, billing Actor.)
+	child := newActorRunsAbortActorRunPostCmd(flags)
+	var gracefully bool
 	cmd := &cobra.Command{
-		Use:   "abort",
-		Short: "Manage abort",
-		RunE:  parentNoSubcommandRunE(flags),
+		Use:     "abort [runId]",
+		Short:   "Abort an Actor run (pass a run id directly, or use the actor-run-post subcommand)",
+		Example: "  apify-pp-cli actor-runs abort 550e8400-e29b-41d4-a716-446655440000",
+		Args:    cobra.ArbitraryArgs,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if len(args) == 0 {
+				return cmd.Help()
+			}
+			// Forward the shorthand's --gracefully to the child's bound flag
+			// (BoolVar binds the pointer, so Set updates the child closure var)
+			// so `abort --gracefully <runId>` is equivalent to the leaf form.
+			if gracefully {
+				_ = child.Flags().Set("gracefully", "true")
+			}
+			return child.RunE(cmd, args)
+		},
 	}
+	cmd.Flags().BoolVar(&gracefully, "gracefully", false, "Abort gracefully: send aborting and persistState events to the run")
 
-	cmd.AddCommand(newActorRunsAbortActorRunPostCmd(flags))
+	cmd.AddCommand(child)
 	return cmd
 }

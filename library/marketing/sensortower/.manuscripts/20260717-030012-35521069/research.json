@@ -1,0 +1,258 @@
+{
+  "api_name": "sensortower",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "sensortower-cli",
+      "url": "https://github.com/FerdiKT/sensortower-cli",
+      "language": "Go",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "sensortower-mcp",
+      "url": "https://github.com/virusimmortal00/sensortower-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 17,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "sensortowerR",
+      "url": "https://github.com/econosopher/sensortowerR",
+      "language": "R",
+      "install_method": "",
+      "stars": 6,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Sensortower-top100",
+      "url": "https://github.com/ivangomozov/Sensortower-top100",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "appstore-revenue-mcp",
+      "url": "https://github.com/evekeen/appstore-revenue-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-17T10:45:00Z",
+  "novel_features": [
+    {
+      "name": "Category movers and new entrants",
+      "command": "movers",
+      "description": "See which apps climbed, fell, or newly appeared in a category chart since the previous 'movers' run.",
+      "rationale": "Requires set-differencing the current chart snapshot against a prior one that 'movers' itself stores locally; no single API call can report a new entrant.",
+      "example": "sensortower-pp-cli movers 6015 --country US --agent",
+      "why_it_matters": "Reach for this when the question is 'who is new or moving in this category', which the dashboard cannot answer because it keeps no history.",
+      "group": "History the dashboard never kept"
+    },
+    {
+      "name": "Release-vs-rank teardown",
+      "command": "teardown",
+      "description": "Align an app's release timeline against its rank history to see which shipped version moved the needle.",
+      "rationale": "Joins the 400+ entry versions[] array from the app hub object against locally stored daily rank history; the two series exist in different places and no screen shows them together.",
+      "example": "sensortower-pp-cli teardown 460177396 --agent",
+      "why_it_matters": "Reach for this when a competitor spikes and you need to know whether a release, not luck, explains it.",
+      "group": "History the dashboard never kept"
+    },
+    {
+      "name": "Weekly watch digest",
+      "command": "watch digest",
+      "description": "Print every tracked app's current rank per chart plus its delta since the previous 'movers' run.",
+      "rationale": "The API has no watchlist concept and no history; both the tracked set and the previous week exist only in the local store.",
+      "example": "sensortower-pp-cli watch digest --agent",
+      "why_it_matters": "Reach for this for the recurring Monday check across a whole tracked set, instead of re-reading ranks app by app.",
+      "group": "History the dashboard never kept"
+    },
+    {
+      "name": "Free-vs-grossing divergence",
+      "command": "divergence",
+      "description": "Find monetization outliers in a category by comparing each app's free-chart rank against its grossing-chart rank.",
+      "rationale": "Requires joining the free and grossing charts returned by a single call on app_id, and expresses monetization using only exact ranks rather than the bucketed revenue figures.",
+      "example": "sensortower-pp-cli divergence 6015 --country US --agent",
+      "why_it_matters": "Reach for this to spot install-rich but monetization-poor apps (or the inverse) without trusting Sensor Tower's coarse revenue estimates.",
+      "group": "Exact ranks over fuzzy money"
+    },
+    {
+      "name": "Cross-platform comparison",
+      "command": "compare",
+      "description": "Compare one product's iOS and Android standing side by side after resolving cross-platform identity.",
+      "rationale": "Resolves identity through the cookie-gated unified endpoint, then joins both platforms' local rank ladders, release cadences, and rating histograms.",
+      "example": "sensortower-pp-cli compare 460177396 tv.twitch.android.app --agent",
+      "why_it_matters": "Reach for this when asked which platform is winning for the same app; requires a session cookie via auth login --chrome.",
+      "group": "Cross-platform"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Category movers and new entrants",
+      "command": "movers",
+      "description": "See which apps climbed, fell, or newly appeared in a category chart since the previous 'movers' run.",
+      "rationale": "Requires set-differencing the current chart snapshot against a prior one that 'movers' itself stores locally; no single API call can report a new entrant.",
+      "example": "sensortower-pp-cli movers 6015 --country US --agent",
+      "why_it_matters": "Reach for this when the question is 'who is new or moving in this category', which the dashboard cannot answer because it keeps no history.",
+      "group": "History the dashboard never kept"
+    },
+    {
+      "name": "Release-vs-rank teardown",
+      "command": "teardown",
+      "description": "Align an app's release timeline against its rank history to see which shipped version moved the needle.",
+      "rationale": "Joins the 400+ entry versions[] array from the app hub object against locally stored daily rank history; the two series exist in different places and no screen shows them together.",
+      "example": "sensortower-pp-cli teardown 460177396 --agent",
+      "why_it_matters": "Reach for this when a competitor spikes and you need to know whether a release, not luck, explains it.",
+      "group": "History the dashboard never kept"
+    },
+    {
+      "name": "Weekly watch digest",
+      "command": "watch digest",
+      "description": "Print every tracked app's current rank per chart plus its delta since the previous 'movers' run.",
+      "rationale": "The API has no watchlist concept and no history; both the tracked set and the previous week exist only in the local store.",
+      "example": "sensortower-pp-cli watch digest --agent",
+      "why_it_matters": "Reach for this for the recurring Monday check across a whole tracked set, instead of re-reading ranks app by app.",
+      "group": "History the dashboard never kept"
+    },
+    {
+      "name": "Free-vs-grossing divergence",
+      "command": "divergence",
+      "description": "Find monetization outliers in a category by comparing each app's free-chart rank against its grossing-chart rank.",
+      "rationale": "Requires joining the free and grossing charts returned by a single call on app_id, and expresses monetization using only exact ranks rather than the bucketed revenue figures.",
+      "example": "sensortower-pp-cli divergence 6015 --country US --agent",
+      "why_it_matters": "Reach for this to spot install-rich but monetization-poor apps (or the inverse) without trusting Sensor Tower's coarse revenue estimates.",
+      "group": "Exact ranks over fuzzy money"
+    },
+    {
+      "name": "Cross-platform comparison",
+      "command": "compare",
+      "description": "Compare one product's iOS and Android standing side by side after resolving cross-platform identity.",
+      "rationale": "Resolves identity through the cookie-gated unified endpoint, then joins both platforms' local rank ladders, release cadences, and rating histograms.",
+      "example": "sensortower-pp-cli compare 460177396 tv.twitch.android.app --agent",
+      "why_it_matters": "Reach for this when asked which platform is winning for the same app; requires a session cookie via auth login --chrome.",
+      "group": "Cross-platform"
+    }
+  ],
+  "narrative": {
+    "display_name": "Sensor Tower",
+    "headline": "Every free Sensor Tower ranking, plus the rank history the dashboard forgets the moment you close the tab.",
+    "value_prop": "Sensor Tower's dashboard shows you a rank right now and keeps no history you can query. This CLI mirrors app profiles, top charts, and publisher portfolios into local SQLite, then answers the questions the web UI structurally cannot: what moved since last week (movers), which release actually shifted the chart (teardown), and how the same product stands on iOS versus Android (compare). Ranks are exact and free; the revenue estimates are coarse buckets, so the commands lean on rank movement and never dress a bucket up as a precise figure.",
+    "auth_narrative": "Most of this CLI needs no credentials at all: app lookups, catalog search, top charts, rank history, and publisher portfolios all work anonymously. A Sensor Tower session cookie unlocks exactly one thing — the cross-platform unified endpoints behind 'apps unified', 'publishers unified', and 'compare'. Run 'auth login --chrome' to import that session from your browser. The upstream API is rate limited at roughly a dozen requests before returning 429 with about a four-minute recovery and no Retry-After header, so this CLI is cache-first by design: 'movers' and 'divergence' each cost exactly one request, 'movers' stores a chart snapshot locally as it goes, and 'watch digest' reads that stored history without calling the API at all.",
+    "quickstart": [
+      {
+        "command": "sensortower-pp-cli find twitch --os ios",
+        "comment": "Find an app's numeric ID by name; no credentials needed"
+      },
+      {
+        "command": "sensortower-pp-cli apps get 460177396",
+        "comment": "Pull the full profile: exact ranks, version history, IAPs, rating breakdown"
+      },
+      {
+        "command": "sensortower-pp-cli movers 6015 --country US",
+        "comment": "First run stores a chart snapshot and establishes the baseline"
+      },
+      {
+        "command": "sensortower-pp-cli movers 6015 --country US",
+        "comment": "Run it again later: rank deltas and new entrants are now measured against that baseline"
+      },
+      {
+        "command": "sensortower-pp-cli watch add 460177396 --os ios",
+        "comment": "Track an app so 'watch digest' can report it from stored snapshots"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "429 too many requests with an empty body",
+        "fix": "The upstream ELB rate limits at roughly 12 requests per burst and needs about 240 seconds to recover; wait four minutes, then prefer the local mirror via 'search' or 'sql' instead of re-fetching"
+      },
+      {
+        "symptom": "401 'You need to sign in or sign up before continuing' on apps unified, publishers unified, or compare",
+        "fix": "Run 'auth login --chrome' to import your Sensor Tower session cookie; every other command works without it"
+      },
+      {
+        "symptom": "movers reports no deltas or new entrants on a fresh install",
+        "fix": "It diffs against a prior snapshot that 'movers' itself stores, so run 'sensortower-pp-cli movers \u003ccategory\u003e' once to establish a baseline, then again later to see movement. 'divergence' needs no baseline and works on the first run."
+      },
+      {
+        "symptom": "Revenue and download figures look suspiciously round",
+        "fix": "They are 1-significant-figure buckets from upstream, not precise values; use rank movement for decisions and treat the money as a soft signal"
+      },
+      {
+        "symptom": "422 with a list of valid values",
+        "fix": "The API enumerates its own valid enums in the error body; run 'sensortower-pp-cli categories' for the authoritative iOS category IDs and Android slugs"
+      }
+    ],
+    "when_to_use": "Use this CLI for mobile app market intelligence questions grounded in store rankings: where an app sits in a category chart, how that position moved over time, which release preceded a move, and how a product compares across iOS and Android. It is strongest when the question involves change over time, because it keeps a local history that Sensor Tower's dashboard does not. It works on a free Sensor Tower account, and most commands need no login at all.",
+    "anti_triggers": [
+      "Do not use this CLI for precise revenue or download numbers; upstream returns 1-significant-figure buckets and app owners report they can be off by more than half",
+      "Do not use this CLI for Sensor Tower's paid API (api.sensortower.com) — it targets the free dashboard surface and cannot mint or use an enterprise auth_token",
+      "Do not use this CLI for Ad Intelligence, Pathmatics ad creatives, Usage Intelligence, or web analytics; those are entitled products that return 401 on the free surface",
+      "Do not use this CLI for keyword rank tracking or ASO keyword research; those endpoints are not part of the reachable free surface",
+      "Do not use this CLI for high-volume bulk export; the upstream rate limit is roughly a dozen requests before a four-minute lockout"
+    ],
+    "recipes": [
+      {
+        "title": "Find an app, then read its exact ranks",
+        "command": "sensortower-pp-cli find spotify --os ios --agent --select app_id,name",
+        "explanation": "Search returns 99 entities; narrowing with --select keeps an agent's context small before picking an ID."
+      },
+      {
+        "title": "Pull only the rank block from a 39KB profile",
+        "command": "sensortower-pp-cli apps get 460177396 --agent --select name,category_rankings,worldwide_last_month_downloads",
+        "explanation": "The app hub object has 51 top-level keys including a 400+ entry version array; --select avoids burning context on fields you did not ask for."
+      },
+      {
+        "title": "See which release moved the chart",
+        "command": "sensortower-pp-cli teardown 460177396 --agent",
+        "explanation": "Aligns the versions timeline against locally stored rank history so you can see whether a ship date precedes a climb."
+      },
+      {
+        "title": "Catch new entrants in a category",
+        "command": "sensortower-pp-cli movers 6015 --country US --agent",
+        "explanation": "Set-differences the latest chart snapshot against the previous one; requires two 'movers' runs on the same category to have a baseline."
+      },
+      {
+        "title": "Compare the same product across platforms",
+        "command": "sensortower-pp-cli compare 460177396 tv.twitch.android.app --agent",
+        "explanation": "Resolves cross-platform identity via the cookie-gated unified endpoint, then shows both rank ladders side by side."
+      },
+      {
+        "title": "Track apps, then digest them without spending requests",
+        "command": "sensortower-pp-cli watch add 460177396 --os ios \u0026\u0026 sensortower-pp-cli watch digest --agent",
+        "explanation": "'watch digest' makes zero API calls: it reports ranks from snapshots that 'movers' already stored, which matters against a ~12-request budget."
+      }
+    ],
+    "trigger_phrases": [
+      "what rank is this app",
+      "who is new in the app store charts",
+      "why did this app climb the charts",
+      "compare this app on ios and android",
+      "top free apps in this category",
+      "use sensortower",
+      "run sensortower"
+    ]
+  }
+}

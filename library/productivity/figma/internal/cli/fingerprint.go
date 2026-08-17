@@ -54,7 +54,10 @@ func canonicalize(m fingerprintManifest) []byte {
 	return b
 }
 
-func newFingerprintCmd(flags *rootFlags) *cobra.Command {
+// pp:data-source local
+// fingerprint hashes variables, components, and styles read from the local
+// SQLite store; it never calls the live API. Run 'figma-pp-cli sync' first.
+func newNovelFingerprintCmd(flags *rootFlags) *cobra.Command {
 	var expect, format, dbPath string
 
 	cmd := &cobra.Command{
@@ -180,6 +183,9 @@ func readEntries(db *store.Store, sqlStr, key, valueKey string) ([]canonicalEntr
 			}
 		}
 		out = append(out, entry)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
 	}
 	return out, nil
 }

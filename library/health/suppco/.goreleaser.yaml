@@ -1,0 +1,51 @@
+version: 2
+project_name: suppco-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: suppco-pp-cli
+    main: ./cmd/suppco-pp-cli
+    binary: suppco-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/health/suppco/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: suppco-pp-mcp
+    main: ./cmd/suppco-pp-mcp
+    binary: suppco-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: suppco-pp-cli
+    repository:
+      owner: itsmefelix-
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Read-only SuppCo stack facts with a deterministic, provenance-bearing regimen snapshot export."
+    install: |
+      bin.install "suppco-pp-cli"
+      bin.install "suppco-pp-mcp"

@@ -1,0 +1,37 @@
+{
+  "api_name": "metacritic",
+  "novelty_score": 6,
+  "alternatives": [
+    {"name": "melroy89/metacritic_api", "url": "https://github.com/melroy89/metacritic_api", "language": "PHP", "stars": 83, "command_count": 0},
+    {"name": "chrismichaelps/metacritic", "url": "https://github.com/chrismichaelps/metacritic", "language": "TypeScript", "stars": 67, "command_count": 0},
+    {"name": "metacritic-ts (npm)", "url": "https://www.npmjs.com/package/metacritic-ts", "language": "TypeScript", "stars": 0, "command_count": 0},
+    {"name": "gofurry/metacritic-harvester", "url": "https://github.com/gofurry/metacritic-harvester", "language": "Go", "stars": 3, "command_count": 1},
+    {"name": "MrCherry/mcp-metacritic", "url": "https://github.com/MrCherryNeko/mcp-metacritic", "language": "TypeScript", "stars": 0, "command_count": 0}
+  ],
+  "novel_features": [
+    {"name": "Full-Text Title Search", "command": "search", "description": "FTS5 search across locally synced games, movies, and TV titles", "rationale": "Requires a domain SQLite index over synced title rows; no competing tool offers offline full-text search"},
+    {"name": "Local Analytics", "command": "analytics", "description": "Aggregate queries (group-by, counts) over locally synced Metacritic data", "rationale": "Only possible with a local SQLite store populated from the API"},
+    {"name": "Compound Workflows", "command": "workflow", "description": "Chain multiple API operations (browse then detail then reviews) in one invocation", "rationale": "Combines several backend.metacritic.com calls behind one agent-friendly command"}
+  ],
+  "gaps": [
+    {"area": "sync", "detail": "defaultSyncResources is empty; the sync command is a runtime no-op until a resource population path is wired, so the transcend layer (search/analytics) has no data by default"},
+    {"area": "coverage", "detail": "Music (albums) is excluded: it has no backend.metacritic.com JSON surface (legacy server-rendered HTML behind Cloudflare), so it does not fit this clean REST entry"},
+    {"area": "examples", "detail": "The generated analytics command ships generic placeholder examples (messages/author_id) that are not Metacritic-specific"}
+  ],
+  "patterns": [],
+  "narrative": {
+    "quickstart": [
+      {"command": "metacritic-pp-cli finder browse-titles --mco-type-id 13", "description": "Browse top games ranked by Metascore"},
+      {"command": "metacritic-pp-cli finder search-titles zelda", "description": "Cross-media search across games, movies, TV, and people"},
+      {"command": "metacritic-pp-cli composer the-legend-of-zelda-ocarina-of-time-1998 --media-type games", "description": "Full title detail: Metascore, user score, summary, release"},
+      {"command": "metacritic-pp-cli doctor", "description": "Check CLI health and API reachability"}
+    ],
+    "recipes": [
+      {"command": "metacritic-pp-cli reviews list-critic the-legend-of-zelda-ocarina-of-time-1998 --media-type games", "description": "List critic reviews for a title"},
+      {"command": "metacritic-pp-cli reviews list-user the-legend-of-zelda-ocarina-of-time-1998 --media-type games", "description": "List user reviews for a title"},
+      {"command": "metacritic-pp-cli finder list-filters --media-type games", "description": "List genre/platform/network facets for a medium"}
+    ]
+  },
+  "recommendation": "proceed",
+  "researched_at": "2026-06-16T23:20:33Z"
+}

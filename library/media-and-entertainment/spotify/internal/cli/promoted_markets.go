@@ -16,7 +16,7 @@ func newMarketsPromotedCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "markets",
 		Short:       "Get the list of markets where Spotify is available.",
-		Long:        "Shortcut for 'markets get-available'. Get the list of markets where Spotify is available.",
+		Long:        "Get the list of markets where Spotify is available.",
 		Example:     "  spotify-pp-cli markets",
 		Annotations: map[string]string{"pp:endpoint": "markets.get-available", "pp:method": "GET", "pp:path": "/markets", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -27,16 +27,16 @@ func newMarketsPromotedCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/markets"
 			params := map[string]string{}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "markets", false, path, params, nil)
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "markets", false, path, params, nil, "markets", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			// Unwrap API response envelopes (e.g. {"status":"success","data":[...]})
-			// so output helpers see the inner data, not the wrapper.
-			data = extractResponseData(data)
-
-			// Print provenance to stderr
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_endpoint.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				if json.Unmarshal(data, &countItems) != nil {
 					// Single object, not an array
@@ -74,7 +74,7 @@ func newMarketsPromotedCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 

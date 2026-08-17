@@ -9,8 +9,10 @@ import (
 
 func newAirportsNearbyCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "nearby",
-		Short: "Manage nearby",
+		Use:         "nearby",
+		Short:       "Get nearby for airports",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newAirportsNearbyGetAirportsNearAirportCmd(flags))

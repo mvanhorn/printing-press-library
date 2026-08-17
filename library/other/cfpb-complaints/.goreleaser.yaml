@@ -1,0 +1,51 @@
+version: 2
+project_name: cfpb-complaints-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: cfpb-complaints-pp-cli
+    main: ./cmd/cfpb-complaints-pp-cli
+    binary: cfpb-complaints-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/other/cfpb-complaints/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: cfpb-complaints-pp-mcp
+    main: ./cmd/cfpb-complaints-pp-mcp
+    binary: cfpb-complaints-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: cfpb-complaints-pp-cli
+    repository:
+      owner: avanderheyde
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Search published CFPB consumer complaint records and aggregations."
+    install: |
+      bin.install "cfpb-complaints-pp-cli"
+      bin.install "cfpb-complaints-pp-mcp"

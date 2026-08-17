@@ -1,0 +1,89 @@
+{
+  "api_name": "giustizia-amministrativa",
+  "base_url": "https://www.giustizia-amministrativa.it",
+  "description": "La giurisprudenza amministrativa italiana (TAR, Consiglio di Stato) da terminale: ricerca, testo integrale in Markdown, store locale e ricerca offline.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "giustizia-amministrativa-pp-cli/0.1.0 (+https://github.com/aborruso)"
+    },
+    {
+      "name": "Accept-Language",
+      "value": "it-IT,it;q=0.9"
+    }
+  ],
+  "tools": [
+    {
+      "name": "provvedimenti_cerca",
+      "description": "Cerca provvedimenti per testo, tipo, sede, anno, numero o NRG. Optional: testo, tipo, sede (plus 4 more). Returns array of Provvedimento.",
+      "method": "GET",
+      "path": "/web/guest/dcsnprr",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "testo",
+          "type": "string",
+          "location": "query",
+          "description": "Ricerca full-text libera."
+        },
+        {
+          "name": "tipo",
+          "type": "string",
+          "location": "query",
+          "description": "Tipo: sentenza, ordinanza, decreto, parere, plenaria, generale."
+        },
+        {
+          "name": "sede",
+          "type": "string",
+          "location": "query",
+          "description": "Sede (es. roma, milano, consiglio-di-stato)."
+        },
+        {
+          "name": "anno",
+          "type": "int",
+          "location": "query",
+          "description": "Anno del provvedimento."
+        },
+        {
+          "name": "numero",
+          "type": "int",
+          "location": "query",
+          "description": "Numero del provvedimento."
+        },
+        {
+          "name": "nrg",
+          "type": "int",
+          "location": "query",
+          "description": "Numero di registro generale (ricorso)."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max risultati da scaricare."
+        }
+      ]
+    },
+    {
+      "name": "provvedimenti_get",
+      "description": "Scarica il testo integrale di un provvedimento. Required: id. Returns the Provvedimento.",
+      "method": "GET",
+      "path": "/visualizzah2/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "ECLI o idprovv del provvedimento (da una ricerca).",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

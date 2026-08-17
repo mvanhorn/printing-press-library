@@ -5,6 +5,7 @@
 The Techmeme CLI puts the tech industry's most trusted news curation into your terminal. Sync headlines to a local SQLite store, then search, filter by time, track topics, and analyze which stories and sources are dominating. The 'since' command answers the question every tech professional asks: 'what did I miss?'
 
 Created by [@davemorin](https://github.com/davemorin) (Dave Morin).
+Contributors: [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
 
 ## Install
 
@@ -35,7 +36,7 @@ npx -y @mvanhorn/printing-press-library install techmeme --agent claude-code --a
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.6 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/productivity/techmeme/cmd/techmeme-pp-cli@latest
@@ -128,7 +129,7 @@ techmeme-pp-cli sync
 # What happened in the last 4 hours?
 techmeme-pp-cli since 4h
 
-# Search all cached headlines
+# Search Techmeme's live archive (records carry an ISO date field)
 techmeme-pp-cli search 'Apple AI'
 
 # What topics are hot right now?
@@ -280,8 +281,12 @@ techmeme-pp-cli digest --date 2026-05-08
 # Who are the top 10 publications on Techmeme?
 techmeme-pp-cli sources --top 10 --json
 
-# Search for a topic across all cached headlines
-techmeme-pp-cli search 'Apple AI'
+# Search Techmeme's live archive for a topic — each JSON record carries a
+# date field (ISO YYYY-MM-DD, empty when the results page has no parseable date)
+techmeme-pp-cli search 'Apple AI' --json
+
+# Only archive results from the last 30 days (undated records are dropped)
+techmeme-pp-cli search 'Apple AI' --days 30 --json
 
 # Find all headlines by a specific journalist
 techmeme-pp-cli author 'Kara Swisher'
@@ -290,7 +295,7 @@ techmeme-pp-cli author 'Kara Swisher'
 techmeme-pp-cli trending --hours 24
 
 # Export all synced data for analysis
-techmeme-pp-cli export --format jsonl --output techmeme-backup.jsonl
+techmeme-pp-cli export river --format jsonl --output techmeme-backup.jsonl
 
 # Agent pipeline: sync, then get compact JSON digest
 techmeme-pp-cli sync && techmeme-pp-cli digest --agent
@@ -338,8 +343,12 @@ No API key is required. Techmeme's public feeds are openly accessible.
 - Check the resource ID is correct
 - Run the `list` command to see available items
 
-**Empty results from `since` or `search` (exit code 0, no output)**
+**Empty results from `since` (exit code 0, no output)**
 - Run `techmeme-pp-cli sync` first to populate the local cache from the 5-day river archive
+
+**Empty results from `search`**
+- `search` queries Techmeme's live archive, not the local cache. Zero hits print `No results for "<query>"` in human mode and a valid empty JSON array `[]` in `--json`/`--agent` mode (exit code 0)
+- With `--days N`, results without a parseable date are dropped along with anything older than N days
 
 **Only 15 headlines from `headlines`**
 - The RSS feed carries only the top 15 items. Use `river` or `sync` for the full 5-day archive (150+ headlines)

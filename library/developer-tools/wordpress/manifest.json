@@ -1,0 +1,47 @@
+{
+  "manifest_version": "0.3",
+  "name": "wordpress-pp-mcp",
+  "display_name": "WordPress",
+  "version": "0.1.0",
+  "description": "WP-CLI-grade control over any WordPress site through plain HTTPS — no SSH, no server-side plugin, one static binary.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/wordpress-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/wordpress-pp-mcp",
+      "args": [],
+      "env": {
+        "WORDPRESS_APP_PASSWORD": "${user_config.wordpress_app_password}",
+        "WORDPRESS_USER": "${user_config.wordpress_user}"
+      }
+    }
+  },
+  "user_config": {
+    "wordpress_app_password": {
+      "type": "string",
+      "title": "WORDPRESS_APP_PASSWORD",
+      "description": "Sets WORDPRESS_APP_PASSWORD for the WordPress MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "wordpress_user": {
+      "type": "string",
+      "title": "WORDPRESS_USER",
+      "description": "Sets WORDPRESS_USER for the WordPress MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

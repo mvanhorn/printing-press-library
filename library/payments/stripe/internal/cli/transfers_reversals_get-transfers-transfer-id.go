@@ -29,14 +29,16 @@ func newTransfersReversalsGetTransfersTransferIdCmd(flags *rootFlags) *cobra.Com
 			}
 
 			path := "/v1/transfers/{transfer}/reversals/{id}"
-			if len(args) < 2 {
+
+			// PATCH: Bind path placeholders from Cobra positional args in Use order.
+			if len(args) < 1 {
 				return usageErr(fmt.Errorf("id is required\nUsage: %s <%s>", cmd.CommandPath(), "id"))
 			}
-			path = replacePathParam(path, "id", args[1])
-			if len(args) < 3 {
+			path = replacePathParam(path, "id", args[0])
+			if len(args) < 2 {
 				return usageErr(fmt.Errorf("transfer is required\nUsage: %s <%s>", cmd.CommandPath(), "transfer"))
 			}
-			path = replacePathParam(path, "transfer", args[2])
+			path = replacePathParam(path, "transfer", args[1])
 			params := map[string]string{}
 			if flagExpand != "" {
 				params["expand"] = fmt.Sprintf("%v", flagExpand)

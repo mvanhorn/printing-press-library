@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "algolia-novel-commands",
+  "applied_at": "2026-08-14",
+  "base_run_id": "20260813-224253-d4da62ef",
+  "base_printing_press_version": "4.30.2",
+  "summary": "Implemented 8 novel transcendence commands (find, search check, settings diff, rules stale, apikeys report, objects gaps, objects diff, logs errors) over the local SQLite store and live API.",
+  "reason": "Approved Phase 1.5 manifest: cross-index search, settings/records diffing, stale-rule and key-ACL reports, search regression checks, record gap detection, and log error digests are not provided by any existing Algolia tool.",
+  "files": ["internal/cli/find.go", "internal/cli/search_check.go", "internal/cli/settings_diff.go", "internal/cli/rules_stale.go", "internal/cli/apikeys_report.go", "internal/cli/objects_gaps.go", "internal/cli/objects_diff.go", "internal/cli/logs_errors.go", "internal/cli/apikeys.go", "internal/cli/objects.go", "internal/cli/rules.go", "internal/cli/settings.go"],
+  "validated_outcome": "go test ./... green; live dogfood 226/226; scorecard 98/100 with 8/8 novel-feature live samples passing."
+}

@@ -1,0 +1,234 @@
+{
+  "api_name": "gainsight",
+  "base_url": "https://example.gainsightcloud.com",
+  "description": "Read-first Gainsight NXT API surface for customer success account, relationship, person, timeline, and Cockpit inspection.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden"
+  },
+  "auth": {
+    "type": "api_key",
+    "header": "accesskey",
+    "in": "header",
+    "env_vars": [
+      "GAINSIGHT_ACCESS_KEY_AUTH"
+    ],
+    "env_var_specs": [
+      {
+        "name": "GAINSIGHT_ACCESS_KEY_AUTH",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "cockpit_list-calls-to-action",
+      "description": "List Cockpit calls to action. Optional: limit, offset, status. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/v1/cockpit/ctas",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Status"
+        }
+      ]
+    },
+    {
+      "name": "companies_get-company",
+      "description": "Get a company by ID. Required: id. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/v1/companies/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "companies_list",
+      "description": "List Gainsight companies. Optional: limit, offset. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/v1/companies",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "data_list-objects",
+      "description": "List Gainsight data objects. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/v1/data/objects",
+      "params": []
+    },
+    {
+      "name": "healthscores_list-health-scores",
+      "description": "List customer health score records. Optional: limit, offset. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/v1/healthscores",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "people_get-person",
+      "description": "Get a person by ID. Required: id. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/v1/people/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "people_list",
+      "description": "List people. Optional: limit, offset. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/v1/people",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "relationships_get",
+      "description": "Get a relationship by ID. Required: id. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/v1/relationships/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "relationships_list",
+      "description": "List relationships. Optional: limit, offset. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/v1/relationships",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "successplans_list-success-plans",
+      "description": "List success plans. Optional: limit, offset. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/v1/successplans",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "timeline_list-activities",
+      "description": "List Timeline activities. Optional: limit, offset, companyId. Returns the AnyObject.",
+      "method": "GET",
+      "path": "/v1/timeline/activities",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "companyId",
+          "type": "string",
+          "location": "query",
+          "description": "Company id"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,117 @@
+{
+  "api_name": "shodhganga",
+  "base_url": "https://shodhganga.inflibnet.ac.in",
+  "description": "Structured, scriptable, agent-native access to India's national reservoir of PhD theses — the machine API Shodhganga never shipped.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (compatible; shodhganga-pp-cli/0.1)"
+    },
+    {
+      "name": "Accept",
+      "value": "text/html,application/xhtml+xml"
+    }
+  ],
+  "tools": [
+    {
+      "name": "browse_list",
+      "description": "Browse theses by title, author, subject, keyword, or date. Optional: type (default: title), value, limit (default: 20) (plus 1 more).",
+      "method": "GET",
+      "path": "/browse",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Browse facet"
+        },
+        {
+          "name": "value",
+          "type": "string",
+          "location": "query",
+          "description": "Facet value to browse into (e.g. an author or subject)"
+        },
+        {
+          "name": "limit",
+          "wire_name": "rpp",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page"
+        },
+        {
+          "name": "starts_with",
+          "type": "string",
+          "location": "query",
+          "description": "Jump to entries starting with this string"
+        }
+      ]
+    },
+    {
+      "name": "thesis_get",
+      "description": "Get a thesis item page by handle number (the NNNNN in 10603/NNNNN). Required: id.",
+      "method": "GET",
+      "path": "/handle/10603/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Thesis handle number, e.g. 305247 for 10603/305247",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "thesis_search",
+      "description": "Search theses by keyword across all of Shodhganga. Required: query. Optional: limit (default: 10), start (default: 0).",
+      "method": "GET",
+      "path": "/simple-search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Search keywords",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "wire_name": "rpp",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page"
+        },
+        {
+          "name": "start",
+          "type": "int",
+          "location": "query",
+          "description": "Result offset for paging"
+        }
+      ]
+    },
+    {
+      "name": "university_get",
+      "description": "Get a university/community page by handle number. Required: id.",
+      "method": "GET",
+      "path": "/handle/10603/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Community handle number, e.g. 1 for 10603/1",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

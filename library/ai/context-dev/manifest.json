@@ -1,0 +1,55 @@
+{
+  "manifest_version": "0.3",
+  "name": "context-dev-pp-mcp",
+  "display_name": "Context",
+  "version": "0.0.0",
+  "description": "Agent-friendly Context.dev CLI for website intelligence, brand enrichment, scraping, crawling, structured extraction, screenshots, styleguides, competitor maps, source packs, and change digests.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/context-dev-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/context-dev-pp-mcp",
+      "args": [],
+      "env": {
+        "CONTEXT_DEV_API_KEY": "${user_config.context_dev_api_key}",
+        "CONTEXT_API_KEY": "${user_config.context_api_key}",
+        "CONTEXT_DEV_BEARER_AUTH": "${user_config.context_dev_bearer_auth}"
+      }
+    }
+  },
+  "user_config": {
+    "context_dev_api_key": {
+      "type": "string",
+      "title": "CONTEXT_DEV_API_KEY",
+      "description": "Preferred Context.dev API key for the Context MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "context_api_key": {
+      "type": "string",
+      "title": "CONTEXT_API_KEY",
+      "description": "Optional fallback Context.dev API key when CONTEXT_DEV_API_KEY is unset.",
+      "sensitive": true,
+      "required": false
+    },
+    "context_dev_bearer_auth": {
+      "type": "string",
+      "title": "CONTEXT_DEV_BEARER_AUTH",
+      "description": "Optional backward-compatible generated bearer credential variable.",
+      "sensitive": true,
+      "required": false
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

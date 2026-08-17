@@ -1,0 +1,1170 @@
+openapi: 3.1.0
+info:
+  title: Linq Partner API
+  version: 3.0.0
+  description: >-
+    Community-curated OpenAPI 3.1 blueprint for the Linq Partner API, derived from
+    https://docs.linqapp.com/api and cross-checked against github.com/linq-team/linq-go/api.md.
+    The blueprint is generic and contains no private deployment-specific behavior or examples.
+  x-auth-env-vars:
+    - LINQ_API_V3_API_KEY
+    - LINQ_API_KEY
+x-mcp:
+  transport: [stdio, http]
+  orchestration: code
+  endpoint_tools: hidden
+servers:
+  - url: https://api.linqapp.com/api/partner
+security:
+  - bearerAuth: []
+tags:
+  - name: attachments
+  - name: chats
+  - name: check_imessage
+  - name: check_rcs
+  - name: contact_card
+  - name: leave
+  - name: location
+  - name: messages
+  - name: participants
+  - name: phone_numbers
+  - name: phonenumbers
+  - name: reactions
+  - name: read
+  - name: request
+  - name: share_contact_card
+  - name: thread
+  - name: typing
+  - name: voicememo
+  - name: webhook_events
+  - name: webhook_subscriptions
+paths:
+  /v3/chats:
+    x-resource-id: id
+    x-critical: true
+    post:
+      operationId: createANewChat
+      summary: "Create a new chat"
+      description: "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md."
+      tags: [chats]
+      x-mcp:
+        hidden: true
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenericObject'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericObject'
+        default:
+          description: Linq error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+    get:
+      operationId: listAllChats
+      summary: "List all chats"
+      description: "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md."
+      tags: [chats]
+      x-data-source-strategy: auto
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: from
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: to
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: before
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: after
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListEnvelope'
+        default:
+          description: Linq error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /v3/chats/{chatId}:
+    x-resource-id: chatId
+    get:
+      operationId: getAChatByID
+      summary: "Get a chat by ID"
+      description: "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md."
+      tags: [chats]
+      x-data-source-strategy: auto
+      parameters:
+        - name: chatId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericObject'
+        default:
+          description: Linq error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+    put:
+      operationId: updateAChat
+      summary: "Update a chat"
+      description: "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md."
+      tags: [chats]
+      x-mcp:
+        hidden: true
+      parameters:
+        - name: chatId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenericObject'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericObject'
+        default:
+          description: Linq error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /v3/chats/{chatId}/read:
+    post:
+      operationId: markChatAsRead
+      summary: "Mark chat as read"
+      description: "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md."
+      tags: [read]
+      x-mcp:
+        hidden: true
+      parameters:
+        - name: chatId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericObject'
+        default:
+          description: Linq error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /v3/chats/{chatId}/leave:
+    post:
+      operationId: leaveAGroupChat
+      summary: "Leave a group chat"
+      description: "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md."
+      tags: [leave]
+      x-mcp:
+        hidden: true
+      parameters:
+        - name: chatId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericObject'
+        default:
+          description: Linq error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /v3/chats/{chatId}/share_contact_card:
+    post:
+      operationId: shareYourContactCardWithAChat
+      summary: "Share your contact card with a chat"
+      description: "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md."
+      tags: [share_contact_card]
+      x-mcp:
+        hidden: true
+      parameters:
+        - name: chatId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericObject'
+        default:
+          description: Linq error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /v3/chats/{chatId}/voicememo:
+    post:
+      operationId: sendAVoiceMemoToAChat
+      summary: "Send a voice memo to a chat"
+      description: "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md."
+      tags: [voicememo]
+      x-mcp:
+        hidden: true
+      parameters:
+        - name: chatId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenericObject'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericObject'
+        default:
+          description: Linq error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /v3/chats/{chatId}/participants:
+    post:
+      operationId: addAParticipantToAChat
+      summary: "Add a participant to a chat"
+      description: "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md."
+      tags: [participants]
+      x-mcp:
+        hidden: true
+      parameters:
+        - name: chatId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenericObject'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericObject'
+        default:
+          description: Linq error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+    delete:
+      operationId: removeAParticipantFromAChat
+      summary: "Remove a participant from a chat"
+      description: "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md."
+      tags: [participants]
+      x-mcp:
+        hidden: true
+      parameters:
+        - name: chatId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenericObject'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericObject'
+        default:
+          description: Linq error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /v3/chats/{chatId}/typing:
+    post:
+      operationId: startTypingIndicator
+      summary: "Start typing indicator"
+      description: "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md."
+      tags: [typing]
+      x-mcp:
+        hidden: true
+      parameters:
+        - name: chatId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericObject'
+        default:
+          description: Linq error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+    delete:
+      operationId: stopTypingIndicator
+      summary: "Stop typing indicator"
+      description: "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md."
+      tags: [typing]
+      x-mcp:
+        hidden: true
+      parameters:
+        - name: chatId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericObject'
+        default:
+          description: Linq error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /v3/chats/{chatId}/messages:
+    x-resource-id: chatId
+    post:
+      operationId: sendAMessageToAnExistingChat
+      summary: "Send a message to an existing chat"
+      description: "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md."
+      tags: [messages]
+      x-mcp:
+        hidden: true
+      parameters:
+        - name: chatId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenericObject'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericObject'
+        default:
+          description: Linq error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+    get:
+      operationId: getMessagesFromAChat
+      summary: "Get messages from a chat"
+      description: "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md."
+      tags: [messages]
+      x-data-source-strategy: auto
+      parameters:
+        - name: chatId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: from
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: to
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: before
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: after
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListEnvelope'
+        default:
+          description: Linq error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /v3/messages/{messageId}/thread:
+    x-resource-id: messageId
+    get:
+      operationId: getAllMessagesInAThread
+      summary: "Get all messages in a thread"
+      description: "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md."
+      tags: [thread]
+      x-data-source-strategy: auto
+      parameters:
+        - name: messageId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: from
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: to
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: before
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: after
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListEnvelope'
+        default:
+          description: Linq error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /v3/messages/{messageId}:
+    x-resource-id: messageId
+    get:
+      operationId: getAMessageByID
+      summary: "Get a message by ID"
+      description: "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md."
+      tags: [messages]
+      x-data-source-strategy: auto
+      parameters:
+        - name: messageId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericObject'
+        default:
+          description: Linq error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+    delete:
+      operationId: deleteAMessageFromSystem
+      summary: "Delete a message from system"
+      description: "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md."
+      tags: [messages]
+      x-mcp:
+        hidden: true
+      parameters:
+        - name: messageId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenericObject'
+      responses:
+        '204':
+          description: No content
+        default:
+          description: Linq error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+    patch:
+      operationId: editTheContentOfAMessagePart
+      summary: "Edit the content of a message part"
+      description: "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md."
+      tags: [messages]
+      x-mcp:
+        hidden: true
+      parameters:
+        - name: messageId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenericObject'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericObject'
+        default:
+          description: Linq error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /v3/messages/{messageId}/reactions:
+    post:
+      operationId: addOrRemoveAReactionToAMessage
+      summary: "Add or remove a reaction to a message"
+      description: "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md."
+      tags: [reactions]
+      x-mcp:
+        hidden: true
+      parameters:
+        - name: messageId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenericObject'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericObject'
+        default:
+          description: Linq error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /v3/chats/{chatId}/location/request:
+    post:
+      operationId: requestLocationSharing
+      summary: "Request location sharing"
+      description: "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md."
+      tags: [request]
+      x-mcp:
+        hidden: true
+      parameters:
+        - name: chatId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericObject'
+        default:
+          description: Linq error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /v3/chats/{chatId}/location:
+    x-resource-id: chatId
+    get:
+      operationId: getLocationData
+      summary: "Get location data"
+      description: "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md."
+      tags: [location]
+      x-data-source-strategy: auto
+      parameters:
+        - name: chatId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericObject'
+        default:
+          description: Linq error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /v3/attachments:
+    post:
+      operationId: preUploadAFile
+      summary: "Pre-upload a file"
+      description: "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md."
+      tags: [attachments]
+      x-mcp:
+        hidden: true
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenericObject'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericObject'
+        default:
+          description: Linq error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /v3/attachments/{attachmentId}:
+    x-resource-id: attachmentId
+    get:
+      operationId: getAttachmentMetadata
+      summary: "Get attachment metadata"
+      description: "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md."
+      tags: [attachments]
+      x-data-source-strategy: auto
+      parameters:
+        - name: attachmentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericObject'
+        default:
+          description: Linq error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+    delete:
+      operationId: deleteAnAttachment
+      summary: "Delete an attachment"
+      description: "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md."
+      tags: [attachments]
+      x-mcp:
+        hidden: true
+      parameters:
+        - name: attachmentId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenericObject'
+      responses:
+        '204':
+          description: No content
+        default:
+          description: Linq error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /v3/phone_numbers:
+    x-resource-id: id
+    x-critical: true
+    get:
+      operationId: listPhoneNumbers
+      summary: "List phone numbers"
+      description: "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md."
+      tags: [phone_numbers]
+      x-data-source-strategy: auto
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListEnvelope'
+        default:
+          description: Linq error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /v3/webhook-events:
+    x-resource-id: id
+    x-critical: true
+    get:
+      operationId: listAvailableWebhookEventTypes
+      summary: "List available webhook event types"
+      description: "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md."
+      tags: [webhook_events]
+      x-data-source-strategy: auto
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListEnvelope'
+        default:
+          description: Linq error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /v3/webhook-subscriptions:
+    x-resource-id: id
+    x-critical: true
+    post:
+      operationId: createANewWebhookSubscription
+      summary: "Create a new webhook subscription"
+      description: "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md."
+      tags: [webhook_subscriptions]
+      x-mcp:
+        hidden: true
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenericObject'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericObject'
+        default:
+          description: Linq error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+    get:
+      operationId: listAllWebhookSubscriptions
+      summary: "List all webhook subscriptions"
+      description: "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md."
+      tags: [webhook_subscriptions]
+      x-data-source-strategy: auto
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListEnvelope'
+        default:
+          description: Linq error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /v3/webhook-subscriptions/{subscriptionId}:
+    x-resource-id: subscriptionId
+    get:
+      operationId: getAWebhookSubscriptionByID
+      summary: "Get a webhook subscription by ID"
+      description: "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md."
+      tags: [webhook_subscriptions]
+      x-data-source-strategy: auto
+      parameters:
+        - name: subscriptionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericObject'
+        default:
+          description: Linq error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+    put:
+      operationId: updateAWebhookSubscription
+      summary: "Update a webhook subscription"
+      description: "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md."
+      tags: [webhook_subscriptions]
+      x-mcp:
+        hidden: true
+      parameters:
+        - name: subscriptionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericObject'
+        default:
+          description: Linq error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+    delete:
+      operationId: deleteAWebhookSubscription
+      summary: "Delete a webhook subscription"
+      description: "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md."
+      tags: [webhook_subscriptions]
+      x-mcp:
+        hidden: true
+      parameters:
+        - name: subscriptionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: No content
+        default:
+          description: Linq error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /v3/capability/check_imessage:
+    post:
+      operationId: checkIMessageCapability
+      summary: "Check iMessage capability"
+      description: "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md."
+      tags: [check_imessage]
+      x-mcp:
+        hidden: true
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenericObject'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericObject'
+        default:
+          description: Linq error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /v3/capability/check_rcs:
+    post:
+      operationId: checkRCSCapability
+      summary: "Check RCS capability"
+      description: "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md."
+      tags: [check_rcs]
+      x-mcp:
+        hidden: true
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenericObject'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericObject'
+        default:
+          description: Linq error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /v3/contact_card:
+    get:
+      operationId: getContactCards
+      summary: "Get contact cards"
+      description: "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md."
+      tags: [contact_card]
+      x-data-source-strategy: auto
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListEnvelope'
+        default:
+          description: Linq error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+    post:
+      operationId: setupContactCard
+      summary: "Setup contact card"
+      description: "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md."
+      tags: [contact_card]
+      x-mcp:
+        hidden: true
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenericObject'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericObject'
+        default:
+          description: Linq error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+    patch:
+      operationId: updateContactCard
+      summary: "Update contact card"
+      description: "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md."
+      tags: [contact_card]
+      x-mcp:
+        hidden: true
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenericObject'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericObject'
+        default:
+          description: Linq error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /v3/phonenumbers:
+    x-resource-id: id
+    x-critical: true
+    get:
+      operationId: listPhoneNumbersDeprecated
+      summary: "List phone numbers (deprecated)"
+      description: "Source: https://docs.linqapp.com/api. Cross-check: github.com/linq-team/linq-go/api.md."
+      tags: [phonenumbers]
+      x-data-source-strategy: auto
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListEnvelope'
+        default:
+          description: Linq error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: Linq API key
+      x-auth-env-vars:
+        - LINQ_API_V3_API_KEY
+        - LINQ_API_KEY
+  schemas:
+    GenericObject:
+      type: object
+      additionalProperties: true
+    ListEnvelope:
+      type: object
+      additionalProperties: true
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/GenericObject' }
+        chats:
+          type: array
+          items: { $ref: '#/components/schemas/GenericObject' }
+        messages:
+          type: array
+          items: { $ref: '#/components/schemas/GenericObject' }
+        cursor:
+          type: string
+          nullable: true
+    ErrorEnvelope:
+      type: object
+      additionalProperties: true
+      properties:
+        success: { type: boolean }
+        error:
+          type: object
+          additionalProperties: true
+          properties:
+            status: { type: integer }
+            code: { type: integer }
+            message: { type: string }
+            doc_url: { type: string, format: uri }

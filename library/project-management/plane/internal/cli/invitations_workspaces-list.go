@@ -20,14 +20,13 @@ func newInvitationsWorkspacesListCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  plane-pp-cli invitations workspaces-list",
 		Annotations: map[string]string{"pp:endpoint": "invitations.workspaces-list", "pp:method": "GET", "pp:path": "/invitations/", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			path := "/invitations/"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/invitations/"
 			params := map[string]string{}
-			data, prov, err := resolveReadWithStrategy(cmd.Context(), c, flags, "auto", "invitations", false, path, params, nil, cmd.ErrOrStderr())
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "invitations", false, path, params, nil, "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -72,7 +71,7 @@ func newInvitationsWorkspacesListCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 

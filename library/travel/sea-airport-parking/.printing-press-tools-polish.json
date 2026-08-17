@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-07-13T20:15:58.178948Z",
+  "cli_dir": "\u003ccli-dir\u003e/sea-airport-parking-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 692,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "Shared learn-loop 'learnings list' in a DO-NOT-EDIT generated file; Short is brief-but-precise, already carries mcp:read-only and worked examples. Generator-template concern, not a per-CLI defect."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-07-13T20:08:41.312221Z"
+  }
+}

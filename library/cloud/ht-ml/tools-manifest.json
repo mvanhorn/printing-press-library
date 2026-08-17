@@ -1,0 +1,29 @@
+{
+  "api_name": "ht-ml",
+  "base_url": "https://api.ht-ml.app/v1",
+  "description": "Publish, manage, and remember single-page HTML sites on ht-ml.app",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "sites_get",
+      "description": "Get a site's status and the assets its HTML references (no auth; public read). Required: site_id. Returns the Site.",
+      "method": "GET",
+      "path": "/sites/{site_id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Site id (the {site_id} in https://{site_id}.ht-ml.app/)",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

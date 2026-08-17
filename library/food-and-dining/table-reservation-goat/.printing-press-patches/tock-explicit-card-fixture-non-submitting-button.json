@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "tock-explicit-card-fixture-non-submitting-button",
+  "applied_at": "2026-08-12",
+  "base_run_id": "20260712-223206",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Keep the Tock explicit-card browser fixture button non-submitting so its click marker can be read deterministically.",
+  "reason": "A typeless button inside the fixture form submits and navigates after the synthetic click, racing the test's read of window.clickedOwn. Explicit type=button preserves the form attribution boundary without incidental navigation.",
+  "files": [
+    "internal/source/tock/chrome_book_test.go"
+  ],
+  "validated_outcome": "The focused Chrome-backed regression passes repeatedly without the fixture navigation race."
+}

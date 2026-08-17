@@ -19,14 +19,13 @@ func newContactsListCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  intercom-pp-cli contacts list",
 		Annotations: map[string]string{"pp:endpoint": "contacts.list", "pp:method": "GET", "pp:path": "/contacts", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			path := "/contacts"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/contacts"
 			params := map[string]string{}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "contacts", true, path, params, nil, cmd.ErrOrStderr())
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "contacts", true, path, params, nil, "data", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -71,7 +70,7 @@ func newContactsListCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 

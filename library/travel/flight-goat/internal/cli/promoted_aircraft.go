@@ -15,10 +15,10 @@ func newAircraftPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "aircraft <type>",
-		Short:       "Returns information about an aircraft type, given an ICAO aircraft type designator string. Data returned includes...",
-		Long:        "Shortcut for 'aircraft get-flight-type'. Returns information about an aircraft type, given an ICAO aircraft type designator string. Data returned includes...",
-		Example:     "  flight-goat-pp-cli aircraft",
-		Annotations: map[string]string{"pp:endpoint": "aircraft.get-flight-type", "mcp:read-only": "true"},
+		Short:       "Returns information about an aircraft type, given an ICAO aircraft type designator string.",
+		Long:        "Returns information about an aircraft type, given an ICAO aircraft type designator string.",
+		Example:     "  flight-goat-pp-cli aircraft GALX",
+		Annotations: map[string]string{"pp:endpoint": "aircraft.get-flight-type", "pp:method": "GET", "pp:path": "/aircraft/types/{type}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -26,21 +26,31 @@ func newAircraftPromotedCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/aircraft/types/{type}"
-			if len(args) < 1 {
-				return usageErr(fmt.Errorf("type is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "type"))
+			if len(args) < 1 || args[0] == "" {
+				// JSON envelope: {error, usage}. Written first; the
+				// usageErr return preserves exit code 2 across modes.
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "type is required",
+						"usage": fmt.Sprintf("%s <%s>", cmd.CommandPath(), "type"),
+					}, flags); printErr != nil {
+						return printErr
+					}
+				}
+				return usageErr(fmt.Errorf("type is required\nUsage: %s <%s>", cmd.CommandPath(), "type"))
 			}
 			path = replacePathParam(path, "type", args[0])
 			params := map[string]string{}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "aircraft", false, path, params, nil)
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "aircraft", false, path, params, nil, "", cmd.ErrOrStderr())
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
-			// Unwrap API response envelopes (e.g. {"status":"success","data":[...]})
-			// so output helpers see the inner data, not the wrapper.
-			data = extractResponseData(data)
-
-			// Print provenance to stderr
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_endpoint.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				if json.Unmarshal(data, &countItems) != nil {
 					// Single object, not an array
@@ -48,14 +58,12 @@ func newAircraftPromotedCmd(flags *rootFlags) *cobra.Command {
 				}
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// CSV bypasses JSON pipe path so --csv works when piped
-			if flags.csv {
-				return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
-			}
 			// For JSON output, wrap with provenance envelope. --select wins over
 			// --compact when both are set; --compact only runs when no explicit
-			// fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// fields were requested. Explicit format flags (--csv, --quiet, --plain)
+			// opt out of the auto-JSON path so piped consumers that asked for a
+			// non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -80,13 +88,21 @@ func newAircraftPromotedCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 
 	// Wire sibling endpoints and sub-resources as subcommands
-	cmd.AddCommand(newAircraftBlockedGetAircraftCmd(flags))
-	cmd.AddCommand(newAircraftOwnerGetAircraftCmd(flags))
+	{
+		sub := newAircraftBlockedCmd(flags)
+		sub.Hidden = false // unhide: the raw parent is hidden but these are useful under the promoted command
+		cmd.AddCommand(sub)
+	}
+	{
+		sub := newAircraftOwnerCmd(flags)
+		sub.Hidden = false // unhide: the raw parent is hidden but these are useful under the promoted command
+		cmd.AddCommand(sub)
+	}
 
 	return cmd
 }

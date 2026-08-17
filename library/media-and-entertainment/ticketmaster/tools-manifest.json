@@ -1,7 +1,7 @@
 {
   "api_name": "ticketmaster",
   "base_url": "https://app.ticketmaster.com/discovery/v2",
-  "description": "The Ticketmaster Discovery API allows you to search for events, attractions, or venues.\n\nAuthentication: Set the `TICKETMASTER_API_KEY` environment variable to your Discovery API consumer key. The CLI sends it as the `apikey` query parameter on every request.",
+  "description": "Every Discovery v2 endpoint plus offline search, multi-venue watchlists, residency dedup, and on-sale tracking no API call exposes.",
   "mcp_ready": "full",
   "http_transport": "standard",
   "auth": {
@@ -19,13 +19,14 @@
         "sensitive": true,
         "description": "Ticketmaster Discovery API consumer key (32-char alphanumeric)."
       }
-    ]
+    ],
+    "key_url": "https://developer-acct.ticketmaster.com"
   },
   "required_headers": [],
   "tools": [
     {
       "name": "attractions_find",
-      "description": "Find attractions (artists, sports, packages, plays and so on) and filter your search by name, and much more. Optional: sort (default: relevance,desc), classificationName, classificationId (plus 7 more). Returns array of Attraction.",
+      "description": "Find attractions (artists, sports, packages, plays and so on) and filter your search by name, and much more. Optional: sort (default: relevance,desc), classificationName, classificationId (plus 9 more). Returns array of Attraction.",
       "method": "GET",
       "path": "/attractions",
       "params": [
@@ -84,6 +85,18 @@
           "description": "Page size of the response"
         },
         {
+          "name": "locale",
+          "type": "string",
+          "location": "query",
+          "description": "The locale in ISO code format."
+        },
+        {
+          "name": "includeLicensedContent",
+          "type": "string",
+          "location": "query",
+          "description": "Yes if you want to display licensed content"
+        },
+        {
           "name": "includeSpellcheck",
           "type": "string",
           "location": "query",
@@ -93,7 +106,7 @@
     },
     {
       "name": "attractions_get",
-      "description": "Get details for a specific attraction using the unique identifier for the attraction. Required: id. Returns the Attraction.",
+      "description": "Get details for a specific attraction using the unique identifier for the attraction. Required: id. Optional: locale (default: en), includeLicensedContent (default: no). Returns the Attraction.",
       "method": "GET",
       "path": "/attractions/{id}",
       "params": [
@@ -103,12 +116,24 @@
           "location": "path",
           "description": "ID of the attraction",
           "required": true
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "query",
+          "description": "The locale in ISO code format."
+        },
+        {
+          "name": "includeLicensedContent",
+          "type": "string",
+          "location": "query",
+          "description": "True if you want to display licensed content"
         }
       ]
     },
     {
       "name": "classifications_get",
-      "description": "Get details for a specific segment, genre, or sub-genre using its unique identifier. Required: id. Returns the Classification.",
+      "description": "Get details for a specific segment, genre, or sub-genre using its unique identifier. Required: id. Optional: locale (default: en), includeLicensedContent (default: no). Returns the Classification.",
       "method": "GET",
       "path": "/classifications/{id}",
       "params": [
@@ -118,12 +143,24 @@
           "location": "path",
           "description": "ID of the segment, genre, or sub-genre",
           "required": true
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "query",
+          "description": "The locale in ISO code format."
+        },
+        {
+          "name": "includeLicensedContent",
+          "type": "string",
+          "location": "query",
+          "description": "True if you want to display licensed content"
         }
       ]
     },
     {
       "name": "classifications_get-genre",
-      "description": "Get details for a specific genre using its unique identifier. Required: id. Returns the Genre.",
+      "description": "Get details for a specific genre using its unique identifier. Required: id. Optional: locale (default: en), includeLicensedContent (default: no). Returns the Genre.",
       "method": "GET",
       "path": "/classifications/genres/{id}",
       "params": [
@@ -133,12 +170,24 @@
           "location": "path",
           "description": "ID of the genre",
           "required": true
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "query",
+          "description": "The locale in ISO code format."
+        },
+        {
+          "name": "includeLicensedContent",
+          "type": "string",
+          "location": "query",
+          "description": "True if you want to display licensed content"
         }
       ]
     },
     {
       "name": "classifications_get-segment",
-      "description": "Get details for a specific segment using its unique identifier. Required: id. Returns the Segment.",
+      "description": "Get details for a specific segment using its unique identifier. Required: id. Optional: locale (default: en), includeLicensedContent (default: no). Returns the Segment.",
       "method": "GET",
       "path": "/classifications/segments/{id}",
       "params": [
@@ -148,12 +197,24 @@
           "location": "path",
           "description": "ID of the segment",
           "required": true
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "query",
+          "description": "The locale in ISO code format."
+        },
+        {
+          "name": "includeLicensedContent",
+          "type": "string",
+          "location": "query",
+          "description": "True if you want to display licensed content"
         }
       ]
     },
     {
       "name": "classifications_get-subgenre",
-      "description": "Get details for a specific sub-genre using its unique identifier. Required: id. Returns the Level.",
+      "description": "Get details for a specific sub-genre using its unique identifier. Required: id. Optional: locale (default: en), includeLicensedContent (default: no). Returns the Level.",
       "method": "GET",
       "path": "/classifications/subgenres/{id}",
       "params": [
@@ -163,12 +224,24 @@
           "location": "path",
           "description": "ID of the subgenre",
           "required": true
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "query",
+          "description": "The locale in ISO code format."
+        },
+        {
+          "name": "includeLicensedContent",
+          "type": "string",
+          "location": "query",
+          "description": "True if you want to display licensed content"
         }
       ]
     },
     {
       "name": "classifications_list",
-      "description": "Find classifications and filter your search by name, and much more. Classifications help define the nature of attractions and events. Optional: sort (default: name,asc), keyword, id (plus 5 more). Returns array of Classification.",
+      "description": "Find classifications and filter your search by name, and much more. Classifications help define the nature of attractions and events. Optional: sort (default: name,asc), keyword, id (plus 7 more). Returns array of Classification.",
       "method": "GET",
       "path": "/classifications",
       "params": [
@@ -215,6 +288,18 @@
           "description": "Page size of the response"
         },
         {
+          "name": "locale",
+          "type": "string",
+          "location": "query",
+          "description": "The locale in ISO code format."
+        },
+        {
+          "name": "includeLicensedContent",
+          "type": "string",
+          "location": "query",
+          "description": "Yes if you want to display licensed content"
+        },
+        {
           "name": "includeSpellcheck",
           "type": "string",
           "location": "query",
@@ -224,7 +309,7 @@
     },
     {
       "name": "events_get",
-      "description": "Get details for a specific event using the unique identifier for the event. This includes the venue and location, the attraction(s), and the Ticketmaster Website URL for purchasing tickets for the event. Required: id. Returns the Event.",
+      "description": "Get details for a specific event using the unique identifier for the event. This includes the venue and location, the attraction(s), and the Ticketmaster Website URL for purchasing tickets for the event. Required: id. Optional: locale (default: en), includeLicensedContent (default: no). Returns the Event.",
       "method": "GET",
       "path": "/events/{id}",
       "params": [
@@ -234,12 +319,24 @@
           "location": "path",
           "description": "ID of the event",
           "required": true
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "query",
+          "description": "The locale in ISO code format."
+        },
+        {
+          "name": "includeLicensedContent",
+          "type": "string",
+          "location": "query",
+          "description": "True if you want to display licensed content"
         }
       ]
     },
     {
       "name": "events_list",
-      "description": "Find events and filter your search by location, date, availability, and much more. Optional: sort (default: relevance,desc), startDateTime, endDateTime (plus 31 more). Returns array of Event.",
+      "description": "Find events and filter your search by location, date, availability, and much more. Optional: sort (default: relevance,desc), startDateTime, endDateTime (plus 33 more). Returns array of Event.",
       "method": "GET",
       "path": "/events",
       "params": [
@@ -442,6 +539,18 @@
           "description": "Page size of the response"
         },
         {
+          "name": "locale",
+          "type": "string",
+          "location": "query",
+          "description": "The locale in ISO code format."
+        },
+        {
+          "name": "includeLicensedContent",
+          "type": "string",
+          "location": "query",
+          "description": "Yes if you want to display licensed content"
+        },
+        {
           "name": "includeSpellcheck",
           "type": "string",
           "location": "query",
@@ -451,7 +560,7 @@
     },
     {
       "name": "events_images_get",
-      "description": "Get images for a specific event using the unique identifier for the event. Required: id. Returns the EventImages.",
+      "description": "Get images for a specific event using the unique identifier for the event. Required: id. Optional: locale (default: en), includeLicensedContent (default: no). Returns array of Image.",
       "method": "GET",
       "path": "/events/{id}/images",
       "params": [
@@ -461,12 +570,24 @@
           "location": "path",
           "description": "ID of the event",
           "required": true
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "query",
+          "description": "The locale in ISO code format."
+        },
+        {
+          "name": "includeLicensedContent",
+          "type": "string",
+          "location": "query",
+          "description": "True if you want to display licensed content"
         }
       ]
     },
     {
       "name": "suggest_list",
-      "description": "Find search suggestions and filter your suggestions by location, source, etc. Optional: keyword, source, latlong (plus 11 more).",
+      "description": "Find search suggestions and filter your suggestions by location, source, etc. Optional: keyword, source, latlong (plus 13 more).",
       "method": "GET",
       "path": "/suggest",
       "params": [
@@ -549,6 +670,18 @@
           "description": "filter events by geoHash"
         },
         {
+          "name": "locale",
+          "type": "string",
+          "location": "query",
+          "description": "The locale in ISO code format."
+        },
+        {
+          "name": "includeLicensedContent",
+          "type": "string",
+          "location": "query",
+          "description": "Yes if you want to display licensed content"
+        },
+        {
           "name": "includeSpellcheck",
           "type": "string",
           "location": "query",
@@ -558,7 +691,7 @@
     },
     {
       "name": "venues_get",
-      "description": "Get details for a specific venue using the unique identifier for the venue. Required: id. Returns the Venue.",
+      "description": "Get details for a specific venue using the unique identifier for the venue. Required: id. Optional: locale (default: en), includeLicensedContent (default: no). Returns the Venue.",
       "method": "GET",
       "path": "/venues/{id}",
       "params": [
@@ -568,12 +701,24 @@
           "location": "path",
           "description": "ID of the venue",
           "required": true
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "query",
+          "description": "The locale in ISO code format."
+        },
+        {
+          "name": "includeLicensedContent",
+          "type": "string",
+          "location": "query",
+          "description": "True if you want to display licensed content"
         }
       ]
     },
     {
       "name": "venues_list",
-      "description": "Find venues and filter your search by name, and much more. Optional: sort (default: relevance,desc), stateCode, countryCode (plus 11 more). Returns array of Venue.",
+      "description": "Find venues and filter your search by name, and much more. Optional: sort (default: relevance,desc), stateCode, countryCode (plus 13 more). Returns array of Venue.",
       "method": "GET",
       "path": "/venues",
       "params": [
@@ -654,6 +799,18 @@
           "type": "string",
           "location": "query",
           "description": "Page size of the response"
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "query",
+          "description": "The locale in ISO code format."
+        },
+        {
+          "name": "includeLicensedContent",
+          "type": "string",
+          "location": "query",
+          "description": "Yes if you want to display licensed content"
         },
         {
           "name": "includeSpellcheck",

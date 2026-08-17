@@ -1,0 +1,22 @@
+type: object
+properties:
+  id:
+    type: integer
+    format: int
+  from_user_id:
+    type: integer
+    format: int
+  to_user_id:
+    type: integer
+    format: int
+  subject:
+    type: string
+  add_date:
+    type: string
+    format: date-time
+  modified_date:
+    type: string
+    format: date-time
+  comment_id:
+    type: integer
+    format: int

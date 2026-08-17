@@ -1,0 +1,60 @@
+name: drug-enforcement
+description: "Look up FDA drug recall (enforcement) records from the openFDA API — classification, recalling firm, reason, distribution, and dates. Enforcement reporting, not medical advice."
+version: "1.0.0"
+base_url: "https://api.fda.gov"
+health_check_path: "/drug/enforcement.json?limit=1"
+category: health
+cli_description: "Search FDA drug recall enforcement records — keyless, offline-cacheable, agent-native. Reports FDA facts only; never says a drug is safe."
+
+required_headers:
+  - name: User-Agent
+    value: "drug-enforcement-pp-cli/1.0 (keyless; openFDA)"
+  - name: Accept
+    value: "application/json"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/drug-enforcement/config.toml"
+
+resources:
+  enforcement:
+    description: "FDA drug recall enforcement records (openFDA /drug/enforcement.json)"
+    endpoints:
+      list:
+        method: GET
+        path: "/drug/enforcement.json"
+        description: "Search drug recall enforcement records with an openFDA Lucene search expression"
+        params:
+          - name: search
+            type: string
+            required: false
+            positional: false
+            default: ""
+            description: "openFDA search expression, e.g. product_description:\"ibuprofen\" or classification:\"Class I\""
+          - name: limit
+            type: int
+            required: false
+            positional: false
+            default: 25
+            description: "Maximum records to return (openFDA max 1000)"
+          - name: skip
+            type: int
+            required: false
+            positional: false
+            default: 0
+            description: "Number of records to skip (pagination offset)"
+          - name: sort
+            type: string
+            required: false
+            positional: false
+            default: "recall_initiation_date:desc"
+            description: "Sort expression, e.g. recall_initiation_date:desc"
+          - name: count
+            type: string
+            required: false
+            positional: false
+            default: ""
+            description: "Field to aggregate counts by, e.g. classification.exact or recalling_firm.exact"

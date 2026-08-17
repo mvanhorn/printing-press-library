@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-18T21:48:39.8007857Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "oura",
+  "display_name": "Oura",
+  "cli_name": "oura-pp-cli",
+  "creator": {
+    "handle": "coopdogGGs",
+    "name": "ryanc00per"
+  },
+  "owner": "coopdogggs",
+  "printer": "coopdogGGs",
+  "printer_name": "ryanc00per",
+  "spec_url": "https://cloud.ouraring.com/v2/static/json/openapi-1.34.json",
+  "spec_path": "oura-spec.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:c6cb05fc299776559acf1aa2955099a1f28fba63dd908f013f48dd5fea1c83c1",
+  "run_id": "20260618-214839",
+  "catalog_entry": "oura",
+  "category": "health",
+  "description": "Personal health data from the Oura Ring - sleep, readiness, daily activity, heart rate, workouts, SpO2, stress, and resilience.",
+  "mcp_binary": "oura-pp-mcp",
+  "mcp_tool_count": 75,
+  "mcp_ready": "full",
+  "api_version": "2.0",
+  "auth_type": "bearer_token",
+  "auth_preference": "OAuth2",
+  "auth_env_vars": [
+    "OURA_OAUTH2"
+  ],
+  "auth_key_url": "https://cloud.ouraring.com/oauth/applications",
+  "novel_features": [
+    {
+      "name": "Local SQLite Sync",
+      "command": "sync",
+      "description": "Mirror Oura usercollection data into a local SQLite store for offline search and analysis"
+    },
+    {
+      "name": "Full-Text Search",
+      "command": "search",
+      "description": "FTS5 full-text search across locally synced Oura records"
+    },
+    {
+      "name": "Local Analytics",
+      "command": "analytics",
+      "description": "Aggregate group-by and count queries over locally synced health data"
+    },
+    {
+      "name": "Compound Workflows",
+      "command": "workflow",
+      "description": "Chain multiple Oura API operations into one agent-friendly command"
+    }
+  ]
+}

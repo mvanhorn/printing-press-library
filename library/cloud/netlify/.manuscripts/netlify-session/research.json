@@ -1,0 +1,200 @@
+{
+  "api_name": "netlify",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "netlify-cli",
+      "url": "https://github.com/netlify/cli",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 1500,
+      "last_updated": "",
+      "command_count": 60,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-03T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "Cross-site health dashboard",
+      "command": "overview",
+      "description": "One command shows build status, last deploy time, and form counts for every site in your account.",
+      "rationale": "Requires aggregating sites, deploys, and forms from the local mirror in one join; the API and UI only show one site at a time.",
+      "example": "netlify-pp-cli overview --json --select name,last_deploy,state",
+      "why_it_matters": "Reach for this to survey an entire account at once instead of paging through the dashboard per site.",
+      "group": "Cross-site state that compounds"
+    },
+    {
+      "name": "Environment variable drift",
+      "command": "env-drift",
+      "description": "Finds env vars that exist on some sites but are missing or differ on others, across contexts.",
+      "rationale": "Requires a local join over every site's env vars; no single API call compares variables across sites and contexts.",
+      "example": "netlify-pp-cli env-drift --json",
+      "why_it_matters": "Use before a release to catch a secret set on staging but missing on production.",
+      "group": "Cross-site state that compounds"
+    },
+    {
+      "name": "Offline form submission search",
+      "command": "submissions search",
+      "description": "Full-text search across every form submission from every site, offline.",
+      "rationale": "Requires an FTS index over the local submission mirror; the API has no cross-form search.",
+      "example": "netlify-pp-cli submissions search \"refund\" --json --limit 20",
+      "why_it_matters": "Reach for this to find a specific contact/lead across all forms without clicking through the UI.",
+      "group": "Offline search"
+    },
+    {
+      "name": "DNS audit",
+      "command": "dns-audit",
+      "description": "Aggregates DNS records across all zones and flags records pointing at deleted sites and soon-expiring SNI certs.",
+      "rationale": "Requires joining dns_zones, dns_records, sites, and certs locally; the API exposes them per-zone only.",
+      "example": "netlify-pp-cli dns-audit --json",
+      "why_it_matters": "Use to find dangling DNS after tearing down sites, in one pass over the whole account.",
+      "group": "Cross-site state that compounds"
+    },
+    {
+      "name": "Deploy timeline",
+      "command": "since",
+      "description": "Shows deploys and builds across all sites within a time window (e.g. last 2h).",
+      "rationale": "Requires time-windowed aggregation over the local deploy mirror spanning every site; no single API call spans sites.",
+      "example": "netlify-pp-cli since 2h --json",
+      "why_it_matters": "Reach for this to answer 'what shipped recently' across an account after an incident.",
+      "group": "Offline search"
+    },
+    {
+      "name": "Deploy diff",
+      "command": "deploy-diff",
+      "description": "Compares two deploys of a site (state, commit, context, error) side by side from the local mirror.",
+      "rationale": "Requires two locally-stored deploy snapshots joined together; the API returns one deploy per call.",
+      "example": "netlify-pp-cli deploy-diff \u003cdeploy-a\u003e \u003cdeploy-b\u003e --json",
+      "why_it_matters": "Use to see exactly what changed between a working deploy and a broken one when hunting a regression.",
+      "group": "Offline search"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cross-site health dashboard",
+      "command": "overview",
+      "description": "One command shows build status, last deploy time, and form counts for every site in your account.",
+      "rationale": "Requires aggregating sites, deploys, and forms from the local mirror in one join; the API and UI only show one site at a time.",
+      "example": "netlify-pp-cli overview --json --select name,last_deploy,state",
+      "why_it_matters": "Reach for this to survey an entire account at once instead of paging through the dashboard per site.",
+      "group": "Cross-site state that compounds"
+    },
+    {
+      "name": "Environment variable drift",
+      "command": "env-drift",
+      "description": "Finds env vars that exist on some sites but are missing or differ on others, across contexts.",
+      "rationale": "Requires a local join over every site's env vars; no single API call compares variables across sites and contexts.",
+      "example": "netlify-pp-cli env-drift --json",
+      "why_it_matters": "Use before a release to catch a secret set on staging but missing on production.",
+      "group": "Cross-site state that compounds"
+    },
+    {
+      "name": "Offline form submission search",
+      "command": "submissions search",
+      "description": "Full-text search across every form submission from every site, offline.",
+      "rationale": "Requires an FTS index over the local submission mirror; the API has no cross-form search.",
+      "example": "netlify-pp-cli submissions search \"refund\" --json --limit 20",
+      "why_it_matters": "Reach for this to find a specific contact/lead across all forms without clicking through the UI.",
+      "group": "Offline search"
+    },
+    {
+      "name": "DNS audit",
+      "command": "dns-audit",
+      "description": "Aggregates DNS records across all zones and flags records pointing at deleted sites and soon-expiring SNI certs.",
+      "rationale": "Requires joining dns_zones, dns_records, sites, and certs locally; the API exposes them per-zone only.",
+      "example": "netlify-pp-cli dns-audit --json",
+      "why_it_matters": "Use to find dangling DNS after tearing down sites, in one pass over the whole account.",
+      "group": "Cross-site state that compounds"
+    },
+    {
+      "name": "Deploy timeline",
+      "command": "since",
+      "description": "Shows deploys and builds across all sites within a time window (e.g. last 2h).",
+      "rationale": "Requires time-windowed aggregation over the local deploy mirror spanning every site; no single API call spans sites.",
+      "example": "netlify-pp-cli since 2h --json",
+      "why_it_matters": "Reach for this to answer 'what shipped recently' across an account after an incident.",
+      "group": "Offline search"
+    },
+    {
+      "name": "Deploy diff",
+      "command": "deploy-diff",
+      "description": "Compares two deploys of a site (state, commit, context, error) side by side from the local mirror.",
+      "rationale": "Requires two locally-stored deploy snapshots joined together; the API returns one deploy per call.",
+      "example": "netlify-pp-cli deploy-diff \u003cdeploy-a\u003e \u003cdeploy-b\u003e --json",
+      "why_it_matters": "Use to see exactly what changed between a working deploy and a broken one when hunting a regression.",
+      "group": "Offline search"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "NETLIFY_AUTH_TOKEN"
+  },
+  "narrative": {
+    "display_name": "Netlify",
+    "headline": "Every Netlify API endpoint, plus a local SQLite mirror of your whole account so you can search, diff, and audit across all sites at once — offline and agent-native.",
+    "value_prop": "The official netlify-cli is stateless and per-site. netlify-pp-cli syncs your sites, deploys, DNS, env vars, and form submissions into a local database, then adds cross-site commands no other tool has: env-drift compares variables across sites, submissions search runs offline full-text search over every form, dns-audit flags dangling records, and overview shows the health of every site in one view.",
+    "quickstart": [
+      {
+        "command": "netlify-pp-cli doctor --dry-run",
+        "comment": "check config and API reachability before anything else"
+      },
+      {
+        "command": "netlify-pp-cli sites list --json",
+        "comment": "confirm auth works and list your sites"
+      },
+      {
+        "command": "netlify-pp-cli sync --json",
+        "comment": "mirror your account into the local database"
+      },
+      {
+        "command": "netlify-pp-cli overview --json",
+        "comment": "cross-site health once the mirror is populated"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on every call",
+        "fix": "export NETLIFY_AUTH_TOKEN=\u003cpersonal access token from app.netlify.com/user/applications\u003e"
+      },
+      {
+        "symptom": "overview or search returns empty",
+        "fix": "run netlify-pp-cli sync first to populate the local mirror"
+      }
+    ],
+    "when_to_use": "Use this CLI when you manage more than one Netlify site and need account-wide answers: comparing env vars across sites, searching form submissions, auditing DNS, or reviewing recent deploys. It is also the right tool for agents that need structured JSON output and typed exit codes over the Netlify API.",
+    "anti_triggers": [
+      "Do not use this CLI to run local dev servers or `netlify dev` — use the official netlify-cli for local development.",
+      "Do not use it to build or bundle site assets; it manages the account via the API, it does not compile sites."
+    ],
+    "recipes": [
+      {
+        "title": "Audit env vars before a release",
+        "command": "netlify-pp-cli env-drift --json --select key,sites_missing",
+        "explanation": "Lists variables set on some sites but missing on others so nothing ships half-configured."
+      },
+      {
+        "title": "Find a lead across all forms",
+        "command": "netlify-pp-cli submissions search \"acme corp\" --json --select site_name,form_name,email,created_at",
+        "explanation": "Offline full-text search over every submission with only the fields an agent needs."
+      },
+      {
+        "title": "Post-incident deploy review",
+        "command": "netlify-pp-cli since 4h --json --select site_name,state,commit_ref",
+        "explanation": "Shows every deploy across the account in the last four hours."
+      }
+    ],
+    "trigger_phrases": [
+      "list my netlify sites",
+      "check netlify deploys",
+      "search netlify form submissions",
+      "audit netlify dns",
+      "compare netlify env vars",
+      "use netlify",
+      "run netlify"
+    ]
+  }
+}

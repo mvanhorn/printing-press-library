@@ -1,0 +1,25 @@
+{
+  "schema_version": 2,
+  "id": "substack-global-draft-routes",
+  "applied_at": "2026-06-23",
+  "base_run_id": "20260531-014452",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Route Substack draft writer commands and sync paths through the global API with publication_id instead of publication-host draft URLs.",
+  "reason": "Custom-domain writer sessions receive HTTP 403 when draft endpoints are called through the publication host; the global Substack draft routes accept the writer cookie when publication_id is provided.",
+  "files": [
+    "internal/cli/drafts_delete.go",
+    "internal/cli/drafts_get.go",
+    "internal/cli/drafts_list.go",
+    "internal/cli/drafts_prepublish.go",
+    "internal/cli/drafts_publish.go",
+    "internal/cli/drafts_schedule.go",
+    "internal/cli/drafts_update.go",
+    "internal/cli/portfolio_sync.go",
+    "internal/cli/sync.go",
+    "internal/cli/auto_refresh.go",
+    "internal/cli/channel_workflow.go",
+    "internal/cli/publication_paths_test.go",
+    "internal/cli/portfolio_sync_routes_test.go"
+  ],
+  "validated_outcome": "go test ./internal/cli focused draft-route tests passed; dry-run smoke showed https://substack.com/api/v1/drafts?publication_id=... and no trevinsays.substack.com/api/v1/drafts route."
+}

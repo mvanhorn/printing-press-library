@@ -16,6 +16,7 @@ func newConfigCmd(flags *rootFlags) *cobra.Command {
 		Short: "Manage local CLI configuration",
 	}
 	cmd.AddCommand(newConfigSetCmd(flags))
+	cmd.AddCommand(newConfigBootstrapCmd(flags))
 	return cmd
 }
 

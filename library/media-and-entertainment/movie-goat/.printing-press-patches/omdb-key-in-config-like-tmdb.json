@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "id": "omdb-key-in-config-like-tmdb",
+  "applied_at": "2026-07-25",
+  "base_run_id": "20260504-004256",
+  "base_printing_press_version": "3.8.0",
+  "summary": "This API needs two credentials, so both must have a config-file home: the OMDb key resolves from config.toml's omdb_api_key or OMDB_API_KEY (env wins), never from os.Getenv alone.",
+  "reason": "The generated config schema models a single credential (api_key), so a second-API key has no persistent slot and the enrichment call sites read the environment directly. A regen that restores env-only OMDb resolution reintroduces the split: one key stored by auth set-token, the other only settable per-shell and invisible to auth status and doctor.",
+  "files": [
+    "internal/config/config.go",
+    "internal/config/config_test.go",
+    "internal/cli/auth.go",
+    "internal/cli/root.go",
+    "internal/cli/ratings.go",
+    "internal/cli/versus.go",
+    "internal/cli/career.go",
+    "internal/cli/doctor.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "go build/vet/test pass; an OMDb key supplied via OMDB_API_KEY is never marshaled into config.toml by an unrelated save (covered by TestOmdbEnvNeverWrittenToConfigFile) because the env value is held in an unexported field.",
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/2913"
+}

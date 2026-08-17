@@ -1,0 +1,323 @@
+{
+  "api_name": "surfline",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "mhelmetag/surflinef",
+      "url": "https://github.com/mhelmetag/surflinef",
+      "language": "Go",
+      "install_method": "",
+      "stars": 83,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "swrobel/meta-surf-forecast",
+      "url": "https://github.com/swrobel/meta-surf-forecast",
+      "language": "Ruby",
+      "install_method": "",
+      "stars": 336,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "TGOlson/surfline",
+      "url": "https://github.com/TGOlson/surfline",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 8,
+      "last_updated": "",
+      "command_count": 9,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "englishar/surfline-mcp-server",
+      "url": "https://github.com/englishar/surfline-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 7,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Mircobrb/pysurfline",
+      "url": "https://github.com/Mircobrb/pysurfline",
+      "language": "Python",
+      "install_method": "",
+      "stars": 4,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "kylerberry/surfline-nodejs",
+      "url": "https://github.com/kylerberry/surfline-nodejs",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "mdecourcy/go-surfline-api",
+      "url": "https://github.com/mdecourcy/go-surfline-api",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 9,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-15T02:20:51Z",
+  "novel_features": [
+    {
+      "name": "Dawn-patrol one-shot",
+      "command": "now",
+      "description": "One spot's next few hours as a paddle/no-paddle line readout: swell, wind, tide and rating joined per hour.",
+      "rationale": "Joins wave, swells, wind, tides and rating on the shared unix timestamp into a single readout no individual API call returns.",
+      "example": "surfline-pp-cli now 5842041f4e65fad6a7708807 --agent",
+      "why_it_matters": "Reach for this when an agent needs a go/no-go answer for one break without parsing five separate forecast payloads.",
+      "group": "Decision-shaped readouts"
+    },
+    {
+      "name": "Multi-spot rank",
+      "command": "rank",
+      "description": "Score and sort several spots best-first on a transparent sum of wave, wind and swell optimalScore.",
+      "rationale": "Surfline's real side-by-side comparison is web-only and unsorted; this ranks a batch in one /kbyg/spots/batch call.",
+      "example": "surfline-pp-cli rank 5842041f4e65fad6a7708807 5842041f4e65fad6a7708cfd --agent",
+      "why_it_matters": "Reach for this to pick today's best break from a set instead of opening N forecast pages.",
+      "group": "Decision-shaped readouts"
+    },
+    {
+      "name": "Optimal-window scanner",
+      "command": "windows",
+      "description": "Emit only the contiguous time blocks where wave, wind and swell optimalScore are all good, daylight-only.",
+      "rationale": "Walks the forecast horizon and intersects optimalScore blocks with sunlightTimes; no endpoint answers 'when exactly is it good'.",
+      "example": "surfline-pp-cli windows 5842041f4e65fad6a7708807 --days 3 --agent",
+      "why_it_matters": "Reach for this to find the good time slots at one spot without eyeballing an hourly graph.",
+      "group": "Decision-shaped readouts"
+    },
+    {
+      "name": "Raw conditions dump",
+      "command": "raw",
+      "description": "Pipe-friendly table/JSON of min/max/optimalScore/humanRelation plus swell components and wind directionType/gust, no rating editorializing.",
+      "rationale": "Exposes the underlying numeric fields the wrappers fetch but never surface cleanly, for people who distrust the star rating.",
+      "example": "surfline-pp-cli raw 5842041f4e65fad6a7708807 --agent --select data.wave.surf.max,data.wave.swells.period",
+      "why_it_matters": "Reach for this when an agent needs raw numbers to feed its own scoring instead of a pre-judged rating.",
+      "group": "Raw data for scripts"
+    },
+    {
+      "name": "Scriptable alert rules",
+      "command": "alert run",
+      "description": "Store swell/wind/tide threshold rules locally; alert run fetches a fresh forecast, evaluates them, prints matches and sets an exit code for cron.",
+      "rationale": "Official Surfline alerts are Premium-and-iOS-only; this is a local rule engine over synced forecasts that any cron can drive.",
+      "example": "surfline-pp-cli alert run --agent",
+      "why_it_matters": "Reach for this in unattended/cron contexts to get a nonzero exit when conditions a user defined are met.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Buoy vs forecast cross-check",
+      "command": "buoy-check",
+      "description": "Show nearby-buoy observed swell against the spot's wave forecast for the same window, side by side.",
+      "rationale": "Joins /kbyg/buoys/nearby observations with the spot's wave forecast so you can sanity-check the model against reality.",
+      "example": "surfline-pp-cli buoy-check 5842041f4e65fad6a7708807 --agent",
+      "why_it_matters": "Reach for this to tell whether the forecast is tracking the actual buoy readings before trusting it.",
+      "group": "Raw data for scripts"
+    },
+    {
+      "name": "Forecast-history journal",
+      "command": "journal show",
+      "description": "Snapshot the current forecast into local SQLite and review a spot's snapshots over time.",
+      "rationale": "The API keeps no personal history; local snapshots keyed by spotId+timestamp build the journal the apps don't provide.",
+      "example": "surfline-pp-cli journal show 5842041f4e65fad6a7708807 --agent",
+      "why_it_matters": "Reach for this to review how a spot's forecast has read over the past days from your own captures.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Offline spot search",
+      "command": "search",
+      "description": "Resolve spot names to spotIds via FTS over the locally-synced taxonomy, with no network.",
+      "rationale": "After a taxonomy sync, name lookups run entirely against the local store.",
+      "example": "surfline-pp-cli search \"Ocean Beach\" --agent",
+      "why_it_matters": "Reach for this to turn a spot name into an ID before calling forecast commands, even offline.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Dawn-patrol one-shot",
+      "command": "now",
+      "description": "One spot's next few hours as a paddle/no-paddle line readout: swell, wind, tide and rating joined per hour.",
+      "rationale": "Joins wave, swells, wind, tides and rating on the shared unix timestamp into a single readout no individual API call returns.",
+      "example": "surfline-pp-cli now 5842041f4e65fad6a7708807 --agent",
+      "why_it_matters": "Reach for this when an agent needs a go/no-go answer for one break without parsing five separate forecast payloads.",
+      "group": "Decision-shaped readouts"
+    },
+    {
+      "name": "Multi-spot rank",
+      "command": "rank",
+      "description": "Score and sort several spots best-first on a transparent sum of wave, wind and swell optimalScore.",
+      "rationale": "Surfline's real side-by-side comparison is web-only and unsorted; this ranks a batch in one /kbyg/spots/batch call.",
+      "example": "surfline-pp-cli rank 5842041f4e65fad6a7708807 5842041f4e65fad6a7708cfd --agent",
+      "why_it_matters": "Reach for this to pick today's best break from a set instead of opening N forecast pages.",
+      "group": "Decision-shaped readouts"
+    },
+    {
+      "name": "Optimal-window scanner",
+      "command": "windows",
+      "description": "Emit only the contiguous time blocks where wave, wind and swell optimalScore are all good, daylight-only.",
+      "rationale": "Walks the forecast horizon and intersects optimalScore blocks with sunlightTimes; no endpoint answers 'when exactly is it good'.",
+      "example": "surfline-pp-cli windows 5842041f4e65fad6a7708807 --days 3 --agent",
+      "why_it_matters": "Reach for this to find the good time slots at one spot without eyeballing an hourly graph.",
+      "group": "Decision-shaped readouts"
+    },
+    {
+      "name": "Raw conditions dump",
+      "command": "raw",
+      "description": "Pipe-friendly table/JSON of min/max/optimalScore/humanRelation plus swell components and wind directionType/gust, no rating editorializing.",
+      "rationale": "Exposes the underlying numeric fields the wrappers fetch but never surface cleanly, for people who distrust the star rating.",
+      "example": "surfline-pp-cli raw 5842041f4e65fad6a7708807 --agent --select data.wave.surf.max,data.wave.swells.period",
+      "why_it_matters": "Reach for this when an agent needs raw numbers to feed its own scoring instead of a pre-judged rating.",
+      "group": "Raw data for scripts"
+    },
+    {
+      "name": "Scriptable alert rules",
+      "command": "alert run",
+      "description": "Store swell/wind/tide threshold rules locally; alert run fetches a fresh forecast, evaluates them, prints matches and sets an exit code for cron.",
+      "rationale": "Official Surfline alerts are Premium-and-iOS-only; this is a local rule engine over synced forecasts that any cron can drive.",
+      "example": "surfline-pp-cli alert run --agent",
+      "why_it_matters": "Reach for this in unattended/cron contexts to get a nonzero exit when conditions a user defined are met.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Buoy vs forecast cross-check",
+      "command": "buoy-check",
+      "description": "Show nearby-buoy observed swell against the spot's wave forecast for the same window, side by side.",
+      "rationale": "Joins /kbyg/buoys/nearby observations with the spot's wave forecast so you can sanity-check the model against reality.",
+      "example": "surfline-pp-cli buoy-check 5842041f4e65fad6a7708807 --agent",
+      "why_it_matters": "Reach for this to tell whether the forecast is tracking the actual buoy readings before trusting it.",
+      "group": "Raw data for scripts"
+    },
+    {
+      "name": "Forecast-history journal",
+      "command": "journal show",
+      "description": "Snapshot the current forecast into local SQLite and review a spot's snapshots over time.",
+      "rationale": "The API keeps no personal history; local snapshots keyed by spotId+timestamp build the journal the apps don't provide.",
+      "example": "surfline-pp-cli journal show 5842041f4e65fad6a7708807 --agent",
+      "why_it_matters": "Reach for this to review how a spot's forecast has read over the past days from your own captures.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Offline spot search",
+      "command": "search",
+      "description": "Resolve spot names to spotIds via FTS over the locally-synced taxonomy, with no network.",
+      "rationale": "After a taxonomy sync, name lookups run entirely against the local store.",
+      "example": "surfline-pp-cli search \"Ocean Beach\" --agent",
+      "why_it_matters": "Reach for this to turn a spot name into an ID before calling forecast commands, even offline.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "SURFLINE_ACCESS_TOKEN"
+  },
+  "narrative": {
+    "display_name": "Surfline",
+    "headline": "Every Surfline forecast, scriptable from your terminal — plus multi-spot ranking, a local forecast journal, and cron-able alerts no Surfline tool has.",
+    "value_prop": "Pulls wave, swell, wind, tide, weather, conditions and rating straight from Surfline's API over a browser-fingerprint transport that clears Cloudflare. The differentiators live in the local SQLite store: 'rank' scans a set of spots and sorts them best-first (Surfline's own comparison is web-only), 'now' collapses one spot's next hours into a paddle/no-paddle readout, 'windows' finds the daylight blocks worth surfing, and 'alert run' evaluates your own threshold rules for cron.",
+    "auth_narrative": "Basic forecasts, search, taxonomy and multi-spot data need no auth at all (up to a 6-day horizon). For 7–17 day forecasts and premium cams, set a Surfline access token: run 'surfline-pp-cli auth login' with your Surfline email and password (it uses the community password-grant flow against /trusted/token), or 'surfline-pp-cli auth set-token \u003ctoken\u003e' if you already have one. The token is stored locally and sent as the accesstoken query param; SURFLINE_ACCESS_TOKEN is also honored.",
+    "quickstart": [
+      {
+        "command": "surfline-pp-cli doctor --dry-run",
+        "comment": "Confirm the binary, transport and (optional) token wiring before anything hits the network."
+      },
+      {
+        "command": "surfline-pp-cli spots find \"Lower Trestles\"",
+        "comment": "Look up a spot by name online to get its spotId."
+      },
+      {
+        "command": "surfline-pp-cli now 5842041f4e65fad6a7708807",
+        "comment": "Dawn-patrol readout for one spot's next hours."
+      },
+      {
+        "command": "surfline-pp-cli rank 5842041f4e65fad6a7708807 5842041f4e65fad6a7708cfd",
+        "comment": "Rank a set of spots best-first to pick where to go."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Commands return HTTP 403 / Cloudflare HTML",
+        "fix": "Update to a build that ships the Surf (Chrome TLS) transport; run 'surfline-pp-cli doctor' to confirm the transport is browser-chrome."
+      },
+      {
+        "symptom": "Forecast cut off at 6 days",
+        "fix": "Set a token: 'surfline-pp-cli auth login' or 'surfline-pp-cli auth set-token \u003ctoken\u003e'. 7–17 day horizons are premium-gated."
+      },
+      {
+        "symptom": "search returns nothing offline",
+        "fix": "Offline 'search' indexes spots you've captured with 'journal log'. Run 'surfline-pp-cli journal log \u003cspotId\u003e' first, or use the online 'surfline-pp-cli spots find \u003cname\u003e'."
+      },
+      {
+        "symptom": "Don't know a spot's ID",
+        "fix": "Use 'surfline-pp-cli search \"\u003cname\u003e\"' to get the 24-char spotId, then pass it to forecast commands."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or script needs Surfline forecast data as structured output: checking whether one break is worth surfing, ranking several spots to choose between them, finding the good daylight windows, or evaluating user-defined surf-condition alerts on a schedule. It is the right tool when you want raw swell/wind/tide numbers rather than a star rating, or a local history of how forecasts read over time.",
+    "anti_triggers": [
+      "Do not use this CLI to watch live cam video — it returns cam still/stream/rewind URLs, not a video stream.",
+      "Do not use it for global non-Surfline weather or for spots Surfline doesn't cover; use a weather API instead.",
+      "Do not use it to book sessions, post to Surfline, or manage a Surfline account — it is read-only forecast tooling.",
+      "Do not rely on \u003e6-day forecasts without a premium token; those horizons are gated."
+    ],
+    "recipes": [
+      {
+        "title": "Pick today's break from your favorites",
+        "command": "surfline-pp-cli rank 5842041f4e65fad6a7708807 5842041f4e65fad6a7708cfd 5842041f4e65fad6a7708e3d --agent",
+        "explanation": "Batch-fetches all spots and sorts them best-first on combined optimalScore."
+      },
+      {
+        "title": "Narrow a deep wave payload to the fields you need",
+        "command": "surfline-pp-cli raw 5842041f4e65fad6a7708807 --agent --select data.wave.surf.max,data.wave.swells.period,data.wave.swells.direction",
+        "explanation": "The wave response is deeply nested; dotted --select pulls just surf height and the swell period/direction so agents don't parse tens of KB."
+      },
+      {
+        "title": "Find when it's actually good this week",
+        "command": "surfline-pp-cli windows 5842041f4e65fad6a7708807 --days 5",
+        "explanation": "Emits only the daylight blocks where wave, wind and swell optimalScore all clear the bar."
+      },
+      {
+        "title": "Cron a surf alert",
+        "command": "surfline-pp-cli alert run --agent",
+        "explanation": "Evaluates your stored threshold rules against a fresh forecast and exits nonzero when one matches, so cron/CI can act on it."
+      },
+      {
+        "title": "Sanity-check the forecast against buoys",
+        "command": "surfline-pp-cli buoy-check 5842041f4e65fad6a7708807 --agent",
+        "explanation": "Puts observed nearby-buoy swell next to the spot's forecast swell for the same window."
+      }
+    ],
+    "trigger_phrases": [
+      "is it worth surfing at \u003cspot\u003e",
+      "rank these surf spots",
+      "surf forecast for \u003cspot\u003e",
+      "check the swell and wind at \u003cspot\u003e",
+      "when is it good to surf this week",
+      "use surfline",
+      "run surfline"
+    ]
+  }
+}

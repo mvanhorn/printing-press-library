@@ -1,0 +1,10 @@
+{
+  "schema_version": 2,
+  "id": "vagaro-structured-extraction",
+  "applied_at": "2026-07-07",
+  "base_run_id": "20260701-143117-d22a0c47",
+  "base_printing_press_version": "4.27.1",
+  "summary": "Rewired business get/services/availability from generic html-page extraction to a hand-authored sibling websiteapi client (slug->businessID resolution + structured JSON).",
+  "reason": "Vagaro has no documented API; the generic html_extract:page mode returned only title/description. Real data comes from /us02/websiteapi/homepage/* endpoints keyed by businessID.",
+  "files": ["internal/cli/business_get.go", "internal/cli/business_services.go", "internal/cli/business_availability.go", "internal/vagaro/client.go", "internal/vagaro/parse.go"]
+}

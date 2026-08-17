@@ -19,14 +19,13 @@ func newHelpCenterListAllCollectionsCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  intercom-pp-cli help-center list-all-collections",
 		Annotations: map[string]string{"pp:endpoint": "help-center.list-all-collections", "pp:method": "GET", "pp:path": "/help_center/collections", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			path := "/help_center/collections"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/help_center/collections"
 			params := map[string]string{}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "help-center", false, path, params, nil, cmd.ErrOrStderr())
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "help-center", false, path, params, nil, "data", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -71,7 +70,7 @@ func newHelpCenterListAllCollectionsCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 

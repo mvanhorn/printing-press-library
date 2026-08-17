@@ -29,10 +29,12 @@ func newSubscriptionsGetExposedIdCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/v1/subscriptions/{subscription_exposed_id}"
-			if len(args) < 2 {
+
+			// PATCH: Bind path placeholders from Cobra positional args in Use order.
+			if len(args) < 1 {
 				return usageErr(fmt.Errorf("subscription_exposed_id is required\nUsage: %s <%s>", cmd.CommandPath(), "subscription_exposed_id"))
 			}
-			path = replacePathParam(path, "subscription_exposed_id", args[1])
+			path = replacePathParam(path, "subscription_exposed_id", args[0])
 			params := map[string]string{}
 			if flagExpand != "" {
 				params["expand"] = fmt.Sprintf("%v", flagExpand)

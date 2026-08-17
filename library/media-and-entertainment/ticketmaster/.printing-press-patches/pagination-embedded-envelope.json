@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "pagination-embedded-envelope",
+  "applied_at": "2026-07-12",
+  "base_run_id": "20260712-180417-tm-reprint428",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Make 'list --all' pagination work for Ticketmaster's HAL envelope: extractPaginatedItems now recurses into _embedded.<collection> (helpers.go), and the 4 list commands pass limitParam='size' so the paginator sends a full page size and detects short final pages.",
+  "reason": "Ticketmaster Discovery v2 returns collections under _embedded.events (HAL/HATEOAS). v4.28.0's generated paginator only looked for top-level arrays so 'events list --all' returned []; and with an empty limitParam it kept a 100-item internal page size, treating Ticketmaster's 20-item default page as a short final page and stopping after page 0. The _embedded fix is in the generator template (upstreamed); the size-param mapping is applied per-command here until the generator detects the page-size param.",
+  "files": ["internal/cli/helpers.go", "internal/cli/events_list.go", "internal/cli/attractions_find.go", "internal/cli/classifications_list.go", "internal/cli/venues_list.go"],
+  "validated_outcome": "events list --all --keyword music --city Seattle now fetches 665 items across 34 pages (was 20/1 page); events list --all --keyword Adele returns items (was [])."
+}

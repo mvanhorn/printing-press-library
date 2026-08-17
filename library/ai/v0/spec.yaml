@@ -1,0 +1,1451 @@
+name: v0
+description: "Build apps with v0: create chats, send messages, fetch generated files and previews, manage MCP servers and webhooks"
+cli_description: "Generate and iterate on web apps with v0 from the terminal: create chats from prompts, stream agent output, sync history to a local SQLite mirror, and track credit spend across models."
+version: "0.1.0"
+base_url: "https://api.v0.dev/v2"
+category: ai
+source: ""
+health_check_path: "/chats"
+
+auth:
+  type: bearer_token
+  header: "Authorization"
+  format: "Bearer {token}"
+  in: header
+  env_vars:
+    - V0_API_KEY
+
+config:
+  format: toml
+  path: "~/.config/v0/config.toml"
+
+learn:
+  stopwords:
+    - chat
+    - v0
+    - app
+  synonyms:
+    "v0 preview": "preview url"
+    "credits": "spend"
+
+resources:
+  chats:
+    description: "Generate and manage apps from prompts"
+    endpoints:
+      list:
+        method: GET
+        path: "/chats"
+        description: "List chats accessible to the authenticated user"
+        params:
+          - name: limit
+            type: int
+            required: false
+            default: 20
+            description: "Maximum number of chats to return (1-100, default 20)"
+          - name: cursor
+            type: string
+            required: false
+            description: "Pagination cursor returned from a previous response"
+          - name: authorId
+            type: string
+            required: false
+            description: "Restrict results to chats created by this user"
+          - name: vercelProjectId
+            type: string
+            required: false
+            description: "Restrict results to chats associated with this Vercel project"
+          - name: metadata
+            type: string
+            required: false
+            description: "Filter by metadata, e.g. metadata[environment]=production"
+        response:
+          type: array
+          item: Chat
+        response_path: chats
+        pagination:
+          type: cursor
+          cursor_field: cursor
+      get:
+        method: GET
+        happy_args: "<chatId>=ft7dqhYEX8n"
+        path: "/chats/{chatId}"
+        description: "Get a chat by ID"
+        params:
+          - name: chatId
+            type: string
+            required: true
+            positional: true
+            description: "Unique chat identifier"
+        response:
+          type: object
+          item: Chat
+      create:
+        method: POST
+        path: "/chats"
+        description: "Create a chat from a prompt (blocks until the model response is complete)"
+        body:
+          - name: message
+            type: string
+            required: true
+            description: "The prompt or instruction to send to the model"
+          - name: systemPrompt
+            type: string
+            required: false
+            description: "System-level context for the chat, such as frameworks or development environment details"
+          - name: modelConfiguration
+            type: object
+            required: false
+            description: "Overrides for the model behavior"
+            fields:
+              - name: modelId
+                type: string
+                required: false
+                enum: ["v0-mini", "v0-pro", "v0-max", "v0-max-fast"]
+                description: "Model to use for the generation"
+              - name: imageGenerations
+                type: bool
+                required: false
+                description: "Enables image generations to generate up to 5 images per version"
+          - name: attachments
+            type: array
+            required: false
+            description: "Files or assets to include with the message"
+            fields:
+              - name: url
+                type: string
+                required: false
+                description: "URL of the attachment"
+          - name: mcpServerIds
+            type: array
+            required: false
+            description: "MCP server IDs to enable. When omitted, uses default enabled servers"
+          - name: skills
+            type: array
+            required: false
+            description: "Skills to force-attach to the chat (remote, memory, or project). Maximum 3"
+          - name: privacy
+            type: string
+            required: false
+            enum: ["public", "private", "team", "team-edit", "unlisted"]
+            description: "Visibility setting for the new chat"
+          - name: title
+            type: string
+            required: false
+            description: "Title for the new chat"
+          - name: metadata
+            type: object
+            required: false
+            description: "Arbitrary key-value data to attach to the chat"
+        response:
+          type: object
+          item: ChatResult
+      createAsync:
+        method: POST
+        path: "/chats/async"
+        description: "Create a chat asynchronously; poll the returned messageId for completion"
+        body:
+          - name: message
+            type: string
+            required: true
+            description: "The prompt or instruction to send to the model"
+          - name: systemPrompt
+            type: string
+            required: false
+            description: "System-level context for the chat"
+          - name: modelConfiguration
+            type: object
+            required: false
+            description: "Overrides for the model behavior"
+            fields:
+              - name: modelId
+                type: string
+                required: false
+                enum: ["v0-mini", "v0-pro", "v0-max", "v0-max-fast"]
+                description: "Model to use for the generation"
+              - name: imageGenerations
+                type: bool
+                required: false
+                description: "Enables image generations to generate up to 5 images per version"
+          - name: attachments
+            type: array
+            required: false
+            description: "Files or assets to include with the message"
+            fields:
+              - name: url
+                type: string
+                required: false
+                description: "URL of the attachment"
+          - name: mcpServerIds
+            type: array
+            required: false
+            description: "MCP server IDs to enable"
+          - name: skills
+            type: array
+            required: false
+            description: "Skills to force-attach to the chat. Maximum 3"
+          - name: privacy
+            type: string
+            required: false
+            enum: ["public", "private", "team", "team-edit", "unlisted"]
+            description: "Visibility setting for the new chat"
+          - name: title
+            type: string
+            required: false
+            description: "Title for the new chat"
+          - name: metadata
+            type: object
+            required: false
+            description: "Arbitrary key-value data to attach to the chat"
+        response:
+          type: object
+          item: AsyncResult
+      createStream:
+        method: POST
+        path: "/chats/stream"
+        description: "Create a chat and stream the model response as Server-Sent Events"
+        body:
+          - name: message
+            type: string
+            required: true
+            description: "The prompt or instruction to send to the model"
+          - name: systemPrompt
+            type: string
+            required: false
+            description: "System-level context for the chat"
+          - name: modelConfiguration
+            type: object
+            required: false
+            description: "Overrides for the model behavior"
+            fields:
+              - name: modelId
+                type: string
+                required: false
+                enum: ["v0-mini", "v0-pro", "v0-max", "v0-max-fast"]
+                description: "Model to use for the generation"
+              - name: imageGenerations
+                type: bool
+                required: false
+                description: "Enables image generations to generate up to 5 images per version"
+          - name: attachments
+            type: array
+            required: false
+            description: "Files or assets to include with the message"
+            fields:
+              - name: url
+                type: string
+                required: false
+                description: "URL of the attachment"
+          - name: mcpServerIds
+            type: array
+            required: false
+            description: "MCP server IDs to enable"
+          - name: skills
+            type: array
+            required: false
+            description: "Skills to force-attach to the chat. Maximum 3"
+          - name: privacy
+            type: string
+            required: false
+            enum: ["public", "private", "team", "team-edit", "unlisted"]
+            description: "Visibility setting for the new chat"
+          - name: title
+            type: string
+            required: false
+            description: "Title for the new chat"
+          - name: metadata
+            type: object
+            required: false
+            description: "Arbitrary key-value data to attach to the chat"
+        response:
+          type: object
+          item: StreamEvent
+        response_format: binary
+      createFromFiles:
+        method: POST
+        path: "/chats/from-files"
+        description: "Create a chat from source files"
+        body:
+          - name: files
+            type: array
+            required: true
+            description: "Source files used to seed the new chat"
+            fields:
+              - name: name
+                type: string
+                required: false
+                description: "Path of the file in the project"
+              - name: content
+                type: string
+                required: false
+                description: "UTF-8 text content of the file"
+          - name: privacy
+            type: string
+            required: false
+            enum: ["public", "private", "team", "team-edit", "unlisted"]
+            description: "Visibility setting for the new chat"
+          - name: title
+            type: string
+            required: false
+            description: "Title for the new chat"
+          - name: metadata
+            type: object
+            required: false
+            description: "Arbitrary key-value data to attach to the chat"
+        response:
+          type: object
+          item: ChatResult
+      createFromRepo:
+        method: POST
+        path: "/chats/from-repo"
+        description: "Create a chat from a GitHub repository"
+        body:
+          - name: repo
+            type: object
+            required: true
+            description: "Repository source for initialization"
+            fields:
+              - name: url
+                type: string
+                required: false
+                description: "GitHub repository URL, for example https://github.com/vercel/next.js"
+              - name: branch
+                type: string
+                required: false
+                description: "Branch to import. If omitted, v0 uses the repository default branch"
+          - name: privacy
+            type: string
+            required: false
+            enum: ["public", "private", "team", "team-edit", "unlisted"]
+            description: "Visibility setting for the new chat"
+          - name: title
+            type: string
+            required: false
+            description: "Title for the new chat"
+          - name: metadata
+            type: object
+            required: false
+            description: "Arbitrary key-value data to attach to the chat"
+        response:
+          type: object
+          item: ChatResult
+      createFromZip:
+        method: POST
+        path: "/chats/from-zip"
+        description: "Create a chat from a ZIP archive URL"
+        body:
+          - name: url
+            type: string
+            required: true
+            description: "Zip archive used to seed the new chat"
+          - name: privacy
+            type: string
+            required: false
+            enum: ["public", "private", "team", "team-edit", "unlisted"]
+            description: "Visibility setting for the new chat"
+          - name: title
+            type: string
+            required: false
+            description: "Title for the new chat"
+          - name: metadata
+            type: object
+            required: false
+            description: "Arbitrary key-value data to attach to the chat"
+        response:
+          type: object
+          item: ChatResult
+      update:
+        method: PATCH
+        happy_args: "<chatId>=ft7dqhYEX8n"
+        path: "/chats/{chatId}"
+        description: "Update a chat title, privacy, or metadata"
+        params:
+          - name: chatId
+            type: string
+            required: true
+            positional: true
+            description: "Unique chat identifier"
+        body:
+          - name: title
+            type: string
+            required: false
+            description: "A new title to assign to the chat"
+          - name: privacy
+            type: string
+            required: false
+            enum: ["public", "private", "team", "team-edit", "unlisted"]
+            description: "Updated visibility setting for the chat"
+          - name: metadata
+            type: object
+            required: false
+            description: "User-defined key-value metadata. Merged with existing entries"
+        response:
+          type: object
+          item: Chat
+      delete:
+        happy_args: "<chatId>=ft7dqhYEX8n"
+        method: DELETE
+        path: "/chats/{chatId}"
+        description: "Delete a chat permanently"
+        params:
+          - name: chatId
+            type: string
+            required: true
+            positional: true
+            description: "The unique identifier of the chat"
+        response:
+          type: object
+          item: DeleteResult
+      duplicate:
+        happy_args: "<chatId>=ft7dqhYEX8n"
+        method: POST
+        path: "/chats/{chatId}/duplicate"
+        description: "Duplicate a chat"
+        params:
+          - name: chatId
+            type: string
+            required: true
+            positional: true
+            description: "The unique identifier of the chat"
+        body:
+          - name: privacy
+            type: string
+            required: true
+            enum: ["public", "private", "team", "team-edit", "unlisted"]
+            description: "Visibility setting for the duplicated chat"
+          - name: title
+            type: string
+            required: false
+            description: "Custom title for the duplicated chat"
+        response:
+          type: object
+          item: Chat
+      files:
+        happy_args: "<chatId>=ft7dqhYEX8n"
+        method: GET
+        path: "/chats/{chatId}/files"
+        description: "Get all source files in a chat"
+        params:
+          - name: chatId
+            type: string
+            required: true
+            positional: true
+            description: "The unique identifier of the chat"
+        response:
+          type: object
+          item: FileList
+        response_path: files
+      updateFiles:
+        happy_args: "<chatId>=ft7dqhYEX8n"
+        method: PATCH
+        path: "/chats/{chatId}/files"
+        description: "Create, update, or delete files in a chat"
+        params:
+          - name: chatId
+            type: string
+            required: true
+            positional: true
+            description: "The unique identifier of the chat"
+        body:
+          - name: files
+            type: array
+            required: true
+            description: "The files to create, update, or delete. Each path must be unique"
+            fields:
+              - name: path
+                type: string
+                required: false
+                description: "Project-relative file path, e.g. app/page.tsx"
+              - name: content
+                type: string
+                required: false
+                description: "New file content. Pass null to delete the file at this path"
+        response:
+          type: object
+          item: MessageList
+        response_path: messages
+      downloadFiles:
+        happy_args: "<chatId>=ft7dqhYEX8n"
+        method: GET
+        path: "/chats/{chatId}/files/download"
+        description: "Download all chat files as an archive"
+        params:
+          - name: chatId
+            type: string
+            required: true
+            positional: true
+            description: "The unique identifier of the chat"
+        response_format: binary
+      preview:
+        happy_args: "<chatId>=ft7dqhYEX8n"
+        method: GET
+        path: "/chats/{chatId}/preview"
+        description: "Get the preview URL and short-lived access token for a chat"
+        params:
+          - name: chatId
+            type: string
+            required: true
+            positional: true
+            description: "The unique identifier of the chat"
+        response:
+          type: object
+          item: Preview
+      deploy:
+        happy_args: "<chatId>=ft7dqhYEX8n"
+        method: POST
+        path: "/chats/{chatId}/deploy"
+        description: "Deploy a chat to Vercel"
+        params:
+          - name: chatId
+            type: string
+            required: true
+            positional: true
+            description: "The unique identifier of the chat"
+        response:
+          type: object
+          item: Deployment
+      createVercelProject:
+        happy_args: "<chatId>=ft7dqhYEX8n"
+        method: POST
+        path: "/chats/{chatId}/vercel-project"
+        description: "Create a Vercel project for a chat"
+        params:
+          - name: chatId
+            type: string
+            required: true
+            positional: true
+            description: "The unique identifier of the chat"
+        body:
+          - name: name
+            type: string
+            required: false
+            description: "Name for the Vercel project. When omitted, the chat's title is used"
+        response:
+          type: object
+          item: VercelProject
+      connectStatus:
+        happy_args: "<chatId>=ft7dqhYEX8n"
+        method: GET
+        path: "/chats/{chatId}/connect/status"
+        description: "Get the setup status of a Vercel Connect integration"
+        params:
+          - name: chatId
+            type: string
+            required: true
+            positional: true
+            description: "The unique identifier of the chat"
+          - name: requestId
+            type: string
+            required: true
+            description: "The requestId from the configure_vercel_connect agent action data"
+        response:
+          type: object
+          item: ConnectStatus
+      restoreMessage:
+        happy_args: "<chatId>=ft7dqhYEX8n"
+        method: POST
+        path: "/chats/{chatId}/restore-message"
+        description: "Restore files from a previous assistant message"
+        params:
+          - name: chatId
+            type: string
+            required: true
+            positional: true
+            description: "The unique identifier of the chat"
+        body:
+          - name: messageId
+            type: string
+            required: true
+            description: "The unique identifier of the assistant message whose files to restore"
+        response:
+          type: object
+          item: MessageList
+        response_path: messages
+      resumeStream:
+        happy_args: "<chatId>=ft7dqhYEX8n"
+        method: POST
+        path: "/chats/{chatId}/resume"
+        description: "Reconnect to an active chat stream"
+        params:
+          - name: chatId
+            type: string
+            required: true
+            positional: true
+            description: "The unique identifier of the chat"
+        response:
+          type: object
+          item: StreamEvent
+        response_format: binary
+
+  messages:
+    description: "Send, list, and manage chat messages"
+    endpoints:
+      list:
+        happy_args: "<chatId>=ft7dqhYEX8n"
+        method: GET
+        path: "/chats/{chatId}/messages"
+        description: "List messages in a chat, newest first"
+        params:
+          - name: chatId
+            type: string
+            required: true
+            positional: true
+            description: "The unique identifier of the chat"
+          - name: limit
+            type: int
+            required: false
+            default: 20
+            description: "Maximum number of messages to return (1-100, default 20)"
+          - name: cursor
+            type: string
+            required: false
+            description: "Pagination cursor returned from a previous response"
+        response:
+          type: array
+          item: Message
+        response_path: messages
+        pagination:
+          type: cursor
+          cursor_field: cursor
+      get:
+        happy_args: "<chatId>=ft7dqhYEX8n;<messageId>=m6U0HcEwl9Q1711c3LQ6iU8uQndO4ExX"
+        method: GET
+        path: "/chats/{chatId}/messages/{messageId}"
+        description: "Get a single message"
+        params:
+          - name: chatId
+            type: string
+            required: true
+            positional: true
+            description: "The unique identifier of the chat"
+          - name: messageId
+            type: string
+            required: true
+            positional: true
+            description: "The unique identifier of the message"
+        response:
+          type: object
+          item: Message
+      send:
+        happy_args: "<chatId>=ft7dqhYEX8n"
+        method: POST
+        path: "/chats/{chatId}/messages"
+        description: "Send a message and wait for the model response"
+        params:
+          - name: chatId
+            type: string
+            required: true
+            positional: true
+            description: "The unique identifier of the chat"
+        body:
+          - name: message
+            type: string
+            required: true
+            description: "The prompt or instruction to send to the model"
+          - name: systemPrompt
+            type: string
+            required: false
+            description: "System-level context for the chat"
+          - name: modelConfiguration
+            type: object
+            required: false
+            description: "Overrides for the model behavior"
+            fields:
+              - name: modelId
+                type: string
+                required: false
+                enum: ["v0-mini", "v0-pro", "v0-max", "v0-max-fast"]
+                description: "Model to use for the generation"
+              - name: imageGenerations
+                type: bool
+                required: false
+                description: "Enables image generations to generate up to 5 images per version"
+          - name: mcpServerIds
+            type: array
+            required: false
+            description: "MCP server IDs to enable"
+          - name: attachments
+            type: array
+            required: false
+            description: "Files or assets to include with the message"
+            fields:
+              - name: url
+                type: string
+                required: false
+                description: "URL of the attachment"
+          - name: skills
+            type: array
+            required: false
+            description: "Skills to force-attach to the message. Maximum 3"
+        response:
+          type: object
+          item: Message
+      sendAsync:
+        happy_args: "<chatId>=ft7dqhYEX8n"
+        method: POST
+        path: "/chats/{chatId}/messages/async"
+        description: "Send a message asynchronously; poll the returned messageId for completion"
+        params:
+          - name: chatId
+            type: string
+            required: true
+            positional: true
+            description: "The unique identifier of the chat"
+        body:
+          - name: message
+            type: string
+            required: true
+            description: "The prompt or instruction to send to the model"
+          - name: systemPrompt
+            type: string
+            required: false
+            description: "System-level context for the chat"
+          - name: modelConfiguration
+            type: object
+            required: false
+            description: "Overrides for the model behavior"
+            fields:
+              - name: modelId
+                type: string
+                required: false
+                enum: ["v0-mini", "v0-pro", "v0-max", "v0-max-fast"]
+                description: "Model to use for the generation"
+              - name: imageGenerations
+                type: bool
+                required: false
+                description: "Enables image generations to generate up to 5 images per version"
+          - name: mcpServerIds
+            type: array
+            required: false
+            description: "MCP server IDs to enable"
+          - name: attachments
+            type: array
+            required: false
+            description: "Files or assets to include with the message"
+            fields:
+              - name: url
+                type: string
+                required: false
+                description: "URL of the attachment"
+          - name: skills
+            type: array
+            required: false
+            description: "Skills to force-attach to the message. Maximum 3"
+        response:
+          type: object
+          item: AsyncResult
+      sendStream:
+        happy_args: "<chatId>=ft7dqhYEX8n"
+        method: POST
+        path: "/chats/{chatId}/messages/stream"
+        description: "Send a message and stream the response as Server-Sent Events"
+        params:
+          - name: chatId
+            type: string
+            required: true
+            positional: true
+            description: "The unique identifier of the chat"
+        body:
+          - name: message
+            type: string
+            required: true
+            description: "The prompt or instruction to send to the model"
+          - name: systemPrompt
+            type: string
+            required: false
+            description: "System-level context for the chat"
+          - name: modelConfiguration
+            type: object
+            required: false
+            description: "Overrides for the model behavior"
+            fields:
+              - name: modelId
+                type: string
+                required: false
+                enum: ["v0-mini", "v0-pro", "v0-max", "v0-max-fast"]
+                description: "Model to use for the generation"
+              - name: imageGenerations
+                type: bool
+                required: false
+                description: "Enables image generations to generate up to 5 images per version"
+          - name: mcpServerIds
+            type: array
+            required: false
+            description: "MCP server IDs to enable"
+          - name: attachments
+            type: array
+            required: false
+            description: "Files or assets to include with the message"
+            fields:
+              - name: url
+                type: string
+                required: false
+                description: "URL of the attachment"
+          - name: skills
+            type: array
+            required: false
+            description: "Skills to force-attach to the message. Maximum 3"
+        response:
+          type: object
+          item: StreamEvent
+        response_format: binary
+      stop:
+        happy_args: "<chatId>=ft7dqhYEX8n;<messageId>=m6U0HcEwl9Q1711c3LQ6iU8uQndO4ExX"
+        method: POST
+        path: "/chats/{chatId}/messages/{messageId}/stop"
+        description: "Stop an in-flight message generation"
+        params:
+          - name: chatId
+            type: string
+            required: true
+            positional: true
+            description: "The unique identifier of the chat"
+          - name: messageId
+            type: string
+            required: true
+            positional: true
+            description: "The unique identifier of the assistant message to stop"
+        response:
+          type: object
+          item: StopResult
+      resolveTask:
+        happy_args: "<chatId>=ft7dqhYEX8n"
+        method: POST
+        path: "/chats/{chatId}/messages/resolve"
+        description: "Resolve a chat blocked waiting for user input"
+        params:
+          - name: chatId
+            type: string
+            required: true
+            positional: true
+            description: "The unique identifier of the chat"
+        body:
+          - name: task
+            type: object
+            required: true
+            description: "The task resolution data"
+          - name: modelConfiguration
+            type: object
+            required: false
+            description: "Overrides for the model behavior"
+            fields:
+              - name: modelId
+                type: string
+                required: false
+                enum: ["v0-mini", "v0-pro", "v0-max", "v0-max-fast"]
+                description: "Model to use for the generation"
+              - name: imageGenerations
+                type: bool
+                required: false
+                description: "Enables image generations to generate up to 5 images per version"
+        response:
+          type: object
+          item: Message
+      resolveTaskAsync:
+        happy_args: "<chatId>=ft7dqhYEX8n"
+        method: POST
+        path: "/chats/{chatId}/messages/resolve/async"
+        description: "Resolve a blocked chat asynchronously"
+        params:
+          - name: chatId
+            type: string
+            required: true
+            positional: true
+            description: "The unique identifier of the chat"
+        body:
+          - name: task
+            type: object
+            required: true
+            description: "The task resolution data"
+          - name: modelConfiguration
+            type: object
+            required: false
+            description: "Overrides for the model behavior"
+            fields:
+              - name: modelId
+                type: string
+                required: false
+                enum: ["v0-mini", "v0-pro", "v0-max", "v0-max-fast"]
+                description: "Model to use for the generation"
+              - name: imageGenerations
+                type: bool
+                required: false
+                description: "Enables image generations to generate up to 5 images per version"
+        response:
+          type: object
+          item: AsyncResult
+      resolveTaskStream:
+        happy_args: "<chatId>=ft7dqhYEX8n"
+        method: POST
+        path: "/chats/{chatId}/messages/resolve/stream"
+        description: "Resolve a blocked chat and stream the response"
+        params:
+          - name: chatId
+            type: string
+            required: true
+            positional: true
+            description: "The unique identifier of the chat"
+        body:
+          - name: task
+            type: object
+            required: true
+            description: "The task resolution data"
+          - name: modelConfiguration
+            type: object
+            required: false
+            description: "Overrides for the model behavior"
+            fields:
+              - name: modelId
+                type: string
+                required: false
+                enum: ["v0-mini", "v0-pro", "v0-max", "v0-max-fast"]
+                description: "Model to use for the generation"
+              - name: imageGenerations
+                type: bool
+                required: false
+                description: "Enables image generations to generate up to 5 images per version"
+        response:
+          type: object
+          item: StreamEvent
+        response_format: binary
+
+  mcp-servers:
+    description: "Manage MCP server connections for chats (max 10 per user)"
+    endpoints:
+      list:
+        method: GET
+        path: "/mcp-servers"
+        description: "List MCP servers configured for the account"
+        response:
+          type: array
+          item: MCPServer
+        response_path: items
+      get:
+        method: GET
+        path: "/mcp-servers/{mcpServerId}"
+        description: "Get an MCP server by ID"
+        params:
+          - name: mcpServerId
+            type: string
+            required: true
+            positional: true
+            description: "The unique identifier of the MCP server"
+        response:
+          type: object
+          item: MCPServer
+      create:
+        method: POST
+        path: "/mcp-servers"
+        description: "Register a new MCP server"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Display name for the MCP server"
+          - name: url
+            type: string
+            required: true
+            description: "URL endpoint of the MCP server"
+          - name: description
+            type: string
+            required: false
+            description: "Optional description of the MCP server"
+          - name: enabled
+            type: bool
+            required: true
+            description: "Whether the server should be enabled"
+          - name: auth
+            type: string
+            required: true
+            enum: ["none", "bearer", "custom-headers", "oauth"]
+            description: "Authentication configuration"
+          - name: scope
+            type: string
+            required: true
+            enum: ["user", "team"]
+            description: "Scope of the MCP server configuration"
+        response:
+          type: object
+          item: MCPServer
+      update:
+        method: PATCH
+        path: "/mcp-servers/{mcpServerId}"
+        description: "Update an MCP server configuration"
+        params:
+          - name: mcpServerId
+            type: string
+            required: true
+            positional: true
+            description: "The unique identifier of the MCP server"
+        body:
+          - name: name
+            type: string
+            required: false
+            description: "New display name"
+          - name: url
+            type: string
+            required: false
+            description: "New URL endpoint"
+          - name: description
+            type: string
+            required: false
+            description: "New description"
+          - name: enabled
+            type: bool
+            required: false
+            description: "Enable or disable"
+          - name: auth
+            type: string
+            required: false
+            enum: ["none", "bearer", "custom-headers", "oauth"]
+            description: "New authentication configuration"
+          - name: scope
+            type: string
+            required: false
+            enum: ["user", "team"]
+            description: "New scope"
+        response:
+          type: object
+          item: MCPServer
+      delete:
+        method: DELETE
+        path: "/mcp-servers/{mcpServerId}"
+        description: "Delete an MCP server"
+        params:
+          - name: mcpServerId
+            type: string
+            required: true
+            positional: true
+            description: "The unique identifier of the MCP server to delete"
+        response:
+          type: object
+          item: SuccessResult
+
+  hooks:
+    description: "Manage webhooks that listen for chat and message events"
+    endpoints:
+      list:
+        method: GET
+        path: "/hooks"
+        description: "List all webhooks in the workspace"
+        response:
+          type: array
+          item: Webhook
+        response_path: items
+      get:
+        method: GET
+        path: "/hooks/{hookId}"
+        description: "Get a webhook by ID"
+        params:
+          - name: hookId
+            type: string
+            required: true
+            positional: true
+            description: "The unique identifier of the webhook"
+        response:
+          type: object
+          item: Webhook
+      create:
+        method: POST
+        path: "/hooks"
+        description: "Create a webhook subscribed to chat and message events"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "A human-readable name for the webhook"
+          - name: events
+            type: array
+            required: true
+            description: "Event types the webhook subscribes to"
+          - name: url
+            type: string
+            required: true
+            description: "The target URL to receive the webhook payloads"
+          - name: chatId
+            type: string
+            required: false
+            description: "The ID of a chat to scope the webhook to"
+        response:
+          type: object
+          item: Webhook
+      update:
+        method: PATCH
+        path: "/hooks/{hookId}"
+        description: "Update a webhook configuration"
+        params:
+          - name: hookId
+            type: string
+            required: true
+            positional: true
+            description: "The unique identifier of the webhook"
+        body:
+          - name: name
+            type: string
+            required: false
+            description: "A new display name for the webhook"
+          - name: events
+            type: array
+            required: false
+            description: "Updated list of event types to subscribe to"
+          - name: url
+            type: string
+            required: false
+            description: "A new target URL to receive webhook payloads"
+        response:
+          type: object
+          item: Webhook
+      delete:
+        method: DELETE
+        path: "/hooks/{hookId}"
+        description: "Delete a webhook"
+        params:
+          - name: hookId
+            type: string
+            required: true
+            positional: true
+            description: "The unique identifier of the webhook to delete"
+        response:
+          type: object
+          item: WebhookDeleteResult
+
+  settings:
+    description: "Manage workspace settings"
+    endpoints:
+      previewHosts:
+        method: GET
+        path: "/settings/preview-hosts"
+        description: "Get trusted hostname patterns allowed to embed previews"
+        response:
+          type: array
+          item: string
+        response_path: hosts
+      setPreviewHosts:
+        method: PUT
+        path: "/settings/preview-hosts"
+        description: "Set the complete list of trusted preview hosts"
+        body:
+          - name: hosts
+            type: array
+            required: true
+            description: "The complete list of exact or wildcard hostname patterns trusted to embed previews"
+        response:
+          type: array
+          item: string
+        response_path: hosts
+
+types:
+  Chat:
+    fields:
+      - name: id
+        type: string
+      - name: title
+        type: string
+      - name: privacy
+        type: string
+        enum: ["public", "private", "team", "team-edit", "unlisted"]
+      - name: createdAt
+        type: string
+      - name: updatedAt
+        type: string
+      - name: authorId
+        type: string
+      - name: vercelProjectId
+        type: string
+      - name: metadata
+        type: object
+      - name: writePermission
+        type: bool
+  ChatPage:
+    fields:
+      - name: chats
+        type: array
+        fields:
+          - name: id
+            type: string
+          - name: title
+            type: string
+          - name: privacy
+            type: string
+          - name: createdAt
+            type: string
+          - name: updatedAt
+            type: string
+          - name: authorId
+            type: string
+          - name: vercelProjectId
+            type: string
+          - name: metadata
+            type: object
+          - name: writePermission
+            type: bool
+      - name: cursor
+        type: string
+  ChatResult:
+    fields:
+      - name: chat
+        type: object
+        fields:
+          - name: id
+            type: string
+          - name: title
+            type: string
+          - name: privacy
+            type: string
+          - name: createdAt
+            type: string
+          - name: updatedAt
+            type: string
+          - name: authorId
+            type: string
+          - name: vercelProjectId
+            type: string
+          - name: metadata
+            type: object
+          - name: writePermission
+            type: bool
+      - name: usage
+        type: object
+        fields:
+          - name: tokens
+            type: object
+            fields:
+              - name: input
+                type: float
+              - name: output
+                type: float
+              - name: cacheRead
+                type: float
+              - name: cacheWrite
+                type: float
+              - name: total
+                type: float
+          - name: creditsCost
+            type: object
+            fields:
+              - name: input
+                type: float
+              - name: output
+                type: float
+              - name: cacheRead
+                type: float
+              - name: cacheWrite
+                type: float
+              - name: total
+                type: float
+  AsyncResult:
+    fields:
+      - name: chatId
+        type: string
+      - name: messageId
+        type: string
+  StreamEvent:
+    fields:
+      - name: event
+        type: string
+        enum: ["chat", "chat.title", "message.parts.chunk", "message.usage", "error"]
+  Message:
+    fields:
+      - name: id
+        type: string
+      - name: chatId
+        type: string
+      - name: role
+        type: string
+        enum: ["user", "assistant"]
+      - name: createdAt
+        type: string
+      - name: updatedAt
+        type: string
+      - name: content
+        type: string
+      - name: parts
+        type: array
+      - name: finishReason
+        type: string
+      - name: restorable
+        type: bool
+      - name: attachments
+        type: array
+      - name: authorId
+        type: string
+      - name: usage
+        type: object
+        fields:
+          - name: tokens
+            type: object
+            fields:
+              - name: input
+                type: float
+              - name: output
+                type: float
+              - name: cacheRead
+                type: float
+              - name: cacheWrite
+                type: float
+              - name: total
+                type: float
+          - name: creditsCost
+            type: object
+            fields:
+              - name: input
+                type: float
+              - name: output
+                type: float
+              - name: cacheRead
+                type: float
+              - name: cacheWrite
+                type: float
+              - name: total
+                type: float
+  MessagePage:
+    fields:
+      - name: messages
+        type: array
+        fields:
+          - name: id
+            type: string
+          - name: chatId
+            type: string
+          - name: role
+            type: string
+          - name: createdAt
+            type: string
+          - name: updatedAt
+            type: string
+          - name: content
+            type: string
+          - name: finishReason
+            type: string
+          - name: restorable
+            type: bool
+          - name: authorId
+            type: string
+      - name: cursor
+        type: string
+  MessageList:
+    fields:
+      - name: messages
+        type: array
+  FileList:
+    fields:
+      - name: files
+        type: array
+        fields:
+          - name: path
+            type: string
+          - name: content
+            type: string
+          - name: encoding
+            type: string
+            enum: ["utf8", "base64"]
+  Preview:
+    fields:
+      - name: url
+        type: string
+      - name: token
+        type: string
+      - name: expiresAt
+        type: string
+  Deployment:
+    fields:
+      - name: deploymentId
+        type: string
+      - name: vercelProjectId
+        type: string
+  VercelProject:
+    fields:
+      - name: vercelProjectId
+        type: string
+  ConnectStatus:
+    fields:
+      - name: status
+        type: string
+        enum: ["pending"]
+      - name: progress
+        type: string
+  DeleteResult:
+    fields:
+      - name: chatId
+        type: string
+  StopResult:
+    fields:
+      - name: messageId
+        type: string
+  SuccessResult:
+    fields:
+      - name: success
+        type: string
+  MCPServer:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: url
+        type: string
+      - name: description
+        type: string
+      - name: createdAt
+        type: string
+      - name: updatedAt
+        type: string
+      - name: userId
+        type: string
+      - name: enabled
+        type: bool
+      - name: auth
+        type: string
+        enum: ["none", "bearer", "custom-headers", "oauth"]
+      - name: scope
+        type: string
+        enum: ["user", "team"]
+  MCPServerList:
+    fields:
+      - name: items
+        type: array
+        fields:
+          - name: id
+            type: string
+          - name: name
+            type: string
+          - name: url
+            type: string
+          - name: enabled
+            type: bool
+          - name: auth
+            type: string
+          - name: scope
+            type: string
+  Webhook:
+    fields:
+      - name: id
+        type: string
+      - name: createdAt
+        type: string
+      - name: name
+        type: string
+      - name: events
+        type: array
+      - name: url
+        type: string
+      - name: chatId
+        type: string
+  WebhookList:
+    fields:
+      - name: items
+        type: array
+        fields:
+          - name: id
+            type: string
+          - name: name
+            type: string
+  WebhookDeleteResult:
+    fields:
+      - name: id
+        type: string
+      - name: deleted
+        type: string
+  PreviewHosts:
+    fields:
+      - name: hosts
+        type: array

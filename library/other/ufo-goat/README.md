@@ -1,4 +1,4 @@
-# War.gov UFO CLI
+# UFO GOAT CLI
 
 **The declassified UAP file archive in your terminal — browse, search, and download 162+ files from the PURSUE initiative**
 

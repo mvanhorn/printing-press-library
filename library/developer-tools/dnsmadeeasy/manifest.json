@@ -1,0 +1,47 @@
+{
+  "manifest_version": "0.3",
+  "name": "dnsmadeeasy-pp-mcp",
+  "display_name": "Dnsmadeeasy",
+  "version": "4.27.1",
+  "description": "Every DNS Made Easy operation, plus a local record store for cross-zone search, drift detection, and 'where is this IP used' — instant and offline.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/dnsmadeeasy-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/dnsmadeeasy-pp-mcp",
+      "args": [],
+      "env": {
+        "DNSMADEEASY_API_KEY": "${user_config.dnsmadeeasy_api_key}",
+        "DNSMADEEASY_API_SECRET": "${user_config.dnsmadeeasy_api_secret}"
+      }
+    }
+  },
+  "user_config": {
+    "dnsmadeeasy_api_key": {
+      "type": "string",
+      "title": "DNSMADEEASY_API_KEY",
+      "description": "Sets DNSMADEEASY_API_KEY for the Dnsmadeeasy MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "dnsmadeeasy_api_secret": {
+      "type": "string",
+      "title": "DNSMADEEASY_API_SECRET",
+      "description": "Sets DNSMADEEASY_API_SECRET for the Dnsmadeeasy MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

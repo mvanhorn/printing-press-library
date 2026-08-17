@@ -36,6 +36,9 @@ func newListsListCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			if len(lists) == 0 {
+				if flags.asJSON {
+					return printJSONWithFreshness(cmd.OutOrStdout(), []any{}, flags)
+				}
 				fmt.Fprintln(cmd.OutOrStdout(), "No lists found — run 'anylist-pp-cli sync' first")
 				return nil
 			}

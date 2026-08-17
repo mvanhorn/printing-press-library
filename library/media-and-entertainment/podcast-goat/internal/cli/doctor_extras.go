@@ -27,9 +27,20 @@ func collectKeySources() map[string]string {
 		if env == "" {
 			continue
 		}
-		report[provider] = config.Source(env)
+		report[provider] = demoKeyMarker(provider, config.Source(env), config.Resolve(env))
 	}
 	return report
+}
+
+// demoKeyMarker appends ":demo" to a key source when the resolved value is
+// spoken.md's public demo key. set-key accepts pt_demo (useful for trying the
+// demo episode), but every other transcript fetch returns HTTP 402 — doctor
+// must name the problem before the user burns a fetch on it.
+func demoKeyMarker(provider, src, resolved string) string {
+	if provider == "spoken" && src != "missing" && resolved == "pt_demo" {
+		return src + ":demo"
+	}
+	return src
 }
 
 // renderKeySources prints the per-provider key-source row.
@@ -51,6 +62,8 @@ func renderKeySources(w io.Writer, rep map[string]string) {
 			label = "config (persisted via auth set-key)"
 		case "env":
 			label = "env (" + config.EnvVarFor(provider) + ")"
+		case "config:demo", "env:demo":
+			label = "WARNING demo key (pt_demo) — works only with the demo episode; real fetches return HTTP 402. Get a full key at https://spoken.md/"
 		}
 		fmt.Fprintf(w, "    %-14s %s\n", provider+":", label)
 	}

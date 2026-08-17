@@ -1,0 +1,53 @@
+{
+  "passed": true,
+  "cli_name": "running-race-results-pp-cli",
+  "api_name": "running-race-results",
+  "help_output": "Look up a runner's race result by race name + bib\n\nUsage:\n  running-race-results-pp-cli [command]\n\nAvailable Commands:\n  agent-context Emit structured JSON describing this CLI for agents\n  athlete       Show a runner's race history across events (athlinks|nyrr)\n  completion    Generate the autocompletion script for the specified shell\n  help          Help about any command\n  lookup        Resolve a race and return the result for a bib or name\n\nFlags:\n  -h, --help      help for running-race-results-pp-cli\n  -v, --version   version for running-race-results-pp-cli\n\nUse \"running-race-results-pp-cli [command] --help\" for more information about a command.\n",
+  "checks": [
+    {
+      "name": "manifest",
+      "passed": true
+    },
+    {
+      "name": "transcendence",
+      "passed": true
+    },
+    {
+      "name": "phase5",
+      "passed": true
+    },
+    {
+      "name": "go mod tidy",
+      "passed": true
+    },
+    {
+      "name": "govulncheck",
+      "passed": true
+    },
+    {
+      "name": "go vet",
+      "passed": true
+    },
+    {
+      "name": "go build",
+      "passed": true
+    },
+    {
+      "name": "--help",
+      "passed": true
+    },
+    {
+      "name": "--version",
+      "passed": true
+    },
+    {
+      "name": "verify-skill",
+      "passed": true
+    },
+    {
+      "name": "manuscripts",
+      "passed": true,
+      "warning": "no manuscripts found"
+    }
+  ]
+}

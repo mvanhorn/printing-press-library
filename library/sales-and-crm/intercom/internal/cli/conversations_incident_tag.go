@@ -12,7 +12,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newConversationsIncidentTagCmd(flags *rootFlags) *cobra.Command {
+// pp:data-source live
+func newNovelConversationsIncidentTagCmd(flags *rootFlags) *cobra.Command {
 	var mentions string
 	var since string
 	var tagName string
@@ -66,6 +67,12 @@ func newConversationsIncidentTagCmd(flags *rootFlags) *cobra.Command {
 			if cliutil.IsVerifyEnv() {
 				fmt.Fprintln(cmd.OutOrStdout(), "would apply (verify mode)")
 				return nil
+			}
+
+			// Live-only command: no local-store equivalent, so reject
+			// --data-source local (auto/live pass through).
+			if err := validateDataSourceStrategy(flags, "live"); err != nil {
+				return err
 			}
 
 			if !apply {

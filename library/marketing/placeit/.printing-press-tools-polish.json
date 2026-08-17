@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-06-17T14:14:06.621436Z",
+  "cli_dir": "\u003ccli-dir\u003e/placeit",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-06-17T14:08:28.389664Z"
+  }
+}

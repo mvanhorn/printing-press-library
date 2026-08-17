@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "exa-polymorphic-flag-coercion",
+  "applied_at": "2026-08-09",
+  "base_run_id": "20260809-202528-0d1b9f8c",
+  "base_printing_press_version": "4.30.1",
+  "summary": "Add coerceIntFlag()/coerceBoolFlag() so --num-results/--moderation/--stream on websearch and --num-results on find-similar map to the correct wire types (int/bool instead of string).",
+  "reason": "The OpenAPI anyOf flattening emits integer/boolean fields as StringVar flags; Exa rejects string-typed numbers/booleans with HTTP 400 'expected number/boolean, received string'.",
+  "files": ["internal/cli/promoted_websearch.go", "internal/cli/promoted_find-similar.go"],
+  "validated_outcome": "websearch --num-results 2 and find-similar --num-results 2 return 200 (were HTTP 400).",
+  "upstream_issue": ""
+}

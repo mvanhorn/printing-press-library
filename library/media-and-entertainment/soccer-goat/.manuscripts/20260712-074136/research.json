@@ -1,0 +1,208 @@
+{
+  "api_name": "soccer-goat",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "transfermarkt-api",
+      "url": "https://github.com/felipeall/transfermarkt-api",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 13,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-12T07:46:00Z",
+  "novel_features": [
+    {
+      "name": "Unified player dossier",
+      "command": "player",
+      "description": "Type any player name and get market value, EA FC rating, potential, and key stats in one report.",
+      "rationale": "Resolves a name once and fans out to Transfermarkt, EA FC, sofifa/fifacm, and ESPN, merging four walled silos into a single report no other tool joins.",
+      "example": "soccer-goat-pp-cli player schjelderup --json",
+      "why_it_matters": "Reach for this first: it answers what's he worth, how good is he, how good will he get, in one call.",
+      "group": "Cross-source reports"
+    },
+    {
+      "name": "Team squad value+rating board",
+      "command": "team",
+      "description": "Type a club name and get the full squad with each player's market value and rating, plus squad totals.",
+      "rationale": "Joins the Transfermarkt squad roster with per-player EA ratings and potential in one board; the sources never live together anywhere else.",
+      "example": "soccer-goat-pp-cli team benfica --json",
+      "why_it_matters": "Use for scouting a whole squad's value and quality at once instead of N single lookups.",
+      "group": "Cross-source reports"
+    },
+    {
+      "name": "Market-vs-game divergence",
+      "command": "over-under-rated",
+      "description": "Flag players whose transfer-market value is far above or below their EA game rating.",
+      "rationale": "Requires a local join of Transfermarkt market value and EA rating that only exists once both are cached together.",
+      "example": "soccer-goat-pp-cli over-under-rated --team benfica --json",
+      "why_it_matters": "Surfaces market bargains and hype the raw rating alone can't show.",
+      "group": "Local joins that compound"
+    },
+    {
+      "name": "Potential growth gap",
+      "command": "potential-gap",
+      "description": "Rank players by headroom (potential minus current rating).",
+      "rationale": "Needs potential from sofifa/fifacm joined to current from EA locally; no single source carries both.",
+      "example": "soccer-goat-pp-cli potential-gap --team benfica --json",
+      "why_it_matters": "Find who still has the most room to grow. Best-effort on potential source.",
+      "group": "Local joins that compound"
+    },
+    {
+      "name": "Cross-source head-to-head",
+      "command": "compare",
+      "description": "Side-by-side value, rating, potential, and stats for two players.",
+      "rationale": "One local join renders both players across every source at once.",
+      "example": "soccer-goat-pp-cli compare mbappe haaland --json",
+      "why_it_matters": "Settle debates with value + rating + potential + stats in one view.",
+      "group": "Cross-source reports"
+    },
+    {
+      "name": "Wonderkid scout query",
+      "command": "wonderkids",
+      "description": "Find young players with high potential and rising market value.",
+      "rationale": "Joins Transfermarkt age and value with sofifa potential, the classic scout filter no single source can answer.",
+      "example": "soccer-goat-pp-cli wonderkids --team benfica --max-age 21 --json",
+      "why_it_matters": "The scouting query football data tools can't run because the inputs live in different silos.",
+      "group": "Local joins that compound"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Unified player dossier",
+      "command": "player",
+      "description": "Type any player name and get market value, EA FC rating, potential, and key stats in one report.",
+      "rationale": "Resolves a name once and fans out to Transfermarkt, EA FC, sofifa/fifacm, and ESPN, merging four walled silos into a single report no other tool joins.",
+      "example": "soccer-goat-pp-cli player schjelderup --json",
+      "why_it_matters": "Reach for this first: it answers what's he worth, how good is he, how good will he get, in one call.",
+      "group": "Cross-source reports"
+    },
+    {
+      "name": "Team squad value+rating board",
+      "command": "team",
+      "description": "Type a club name and get the full squad with each player's market value and rating, plus squad totals.",
+      "rationale": "Joins the Transfermarkt squad roster with per-player EA ratings and potential in one board; the sources never live together anywhere else.",
+      "example": "soccer-goat-pp-cli team benfica --json",
+      "why_it_matters": "Use for scouting a whole squad's value and quality at once instead of N single lookups.",
+      "group": "Cross-source reports"
+    },
+    {
+      "name": "Market-vs-game divergence",
+      "command": "over-under-rated",
+      "description": "Flag players whose transfer-market value is far above or below their EA game rating.",
+      "rationale": "Requires a local join of Transfermarkt market value and EA rating that only exists once both are cached together.",
+      "example": "soccer-goat-pp-cli over-under-rated --team benfica --json",
+      "why_it_matters": "Surfaces market bargains and hype the raw rating alone can't show.",
+      "group": "Local joins that compound"
+    },
+    {
+      "name": "Potential growth gap",
+      "command": "potential-gap",
+      "description": "Rank players by headroom (potential minus current rating).",
+      "rationale": "Needs potential from sofifa/fifacm joined to current from EA locally; no single source carries both.",
+      "example": "soccer-goat-pp-cli potential-gap --team benfica --json",
+      "why_it_matters": "Find who still has the most room to grow. Best-effort on potential source.",
+      "group": "Local joins that compound"
+    },
+    {
+      "name": "Cross-source head-to-head",
+      "command": "compare",
+      "description": "Side-by-side value, rating, potential, and stats for two players.",
+      "rationale": "One local join renders both players across every source at once.",
+      "example": "soccer-goat-pp-cli compare mbappe haaland --json",
+      "why_it_matters": "Settle debates with value + rating + potential + stats in one view.",
+      "group": "Cross-source reports"
+    },
+    {
+      "name": "Wonderkid scout query",
+      "command": "wonderkids",
+      "description": "Find young players with high potential and rising market value.",
+      "rationale": "Joins Transfermarkt age and value with sofifa potential, the classic scout filter no single source can answer.",
+      "example": "soccer-goat-pp-cli wonderkids --team benfica --max-age 21 --json",
+      "why_it_matters": "The scouting query football data tools can't run because the inputs live in different silos.",
+      "group": "Local joins that compound"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "soccer-goat",
+    "headline": "Type any player or club and get market value, EA FC rating, potential, and stats in one report, joined across sources that live in separate walled silos.",
+    "value_prop": "soccer-goat resolves a name once and fans out to Transfermarkt market value, EA Sports FC ratings and attribute stats, sofifa/fifacm potential, and ESPN context, then merges them into a single report. A local SQLite store unlocks cross-source queries no single site can answer: over/under-rated vs the market, potential growth gaps, and wonderkid scouting.",
+    "quickstart": [
+      {
+        "command": "soccer-goat-pp-cli doctor --dry-run",
+        "comment": "confirm sources are reachable before a lookup"
+      },
+      {
+        "command": "soccer-goat-pp-cli player schjelderup",
+        "comment": "the headline: one name, full cross-source report"
+      },
+      {
+        "command": "soccer-goat-pp-cli team benfica",
+        "comment": "the whole squad with values and ratings"
+      },
+      {
+        "command": "soccer-goat-pp-cli compare mbappe haaland",
+        "comment": "head-to-head across every source"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "potential shows as unavailable",
+        "fix": "sofifa/fifacm sit behind Cloudflare, so potential is best-effort and shows as unavailable without a cleared session. Paste a cleared-Cloudflare cookie into SOCCER_GOAT_FIFACM_COOKIE (or SOCCER_GOAT_SOFIFA_COOKIE) and retry."
+      },
+      {
+        "symptom": "Transfermarkt lookups fail or rate-limit",
+        "fix": "point at your own transfermarkt-api instance with SOCCER_GOAT_BASE_URL, or wait and retry; the public instance is shared."
+      },
+      {
+        "symptom": "ESPN stats section is empty",
+        "fix": "ESPN soccer player coverage is thin; the report omits it cleanly and still returns value + rating + potential."
+      }
+    ],
+    "when_to_use": "Use soccer-goat when you want a player's or club's market value, game rating, potential, and stats together in one shot, or when you want to run cross-source queries like over/under-rated or wonderkid scouting that need value and rating joined locally. It is the right tool any time the answer spans Transfermarkt plus EA FC plus FIFA-style potential.",
+    "anti_triggers": [
+      "Do not use for live match scores or fixtures; use a dedicated ESPN or scores tool.",
+      "Do not use for fantasy-football price/points optimization; it reports market value and game ratings, not FPL prices.",
+      "Do not use for betting odds."
+    ],
+    "recipes": [
+      {
+        "title": "Full player report",
+        "command": "soccer-goat-pp-cli player schjelderup",
+        "explanation": "One name in, market value + EA rating + potential + key stats out."
+      },
+      {
+        "title": "Squad board",
+        "command": "soccer-goat-pp-cli team benfica --json --select players.name,players.marketValue,players.rating",
+        "explanation": "Narrow a large squad payload to just name, value, and rating."
+      },
+      {
+        "title": "Find market bargains",
+        "command": "soccer-goat-pp-cli over-under-rated --team benfica",
+        "explanation": "Players the game rates high but the market rates low, and vice versa."
+      },
+      {
+        "title": "Scout wonderkids",
+        "command": "soccer-goat-pp-cli wonderkids --max-age 21 --team benfica",
+        "explanation": "Young, high-potential, rising-value players in one filtered list."
+      }
+    ],
+    "trigger_phrases": [
+      "what's schjelderup worth and how good is he",
+      "fifa rating and potential for",
+      "market value and rating for",
+      "scout wonderkids at",
+      "compare two players",
+      "use soccer-goat",
+      "run soccer-goat"
+    ]
+  }
+}

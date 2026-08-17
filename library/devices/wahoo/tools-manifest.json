@@ -1,0 +1,946 @@
+{
+  "api_name": "wahoo",
+  "base_url": "https://api.wahooligan.com",
+  "description": "Every Wahoo Cloud API capability, plus the local training database and offline analysis Wahoo's app never gives you.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "WAHOO_OAUTH2"
+    ],
+    "env_var_specs": [
+      {
+        "name": "WAHOO_OAUTH2",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "permissions_revoke-app-access",
+      "description": "Revoke App Access. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/permissions",
+      "params": []
+    },
+    {
+      "name": "plans_create",
+      "description": "Create Plan. Required: file, name. Optional: description, external_id, provider_updated_at (plus 1 more). Returns the new Plan.",
+      "method": "POST",
+      "path": "/v1/plans",
+      "params": [
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "external_id",
+          "type": "string",
+          "location": "body",
+          "description": "External id"
+        },
+        {
+          "name": "file",
+          "type": "string",
+          "location": "body",
+          "description": "JSON plan file.",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "provider_updated_at",
+          "type": "string",
+          "location": "body",
+          "description": "Provider updated at"
+        },
+        {
+          "name": "workout_type_family_id",
+          "type": "int",
+          "location": "body",
+          "description": "Workout type family id"
+        }
+      ]
+    },
+    {
+      "name": "plans_delete",
+      "description": "Delete Plan. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/plans/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "plans_get",
+      "description": "Get Plan. Required: id. Returns the Plan.",
+      "method": "GET",
+      "path": "/v1/plans/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "plans_list",
+      "description": "List Plans. Optional: page (default: 1), per_page (default: 30). Returns array of Plan.",
+      "method": "GET",
+      "path": "/v1/plans",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Per page"
+        }
+      ]
+    },
+    {
+      "name": "plans_update",
+      "description": "Update Plan. Required: id, file, name. Optional: description, external_id, provider_updated_at (plus 1 more). Returns the updated Plan.",
+      "method": "PUT",
+      "path": "/v1/plans/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "external_id",
+          "type": "string",
+          "location": "body",
+          "description": "External id"
+        },
+        {
+          "name": "file",
+          "type": "string",
+          "location": "body",
+          "description": "JSON plan file.",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "provider_updated_at",
+          "type": "string",
+          "location": "body",
+          "description": "Provider updated at"
+        },
+        {
+          "name": "workout_type_family_id",
+          "type": "int",
+          "location": "body",
+          "description": "Workout type family id"
+        }
+      ]
+    },
+    {
+      "name": "power-zones_create",
+      "description": "Create Power Zones. Required: ftp, workout_type_family_id. Optional: critical_power, zone_1, zone_2 (plus 5 more). Returns the new PowerZone.",
+      "method": "POST",
+      "path": "/v1/power_zones",
+      "params": [
+        {
+          "name": "critical_power",
+          "type": "int",
+          "location": "body",
+          "description": "Critical power"
+        },
+        {
+          "name": "ftp",
+          "type": "int",
+          "location": "body",
+          "description": "Ftp",
+          "required": true
+        },
+        {
+          "name": "workout_type_family_id",
+          "type": "int",
+          "location": "body",
+          "description": "Workout type family id",
+          "required": true
+        },
+        {
+          "name": "zone_1",
+          "type": "int",
+          "location": "body",
+          "description": "Zone 1"
+        },
+        {
+          "name": "zone_2",
+          "type": "int",
+          "location": "body",
+          "description": "Zone 2"
+        },
+        {
+          "name": "zone_3",
+          "type": "int",
+          "location": "body",
+          "description": "Zone 3"
+        },
+        {
+          "name": "zone_4",
+          "type": "int",
+          "location": "body",
+          "description": "Zone 4"
+        },
+        {
+          "name": "zone_5",
+          "type": "int",
+          "location": "body",
+          "description": "Zone 5"
+        },
+        {
+          "name": "zone_6",
+          "type": "int",
+          "location": "body",
+          "description": "Zone 6"
+        },
+        {
+          "name": "zone_7",
+          "type": "int",
+          "location": "body",
+          "description": "Zone 7"
+        }
+      ]
+    },
+    {
+      "name": "power-zones_delete",
+      "description": "Delete Power Zones. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/power_zones/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "power-zones_get",
+      "description": "Get Power Zones. Required: id. Returns the PowerZone.",
+      "method": "GET",
+      "path": "/v1/power_zones/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "power-zones_list",
+      "description": "List Power Zones. Returns array of PowerZone.",
+      "method": "GET",
+      "path": "/v1/power_zones",
+      "params": []
+    },
+    {
+      "name": "power-zones_update",
+      "description": "Update Power Zones. Required: id, ftp, workout_type_family_id. Optional: critical_power, zone_1, zone_2 (plus 5 more). Returns the updated PowerZone.",
+      "method": "PUT",
+      "path": "/v1/power_zones/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "critical_power",
+          "type": "int",
+          "location": "body",
+          "description": "Critical power"
+        },
+        {
+          "name": "ftp",
+          "type": "int",
+          "location": "body",
+          "description": "Ftp",
+          "required": true
+        },
+        {
+          "name": "workout_type_family_id",
+          "type": "int",
+          "location": "body",
+          "description": "Workout type family id",
+          "required": true
+        },
+        {
+          "name": "zone_1",
+          "type": "int",
+          "location": "body",
+          "description": "Zone 1"
+        },
+        {
+          "name": "zone_2",
+          "type": "int",
+          "location": "body",
+          "description": "Zone 2"
+        },
+        {
+          "name": "zone_3",
+          "type": "int",
+          "location": "body",
+          "description": "Zone 3"
+        },
+        {
+          "name": "zone_4",
+          "type": "int",
+          "location": "body",
+          "description": "Zone 4"
+        },
+        {
+          "name": "zone_5",
+          "type": "int",
+          "location": "body",
+          "description": "Zone 5"
+        },
+        {
+          "name": "zone_6",
+          "type": "int",
+          "location": "body",
+          "description": "Zone 6"
+        },
+        {
+          "name": "zone_7",
+          "type": "int",
+          "location": "body",
+          "description": "Zone 7"
+        }
+      ]
+    },
+    {
+      "name": "routes_create",
+      "description": "Create Route. Required: file, name. Optional: ascent, descent, description (plus 7 more). Returns the new Route.",
+      "method": "POST",
+      "path": "/v1/routes",
+      "params": [
+        {
+          "name": "ascent",
+          "type": "float",
+          "location": "body",
+          "description": "Ascent"
+        },
+        {
+          "name": "descent",
+          "type": "float",
+          "location": "body",
+          "description": "Descent"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "distance",
+          "type": "float",
+          "location": "body",
+          "description": "Distance"
+        },
+        {
+          "name": "ending_lat",
+          "type": "float",
+          "location": "body",
+          "description": "Ending lat"
+        },
+        {
+          "name": "ending_lng",
+          "type": "float",
+          "location": "body",
+          "description": "Ending lng"
+        },
+        {
+          "name": "external_id",
+          "type": "string",
+          "location": "body",
+          "description": "External id"
+        },
+        {
+          "name": "file",
+          "type": "string",
+          "location": "body",
+          "description": "FIT-format route file.",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "starting_lat",
+          "type": "float",
+          "location": "body",
+          "description": "Starting lat"
+        },
+        {
+          "name": "starting_lng",
+          "type": "float",
+          "location": "body",
+          "description": "Starting lng"
+        },
+        {
+          "name": "workout_type_family_id",
+          "type": "int",
+          "location": "body",
+          "description": "Workout type family id"
+        }
+      ]
+    },
+    {
+      "name": "routes_delete",
+      "description": "Delete Route. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/routes/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "routes_get",
+      "description": "Get Route. Required: id. Returns the Route.",
+      "method": "GET",
+      "path": "/v1/routes/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "routes_list",
+      "description": "List Routes. Optional: page (default: 1), per_page (default: 30). Returns array of Route.",
+      "method": "GET",
+      "path": "/v1/routes",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Per page"
+        }
+      ]
+    },
+    {
+      "name": "routes_update",
+      "description": "Update Route. Required: id, file, name. Optional: ascent, descent, description (plus 7 more). Returns the updated Route.",
+      "method": "PUT",
+      "path": "/v1/routes/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "ascent",
+          "type": "float",
+          "location": "body",
+          "description": "Ascent"
+        },
+        {
+          "name": "descent",
+          "type": "float",
+          "location": "body",
+          "description": "Descent"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "distance",
+          "type": "float",
+          "location": "body",
+          "description": "Distance"
+        },
+        {
+          "name": "ending_lat",
+          "type": "float",
+          "location": "body",
+          "description": "Ending lat"
+        },
+        {
+          "name": "ending_lng",
+          "type": "float",
+          "location": "body",
+          "description": "Ending lng"
+        },
+        {
+          "name": "external_id",
+          "type": "string",
+          "location": "body",
+          "description": "External id"
+        },
+        {
+          "name": "file",
+          "type": "string",
+          "location": "body",
+          "description": "FIT-format route file.",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "starting_lat",
+          "type": "float",
+          "location": "body",
+          "description": "Starting lat"
+        },
+        {
+          "name": "starting_lng",
+          "type": "float",
+          "location": "body",
+          "description": "Starting lng"
+        },
+        {
+          "name": "workout_type_family_id",
+          "type": "int",
+          "location": "body",
+          "description": "Workout type family id"
+        }
+      ]
+    },
+    {
+      "name": "user_get",
+      "description": "Get Authenticated User. Returns the User.",
+      "method": "GET",
+      "path": "/v1/user",
+      "params": []
+    },
+    {
+      "name": "user_update",
+      "description": "Update Authenticated User. Optional: birth, first, gender (plus 3 more). Returns the updated User.",
+      "method": "PUT",
+      "path": "/v1/user",
+      "params": [
+        {
+          "name": "birth",
+          "type": "string",
+          "location": "body",
+          "description": "Birth"
+        },
+        {
+          "name": "first",
+          "type": "string",
+          "location": "body",
+          "description": "First"
+        },
+        {
+          "name": "gender",
+          "type": "int",
+          "location": "body",
+          "description": "Gender"
+        },
+        {
+          "name": "height",
+          "type": "string",
+          "location": "body",
+          "description": "Height"
+        },
+        {
+          "name": "last",
+          "type": "string",
+          "location": "body",
+          "description": "Last"
+        },
+        {
+          "name": "weight",
+          "type": "string",
+          "location": "body",
+          "description": "Weight"
+        }
+      ]
+    },
+    {
+      "name": "workout-file-uploads_create",
+      "description": "Upload Workout FIT File. Required: file. Returns the new WorkoutFileUpload.",
+      "method": "POST",
+      "path": "/v1/workout_file_uploads",
+      "params": [
+        {
+          "name": "file",
+          "type": "string",
+          "location": "body",
+          "description": "FIT file to ingest.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workout-file-uploads_get",
+      "description": "Get Workout File Upload Status. Required: token. Returns the WorkoutFileUpload.",
+      "method": "GET",
+      "path": "/v1/workout_file_uploads/{token}",
+      "params": [
+        {
+          "name": "token",
+          "type": "string",
+          "location": "path",
+          "description": "Token",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workouts_create",
+      "description": "Create Workout. Required: minutes, name, starts, workout_type_id. Optional: plan_id, workout_token. Returns the new Workout.",
+      "method": "POST",
+      "path": "/v1/workouts",
+      "params": [
+        {
+          "name": "minutes",
+          "type": "int",
+          "location": "body",
+          "description": "Minutes",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "plan_id",
+          "type": "int",
+          "location": "body",
+          "description": "Plan id"
+        },
+        {
+          "name": "starts",
+          "type": "string",
+          "location": "body",
+          "description": "Starts",
+          "required": true
+        },
+        {
+          "name": "workout_token",
+          "type": "string",
+          "location": "body",
+          "description": "Workout token"
+        },
+        {
+          "name": "workout_type_id",
+          "type": "int",
+          "location": "body",
+          "description": "Workout type id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workouts_delete",
+      "description": "Delete Workout. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/workouts/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workouts_get",
+      "description": "Get Workout. Required: id. Returns the Workout.",
+      "method": "GET",
+      "path": "/v1/workouts/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workouts_list",
+      "description": "List Workouts. Optional: page (default: 1), per_page (default: 30). Returns array of Workout.",
+      "method": "GET",
+      "path": "/v1/workouts",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Per page"
+        }
+      ]
+    },
+    {
+      "name": "workouts_update",
+      "description": "Update Workout. Required: id, minutes, name, starts, workout_type_id. Optional: plan_id, workout_token. Returns the updated Workout.",
+      "method": "PUT",
+      "path": "/v1/workouts/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "minutes",
+          "type": "int",
+          "location": "body",
+          "description": "Minutes",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "plan_id",
+          "type": "int",
+          "location": "body",
+          "description": "Plan id"
+        },
+        {
+          "name": "starts",
+          "type": "string",
+          "location": "body",
+          "description": "Starts",
+          "required": true
+        },
+        {
+          "name": "workout_token",
+          "type": "string",
+          "location": "body",
+          "description": "Workout token"
+        },
+        {
+          "name": "workout_type_id",
+          "type": "int",
+          "location": "body",
+          "description": "Workout type id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workouts_plans_list-for-workout",
+      "description": "List Plans For Workout. Required: workout_id. Returns array of Plan.",
+      "method": "GET",
+      "path": "/v1/workouts/{workout_id}/plans",
+      "params": [
+        {
+          "name": "workout_id",
+          "type": "int",
+          "location": "path",
+          "description": "Workout id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workouts_workout-summary_create",
+      "description": "Create Workout Summary (Deprecated). Required: id. Optional: ascent_accum, cadence_avg, calories_accum (plus 10 more). Returns the new WorkoutSummary.",
+      "method": "POST",
+      "path": "/v1/workouts/{id}/workout_summary",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "ascent_accum",
+          "type": "string",
+          "location": "body",
+          "description": "Ascent accum"
+        },
+        {
+          "name": "cadence_avg",
+          "type": "string",
+          "location": "body",
+          "description": "Cadence avg"
+        },
+        {
+          "name": "calories_accum",
+          "type": "string",
+          "location": "body",
+          "description": "Calories accum"
+        },
+        {
+          "name": "distance_accum",
+          "type": "string",
+          "location": "body",
+          "description": "Distance accum"
+        },
+        {
+          "name": "duration_active_accum",
+          "type": "string",
+          "location": "body",
+          "description": "Duration active accum"
+        },
+        {
+          "name": "duration_paused_accum",
+          "type": "string",
+          "location": "body",
+          "description": "Duration paused accum"
+        },
+        {
+          "name": "duration_total_accum",
+          "type": "string",
+          "location": "body",
+          "description": "Duration total accum"
+        },
+        {
+          "name": "file-url",
+          "wire_name": "file.url",
+          "type": "string",
+          "location": "body",
+          "description": "Url"
+        },
+        {
+          "name": "heart_rate_avg",
+          "type": "string",
+          "location": "body",
+          "description": "Heart rate avg"
+        },
+        {
+          "name": "id-2",
+          "wire_name": "id",
+          "type": "int",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "power_bike_avg",
+          "type": "string",
+          "location": "body",
+          "description": "Power bike avg"
+        },
+        {
+          "name": "speed_avg",
+          "type": "string",
+          "location": "body",
+          "description": "Speed avg"
+        },
+        {
+          "name": "work_accum",
+          "type": "string",
+          "location": "body",
+          "description": "Work accum"
+        }
+      ]
+    },
+    {
+      "name": "workouts_workout-summary_get",
+      "description": "Get Workout Summary. Required: id. Returns the WorkoutSummary.",
+      "method": "GET",
+      "path": "/v1/workouts/{id}/workout_summary",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

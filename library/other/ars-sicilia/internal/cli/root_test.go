@@ -180,6 +180,37 @@ func TestFilterFields(t *testing.T) {
 			fields: "id",
 			want:   `{}`,
 		},
+		{
+			// Mixed selector: one name matches at top level, the others only
+			// inside the array. This is the `legge cronologia` shape
+			// ({titolo, eventi:[{data,fase,titolo}]} with --select
+			// data,fase,titolo). Before the fix the single root hit set
+			// matchedAny, the envelope fallback was skipped, and the whole
+			// array was dropped: 27 events vanished with no error.
+			name:   "mixed selector keeps root match and filtered array",
+			input:  `{"titolo":"L","numero":26,"eventi":[{"data":"d1","fase":"f1","titolo":"t1","url":"u"}]}`,
+			fields: "data,fase,titolo",
+			want:   `{"titolo":"L","eventi":[{"data":"d1","fase":"f1","titolo":"t1"}]}`,
+		},
+		{
+			// An array is opened only when it answers the names that went
+			// unresolved. Here `zzz` is a typo and `titolo` already matched at
+			// root, so `eventi` must stay out even though its rows do have a
+			// `titolo` — otherwise every typo would graft the array on.
+			name:   "mixed selector with unknown name leaves array out",
+			input:  `{"titolo":"L","eventi":[{"data":"d1","titolo":"t1"}]}`,
+			fields: "titolo,zzz",
+			want:   `{"titolo":"L"}`,
+		},
+		{
+			// Sibling scalars the caller did not ask for stay out: unlike the
+			// no-match envelope fallback, a mixed selector means the caller
+			// did name the fields they wanted.
+			name:   "mixed selector drops unrequested scalar siblings",
+			input:  `{"titolo":"L","legisl":18,"eventi":[{"data":"d1"}]}`,
+			fields: "titolo,data",
+			want:   `{"titolo":"L","eventi":[{"data":"d1"}]}`,
+		},
 	}
 	for _, tc := range cases {
 		tc := tc

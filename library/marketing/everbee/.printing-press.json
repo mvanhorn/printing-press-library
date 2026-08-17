@@ -1,7 +1,7 @@
 {
-  "schema_version": 1,
-  "generated_at": "2026-05-31T18:22:17.573434Z",
-  "printing_press_version": "4.19.0",
+  "schema_version": 2,
+  "generated_at": "2026-07-12T13:38:16.066591Z",
+  "printing_press_version": "4.28.0",
   "api_name": "everbee",
   "display_name": "EverBee",
   "cli_name": "everbee-pp-cli",
@@ -12,60 +12,54 @@
   "owner": "horknfbr",
   "printer": "horknfbr",
   "printer_name": "horknfbr",
-  "spec_path": "everbee-browser-sniff-spec.yaml",
   "spec_format": "internal",
-  "spec_checksum": "sha256:fa99c6a38da9caac55c8ace0b18a55229d8fe44eb57294a40a047aecd39dfdd4",
-  "run_id": "20260522-153448",
+  "spec_checksum": "sha256:9cd584c5f6e7cce4ffa6e154bc251eb390097ac1104ded1484877be13f7eb6c0",
+  "run_id": "20260711-203553-d9c009c7",
   "category": "marketing",
-  "description": "Research Etsy products, shops, and keywords from EverBee in a repeatable agent-ready workflow.",
+  "description": "Etsy niche research whose scores come with their evidence attached — seeded search, honest confidence, and a local store that turns repeat research into trends.",
   "mcp_binary": "everbee-pp-mcp",
-  "mcp_tool_count": 5,
+  "mcp_tool_count": 6,
   "mcp_ready": "full",
-  "api_version": "0.1.0",
+  "api_version": "0.2.0",
   "auth_type": "api_key",
   "auth_env_vars": [
     "EVERBEE_ACCESS_TOKEN"
   ],
   "novel_features": [
     {
-      "name": "Opportunity Shortlist",
-      "command": "opportunity shortlist",
-      "description": "Rank Etsy product opportunities by combining product analytics, keyword demand, competition, and local trend history."
+      "name": "Evidence-aware niche verdict",
+      "command": "research niche",
+      "description": "Score an Etsy niche from a seed keyword and get the evidence behind the score, not just the number."
     },
     {
-      "name": "Niche Score",
-      "command": "niche score",
-      "description": "Score a niche by weighing search demand, competition, product saturation, pricing, and trend movement."
+      "name": "Batch sub-niche discovery",
+      "command": "research subniches",
+      "description": "Expand a parent niche into child niches and rank them on comparable, normalized scores."
     },
     {
-      "name": "Shop Gaps",
-      "command": "shop gaps",
-      "description": "Find competitor shop openings from product mix, pricing bands, tags, and keyword coverage."
+      "name": "Competitor sampling",
+      "command": "research competitors",
+      "description": "Get the market shape of a niche: result count, median price, review and sales density, listing-age quartiles."
     },
     {
-      "name": "Tag Gap",
-      "command": "tags gap",
-      "description": "Compare winning listing tags against a target shop or keyword set to reveal missing SEO coverage."
+      "name": "Tag and title consensus with seasonality",
+      "command": "research tags",
+      "description": "See which tags and title tokens the winning listings in a niche agree on, and whether demand is seasonal or evergreen when EverBee supplies trend data."
     },
     {
-      "name": "Keyword Clusters",
-      "command": "keywords cluster",
-      "description": "Group related keyword suggestions by term overlap, demand, competition, and opportunity score."
+      "name": "Niche drift vs baseline",
+      "command": "research drift",
+      "description": "Compare a niche against a saved baseline to see what actually moved since last time."
     },
     {
-      "name": "Trend Diff",
-      "command": "trends diff",
-      "description": "Compare saved research snapshots to show which products, shops, or keywords moved over time."
+      "name": "Listing and handle identity resolution",
+      "command": "research listing",
+      "description": "Resolve an Etsy listing URL or ID to what we actually know about it, and say so plainly when we know nothing."
     },
     {
-      "name": "Competitor Watch",
-      "command": "competitors watch",
-      "description": "Detect competitor changes in top products, price bands, and tags across saved shop snapshots."
-    },
-    {
-      "name": "Listing Audit",
-      "command": "listing audit",
-      "description": "Audit a listing's keyword and tag fit using EverBee-derived product and keyword context."
+      "name": "Semantic capability self-test",
+      "command": "selftest",
+      "description": "Check that the research path is not just reachable but actually returning relevant data."
     }
   ]
 }

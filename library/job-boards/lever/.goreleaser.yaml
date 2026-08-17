@@ -1,0 +1,51 @@
+version: 2
+project_name: lever-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: lever-pp-cli
+    main: ./cmd/lever-pp-cli
+    binary: lever-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/job-boards/lever/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: lever-pp-mcp
+    main: ./cmd/lever-pp-mcp
+    binary: lever-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: lever-pp-cli
+    repository:
+      owner: hunter-veltri
+      name: homebrew-tap
+    homepage: "https://github.com/hunter-veltri/lever-pp-cli"
+    description: "Public Lever postings API (https://api.lever.co/v0/postings). Every Lever customer exposes an open job board at api."
+    install: |
+      bin.install "lever-pp-cli"
+      bin.install "lever-pp-mcp"

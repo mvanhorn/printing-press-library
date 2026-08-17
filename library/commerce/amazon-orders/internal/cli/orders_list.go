@@ -42,7 +42,7 @@ func newOrdersListCmd(flags *rootFlags) *cobra.Command {
 			if flagStartIndex != 0 {
 				params["startIndex"] = fmt.Sprintf("%v", flagStartIndex)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "orders", false, path, params, nil)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "orders", true, path, params, nil, "")
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

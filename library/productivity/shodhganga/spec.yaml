@@ -1,0 +1,151 @@
+name: shodhganga
+description: "Structured, agent-native CLI for Shodhganga — India's national reservoir of PhD theses"
+version: "0.1.0"
+base_url: "https://shodhganga.inflibnet.ac.in"
+category: productivity
+cli_description: "Structured, scriptable, agent-native access to India's national reservoir of PhD theses — the machine API Shodhganga never shipped."
+health_check_path: "/"
+http_transport: standard
+required_headers:
+  - name: User-Agent
+    value: "Mozilla/5.0 (compatible; shodhganga-pp-cli/0.1)"
+  - name: Accept
+    value: "text/html,application/xhtml+xml"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/shodhganga-pp-cli/config.toml"
+
+learn:
+  # learn no-entities escape: thesis/researcher/guide/university vocabulary is fully
+  # open-ended (600k+ theses, 900+ universities); no small finite aliasable set to seed.
+  synonyms:
+    "dissertation": "thesis"
+    "phd thesis": "thesis"
+    "supervisor": "guide"
+  stopwords:
+    - thesis
+
+resources:
+  thesis:
+    description: "Search and retrieve Indian PhD theses"
+    endpoints:
+      search:
+        method: GET
+        path: "/simple-search"
+        description: "Search theses by keyword across all of Shodhganga"
+        example: "  shodhganga-pp-cli thesis search --query \"black hole physics\" --limit 10"
+        happy_args: "--query=physics;--limit=5"
+        params:
+          - name: query
+            type: string
+            required: true
+            description: "Search keywords"
+          - name: rpp
+            flag_name: limit
+            type: int
+            default: 10
+            description: "Results per page"
+          - name: start
+            type: int
+            default: 0
+            description: "Result offset for paging"
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: ["/handle/10603"]
+      get:
+        method: GET
+        path: "/handle/10603/{id}"
+        description: "Get a thesis item page by handle number (the NNNNN in 10603/NNNNN)"
+        example: "  shodhganga-pp-cli thesis get 305247"
+        happy_args: "id=305247"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Thesis handle number, e.g. 305247 for 10603/305247"
+        response_format: html
+        html_extract:
+          mode: page
+
+  browse:
+    description: "Browse theses by facet (title, author, subject, date)"
+    endpoints:
+      list:
+        method: GET
+        path: "/browse"
+        description: "Browse theses by title, author, subject, keyword, or date"
+        example: "  shodhganga-pp-cli browse list --type author --limit 20"
+        happy_args: "--type=title;--limit=10"
+        params:
+          - name: type
+            type: string
+            default: title
+            enum: [title, author, subject, keyword, dateissued, dateaccessioned]
+            description: "Browse facet"
+          - name: value
+            type: string
+            description: "Facet value to browse into (e.g. an author or subject)"
+          - name: rpp
+            flag_name: limit
+            type: int
+            default: 20
+            description: "Results per page"
+          - name: starts_with
+            url_name: starts_with
+            type: string
+            description: "Jump to entries starting with this string"
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: ["/handle/10603"]
+
+  university:
+    description: "Look up universities and collections (DSpace communities)"
+    endpoints:
+      get:
+        method: GET
+        path: "/handle/10603/{id}"
+        description: "Get a university/community page by handle number"
+        example: "  shodhganga-pp-cli university get 1"
+        happy_args: "id=1"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Community handle number, e.g. 1 for 10603/1"
+        response_format: html
+        html_extract:
+          mode: page
+
+types:
+  Thesis:
+    fields:
+      - name: handle
+        type: string
+      - name: title
+        type: string
+      - name: researcher
+        type: string
+      - name: guide
+        type: string
+      - name: university
+        type: string
+      - name: department
+        type: string
+      - name: keywords
+        type: string
+      - name: completed_date
+        type: string
+      - name: abstract
+        type: string
+      - name: language
+        type: string
+      - name: uri
+        type: string

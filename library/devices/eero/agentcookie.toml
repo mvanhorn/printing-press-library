@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "eero-pp-cli"
+display_name = "eero"
+description = "Inspect an eero mesh network from the terminal with agent-friendly output for networks, nodes, connected devices, diagnostics, and speed tests."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/eero-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+EERO_SESSION_TOKEN = true

@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-07-21T21:15:49.562328Z",
+  "cli_dir": "\u003ccli-dir\u003e/forkable",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 692,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file (teach.go carries the generator header); learn-loop 'learnings list' Short. Brief but accurate; a richer Short belongs in the generator's teach.go template, not a hand-edit regen would wipe. Retro candidate."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-07-21T00:15:35.079214Z"
+  }
+}

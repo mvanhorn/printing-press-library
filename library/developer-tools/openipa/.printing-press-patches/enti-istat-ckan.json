@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "enti-istat-ckan",
+  "applied_at": "2026-06-02",
+  "base_run_id": "20260514-212234",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Add enti istat command for bidirectional IPA ↔ ISTAT lookup via CKAN open data.",
+  "reason": "The IPA web services do not expose Codice_comune_ISTAT; it is only available in the CKAN datastore at indicepa.gov.it/ipa-dati. This command adds a new client (NewCKAN) and a new subcommand under enti that supports both directions: --codice <IPA> → ISTAT and --istat <ISTAT> → list of IPA entities.",
+  "files": [
+    "internal/client/ckan.go",
+    "internal/cli/enti_istat.go",
+    "internal/cli/enti.go",
+    "SKILL.md"
+  ],
+  "validated_outcome": "go build/vet pass. Live test: enti istat --codice c_g273 → Codice_comune_ISTAT 082053; enti istat --istat 082053 → 451 records."
+}

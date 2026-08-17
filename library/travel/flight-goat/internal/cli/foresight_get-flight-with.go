@@ -21,9 +21,9 @@ func newForesightGetFlightWithCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "get-flight-with <ident>",
-		Short:       "Returns the flight info status summary for a registration, ident, or fa_flight_id, including all available predicted...",
-		Example:     "  flight-goat-pp-cli foresight get-flight-with example-value",
-		Annotations: map[string]string{"pp:endpoint": "foresight.get-flight-with", "mcp:read-only": "true"},
+		Short:       "Returns the flight info status summary for a registration, ident, or fa_flight_id",
+		Example:     "  flight-goat-pp-cli foresight get-flight-with UAL1234-1234567890-airline-0123",
+		Annotations: map[string]string{"pp:endpoint": "foresight.get-flight-with", "pp:method": "GET", "pp:path": "/foresight/flights/{ident}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -38,36 +38,44 @@ func newForesightGetFlightWithCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validIdentType {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "ident-type", flagIdentType, allowedIdentType)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagIdentType, "ident-type", allowedIdentType)
 				}
 			}
+			path := "/foresight/flights/{ident}"
+			if len(args) < 1 || args[0] == "" {
+				return usageErr(fmt.Errorf("ident is required\nUsage: %s <%s>", cmd.CommandPath(), "ident"))
+			}
+			path = replacePathParam(path, "ident", args[0])
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/foresight/flights/{ident}"
-			path = replacePathParam(path, "ident", args[0])
-			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "foresight", path, map[string]string{
-				"ident_type": fmt.Sprintf("%v", flagIdentType),
-				"start":      fmt.Sprintf("%v", flagStart),
-				"end":        fmt.Sprintf("%v", flagEnd),
-				"max_pages":  fmt.Sprintf("%v", flagMaxPages),
-				"cursor":     fmt.Sprintf("%v", flagCursor),
-			}, nil, flagAll, "cursor", "", "")
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "foresight", path, map[string]string{
+				"ident_type": formatCLIParamValue(flagIdentType),
+				"start":      formatCLIParamValue(flagStart),
+				"end":        formatCLIParamValue(flagEnd),
+				"max_pages":  formatCLIParamValue(flagMaxPages),
+				"cursor":     formatCLIParamValue(flagCursor),
+			}, nil, flagAll, "cursor", "cursor", "", 100, "", "", cmd.ErrOrStderr())
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
 			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
+			// --plain) opt out of the auto-JSON path so piped consumers that asked for
+			// a non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -93,12 +101,12 @@ func newForesightGetFlightWithCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
-	cmd.Flags().StringVar(&flagIdentType, "ident-type", "", "Type of ident provided in the ident parameter. By default, the passed ident is interpreted as a registration if... (one of: designator, registration, fa_flight_id)")
-	cmd.Flags().StringVar(&flagStart, "start", "", "The starting date range for flight results, comparing against flights' `scheduled_out` field (or `scheduled_off` if...")
-	cmd.Flags().StringVar(&flagEnd, "end", "", "The ending date range for flight results, comparing against flights' `scheduled_out` field (or `scheduled_off` if...")
+	cmd.Flags().StringVar(&flagIdentType, "ident-type", "", "Type of ident provided in the ident parameter. (one of: designator, registration, fa_flight_id)")
+	cmd.Flags().StringVar(&flagStart, "start", "", "The starting date range for flight results")
+	cmd.Flags().StringVar(&flagEnd, "end", "", "The ending date range for flight results")
 	cmd.Flags().IntVar(&flagMaxPages, "max-pages", 1, "Maximum number of pages to fetch. This is an upper limit and not a guarantee of how many pages will be returned.")
 	cmd.Flags().StringVar(&flagCursor, "cursor", "", "Opaque value used to get the next batch of data from a paged collection.")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")

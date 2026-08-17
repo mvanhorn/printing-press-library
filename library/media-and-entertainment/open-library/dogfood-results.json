@@ -1,0 +1,64 @@
+{
+  "api_name": "open-library",
+  "cli_name": "open-library-pp-cli",
+  "run_id": "20260626-061033",
+  "status": "pass",
+  "commands": [
+    {
+      "command": "open-library-pp-cli --help",
+      "status": "passed",
+      "mode": "local"
+    },
+    {
+      "command": "open-library-pp-cli --version",
+      "status": "passed",
+      "mode": "local"
+    },
+    {
+      "command": "open-library-pp-cli sources --agent",
+      "status": "passed",
+      "mode": "local"
+    },
+    {
+      "command": "open-library-pp-cli doctor --agent",
+      "status": "passed",
+      "mode": "local"
+    },
+    {
+      "command": "open-library-pp-cli book \"Designing Data-Intensive Applications\" --limit 3 --agent",
+      "status": "passed",
+      "mode": "live_public_api",
+      "source": "Open Library Search API"
+    },
+    {
+      "command": "open-library-pp-cli isbn 9780131103627 --agent",
+      "status": "passed",
+      "mode": "live_public_api",
+      "source": "Open Library ISBN API"
+    },
+    {
+      "command": "open-library-pp-cli author \"Ursula K. Le Guin\" --limit 3 --agent",
+      "status": "passed",
+      "mode": "live_public_api",
+      "source": "Open Library Authors API"
+    },
+    {
+      "command": "open-library-pp-cli editions OL45804W --limit 3 --agent",
+      "status": "passed",
+      "mode": "live_public_api",
+      "source": "Open Library Editions API"
+    },
+    {
+      "command": "open-library-pp-cli subjects \"distributed systems\" --details --limit 3 --agent",
+      "status": "passed",
+      "mode": "live_public_api",
+      "source": "Open Library Subjects API"
+    }
+  ],
+  "notes": [
+    "No API key or account is required.",
+    "Live commands are bounded and use Open Library JSON endpoints.",
+    "The CLI sends a User-Agent header and documents optional contact-email identification for regular use.",
+    "The subject command preserves Open Library's experimental Subjects API caveat."
+  ]
+}

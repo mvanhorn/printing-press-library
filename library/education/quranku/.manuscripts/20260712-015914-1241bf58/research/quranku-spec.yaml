@@ -1,0 +1,362 @@
+name: quranku
+description: "QuranKu CLI — Al-Qur'an with the Indonesian Tarjamah Tafsiriyah (Ustadz Muhammad Thalib), Quran.com metadata, offline search, and a local database no other Qur'an tool has."
+version: "0.1.0"
+category: reference
+base_url: "https://media-quran-api.lpoalr.easypanel.host/api"
+health_check_path: "/surahs"
+
+auth:
+  type: none
+
+# The self-learning query->resource loop adds little for a fixed Qur'an corpus
+# with an obvious command surface; disabling it keeps the CLI lean.
+learn:
+  disabled: true
+
+config:
+  format: toml
+  path: "~/.config/quranku-pp-cli/config.toml"
+
+resources:
+  surah:
+    description: "Surahs with the Indonesian Tarjamah Tafsiriyah translation (primary source)"
+    endpoints:
+      list:
+        method: GET
+        path: "/surahs"
+        description: "List all 114 surahs (Tafsiriyah source)"
+        response:
+          type: array
+          item: Surah
+        response_path: data
+      get:
+        method: GET
+        path: "/surahs/{id}"
+        description: "Get a surah with all verses and the Tarjamah Tafsiriyah translation"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Surah number (1-114)"
+        response:
+          type: object
+          item: SurahDetail
+        response_path: data
+
+  chapters:
+    description: "Chapter metadata from Quran.com"
+    base_url: "https://api.quran.com/api/v4"
+    endpoints:
+      list:
+        method: GET
+        path: "/chapters"
+        description: "List chapters with localized metadata"
+        params:
+          - name: language
+            type: string
+            required: false
+            default: "id"
+            description: "Language code for names (e.g. id, en, ar)"
+        response:
+          type: array
+          item: Chapter
+        response_path: chapters
+      get:
+        method: GET
+        path: "/chapters/{id}/info"
+        description: "Get background/introduction text for a chapter"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Chapter number (1-114)"
+          - name: language
+            type: string
+            required: false
+            default: "id"
+            description: "Language code for the info text"
+        response:
+          type: object
+          item: ChapterInfo
+        response_path: chapter_info
+
+  juz:
+    description: "Juz (para) structure from Quran.com"
+    base_url: "https://api.quran.com/api/v4"
+    endpoints:
+      list:
+        method: GET
+        path: "/juzs"
+        description: "List all 30 juz with their verse mappings"
+        response:
+          type: array
+          item: Juz
+        response_path: juzs
+
+  verses:
+    description: "Qur'an verses (Arabic) from Quran.com"
+    base_url: "https://api.quran.com/api/v4"
+    endpoints:
+      by-chapter:
+        method: GET
+        path: "/verses/by_chapter/{chapter}"
+        description: "List verses of a chapter with Arabic text"
+        params:
+          - name: chapter
+            type: int
+            required: true
+            positional: true
+            description: "Chapter number (1-114)"
+          - name: language
+            type: string
+            required: false
+            default: "id"
+            description: "Language code"
+          - name: fields
+            type: string
+            required: false
+            default: "text_uthmani"
+            description: "Comma-separated verse fields to include"
+          - name: per_page
+            type: int
+            required: false
+            default: 50
+            description: "Verses per page (max 50)"
+          - name: page
+            type: int
+            required: false
+            default: 1
+            description: "Page number"
+        response:
+          type: array
+          item: Verse
+        response_path: verses
+        pagination:
+          type: page_token
+          has_more_field: "pagination.next_page"
+
+  websearch:
+    description: "Live online full-text search across the whole Qur'an (Quran.com)"
+    base_url: "https://api.quran.com/api/v4"
+    endpoints:
+      query:
+        method: GET
+        path: "/search"
+        description: "Search the Qur'an by word or meaning"
+        params:
+          - name: q
+            type: string
+            required: true
+            description: "Search query"
+          - name: language
+            type: string
+            required: false
+            default: "en"
+            description: "Language for translated results"
+          - name: size
+            type: int
+            required: false
+            default: 20
+            description: "Number of results"
+          - name: page
+            type: int
+            required: false
+            default: 1
+            description: "Page number"
+        response:
+          type: array
+          item: SearchResult
+        response_path: search.results
+
+  tafsirs:
+    description: "Available tafsir resources on Quran.com"
+    base_url: "https://api.quran.com/api/v4"
+    endpoints:
+      list:
+        method: GET
+        path: "/resources/tafsirs"
+        description: "List available tafsirs (other than Tafsiriyah)"
+        params:
+          - name: language
+            type: string
+            required: false
+            default: "id"
+            description: "Filter by language"
+        response:
+          type: array
+          item: Tafsir
+        response_path: tafsirs
+
+  uthmani:
+    description: "Uthmani-script Arabic text from Quran.com"
+    base_url: "https://api.quran.com/api/v4"
+    endpoints:
+      by-chapter:
+        method: GET
+        path: "/quran/verses/uthmani"
+        description: "Get clean Uthmani-script Arabic for a chapter"
+        params:
+          - name: chapter_number
+            type: int
+            required: true
+            description: "Chapter number (1-114)"
+        response:
+          type: array
+          item: UthmaniVerse
+        response_path: verses
+
+  recitation:
+    description: "Chapter recitation audio from Quran.com"
+    base_url: "https://api.quran.com/api/v4"
+    endpoints:
+      get:
+        method: GET
+        path: "/chapter_recitations/{reciter}/{chapter}"
+        description: "Get the audio file URL for a chapter by reciter"
+        params:
+          - name: reciter
+            type: int
+            required: true
+            positional: true
+            description: "Reciter ID (e.g. 7 = Mishary Alafasy)"
+          - name: chapter
+            type: int
+            required: true
+            positional: true
+            description: "Chapter number (1-114)"
+        response:
+          type: object
+          item: AudioFile
+        response_path: audio_file
+
+  audio:
+    description: "Per-surah reciter audio manifest (quranapi)"
+    base_url: "https://quranapi.pages.dev/api"
+    endpoints:
+      surah:
+        method: GET
+        path: "/audio/{surah}.json"
+        description: "Get the reciter->audio-URL map for a surah"
+        params:
+          - name: surah
+            type: int
+            required: true
+            positional: true
+            description: "Surah number (1-114)"
+        response:
+          type: object
+          item: AudioManifest
+
+types:
+  Surah:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: nameArabic
+        type: string
+      - name: nameTransliteration
+        type: string
+      - name: numberOfVerses
+        type: int
+      - name: revelationType
+        type: string
+  SurahDetail:
+    fields:
+      - name: surah
+        type: string
+      - name: verses
+        type: string
+  Chapter:
+    fields:
+      - name: id
+        type: int
+      - name: name_simple
+        type: string
+      - name: name_arabic
+        type: string
+      - name: revelation_place
+        type: string
+      - name: verses_count
+        type: int
+      - name: translated_name
+        type: string
+  ChapterInfo:
+    fields:
+      - name: chapter_id
+        type: int
+      - name: language_name
+        type: string
+      - name: short_text
+        type: string
+      - name: text
+        type: string
+  Juz:
+    fields:
+      - name: id
+        type: int
+      - name: juz_number
+        type: int
+      - name: verses_count
+        type: int
+      - name: first_verse_id
+        type: int
+      - name: last_verse_id
+        type: int
+  Verse:
+    fields:
+      - name: id
+        type: int
+      - name: verse_number
+        type: int
+      - name: verse_key
+        type: string
+      - name: text_uthmani
+        type: string
+  SearchResult:
+    fields:
+      - name: verse_key
+        type: string
+      - name: verse_id
+        type: int
+      - name: text
+        type: string
+  Tafsir:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: author_name
+        type: string
+      - name: language_name
+        type: string
+      - name: slug
+        type: string
+  UthmaniVerse:
+    fields:
+      - name: id
+        type: int
+      - name: verse_key
+        type: string
+      - name: text_uthmani
+        type: string
+  AudioFile:
+    fields:
+      - name: id
+        type: int
+      - name: chapter_id
+        type: int
+      - name: audio_url
+        type: string
+      - name: format
+        type: string
+  AudioManifest:
+    fields:
+      - name: reciter
+        type: string
+      - name: url
+        type: string

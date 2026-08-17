@@ -13,43 +13,65 @@ import (
 
 func newFacebookListProfile2Cmd(flags *rootFlags) *cobra.Command {
 	var flagUrl string
-	var flagNextPageId string
 	var flagCursor string
 	var flagAll bool
 
 	cmd := &cobra.Command{
 		Use:         "list-profile-2",
-		Short:       "Fetches photos from a public Facebook page with pagination support. Each photo includes photo_id,...",
-		Example:     "  scrape-creators-pp-cli facebook list-profile-2",
-		Annotations: map[string]string{"pp:endpoint": "facebook.list-profile-2", "mcp:read-only": "true"},
+		Short:       "Get the events of a public Facebook page",
+		Example:     "  scrape-creators-pp-cli facebook list-profile-2 --url https://www.facebook.com/brickyardoldtown",
+		Annotations: map[string]string{"pp:endpoint": "facebook.list-profile-2", "pp:method": "GET", "pp:path": "/v1/facebook/profile/events", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Bare invocation of a command with required input prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only read commands fall through so a bare call still executes.
+			// Machine callers (--json/--agent, which sets asJSON) get a usage
+			// error + exit 2 instead of silent exit-0 help, so an incomplete
+			// invocation is never mistaken for success.
+			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "requires input",
+						"usage": cmd.CommandPath() + " --help",
+					}, flags); printErr != nil {
+						return printErr
+					}
+					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
+				}
+				return cmd.Help()
+			}
 			if !cmd.Flags().Changed("url") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "url")
 			}
+			path := "/v1/facebook/profile/events"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/v1/facebook/profile/photos"
-			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "facebook", path, map[string]string{
-				"url":          fmt.Sprintf("%v", flagUrl),
-				"next_page_id": fmt.Sprintf("%v", flagNextPageId),
-				"cursor":       fmt.Sprintf("%v", flagCursor),
-			}, nil, flagAll, "cursor", "", "")
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "facebook", path, map[string]string{
+				"url":    formatCLIParamValue(flagUrl),
+				"cursor": formatCLIParamValue(flagCursor),
+			}, nil, flagAll, "cursor", "cursor", "", 100, "", "", "", cmd.ErrOrStderr())
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			outputData := collectionItemsForOutput(data, path)
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
-				_ = json.Unmarshal(data, &countItems)
+				_ = json.Unmarshal(outputData, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
 			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
+			// --plain) opt out of the auto-JSON path so piped consumers that asked for
+			// a non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -60,12 +82,16 @@ func newFacebookListProfile2Cmd(flags *rootFlags) *cobra.Command {
 				if wrapErr != nil {
 					return wrapErr
 				}
+				wrapped, wrapErr = wrapPlatformStructuredOutput(wrapped, flags, "results", true)
+				if wrapErr != nil {
+					return wrapErr
+				}
 				return printOutput(cmd.OutOrStdout(), wrapped, true)
 			}
 			// For all other output modes (table, csv, plain, quiet), use the standard pipeline
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var items []map[string]any
-				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
+				if json.Unmarshal(outputData, &items) == nil && len(items) > 0 {
 					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
 						return err
 					}
@@ -75,12 +101,15 @@ func newFacebookListProfile2Cmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			formatData := data
+			if flags.csv || flags.plain {
+				formatData = outputData
+			}
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), formatData, flags, map[string]any{"source": "live"})
 		},
 	}
-	cmd.Flags().StringVar(&flagUrl, "url", "", "Facebook page URL")
-	cmd.Flags().StringVar(&flagNextPageId, "next-page-id", "", "To paginate through to the next page")
-	cmd.Flags().StringVar(&flagCursor, "cursor", "", "To paginate through to the next page")
+	cmd.Flags().StringVar(&flagUrl, "url", "", "The URL of the public Facebook page")
+	cmd.Flags().StringVar(&flagCursor, "cursor", "", "The cursor to paginate to get more events")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
 	return cmd

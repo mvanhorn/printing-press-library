@@ -1,0 +1,61 @@
+{
+  "api_name": "drug-enforcement",
+  "base_url": "https://api.fda.gov",
+  "description": "Search FDA drug recall enforcement records — keyless, offline-cacheable, agent-native. Reports FDA facts only; never says a drug is safe.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "drug-enforcement-pp-cli/1.0 (keyless; openFDA)"
+    },
+    {
+      "name": "Accept",
+      "value": "application/json"
+    }
+  ],
+  "tools": [
+    {
+      "name": "enforcement_list",
+      "description": "Search drug recall enforcement records with an openFDA Lucene search expression. Optional: search, limit (default: 25), skip (default: 0) (plus 2 more).",
+      "method": "GET",
+      "path": "/drug/enforcement.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "openFDA search expression, e.g. product_description:'ibuprofen' or classification:'Class I'"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum records to return (openFDA max 1000)"
+        },
+        {
+          "name": "skip",
+          "type": "int",
+          "location": "query",
+          "description": "Number of records to skip (pagination offset)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort expression, e.g. recall_initiation_date:desc"
+        },
+        {
+          "name": "count",
+          "type": "string",
+          "location": "query",
+          "description": "Field to aggregate counts by, e.g. classification.exact or recalling_firm.exact"
+        }
+      ]
+    }
+  ]
+}

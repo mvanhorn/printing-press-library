@@ -1,0 +1,52 @@
+{
+  "manifest_version": "0.3",
+  "name": "printgoat-pp-mcp",
+  "display_name": "PrintGoat",
+  "version": "0.1.0",
+  "description": "Search and reliably download 3D-print files across Printables and Thingiverse (plus search Cults3D) — with real resumable downloads and cross-site duplicate detection nothing else has.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/printgoat-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/printgoat-pp-mcp",
+      "args": [],
+      "env": {
+        "CULTS3D_API_KEY": "${user_config.cults3d_api_key}",
+        "CULTS3D_USERNAME": "${user_config.cults3d_username}",
+        "THINGIVERSE_TOKEN": "${user_config.thingiverse_token}"
+      }
+    }
+  },
+  "user_config": {
+    "cults3d_api_key": {
+      "type": "string",
+      "title": "CULTS3D_API_KEY",
+      "description": "Optional. Sets CULTS3D_API_KEY for the PrintGoat MCP server. Required by the generated client for credential refresh or hand-written auth flow.",
+      "sensitive": true
+    },
+    "cults3d_username": {
+      "type": "string",
+      "title": "CULTS3D_USERNAME",
+      "description": "Optional. Sets CULTS3D_USERNAME for the PrintGoat MCP server. Required by the generated client for credential refresh or hand-written auth flow.",
+      "sensitive": true
+    },
+    "thingiverse_token": {
+      "type": "string",
+      "title": "THINGIVERSE_TOKEN",
+      "description": "Optional. Sets THINGIVERSE_TOKEN for the PrintGoat MCP server. Required by the generated client for credential refresh or hand-written auth flow.",
+      "sensitive": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "day": "15",
+  "end_availability": [
+    {
+      "time_index": 32,
+      "time": "10:00 pm",
+      "available": true
+    },
+    {
+      "time_index": 33,
+      "time": "10:30 pm",
+      "available": true
+    },
+    {
+      "time_index": 34,
+      "time": "11:00 pm",
+      "available": true
+    },
+    {
+      "time_index": 35,
+      "time": "11:30 pm",
+      "available": true
+    },
+    {
+      "time_index": 36,
+      "time": "12:00 am",
+      "available": true
+    },
+    {
+      "time_index": 37,
+      "time": "12:30 am",
+      "available": true
+    },
+    {
+      "time_index": 38,
+      "time": "1:00 am",
+      "available": true
+    },
+    {
+      "time_index": 39,
+      "time": "1:30 am",
+      "available": true
+    },
+    {
+      "time_index": 40,
+      "time": "2:00 am",
+      "available": true
+    },
+    {
+      "time_index": 41,
+      "time": "2:30 am",
+      "available": true
+    },
+    {
+      "time_index": 42,
+      "time": "3:00 am",
+      "available": true
+    },
+    {
+      "time_index": 43,
+      "time": "3:30 am",
+      "available": true
+    },
+    {
+      "time_index": 44,
+      "time": "4:00 am",
+      "available": true
+    },
+    {
+      "time_index": 45,
+      "time": "4:30 am",
+      "available": true
+    },
+    {
+      "time_index": 46,
+      "time": "5:00 am",
+      "available": true
+    },
+    {
+      "time_index": 47,
+      "time": "5:30 am",
+      "available": true
+    },
+    {
+      "time_index": 48,
+      "time": "6:00 am",
+      "available": true
+    }
+  ],
+  "time_index": "22",
+  "month": "9",
+  "search_type": "end",
+  "year": "2026",
+  "space_id": "68d458dba45ae0878156d4b6",
+  "listing_id": "68d468bb44492187e415d4a6",
+  "is_min_duration_test_group": "true",
+  "message": "day availability"
+}

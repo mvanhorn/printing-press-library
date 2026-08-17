@@ -1,0 +1,38 @@
+{
+  "query_family_examples": [
+    "summarize kalshi series KXMENWORLDCUP",
+    "summarize the kalshi series KXNBAWEST",
+    "summarize kalshi series KXNFLSB",
+    "summarize kalshi series KXPRES",
+    "summarize the kalshi series KXSUPERBOWL"
+  ],
+  "steps": [
+    {
+      "cmd": "prediction-goat-pp-cli kalshi-series-search '<substring of $SERIES_TICKER>' --agent",
+      "purpose": "If the user gave a partial ticker or natural-language name, resolve to the exact series_ticker via the local SQLite substring index. Skip this step when the user already passed a full ticker (e.g. KXMENWORLDCUP-26 vs the literal substring 'world cup').",
+      "failure_modes": "Requires a prior `prediction-goat-pp-cli sync` to populate kalshi_series; on a fresh install this returns count:0. Fall back to `kalshi series list --limit 50 --agent | grep -i <substring>`.",
+      "skip_when": "query.tickers contains a complete KX[A-Z0-9]+ token already"
+    },
+    {
+      "cmd": "prediction-goat-pp-cli kalshi events list --series <series-ticker> --agent --limit 25",
+      "purpose": "List every event under the series. The `--series` flag forces `--data-source live` because the local store doesn't index events by series ticker. Use `--limit 25` to keep response under ~5KB; raise if the user asked for a long-tail series.",
+      "failure_modes": "Returns empty when the series has no active events. Check status field — closed/settled series should still surface here so the agent can answer historical questions."
+    },
+    {
+      "cmd": "prediction-goat-pp-cli kalshi events get <event-ticker> --with-markets --agent",
+      "purpose": "For the highest-volume active event from the previous step, fetch every child market with live prices in one call. `--with-markets` passes `with_nested_markets=true` to the upstream /events/{ticker} endpoint; the response includes ticker, yes_sub_title, status, yes_ask_dollars, no_ask_dollars, volume_24h_fp, expiration_time per child.",
+      "failure_modes": "Long-tail child markets can carry the platform-default 17c ask with zero volume; filter those out with the untraded heuristic (`last_price_dollars == 0 && volume_24h_fp == 0 && (yes_ask + no_ask) > 1.10`) before quoting probabilities."
+    },
+    {
+      "client_side": "summarize_series",
+      "args": {
+        "active_events": "events.results[?status=='open']",
+        "top_n_markets": 5,
+        "rank_by": "volume_24h_fp"
+      },
+      "purpose": "Build the summary: series ticker + title + count of active events + top-5 markets by 24h volume across all active events, each rendered as title + yesPercent + volume24h."
+    }
+  ],
+  "entity_slots": [],
+  "expected_tool_calls": 2
+}

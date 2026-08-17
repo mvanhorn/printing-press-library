@@ -96,3 +96,49 @@ func TestWhichIndex_ExistsAndIsWellFormed(t *testing.T) {
 		}
 	}
 }
+
+func TestWhichIndex_RecipeSearchQueryPrefersRecipeSearch(t *testing.T) {
+	got := rankWhich(whichIndex, "search for recipes using a specific ingredient", 3)
+	if len(got) == 0 {
+		t.Fatalf("expected recipe search match, got zero")
+	}
+	if got[0].Entry.Command != "search" {
+		t.Fatalf("top match: want search, got %s (%+v)", got[0].Entry.Command, got)
+	}
+	for _, match := range got {
+		if match.Entry.Command == "foods search" {
+			return
+		}
+	}
+	t.Fatalf("expected foods search to remain discoverable below recipe search, got %+v", got)
+}
+
+func TestWhichIndex_CoversRecipeStack(t *testing.T) {
+	want := []string{
+		"goat",
+		"search",
+		"recipe get",
+		"trending",
+		"sub",
+		"trust list",
+		"save",
+		"cookbook match",
+		"tonight",
+		"meal-plan shopping-list",
+		"cook log",
+		"sync",
+		"export",
+		"import",
+		"workflow archive",
+		"foods search",
+	}
+	have := map[string]bool{}
+	for _, entry := range whichIndex {
+		have[entry.Command] = true
+	}
+	for _, command := range want {
+		if !have[command] {
+			t.Errorf("whichIndex missing %q", command)
+		}
+	}
+}

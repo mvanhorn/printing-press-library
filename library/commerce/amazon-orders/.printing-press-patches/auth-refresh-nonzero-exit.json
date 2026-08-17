@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "auth-refresh-nonzero-exit",
+  "applied_at": "2026-06-17",
+  "base_run_id": "20260510-105710",
+  "base_printing_press_version": "4.2.2",
+  "summary": "auth refresh must exit non-zero when browser-session validation fails, so `auth refresh && orders list` gating still works.",
+  "reason": "When marketplace-cookie-domain reworked auth refresh to keep extracted cookies on a blocked validation probe, the RunE closure began falling through to `return nil` regardless of outcome, so auth refresh always exited 0. CI/cron scripts that chain `auth refresh && orders list` could no longer detect a blocked or expired session. The command now returns authErr (exit 4) on validation failure while still printing the human-readable warning; auth login deliberately stays warn-and-succeed because it has already persisted the cookies for later verification.",
+  "files": [
+    "internal/cli/auth.go"
+  ],
+  "validated_outcome": "go build/vet/test ./... pass from the amazon-orders CLI directory; auth login retains its warn-and-exit-0 behavior, while auth refresh now surfaces a non-zero exit on a failed browser-session proof."
+}

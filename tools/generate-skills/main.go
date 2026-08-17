@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -38,9 +39,32 @@ type LibrarySkill struct {
 }
 
 func main() {
+	validate := flag.Bool("validate", false, "exit non-zero if any library SKILL.md is missing or empty; do not write to cli-skills/")
+	flag.Parse()
+
 	librarySkills, err := discoverLibrarySkills("library")
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	// --validate runs the same discovery the normal mirror path runs, but
+	// short-circuits before any cli-skills/ writes. Surfaces missing-or-empty
+	// upstream SKILL.md at PR time so the post-merge regen workflow doesn't
+	// silently partial-write before fataling. Mirrors the --validate pattern
+	// in tools/generate-registry/main.go.
+	if *validate {
+		errs := validateLibrarySkills(librarySkills)
+		if len(errs) > 0 {
+			fmt.Fprintln(os.Stderr, "SKILL.md validation failed:")
+			for _, e := range errs {
+				fmt.Fprintln(os.Stderr, "  - "+e)
+			}
+			fmt.Fprintln(os.Stderr, "\nEvery CLI must ship a non-empty library SKILL.md at library/<cat>/<slug>/SKILL.md.")
+			fmt.Fprintln(os.Stderr, "See AGENTS.md \"SKILL.md coverage\" for the contract.")
+			os.Exit(2)
+		}
+		fmt.Fprintf(os.Stderr, "SKILL.md validation passed (%d entries).\n", len(librarySkills))
+		return
 	}
 
 	// Track every skill name the library asks for so we can prune
@@ -137,6 +161,35 @@ func discoverLibrarySkills(libraryRoot string) ([]LibrarySkill, error) {
 		return skills[i].Name < skills[j].Name
 	})
 	return skills, nil
+}
+
+// validateLibrarySkills returns one human-readable error per entry whose
+// upstream SKILL.md is missing or empty/whitespace-only. Returns an empty
+// slice when every entry validates. The caller surfaces the failures and
+// exits with the appropriate code; this function does not mutate cli-skills/
+// or any other directory.
+//
+// The check matches copyUpstreamSkill's "missing or empty" predicate exactly
+// (same os.ReadFile + bytes.TrimSpace check) so a passing --validate run
+// implies the subsequent mirror pass will succeed on every entry.
+func validateLibrarySkills(skills []LibrarySkill) []string {
+	var errs []string
+	for _, entry := range skills {
+		upstreamPath := filepath.Join(entry.Path, "SKILL.md")
+		data, err := os.ReadFile(upstreamPath)
+		if err != nil {
+			if os.IsNotExist(err) {
+				errs = append(errs, fmt.Sprintf("%s: SKILL.md missing (expected %s)", entry.Name, filepath.ToSlash(upstreamPath)))
+				continue
+			}
+			errs = append(errs, fmt.Sprintf("%s: read %s: %v", entry.Name, filepath.ToSlash(upstreamPath), err))
+			continue
+		}
+		if len(bytes.TrimSpace(data)) == 0 {
+			errs = append(errs, fmt.Sprintf("%s: SKILL.md is empty or whitespace-only (file: %s)", entry.Name, filepath.ToSlash(upstreamPath)))
+		}
+	}
+	return errs
 }
 
 // copyUpstreamSkill copies <entryPath>/SKILL.md to skillFile if it exists and

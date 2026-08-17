@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "pressings-major-formats-is-an-array",
+  "applied_at": "2026-07-11",
+  "base_run_id": "20260711-092456-c0435d15",
+  "base_printing_press_version": "4.28.0",
+  "summary": "The pressings version-parser must not decode a Discogs version's major_formats into an object; the API returns it as an array of strings.",
+  "reason": "The /masters/{id}/versions payload sends major_formats as a JSON array (e.g. [\"Vinyl\"]). Decoding it into a struct makes json.Unmarshal fail on every version, and the parse loop silently skips failures via continue, so a real master returned scanned:0 with an empty ranked list and no error. The version format string is available from the separate top-level format field.",
+  "files": ["internal/cli/pressings.go"],
+  "validated_outcome": "pressings 96559 --agent --max 5 returns 5 ranked pressings with live prices (was scanned:0, empty)."
+}

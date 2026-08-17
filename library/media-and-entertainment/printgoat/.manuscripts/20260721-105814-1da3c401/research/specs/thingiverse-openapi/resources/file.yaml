@@ -1,0 +1,166 @@
+ById:
+  get:
+    tags:
+      - File
+    summary: Get info about a file by id
+    description: Get basic information about how to access a file. For relevant files, a thumbnail image or three.js json file may be available.
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/fileIdPathParam"
+    responses:
+      '200':
+        description: An object with urls of the file requested
+        content:
+            application/json:
+              schema:
+                $ref: '../schemas/file_schema.yaml'
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+Finalize:
+  get:
+    tags:
+      - Deprecated
+    summary: Finalize an uploaded file. DEPRECATED.
+    deprecated: true
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/fileIdPathParam"
+    responses:
+      '200':
+        description: None
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+  post:
+    tags:
+      - Deprecated
+    summary: Finalize an uploaded file. DEPRECATED, use FinalizeFiles endpoint instead
+    deprecated: true
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/fileIdPathParam"
+    responses:
+      '200':
+        description: Summary of the ObjectFile or Image that was created
+        content:
+            application/json:
+              schema:
+                $ref: '../schemas/file_schema.yaml'
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+UploadFile:
+  post:
+    tags:
+      - File
+    summary: Upload a file as pendingupload
+    description: Upload a file to the storageBucket as "pendingUpload". The file will be stored in a temporary folder until it is finalized (eg; associated with a thing/make/comment/etc) via the /finalize endpoint. 
+    security:
+      - BearerAuth: []
+    requestBody:
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            properties:
+              file:
+                type: string
+                format: binary
+    responses:
+      '200':
+        description: The id of the pendingupload. You will need this one when finalizing the upload.
+        content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '400':
+        $ref : "../responses/badrequest.yaml"
+FinalizeFiles:
+  post:
+    tags:
+      - Deprecated
+    summary: Finalize multiple uploaded files. DEPRECATED, use FinalizeFiles endpoint instead
+    deprecated: true
+    description: Finalize multiple "pendingUploads" at once by associating them with something (Thing/make/comment). In order to use this, you will need to first use the uploadFile endpoint
+    security:
+      - BearerAuth: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            pending_uploads:
+              description: The list of pending uploads to finalize
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    description: The ID of the pending upload
+                  rank:
+                    type: integer
+                    description: The rank value of the pending upload
+                example:
+                  - id: 1
+                    rank: 10
+                  - id: 2
+                    rank: 20
+            target_id:
+              description: The target ID of the pending uploads
+              type: integer
+              example: 56
+            target_type:
+              description: The target type of the parent object of the pending uploads
+              type: string
+              enum:
+                - thing
+    responses:
+      '200':
+        $ref: '../responses/ok.yaml'
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '400':
+        $ref : "../responses/badrequest.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"
+Download:
+  get:
+    tags:
+      - File
+    summary: Get tracked download URL
+    description: Redirects to the requested file and adds an entry to the user's download history for use with the GET /users/{$username}/downloads endpoint, as opposed to the public url which is anonymous.
+    security:
+      - BearerAuth: []
+    parameters:
+      - $ref: "../parameters.yaml#/fileIdPathParam"
+    responses:
+      '200':
+        description: None
+      '401':
+        $ref : "../responses/unauthorized.yaml"
+      '403':
+        $ref : "../responses/forbidden.yaml"
+      '404':
+        $ref : "../responses/not_found.yaml"

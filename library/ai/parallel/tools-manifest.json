@@ -1,0 +1,1086 @@
+{
+  "api_name": "parallel",
+  "base_url": "https://api.parallel.ai",
+  "description": "Agent-native Parallel web research with a local SQLite memory no other Parallel CLI keeps.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "x-api-key",
+    "in": "header",
+    "env_vars": [
+      "PARALLEL_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "PARALLEL_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "chat_completions",
+      "description": "Chat completions. This endpoint can be used to get realtime chat completions. It can also be used with the Task API processors to get structured, research outputs via a chat interface. Required: messages, model. Optional: frequency_penalty, max_tokens, n (plus 6 more). Returns the new ChatCompletion.",
+      "method": "POST",
+      "path": "/v1beta/chat/completions",
+      "params": [
+        {
+          "name": "frequency_penalty",
+          "type": "string",
+          "location": "body",
+          "description": "The frequency penalty to use for chat completions. Unsupported."
+        },
+        {
+          "name": "max_tokens",
+          "type": "string",
+          "location": "body",
+          "description": "The maximum number of tokens to generate. Unsupported."
+        },
+        {
+          "name": "messages",
+          "type": "array",
+          "location": "body",
+          "description": "The messages to use for chat completions.",
+          "required": true
+        },
+        {
+          "name": "model",
+          "type": "string",
+          "location": "body",
+          "description": "The model to use for chat completions.",
+          "required": true
+        },
+        {
+          "name": "n",
+          "type": "string",
+          "location": "body",
+          "description": "The number of chat completions to generate. Unsupported."
+        },
+        {
+          "name": "presence_penalty",
+          "type": "string",
+          "location": "body",
+          "description": "The presence penalty to use for chat completions. Unsupported."
+        },
+        {
+          "name": "previous_interaction_id",
+          "type": "string",
+          "location": "body",
+          "description": "Interaction ID from a previous chat completion to use as context."
+        },
+        {
+          "name": "response_format",
+          "type": "string",
+          "location": "body",
+          "description": "The response format to use for chat completions. OpenAI compatible."
+        },
+        {
+          "name": "stream",
+          "type": "string",
+          "location": "body",
+          "description": "Whether to stream the chat completions."
+        },
+        {
+          "name": "temperature",
+          "type": "string",
+          "location": "body",
+          "description": "The temperature to use for chat completions. Unsupported."
+        },
+        {
+          "name": "top_p",
+          "type": "string",
+          "location": "body",
+          "description": "The top p to use for chat completions. Unsupported."
+        }
+      ]
+    },
+    {
+      "name": "extract_extract",
+      "description": "Extracts relevant content from specific web URLs. The legacy Extract API reference (`/v1beta/extract` endpoint) is available [here](https://docs.parallel.ai/api-reference/legacy/extract-beta/extract), and migration guide is [here](https://docs.parallel.ai/extract/extract-migration-guide). Required: urls. Optional: advanced_settings, client_model, max_chars_total (plus 3 more). Returns the new V1ExtractResponse.",
+      "method": "POST",
+      "path": "/v1/extract",
+      "params": [
+        {
+          "name": "advanced_settings",
+          "type": "string",
+          "location": "body",
+          "description": "Advanced configuration for fetch policy, excerpt settings, and full content settings. May impact result quality and latency unless used carefully. When omitted, excerpts are enabled and full content is disabled by default."
+        },
+        {
+          "name": "client_model",
+          "type": "string",
+          "location": "body",
+          "description": "The model generating this request and consuming the results. Enables optimizations and tailors default settings for the model's capabilities."
+        },
+        {
+          "name": "max_chars_total",
+          "type": "string",
+          "location": "body",
+          "description": "Upper bound on total characters across excerpts from all extracted results."
+        },
+        {
+          "name": "objective",
+          "type": "string",
+          "location": "body",
+          "description": "As in SearchRequest, a natural-language description of the underlying question or goal driving the request. Used together with search_queries to focus excerpts on the most relevant content."
+        },
+        {
+          "name": "search_queries",
+          "type": "string",
+          "location": "body",
+          "description": "Optional keyword search queries, as in SearchRequest. Used together with objective to focus excerpts on the most relevant content."
+        },
+        {
+          "name": "session_id",
+          "type": "string",
+          "location": "body",
+          "description": "Session identifier to track calls across separate search and extract calls, to be used as part of a larger task. Specifying it may give better contextual results for subsequent API calls."
+        },
+        {
+          "name": "urls",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "URLs to extract content from. Up to 20 URLs.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "findall_cancel-run",
+      "description": "Cancel an in-progress FindAll run by findall_id so candidates stop generating and billed work ends early. Required: findall_id (UUID path param). Returns the updated run status after cancel. Prefer this over waiting when enrichment is no longer needed.",
+      "method": "POST",
+      "path": "/v1beta/findall/runs/{findall_id}/cancel",
+      "params": [
+        {
+          "name": "findall_id",
+          "type": "string",
+          "location": "path",
+          "description": "Findall id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "findall_enrich-run",
+      "description": "Add an enrichment to a FindAll run. Required: findall_id, output_schema. Optional: mcp_servers, processor (default: core). Returns array of MatchCondition.",
+      "method": "POST",
+      "path": "/v1beta/findall/runs/{findall_id}/enrich",
+      "params": [
+        {
+          "name": "findall_id",
+          "type": "string",
+          "location": "path",
+          "description": "Findall id",
+          "required": true
+        },
+        {
+          "name": "mcp_servers",
+          "type": "string",
+          "location": "body",
+          "description": "List of MCP servers to use for the task."
+        },
+        {
+          "name": "output-schema-json-schema",
+          "wire_name": "output_schema.json_schema",
+          "type": "object",
+          "location": "body",
+          "description": "A JSON Schema object. Only a subset of JSON Schema is supported.",
+          "required": true
+        },
+        {
+          "name": "output-schema-type",
+          "wire_name": "output_schema.type",
+          "type": "string",
+          "location": "body",
+          "description": "The type of schema being defined. Always `json`."
+        },
+        {
+          "name": "processor",
+          "type": "string",
+          "location": "body",
+          "description": "Processor to use for the task."
+        }
+      ]
+    },
+    {
+      "name": "findall_entity-search",
+      "description": "Return ranked entities matching a natural language objective. This endpoint performs a best-effort search optimized for low latency. To keep responses fast, it returns a fixed set of attributes and supports queries of limited complexity. For comprehensive match evaluation and enrichment, use the [FindAll API](https://docs.parallel.ai/findall-api/findall-quickstart). Required: entity_type, objective. Optional: match_limit (default: 100).",
+      "method": "POST",
+      "path": "/v1beta/findall/entity-search",
+      "params": [
+        {
+          "name": "entity_type",
+          "type": "string",
+          "location": "body",
+          "description": "Type of entity to search for.",
+          "required": true
+        },
+        {
+          "name": "match_limit",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of entities to return. Must be between 5 and 1000 (inclusive). May return fewer results. Defaults to 100."
+        },
+        {
+          "name": "objective",
+          "type": "string",
+          "location": "body",
+          "description": "Natural language description of target entities.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "findall_extend-run",
+      "description": "Extend a FindAll run by adding additional matches to the current match limit. Required: findall_id, additional_match_limit. Returns array of MatchCondition.",
+      "method": "POST",
+      "path": "/v1beta/findall/runs/{findall_id}/extend",
+      "params": [
+        {
+          "name": "findall_id",
+          "type": "string",
+          "location": "path",
+          "description": "Findall id",
+          "required": true
+        },
+        {
+          "name": "additional_match_limit",
+          "type": "int",
+          "location": "body",
+          "description": "Additional number of matches to find for this FindAll run. This value will be added to the current match limit to determine the new total match limit. Must be greater than 0.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "findall_get-events",
+      "description": "Stream events from a FindAll run. Args: request: The Shapi request findall_id: The FindAll run ID last_event_id: Optional event ID to resume from. timeout: Optional timeout in seconds. If None, keep connection alive as long as the run is going. If set, stop after specified duration. Required: findall_id. Optional: last_event_id, timeout.",
+      "method": "GET",
+      "path": "/v1beta/findall/runs/{findall_id}/events",
+      "params": [
+        {
+          "name": "findall_id",
+          "type": "string",
+          "location": "path",
+          "description": "Findall id",
+          "required": true
+        },
+        {
+          "name": "last_event_id",
+          "type": "string",
+          "location": "query",
+          "description": "Last event id"
+        },
+        {
+          "name": "timeout",
+          "type": "string",
+          "location": "query",
+          "description": "Timeout"
+        }
+      ]
+    },
+    {
+      "name": "findall_get-result",
+      "description": "Retrieve the FindAll run result at the time of the request. Required: findall_id. Returns array of FindAllCandidate.",
+      "method": "GET",
+      "path": "/v1beta/findall/runs/{findall_id}/result",
+      "params": [
+        {
+          "name": "findall_id",
+          "type": "string",
+          "location": "path",
+          "description": "Findall id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "findall_get-schema",
+      "description": "Get FindAll Run Schema. Required: findall_id. Returns array of MatchCondition.",
+      "method": "GET",
+      "path": "/v1beta/findall/runs/{findall_id}/schema",
+      "params": [
+        {
+          "name": "findall_id",
+          "type": "string",
+          "location": "path",
+          "description": "Findall id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "findall_ingest-run",
+      "description": "Transforms a natural language search objective into a structured FindAll spec. The generated specification serves as a suggested starting point and can be further customized by the user. Required: objective. Returns array of MatchCondition.",
+      "method": "POST",
+      "path": "/v1beta/findall/ingest",
+      "params": [
+        {
+          "name": "objective",
+          "type": "string",
+          "location": "body",
+          "description": "Natural language objective to create a FindAll run spec.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "findall_runs-v1",
+      "description": "Starts a FindAll run. This endpoint immediately returns a FindAll run object with status set to 'queued'. You can get the run result snapshot using the GET /v1beta/findall/runs/{findall_id}/result endpoint. You can track the progress of the run by: - Polling the status using the GET /v1beta/findall/runs/{findall_id} endpoint, - Subscribing to real-time updates via the /v1beta/findall/runs/{findall_id}/events endpoint, - Or specifying a webhook with relevant event types during run creation to receive notifications. Required: entity_type, generator, match_conditions, match_limit, objective. Optional: exclude_list, metadata, webhook.",
+      "method": "POST",
+      "path": "/v1beta/findall/runs",
+      "params": [
+        {
+          "name": "entity_type",
+          "type": "string",
+          "location": "body",
+          "description": "Type of the entity for the FindAll run.",
+          "required": true
+        },
+        {
+          "name": "exclude_list",
+          "type": "string",
+          "location": "body",
+          "description": "List of entity names/IDs to exclude from results. At most 10,000 entries are allowed."
+        },
+        {
+          "name": "generator",
+          "type": "string",
+          "location": "body",
+          "description": "Generator for the FindAll run. One of base, core, pro, preview.",
+          "required": true
+        },
+        {
+          "name": "match_conditions",
+          "type": "array",
+          "location": "body",
+          "description": "List of match conditions for the FindAll run.",
+          "required": true
+        },
+        {
+          "name": "match_limit",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of matches to find for this FindAll run. Must be between 5 and 1000 (inclusive). May return fewer results.",
+          "required": true
+        },
+        {
+          "name": "metadata",
+          "type": "string",
+          "location": "body",
+          "description": "Metadata for the FindAll run."
+        },
+        {
+          "name": "objective",
+          "type": "string",
+          "location": "body",
+          "description": "Natural language objective of the FindAll run.",
+          "required": true
+        },
+        {
+          "name": "webhook",
+          "type": "string",
+          "location": "body",
+          "description": "Webhook for the FindAll run."
+        }
+      ]
+    },
+    {
+      "name": "findall_runs-v1-get",
+      "description": "Retrieve FindAll Run Status. Required: findall_id. Returns the FindAllRun.",
+      "method": "GET",
+      "path": "/v1beta/findall/runs/{findall_id}",
+      "params": [
+        {
+          "name": "findall_id",
+          "type": "string",
+          "location": "path",
+          "description": "Findall id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "monitors_create",
+      "description": "Create a monitor. Monitors run on a fixed frequency to detect material changes in web content. Set `type=event_stream` to monitor a search query, or `type=snapshot` to monitor a specific task run's output. The monitor runs once immediately at creation, then continues on the configured schedule. Required: frequency, settings, type. Optional: metadata, processor (default: lite), webhook. Returns the new MonitorResponse.",
+      "method": "POST",
+      "path": "/v1/monitors",
+      "params": [
+        {
+          "name": "frequency",
+          "type": "string",
+          "location": "body",
+          "description": "Frequency of the monitor. Format: '\u003cnumber\u003e\u003cunit\u003e' where unit is 'h' (hours), 'd' (days), or 'w' (weeks). Must be between 1h and 30d (inclusive).",
+          "required": true
+        },
+        {
+          "name": "metadata",
+          "type": "string",
+          "location": "body",
+          "description": "User-provided metadata stored with the monitor and echoed back in webhook notifications and GET responses, so you can map events to objects in your application. Keys: max 16 chars; values: max 512 chars."
+        },
+        {
+          "name": "processor",
+          "type": "string",
+          "location": "body",
+          "description": "Processor to use for the monitor. `lite` is faster and cheaper; `base` performs more thorough analysis at higher cost and latency. Defaults to `lite`."
+        },
+        {
+          "name": "settings",
+          "type": "string",
+          "location": "body",
+          "description": "Type-specific settings for the monitor. The expected shape is determined by the root `type` field: pass `MonitorEventStreamSettings` when `type` is `event_stream`, and `MonitorSnapshotSettings` when `type` is `snapshot`.",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type of monitor to create. `event_stream` monitors a search query for material changes; `snapshot` monitors a specific task run's output. Determines the expected shape of `settings`.",
+          "required": true
+        },
+        {
+          "name": "webhook",
+          "type": "string",
+          "location": "body",
+          "description": "Webhook to receive notifications about the monitor's execution."
+        }
+      ]
+    },
+    {
+      "name": "monitors_list",
+      "description": "List monitors ordered by creation time, newest first. Monitors are sorted by `created_at` descending. `limit` defaults to 100. Use `next_cursor` from the response and pass it as `cursor` to fetch the next page. Pagination ends when `next_cursor` is absent. By default only `active` monitors are returned. Pass `status=cancelled` or both values to include cancelled monitors. The legacy Monitor API (`/v1alpha/monitors` endpoints) is documented under the `Monitor (Alpha)` tag. Optional: cursor, limit, type (plus 1 more). Returns array of MonitorResponse.",
+      "method": "GET",
+      "path": "/v1/monitors",
+      "params": [
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination token from `next_cursor` in a previous response. Omit to start from the most recently created monitor."
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "location": "query",
+          "description": "Maximum number of monitors to return. Defaults to 100. Between 1 and 10000."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by monitor type. Pass multiple times to filter by multiple values. Omit to return all types."
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by monitor status. Pass multiple times to filter by multiple values. Defaults to `active` only."
+        }
+      ]
+    },
+    {
+      "name": "monitors_retrieve",
+      "description": "Retrieve a monitor. Retrieves a specific monitor by `monitor_id`. Returns the monitor configuration including status, frequency, query, and webhook settings. Required: monitor_id.",
+      "method": "GET",
+      "path": "/v1/monitors/{monitor_id}",
+      "params": [
+        {
+          "name": "monitor_id",
+          "type": "string",
+          "location": "path",
+          "description": "Monitor id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "monitors_cancel_monitor",
+      "description": "Cancel a monitor. Permanently stops the monitor from running. Cancellation is irreversible — create a new monitor to resume monitoring. Cancelling an already-cancelled monitor is a no-op. Required: monitor_id. Returns the new MonitorResponse.",
+      "method": "POST",
+      "path": "/v1/monitors/{monitor_id}/cancel",
+      "params": [
+        {
+          "name": "monitor_id",
+          "type": "string",
+          "location": "path",
+          "description": "Monitor id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "monitors_events_list-monitor",
+      "description": "List events for a monitor, newest first. Pass `event_group_id` to narrow results to a single execution. Otherwise returns all executions newest-first; use `next_cursor` to paginate. Set `include_completions=true` to also include no-change executions. Required: monitor_id. Optional: event_group_id, cursor, limit (plus 1 more).",
+      "method": "GET",
+      "path": "/v1/monitors/{monitor_id}/events",
+      "params": [
+        {
+          "name": "monitor_id",
+          "type": "string",
+          "location": "path",
+          "description": "Monitor id",
+          "required": true
+        },
+        {
+          "name": "event_group_id",
+          "type": "string",
+          "location": "query",
+          "description": "Filter to a single execution. Values come from `event_group_id` in webhook events and listed events. Pagination params are ignored when set."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pass `next_cursor` from a previous response to retrieve more events."
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "location": "query",
+          "description": "Maximum number of events to return. Defaults to 20. Between 1 and 100."
+        },
+        {
+          "name": "include_completions",
+          "type": "bool",
+          "location": "query",
+          "description": "When true, include completion events for executions that ran but detected no material changes. Useful for auditing execution history."
+        }
+      ]
+    },
+    {
+      "name": "monitors_trigger_monitor-run",
+      "description": "Trigger an immediate monitor run. Enqueues a one-off execution of the monitor outside its normal schedule. The monitor's regular schedule is not affected. An event is only emitted if the execution detects a material change. Cancelled monitors cannot be triggered. Required: monitor_id.",
+      "method": "POST",
+      "path": "/v1/monitors/{monitor_id}/trigger",
+      "params": [
+        {
+          "name": "monitor_id",
+          "type": "string",
+          "location": "path",
+          "description": "Monitor id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "monitors_update_monitor",
+      "description": "Update a monitor. Only fields explicitly included in the request body are changed. Pass `null` for `webhook` or `metadata` to clear those fields. Pass `type` and `settings` to update type-specific settings on an `event_stream` monitor. At least one field must be provided. Cancelled monitors cannot be updated. Required: monitor_id. Optional: frequency, metadata, settings (plus 2 more). Returns the new MonitorResponse.",
+      "method": "POST",
+      "path": "/v1/monitors/{monitor_id}/update",
+      "params": [
+        {
+          "name": "monitor_id",
+          "type": "string",
+          "location": "path",
+          "description": "Monitor id",
+          "required": true
+        },
+        {
+          "name": "frequency",
+          "type": "string",
+          "location": "body",
+          "description": "Frequency of the monitor. Format: '\u003cnumber\u003e\u003cunit\u003e' where unit is 'h' (hours), 'd' (days), or 'w' (weeks). Must be between 1h and 30d (inclusive)."
+        },
+        {
+          "name": "metadata",
+          "type": "string",
+          "location": "body",
+          "description": "User-provided metadata stored with the monitor and echoed back in webhook notifications and GET responses, so you can map events to objects in your application. Keys: max 16 chars; values: max 512 chars."
+        },
+        {
+          "name": "settings",
+          "type": "string",
+          "location": "body",
+          "description": "Type-specific settings to update. Only valid when `type` is `event_stream`. Pass `settings.query` to update the prompt, or `null` for `settings.advanced_settings` to clear it."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type of the monitor being updated. Required when `settings` is provided; must be `event_stream` (snapshot monitors have no updatable type-specific settings)."
+        },
+        {
+          "name": "webhook",
+          "type": "string",
+          "location": "body",
+          "description": "Webhook to receive notifications about the monitor's execution."
+        }
+      ]
+    },
+    {
+      "name": "service_account-add-balance",
+      "description": "Charge the organization's default payment method and add the amount to the prepaid credit balance. The default payment method configured on the org's Stripe customer is always used; no payment method id is accepted from the client. Required: amount_cents, idempotency_key. Returns the new BalanceResponse.",
+      "method": "POST",
+      "path": "/account/service/v1/balance/add",
+      "params": [
+        {
+          "name": "amount_cents",
+          "type": "int",
+          "location": "body",
+          "description": "Amount in cents to charge and add to the balance. Must be between 1 and 10000 cents ($100.00).",
+          "required": true
+        },
+        {
+          "name": "idempotency_key",
+          "type": "string",
+          "location": "body",
+          "description": "Required idempotency key. Stripe dedupes the charge server-side for at least 24h when the same key is submitted again for the same org (see https://docs.stripe.com/api/idempotent_requests). Pick a high-entropy value (e.g. a UUID) so distinct agent attempts do not collide.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "service_account-create-app",
+      "description": "Create a new app for the authenticated organization. Required: app_name. Optional: allow_oauth_app_names (default: false). Returns the new CreateAppResponseModel.",
+      "method": "POST",
+      "path": "/account/service/v1/apps",
+      "params": [
+        {
+          "name": "allow_oauth_app_names",
+          "type": "bool",
+          "location": "body",
+          "description": "Mark OAuth reserved app-name prefixes ('OAuth client at ...', 'Device auth for ...') as expected. Set only by the platform's OAuth key-share flows; ignored on the service API path."
+        },
+        {
+          "name": "app_name",
+          "type": "string",
+          "location": "body",
+          "description": "App name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "service_account-create-key",
+      "description": "Create a new API key for an app. Required: app_id, api_key_name. Returns the new CreateKeyResponse.",
+      "method": "POST",
+      "path": "/account/service/v1/apps/{app_id}/keys",
+      "params": [
+        {
+          "name": "app_id",
+          "type": "string",
+          "location": "path",
+          "description": "App id",
+          "required": true
+        },
+        {
+          "name": "api_key_name",
+          "type": "string",
+          "location": "body",
+          "description": "API Key Name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "service_account-delete-app",
+      "description": "Delete an app from the authenticated organization. Required: app_id. Destructive.",
+      "method": "DELETE",
+      "path": "/account/service/v1/apps/{app_id}",
+      "params": [
+        {
+          "name": "app_id",
+          "type": "string",
+          "location": "path",
+          "description": "App id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "service_account-delete-key",
+      "description": "Delete an API key from an app. Required: app_id, api_key_id. Destructive.",
+      "method": "DELETE",
+      "path": "/account/service/v1/apps/{app_id}/keys/{api_key_id}",
+      "params": [
+        {
+          "name": "app_id",
+          "type": "string",
+          "location": "path",
+          "description": "App id",
+          "required": true
+        },
+        {
+          "name": "api_key_id",
+          "type": "string",
+          "location": "path",
+          "description": "Api key id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "service_account-get-balance",
+      "description": "Get the authenticated organization's prepaid credit balance. Returns the BalanceResponse.",
+      "method": "GET",
+      "path": "/account/service/v1/balance",
+      "params": []
+    },
+    {
+      "name": "service_account-list-apps",
+      "description": "List all apps for the authenticated organization. Returns array of AppItem.",
+      "method": "GET",
+      "path": "/account/service/v1/apps",
+      "params": []
+    },
+    {
+      "name": "tasks_runs-events-get",
+      "description": "Streams events for a task run. Returns a stream of events showing progress updates and state changes for the task run. For task runs that did not have enable_events set to true during creation, the frequency of events will be reduced. Required: run_id.",
+      "method": "GET",
+      "path": "/v1/tasks/runs/{run_id}/events",
+      "params": [
+        {
+          "name": "run_id",
+          "type": "string",
+          "location": "path",
+          "description": "Run id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tasks_runs-events-get-runs",
+      "description": "Streams events for a task run. Returns a stream of events showing progress updates and state changes for the task run. For task runs that did not have enable_events set to true during creation, the frequency of events will be reduced. Required: run_id.",
+      "method": "GET",
+      "path": "/v1beta/tasks/runs/{run_id}/events",
+      "params": [
+        {
+          "name": "run_id",
+          "type": "string",
+          "location": "path",
+          "description": "Run id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tasks_runs-get",
+      "description": "Retrieves run status by run_id. The run result is available from the `/result` endpoint. Required: run_id. Returns the TaskRun.",
+      "method": "GET",
+      "path": "/v1/tasks/runs/{run_id}",
+      "params": [
+        {
+          "name": "run_id",
+          "type": "string",
+          "location": "path",
+          "description": "Run id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tasks_runs-input-get",
+      "description": "Retrieves the input of a run by run_id. Required: run_id. Returns the TaskRunInput.",
+      "method": "GET",
+      "path": "/v1/tasks/runs/{run_id}/input",
+      "params": [
+        {
+          "name": "run_id",
+          "type": "string",
+          "location": "path",
+          "description": "Run id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tasks_runs-post",
+      "description": "Initiates a task run. Returns immediately with a run object in status 'queued'. Beta features can be enabled by setting the 'parallel-beta' header. Required: input, processor. Optional: advanced_settings, enable_events, mcp_servers (plus 5 more).",
+      "method": "POST",
+      "path": "/v1/tasks/runs",
+      "params": [
+        {
+          "name": "advanced_settings",
+          "type": "string",
+          "location": "body",
+          "description": "Advanced search configuration for the task run."
+        },
+        {
+          "name": "enable_events",
+          "type": "string",
+          "location": "body",
+          "description": "Controls tracking of task run execution progress. When set to true, progress events are recorded and can be accessed via the [Task Run events](https://docs.parallel.ai/api-reference) endpoint. When false, no progress events are tracked. Note that progress tracking cannot be enabled after a run has been created. The flag is set to true by default for premium processors (pro and above)."
+        },
+        {
+          "name": "input",
+          "type": "string",
+          "location": "body",
+          "description": "Input to the task, either text or a JSON object.",
+          "required": true
+        },
+        {
+          "name": "mcp_servers",
+          "type": "string",
+          "location": "body",
+          "description": "Optional list of MCP servers to use for the run."
+        },
+        {
+          "name": "metadata",
+          "type": "string",
+          "location": "body",
+          "description": "User-provided metadata stored with the run. Keys and values must be strings with a maximum length of 16 and 512 characters respectively."
+        },
+        {
+          "name": "previous_interaction_id",
+          "type": "string",
+          "location": "body",
+          "description": "Interaction ID to use as context for this request."
+        },
+        {
+          "name": "processor",
+          "type": "string",
+          "location": "body",
+          "description": "Processor to use for the task.",
+          "required": true
+        },
+        {
+          "name": "source_policy",
+          "type": "string",
+          "location": "body",
+          "description": "Optional source policy governing preferred and disallowed domains in web search results."
+        },
+        {
+          "name": "task_spec",
+          "type": "string",
+          "location": "body",
+          "description": "Task specification. If unspecified, defaults to auto output schema."
+        },
+        {
+          "name": "webhook",
+          "type": "string",
+          "location": "body",
+          "description": "Callback URL (webhook endpoint) that will receive an HTTP POST when the run completes. This feature is not available via the Python SDK."
+        }
+      ]
+    },
+    {
+      "name": "tasks_runs-result-get",
+      "description": "Retrieves a run result by run_id, blocking until the run is completed. Required: run_id. Optional: timeout (default: 600). Returns the TaskRunResult.",
+      "method": "GET",
+      "path": "/v1/tasks/runs/{run_id}/result",
+      "params": [
+        {
+          "name": "run_id",
+          "type": "string",
+          "location": "path",
+          "description": "Run id",
+          "required": true
+        },
+        {
+          "name": "timeout",
+          "type": "int",
+          "location": "query",
+          "description": "Timeout"
+        }
+      ]
+    },
+    {
+      "name": "tasks_sessions-events-get",
+      "description": "Streams events from a TaskGroup: status updates and run completions. The connection will remain open for up to an hour as long as at least one run in the group is still active. Required: taskgroup_id. Optional: last_event_id, timeout.",
+      "method": "GET",
+      "path": "/v1/tasks/groups/{taskgroup_id}/events",
+      "params": [
+        {
+          "name": "taskgroup_id",
+          "type": "string",
+          "location": "path",
+          "description": "Taskgroup id",
+          "required": true
+        },
+        {
+          "name": "last_event_id",
+          "type": "string",
+          "location": "query",
+          "description": "Last event id"
+        },
+        {
+          "name": "timeout",
+          "type": "string",
+          "location": "query",
+          "description": "Timeout"
+        }
+      ]
+    },
+    {
+      "name": "tasks_taskgroups-get",
+      "description": "Retrieves aggregated status across runs in a TaskGroup. Required: taskgroup_id. Returns the TaskGroupResponse.",
+      "method": "GET",
+      "path": "/v1/tasks/groups/{taskgroup_id}",
+      "params": [
+        {
+          "name": "taskgroup_id",
+          "type": "string",
+          "location": "path",
+          "description": "Taskgroup id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tasks_taskgroups-post",
+      "description": "Initiates a TaskGroup to group and track multiple runs. Optional: metadata. Returns the new TaskGroupResponse.",
+      "method": "POST",
+      "path": "/v1/tasks/groups",
+      "params": [
+        {
+          "name": "metadata",
+          "type": "string",
+          "location": "body",
+          "description": "User-provided metadata stored with the task group."
+        }
+      ]
+    },
+    {
+      "name": "tasks_taskgroups-runs-get",
+      "description": "Retrieves task runs in a TaskGroup and optionally their inputs and outputs. All runs within a TaskGroup are returned as a stream. To get the inputs and/or outputs back in the stream, set the corresponding `include_input` and `include_output` parameters to `true`. The stream is resumable using the `event_id` as the cursor. To resume a stream, specify the `last_event_id` parameter with the `event_id` of the last event in the stream. The stream will resume from the next event after the `last_event_id`. Required: taskgroup_id. Optional: last_event_id, status, include_input (default: false) (plus 1 more).",
+      "method": "GET",
+      "path": "/v1/tasks/groups/{taskgroup_id}/runs",
+      "params": [
+        {
+          "name": "taskgroup_id",
+          "type": "string",
+          "location": "path",
+          "description": "Taskgroup id",
+          "required": true
+        },
+        {
+          "name": "last_event_id",
+          "type": "string",
+          "location": "query",
+          "description": "Last event id"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Status"
+        },
+        {
+          "name": "include_input",
+          "type": "bool",
+          "location": "query",
+          "description": "Include input"
+        },
+        {
+          "name": "include_output",
+          "type": "bool",
+          "location": "query",
+          "description": "Include output"
+        }
+      ]
+    },
+    {
+      "name": "tasks_taskgroups-runs-id-get",
+      "description": "Retrieves run status by run_id. This endpoint is equivalent to fetching run status directly using the `retrieve()` method or the `tasks/runs` GET endpoint. The run result is available from the `/result` endpoint. Required: taskgroup_id, run_id. Returns the TaskRun.",
+      "method": "GET",
+      "path": "/v1/tasks/groups/{taskgroup_id}/runs/{run_id}",
+      "params": [
+        {
+          "name": "taskgroup_id",
+          "type": "string",
+          "location": "path",
+          "description": "Taskgroup id",
+          "required": true
+        },
+        {
+          "name": "run_id",
+          "type": "string",
+          "location": "path",
+          "description": "Run id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tasks_taskgroups-runs-post",
+      "description": "Initiates multiple task runs within a TaskGroup. Required: taskgroup_id, inputs. Optional: refresh_status (default: true), default_task_spec. Returns array of string.",
+      "method": "POST",
+      "path": "/v1/tasks/groups/{taskgroup_id}/runs",
+      "params": [
+        {
+          "name": "taskgroup_id",
+          "type": "string",
+          "location": "path",
+          "description": "Taskgroup id",
+          "required": true
+        },
+        {
+          "name": "refresh_status",
+          "type": "bool",
+          "location": "query",
+          "description": "Refresh status"
+        },
+        {
+          "name": "default_task_spec",
+          "type": "string",
+          "location": "body",
+          "description": "Default task spec to use for the runs. If task_spec is specified in a run, it overrides this default."
+        },
+        {
+          "name": "inputs",
+          "type": "array",
+          "location": "body",
+          "description": "List of task runs to execute. Up to 1,000 runs can be specified per request. If you'd like to add more runs, split them across multiple TaskGroup POST requests.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "websearch_search",
+      "description": "Searches the web. The legacy Search API reference (`/v1beta/search` endpoint) is available [here](https://docs.parallel.ai/api-reference/legacy/search-beta/search), and migration guide is [here](https://docs.parallel.ai/search/search-migration-guide). Required: search_queries. Optional: advanced_settings, client_model, max_chars_total (plus 3 more). Returns array of V1WebSearchResult.",
+      "method": "POST",
+      "path": "/v1/search",
+      "params": [
+        {
+          "name": "advanced_settings",
+          "type": "string",
+          "location": "body",
+          "description": "Advanced configuration for source policy, fetch policy, and excerpt settings. May impact result quality and latency unless used carefully. When omitted, excerpts are enabled by default."
+        },
+        {
+          "name": "client_model",
+          "type": "string",
+          "location": "body",
+          "description": "The model generating this request and consuming the results. Enables optimizations and tailors default settings for the model's capabilities."
+        },
+        {
+          "name": "max_chars_total",
+          "type": "string",
+          "location": "body",
+          "description": "Upper bound on total characters across excerpts from all results."
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "location": "body",
+          "description": "Search mode preset: supported values are `turbo`, `basic`, and `advanced`. Turbo mode is optimized for the fastest responses. Basic mode offers low latency and works best with 2-3 high-quality search_queries. Advanced mode provides higher quality with more advanced retrieval and compression. Defaults to `advanced` when omitted."
+        },
+        {
+          "name": "objective",
+          "type": "string",
+          "location": "body",
+          "description": "Natural-language description of the underlying question or goal driving the search. Used together with search_queries to focus results on the most relevant content. Should be self-contained with enough context to understand the intent of the search."
+        },
+        {
+          "name": "search_queries",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Concise keyword search queries, 3-6 words each. At least one query is required, provide 2-3 for best results. Used together with objective to focus results on the most relevant content.",
+          "required": true
+        },
+        {
+          "name": "session_id",
+          "type": "string",
+          "location": "body",
+          "description": "Session identifier to track calls across separate search and extract calls, to be used as part of a larger task. Specifying it may give better contextual results for subsequent API calls."
+        }
+      ]
+    }
+  ]
+}

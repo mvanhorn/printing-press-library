@@ -1,0 +1,111 @@
+name: zillow
+description: "Sync official Zillow Research housing datasets and analyze markets without scraping Zillow.com."
+version: "0.2.0"
+base_url: "https://files.zillowstatic.com/research/public_csvs"
+health_check_path: "/zhvi/Metro_zhvi_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv"
+auth:
+  type: none
+config:
+  format: toml
+  path: "~/.config/zillow-pp-cli/config.toml"
+learn:
+  synonyms:
+    "home values": "zhvi"
+    "rent index": "zori"
+    "for sale inventory": "inventory"
+    "market heat": "market temperature"
+  entity_lookup_seeds:
+    metric:
+      - canonical: ZHVI
+        aliases: ["home value index", "home values"]
+      - canonical: ZORI
+        aliases: ["observed rent index", "rents"]
+resources:
+  research:
+    description: "Official Zillow Research regional time-series downloads."
+    endpoints:
+      zhvi:
+        method: GET
+        path: "/zhvi/Metro_zhvi_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv"
+        description: "Download monthly metro Zillow Home Value Index observations."
+        response_format: csv
+      zhvf:
+        method: GET
+        path: "/zhvf_growth/Metro_zhvf_growth_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv"
+        description: "Download monthly metro Zillow Home Value Forecast growth observations."
+        response_format: csv
+      zori:
+        method: GET
+        path: "/zori/Metro_zori_uc_sfrcondomfr_sm_month.csv"
+        description: "Download monthly metro Zillow Observed Rent Index observations."
+        response_format: csv
+      inventory:
+        method: GET
+        path: "/invt_fs/Metro_invt_fs_uc_sfrcondo_sm_month.csv"
+        description: "Download monthly metro for-sale inventory observations."
+        response_format: csv
+      sales:
+        method: GET
+        path: "/sales_count_now/Metro_sales_count_now_uc_sfrcondo_month.csv"
+        description: "Download monthly metro sales-count nowcast observations."
+        response_format: csv
+      days_pending:
+        method: GET
+        path: "/mean_doz_pending/Metro_mean_doz_pending_uc_sfrcondo_sm_month.csv"
+        description: "Download monthly metro mean days-to-pending observations."
+        response_format: csv
+      market_temperature:
+        method: GET
+        path: "/market_temp_index/Metro_market_temp_index_uc_sfrcondo_month.csv"
+        description: "Download monthly metro market-temperature index observations."
+        response_format: csv
+      homeowner_income:
+        method: GET
+        path: "/new_homeowner_income_needed/Metro_new_homeowner_income_needed_downpayment_0.20_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv"
+        description: "Download monthly metro income-needed estimates for a typical home purchase with 20 percent down."
+        response_format: csv
+      zordi:
+        method: GET
+        path: "/zordi/Metro_zordi_uc_sfrcondomfr_month.csv"
+        description: "Download monthly metro Zillow Observed Renter Demand Index observations."
+        response_format: csv
+      sale_to_list:
+        method: GET
+        path: "/mean_sale_to_list/Metro_mean_sale_to_list_uc_sfrcondo_sm_month.csv"
+        description: "Download monthly metro mean sale-to-list ratio observations."
+        response_format: csv
+      price_cut_share:
+        method: GET
+        path: "/perc_listings_price_cut/Metro_perc_listings_price_cut_uc_sfrcondo_sm_month.csv"
+        description: "Download monthly metro share of listings with a price cut."
+        response_format: csv
+      total_monthly_payment:
+        method: GET
+        path: "/total_monthly_payment/Metro_total_monthly_payment_downpayment_0.20_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv"
+        description: "Download monthly metro total housing payment estimates for a typical home purchase with 20 percent down."
+        response_format: csv
+      zhvi_bottom_tier:
+        method: GET
+        path: "/zhvi/Metro_zhvi_uc_sfrcondo_tier_0.0_0.33_sm_sa_month.csv"
+        description: "Download monthly metro bottom-tier Zillow Home Value Index observations."
+        response_format: csv
+      zhvi_top_tier:
+        method: GET
+        path: "/zhvi/Metro_zhvi_uc_sfrcondo_tier_0.67_1.0_sm_sa_month.csv"
+        description: "Download monthly metro top-tier Zillow Home Value Index observations."
+        response_format: csv
+      new_con_sales:
+        method: GET
+        path: "/new_con_sales_count_raw/Metro_new_con_sales_count_raw_uc_sfrcondo_month.csv"
+        description: "Download monthly metro new-construction sales counts."
+        response_format: csv
+      new_con_price:
+        method: GET
+        path: "/new_con_median_sale_price/Metro_new_con_median_sale_price_uc_sfrcondo_month.csv"
+        description: "Download monthly metro new-construction median sale prices."
+        response_format: csv
+      new_con_price_per_sqft:
+        method: GET
+        path: "/new_con_median_sale_price_per_sqft/Metro_new_con_median_sale_price_per_sqft_uc_sfrcondo_month.csv"
+        description: "Download monthly metro new-construction median sale price per square foot."
+        response_format: csv

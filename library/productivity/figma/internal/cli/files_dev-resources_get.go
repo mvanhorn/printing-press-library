@@ -32,22 +32,28 @@ func newFilesDevResourcesGetCmd(flags *rootFlags) *cobra.Command {
 			path = replacePathParam(path, "file_key", args[0])
 			params := map[string]string{}
 			if flagNodeIds != "" {
-				params["node_ids"] = fmt.Sprintf("%v", flagNodeIds)
+				params["node_ids"] = formatCLIParamValue(flagNodeIds)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "dev-resources", false, path, params, nil)
+			data, prov, err := resolveReadWithStrategy(cmd.Context(), c, flags, "auto", "dev-resources", false, path, params, nil, cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
 			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
+			// --plain) opt out of the auto-JSON path so piped consumers that asked for
+			// a non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -76,7 +82,7 @@ func newFilesDevResourcesGetCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().StringVar(&flagNodeIds, "node-ids", "", "Comma separated list of nodes that you care about in the document. If specified, only dev resources attached to...")
+	cmd.Flags().StringVar(&flagNodeIds, "node-ids", "", "Comma separated list of nodes that you care about in the document.")
 
 	return cmd
 }

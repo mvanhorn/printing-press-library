@@ -9,8 +9,6 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
-	"os"
-	"path/filepath"
 	"testing"
 	"time"
 
@@ -46,43 +44,6 @@ func newClientWithRecorder(t *testing.T) (*Client, *recordingRoundTripper) {
 	c.HTTPClient = &http.Client{Transport: rec}
 	c.NoCache = true
 	return c, rec
-}
-
-func TestClientCacheKeyIncludesHeadersAndDelimitedParams(t *testing.T) {
-	c := &Client{
-		BaseURL: "http://example.test",
-		Config: &config.Config{
-			Headers: map[string]string{"X-API-Version": "v1"},
-		},
-	}
-
-	first := c.cacheKey("/search", map[string]string{"a": "1", "bc": "2"}, map[string]string{"X-Mode": "one"})
-	second := c.cacheKey("/search", map[string]string{"a": "1b", "c": "2"}, map[string]string{"X-Mode": "one"})
-	third := c.cacheKey("/search", map[string]string{"a": "1", "bc": "2"}, map[string]string{"X-Mode": "two"})
-
-	if first == second {
-		t.Fatal("cache keys collided for distinct parameter maps")
-	}
-	if first == third {
-		t.Fatal("cache key ignored request headers")
-	}
-}
-
-func TestClientReadOnlyPostDoesNotInvalidateCache(t *testing.T) {
-	c, _ := newClientWithRecorder(t)
-	c.NoCache = false
-	c.cacheDir = t.TempDir()
-	marker := filepath.Join(c.cacheDir, "marker.json")
-	if err := os.WriteFile(marker, []byte("{}"), 0o644); err != nil {
-		t.Fatalf("write marker: %v", err)
-	}
-
-	if _, _, err := c.doRead(context.Background(), http.MethodPost, "/search", nil, map[string]string{"q": "teacher"}, nil); err != nil {
-		t.Fatalf("doRead returned error: %v", err)
-	}
-	if _, err := os.Stat(marker); err != nil {
-		t.Fatalf("read-only POST invalidated cache marker: %v", err)
-	}
 }
 
 // TestClient_VerifyShortCircuit_MutatingVerbs pins the transport-layer

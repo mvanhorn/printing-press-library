@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "export-is-exercised-without-writing-a-file",
+  "applied_at": "2026-08-16",
+  "base_run_id": "20260814-154828-17a1784d",
+  "base_printing_press_version": "4.30.2",
+  "summary": "`export` must be exercised live with no output path, and no runnable line in its help Example may name a file. Both halves are required: the live matrix MERGES flags harvested from a command's Example into whatever pp:happy-args supplies, so a safe annotation alone is not enough, and dropping the arguments entirely is also wrong because it downgrades a headline feature to hollow coverage.",
+  "reason": "Help prose is executable input. `export` shipped the generator's stock example, `export <resource> --format jsonl --output data.jsonl`. The matrix substituted the resource, kept `--output data.jsonl`, and ran it with the CLI package root as its working directory -- writing a file holding a live profile id and a real account name into the exact directory publish collects for a public repo. This is the third instance of the same vector on this CLI (an `--output` narrative example, a prose-scraped `todo add` create, now this), and the first where a correct pp:happy-args was already in place and still could not prevent it, because the merge re-adds the documented flag. `--output` defaults to stdout, so naming no file exercises pagination, encoding, and resource resolution while writing nothing; `--limit=1` keeps the response to a single record.",
+  "files": [
+    "internal/cli/tiimo_fixtures.go"
+  ],
+  "validated_outcome": "Before: happy_path ran `export profiles --format jsonl --output data.jsonl --limit 1` and left a 71-byte data.jsonl containing a live profileId and account name at the package root, which the copy into the publish clone carried along; earlier, with no annotation at all, publish validate failed with 'phase5 acceptance has hollow coverage for: export'. After: happy_path is `export profiles --format jsonl --limit 1`, a before/after diff of the package root shows zero files created by the gate, all four export probes pass, coverage_hollow clears, and the full live gate is 201/201 with the account unchanged. Also worth carrying forward: the hollow-coverage check only fires when dogfood is pointed at the run's real research.json, which lives at the manuscript run root rather than in research/ -- pointed elsewhere, the same tree reports a clean pass and the gap stays invisible.",
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/4170"
+}

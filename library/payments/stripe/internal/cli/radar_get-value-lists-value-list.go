@@ -29,10 +29,12 @@ func newRadarGetValueListsValueListCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/v1/radar/value_lists/{value_list}"
-			if len(args) < 2 {
+
+			// PATCH: Bind path placeholders from Cobra positional args in Use order.
+			if len(args) < 1 {
 				return usageErr(fmt.Errorf("value_list is required\nUsage: %s <%s>", cmd.CommandPath(), "value_list"))
 			}
-			path = replacePathParam(path, "value_list", args[1])
+			path = replacePathParam(path, "value_list", args[0])
 			params := map[string]string{}
 			if flagExpand != "" {
 				params["expand"] = fmt.Sprintf("%v", flagExpand)

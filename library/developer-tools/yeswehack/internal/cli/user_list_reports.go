@@ -13,7 +13,7 @@ import (
 
 func newUserListReportsCmd(flags *rootFlags) *cobra.Command {
 	var flagPage string
-	var flagItemsPerPage int
+	var flagResultsPerPage int
 	var flagAll bool
 
 	cmd := &cobra.Command{
@@ -29,8 +29,8 @@ func newUserListReportsCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/user/reports"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "user", path, map[string]string{
-				"page":         fmt.Sprintf("%v", flagPage),
-				"itemsPerPage": fmt.Sprintf("%v", flagItemsPerPage),
+				"page":           fmt.Sprintf("%v", flagPage),
+				"resultsPerPage": fmt.Sprintf("%v", flagResultsPerPage),
 			}, nil, flagAll, "", "", "")
 			if err != nil {
 				return classifyAPIError(err, flags)
@@ -74,7 +74,7 @@ func newUserListReportsCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagPage, "page", "", "Page number (1-indexed)")
-	cmd.Flags().IntVar(&flagItemsPerPage, "items-per-page", 0, "Page size")
+	cmd.Flags().IntVar(&flagResultsPerPage, "results-per-page", 0, "Page size")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
 	return cmd

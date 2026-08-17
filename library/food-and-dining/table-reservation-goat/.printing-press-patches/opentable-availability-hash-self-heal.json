@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "opentable-availability-hash-self-heal",
+  "applied_at": "2026-07-06",
+  "base_run_id": "20260509-110540",
+  "base_printing_press_version": "4.2.2",
+  "summary": "The RestaurantsAvailability persisted-query hash rotates on OpenTable bundle releases; the CLI self-heals by harvesting the current hash and persisting it, rather than shipping a baked-in constant that goes stale.",
+  "reason": "A hardcoded RestaurantsAvailabilityHash 409s all availability the moment OpenTable ships a new frontend bundle. The hash is not scrapable from OT's static surface (the operation name is minified into a code-split chunk absent from the SSR HTML and reachable bundles), so the durable source is the page's own outgoing RestaurantsAvailability request. A brief headless Chrome fires that request and the hash is harvested from it — even when Akamai 403s the response, because the hash rides in the request — then persisted to a per-user cache file. The direct Surf path rides the fresh hash and passes the WAF at human pace. A regen must preserve this harvest-and-persist behavior, not re-bake a fixed hash.",
+  "files": [
+    "internal/source/opentable/hash_store.go",
+    "internal/source/opentable/hash_refresh_test.go",
+    "internal/source/opentable/chrome_avail.go",
+    "internal/source/opentable/client.go"
+  ],
+  "validated_outcome": "From a stale-const start with no user Chrome, `earliest` triggered 409 -> headless spawn-harvest -> retry direct with the fresh hash -> 200, and persisted the current hash; full `go test` suite and verify_skill.py pass."
+}

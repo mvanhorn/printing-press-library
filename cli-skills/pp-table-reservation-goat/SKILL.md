@@ -1,6 +1,6 @@
 ---
 name: pp-table-reservation-goat
-description: "One reservation CLI for OpenTable, Tock, and Resy — search each network at once, watch for cancellations, book, and track changes from a local store agents can query. Trigger phrases: `book a table`, `find me a reservation`, `watch for a cancellation`, `use table-reservation-goat`."
+description: "Printing Press CLI for Table Reservation Goat. One reservation CLI for OpenTable, Tock, and Resy — search all three networks at once, watch for cancellations"
 author: "Pejman Pour-Moezzi"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
@@ -10,6 +10,10 @@ metadata:
     requires:
       bins:
         - table-reservation-goat-pp-cli
+    install:
+      - kind: go
+        bins: [table-reservation-goat-pp-cli]
+        module: github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/cmd/table-reservation-goat-pp-cli
 ---
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/food-and-dining/table-reservation-goat/SKILL.md,
@@ -17,7 +21,7 @@ metadata:
      silently overwritten on the next regen. Edit the library/ source instead.
      See the repository agent guide, section "Generated artifacts: registry.json, cli-skills/". -->
 
-# Table Reservation GOAT — Printing Press CLI
+# Table Reservation Goat — Printing Press CLI
 
 ## Prerequisites: Install the CLI
 
@@ -30,7 +34,7 @@ This skill drives the `table-reservation-goat-pp-cli` binary. **You must verify 
 2. Verify: `table-reservation-goat-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.6 or newer). This installs into `$GOPATH/bin` (default `$HOME/go/bin`), so add that directory to `$PATH` instead:
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/cmd/table-reservation-goat-pp-cli@latest
@@ -38,45 +42,7 @@ go install github.com/mvanhorn/printing-press-library/library/food-and-dining/ta
 
 If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
-## When to Use This CLI
-
-Use this CLI any time a user or agent needs to search, compare, watch, or book across OpenTable, Tock, and Resy together — and especially for multi-venue questions ('soonest table at any of these'), cancellation hunting, or tracking changes at a specific venue. For single-network simple lookups, the official site UI is faster.
-
-## Unique Capabilities
-
-These capabilities aren't available in any other tool for this API.
-
-### Cross-network ground truth
-- **`goat`** — One query across OpenTable, Tock, and Resy simultaneously, ranked by relevance, earliest availability, and price band.
-
-  _When a user asks an agent to find a table, this is the single command that searches both reservation networks and returns structured ranked results — agents do not need to know which network covers which restaurant._
-
-  ```bash
-  table-reservation-goat-pp-cli goat 'tasting menu chicago' --party 2 --when 'this weekend' --agent --select results.name,results.network,results.earliest_slot,results.price_band
-  ```
-- **`earliest`** — Across a list of restaurants from either network, return the earliest open slot per venue within a time horizon.
-
-  _When a user gives an agent a shortlist of venues and wants the soonest opportunity, this is the right shape — one structured response with one row per venue across all three networks._
-
-  ```bash
-  table-reservation-goat-pp-cli earliest 'alinea,le-bernardin,smyth,atomix' --party 4 --within 21d --agent --select earliest.venue,earliest.network,earliest.slot_at,earliest.attributes
-  ```
-
-### Local state that compounds
-- **`watch`** — Persistent local watcher that polls each network for openings on your target venues and party size, with notifications and optional auto-book.
-
-  _Resy's Notify covers Resy only; tockstalk covers Tock only; restaurant-mcp's snipe covers Resy+OT only. None covers each network; none persists state. Use this when an agent or user needs a hot reservation that isn't currently available._
-
-  ```bash
-  table-reservation-goat-pp-cli watch add 'le-bernardin' --party 2 --window 'Fri 7-9pm' --notify slack
-  ```
-- **`drift`** — Show what changed at a specific venue since the last sync — new experiences, slot price moves, hours changes.
-
-  _Hot-target deep-watch: when an agent or user is hunting one venue, drift surfaces every meaningful change since the last look._
-
-  ```bash
-  table-reservation-goat-pp-cli drift alinea --since '2026-04-01' --agent
-  ```
+One reservation CLI for OpenTable, Tock, and Resy — search all three networks at once, watch for cancellations, book + cancel end-to-end, and track changes from a local store agents can query.
 
 ## Command Reference
 
@@ -85,17 +51,26 @@ These capabilities aren't available in any other tool for this API.
 - `table-reservation-goat-pp-cli availability check` — Check open slots for a restaurant on a specific date and party size
 - `table-reservation-goat-pp-cli availability multi-day` — Multi-day availability for a single restaurant — Mon-Sun matrix
 
+**experiences** — List prepaid and tasting-menu experiences (Tock-style)
+
+
+**me** — Read your authenticated user profile from both networks
+
+
+**reservations** — List, book, modify, and cancel reservations (requires auth login)
+
+OpenTable attach booking is enabled only when `TABLE_RESERVATION_GOAT_OT_CHROME_DEBUG_URL` is explicitly configured and the attached profile is already signed in. Use `TRG_ALLOW_BOOK=prepare` to drive through an enabled final confirmation control without clicking it; only `TRG_ALLOW_BOOK=1` may place the reservation. Typed failures are `attach_unreachable`, `not_signed_in`, `selector_drift`, `form_validation`, `slot_taken`, and `incomplete_confirmation`; `page_state` diagnostics are redacted and never include URL query tokens or arbitrary account labels.
+
+Tock booking prefers the signed-in Chrome session at `TABLE_RESERVATION_GOAT_TOCK_CHROME_DEBUG_URL` (default `http://localhost:9222`) and keeps the stealth-headless session fallback. It tries legacy slot buttons first, then the exact-time `/search` row and modern time-combobox/experience-card controls. Agent and `--no-input` runs never prompt for CVC: provide a 3- or 4-digit `TRG_TOCK_CVC` only when needed. Typed failures are `cvc_required` and `selector_drift`; selector diagnostics contain only a query-free path, booleans, time labels, and allowlisted control categories.
+
+
 **restaurants** — Search and inspect restaurants across OpenTable, Tock, and Resy
 
 - `table-reservation-goat-pp-cli restaurants get` — Get a restaurant's full detail — hours, address, cuisine, price band, photos, accolades
 - `table-reservation-goat-pp-cli restaurants list` — List restaurants across OpenTable, Tock, and Resy; filter by location, cuisine, price band, accolades, and party size
 
-**watch** — Persistent local cancellation watcher across all three networks
+**wishlist** — Read your saved/wishlisted restaurants from both networks
 
-- `table-reservation-goat-pp-cli watch add` — Register a watch for a venue, party size, and time window
-- `table-reservation-goat-pp-cli watch list` — List active watches
-- `table-reservation-goat-pp-cli watch cancel` — Cancel a watch by id
-- `table-reservation-goat-pp-cli watch tick` — Run one polling tick across all active watches (for cron / agents)
 
 
 ### Finding the right command
@@ -108,209 +83,9 @@ table-reservation-goat-pp-cli which "<capability in your own words>"
 
 `which` resolves a natural-language capability query to the best matching command from this CLI's curated feature index. Exit code `0` means at least one match; exit code `2` means no confident match — fall back to `--help` or use a narrower query.
 
-## Location Handling (Agent Playbook)
-
-Every read command (`restaurants list`, `availability check`, `availability multi-day`, `earliest`, `goat`, `watch`) accepts a free-form `--location` flag that parses bare city, city+state, metro qualifier, or coordinates.
-
-**Accepted `--location` shapes:**
-
-```bash
---location bellevue              # bare city (ambiguous — see below)
---location 'bellevue, wa'        # city + state (unambiguous)
---location 'seattle metro'       # metro qualifier
---location '47.6101,-122.2015'   # coordinates (lat,lng)
-```
-
-The resolver returns one of three response shapes, classified by the categorical `tier` field:
-
-- **`tier: "high"`** (one match, or specific input): response includes `location_resolved` field with the canonical name, centroid, reason, and any alternates considered. Results are filtered to that region.
-- **`tier: "medium"`** (multiple candidates but one dominates): response includes both `location_resolved` and `location_warning`. The warning lists the alternates so the agent can sanity-check against conversation context.
-- **`tier: "low"`** (genuinely ambiguous, e.g., bare "bellevue" matches WA/NE/KY): the command refuses to return results. Instead it emits a typed `needs_clarification` envelope with ranked candidates, each carrying `state`, `context_hints`, `tock_business_count`, and `score_if_picked`. The agent disambiguates and re-runs.
-
-Note: `location_resolved.score` is the popularity prior (a mechanical [0,1] number derived from population + provider coverage). Do not branch on this number — Bellevue WA at city+state specificity is HIGH-certain but its absolute score is modest (~0.42), and Seattle at HIGH tier reads ~0.6. The categorical `tier` field is what agents branch on; `score` is informational.
-
-### Three agent rules (load-bearing contract)
-
-**1. Always check `location_resolved.tier` in successful responses.**
-The `tier` string is the agent-facing categorical classification — branch on it, not on the numeric `score`.
-- `tier == "high"` — the pick is reliable; proceed.
-- `tier == "medium"` — alternates exist and the response includes a `location_warning` listing them. Sanity-check the pick against conversation context (e.g., did you pick Portland OR but the user clearly meant Maine?). Surface the pick to the user.
-- `tier == "low"` — you'll receive a `needs_clarification` envelope instead of results; rule 2 applies.
-
-**2. On `needs_clarification: true`, do NOT retry blindly.**
-First, look back in the conversation for geographic clues (state mentions, nearby cities, prior locations, time-zone hints). If you find any, re-run with that location. If you don't, use the `agent_guidance.fallback_clarification` text (or your own phrasing) to ask the user. Concrete shape:
-
-```json
-{
-  "needs_clarification": true,
-  "error_kind": "location_ambiguous",
-  "what_was_asked": "bellevue",
-  "candidates": [
-    {"name": "Bellevue, WA", "state": "WA",
-     "context_hints": ["Seattle metro", "Eastside"],
-     "tock_business_count": 28, "score_if_picked": 0.78,
-     "centroid": [47.6101, -122.2015]},
-    {"name": "Bellevue, NE", "state": "NE",
-     "context_hints": ["Omaha metro"],
-     "tock_business_count": 0, "score_if_picked": 0.18,
-     "centroid": [41.1370, -95.9145]},
-    {"name": "Bellevue, KY", "state": "KY",
-     "context_hints": ["Cincinnati metro"],
-     "tock_business_count": 0, "score_if_picked": 0.04,
-     "centroid": [39.1067, -84.4744]}
-  ],
-  "agent_guidance": {
-    "preferred_recovery": "Check conversation context for geographic clues. If the user mentioned a state or nearby city, re-run with that.",
-    "rerun_pattern": "<command> --location '<chosen-name>'"
-  }
-}
-```
-
-**3. Never silently accept a MEDIUM-tier resolution.**
-When `location_warning` is present on a successful response (`tier == "medium"`, or a `tier == "low"` forced pick from a batch caller), surface the pick to the user in your reply (e.g., "I'm searching in Bellevue, WA — let me know if you meant a different one"). The warning is the CLI's signal that *you* should hand the user a hand-off point. Do NOT reach for `--batch-accept-ambiguous` to silence the warning — that flag is for batch jobs only; in interactive use it defeats the disambiguation contract entirely.
-
-### `--batch-accept-ambiguous` is a batch-only escape hatch
-
-Every read command exposes `--batch-accept-ambiguous` (default false). When true, a LOW-tier resolution returns a forced pick (top candidate by popularity prior) with `location_warning` flagging the bypass, rather than the `needs_clarification` envelope. **Interactive agents must never use this flag — it defeats the disambiguation contract entirely.** The verbose `batch-` prefix is intentional: it exists exclusively for batch jobs, scheduled runs, and test fixtures where any-pick-is-fine semantics are correct. If you're answering a user in real time and you reach for this flag, stop — re-read rule 2 and disambiguate from conversation context or ask the user.
-
-### `--metro` is a deprecated alias
-
-`--metro <slug>` continues to work for back-compat, but the implicit `--batch-accept-ambiguous` is **canonical-only** — it is set automatically only when the value resolves to a single, unambiguous metro via the registry (slug lookup, alias chain, or a single `LookupByName` hit). Three cases:
-
-- **Canonical slug** (`seattle`, `nyc`, `chicago`, `sf`, `san-francisco`, etc.) — single registry hit. The resolver silent-picks with the legacy result-shape preserved (no envelope). This is the back-compat path.
-- **Ambiguous value** (e.g., `--metro bellevue` matches WA/NE/KY by display name) — `--batch-accept-ambiguous` is **not** implied. The resolver returns the same `needs_clarification` envelope `--location bellevue` would. **Legacy callers must handle the envelope path** — treat the response exactly like a `--location` envelope and disambiguate (Codex P1-D fix; silently picking the wrong city is worse than asking).
-- **Unknown slug** — returns a `location_unknown` envelope, same as `--location <unknown>`.
-
-A one-line stderr deprecation warning (`warning: --metro is deprecated; use --location <city>.`) fires once-per-process on first use regardless of the canonical-vs-ambiguous outcome. New code should use `--location`.
-
-### Slug suffixes still work in `earliest` and `watch`
-
-When you compose a venue slug with a city suffix (`joey-bellevue`, `13-coins-bellevue`) and don't pass `--location`, the CLI detects the city hint, anchors the Autocomplete search at the inferred metro's centroid, and tags the resulting `location_resolved.source` as `extracted_from_query` (signaling soft-demote post-filter). Explicit `--location` always wins over slug-suffix inference.
-
-### `location resolve` is a primitive
-
-When you need to verify a location is well-formed before running a search, use:
-
-```bash
-table-reservation-goat-pp-cli location resolve 'bellevue, wa' --agent
-```
-
-Emits the typed `GeoContext` JSON (HIGH/MEDIUM) or the disambiguation envelope (LOW). Useful for up-front verification before fanning out reads.
-
-### Numeric IDs bypass location resolution
-
-When you have an OpenTable numeric ID (from `restaurants list --json`), pass it directly to `availability check` / `availability multi-day` / `earliest`. The numeric-ID short-circuit skips the slug resolver entirely:
-
-```bash
-table-reservation-goat-pp-cli availability check 3688 --party 6 --date 2026-12-25 --agent
-```
-
-If you also pass `--location` with a numeric ID and the venue is outside the stated radius, the response will include a `location_warning` (not a hard-reject) — the numeric ID is treated as authoritative; the warning is informational.
-
-## Error Recovery for Agents
-
-The CLI surfaces a typed `error_kind` field on availability rows so agents
-can branch on the recovery strategy without parsing free-text `reason`
-strings. Three cases the agent should handle distinctly:
-
-### `error_kind: "session_blocked"`
-
-The entire OpenTable session is shadow-banned (Akamai sees the cookies as
-expired/invalid). **All** OT operations will fail until cookies are refreshed.
-
-**Recovery:** ask the user to run `auth login --chrome` (interactive). The
-CLI's in-memory cooldown will clear once the new cookies pass through
-Bootstrap. The disk-persisted cooldown auto-expires (5min → 60min exponential
-backoff per consecutive 403).
-
-### `error_kind: "operation_blocked"`
-
-A specific GraphQL opname (typically `RestaurantsAvailability` or
-`Autocomplete`) is on a WAF blocklist. **Sibling operations on the same
-session still work.**
-
-**Recovery paths, in order of preference:**
-
-1. **Pivot to a numeric OpenTable ID.** `restaurants list` returns ids like
-   `3688`. Passing `availability check 3688` bypasses the Autocomplete-based
-   resolver entirely, so an `Autocomplete`-specific WAF rule doesn't apply:
-
-   ```bash
-   table-reservation-goat-pp-cli availability check 3688 --party 6 --agent
-   ```
-
-2. **Use the chromedp escape hatch.** When Chrome is running with remote-
-   debugging enabled, the CLI routes blocked requests through the real
-   browser's TLS stack:
-
-   ```bash
-   # Launch Chrome with debugging once per session
-   open -a "Google Chrome" --args --remote-debugging-port=9222
-   # Or point at a custom port via env var
-   export TABLE_RESERVATION_GOAT_OT_CHROME_DEBUG_URL=http://localhost:9222
-   ```
-
-   The CLI auto-falls-back to chromedp on `BotDetectionError`s in the
-   availability path.
-
-3. **Surface the venue URL to the user.** Every row carries `url` (e.g.,
-   `https://www.opentable.com/restaurant/profile/3688`). When both code
-   paths are blocked, the agent should hand the user the URL so they can
-   click through to OpenTable directly.
-
-### No `error_kind` field (Tock errors, non-WAF errors)
-
-Tock doesn't have a Kind discriminator yet — its errors arrive as plain
-text in `reason`. The reason strings name the upstream condition
-(`venue not found`, `calendar empty`, etc.); agents should surface them
-to the user without retry.
-
-## Recipes
-
-
-### Headline omakase search across all three networks (agent-shaped)
-
-```bash
-table-reservation-goat-pp-cli goat 'omakase manhattan' --party 2 --when 'this fri 7-9pm' --agent --select results.name,results.network,results.earliest_slot,results.price_band,results.attributes
-```
-
-Single command, ranked merged output with the deeply-nested fields agents actually need — narrows a multi-KB response to five columns.
-
-### Watch one Tock-only and one OT-only venue at the same party size
-
-```bash
-table-reservation-goat-pp-cli watch add 'alinea' --party 2 --window 'sat 7-9pm' --notify local && table-reservation-goat-pp-cli watch add 'le-bernardin' --party 2 --window 'sat 7-9pm' --notify local
-```
-
-Two watches, one local store, one polling daemon — the printer handles each network via per-source adaptive limiters.
-
-### Soonest table among my shortlist
-
-```bash
-table-reservation-goat-pp-cli earliest 'narisawa,sushi-saito,den,florilege' --party 2 --within 14d --agent --select earliest.venue,earliest.network,earliest.slot_at
-```
-
-One row per venue with the soonest slot, sortable by slot time. Agents pipe into a planner without re-querying.
-
-### Watched venue: what changed in the last week
-
-```bash
-table-reservation-goat-pp-cli drift alinea --since 7d --agent
-```
-
-Snapshot diff at a single venue — new experiences, slot price moves, hours changes — exactly what hot-target hunters need.
-
-### Headline search, then check live availability for the top hit
-
-```bash
-table-reservation-goat-pp-cli goat 'le bernardin' --party 2 --json | jq -r '.results[0] | (.network + ":" + .slug)' | xargs -I{} table-reservation-goat-pp-cli availability check {} --party 2 --date "$(date +%Y-%m-%d)"
-```
-
-Compose the cross-network search with a follow-up live availability check — `goat` returns the best matched venue, `availability check` then queries OpenTable or Tock directly for open slots on that venue and date.
-
 ## Auth Setup
 
-No authentication required.
+Search and availability require no account. OpenTable and Tock attach booking use the signed-in session in the attached Chrome profile; Tock keeps the saved-session stealth-headless fallback; Resy booking uses its saved API token.
 
 Run `table-reservation-goat-pp-cli doctor` to verify setup.
 
@@ -322,12 +97,11 @@ Add `--agent` to any command. Expands to: `--json --compact --no-input --no-colo
 - **Filterable** — `--select` keeps a subset of fields. Dotted paths descend into nested structures; arrays traverse element-wise. Critical for keeping context small on verbose APIs:
 
   ```bash
-  table-reservation-goat-pp-cli restaurants list --agent --select id,name,neighborhood,price_band
   ```
 - **Previewable** — `--dry-run` shows the request without sending
 - **Offline-friendly** — sync/search commands can use the local SQLite store when available
 - **Non-interactive** — never prompts, every input is a flag
-- **Explicit retries** — use `--idempotent` only when an already-existing create should count as success, and `--ignore-missing` only when a missing delete target should count as success
+- **Explicit retries** — use `--idempotent` only when an already-existing create should count as success, and use `--ignore-missing` only when a missing delete target should count as success
 
 ### Response envelope
 
@@ -340,7 +114,226 @@ Commands that read from the local store or the API wrap output in a provenance e
 }
 ```
 
-Parse `.results` for data and `.meta.source` to know whether it's live or local. A human-readable `N results (live)` summary is printed to stderr only when stdout is a terminal — piped/agent consumers get pure JSON on stdout.
+Parse `.results` for data and `.meta.source` to know whether it's live or local. A human-readable `N results (live)` summary is printed to stderr only when stdout is a terminal AND no machine-format flag (`--json`, `--csv`, `--compact`, `--quiet`, `--plain`, `--select`) is set — piped/agent consumers and explicit-format runs get pure JSON on stdout.
+
+## Paths and state
+
+Agents should treat the CLI's path resolver as part of the runtime contract:
+
+- Use `--home <dir>` for one invocation, or set `TABLE_RESERVATION_GOAT_HOME=<dir>` to relocate all four path kinds under one root.
+- Use per-kind env vars only when a specific kind must diverge: `TABLE_RESERVATION_GOAT_CONFIG_DIR`, `TABLE_RESERVATION_GOAT_DATA_DIR`, `TABLE_RESERVATION_GOAT_STATE_DIR`, `TABLE_RESERVATION_GOAT_CACHE_DIR`.
+- Resolution order is per-kind env var, `--home`, `TABLE_RESERVATION_GOAT_HOME`, XDG (`XDG_CONFIG_HOME`, `XDG_DATA_HOME`, `XDG_STATE_HOME`, `XDG_CACHE_HOME`), then platform defaults.
+- `config` contains settings like `config.toml` and profiles. `data` contains `credentials.toml`, `data.db`, cookies, and auth sidecars. `state` contains persisted queries, jobs, and `teach.log`. `cache` contains regenerable HTTP/cache files.
+- Stored secrets live in `credentials.toml` under the data dir. Existing legacy `config.toml` secrets are read for compatibility and leave `config.toml` on the first auth write.
+- Run `table-reservation-goat-pp-cli doctor --fail-on warn` to surface path and credential-location warnings. `agent-context` exposes a schema v4 `paths` block for agents that need the resolved dirs.
+- For MCP, pass relocation through the MCP host config. The MCP binary does not inherit CLI flags:
+
+  ```json
+  {
+    "mcpServers": {
+      "table-reservation-goat": {
+        "command": "table-reservation-goat-pp-mcp",
+        "env": {
+          "TABLE_RESERVATION_GOAT_HOME": "/srv/table-reservation-goat"
+        }
+      }
+    }
+  }
+  ```
+
+Fleet precedence: an inherited per-kind env var overrides an explicit `--home` for that kind. Use `TABLE_RESERVATION_GOAT_HOME` or per-kind vars as durable fleet levers, and use `--home` only for a single invocation. Relocation is not reversible by unsetting env vars; move files manually before clearing `TABLE_RESERVATION_GOAT_HOME`, or `doctor` will not find credentials left under the former root.
+
+## Automatic learning
+
+This CLI ships a self-capturing learning loop. The CLI does its own bookkeeping: every invocation is journaled locally, a failed flag followed by a corrected retry auto-derives a `flag_alias` candidate, and a `teach` on a query family without a playbook auto-synthesizes a `playbook_candidate` from the session's journal. Your job is judgment only: `recall` first, act on surfaced candidates, `teach` the final answer, `playbook amend` when you observe a correction. You never record failures by hand.
+
+### Step 1: `recall` before any discovery
+
+Before list/search/drill commands on a new user question, run:
+
+```bash
+table-reservation-goat-pp-cli recall "<user's question>" --agent
+```
+
+The response envelope:
+
+```json
+{
+  "query": "...",
+  "normalized": "<normalized form>",
+  "query_entities": ["..."],
+  "found": true | false,
+  "match_score": 0.0,
+  "results": [
+    { "resource_id": "...", "resource_type": "...", "venue": "...",
+      "confidence": 2, "entity_match": "exact|partial|unknown",
+      "source": "taught|preseed|pattern", "warnings": ["..."] }
+  ],
+  "mismatches": [ /* only when --debug-mismatches */ ],
+  "warnings": [ /* top-level */ ],
+  "candidates": [
+    { "id": 12, "class": "flag_alias | playbook_candidate",
+      "summary": "...", "sightings": 3, "last_seen": "...",
+      "rationale": "...",
+      "next_action": ["<trial command>", "table-reservation-goat-pp-cli learnings confirm 12"] }
+  ],
+  "playbook": {
+    "query_family": "...",
+    "playbook": {
+      "steps": [ { "cmd": "<command with {slot} substitution>", "purpose": "..." } ],
+      "entity_slots": ["$ENTITY"],
+      "expected_tool_calls": 3
+    },
+    "slots_resolved": { "$ENTITY": { "token": "<live token>", "canonical": "<canonical>" } },
+    "notes": "<workarounds + gotchas for this query family>"
+  },
+  "notes": "<duplicate surface for non-playbook callers>"
+}
+```
+
+Empty-store short-circuit: if the store has no learnings, playbooks, or candidates yet (recall finds nothing and `learnings list` and `learnings candidates` are both empty), skip recall for the rest of this session instead of taxing every query; resume recall-first once something has been taught.
+
+### Step 2: decision tree
+
+Read `candidates`, `playbook`, `notes`, `results[0]`, and warnings in that order:
+
+```
+if Candidates present (warnings include "candidates_present"):
+    -> candidates are try-then-confirm, never facts. Follow each candidate's
+       two-step next_action verbatim: run the trial command first, then run
+       `learnings confirm <id>` only after the trial verified the behavior.
+       Reject a wrong candidate with `learnings reject <id>`.
+    -> NEVER re-teach something recall surfaced as a candidate; confirm or
+       reject that candidate instead of teaching a duplicate.
+    -> candidates ride alongside playbooks and resource hits, not instead of
+       them; continue with the branches below after acting on them.
+
+if Playbook present:
+    -> READ Playbook.notes verbatim FIRST (workarounds + gotchas the CLI surface doesn't expose)
+    -> replay Playbook.steps in order, substituting Playbook.slots_resolved entries
+       for the entity slot tokens. If a step's slot is unresolved, fall back to
+       discovery for that step only.
+    -> the Playbook's expected_tool_calls is a budget; if you find yourself running
+       materially more, record the divergence via `table-reservation-goat-pp-cli playbook amend`
+       at end-of-session.
+
+elif Notes present (no Playbook):
+    -> read Notes verbatim before any discovery step; they carry known gotchas
+       for this query family even when no structured choreography exists yet.
+
+elif Found AND Results[0].EntityMatch == "exact" AND Results[0].Confidence >= 2:
+    -> skip discovery; fetch live data for Results[*].ResourceID in parallel
+
+elif Found AND Results[0].EntityMatch == "partial":
+    -> candidate hint, NOT a hit; read the resource title to validate before trusting
+
+elif (any row in Mismatches[] when --debug-mismatches was passed):
+    -> treat as cold start; the stored learning is for a different entity
+       (different canonical resolved from query_entities)
+
+else:  // Found == false, no playbook, no notes
+    -> cold start; run discovery normally; teach the answer afterward (Step 4).
+       If the family has no playbook yet, that teach auto-synthesizes a
+       playbook candidate from this session's journal - you do not need to
+       record one by hand.
+```
+
+Playbook and Notes are orthogonal to the per-resource path. A recall response can carry both a Playbook AND a `Results[]` hit - use both: the Playbook tells you which choreography to run; the resource hits short-circuit specific steps. Default to skipping `mismatches`; pass `--debug-mismatches` only when investigating cold-start surprises.
+
+Candidate judgment details: `learnings confirm <id>` prints the candidate's full payload before materializing it - check that the printed payload matches the behavior you verified. `learnings reject <id>` tombstones the derivation signature so the same candidate does not resurface. The envelope carries only the few candidates worth acting on now; `table-reservation-goat-pp-cli learnings candidates` lists the full open set.
+
+Graceful degradation: if `learnings confirm` is an unknown command, you are driving an older binary - ignore the candidates guidance and follow the rest of the protocol.
+
+### Step 3: always read `warnings`
+
+- `low_confidence`: row exists at `confidence<2`. Treat as a hint, not a skip-discovery hit.
+- `resource_not_in_store`: the local store doesn't have the resource the learning points at. The match validator couldn't classify entities — direct-fetch and re-evaluate.
+- `cross_alias_match` (per-result): the row was taught under a different alias and matched the live query's canonical via `entity_lookups` (e.g., a "USA" teach satisfying a "United States" recall). Trust the resource_id.
+- `similar_shape_different_entity:<canonical>` (top-level): a structurally matching row exists but its canonical entity differs from the live query's. Treated as cold start; the warning carries the conflicting canonical as a hint, but the row is NOT promoted into Results.
+- `ambiguous_alias` (top-level): a single query entity resolved to multiple canonicals (e.g., "Cards" → Arizona Cardinals + St. Louis Cardinals). Surface the ambiguity from context before committing to a resource.
+- `candidates_present` (top-level): the envelope carries a `candidates` section. Handle it via the candidates branch in Step 2 before anything else.
+- `lookup_refresh_available` (top-level): an entity in the query has no lookup row yet, but synced data could provide one. Run `table-reservation-goat-pp-cli sync` to refresh entity lookups.
+- Top-level `no_learnings_for_query_family`: the table had no rows above the Jaccard floor. Pure cold start.
+
+### Step 4: `teach &` after finalizing your response - always
+
+Teaching is unconditional. After resolving a query the store could not answer, background-teach the final resource mapping - no call-count threshold, no judging whether it was "worth" learning. The teach is the anchor of the loop: it triggers playbook synthesis for a family without a playbook, and same-referent phrasings fold into one family so near-duplicate teaches do not fragment the store. Fire it after assembling your user-facing response but BEFORE emitting it, with a shell `&` so the call returns immediately:
+
+```bash
+table-reservation-goat-pp-cli teach --query "<user's question>" --resource-type <type> --resource <id1> --resource <id2>
+# (append shell `&` to background it)
+```
+
+Silent on success. Errors only land in `teach.log` under the resolved state dir. Teach the **most specific** resource - if the user asked a broad question and you walked through parent records to find the specific answer, teach the leaf id, not the parent. The CLI uses seeded `entity_lookups` for cross-alias resolution at recall time, so a teach under one alias (e.g., "Niners") satisfies future queries under another alias (e.g., "49ers", "San Francisco") automatically.
+
+PII rule: teach the structural question with identifiers stripped - never include names, emails, phone numbers, account ids, or other personal identifiers in taught queries or notes. The CLI scans teach queries for obvious email/phone shapes and warns, but does not block; strip before teaching rather than relying on the warning.
+
+### Step 5: playbooks - optional flags, automatic synthesis
+
+You do not need to decide whether a session "deserves" a playbook: a teach on a family without one auto-synthesizes a `playbook_candidate` from the session's journal, and the next session judges it via confirm/reject. Attach explicit playbook flags only when you already hold choreography worth recording verbatim - workarounds the CLI didn't surface (silently-dropped flags, undocumented params, pagination tricks, payload gotchas). Prefer the **integrated one-call form** - record the resource learning and the playbook in the same `teach` invocation:
+
+```bash
+# Common case: record both the resource learning AND the playbook in one call.
+table-reservation-goat-pp-cli teach \
+  --query "<user's question>" \
+  --resource <id> \
+  --playbook-file ~/playbooks/<shape>.json \
+  --playbook-notes-file ~/playbooks/<shape>-notes.md
+# (append shell `&` to background it)
+
+# Alternate: playbook-only (no resource to record alongside).
+table-reservation-goat-pp-cli teach-playbook \
+  --query "<user's question>" \
+  --playbook-file ~/playbooks/<shape>.json \
+  --notes-file ~/playbooks/<shape>-notes.md
+```
+
+Playbook files are JSON with `steps`, `entity_slots`, `expected_tool_calls`. Notes files are markdown carrying the gotchas verbatim. File-free callers (MCP-only agents) pass the same content inline: `--playbook-json` and `--playbook-notes` on the integrated `teach` form, `--playbook-json` and `--notes` on `teach-playbook`. On the integrated `teach` form, the playbook flags are optional - omit them entirely for a resource-only teach. On the standalone `teach-playbook` form, at least one of the playbook and notes flags must be set; both empty is rejected. Playbooks are keyed on the structural query family (entities stripped) so a recipe taught from one entity-shaped query applies to every other query of the same shape, with `slots_resolved` binding the live query's canonical at recall time.
+
+When you DO find a playbook on a future recall, treat it as ground truth: replay the steps with `slots_resolved` substitutions, skip the discovery that the choreography already documents, and read `notes` before any step.
+
+### Step 6: `playbook amend &` when your debug response identifies a correction
+
+If your debug-protocol response identifies a concrete correction the notes or playbook should know — a workaround, an undocumented endpoint shape, a stale field name, observed schema drift, an empty-payload fallback — fire `playbook amend` BEFORE emitting your user-facing response. Same fire-and-forget posture as `teach`.
+
+```bash
+table-reservation-goat-pp-cli playbook amend \
+  --query "<exact recall query string>" \
+  --add-note "<your concrete correction>"
+# (append shell `&` to background it)
+```
+
+What counts as worth amending: a behavior you OBSERVED this session that future-you would benefit from knowing. Examples worth amending:
+
+- A workaround for a CLI surface that silently drops or misorders a flag.
+- An undocumented endpoint shape (response wrapped in `{meta, results}`, payload nested two levels deeper than the docs claim).
+- Observed schema drift (a field renamed, an index that shifted between seasons, a category label that the API now returns lower-cased).
+
+What does NOT belong in notes:
+
+- The year-specific or entity-specific answer to the user's question. That's the response, not a learning.
+- Per-team / per-athlete / per-row data the playbook already retrieves at runtime.
+- Statements that paraphrase what the existing notes already say.
+
+The amend command appends to the family's existing notes with a timestamped marker (`[amend YYYY-MM-DDTHH:MMZ]: <text>`). Multiple amends accumulate; the audit trail is visible. If no playbook exists yet for the family, amend creates a notes-only one (so cold-start corrections still land).
+
+#### PII discipline for amend notes
+
+`playbook amend` notes are designed to potentially flow upstream as shared knowledge in future versions of the Printing Press. Keep them clean of user-identifying content so the upstream-contribution path stays open without retroactive scrubbing:
+
+- **Do NOT embed** paths to user filesystems, personal API keys or tokens, user email addresses, user GitHub handles, or specific query histories tied to a single user.
+- **Acceptable**: endpoint shapes, undocumented field names, API gotchas, observed schema drift, workarounds for CLI surfaces, generalizable pagination or retry tactics.
+
+If a correction is only meaningful with user-specific context, it belongs in a personal note, not in the playbook amend.
+
+### Measuring the loop
+
+`table-reservation-goat-pp-cli learnings stats` reports recall hit rate, teach-to-reuse, playbook resolution rate, and candidate confirm/reject counts from the local `learn_events` table. Rates are null until they have a denominator; everything stays on this machine. Use it to check whether the loop is earning its keep for this CLI.
+
+### Disabling learning
+
+- `--no-learn` on a single command short-circuits both `recall` and the `teach` write path. Use for deterministic agent flows or tests that must not be affected by accumulated learnings.
+- `TABLE_RESERVATION_GOAT_NO_LEARN=true` in the environment globally disables the pipeline.
 
 ## Agent Feedback
 
@@ -352,7 +345,7 @@ table-reservation-goat-pp-cli feedback --stdin < notes.txt
 table-reservation-goat-pp-cli feedback list --json --limit 10
 ```
 
-Entries are stored locally at `~/.table-reservation-goat-pp-cli/feedback.jsonl`. They are never POSTed unless `TABLE_RESERVATION_GOAT_FEEDBACK_ENDPOINT` is set AND either `--send` is passed or `TABLE_RESERVATION_GOAT_FEEDBACK_AUTO_SEND=true`. Default behavior is local-only.
+Entries are stored locally as `feedback.jsonl` under the resolved data dir. They are never POSTed unless `TABLE_RESERVATION_GOAT_FEEDBACK_ENDPOINT` is set AND either `--send` is passed or `TABLE_RESERVATION_GOAT_FEEDBACK_AUTO_SEND=true`. Default behavior is local-only.
 
 Write what *surprised* you, not a bug report. Short, specific, one line: that is the part that compounds.
 
@@ -370,11 +363,11 @@ Unknown schemes are refused with a structured error naming the supported set. We
 
 ## Named Profiles
 
-A profile is a saved set of flag values, reused across invocations. Use it when a scheduled agent calls the same command every run with the same configuration - HeyGen's "Beacon" pattern.
+A profile is a saved set of flag values, reused across invocations. Use it when a scheduled or recurring agent reuses the same saved flags while providing different input each run.
 
 ```
 table-reservation-goat-pp-cli profile save briefing --json
-table-reservation-goat-pp-cli --profile briefing restaurants list
+table-reservation-goat-pp-cli --profile briefing experiences list
 table-reservation-goat-pp-cli profile list --json
 table-reservation-goat-pp-cli profile show briefing
 table-reservation-goat-pp-cli profile delete briefing --yes
@@ -403,13 +396,15 @@ Parse `$ARGUMENTS`:
 
 ## MCP Server Installation
 
-Install the MCP binary from this CLI's published public-library entry or pre-built release, then register it:
-
-```bash
-claude mcp add table-reservation-goat-pp-mcp -- table-reservation-goat-pp-mcp
-```
-
-Verify: `claude mcp list`
+1. Install the MCP server:
+   ```bash
+   go install github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/cmd/table-reservation-goat-pp-mcp@latest
+   ```
+2. Register with Claude Code:
+   ```bash
+   claude mcp add table-reservation-goat-pp-mcp -- table-reservation-goat-pp-mcp
+   ```
+3. Verify: `claude mcp list`
 
 ## Direct Use
 

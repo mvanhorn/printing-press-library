@@ -1,0 +1,3 @@
+GET https://api.inaturalist.org/v1/taxa/autocomplete?q=bird
+HTTP_STATUS=200
+Response body intentionally omitted: the endpoint's public taxonomy payload contains third-party attribution data and is not needed to prove reachability.

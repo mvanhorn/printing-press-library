@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "api_name": "dreaming",
+  "run_id": "20260617-233018",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 96,
+  "tests_passed": 88,
+  "tests_failed": 0,
+  "tests_skipped": 52,
+  "blocked_fixture": 8,
+  "auth_context": {
+    "type": "bearer_token",
+    "api_key_available": true,
+    "browser_session_available": false
+  },
+  "fixture_gaps": [
+    {"command": "video", "reason": "placeholder ID not a valid 24-hex MongoDB ObjectID; API correctly rejects it"},
+    {"command": "inspect-external-video", "reason": "requires a real YouTube URL; no fixture provided"},
+    {"command": "external import", "reason": "requires a real CSV file; no fixture provided"},
+    {"command": "migrate", "reason": "intentional stub requiring --to-token; documented in README"}
+  ],
+  "bugs_fixed_during_phase5": [
+    "watch_time float64 scan error (stats/roadmap/plan broken)",
+    "recentAverageSeconds divided by active days not window size (avg_min_per_day inflated)"
+  ]
+}

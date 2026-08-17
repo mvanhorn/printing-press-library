@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "finra-generated-text-cleanup",
+  "applied_at": "2026-07-06",
+  "base_run_id": "20260705-224800-9d954693",
+  "base_printing_press_version": "4.27.1",
+  "summary": "Fixed slug-titlecase \"Finra\" to the correct brand capitalization \"FINRA\" in root.go's Short/Long and auth.go's Short text; fixed a mid-sentence truncated Short string in data_get.go.",
+  "reason": "The generator's root/auth boilerplate title-cases the API name from the slug (\"finra\" -> \"Finra\") rather than using narrative.display_name for this specific prefix, which is wrong for any all-caps-acronym API. Separately, a spec-authored endpoint description was truncated by the generator's description-length helper with no closing punctuation.",
+  "files": ["internal/cli/root.go", "internal/cli/auth.go", "internal/cli/data_get.go"],
+  "validated_outcome": "go build/vet clean; --help output reads correctly.",
+  "upstream_issue": null
+}

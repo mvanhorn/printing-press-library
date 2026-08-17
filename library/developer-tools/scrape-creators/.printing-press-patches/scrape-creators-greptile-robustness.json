@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "scrape-creators-greptile-robustness",
+  "applied_at": "2026-06-29",
+  "base_run_id": "20260629-130731-9b35150a",
+  "base_printing_press_version": "4.27.0",
+  "summary": "Address Greptile review: type-safe 404 detection (errors.As + APIError.StatusCode), exclude {\"success\":false} error envelopes from creator-find presence, and remove the non-functional trends-triangulate --days flag.",
+  "reason": "isNotFoundErr matched the literal client error string 'HTTP 404' (brittle to client error-format changes); creator find's len(pr.data)>2 presence heuristic read a 200 error-envelope as 'exists'; trends triangulate's --days flag was parsed and recorded but never passed to the search endpoints, implying time-bounding it does not perform.",
+  "files": ["internal/cli/scrapecreators_novel_helpers.go", "internal/cli/creator_find.go", "internal/cli/trends_triangulate.go", "README.md", "SKILL.md"],
+  "validated_outcome": "go build ./... and go test -race ./internal/... pass; creator find and trends triangulate verified live; --days now rejected as unknown flag."
+}

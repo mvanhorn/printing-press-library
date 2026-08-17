@@ -18,7 +18,15 @@ export interface RegistryEntry {
   description: string;
   search_terms?: string[];
   path: string;
+  release?: ReleaseMetadata;
   mcp?: MCPBlock;
+}
+
+export interface ReleaseMetadata {
+  cli_name: string;
+  version: string;
+  released_at: string;
+  source_commit: string;
 }
 
 export interface Registry {
@@ -152,6 +160,14 @@ function parseRegistryEntry(value: unknown): RegistryEntry {
     description: requiredString(value, "description"),
     search_terms: optionalStringArray(value, "search_terms"),
     path: requiredString(value, "path"),
+    release: isRecord(value.release)
+      ? {
+          cli_name: requiredString(value.release, "cli_name"),
+          version: requiredString(value.release, "version"),
+          released_at: requiredString(value.release, "released_at"),
+          source_commit: requiredString(value.release, "source_commit"),
+        }
+      : undefined,
   };
 
   return isRecord(value.mcp)

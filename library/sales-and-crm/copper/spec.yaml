@@ -1,0 +1,1572 @@
+name: copper
+description: "Copper CRM CLI — full CRUD, search, and a local database for the Copper sales CRM"
+version: "0.1.0"
+base_url: "https://api.copper.com/developer_api/v1"
+health_check_path: "/account"
+required_headers:
+  - name: X-PW-Application
+    value: "developer_api"
+auth:
+  type: api_key
+  header: "X-PW-AccessToken"
+  format: "{token}"
+  env_vars:
+    - COPPER_API_KEY
+  additional_headers:
+    - header: X-PW-UserEmail
+      in: header
+      env_var:
+        name: COPPER_USER_EMAIL
+        kind: per_call
+
+resources:
+  people:
+    description: "Manage people (contacts)"
+    endpoints:
+      search:
+        method: POST
+        path: "/people/search"
+        description: "List/search people"
+        body:
+          - name: page_number
+            type: int
+            default: 1
+            description: "Page number (1-based)"
+          - name: page_size
+            type: int
+            default: 20
+            description: "Results per page (max 200)"
+          - name: sort_by
+            type: string
+            description: "Field to sort by (e.g. name, date_created)"
+          - name: sort_direction
+            type: string
+            description: "Sort direction: asc or desc"
+          - name: name
+            type: string
+            description: "Filter by full name"
+          - name: email
+            type: string
+            description: "Filter by email address"
+          - name: phone_number
+            type: string
+            description: "Filter by phone number"
+          - name: assignee_ids
+            type: string
+            description: "JSON array of assignee (user) ids to filter by"
+          - name: company_ids
+            type: string
+            description: "JSON array of company ids to filter by"
+          - name: tags
+            type: string
+            description: "JSON array of tag strings to filter by"
+        response:
+          type: array
+          item: Person
+        pagination:
+          type: offset
+      get:
+        method: GET
+        path: "/people/{id}"
+        description: "Fetch a person by id"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Person id"
+        response:
+          type: object
+          item: Person
+      fetch-by-email:
+        method: POST
+        path: "/people/fetch_by_email"
+        description: "Fetch a person by email address"
+        body:
+          - name: email
+            type: string
+            required: true
+            description: "Email address to look up"
+        response:
+          type: object
+          item: Person
+      create:
+        method: POST
+        path: "/people"
+        description: "Create a new person"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Full name"
+          - name: emails
+            type: string
+            description: "JSON array of email objects, e.g. [{\"email\":\"a@b.com\",\"category\":\"work\"}]"
+          - name: phone_numbers
+            type: string
+            description: "JSON array of phone number objects"
+          - name: address
+            type: string
+            description: "JSON address object (street, city, state, postal_code, country)"
+          - name: title
+            type: string
+            description: "Job title"
+          - name: company_id
+            type: int
+            description: "Primary company id"
+          - name: assignee_id
+            type: int
+            description: "Owner (user) id"
+          - name: contact_type_id
+            type: int
+            description: "Contact type id"
+          - name: details
+            type: string
+            description: "Free-text details/notes"
+          - name: tags
+            type: string
+            description: "JSON array of tag strings"
+        response:
+          type: object
+          item: Person
+      update:
+        method: PUT
+        path: "/people/{id}"
+        description: "Update a person"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Person id"
+        body:
+          - name: name
+            type: string
+            description: "Full name"
+          - name: emails
+            type: string
+            description: "JSON array of email objects"
+          - name: phone_numbers
+            type: string
+            description: "JSON array of phone number objects"
+          - name: address
+            type: string
+            description: "JSON address object"
+          - name: title
+            type: string
+            description: "Job title"
+          - name: company_id
+            type: int
+            description: "Primary company id"
+          - name: assignee_id
+            type: int
+            description: "Owner (user) id"
+          - name: details
+            type: string
+            description: "Free-text details/notes"
+          - name: tags
+            type: string
+            description: "JSON array of tag strings"
+        response:
+          type: object
+          item: Person
+      delete:
+        method: DELETE
+        path: "/people/{id}"
+        description: "Delete a person"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Person id"
+      activities:
+        method: POST
+        path: "/people/{id}/activities"
+        description: "List a person's activities"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Person id"
+        body:
+          - name: page_number
+            type: int
+            default: 1
+            description: "Page number (1-based)"
+          - name: page_size
+            type: int
+            default: 20
+            description: "Results per page (max 200)"
+        response:
+          type: array
+          item: Activity
+
+  companies:
+    description: "Manage companies"
+    endpoints:
+      search:
+        method: POST
+        path: "/companies/search"
+        description: "List/search companies"
+        body:
+          - name: page_number
+            type: int
+            default: 1
+            description: "Page number (1-based)"
+          - name: page_size
+            type: int
+            default: 20
+            description: "Results per page (max 200)"
+          - name: sort_by
+            type: string
+            description: "Field to sort by"
+          - name: sort_direction
+            type: string
+            description: "Sort direction: asc or desc"
+          - name: name
+            type: string
+            description: "Filter by company name"
+          - name: email_domains
+            type: string
+            description: "JSON array of email domains to filter by"
+          - name: assignee_ids
+            type: string
+            description: "JSON array of assignee (user) ids to filter by"
+          - name: tags
+            type: string
+            description: "JSON array of tag strings to filter by"
+        response:
+          type: array
+          item: Company
+        pagination:
+          type: offset
+      get:
+        method: GET
+        path: "/companies/{id}"
+        description: "Fetch a company by id"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Company id"
+        response:
+          type: object
+          item: Company
+      create:
+        method: POST
+        path: "/companies"
+        description: "Create a new company"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Company name"
+          - name: address
+            type: string
+            description: "JSON address object"
+          - name: email_domain
+            type: string
+            description: "Primary email domain"
+          - name: details
+            type: string
+            description: "Free-text details/notes"
+          - name: phone_numbers
+            type: string
+            description: "JSON array of phone number objects"
+          - name: assignee_id
+            type: int
+            description: "Owner (user) id"
+          - name: contact_type_id
+            type: int
+            description: "Contact type id"
+          - name: tags
+            type: string
+            description: "JSON array of tag strings"
+        response:
+          type: object
+          item: Company
+      update:
+        method: PUT
+        path: "/companies/{id}"
+        description: "Update a company"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Company id"
+        body:
+          - name: name
+            type: string
+            description: "Company name"
+          - name: address
+            type: string
+            description: "JSON address object"
+          - name: email_domain
+            type: string
+            description: "Primary email domain"
+          - name: details
+            type: string
+            description: "Free-text details/notes"
+          - name: phone_numbers
+            type: string
+            description: "JSON array of phone number objects"
+          - name: assignee_id
+            type: int
+            description: "Owner (user) id"
+          - name: tags
+            type: string
+            description: "JSON array of tag strings"
+        response:
+          type: object
+          item: Company
+      delete:
+        method: DELETE
+        path: "/companies/{id}"
+        description: "Delete a company"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Company id"
+      activities:
+        method: POST
+        path: "/companies/{id}/activities"
+        description: "List a company's activities"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Company id"
+        body:
+          - name: page_number
+            type: int
+            default: 1
+            description: "Page number (1-based)"
+          - name: page_size
+            type: int
+            default: 20
+            description: "Results per page (max 200)"
+        response:
+          type: array
+          item: Activity
+
+  leads:
+    description: "Manage leads"
+    endpoints:
+      search:
+        method: POST
+        path: "/leads/search"
+        description: "List/search leads"
+        body:
+          - name: page_number
+            type: int
+            default: 1
+            description: "Page number (1-based)"
+          - name: page_size
+            type: int
+            default: 20
+            description: "Results per page (max 200)"
+          - name: sort_by
+            type: string
+            description: "Field to sort by"
+          - name: sort_direction
+            type: string
+            description: "Sort direction: asc or desc"
+          - name: name
+            type: string
+            description: "Filter by lead name"
+          - name: email
+            type: string
+            description: "Filter by email address"
+          - name: phone_number
+            type: string
+            description: "Filter by phone number"
+          - name: assignee_ids
+            type: string
+            description: "JSON array of assignee (user) ids to filter by"
+          - name: status_ids
+            type: string
+            description: "JSON array of lead status ids to filter by"
+          - name: customer_source_ids
+            type: string
+            description: "JSON array of customer source ids to filter by"
+          - name: tags
+            type: string
+            description: "JSON array of tag strings to filter by"
+        response:
+          type: array
+          item: Lead
+        pagination:
+          type: offset
+      get:
+        method: GET
+        path: "/leads/{id}"
+        description: "Fetch a lead by id"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Lead id"
+        response:
+          type: object
+          item: Lead
+      create:
+        method: POST
+        path: "/leads"
+        description: "Create a new lead"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Lead name"
+          - name: email
+            type: string
+            description: "JSON email object, e.g. {\"email\":\"a@b.com\",\"category\":\"work\"}"
+          - name: phone_numbers
+            type: string
+            description: "JSON array of phone number objects"
+          - name: address
+            type: string
+            description: "JSON address object"
+          - name: title
+            type: string
+            description: "Job title"
+          - name: company_name
+            type: string
+            description: "Company name"
+          - name: customer_source_id
+            type: int
+            description: "Customer source id"
+          - name: assignee_id
+            type: int
+            description: "Owner (user) id"
+          - name: status
+            type: string
+            description: "Lead status"
+          - name: details
+            type: string
+            description: "Free-text details/notes"
+          - name: tags
+            type: string
+            description: "JSON array of tag strings"
+        response:
+          type: object
+          item: Lead
+      update:
+        method: PUT
+        path: "/leads/{id}"
+        description: "Update a lead"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Lead id"
+        body:
+          - name: name
+            type: string
+            description: "Lead name"
+          - name: email
+            type: string
+            description: "JSON email object"
+          - name: phone_numbers
+            type: string
+            description: "JSON array of phone number objects"
+          - name: address
+            type: string
+            description: "JSON address object"
+          - name: title
+            type: string
+            description: "Job title"
+          - name: company_name
+            type: string
+            description: "Company name"
+          - name: customer_source_id
+            type: int
+            description: "Customer source id"
+          - name: assignee_id
+            type: int
+            description: "Owner (user) id"
+          - name: status
+            type: string
+            description: "Lead status"
+          - name: details
+            type: string
+            description: "Free-text details/notes"
+          - name: tags
+            type: string
+            description: "JSON array of tag strings"
+        response:
+          type: object
+          item: Lead
+      delete:
+        method: DELETE
+        path: "/leads/{id}"
+        description: "Delete a lead"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Lead id"
+      upsert:
+        method: PUT
+        path: "/leads/upsert"
+        description: "Create or update a lead, matched by email or a custom field"
+        body:
+          - name: name
+            type: string
+            description: "Lead name"
+          - name: email
+            type: string
+            description: "JSON email object used as the match key"
+          - name: details
+            type: string
+            description: "Free-text details/notes"
+          - name: customer_source_id
+            type: int
+            description: "Customer source id"
+        response:
+          type: object
+          item: Lead
+      convert:
+        method: POST
+        path: "/leads/{id}/convert"
+        description: "Convert a lead into a person/company/opportunity"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Lead id"
+        body:
+          - name: details
+            type: string
+            description: "JSON details object describing the conversion (person, company, opportunity)"
+        response:
+          type: object
+          item: Lead
+      activities:
+        method: POST
+        path: "/leads/{id}/activities"
+        description: "List a lead's activities"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Lead id"
+        body:
+          - name: page_number
+            type: int
+            default: 1
+            description: "Page number (1-based)"
+          - name: page_size
+            type: int
+            default: 20
+            description: "Results per page (max 200)"
+        response:
+          type: array
+          item: Activity
+
+  opportunities:
+    description: "Manage opportunities (deals)"
+    endpoints:
+      search:
+        method: POST
+        path: "/opportunities/search"
+        description: "List/search opportunities"
+        body:
+          - name: page_number
+            type: int
+            default: 1
+            description: "Page number (1-based)"
+          - name: page_size
+            type: int
+            default: 20
+            description: "Results per page (max 200)"
+          - name: sort_by
+            type: string
+            description: "Field to sort by"
+          - name: sort_direction
+            type: string
+            description: "Sort direction: asc or desc"
+          - name: name
+            type: string
+            description: "Filter by opportunity name"
+          - name: assignee_ids
+            type: string
+            description: "JSON array of assignee (user) ids"
+          - name: status_ids
+            type: string
+            description: "JSON array of status ids"
+          - name: pipeline_ids
+            type: string
+            description: "JSON array of pipeline ids"
+          - name: pipeline_stage_ids
+            type: string
+            description: "JSON array of pipeline stage ids"
+          - name: primary_contact_ids
+            type: string
+            description: "JSON array of primary contact (person) ids"
+          - name: customer_source_ids
+            type: string
+            description: "JSON array of customer source ids"
+          - name: loss_reason_ids
+            type: string
+            description: "JSON array of loss reason ids"
+          - name: company_ids
+            type: string
+            description: "JSON array of company ids"
+          - name: tags
+            type: string
+            description: "JSON array of tag strings"
+          - name: followed
+            type: int
+            description: "Filter by followed state (1 = followed, 2 = not followed)"
+          - name: minimum_monetary_value
+            type: float
+            description: "Minimum monetary value"
+          - name: maximum_monetary_value
+            type: float
+            description: "Maximum monetary value"
+          - name: minimum_close_date
+            type: string
+            description: "Minimum close date (YYYY-MM-DD or unix timestamp)"
+          - name: maximum_close_date
+            type: string
+            description: "Maximum close date (YYYY-MM-DD or unix timestamp)"
+          - name: minimum_interaction_date
+            type: int
+            description: "Minimum interaction date (unix timestamp)"
+          - name: maximum_interaction_date
+            type: int
+            description: "Maximum interaction date (unix timestamp)"
+          - name: minimum_modified_date
+            type: int
+            description: "Minimum modified date (unix timestamp)"
+          - name: maximum_modified_date
+            type: int
+            description: "Maximum modified date (unix timestamp)"
+        response:
+          type: array
+          item: Opportunity
+        pagination:
+          type: offset
+      get:
+        method: GET
+        path: "/opportunities/{id}"
+        description: "Fetch an opportunity by id"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Opportunity id"
+        response:
+          type: object
+          item: Opportunity
+      create:
+        method: POST
+        path: "/opportunities"
+        description: "Create a new opportunity"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Opportunity name"
+          - name: pipeline_id
+            type: int
+            description: "Pipeline id"
+          - name: pipeline_stage_id
+            type: int
+            description: "Pipeline stage id"
+          - name: monetary_value
+            type: float
+            description: "Monetary value of the deal"
+          - name: win_probability
+            type: int
+            description: "Win probability (0-100)"
+          - name: close_date
+            type: string
+            description: "Expected close date (MM/DD/YYYY)"
+          - name: primary_contact_id
+            type: int
+            description: "Primary contact (person) id"
+          - name: company_id
+            type: int
+            description: "Associated company id"
+          - name: assignee_id
+            type: int
+            description: "Owner (user) id"
+          - name: customer_source_id
+            type: int
+            description: "Customer source id"
+          - name: details
+            type: string
+            description: "Free-text details/notes"
+          - name: status
+            type: string
+            description: "Status: Open, Won, Lost, or Abandoned"
+        response:
+          type: object
+          item: Opportunity
+      update:
+        method: PUT
+        path: "/opportunities/{id}"
+        description: "Update an opportunity"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Opportunity id"
+        body:
+          - name: name
+            type: string
+            description: "Opportunity name"
+          - name: pipeline_id
+            type: int
+            description: "Pipeline id"
+          - name: pipeline_stage_id
+            type: int
+            description: "Pipeline stage id"
+          - name: monetary_value
+            type: float
+            description: "Monetary value of the deal"
+          - name: win_probability
+            type: int
+            description: "Win probability (0-100)"
+          - name: close_date
+            type: string
+            description: "Expected close date (MM/DD/YYYY)"
+          - name: primary_contact_id
+            type: int
+            description: "Primary contact (person) id"
+          - name: company_id
+            type: int
+            description: "Associated company id"
+          - name: assignee_id
+            type: int
+            description: "Owner (user) id"
+          - name: customer_source_id
+            type: int
+            description: "Customer source id"
+          - name: details
+            type: string
+            description: "Free-text details/notes"
+          - name: status
+            type: string
+            description: "Status: Open, Won, Lost, or Abandoned"
+        response:
+          type: object
+          item: Opportunity
+      delete:
+        method: DELETE
+        path: "/opportunities/{id}"
+        description: "Delete an opportunity"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Opportunity id"
+
+  projects:
+    description: "Manage projects"
+    endpoints:
+      search:
+        method: POST
+        path: "/projects/search"
+        description: "List/search projects"
+        body:
+          - name: page_number
+            type: int
+            default: 1
+            description: "Page number (1-based)"
+          - name: page_size
+            type: int
+            default: 20
+            description: "Results per page (max 200)"
+          - name: sort_by
+            type: string
+            description: "Field to sort by"
+          - name: sort_direction
+            type: string
+            description: "Sort direction: asc or desc"
+          - name: name
+            type: string
+            description: "Filter by project name"
+          - name: assignee_ids
+            type: string
+            description: "JSON array of assignee (user) ids to filter by"
+          - name: status_ids
+            type: string
+            description: "JSON array of status ids to filter by"
+          - name: tags
+            type: string
+            description: "JSON array of tag strings to filter by"
+        response:
+          type: array
+          item: Project
+        pagination:
+          type: offset
+      get:
+        method: GET
+        path: "/projects/{id}"
+        description: "Fetch a project by id"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Project id"
+        response:
+          type: object
+          item: Project
+      create:
+        method: POST
+        path: "/projects"
+        description: "Create a new project"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Project name"
+          - name: assignee_id
+            type: int
+            description: "Owner (user) id"
+          - name: status
+            type: string
+            description: "Status: Open or Completed"
+          - name: details
+            type: string
+            description: "Free-text details/notes"
+          - name: tags
+            type: string
+            description: "JSON array of tag strings"
+        response:
+          type: object
+          item: Project
+      update:
+        method: PUT
+        path: "/projects/{id}"
+        description: "Update a project"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Project id"
+        body:
+          - name: name
+            type: string
+            description: "Project name"
+          - name: assignee_id
+            type: int
+            description: "Owner (user) id"
+          - name: status
+            type: string
+            description: "Status: Open or Completed"
+          - name: details
+            type: string
+            description: "Free-text details/notes"
+          - name: tags
+            type: string
+            description: "JSON array of tag strings"
+        response:
+          type: object
+          item: Project
+      delete:
+        method: DELETE
+        path: "/projects/{id}"
+        description: "Delete a project"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Project id"
+
+  tasks:
+    description: "Manage tasks"
+    endpoints:
+      search:
+        method: POST
+        path: "/tasks/search"
+        description: "List/search tasks"
+        body:
+          - name: page_number
+            type: int
+            default: 1
+            description: "Page number (1-based)"
+          - name: page_size
+            type: int
+            default: 20
+            description: "Results per page (max 200)"
+          - name: sort_by
+            type: string
+            description: "Field to sort by"
+          - name: sort_direction
+            type: string
+            description: "Sort direction: asc or desc"
+          - name: name
+            type: string
+            description: "Filter by task name"
+          - name: assignee_ids
+            type: string
+            description: "JSON array of assignee (user) ids to filter by"
+          - name: status
+            type: string
+            description: "Filter by status: Open or Completed"
+          - name: tags
+            type: string
+            description: "JSON array of tag strings to filter by"
+        response:
+          type: array
+          item: Task
+        pagination:
+          type: offset
+      get:
+        method: GET
+        path: "/tasks/{id}"
+        description: "Fetch a task by id"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Task id"
+        response:
+          type: object
+          item: Task
+      create:
+        method: POST
+        path: "/tasks"
+        description: "Create a new task"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Task name"
+          - name: related_resource
+            type: string
+            description: "JSON object linking the task, e.g. {\"id\":144296,\"type\":\"project\"}"
+          - name: assignee_id
+            type: int
+            description: "Owner (user) id"
+          - name: due_date
+            type: int
+            description: "Due date (unix timestamp)"
+          - name: reminder_date
+            type: int
+            description: "Reminder date (unix timestamp)"
+          - name: priority
+            type: string
+            description: "Priority: None or High"
+          - name: status
+            type: string
+            description: "Status: Open or Completed"
+          - name: details
+            type: string
+            description: "Free-text details/notes"
+          - name: tags
+            type: string
+            description: "JSON array of tag strings"
+        response:
+          type: object
+          item: Task
+      update:
+        method: PUT
+        path: "/tasks/{id}"
+        description: "Update a task"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Task id"
+        body:
+          - name: name
+            type: string
+            description: "Task name"
+          - name: related_resource
+            type: string
+            description: "JSON object linking the task"
+          - name: assignee_id
+            type: int
+            description: "Owner (user) id"
+          - name: due_date
+            type: int
+            description: "Due date (unix timestamp)"
+          - name: reminder_date
+            type: int
+            description: "Reminder date (unix timestamp)"
+          - name: priority
+            type: string
+            description: "Priority: None or High"
+          - name: status
+            type: string
+            description: "Status: Open or Completed"
+          - name: details
+            type: string
+            description: "Free-text details/notes"
+          - name: tags
+            type: string
+            description: "JSON array of tag strings"
+        response:
+          type: object
+          item: Task
+      delete:
+        method: DELETE
+        path: "/tasks/{id}"
+        description: "Delete a task"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Task id"
+
+  activities:
+    description: "Manage activities (notes and logged interactions)"
+    endpoints:
+      search:
+        method: POST
+        path: "/activities/search"
+        description: "List/search activities"
+        body:
+          - name: page_number
+            type: int
+            default: 1
+            description: "Page number (1-based)"
+          - name: page_size
+            type: int
+            default: 20
+            description: "Results per page (max 200)"
+          - name: sort_by
+            type: string
+            description: "Field to sort by"
+          - name: sort_direction
+            type: string
+            description: "Sort direction: asc or desc"
+          - name: parent
+            type: string
+            description: "JSON parent object, e.g. {\"type\":\"person\",\"id\":123}"
+          - name: minimum_activity_date
+            type: int
+            description: "Minimum activity date (unix timestamp)"
+          - name: maximum_activity_date
+            type: int
+            description: "Maximum activity date (unix timestamp)"
+        response:
+          type: array
+          item: Activity
+        pagination:
+          type: offset
+      get:
+        method: GET
+        path: "/activities/{id}"
+        description: "Fetch an activity by id"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Activity id"
+        response:
+          type: object
+          item: Activity
+      create:
+        method: POST
+        path: "/activities"
+        description: "Create a new activity"
+        body:
+          - name: parent
+            type: string
+            required: true
+            description: "JSON parent object, e.g. {\"type\":\"person\",\"id\":27140359}"
+          - name: type
+            type: string
+            required: true
+            description: "JSON type object, e.g. {\"category\":\"user\",\"id\":0}"
+          - name: details
+            type: string
+            description: "Activity description/body"
+          - name: activity_date
+            type: int
+            description: "Activity date (unix timestamp)"
+        response:
+          type: object
+          item: Activity
+      delete:
+        method: DELETE
+        path: "/activities/{id}"
+        description: "Delete an activity"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Activity id"
+
+  account:
+    description: "Account details"
+    endpoints:
+      get:
+        method: GET
+        path: "/account"
+        description: "Fetch account details"
+        response:
+          type: object
+          item: Account
+
+  users:
+    description: "Users in the account"
+    endpoints:
+      search:
+        method: POST
+        path: "/users/search"
+        description: "List/search users"
+        body:
+          - name: page_number
+            type: int
+            default: 1
+            description: "Page number (1-based)"
+          - name: page_size
+            type: int
+            default: 20
+            description: "Results per page (max 200)"
+        response:
+          type: array
+          item: User
+        pagination:
+          type: offset
+      get:
+        method: GET
+        path: "/users/{id}"
+        description: "Fetch a user by id"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "User id"
+        response:
+          type: object
+          item: User
+
+  pipelines:
+    description: "Sales pipelines"
+    endpoints:
+      list:
+        method: GET
+        path: "/pipelines"
+        description: "List all pipelines"
+        response:
+          type: array
+      stages:
+        method: GET
+        path: "/pipeline_stages/pipeline/{pipeline_id}"
+        description: "List stages within a specific pipeline"
+        params:
+          - name: pipeline_id
+            type: int
+            required: true
+            positional: true
+            description: "Pipeline id"
+        response:
+          type: array
+
+  pipeline-stages:
+    description: "Pipeline stages"
+    endpoints:
+      list:
+        method: GET
+        path: "/pipeline_stages"
+        description: "List all pipeline stages"
+        response:
+          type: array
+
+  customer-sources:
+    description: "Customer (lead) sources"
+    endpoints:
+      list:
+        method: GET
+        path: "/customer_sources"
+        description: "List all customer sources"
+        response:
+          type: array
+
+  loss-reasons:
+    description: "Opportunity loss reasons"
+    endpoints:
+      list:
+        method: GET
+        path: "/loss_reasons"
+        description: "List all loss reasons"
+        response:
+          type: array
+
+  contact-types:
+    description: "Contact types"
+    endpoints:
+      list:
+        method: GET
+        path: "/contact_types"
+        description: "List all contact types"
+        response:
+          type: array
+
+  activity-types:
+    description: "Activity types"
+    endpoints:
+      list:
+        method: GET
+        path: "/activity_types"
+        description: "List all activity types"
+        response:
+          type: object
+
+  lead-statuses:
+    description: "Lead statuses"
+    endpoints:
+      list:
+        method: GET
+        path: "/lead_statuses"
+        description: "List all lead statuses"
+        response:
+          type: array
+
+  tags:
+    description: "Tags used across records"
+    endpoints:
+      list:
+        method: GET
+        path: "/tags"
+        description: "List all tags"
+        params:
+          - name: tag_names_only
+            type: bool
+            description: "Return only tag name strings"
+        response:
+          type: array
+
+  custom-field-definitions:
+    description: "Custom field definitions"
+    endpoints:
+      list:
+        method: GET
+        path: "/custom_field_definitions"
+        description: "List all custom field definitions"
+        response:
+          type: array
+      get:
+        method: GET
+        path: "/custom_field_definitions/{id}"
+        description: "Fetch a custom field definition by id"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Custom field definition id"
+        response:
+          type: object
+      create:
+        method: POST
+        path: "/custom_field_definitions"
+        description: "Create a new custom field definition"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Field name"
+          - name: data_type
+            type: string
+            required: true
+            description: "Data type (String, Text, Dropdown, Date, etc.)"
+          - name: available_on
+            type: string
+            description: "JSON array of entity types this field applies to"
+          - name: options
+            type: string
+            description: "JSON array of option objects for Dropdown/MultiSelect fields"
+        response:
+          type: object
+      update:
+        method: PUT
+        path: "/custom_field_definitions/{id}"
+        description: "Update a custom field definition"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Custom field definition id"
+        body:
+          - name: name
+            type: string
+            description: "Field name"
+          - name: options
+            type: string
+            description: "JSON array of option objects"
+        response:
+          type: object
+      delete:
+        method: DELETE
+        path: "/custom_field_definitions/{id}"
+        description: "Delete a custom field definition"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Custom field definition id"
+
+  custom-activity-types:
+    description: "Custom activity types"
+    endpoints:
+      list:
+        method: GET
+        path: "/custom_activity_types"
+        description: "List all custom activity types"
+        response:
+          type: array
+      get:
+        method: GET
+        path: "/custom_activity_types/{id}"
+        description: "Fetch a custom activity type by id"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Custom activity type id"
+        response:
+          type: object
+      create:
+        method: POST
+        path: "/custom_activity_types"
+        description: "Create a new custom activity type"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Activity type name"
+          - name: icon_type
+            type: string
+            description: "Icon type (e.g. Phone)"
+        response:
+          type: object
+      update:
+        method: PUT
+        path: "/custom_activity_types/{id}"
+        description: "Update a custom activity type"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Custom activity type id"
+        body:
+          - name: name
+            type: string
+            description: "Activity type name"
+          - name: icon_type
+            type: string
+            description: "Icon type (e.g. Phone)"
+        response:
+          type: object
+
+  webhooks:
+    description: "Webhook subscriptions"
+    endpoints:
+      list:
+        method: GET
+        path: "/webhooks"
+        description: "List all webhook subscriptions"
+        response:
+          type: array
+      get:
+        method: GET
+        path: "/webhooks/{id}"
+        description: "Fetch a webhook subscription by id"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Webhook id"
+        response:
+          type: object
+      create:
+        method: POST
+        path: "/webhooks"
+        description: "Create a new webhook subscription"
+        body:
+          - name: target
+            type: string
+            required: true
+            description: "Target URL to receive notifications"
+          - name: type
+            type: string
+            required: true
+            description: "Entity type to subscribe to (lead, person, company, opportunity, project, task)"
+          - name: event
+            type: string
+            description: "JSON array of events (new, update, delete) or a single event string"
+          - name: secret
+            type: string
+            description: "JSON secret object for signed payloads"
+        response:
+          type: object
+      delete:
+        method: DELETE
+        path: "/webhooks/{id}"
+        description: "Delete (unsubscribe) a webhook subscription"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Webhook id"
+
+types:
+  Person:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: email
+        type: string
+      - name: title
+        type: string
+      - name: company_name
+        type: string
+      - name: assignee_id
+        type: int
+      - name: date_created
+        type: int
+
+  Company:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: email_domain
+        type: string
+      - name: assignee_id
+        type: int
+      - name: details
+        type: string
+      - name: date_created
+        type: int
+
+  Lead:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: email
+        type: string
+      - name: company_name
+        type: string
+      - name: status
+        type: string
+      - name: customer_source_id
+        type: int
+      - name: monetary_value
+        type: float
+      - name: assignee_id
+        type: int
+
+  Opportunity:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: pipeline_id
+        type: int
+      - name: pipeline_stage_id
+        type: int
+      - name: monetary_value
+        type: float
+      - name: win_probability
+        type: int
+      - name: status
+        type: string
+      - name: close_date
+        type: string
+      - name: primary_contact_id
+        type: int
+      - name: company_id
+        type: int
+
+  Project:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: status
+        type: string
+      - name: assignee_id
+        type: int
+      - name: details
+        type: string
+
+  Task:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: status
+        type: string
+      - name: priority
+        type: string
+      - name: due_date
+        type: int
+      - name: assignee_id
+        type: int
+      - name: details
+        type: string
+
+  Activity:
+    fields:
+      - name: id
+        type: int
+      - name: details
+        type: string
+      - name: activity_date
+        type: int
+      - name: user_id
+        type: int
+
+  User:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: email
+        type: string
+
+  Account:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string

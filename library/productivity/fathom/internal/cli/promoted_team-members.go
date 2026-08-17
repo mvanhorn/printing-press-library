@@ -35,7 +35,7 @@ func newTeamMembersPromotedCmd(flags *rootFlags) *cobra.Command {
 			if flagCursor != "" {
 				params["cursor"] = fmt.Sprintf("%v", flagCursor)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "team-members", false, path, params, nil)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "team-members", true, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

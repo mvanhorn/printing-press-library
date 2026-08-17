@@ -223,3 +223,65 @@ func writeShelloutHelper(t *testing.T, mode string) string {
 	}
 	return path
 }
+
+// Gli avvisi devono entrare nel payload senza mai romperlo: un client MCP
+// parsa quel testo come JSON, e una riga di hint accodata lo renderebbe
+// illeggibile. Il vincolo vale anche quando non c'è nulla da fare — meglio
+// nessun avviso che un payload manomesso.
+func TestMergeDiagnostics(t *testing.T) {
+	const hint = "hint: risultati troncati: mostrati 10\n"
+	cases := []struct {
+		nome, stdout, stderr string
+		want                 string
+	}{
+		{
+			nome:   "oggetto: l'avviso entra come campo",
+			stdout: `{"titolo":"x"}`, stderr: hint,
+			want: `{"avvisi":["hint: risultati troncati: mostrati 10"],"titolo":"x"}`,
+		},
+		{
+			nome:   "array: si avvolge, come fa --envelope",
+			stdout: `[{"n":1}]`, stderr: hint,
+			want: `{"avvisi":["hint: risultati troncati: mostrati 10"],"risultati":[{"n":1}]}`,
+		},
+		{
+			nome:   "stderr senza avvisi: payload intatto",
+			stdout: `{"titolo":"x"}`, stderr: "classifica oratori: 12/90\n",
+			want: `{"titolo":"x"}`,
+		},
+		{
+			nome:   "stdout non JSON: non si tocca",
+			stdout: "testo libero", stderr: hint,
+			want: "testo libero",
+		},
+		{
+			nome:   "campo gia' occupato: non si sovrascrive",
+			stdout: `{"avvisi":["mio"]}`, stderr: hint,
+			want: `{"avvisi":["mio"]}`,
+		},
+		{
+			nome:   "progress con \\r: si tiene solo l'ultimo segmento, che non e' un avviso",
+			stdout: `{"a":1}`, stderr: "classifica: 1/90\rclassifica: 90/90\n",
+			want: `{"a":1}`,
+		},
+	}
+	for _, c := range cases {
+		got := MergeDiagnostics(c.stdout, c.stderr)
+		if got != c.want {
+			t.Errorf("%s:\n got %s\nwant %s", c.nome, got, c.want)
+		}
+	}
+}
+
+// Il prefisso è la discriminante fra diagnostica e rumore: senza, le barre di
+// avanzamento finirebbero nel payload come se fossero avvisi.
+func TestAvvisiDaStderr(t *testing.T) {
+	in := "classifica oratori: 12/90\nhint: primo\nwarning: secondo\nrumore qualsiasi\n"
+	got := avvisiDaStderr(in)
+	if len(got) != 2 || got[0] != "hint: primo" || got[1] != "warning: secondo" {
+		t.Errorf("avvisiDaStderr = %q, want i soli hint:/warning:", got)
+	}
+	if got := avvisiDaStderr(""); len(got) != 0 {
+		t.Errorf("stderr vuoto: got %q, want nessun avviso", got)
+	}
+}

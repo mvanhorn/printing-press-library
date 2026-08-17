@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "ticketdata",
+  "run_id": "20260706-072414",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 101,
+  "tests_passed": 101,
+  "tests_skipped": 64,
+  "auth_context": {
+    "type": "none"
+  }
+}

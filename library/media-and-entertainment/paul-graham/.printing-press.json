@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-21T20:27:01.145813Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "paul-graham",
+  "display_name": "Paul Graham Essays",
+  "cli_name": "paul-graham-pp-cli",
+  "creator": {
+    "handle": "debgotwired",
+    "name": "Deb Mukherjee"
+  },
+  "owner": "debgotwired",
+  "printer": "debgotwired",
+  "printer_name": "Deb Mukherjee",
+  "spec_url": "https://www.paulgraham.com/articles.html",
+  "spec_path": "spec.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:271f8bc72025216a99eaa8cd46b91d5c3de45097598b4674231093781a10fbc0",
+  "run_id": "20260621-202701",
+  "category": "media-and-entertainment",
+  "description": "Static public essay index for paulgraham.com.",
+  "mcp_binary": "paul-graham-pp-mcp",
+  "mcp_tool_count": 1,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Latest Essays",
+      "command": "latest",
+      "description": "Lists the newest essays from the canonical paulgraham.com/articles.html index without requiring an official API or feed."
+    },
+    {
+      "name": "Essay Search",
+      "command": "search",
+      "description": "Searches essay titles and slugs, with an optional full-text mode that fetches and scans linked essay pages."
+    },
+    {
+      "name": "Read Essay",
+      "command": "read",
+      "description": "Fetches a specific essay by slug, URL, title, or title substring and returns extracted readable text with word count and excerpt metadata."
+    },
+    {
+      "name": "Essay Link Extractor",
+      "command": "links",
+      "description": "Extracts links from an essay page so agents can inspect citations, footnotes, and outbound references."
+    },
+    {
+      "name": "Random Essay",
+      "command": "random",
+      "description": "Picks a random essay from the live index, with deterministic seeding for reproducible agent workflows."
+    }
+  ]
+}

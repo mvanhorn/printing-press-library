@@ -1,0 +1,37 @@
+{
+  "api_name": "nejm",
+  "base_url": "https://www.nejm.org",
+  "description": "New England Journal of Medicine CLI — browse, search, and triage NEJM articles from a local corpus",
+  "mcp_ready": "full",
+  "http_transport": "browser-chrome",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "article_get",
+      "description": "Fetch an NEJM article's metadata and abstract by DOI (e.g. 10.1056/NEJMoa2506905). Required: doi. Returns the Article.",
+      "method": "GET",
+      "path": "/doi/full/{doi}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "doi",
+          "type": "string",
+          "location": "path",
+          "description": "Article DOI, e.g. 10.1056/NEJMoa2506905",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "specialty_list",
+      "description": "List NEJM specialty sections. Returns array of Specialty.",
+      "method": "GET",
+      "path": "/browse/specialty",
+      "no_auth": true,
+      "params": []
+    }
+  ]
+}

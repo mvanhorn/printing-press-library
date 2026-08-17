@@ -1,0 +1,13 @@
+version: 2
+
+builds:
+  - id: us-data-pp-cli
+    main: ./cmd/us-data-pp-cli
+    binary: us-data-pp-cli
+    goos:
+      - darwin
+      - linux
+      - windows
+    goarch:
+      - amd64
+      - arm64

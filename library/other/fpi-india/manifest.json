@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "fpi-india-pp-mcp",
+  "display_name": "FPI India",
+  "version": "0.1.0",
+  "description": "The full history of Foreign Portfolio Investor flows into India, synced locally and queryable offline — something neither NSDL nor CDSL offers today.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/fpi-india-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/fpi-india-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

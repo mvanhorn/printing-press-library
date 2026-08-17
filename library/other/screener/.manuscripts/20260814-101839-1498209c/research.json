@@ -1,0 +1,217 @@
+{
+  "api_name": "screener",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "screenercli",
+      "url": "https://github.com/mayur1064/screenercli",
+      "language": "Python",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 11,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "screener-ai-tool",
+      "url": "https://pypi.org/project/screener-ai-tool/",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-08-14T10:50:00Z",
+  "novel_features": [
+    {
+      "name": "Company compare",
+      "command": "compare",
+      "description": "See two to four companies' fundamentals side by side (valuation, margins, growth, insider activity) without tab-switching.",
+      "rationale": "No single Screener.in endpoint returns a cross-company comparison; the side-by-side view requires joining the local financials and trades mirror.",
+      "example": "screener-pp-cli compare TCS HDFCBANK --agent",
+      "why_it_matters": "Pick this when an agent needs to decide between candidate stocks on comparable fundamentals instead of fetching pages one at a time.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Quarterly trend",
+      "command": "qtrend",
+      "description": "Spot whether a company's quarterly profit/sales growth is accelerating or deteriorating, with YOY change and margin drift computed automatically.",
+      "rationale": "Screener.in renders a wide raw HTML table; the YOY-change and consecutive-decline flags require local computation over the synced quarterly table.",
+      "example": "screener-pp-cli qtrend INFY --quarters 8 --agent",
+      "why_it_matters": "Pick this when an agent needs the trend shape of a company's earnings, not just the latest quarter's raw numbers.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Screen overlap",
+      "command": "overlap",
+      "description": "Find companies that appear in two or more stock screens in one command, replacing spreadsheet dedup.",
+      "rationale": "Screens are separate paginated HTML tables; intersecting them by symbol is a cross-screen join no single page provides.",
+      "example": "screener-pp-cli overlap 1 the-bull-cartel 59 magic-formula --agent",
+      "why_it_matters": "Pick this when an agent needs the intersection of multiple screening strategies to find high-conviction candidates.",
+      "group": "Cross-entity local queries"
+    },
+    {
+      "name": "Screen rank",
+      "command": "rank",
+      "description": "Re-score a screen's companies with a composite of fundamentals (P/E, ROCE, growth), sorted by what matters to you.",
+      "rationale": "Joining screen membership with cached fundamentals produces a composite rank no endpoint provides.",
+      "example": "screener-pp-cli rank 1 the-bull-cartel --by roce --agent",
+      "why_it_matters": "Pick this when an agent should prioritize within a screen by fundamentals or insider conviction rather than the default table order.",
+      "group": "Cross-entity local queries"
+    },
+    {
+      "name": "Insider flow",
+      "command": "insider-flow",
+      "description": "Answer 'who is net buying the most this month?' with per-company insider buy/sell aggregation.",
+      "rationale": "The insider-trades endpoint returns chronological rows; net per-company flows require local aggregation over the synced trades table.",
+      "example": "screener-pp-cli insider-flow --since 30d --top 10 --agent",
+      "why_it_matters": "Pick this when an agent needs insider conviction ranked by net value, not a raw list of individual trades.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Company compare",
+      "command": "compare",
+      "description": "See two to four companies' fundamentals side by side (valuation, margins, growth, insider activity) without tab-switching.",
+      "rationale": "No single Screener.in endpoint returns a cross-company comparison; the side-by-side view requires joining the local financials and trades mirror.",
+      "example": "screener-pp-cli compare TCS HDFCBANK --agent",
+      "why_it_matters": "Pick this when an agent needs to decide between candidate stocks on comparable fundamentals instead of fetching pages one at a time.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Quarterly trend",
+      "command": "qtrend",
+      "description": "Spot whether a company's quarterly profit/sales growth is accelerating or deteriorating, with YOY change and margin drift computed automatically.",
+      "rationale": "Screener.in renders a wide raw HTML table; the YOY-change and consecutive-decline flags require local computation over the synced quarterly table.",
+      "example": "screener-pp-cli qtrend INFY --quarters 8 --agent",
+      "why_it_matters": "Pick this when an agent needs the trend shape of a company's earnings, not just the latest quarter's raw numbers.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Screen overlap",
+      "command": "overlap",
+      "description": "Find companies that appear in two or more stock screens in one command, replacing spreadsheet dedup.",
+      "rationale": "Screens are separate paginated HTML tables; intersecting them by symbol is a cross-screen join no single page provides.",
+      "example": "screener-pp-cli overlap 1 the-bull-cartel 59 magic-formula --agent",
+      "why_it_matters": "Pick this when an agent needs the intersection of multiple screening strategies to find high-conviction candidates.",
+      "group": "Cross-entity local queries"
+    },
+    {
+      "name": "Screen rank",
+      "command": "rank",
+      "description": "Re-score a screen's companies with a composite of fundamentals (P/E, ROCE, growth), sorted by what matters to you.",
+      "rationale": "Joining screen membership with cached fundamentals produces a composite rank no endpoint provides.",
+      "example": "screener-pp-cli rank 1 the-bull-cartel --by roce --agent",
+      "why_it_matters": "Pick this when an agent should prioritize within a screen by fundamentals or insider conviction rather than the default table order.",
+      "group": "Cross-entity local queries"
+    },
+    {
+      "name": "Insider flow",
+      "command": "insider-flow",
+      "description": "Answer 'who is net buying the most this month?' with per-company insider buy/sell aggregation.",
+      "rationale": "The insider-trades endpoint returns chronological rows; net per-company flows require local aggregation over the synced trades table.",
+      "example": "screener-pp-cli insider-flow --since 30d --top 10 --agent",
+      "why_it_matters": "Pick this when an agent needs insider conviction ranked by net value, not a raw list of individual trades.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "SCREENER_SESSION_COOKIE"
+  },
+  "narrative": {
+    "display_name": "Screener.in",
+    "headline": "Every Screener.in feature, plus offline search, screen intersections, and a local fundamentals mirror no other tool has.",
+    "value_prop": "Search any Indian company and pull its full fundamental profile — key metrics, machine-generated pros/cons, quarterly results, P\u0026L, balance sheet, cash flow, ratios, shareholding, peers, and price charts — from the terminal. Sync company pages, screens, and insider trades into a local SQLite mirror, then run cross-company comparisons, quarterly trend flags, screen overlaps, and insider-flow rankings that no single page or API call provides.",
+    "auth_narrative": "Screener.in's public pages (company profiles, screens, sectors, IPO) need no login. Market-pulse pages — latest quarterly results, insider trades, filings — require a free Screener.in account. Run 'screener-pp-cli auth login --chrome' to import your logged-in Chrome session cookie once; the CLI replays it for gated pages.",
+    "quickstart": [
+      {
+        "command": "screener-pp-cli doctor",
+        "comment": "Verify connectivity to screener.in"
+      },
+      {
+        "command": "screener-pp-cli company search --q 'Tata Steel' --json",
+        "comment": "Find the company ID and symbol"
+      },
+      {
+        "command": "screener-pp-cli company profile INFY --json",
+        "comment": "Pull the full fundamental profile"
+      },
+      {
+        "command": "screener-pp-cli screens run 1 the-bull-cartel --json",
+        "comment": "Run the Bull Cartel screen"
+      },
+      {
+        "command": "screener-pp-cli qtrend INFY --quarters 8 --agent",
+        "comment": "Spot earnings acceleration or deterioration"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "results/trades commands redirect to a register page",
+        "fix": "You are not logged in. Run the 'auth login' command with the Chrome option with your Screener.in session, or 'screener-pp-cli auth status' to check."
+      },
+      {
+        "symptom": "HTTP 429 rate limited",
+        "fix": "Screener.in throttles bulk access. Wait a few minutes and retry, or use 'sync --since' to cache data locally and query offline."
+      },
+      {
+        "symptom": "HTML table parse produces empty rows",
+        "fix": "Screener.in occasionally changes table markup. Re-sync with 'screener-pp-cli sync --full' and report the page URL if parsing still fails."
+      },
+      {
+        "symptom": "Commands fail with unexpected errors or empty output",
+        "fix": "Run 'screener-pp-cli doctor' to verify connectivity and auth, then retry. For auth-gated pages, run the 'auth login' command with the Chrome option to re-import your session."
+      }
+    ],
+    "when_to_use": "Use this CLI for Indian equity fundamental research: checking a company's full profile, screening the market by a strategy, comparing candidates, monitoring quarterly earnings trends, tracking insider activity, and building a local fundamentals mirror for offline or agent-driven analysis.",
+    "anti_triggers": [
+      "Do not use for intraday price action or live quotes — Screener.in data updates at market close, not real time",
+      "Do not use for option chain or derivatives data — Screener.in covers equities only",
+      "Do not use for US or non-Indian markets — Screener.in covers NSE/BSE listed companies"
+    ],
+    "recipes": [
+      {
+        "title": "Full company research brief",
+        "command": "screener-pp-cli company profile RELIANCE --agent --select top_ratios,analysis,quarterly_results",
+        "explanation": "One command returns the key metrics, pros/cons, and quarterly results as agent-ready JSON"
+      },
+      {
+        "title": "High-conviction screen intersection",
+        "command": "screener-pp-cli overlap 1 the-bull-cartel 59 magic-formula --agent",
+        "explanation": "Companies passing both a value formula and a growth screen"
+      },
+      {
+        "title": "Insider conviction ranking",
+        "command": "screener-pp-cli insider-flow --since 30d --top 10 --agent",
+        "explanation": "Who's net buying the most this month, ranked by value"
+      },
+      {
+        "title": "Earnings momentum check",
+        "command": "screener-pp-cli qtrend INFY --quarters 8 --agent",
+        "explanation": "Is profit growth accelerating or deteriorating over 8 quarters?"
+      },
+      {
+        "title": "Candidate shortlist comparison",
+        "command": "screener-pp-cli compare TCS WIPRO HCLTECH --agent --select name,pe,roce,profit_growth",
+        "explanation": "Side-by-side fundamentals for a shortlist, narrowed with --select"
+      }
+    ],
+    "trigger_phrases": [
+      "check fundamentals for INFY",
+      "run the bull cartel screen",
+      "who's buying insider stock this month",
+      "compare TCS and Wipro",
+      "latest quarterly results",
+      "screener data",
+      "use screener.in"
+    ]
+  }
+}

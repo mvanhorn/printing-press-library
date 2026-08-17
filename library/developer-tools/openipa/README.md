@@ -20,11 +20,11 @@ openipa risolve tre problemi concreti:
 
 ```bash
 # 1. Trova il codice IPA dell'ente
-openipa-pp-cli enti cerca 'comune di Roma' --json | jq '.[0].cod_amm'
+openipa-pp-cli enti cerca --nome 'comune di Roma' --json | jq '.[0].cod_amm'
 # → "c_h501"
 
 # 2. Verifica che l'ente sia abilitato SFE e ottieni il cod_uni_ou
-openipa-pp-cli fatturazione cf 02438750586 --json | jq '.[0].OU[0].cod_uni_ou'
+openipa-pp-cli fatturazione cf --cf 02438750586 --json | jq '.[0].OU[0].cod_uni_ou'
 # → "ONVE0B"
 
 # 3. Verifica compliance completa (SFE + NSO + domicilio)
@@ -90,7 +90,7 @@ npx -y @mvanhorn/printing-press-library install openipa --agent claude-code --ag
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.6 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/developer-tools/openipa/cmd/openipa-pp-cli@latest
@@ -182,19 +182,19 @@ Richiede un AUTH_ID gratuito da registrare su indicepa.gov.it (rilasciato immedi
 
 ```bash
 # Trova il codice IPA di un ente per nome
-openipa-pp-cli enti cerca 'comune di Roma'
+openipa-pp-cli enti cerca --nome 'comune di Roma'
 
 # Dati anagrafici completi di un ente per codice IPA
-openipa-pp-cli enti get c_h501 --json
+openipa-pp-cli enti get --codice c_h501 --json
 
 # Codice destinatario SDI (cod_uni_ou) per fatturazione elettronica
-openipa-pp-cli fatturazione cf 80012000826 --json
+openipa-pp-cli fatturazione cf --cf 80012000826 --json
 
 # Tutti i canali PA (FE + NSO + domicilio digitale) in un colpo solo
 openipa-pp-cli cf 97735020584 --json
 
-# Sync offline e lista enti per regione
-openipa-pp-cli sync && openipa-pp-cli enti list --regione Lazio --json
+# Statistiche enti per regione
+openipa-pp-cli stats --regione Lazio --json
 
 ```
 
@@ -208,7 +208,7 @@ These capabilities aren't available in any other tool for this API.
   _Un agente che verifica la compliance PA deve sapere se un ente è pronto a ricevere fatture, ordini e notifiche digitali in un unico check._
 
   ```bash
-  openipa-pp-cli doctor 97735020584 --json
+  openipa-pp-cli cf 97735020584 --json
   ```
 - **`fatturazione batch`** — Legge CF da stdin, chiama WS01_SFE_CF in parallelo, restituisce NDJSON con CF + cod_uni_ou + stato_canale per pipeline di fatturazione.
 
@@ -270,8 +270,7 @@ Exit code `0` = match trovato, `2` = nessun match → fallback a `--help`. Quest
 
 ```bash
 # pattern tipico per un agente orchestratore
-CMD=$(openipa-pp-cli which "verifica PEC attiva" --json | jq -r '.matches[0].entry.command')
-openipa-pp-cli $CMD --agent ...
+openipa-pp-cli which "verifica PEC attiva" --json | jq -r '.matches[0].entry.command'
 ```
 
 L'indice copre 11 capability chiave. Per vedere l'elenco completo:
@@ -457,7 +456,7 @@ Environment variables:
 - **Errore 902: Parametro AUTH_ID errato** — export IPA_auth_id=<tuo_auth_id> oppure registra un nuovo AUTH_ID su indicepa.gov.it
 - **Errore 900: Parametro AUTH_ID mancante** — Imposta la variabile d'ambiente IPA_auth_id o aggiungi auth_id al file ~/.config/openipa/config.toml
 - **`aoo cerca` richiede cod_uni_aoo, non cod_aoo** — Il codice da passare è l'identificatore univoco IPA a 7 caratteri (es. `A463BFE`), non il cod_aoo testuale dell'ente (es. `agid_aoo`). Per trovarlo: `openipa-pp-cli aoo storico <cod_amm> --json | jq '.[].cod_uni_aoo'`
-- **Nessun risultato da 'enti cerca'** — Usa parole parziali (es. 'Roma' non 'Comune di Roma'); esegui 'openipa sync' per abilitare ricerca FTS offline
+- **Nessun risultato da 'enti cerca'** — Usa parole parziali (es. 'Roma' non 'Comune di Roma') e verifica i filtri con `openipa-pp-cli enti cerca --help`
 
 ---
 

@@ -1,0 +1,3664 @@
+{
+  "cli_dir": "/Users/francis.battikha/printing-press/library/intercom",
+  "fresh_dir": "/Users/francis.battikha/printing-press/.runstate/clis-0c63cf52/runs/20260723-000115-4f7ce34f/working/intercom-pp-cli",
+  "applied": false,
+  "files": [
+    {
+      "path": "cmd/intercom-pp-cli/main.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "cmd/intercom-pp-mcp/main.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "main": {
+            "published": "func main() {\n\ts := server.NewMCPServer(\n\t\t\"Intercom\",\n\t\t\"1.0.0\",\n\t\tserver.WithToolCapabilities(false),\n\t)\n\tmcptools.Reg...",
+            "fresh": "func main() {\n\t_ = os.Setenv(\"INTERCOM_LEARN_SURFACE\", \"mcp\")\n\ts := server.NewMCPServer(\n\t\t\"Intercom\",\n\t\tversion,\n\t\tserv..."
+          }
+        }
+      }
+    },
+    {
+      "path": "go.mod",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "go.sum",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cache/cache.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "(*Store).Get": {
+            "published": "func (s *Store) Get(key string) (json.RawMessage, bool) {\n\tpath := s.path(key)\n\tinfo, err := os.Stat(path)\n\tif err != ni...",
+            "fresh": "func (s *Store) Get(key string) (json.RawMessage, bool) {\n\tpath := s.path(key)\n\tinfo, err := os.Stat(path)\n\tif err != ni..."
+          },
+          "(*Store).Set": {
+            "published": "func (s *Store) Set(key string, value json.RawMessage) {\n\t_ = os.MkdirAll(s.Dir, 0o755)\n\t_ = os.WriteFile(s.path(key), [...",
+            "fresh": "func (s *Store) Set(key string, value json.RawMessage) {\n\t_ = os.MkdirAll(s.Dir, 0o700)\n\t_ = os.WriteFile(s.path(key), [..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/admins.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdminsCmd": {
+            "published": "func newAdminsCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:    \"admins\",\n\t\tShort:  \"Everything a...",
+            "fresh": "func newAdminsCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"admins\",\n\t\tShort:       \"Ev..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/admins_away.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAdminsAwayCmd": {
+            "published": "func newAdminsAwayCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:   \"away\",\n\t\tShort: \"Update away ...",
+            "fresh": "func newAdminsAwayCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"away\",\n\t\tShort:       \"..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/admins_away_set-admin.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newAdminsAwaySetAdminCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/admins_list-activity-logs.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newAdminsListActivityLogsCmd": [
+            "Sprintf",
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/admins_list.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newAdminsListCmd": [
+            "Sprintf",
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/admins_retrieve.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newAdminsRetrieveCmd": [
+            "Help",
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/agent_context.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "buildAgentContext": {
+            "published": "func buildAgentContext(rootCmd *cobra.Command) agentContext {\n\tenvVars := []agentContextAuthEnvVar{\n\t\t{\n\t\t\tName:        ...",
+            "fresh": "func buildAgentContext(rootCmd *cobra.Command) agentContext {\n\tenvVars := []agentContextAuthEnvVar{\n\t\t{\n\t\t\tName:        ..."
+          },
+          "const:agentContextSchemaVersion": {
+            "published": "const agentContextSchemaVersion = \"3\"",
+            "fresh": "const agentContextSchemaVersion = \"4\""
+          },
+          "type:agentContext": {
+            "published": "type agentContext struct {\n\tSchemaVersion              string                 `json:\"schema_version\"`\n\tCLI              ...",
+            "fresh": "type agentContext struct {\n\tSchemaVersion              string                 `json:\"schema_version\"`\n\tCLI              ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ai.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAiCmd": {
+            "published": "func newAiCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:    \"ai\",\n\t\tShort:  \"List, get, create, u...",
+            "fresh": "func newAiCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"ai\",\n\t\tShort:       \"List, get,..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ai_create-content-import-source.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAiCreateContentImportSourceCmd": {
+            "published": "func newAiCreateContentImportSourceCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyStatus string\n\tvar bodySyncBehavior s...",
+            "fresh": "func newAiCreateContentImportSourceCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyStatus string\n\tvar bodySyncBehavior s..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ai_create-external-page.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newAiCreateExternalPageCmd": [
+            "IntVar"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ai_delete-content-import-source.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newAiDeleteContentImportSourceCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ai_delete-external-page.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newAiDeleteExternalPageCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ai_get-content-import-source.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newAiGetContentImportSourceCmd": [
+            "Help",
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ai_get-external-page.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newAiGetExternalPageCmd": [
+            "Help",
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ai_list-content-import-sources.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newAiListContentImportSourcesCmd": [
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ai_list-external-pages.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newAiListExternalPagesCmd": [
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ai_update-content-import-source.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAiUpdateContentImportSourceCmd": {
+            "published": "func newAiUpdateContentImportSourceCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyStatus string\n\tvar bodySyncBehavior s...",
+            "fresh": "func newAiUpdateContentImportSourceCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyStatus string\n\tvar bodySyncBehavior s..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ai_update-external-page.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newAiUpdateExternalPageCmd": [
+            "IntVar"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/analytics.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newAnalyticsCmd": [
+            "Encode",
+            "NewEncoder",
+            "Printf",
+            "Println",
+            "SetIndent"
+          ],
+          "runGroupBy": [
+            "Encode",
+            "NewEncoder",
+            "Printf",
+            "Println",
+            "SetIndent"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/api_discovery.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/articles.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newArticlesCmd": {
+            "published": "func newArticlesCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:    \"articles\",\n\t\tShort:  \"Everythi...",
+            "fresh": "func newArticlesCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"articles\",\n\t\tShort:      ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/articles_create.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newArticlesCreateCmd": {
+            "published": "func newArticlesCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAuthorId int\n\tvar bodyBody string\n\tvar bodyDescrip...",
+            "fresh": "func newArticlesCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAuthorId string\n\tvar bodyBody string\n\tvar bodyDesc..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/articles_delete.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newArticlesDeleteCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/articles_list.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newArticlesListCmd": [
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/articles_pull.go",
+      "verdict": "TEMPLATED-WITH-ADDITIONS",
+      "applied": false,
+      "decl_set_delta": {
+        "in_published_not_fresh": [
+          "newArticlesPullCmd"
+        ],
+        "in_fresh_not_published": [
+          "isPathSafeComponent",
+          "newNovelArticlesPullCmd"
+        ]
+      }
+    },
+    {
+      "path": "internal/cli/articles_pull_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/articles_push.go",
+      "verdict": "TEMPLATED-WITH-ADDITIONS",
+      "applied": false,
+      "decl_set_delta": {
+        "in_published_not_fresh": [
+          "newArticlesPushCmd"
+        ],
+        "in_fresh_not_published": [
+          "newNovelArticlesPushCmd"
+        ]
+      }
+    },
+    {
+      "path": "internal/cli/articles_retrieve.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newArticlesRetrieveCmd": [
+            "Help",
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/articles_search.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newArticlesSearchCmd": [
+            "Sprintf",
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/articles_update.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newArticlesUpdateCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/auth.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newAuthSetTokenCmd": {
+            "published": "func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {\n\treturn \u0026cobra.Command{\n\t\tUse:     \"set-token \u003ctoken\u003e\",\n\t\tSho...",
+            "fresh": "func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {\n\treturn \u0026cobra.Command{\n\t\tUse:     \"set-token \u003ctoken\u003e\",\n\t\tSho..."
+          },
+          "newAuthSetupCmd": {
+            "published": "func newAuthSetupCmd(_ *rootFlags) *cobra.Command {\n\tvar launch bool\n\tcmd := \u0026cobra.Command{\n\t\tUse:     \"setup\",\n\t\tShort...",
+            "fresh": "func newAuthSetupCmd(_ *rootFlags) *cobra.Command {\n\tvar launch bool\n\tcmd := \u0026cobra.Command{\n\t\tUse:     \"setup\",\n\t\tShort..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/calls.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/calls_get.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/calls_list.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/calls_recording.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newCallsRecordingCmd": {
+            "published": "func newCallsRecordingCmd(flags *rootFlags) *cobra.Command {\n\tvar outPath string\n\tcmd := \u0026cobra.Command{\n\t\tUse:   \"recor...",
+            "fresh": "func newCallsRecordingCmd(flags *rootFlags) *cobra.Command {\n\tvar outPath string\n\tcmd := \u0026cobra.Command{\n\t\tUse:   \"recor..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/calls_transcript.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/channel_workflow.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newWorkflowArchiveCmd": {
+            "published": "func newWorkflowArchiveCmd(flags *rootFlags) *cobra.Command {\n\tvar dbPath string\n\tvar full bool\n\tcmd := \u0026cobra.Command{\n...",
+            "fresh": "func newWorkflowArchiveCmd(flags *rootFlags) *cobra.Command {\n\tvar dbPath string\n\tvar full bool\n\tcmd := \u0026cobra.Command{\n..."
+          },
+          "newWorkflowCmd": {
+            "published": "func newWorkflowCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:   \"workflow\",\n\t\tShort: \"Compound w...",
+            "fresh": "func newWorkflowCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"workflow\",\n\t\tShort:      ..."
+          },
+          "newWorkflowStatusCmd": {
+            "published": "func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {\n\tvar dbPath string\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"...",
+            "fresh": "func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {\n\tvar dbPath string\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/companies.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newCompaniesCmd": {
+            "published": "func newCompaniesCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:    \"companies\",\n\t\tShort:  \"Everyt...",
+            "fresh": "func newCompaniesCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"companies\",\n\t\tShort:    ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/companies_contacts.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newCompaniesContactsCmd": {
+            "published": "func newCompaniesContactsCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:   \"contacts\",\n\t\tShort: \"E...",
+            "fresh": "func newCompaniesContactsCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"contacts\",\n\t\tSho..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/companies_contacts_list-attached.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newCompaniesContactsListAttachedCmd": [
+            "Help",
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/companies_create-or-update-company.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newCompaniesCreateOrUpdateCompanyCmd": {
+            "published": "func newCompaniesCreateOrUpdateCompanyCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyCompanyId string\n\tvar bodyCustomAt...",
+            "fresh": "func newCompaniesCreateOrUpdateCompanyCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyCompanyId string\n\tvar bodyCustomAt..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/companies_delete-company.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newCompaniesDeleteCompanyCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/companies_list-all.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newCompaniesListAllCmd": [
+            "Sprintf"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/companies_retrieve-acompany-by-id.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newCompaniesRetrieveAcompanyByIdCmd": [
+            "Help",
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/companies_retrieve-company.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newCompaniesRetrieveCompanyCmd": [
+            "Sprintf",
+            "printOutputWithFlags",
+            "resolvePaginatedRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/companies_scroll-over-all.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newCompaniesScrollOverAllCmd": [
+            "Sprintf",
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/companies_segments.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newCompaniesSegmentsCmd": {
+            "published": "func newCompaniesSegmentsCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:   \"segments\",\n\t\tShort: \"E...",
+            "fresh": "func newCompaniesSegmentsCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"segments\",\n\t\tSho..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/companies_segments_list-attached-for-companies.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newCompaniesSegmentsListAttachedForCompaniesCmd": [
+            "Help",
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/companies_update-company.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newCompaniesUpdateCompanyCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/contact.go",
+      "verdict": "NOVEL-COLLISION",
+      "applied": false,
+      "decl_set_delta": {
+        "in_published_not_fresh": [
+          "newContactCmd"
+        ],
+        "in_fresh_not_published": [
+          "newNovelContactCmd"
+        ]
+      }
+    },
+    {
+      "path": "internal/cli/contact_360.go",
+      "verdict": "TEMPLATED-WITH-ADDITIONS",
+      "applied": false,
+      "decl_set_delta": {
+        "in_published_not_fresh": [
+          "newContact360Cmd",
+          "ticketHasContact"
+        ],
+        "in_fresh_not_published": [
+          "newNovelContact360Cmd"
+        ]
+      }
+    },
+    {
+      "path": "internal/cli/contact_360_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/contacts.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newContactsCmd": {
+            "published": "func newContactsCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:    \"contacts\",\n\t\tShort:  \"Everythi...",
+            "fresh": "func newContactsCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"contacts\",\n\t\tShort:      ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/contacts_archive.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newContactsArchiveCmd": {
+            "published": "func newContactsArchiveCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:   \"archive\",\n\t\tShort: \"Run ...",
+            "fresh": "func newContactsArchiveCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"archive\",\n\t\tShort:..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/contacts_archive_contact.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newContactsArchiveContactCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/contacts_block.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newContactsBlockCmd": {
+            "published": "func newContactsBlockCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:   \"block\",\n\t\tShort: \"Create b...",
+            "fresh": "func newContactsBlockCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"block\",\n\t\tShort:    ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/contacts_block_contact.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newContactsBlockContactCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/contacts_companies.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newContactsCompaniesCmd": {
+            "published": "func newContactsCompaniesCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:   \"companies\",\n\t\tShort: \"...",
+            "fresh": "func newContactsCompaniesCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"companies\",\n\t\tSh..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/contacts_companies_attach-contact-to-acompany.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newContactsCompaniesAttachContactToAcompanyCmd": {
+            "published": "func newContactsCompaniesAttachContactToAcompanyCmd(flags *rootFlags) *cobra.Command {\n\tvar stdinBody bool\n\tcmd := \u0026cobr...",
+            "fresh": "func newContactsCompaniesAttachContactToAcompanyCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyId2 string\n\tvar stdinBod..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/contacts_companies_detach-contact-from-acompany.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newContactsCompaniesDetachContactFromAcompanyCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/contacts_companies_list-for-acontact.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newContactsCompaniesListForAcontactCmd": [
+            "Help",
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/contacts_create.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newContactsCreateCmd": {
+            "published": "func newContactsCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBodyJSON string\n\tvar stdinBody bool\n\tcmd := \u0026cobra...",
+            "fresh": "func newContactsCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBodyJSON string\n\tvar stdinBody bool\n\tcmd := \u0026cobra..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/contacts_delete.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newContactsDeleteCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/contacts_list.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newContactsListCmd": [
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/contacts_merge.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newContactsMergeCmd": {
+            "published": "func newContactsMergeCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyFrom string\n\tvar bodyInto string\n\tvar stdinBody boo...",
+            "fresh": "func newContactsMergeCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyFrom string\n\tvar bodyInto string\n\tvar stdinBody boo..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/contacts_notes.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newContactsNotesCmd": {
+            "published": "func newContactsNotesCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:   \"notes\",\n\t\tShort: \"Everythi...",
+            "fresh": "func newContactsNotesCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"notes\",\n\t\tShort:    ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/contacts_notes_create.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newContactsNotesCreateCmd": {
+            "published": "func newContactsNotesCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAdminId string\n\tvar bodyBody string\n\tvar body...",
+            "fresh": "func newContactsNotesCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAdminId string\n\tvar bodyBody string\n\tvar body..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/contacts_notes_list.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newContactsNotesListCmd": [
+            "Help",
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/contacts_search.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newContactsSearchCmd": {
+            "published": "func newContactsSearchCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyPaginationPerPage int\n\tvar bodyPaginationStartingA...",
+            "fresh": "func newContactsSearchCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyPaginationPerPage int\n\tvar bodyPaginationStartingA..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/contacts_segments.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newContactsSegmentsCmd": {
+            "published": "func newContactsSegmentsCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:   \"segments\",\n\t\tShort: \"Ev...",
+            "fresh": "func newContactsSegmentsCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"segments\",\n\t\tShor..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/contacts_segments_list-for-acontact.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newContactsSegmentsListForAcontactCmd": [
+            "Help",
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/contacts_show-by-external-id.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newContactsShowByExternalIdCmd": [
+            "Help",
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/contacts_show.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newContactsShowCmd": [
+            "Help",
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/contacts_subscriptions.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newContactsSubscriptionsCmd": {
+            "published": "func newContactsSubscriptionsCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:   \"subscriptions\",\n\t\t...",
+            "fresh": "func newContactsSubscriptionsCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"subscription..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/contacts_subscriptions_attach-type-to-contact.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newContactsSubscriptionsAttachTypeToContactCmd": {
+            "published": "func newContactsSubscriptionsAttachTypeToContactCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyConsentType string\n\tvar ...",
+            "fresh": "func newContactsSubscriptionsAttachTypeToContactCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyConsentType string\n\tvar ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/contacts_subscriptions_detach-type-to-contact.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newContactsSubscriptionsDetachTypeToContactCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/contacts_subscriptions_list-for-acontact.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newContactsSubscriptionsListForAcontactCmd": [
+            "Help",
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/contacts_tags.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newContactsTagsCmd": {
+            "published": "func newContactsTagsCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:   \"tags\",\n\t\tShort: \"List, crea...",
+            "fresh": "func newContactsTagsCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"tags\",\n\t\tShort:      ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/contacts_tags_attach-to-contact.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newContactsTagsAttachToContactCmd": {
+            "published": "func newContactsTagsAttachToContactCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyId string\n\tvar stdinBody bool\n\tcmd :=...",
+            "fresh": "func newContactsTagsAttachToContactCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyId string\n\tvar stdinBody bool\n\tcmd :=..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/contacts_tags_detach-from-contact.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newContactsTagsDetachFromContactCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/contacts_tags_list-for-acontact.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newContactsTagsListForAcontactCmd": [
+            "Help",
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/contacts_unarchive.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newContactsUnarchiveCmd": {
+            "published": "func newContactsUnarchiveCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:   \"unarchive\",\n\t\tShort: \"...",
+            "fresh": "func newContactsUnarchiveCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"unarchive\",\n\t\tSh..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/contacts_unarchive_contact.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newContactsUnarchiveContactCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/contacts_update.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newContactsUpdateCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/conversations.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newConversationsCmd": {
+            "published": "func newConversationsCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:    \"conversations\",\n\t\tShort: ...",
+            "fresh": "func newConversationsCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"conversations\",\n\t\tSh..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/conversations_convert.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newConversationsConvertCmd": {
+            "published": "func newConversationsConvertCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:   \"convert\",\n\t\tShort: ...",
+            "fresh": "func newConversationsConvertCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"convert\",\n\t\tS..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/conversations_convert_conversation-to-ticket.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newConversationsConvertConversationToTicketCmd": {
+            "published": "func newConversationsConvertConversationToTicketCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAttributes string\n\tvar b...",
+            "fresh": "func newConversationsConvertConversationToTicketCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAttributes string\n\tvar b..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/conversations_create.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newConversationsCreateCmd": {
+            "published": "func newConversationsCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAttachmentUrls string\n\tvar bodyBody string\n\tv...",
+            "fresh": "func newConversationsCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAttachmentUrls string\n\tvar bodyBody string\n\tv..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/conversations_customers.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newConversationsCustomersCmd": {
+            "published": "func newConversationsCustomersCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:   \"customers\",\n\t\tSho...",
+            "fresh": "func newConversationsCustomersCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"customers\",..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/conversations_customers_attach-contact-to-conversation.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newConversationsCustomersAttachContactToConversationCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/conversations_customers_detach-contact-from-conversation.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newConversationsCustomersDetachContactFromConversationCmd": {
+            "published": "func newConversationsCustomersDetachContactFromConversationCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAdminId strin...",
+            "fresh": "func newConversationsCustomersDetachContactFromConversationCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAdminId strin..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/conversations_delete.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newConversationsDeleteCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/conversations_incident_tag.go",
+      "verdict": "TEMPLATED-WITH-ADDITIONS",
+      "applied": false,
+      "decl_set_delta": {
+        "in_published_not_fresh": [
+          "newConversationsIncidentTagCmd"
+        ],
+        "in_fresh_not_published": [
+          "newNovelConversationsIncidentTagCmd"
+        ]
+      }
+    },
+    {
+      "path": "internal/cli/conversations_incident_tag_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/conversations_list.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newConversationsListCmd": [
+            "Sprintf",
+            "printOutputWithFlags",
+            "resolvePaginatedRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/conversations_parts.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newConversationsPartsCmd": {
+            "published": "func newConversationsPartsCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:   \"parts\",\n\t\tShort: \"Cre...",
+            "fresh": "func newConversationsPartsCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"parts\",\n\t\tShort..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/conversations_parts_manage-conversation.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newConversationsPartsManageConversationCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/conversations_redact.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newConversationsRedactCmd": {
+            "published": "func newConversationsRedactCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBodyJSON string\n\tvar stdinBody bool\n\tcmd := \u0026...",
+            "fresh": "func newConversationsRedactCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBodyJSON string\n\tvar stdinBody bool\n\tcmd := \u0026..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/conversations_reply.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newConversationsReplyCmd": {
+            "published": "func newConversationsReplyCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:   \"reply\",\n\t\tShort: \"Cre...",
+            "fresh": "func newConversationsReplyCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"reply\",\n\t\tShort..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/conversations_reply_conversation.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newConversationsReplyConversationCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/conversations_retrieve.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newConversationsRetrieveCmd": [
+            "Help",
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/conversations_search.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newConversationsSearchCmd": {
+            "published": "func newConversationsSearchCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyPaginationPerPage int\n\tvar bodyPaginationStar...",
+            "fresh": "func newConversationsSearchCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyPaginationPerPage int\n\tvar bodyPaginationStar..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/conversations_sla.go",
+      "verdict": "TEMPLATED-WITH-ADDITIONS",
+      "applied": false,
+      "decl_set_delta": {
+        "in_published_not_fresh": [
+          "newConversationsSlaCmd"
+        ],
+        "in_fresh_not_published": [
+          "newNovelConversationsSlaCmd"
+        ]
+      }
+    },
+    {
+      "path": "internal/cli/conversations_sla_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/conversations_tags.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newConversationsTagsCmd": {
+            "published": "func newConversationsTagsCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:   \"tags\",\n\t\tShort: \"Creat...",
+            "fresh": "func newConversationsTagsCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"tags\",\n\t\tShort: ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/conversations_tags_attach-to-conversation.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newConversationsTagsAttachToConversationCmd": {
+            "published": "func newConversationsTagsAttachToConversationCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAdminId string\n\tvar bodyId ...",
+            "fresh": "func newConversationsTagsAttachToConversationCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAdminId string\n\tvar bodyId ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/conversations_tags_detach-from-conversation.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newConversationsTagsDetachFromConversationCmd": {
+            "published": "func newConversationsTagsDetachFromConversationCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAdminId string\n\tvar stdin...",
+            "fresh": "func newConversationsTagsDetachFromConversationCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAdminId string\n\tvar stdin..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/conversations_update.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newConversationsUpdateCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/custom-object-instances.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newCustomObjectInstancesCmd": {
+            "published": "func newCustomObjectInstancesCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:    \"custom-object-ins...",
+            "fresh": "func newCustomObjectInstancesCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"custom-objec..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/custom-object-instances_create.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newCustomObjectInstancesCreateCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/custom-object-instances_delete-by-external-id.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newCustomObjectInstancesDeleteByExternalIdCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/custom-object-instances_delete-by-id.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newCustomObjectInstancesDeleteByIdCmd": {
+            "published": "func newCustomObjectInstancesDeleteByIdCmd(flags *rootFlags) *cobra.Command {\n\tvar flagExternalId string\n\tcmd := \u0026cobra....",
+            "fresh": "func newCustomObjectInstancesDeleteByIdCmd(flags *rootFlags) *cobra.Command {\n\tvar flagExternalId string\n\tcmd := \u0026cobra...."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/custom-object-instances_get-by-external-id.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newCustomObjectInstancesGetByExternalIdCmd": [
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/custom-object-instances_get-by-id.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newCustomObjectInstancesGetByIdCmd": [
+            "Help",
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/data-attributes.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newDataAttributesCmd": {
+            "published": "func newDataAttributesCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:    \"data-attributes\",\n\t\tShor...",
+            "fresh": "func newDataAttributesCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"data-attributes\",\n\t..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/data-attributes_create.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newDataAttributesCreateCmd": {
+            "published": "func newDataAttributesCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyDataType string\n\tvar bodyDescription string\n...",
+            "fresh": "func newDataAttributesCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyDataType string\n\tvar bodyDescription string\n..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/data-attributes_lis.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newDataAttributesLisCmd": [
+            "Sprintf",
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/data-attributes_update.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newDataAttributesUpdateCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/data_source.go",
+      "verdict": "TEMPLATED-WITH-ADDITIONS",
+      "applied": false,
+      "decl_set_delta": {
+        "in_published_not_fresh": [
+          "mutationResponseAtPath"
+        ],
+        "in_fresh_not_published": [
+          "decodeWriteThroughArray",
+          "decodeWriteThroughNonEmptyArray",
+          "extractNestedWriteThroughListItems",
+          "extractWriteThroughListItems",
+          "extractWriteThroughListWrapperItems",
+          "extractWriteThroughSingleArraySibling",
+          "isRawJSONNull",
+          "resolvePaginatedReadWithStrategy",
+          "resolvePaginatedReadWithStrategyAndJSONGuard",
+          "resolveReadWithResponsePath",
+          "resolveReadWithStrategy",
+          "resolveReadWithStrategyAndResponsePath",
+          "resolveReadWithStrategyResponsePathAndJSONGuard",
+          "unsupportedDataSourceError",
+          "validateDataSourceStrategy",
+          "writeThroughArrayDecoder",
+          "writeThroughArrayItemsAreObjects",
+          "writeThroughListWrapperKeys",
+          "writeThroughNestedEnvelopeKeys"
+        ]
+      }
+    },
+    {
+      "path": "internal/cli/deliver.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "deliverFile": {
+            "published": "func deliverFile(path string, body []byte) error {\n\tdir := filepath.Dir(path)\n\tif dir != \"\" \u0026\u0026 dir != \".\" {\n\t\tif err := ...",
+            "fresh": "func deliverFile(path string, body []byte) error {\n\tdir := filepath.Dir(path)\n\tif dir != \"\" \u0026\u0026 dir != \".\" {\n\t\tif err := ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/doctor.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "collectCacheReport": {
+            "published": "func collectCacheReport(ctx context.Context, staleAfterSpec string) map[string]any {\n\treport := map[string]any{}\n\tdbPath...",
+            "fresh": "func collectCacheReport(ctx context.Context, staleAfterSpec string) map[string]any {\n\treport := map[string]any{}\n\tdbPath..."
+          },
+          "doctorExitForFailOn": {
+            "published": "func doctorExitForFailOn(failOn string, report map[string]any) error {\n\tif failOn == \"\" {\n\t\treturn nil\n\t}\n\tworstError :=...",
+            "fresh": "func doctorExitForFailOn(failOn string, report map[string]any) error {\n\tif failOn == \"\" {\n\t\treturn nil\n\t}\n\tworstError :=..."
+          },
+          "newDoctorCmd": {
+            "published": "func newDoctorCmd(flags *rootFlags) *cobra.Command {\n\tvar failOn string\n\tcmd := \u0026cobra.Command{\n\t\tUse:   \"doctor\",\n\t\tSho...",
+            "fresh": "func newDoctorCmd(flags *rootFlags) *cobra.Command {\n\tvar failOn string\n\tcmd := \u0026cobra.Command{\n\t\tUse:   \"doctor\",\n\t\tSho..."
+          },
+          "renderCacheReport": {
+            "published": "func renderCacheReport(w io.Writer, rep map[string]any) {\n\tstatus, _ := rep[\"status\"].(string)\n\tindicator := green(\"OK\")...",
+            "fresh": "func renderCacheReport(w io.Writer, rep map[string]any) {\n\tstatus, _ := rep[\"status\"].(string)\n\tindicator := green(\"OK\")..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/events.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newEventsCmd": {
+            "published": "func newEventsCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:    \"events\",\n\t\tShort:  \"Get and crea...",
+            "fresh": "func newEventsCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"events\",\n\t\tShort:       \"Ge..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/events_create-data.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newEventsCreateDataCmd": {
+            "published": "func newEventsCreateDataCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBodyJSON string\n\tvar stdinBody bool\n\tcmd := \u0026cob...",
+            "fresh": "func newEventsCreateDataCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBodyJSON string\n\tvar stdinBody bool\n\tcmd := \u0026cob..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/events_data-summaries.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newEventsDataSummariesCmd": {
+            "published": "func newEventsDataSummariesCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyEventSummariesCount int\n\tvar bodyEventSummari...",
+            "fresh": "func newEventsDataSummariesCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyEventSummariesCount int\n\tvar bodyEventSummari..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/events_lis-data.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newEventsLisDataCmd": [
+            "Sprintf",
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/export.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newExportCmd": [
+            "MinimumNArgs"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/feedback.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "feedbackFilePath": [
+            "UserHomeDir"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/help-center.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newHelpCenterCmd": {
+            "published": "func newHelpCenterCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:    \"help-center\",\n\t\tShort:  \"Eve...",
+            "fresh": "func newHelpCenterCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"help-center\",\n\t\tShort: ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/help-center_create-collection.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newHelpCenterCreateCollectionCmd": [
+            "IntVar"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/help-center_delete-collection.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newHelpCenterDeleteCollectionCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/help-center_list-all-collections.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newHelpCenterListAllCollectionsCmd": [
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/help-center_list.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newHelpCenterListCmd": [
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/help-center_retrieve-collection.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newHelpCenterRetrieveCollectionCmd": [
+            "Help",
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/help-center_retrieve.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newHelpCenterRetrieveCmd": [
+            "Help",
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/help-center_update-collection.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newHelpCenterUpdateCollectionCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/helpers.go",
+      "verdict": "TEMPLATED-WITH-ADDITIONS",
+      "applied": false,
+      "decl_set_delta": {
+        "in_published_not_fresh": [
+          "extractResponseData",
+          "relativizeNextURL"
+        ],
+        "in_fresh_not_published": [
+          "(*selectMatchState).merge",
+          "applyResponsePath",
+          "argumentMissingPatterns",
+          "assertLiveJSONBody",
+          "boundCtx",
+          "compactListEnvelopeObject",
+          "compactObjectArrayValue",
+          "emitPaginatedGetMaxPagesWarning",
+          "envelopeMetadataArrayKeys",
+          "extractPaginatedItemsFromObject",
+          "extractPaginatedItemsMatchingPath",
+          "extractPaginatedObjectArray",
+          "filterListEnvelopeFields",
+          "filterNestedListEnvelopeFields",
+          "formatCLIParamValue",
+          "hasChangedLocalFlags",
+          "looksLikeArgumentMissing",
+          "looksLikeJSONComposite",
+          "nextClientSidePaginationCursor",
+          "nextFullPageOffsetCursor",
+          "nonJSONPayloadError",
+          "paginatedGetMaxPages",
+          "plainCellValue",
+          "printOutputWithFlagsMeta",
+          "printPlain",
+          "relativizeNextURLParts",
+          "responsePayloadAtPath",
+          "responsePayloadParentAtPath",
+          "selectFieldKeys",
+          "selectMatchState",
+          "syncWarningJSON",
+          "wantsMachineOutput",
+          "wrapAgentOutput"
+        ]
+      }
+    },
+    {
+      "path": "internal/cli/import.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newImportCmd": {
+            "published": "func newImportCmd(flags *rootFlags) *cobra.Command {\n\tvar inputFile string\n\tvar dryRun bool\n\tvar batchSize int\n\tcmd := \u0026...",
+            "fresh": "func newImportCmd(flags *rootFlags) *cobra.Command {\n\tvar inputFile string\n\tvar dryRun bool\n\tvar batchSize int\n\tcmd := \u0026..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/intercom-export.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newIntercomExportCmd": {
+            "published": "func newIntercomExportCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:    \"intercom-export\",\n\t\tShor...",
+            "fresh": "func newIntercomExportCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"intercom-export\",\n\t..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/intercom-export_cancel-data.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newIntercomExportCancelDataCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/intercom-export_create-data.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newIntercomExportCreateDataCmd": {
+            "published": "func newIntercomExportCreateDataCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyCreatedAtAfter int\n\tvar bodyCreatedAtBef...",
+            "fresh": "func newIntercomExportCreateDataCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyCreatedAtAfter int\n\tvar bodyCreatedAtBef..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/intercom-export_get-data.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newIntercomExportGetDataCmd": [
+            "Help",
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/internal-articles.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newInternalArticlesCmd": {
+            "published": "func newInternalArticlesCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:    \"internal-articles\",\n\t\t...",
+            "fresh": "func newInternalArticlesCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"internal-articles..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/internal-articles_create.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newInternalArticlesCreateCmd": [
+            "IntVar"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/internal-articles_delete.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newInternalArticlesDeleteCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/internal-articles_list.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newInternalArticlesListCmd": [
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/internal-articles_retrieve.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newInternalArticlesRetrieveCmd": [
+            "Help",
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/internal-articles_search.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newInternalArticlesSearchCmd": [
+            "Sprintf",
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/internal-articles_update.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newInternalArticlesUpdateCmd": [
+            "Help",
+            "IntVar"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/learn_init.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/learn_init_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/learnings_candidates.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/learnings_candidates_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/learnings_stats.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/learnings_stats_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/news.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newNewsCmd": {
+            "published": "func newNewsCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:    \"news\",\n\t\tShort:  \"Everything about...",
+            "fresh": "func newNewsCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"news\",\n\t\tShort:       \"Everyt..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/news_create-item.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newNewsCreateItemCmd": [
+            "IntVar"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/news_delete-item.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newNewsDeleteItemCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/news_list-items.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newNewsListItemsCmd": [
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/news_list-live-newsfeed-items.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newNewsListLiveNewsfeedItemsCmd": [
+            "Help",
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/news_list-newsfeeds.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newNewsListNewsfeedsCmd": [
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/news_retrieve-item.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newNewsRetrieveItemCmd": [
+            "Help",
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/news_retrieve-newsfeed.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newNewsRetrieveNewsfeedCmd": [
+            "Help",
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/news_update-item.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newNewsUpdateItemCmd": [
+            "IntVar"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/playbook_init.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/playbook_init_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/playbooks/embed.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/profile.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "loadProfileStore": [
+            "ReadFile"
+          ],
+          "profileStorePath": [
+            "UserHomeDir"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/promoted_download.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newDownloadPromotedCmd": [
+            "extractResponseData",
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/promoted_me.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newMePromotedCmd": [
+            "extractResponseData",
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/promoted_messages.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newMessagesPromotedCmd": [
+            "extractResponseData",
+            "printOutputWithFlags"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/promoted_notes.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newNotesPromotedCmd": [
+            "extractResponseData",
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/promoted_phone-call-redirects.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newPhoneCallRedirectsPromotedCmd": [
+            "extractResponseData",
+            "printOutputWithFlags"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/promoted_subscription-types.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newSubscriptionTypesPromotedCmd": [
+            "extractResponseData",
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/promoted_ticket-states.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newTicketStatesPromotedCmd": [
+            "extractResponseData",
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/resource_paths.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/root.go",
+      "verdict": "TEMPLATED-WITH-ADDITIONS",
+      "applied": false,
+      "decl_set_delta": {
+        "in_published_not_fresh": [
+          "newVersionCliCmd",
+          "version"
+        ],
+        "in_fresh_not_published": [
+          "argsDisableLearn",
+          "commandTreeHasFlag",
+          "deriveFlagCorrections",
+          "findSubcommand",
+          "journalInvocation",
+          "journalVerbChain",
+          "learnFamilyCommands",
+          "learnHookSkipList",
+          "novelCommandHooks",
+          "registerNovelCommand",
+          "shouldSkipLearnHook"
+        ]
+      }
+    },
+    {
+      "path": "internal/cli/root_test.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "TestFilterFields": {
+            "published": "func TestFilterFields(t *testing.T) {\n\tt.Parallel()\n\tcases := []struct {\n\t\tname   string\n\t\tinput  string\n\t\tfields string...",
+            "fresh": "func TestFilterFields(t *testing.T) {\n\tt.Parallel()\n\tcases := []struct {\n\t\tname   string\n\t\tinput  string\n\t\tfields string..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/search.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "isNilOrEmpty": [
+            "TrimSpace"
+          ],
+          "outputSearchResults": [
+            "isTerminal",
+            "printOutput"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/segments.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newSegmentsCmd": {
+            "published": "func newSegmentsCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:    \"segments\",\n\t\tShort:  \"Everythi...",
+            "fresh": "func newSegmentsCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"segments\",\n\t\tShort:      ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/segments_list.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newSegmentsListCmd": [
+            "Sprintf",
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/segments_retrieve.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newSegmentsRetrieveCmd": [
+            "Help",
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/sync.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "extractID": [
+            "Sprintf"
+          ],
+          "extractPageItems": [
+            "len"
+          ],
+          "nextCursorFromLinks": [
+            "Get",
+            "Parse",
+            "Query",
+            "append"
+          ],
+          "syncResource": [
+            "ReplaceAll"
+          ],
+          "upsertResourceBatch": [
+            "Unmarshal"
+          ],
+          "upsertSingleObject": [
+            "Unmarshal"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/sync_hint.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "emitSyncHints": {
+            "published": "func emitSyncHints(w io.Writer, db *store.Store, resourceType string, maxAge time.Duration) {\n\tstate, err := readSyncHin...",
+            "fresh": "func emitSyncHints(w io.Writer, db *store.Store, resourceType string, maxAge time.Duration) {\n\tif !syncHintsEnabled {\n\t\t..."
+          },
+          "hintIfStale": {
+            "published": "func hintIfStale(cmd *cobra.Command, db *store.Store, resourceType string, maxAge time.Duration) bool {\n\tif cmd == nil |...",
+            "fresh": "func hintIfStale(cmd *cobra.Command, db *store.Store, resourceType string, maxAge time.Duration) bool {\n\tif !syncHintsEn..."
+          },
+          "hintIfUnsynced": {
+            "published": "func hintIfUnsynced(cmd *cobra.Command, db *store.Store, resourceType string) bool {\n\tif cmd == nil || db == nil {\n\t\tret...",
+            "fresh": "func hintIfUnsynced(cmd *cobra.Command, db *store.Store, resourceType string) bool {\n\tif !syncHintsEnabled || cmd == nil..."
+          },
+          "maybeEmitSyncHints": {
+            "published": "func maybeEmitSyncHints(cmd *cobra.Command, db *store.Store, resourceType string, maxAge time.Duration) {\n\tif cmd == nil...",
+            "fresh": "func maybeEmitSyncHints(cmd *cobra.Command, db *store.Store, resourceType string, maxAge time.Duration) {\n\tif !syncHints..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/sync_hint_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/sync_numeric_id_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/tags.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newTagsCmd": {
+            "published": "func newTagsCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:    \"tags\",\n\t\tShort:  \"List, find, crea...",
+            "fresh": "func newTagsCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"tags\",\n\t\tShort:       \"List, ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/tags_create.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newTagsCreateCmd": {
+            "published": "func newTagsCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBodyJSON string\n\tvar stdinBody bool\n\tcmd := \u0026cobra.Com...",
+            "fresh": "func newTagsCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBodyJSON string\n\tvar stdinBody bool\n\tcmd := \u0026cobra.Com..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/tags_delete.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newTagsDeleteCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/tags_find.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newTagsFindCmd": [
+            "Help",
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/tags_list.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newTagsListCmd": [
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/tail.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "fetchAndEmit": [
+            "Unmarshal"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/teach.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/teach_playbook.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/teach_playbook_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/teach_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/teams.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newTeamsCmd": {
+            "published": "func newTeamsCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:    \"teams\",\n\t\tShort:  \"Everything abo...",
+            "fresh": "func newTeamsCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"teams\",\n\t\tShort:       \"Ever..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/teams_list.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newTeamsListCmd": [
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/teams_retrieve.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newTeamsRetrieveCmd": [
+            "Help",
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ticket-types.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newTicketTypesCmd": {
+            "published": "func newTicketTypesCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:    \"ticket-types\",\n\t\tShort:  \"E...",
+            "fresh": "func newTicketTypesCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"ticket-types\",\n\t\tShort..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ticket-types_attributes.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newTicketTypesAttributesCmd": {
+            "published": "func newTicketTypesAttributesCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:   \"attributes\",\n\t\tSho...",
+            "fresh": "func newTicketTypesAttributesCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"attributes\",..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ticket-types_attributes_create-ticket-type.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newTicketTypesAttributesCreateTicketTypeCmd": {
+            "published": "func newTicketTypesAttributesCreateTicketTypeCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAllowMultipleValues bool\n\tv...",
+            "fresh": "func newTicketTypesAttributesCreateTicketTypeCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAllowMultipleValues bool\n\tv..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ticket-types_attributes_update-ticket-type.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newTicketTypesAttributesUpdateTicketTypeCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ticket-types_create.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newTicketTypesCreateCmd": {
+            "published": "func newTicketTypesCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyCategory string\n\tvar bodyDescription string\n\tva...",
+            "fresh": "func newTicketTypesCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyCategory string\n\tvar bodyDescription string\n\tva..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ticket-types_get.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newTicketTypesGetCmd": [
+            "Help",
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ticket-types_list.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newTicketTypesListCmd": [
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/ticket-types_update.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newTicketTypesUpdateCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/tickets.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newTicketsCmd": {
+            "published": "func newTicketsCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:    \"tickets\",\n\t\tShort:  \"Everything...",
+            "fresh": "func newTicketsCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"tickets\",\n\t\tShort:       \"..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/tickets_create.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newTicketsCreateCmd": {
+            "published": "func newTicketsCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyCompanyId string\n\tvar bodyContacts string\n\tvar body...",
+            "fresh": "func newTicketsCreateCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyCompanyId string\n\tvar bodyContacts string\n\tvar body..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/tickets_delete.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newTicketsDeleteCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/tickets_get.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newTicketsGetCmd": [
+            "Help",
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/tickets_reply.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newTicketsReplyCmd": {
+            "published": "func newTicketsReplyCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:   \"reply\",\n\t\tShort: \"Create re...",
+            "fresh": "func newTicketsReplyCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"reply\",\n\t\tShort:     ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/tickets_reply_ticket.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newTicketsReplyTicketCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/tickets_search.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newTicketsSearchCmd": {
+            "published": "func newTicketsSearchCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyPaginationPerPage int\n\tvar bodyPaginationStartingAf...",
+            "fresh": "func newTicketsSearchCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyPaginationPerPage int\n\tvar bodyPaginationStartingAf..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/tickets_tags.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newTicketsTagsCmd": {
+            "published": "func newTicketsTagsCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:   \"tags\",\n\t\tShort: \"Create and ...",
+            "fresh": "func newTicketsTagsCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"tags\",\n\t\tShort:       ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/tickets_tags_attach-to-ticket.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newTicketsTagsAttachToTicketCmd": {
+            "published": "func newTicketsTagsAttachToTicketCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAdminId string\n\tvar bodyId string\n\tvar ...",
+            "fresh": "func newTicketsTagsAttachToTicketCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAdminId string\n\tvar bodyId string\n\tvar ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/tickets_tags_detach-from-ticket.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newTicketsTagsDetachFromTicketCmd": {
+            "published": "func newTicketsTagsDetachFromTicketCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAdminId string\n\tvar stdinBody bool\n\tc...",
+            "fresh": "func newTicketsTagsDetachFromTicketCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyAdminId string\n\tvar stdinBody bool\n\tc..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/tickets_update.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newTicketsUpdateCmd": [
+            "Help"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/version.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cli/visitors.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newVisitorsCmd": {
+            "published": "func newVisitorsCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:    \"visitors\",\n\t\tShort:  \"Everythi...",
+            "fresh": "func newVisitorsCmd(flags *rootFlags) *cobra.Command {\n\tcmd := \u0026cobra.Command{\n\t\tUse:         \"visitors\",\n\t\tShort:      ..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/visitors_convert.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newVisitorsConvertCmd": {
+            "published": "func newVisitorsConvertCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyType string\n\tvar bodyUserEmail string\n\tvar bodyUs...",
+            "fresh": "func newVisitorsConvertCmd(flags *rootFlags) *cobra.Command {\n\tvar bodyType string\n\tvar bodyUserEmail string\n\tvar bodyUs..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/visitors_retrieve-with-user-id.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "newVisitorsRetrieveWithUserIdCmd": [
+            "Sprintf",
+            "printOutputWithFlags",
+            "resolveRead"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/visitors_update.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "newVisitorsUpdateCmd": {
+            "published": "func newVisitorsUpdateCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBodyJSON string\n\tvar stdinBody bool\n\tcmd := \u0026cobra...",
+            "fresh": "func newVisitorsUpdateCmd(flags *rootFlags) *cobra.Command {\n\tvar flagBodyJSON string\n\tvar stdinBody bool\n\tcmd := \u0026cobra..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cli/which.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "rankWhich": [
+            "Fields"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cli/which_test.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "TestWhichIndex_ExistsAndIsWellFormed": {
+            "published": "func TestWhichIndex_ExistsAndIsWellFormed(t *testing.T) {\n\tfor i, e := range whichIndex {\n\t\tif e.Command == \"\" {\n\t\t\tt.Er...",
+            "fresh": "func TestWhichIndex_ExistsAndIsWellFormed(t *testing.T) {\n\troot := newRootCmd(\u0026rootFlags{})\n\tfor i, e := range whichInde..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/client/client.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "(*Client).cacheKey": [
+            "Strings",
+            "append",
+            "make"
+          ],
+          "New": [
+            "NewAdaptiveLimiter",
+            "UserHomeDir"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/client/client_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/client/client_verify_short_circuit_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/cliutil_test.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "TestAdaptiveLimiter_RampsUpAfterSuccesses": [
+            "NewAdaptiveLimiter"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/cliutil/credentials.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/credentials_perms_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/credentials_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/creds_perms_eval.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/creds_perms_eval_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/creds_perms_unix.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/creds_perms_windows.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/csv.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/duration.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/duration_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/extractnumber.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/extractnumber_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/fanout.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/jwtshape.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/jwtshape_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/odata_date.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/odata_date_test.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/paths.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/paths_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/probe.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/cliutil/ratelimit.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "(*AdaptiveLimiter).OnRateLimit": {
+            "published": "func (l *AdaptiveLimiter) OnRateLimit() {\n\tif l == nil {\n\t\treturn\n\t}\n\tl.mu.Lock()\n\tdefer l.mu.Unlock()\n\tl.ceiling = l.ra...",
+            "fresh": "func (l *AdaptiveLimiter) OnRateLimit() {\n\tif l == nil {\n\t\treturn\n\t}\n\tl.mu.Lock()\n\tdefer l.mu.Unlock()\n\tl.ceiling = l.ra..."
+          },
+          "(*AdaptiveLimiter).OnSuccess": {
+            "published": "func (l *AdaptiveLimiter) OnSuccess() {\n\tif l == nil {\n\t\treturn\n\t}\n\tl.mu.Lock()\n\tdefer l.mu.Unlock()\n\tl.successes++\n\tif ...",
+            "fresh": "func (l *AdaptiveLimiter) OnSuccess() {\n\tif l == nil {\n\t\treturn\n\t}\n\tl.mu.Lock()\n\tdefer l.mu.Unlock()\n\tif l.headerDriven ..."
+          },
+          "NewAdaptiveLimiter": {
+            "published": "func NewAdaptiveLimiter(ratePerSec float64) *AdaptiveLimiter {\n\tif ratePerSec \u003c= 0 {\n\t\treturn nil\n\t}\n\treturn \u0026AdaptiveLi...",
+            "fresh": "func NewAdaptiveLimiter(ratePerSec float64) *AdaptiveLimiter {\n\treturn newAdaptiveLimiter(ratePerSec, ratePerSec)\n}"
+          },
+          "type:AdaptiveLimiter": {
+            "published": "type AdaptiveLimiter struct {\n\tmu          sync.Mutex\n\trate        float64\n\tfloor       float64\n\tceiling     float64\n\tsu...",
+            "fresh": "type AdaptiveLimiter struct {\n\tmu           sync.Mutex\n\trate         float64\n\tfloor        float64\n\tceiling      float64..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cliutil/text.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "SanitizeErrorBody": {
+            "published": "func SanitizeErrorBody(msg string) string {\n\tif len(msg) \u003e 200 {\n\t\tmsg = msg[:200] + \"...\"\n\t}\n\tcredPatterns := regexp.Mu...",
+            "fresh": "func SanitizeErrorBody(msg string) string {\n\tif len(msg) \u003e 200 {\n\t\tmsg = msg[:200] + \"...\"\n\t}\n\tcredPatterns := regexp.Mu..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/cliutil/verifyenv.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/config/config.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "(*Config).save": [
+            "Dir",
+            "MkdirAll",
+            "WriteFile"
+          ],
+          "Load": [
+            "Errorf",
+            "ReadFile",
+            "Unmarshal",
+            "UserHomeDir"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/config/config_perms_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/derive.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/derive_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/doc.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/entities/config.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/entities/config_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/entities/extract.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/entities/extract_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/journal.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/journal_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/lookups/seeds.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/lookups/seeds_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/lookups/store.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/lookups/store_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/match.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/match_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/normalize.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/normalize_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/patterns/apply.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/patterns/apply_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/patterns/doc.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/patterns/extract.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/patterns/extract_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/patterns/store.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/patterns/store_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/playbooks.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/playbooks_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/preseed.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/preseed_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/promote.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/promote_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/protocol.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/recall.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/recall_canonical_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/recall_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/synthesize.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/synthesize_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/teach.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/teach_log.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/teach_log_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/learn/teach_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/mcp/bound/bound.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/mcp/bound/bound_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/mcp/cobratree/classify.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "var:frameworkCommands": {
+            "published": "var frameworkCommands = map[string]bool{\n\t\"about\":         true,\n\t\"agent-context\": true,\n\t\"api\":           true,\n\t\"auth\"...",
+            "fresh": "var frameworkCommands = map[string]bool{\n\t\"about\":         true,\n\t\"agent-context\": true,\n\t\"api\":           true,\n\t\"auth\"..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/mcp/cobratree/cli_path.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "SiblingCLIPath": [
+            "Dir",
+            "Join"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/mcp/cobratree/names.go",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    },
+    {
+      "path": "internal/mcp/cobratree/shellout.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "shellOutToCLI": [
+            "HasPrefix",
+            "NewToolResultError",
+            "SplitShellArgs"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/mcp/cobratree/shellout_test.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "TestArgsFieldRejectsFlagLikeTokens": {
+            "published": "func TestArgsFieldRejectsFlagLikeTokens(t *testing.T) {\n\tguard := func(raw string) (rejected string, ok bool) {\n\t\tfor _,...",
+            "fresh": "func TestArgsFieldRejectsFlagLikeTokens(t *testing.T) {\n\tguard := func(raw string) (rejected string, ok bool) {\n\t\ttokens..."
+          },
+          "TestCliArgsFromMCP_AllowsPerCommandFlags": {
+            "published": "func TestCliArgsFromMCP_AllowsPerCommandFlags(t *testing.T) {\n\tin := map[string]any{\n\t\t\"query\":   \"alpha\",\n\t\t\"verbose\": ...",
+            "fresh": "func TestCliArgsFromMCP_AllowsPerCommandFlags(t *testing.T) {\n\tin := map[string]any{\n\t\t\"query\":   \"alpha\",\n\t\t\"verbose\": ..."
+          },
+          "TestCliArgsFromMCP_BlocksRootFlags": {
+            "published": "func TestCliArgsFromMCP_BlocksRootFlags(t *testing.T) {\n\tin := map[string]any{\n\t\t\"args\":     \"contacts\",\n\t\t\"base-url\": \"...",
+            "fresh": "func TestCliArgsFromMCP_BlocksRootFlags(t *testing.T) {\n\tin := map[string]any{\n\t\t\"args\":     \"contacts\",\n\t\t\"base-url\": \"..."
+          },
+          "TestSplitShellArgs": {
+            "published": "func TestSplitShellArgs(t *testing.T) {\n\tcases := []struct {\n\t\tname string\n\t\tin   string\n\t\twant []string\n\t}{\n\t\t{\"empty\",...",
+            "fresh": "func TestSplitShellArgs(t *testing.T) {\n\tcases := []struct {\n\t\tname string\n\t\tin   string\n\t\twant []string\n\t}{\n\t\t{\"empty\",..."
+          },
+          "writeShelloutHelper": {
+            "published": "func writeShelloutHelper(t *testing.T, mode string) string {\n\tt.Helper()\n\tdir := t.TempDir()\n\tif runtime.GOOS == \"window...",
+            "fresh": "func writeShelloutHelper(t *testing.T, mode string) string {\n\tt.Helper()\n\tdir := t.TempDir()\n\tif runtime.GOOS == \"window..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/mcp/cobratree/typemap.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "toolOptionsForFlags": {
+            "published": "func toolOptionsForFlags(cmd *cobra.Command) []mcplib.ToolOption {\n\tvar opts []mcplib.ToolOption\n\tseen := map[string]boo...",
+            "fresh": "func toolOptionsForFlags(cmd *cobra.Command, blocked map[string]bool, positionals []positionalArg) []mcplib.ToolOption {..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/mcp/cobratree/walker.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "RegisterAll": {
+            "published": "func RegisterAll(s *server.MCPServer, root *cobra.Command, cliPath func() (string, error)) {\n\tif root == nil {\n\t\treturn\n...",
+            "fresh": "func RegisterAll(s *server.MCPServer, root *cobra.Command, cliPath func() (string, error)) {\n\tif root == nil {\n\t\treturn\n..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/mcp/code_orch.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/mcp/code_orch_writebody_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/mcp/tools.go",
+      "verdict": "TEMPLATED-WITH-ADDITIONS",
+      "applied": false,
+      "decl_set_delta": {
+        "in_published_not_fresh": [
+          "dbPath"
+        ],
+        "in_fresh_not_published": [
+          "coerceMCPBodyValue",
+          "defaultMCPRateLimit",
+          "formatMCPParamValue",
+          "hasTrailingSQLStatement",
+          "looksLikeMCPJSONComposite",
+          "mcpDBPath",
+          "mcpEmptyStoreNextStep",
+          "mcpMissingStoreMessage",
+          "mcpPageConfig",
+          "mcpPathValue",
+          "mcpSQLEnvelope",
+          "mcpSQLQueryError",
+          "mcpSearchEnvelope",
+          "mcpStoreStatus",
+          "mcpStoreStatusEmpty",
+          "mcpStoreStatusKind",
+          "mcpStoreStatusReady",
+          "mcpToolError",
+          "mcpToolPageResultText",
+          "mcpToolResultText",
+          "newMCPClientFromConfig",
+          "newMCPConfig",
+          "openMCPReadOnlyStore",
+          "setNestedBodyArg",
+          "toolResultJSON"
+        ]
+      }
+    },
+    {
+      "path": "internal/mcp/tools_test.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "TestValidateReadOnlyQuery_AllowsSelectAndWITH": {
+            "published": "func TestValidateReadOnlyQuery_AllowsSelectAndWITH(t *testing.T) {\n\tallowed := []string{\n\t\t\"SELECT 1\",\n\t\t\"select * from ...",
+            "fresh": "func TestValidateReadOnlyQuery_AllowsSelectAndWITH(t *testing.T) {\n\tallowed := []string{\n\t\t\"SELECT 1\",\n\t\t\"select * from ..."
+          },
+          "TestValidateReadOnlyQuery_RejectsBypassVectors": {
+            "published": "func TestValidateReadOnlyQuery_RejectsBypassVectors(t *testing.T) {\n\trejected := []string{\n\t\t\"VACUUM INTO '/tmp/x.db'\",\n...",
+            "fresh": "func TestValidateReadOnlyQuery_RejectsBypassVectors(t *testing.T) {\n\trejected := []string{\n\t\t\"VACUUM INTO '/tmp/x.db'\",\n..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/store/candidates.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/store/candidates_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/store/events.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/store/events_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/store/extras.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/store/learnings.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/store/learnings_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/store/playbooks.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/store/playbooks_test.go",
+      "verdict": "NEW-TEMPLATE-EMISSION",
+      "applied": false
+    },
+    {
+      "path": "internal/store/schema_version_test.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "holdWriteLock": {
+            "published": "func holdWriteLock(t *testing.T, dbPath string) (cleanup func()) {\n\tt.Helper()\n\tholder, err := sql.Open(\"sqlite\", dbPath...",
+            "fresh": "func holdWriteLock(t *testing.T, dbPath string) (cleanup func()) {\n\tt.Helper()\n\tholder, err := sql.Open(\"sqlite\", dbPath..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/store/store.go",
+      "verdict": "TEMPLATED-BODY-DRIFT",
+      "applied": false,
+      "body_drift": {
+        "functions": {
+          "(*Store).ListFieldSets": [
+            "Sprint",
+            "Unmarshal"
+          ],
+          "(*Store).UpsertArchive": [
+            "Unmarshal"
+          ],
+          "(*Store).UpsertAttributes": [
+            "Unmarshal"
+          ],
+          "(*Store).UpsertAway": [
+            "Unmarshal"
+          ],
+          "(*Store).UpsertBatch": [
+            "Unmarshal"
+          ],
+          "(*Store).UpsertBlock": [
+            "Unmarshal"
+          ],
+          "(*Store).UpsertCompaniesContacts": [
+            "Unmarshal"
+          ],
+          "(*Store).UpsertCompaniesSegments": [
+            "Unmarshal"
+          ],
+          "(*Store).UpsertContacts": [
+            "Unmarshal"
+          ],
+          "(*Store).UpsertContactsCompanies": [
+            "Unmarshal"
+          ],
+          "(*Store).UpsertContactsNotes": [
+            "Unmarshal"
+          ],
+          "(*Store).UpsertContactsSegments": [
+            "Unmarshal"
+          ],
+          "(*Store).UpsertContactsTags": [
+            "Unmarshal"
+          ],
+          "(*Store).UpsertConversations": [
+            "Unmarshal"
+          ],
+          "(*Store).UpsertConversationsReply": [
+            "Unmarshal"
+          ],
+          "(*Store).UpsertConversationsTags": [
+            "Unmarshal"
+          ],
+          "(*Store).UpsertConvert": [
+            "Unmarshal"
+          ],
+          "(*Store).UpsertCustomers": [
+            "Unmarshal"
+          ],
+          "(*Store).UpsertParts": [
+            "Unmarshal"
+          ],
+          "(*Store).UpsertSubscriptions": [
+            "Unmarshal"
+          ],
+          "(*Store).UpsertTicketsReply": [
+            "Unmarshal"
+          ],
+          "(*Store).UpsertTicketsTags": [
+            "Unmarshal"
+          ],
+          "(*Store).UpsertUnarchive": [
+            "Unmarshal"
+          ],
+          "ExtractResourceID": [
+            "Sprintf"
+          ],
+          "OpenReadOnly": [
+            "Errorf",
+            "Open",
+            "SetMaxOpenConns"
+          ],
+          "extractObjectID": [
+            "Sprintf"
+          ]
+        }
+      }
+    },
+    {
+      "path": "internal/store/upsert_batch_test.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "TestUpsertBatch_GenericFallbackList": {
+            "published": "func TestUpsertBatch_GenericFallbackList(t *testing.T) {\n\tdbPath := filepath.Join(t.TempDir(), \"data.db\")\n\ts, err := Ope...",
+            "fresh": "func TestUpsertBatch_GenericFallbackList(t *testing.T) {\n\tdbPath := filepath.Join(t.TempDir(), \"data.db\")\n\ts, err := Ope..."
+          }
+        }
+      }
+    },
+    {
+      "path": "internal/types/types.go",
+      "verdict": "TEMPLATED-VALUE-DRIFT",
+      "applied": false,
+      "value_drift": {
+        "decls": {
+          "type:customer_request": {
+            "published": "type customer_request struct {\n}",
+            "fresh": "type customer_request struct {\n\tEmail          string `json:\"email\"`\n\tIntercomUserId string `json:\"intercom_user_id\"`\n\tU..."
+          },
+          "type:event_details": {
+            "published": "type event_details struct {\n}",
+            "fresh": "type event_details struct {\n\tAction    json.RawMessage `json:\"action\"`\n\tAttribute json.RawMessage `json:\"attribute\"`\n\tEv..."
+          }
+        }
+      }
+    },
+    {
+      "path": "spec.yaml",
+      "verdict": "TEMPLATED-CLEAN",
+      "applied": false
+    }
+  ],
+  "go_mod": {
+    "merged": false,
+    "preserved_module_path": "intercom-pp-cli"
+  }
+}

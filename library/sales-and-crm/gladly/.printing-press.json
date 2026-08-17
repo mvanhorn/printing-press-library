@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-22T07:15:10.095461Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "gladly",
+  "display_name": "Gladly Read",
+  "cli_name": "gladly-pp-cli",
+  "creator": {
+    "handle": "debgotwired",
+    "name": "Deb Mukherjee"
+  },
+  "owner": "debgotwired",
+  "printer": "debgotwired",
+  "printer_name": "Deb Mukherjee",
+  "spec_url": "https://api.gladly.com",
+  "spec_path": "gladly-read-openapi.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:66666ad8bda618f02e2a0356966cbbd4af638286b9af600d88288ba29be1526c",
+  "run_id": "20260622-071510",
+  "category": "sales-and-crm",
+  "description": "Read-first Gladly API surface for customer timelines, conversations, agents, topics, answers, and support operations.",
+  "mcp_binary": "gladly-pp-mcp",
+  "mcp_tool_count": 11,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "GLADLY_USERNAME",
+    "GLADLY_PASSWORD"
+  ],
+  "novel_features": [
+    {
+      "name": "Agent command discovery",
+      "command": "which",
+      "description": "Map a natural-language capability request to the exact generated CLI command before executing it."
+    },
+    {
+      "name": "Structured agent context",
+      "command": "agent-context",
+      "description": "Emit machine-readable command, auth, and profile metadata so agents can plan calls without scraping help text."
+    },
+    {
+      "name": "Local SQLite sync framework",
+      "command": "sync",
+      "description": "Sync selected API resources into a local SQLite store for repeatable offline inspection and analysis."
+    },
+    {
+      "name": "SQL analytics on synced records",
+      "command": "analytics",
+      "description": "Run read-only SQL against synced API records for compound questions the upstream API does not expose directly."
+    }
+  ]
+}

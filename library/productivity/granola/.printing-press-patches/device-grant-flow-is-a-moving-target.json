@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "device-grant-flow-is-a-moving-target",
+  "applied_at": "2026-08-03",
+  "base_run_id": "20260511-211333",
+  "base_printing_press_version": "4.4.0",
+  "summary": "The device-grant endpoints, client id and verification host are an unofficial dependency; triage auth login failures as upstream drift before treating them as a CLI regression.",
+  "reason": "Granola closed three separate third-party access routes in roughly three months -- the DEK moved behind an entitlement, the local store went SQLCipher, and the plaintext auth files stopped being written. The device grant the CLI now depends on is minted through a Granola auth surface not issued to this CLI, so it belongs in the same moving-target category as the client-version header. A regen must re-verify the endpoints and the grant's scope against the live service rather than trusting the recorded contract, and should expect revocation or re-scoping to be a live possibility rather than a bug.",
+  "upstream_issue": "",
+  "files": []
+}

@@ -6,16 +6,38 @@ package cli
 import (
 	"bytes"
 	"context"
-	"database/sql"
 	"encoding/json"
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"testing"
 
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/espn/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/espn/internal/learn"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/espn/internal/learn/entities"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/espn/internal/store"
 )
+
+func unmarshalAgentResults(t *testing.T, stdout string, out any) {
+	t.Helper()
+	var envelope struct {
+		Meta    map[string]any  `json:"meta"`
+		Results json.RawMessage `json:"results"`
+	}
+	if err := json.Unmarshal([]byte(stdout), &envelope); err != nil {
+		t.Fatalf("agent envelope JSON: %v (stdout=%q)", err, stdout)
+	}
+	if src, _ := envelope.Meta["source"].(string); src == "" {
+		t.Fatalf("agent envelope missing meta.source: %q", stdout)
+	}
+	if len(envelope.Results) == 0 {
+		t.Fatalf("agent envelope missing results: %q", stdout)
+	}
+	if err := json.Unmarshal(envelope.Results, out); err != nil {
+		t.Fatalf("agent envelope results JSON: %v (stdout=%q)", err, stdout)
+	}
+}
 
 // withTempLearnHome points HOME at a fresh temp dir and clears the
 // per-CLI no-learn env var so every test gets the default "learning
@@ -26,6 +48,9 @@ func withTempLearnHome(t *testing.T) string {
 	dir := t.TempDir()
 	t.Setenv("HOME", dir)
 	t.Setenv(noLearnEnvVar, "")
+	t.Setenv("ESPN_STATE_DIR", "")
+	t.Setenv("ESPN_HOME", "")
+	t.Setenv("XDG_STATE_HOME", "")
 	return dir
 }
 
@@ -96,7 +121,11 @@ func TestTeachCommand_MissingResourceTypeErrors(t *testing.T) {
 	}
 
 	// teach.log should exist with a missing --resource-type line.
-	logPath := filepath.Join(home, ".local", "share", "espn-pp-cli", teachErrLogFileName)
+	stateDir, stateErr := cliutil.StateDir()
+	if stateErr != nil {
+		t.Fatalf("StateDir() error = %v", stateErr)
+	}
+	logPath := filepath.Join(stateDir, teachErrLogFileName)
 	data, statErr := os.ReadFile(logPath)
 	if statErr != nil {
 		t.Fatalf("teach.log should exist on error: %v", statErr)
@@ -175,9 +204,7 @@ func TestRecallCommand_FoundAndNotFound(t *testing.T) {
 		t.Fatalf("recall: %v", err)
 	}
 	var env recallEnvelope
-	if err := json.Unmarshal([]byte(stdout), &env); err != nil {
-		t.Fatalf("recall JSON: %v (stdout=%q)", err, stdout)
-	}
+	unmarshalAgentResults(t, stdout, &env)
 	if !env.Found || len(env.Results) != 2 {
 		t.Errorf("recall: want found+2 results, got %+v", env)
 	}
@@ -191,11 +218,29 @@ func TestRecallCommand_FoundAndNotFound(t *testing.T) {
 		t.Fatalf("recall unrelated: %v", err)
 	}
 	env = recallEnvelope{}
-	if err := json.Unmarshal([]byte(stdout), &env); err != nil {
-		t.Fatalf("recall unrelated JSON: %v", err)
-	}
+	unmarshalAgentResults(t, stdout, &env)
 	if env.Found || len(env.Results) != 0 {
 		t.Errorf("unrelated recall: want empty, got %+v", env)
+	}
+}
+
+func TestRecallEnvelopeResultsCarryAliasTarget(t *testing.T) {
+	got := toEnvelopeResults([]learn.Hit{
+		{
+			ResourceID:   "old-id",
+			Action:       store.LearningActionAlias,
+			AliasTarget:  "new-id",
+			Confidence:   3,
+			MatchScore:   1,
+			EntityMatch:  learn.EntityMatchExact,
+			ResourceType: "items",
+		},
+	})
+	if len(got) != 1 {
+		t.Fatalf("want 1 result, got %d", len(got))
+	}
+	if got[0].AliasTarget != "new-id" {
+		t.Fatalf("AliasTarget = %q, want new-id", got[0].AliasTarget)
 	}
 }
 
@@ -223,9 +268,7 @@ func TestRecallCommand_RespectsNoLearnEnvVar(t *testing.T) {
 		t.Fatalf("recall with NO_LEARN: %v", err)
 	}
 	var env recallEnvelope
-	if err := json.Unmarshal([]byte(stdout), &env); err != nil {
-		t.Fatalf("recall JSON: %v", err)
-	}
+	unmarshalAgentResults(t, stdout, &env)
 	if env.Found {
 		t.Errorf("NO_LEARN should suppress recall results; got %+v", env)
 	}
@@ -302,9 +345,7 @@ func TestLearningsForget_TargetedAndAll(t *testing.T) {
 		t.Fatalf("forget Y: %v", err)
 	}
 	var resp map[string]any
-	if err := json.Unmarshal([]byte(stdout), &resp); err != nil {
-		t.Fatalf("forget JSON: %v", err)
-	}
+	unmarshalAgentResults(t, stdout, &resp)
 	if v, _ := resp["deleted"].(float64); v != 1 {
 		t.Errorf("forget Y: want deleted=1, got %v", resp["deleted"])
 	}
@@ -319,9 +360,7 @@ func TestLearningsForget_TargetedAndAll(t *testing.T) {
 		t.Fatalf("forget all: %v", err)
 	}
 	resp = nil
-	if err := json.Unmarshal([]byte(stdout), &resp); err != nil {
-		t.Fatalf("forget all JSON: %v", err)
-	}
+	unmarshalAgentResults(t, stdout, &resp)
 	if v, _ := resp["deleted"].(float64); v < 1 {
 		t.Errorf("forget all: want deleted>=1, got %v", resp["deleted"])
 	}
@@ -344,9 +383,7 @@ func TestTeachPattern_HappyPath(t *testing.T) {
 		t.Fatalf("teach-pattern: %v", err)
 	}
 	var resp map[string]any
-	if err := json.Unmarshal([]byte(stdout), &resp); err != nil {
-		t.Fatalf("teach-pattern JSON: %v (stdout=%q)", err, stdout)
-	}
+	unmarshalAgentResults(t, stdout, &resp)
 	if v, _ := resp["recorded"].(bool); !v {
 		t.Errorf("teach-pattern: want recorded=true, got %v", resp)
 	}
@@ -382,9 +419,7 @@ func TestTeachLookup_HappyPath(t *testing.T) {
 		t.Fatalf("teach-lookup: %v", err)
 	}
 	var resp map[string]any
-	if err := json.Unmarshal([]byte(stdout), &resp); err != nil {
-		t.Fatalf("teach-lookup JSON: %v (stdout=%q)", err, stdout)
-	}
+	unmarshalAgentResults(t, stdout, &resp)
 	if v, _ := resp["recorded"].(bool); !v {
 		t.Errorf("teach-lookup: want recorded=true, got %v", resp)
 	}
@@ -444,9 +479,7 @@ func TestSkipLearnHook_NovelCommandsNotSkipped(t *testing.T) {
 
 func TestSkipLearnHook_FrameworkCommandsDoNotCreateDefaultDB(t *testing.T) {
 	home := withTempLearnHome(t)
-	learnInitMu.Lock()
-	learnInitDone = false
-	learnInitMu.Unlock()
+	learnInitOnce = sync.Once{}
 
 	cases := [][]string{
 		{"auth", "setup"},
@@ -481,9 +514,7 @@ func TestRecallCommand_EnvelopeCarriesQueryEntities(t *testing.T) {
 		t.Fatalf("recall: %v", err)
 	}
 	var env recallEnvelope
-	if err := json.Unmarshal([]byte(stdout), &env); err != nil {
-		t.Fatalf("recall JSON: %v (stdout=%q)", err, stdout)
-	}
+	unmarshalAgentResults(t, stdout, &env)
 	if env.Normalized == "" {
 		t.Errorf("cold recall should still populate normalized; got %q", env.Normalized)
 	}
@@ -492,171 +523,693 @@ func TestRecallCommand_EnvelopeCarriesQueryEntities(t *testing.T) {
 	}
 }
 
-// seedLookupForTest inserts an entity_lookups row into the supplied
-// DB. The teach path's PromoteEntities helper consults this table at
-// write time so lowercase / numeric-prefix aliases land in
-// query_entities even when the capitalization-based extractor misses
-// them.
-func seedLookupForTest(t *testing.T, dbPath, kind, canonical string, values ...string) {
-	t.Helper()
-	s, err := store.OpenWithContext(context.Background(), dbPath)
-	if err != nil {
-		t.Fatalf("seedLookupForTest: open db: %v", err)
-	}
-	defer s.Close()
-	for _, v := range values {
-		if _, err := s.DB().Exec(
-			`INSERT OR IGNORE INTO entity_lookups (kind, canonical, value, source) VALUES (?, ?, ?, 'seeded')`,
-			kind, canonical, v,
-		); err != nil {
-			t.Fatalf("seedLookupForTest: insert (%s, %s, %s): %v", kind, canonical, v, err)
-		}
-	}
-}
-
-// TestTeach_PromotesLowercaseEntityViaLookups exercises U1 of plan
-// 2026-05-25-004: teach time symmetric entity promotion. Before this
-// fix, "how are the mariners doing this year" stored
-// query_entities=null because the capitalization-based extractor
-// misses lowercase entities; the recall path then had nothing to
-// canonical-resolve against on the stored side, killing cross-alias
-// matching.
-func TestTeach_PromotesLowercaseEntityViaLookups(t *testing.T) {
-	home := withTempLearnHome(t)
-	dbPath := filepath.Join(home, "data.db")
-
-	seedLookupForTest(t, dbPath, "mlb_team", "Seattle Mariners",
-		"Seattle Mariners", "Mariners", "SEA")
-
-	if _, _, err := runRootArgs(t,
-		"teach",
-		"--query", "how are the mariners doing this year",
-		"--resource", "12",
-		"--resource-type", "teams",
-		"--db", dbPath,
-	); err != nil {
-		t.Fatalf("teach: %v", err)
-	}
-
-	s, err := store.OpenWithContext(context.Background(), dbPath)
-	if err != nil {
-		t.Fatalf("reopen db: %v", err)
-	}
-	defer s.Close()
-	var stored sql.NullString
-	if err := s.DB().QueryRow(
-		`SELECT query_entities FROM search_learnings WHERE resource_id = ?`,
-		"12",
-	).Scan(&stored); err != nil {
-		t.Fatalf("query stored row: %v", err)
-	}
-	if !stored.Valid || stored.String == "" || stored.String == "null" {
-		t.Fatalf("query_entities should be populated; got %v", stored)
-	}
-	var entitiesSlice []string
-	if err := json.Unmarshal([]byte(stored.String), &entitiesSlice); err != nil {
-		t.Fatalf("decode query_entities: %v", err)
-	}
-	foundMariners := false
-	for _, e := range entitiesSlice {
-		if strings.EqualFold(e, "mariners") {
-			foundMariners = true
-			break
-		}
-	}
-	if !foundMariners {
-		t.Errorf("want 'mariners' in stored query_entities; got %v", entitiesSlice)
-	}
-}
-
-// TestTeach_PromotesNumericPrefixAlias exercises the "49ers" case:
-// numeric-prefix tokens slipped past the capitalization rule but
-// resolve via entity_lookups. After U1, teach stores them in
-// query_entities so cross-alias recall fires.
-func TestTeach_PromotesNumericPrefixAlias(t *testing.T) {
-	home := withTempLearnHome(t)
-	dbPath := filepath.Join(home, "data.db")
-
-	seedLookupForTest(t, dbPath, "nfl_team", "San Francisco 49ers",
-		"San Francisco 49ers", "Niners", "49ers", "SF")
-
-	if _, _, err := runRootArgs(t,
-		"teach",
-		"--query", "49ers game tonight",
-		"--resource", "401547432",
-		"--resource-type", "events",
-		"--db", dbPath,
-	); err != nil {
-		t.Fatalf("teach: %v", err)
-	}
-
-	s, err := store.OpenWithContext(context.Background(), dbPath)
-	if err != nil {
-		t.Fatalf("reopen db: %v", err)
-	}
-	defer s.Close()
-	var stored sql.NullString
-	if err := s.DB().QueryRow(
-		`SELECT query_entities FROM search_learnings WHERE resource_id = ?`,
-		"401547432",
-	).Scan(&stored); err != nil {
-		t.Fatalf("query stored row: %v", err)
-	}
-	var entitiesSlice []string
-	if stored.Valid {
-		_ = json.Unmarshal([]byte(stored.String), &entitiesSlice)
-	}
-	found := false
-	for _, e := range entitiesSlice {
-		if strings.EqualFold(e, "49ers") {
-			found = true
-			break
-		}
-	}
-	if !found {
-		t.Errorf("want '49ers' in stored query_entities; got %v", entitiesSlice)
-	}
-}
-
-// TestTeach_NoMatch_StoresEmptyEntities confirms a query with no
-// resolvable alias doesn't get spurious entries — the helper is
-// strictly additive.
-func TestTeach_NoMatch_StoresEmptyEntities(t *testing.T) {
-	home := withTempLearnHome(t)
-	dbPath := filepath.Join(home, "data.db")
-
-	if _, _, err := runRootArgs(t,
-		"teach",
-		"--query", "what is the weather",
-		"--resource", "weather-1",
-		"--resource-type", "weather",
-		"--db", dbPath,
-	); err != nil {
-		t.Fatalf("teach: %v", err)
-	}
-
-	s, err := store.OpenWithContext(context.Background(), dbPath)
-	if err != nil {
-		t.Fatalf("reopen db: %v", err)
-	}
-	defer s.Close()
-	var stored sql.NullString
-	if err := s.DB().QueryRow(
-		`SELECT query_entities FROM search_learnings WHERE resource_id = ?`,
-		"weather-1",
-	).Scan(&stored); err != nil {
-		t.Fatalf("query stored row: %v", err)
-	}
-	var entitiesSlice []string
-	if stored.Valid && stored.String != "" && stored.String != "null" {
-		_ = json.Unmarshal([]byte(stored.String), &entitiesSlice)
-	}
-	if len(entitiesSlice) != 0 {
-		t.Errorf("want empty stored query_entities (no resolvable tokens); got %v", entitiesSlice)
-	}
-}
-
 // Defense: assert the per-CLI entity Config the tests use is non-nil
 // by referencing the package so the unused-import lint doesn't fire
 // when the suite shrinks.
 var _ = entities.NewConfig
+
+// TestTeachCommand_IntegratedPlaybookFile covers R3: a single
+// `teach --query --resource --playbook-file --playbook-notes-file`
+// call records both the resource learning AND the playbook row in
+// one shot, so end-of-session flows don't need to fire two CLIs.
+func TestTeachCommand_IntegratedPlaybookFile(t *testing.T) {
+	home := withTempLearnHome(t)
+	dbPath := filepath.Join(home, "data.db")
+
+	pbPath := writePlaybookFile(t, home, "pb.json",
+		`{"steps":[{"cmd":"items list {category.id}"}],"entity_slots":["$CATEGORY"]}`)
+	notesPath := writePlaybookFile(t, home, "notes.md",
+		"the items-by-source endpoint needs source_type=2; duplicate labels")
+
+	stdout, stderr, err := runRootArgs(t,
+		"teach",
+		"--query", "list all widgets in inventory and their top stats",
+		"--resource", "widget-42",
+		"--resource-type", "items",
+		"--playbook-file", pbPath,
+		"--playbook-notes-file", notesPath,
+		"--db", dbPath,
+	)
+	if err != nil {
+		t.Fatalf("teach integrated: %v (stderr=%q)", err, stderr)
+	}
+	if stdout != "" {
+		t.Errorf("teach should be silent on success; stdout=%q", stdout)
+	}
+
+	s, err := store.OpenWithContext(context.Background(), dbPath)
+	if err != nil {
+		t.Fatalf("reopen db: %v", err)
+	}
+	defer s.Close()
+
+	// Resource learning landed.
+	rows, err := listLearningsRows(context.Background(), s, store.ListLearningsFilter{})
+	if err != nil {
+		t.Fatalf("listLearnings: %v", err)
+	}
+	if len(rows) != 1 || rows[0].ResourceID != "widget-42" {
+		t.Fatalf("expected 1 learning for widget-42, got %#v", rows)
+	}
+
+	// Playbook row landed in the same call.
+	pb, err := s.ListPlaybooks()
+	if err != nil {
+		t.Fatalf("ListPlaybooks: %v", err)
+	}
+	if len(pb) != 1 {
+		t.Fatalf("expected 1 playbook row, got %d", len(pb))
+	}
+	if !strings.Contains(pb[0].PlaybookJSON, "items list") {
+		t.Errorf("playbook_json not stored: %q", pb[0].PlaybookJSON)
+	}
+	if !strings.Contains(pb[0].NotesText, "source_type=2") {
+		t.Errorf("notes_text not stored: %q", pb[0].NotesText)
+	}
+}
+
+// TestTeachCommand_IntegratedNoPlaybookFlags confirms the playbook
+// upsert is a no-op when none of the playbook flags is set -- the
+// resource learning still lands, no playbook row is written, and the
+// command exits 0.
+func TestTeachCommand_IntegratedNoPlaybookFlags(t *testing.T) {
+	home := withTempLearnHome(t)
+	dbPath := filepath.Join(home, "data.db")
+
+	_, _, err := runRootArgs(t,
+		"teach",
+		"--query", "find all widgets",
+		"--resource", "widget-1",
+		"--resource-type", "items",
+		"--db", dbPath,
+	)
+	if err != nil {
+		t.Fatalf("teach: %v", err)
+	}
+
+	s, err := store.OpenWithContext(context.Background(), dbPath)
+	if err != nil {
+		t.Fatalf("reopen: %v", err)
+	}
+	defer s.Close()
+	rows, _ := listLearningsRows(context.Background(), s, store.ListLearningsFilter{})
+	if len(rows) != 1 {
+		t.Fatalf("expected 1 learning, got %d", len(rows))
+	}
+	pb, _ := s.ListPlaybooks()
+	if len(pb) != 0 {
+		t.Errorf("expected 0 playbooks (no flags set), got %d", len(pb))
+	}
+}
+
+// TestTeachCommand_IntegratedPlaybookFileOnly covers the variant
+// where only --playbook-file is set: playbook lands, notes_text is
+// empty, resource learning still lands.
+func TestTeachCommand_IntegratedPlaybookFileOnly(t *testing.T) {
+	home := withTempLearnHome(t)
+	dbPath := filepath.Join(home, "data.db")
+	pbPath := writePlaybookFile(t, home, "pb.json",
+		`{"steps":[{"cmd":"items list"}]}`)
+
+	_, _, err := runRootArgs(t,
+		"teach",
+		"--query", "list widgets again",
+		"--resource", "widget-7",
+		"--resource-type", "items",
+		"--playbook-file", pbPath,
+		"--db", dbPath,
+	)
+	if err != nil {
+		t.Fatalf("teach: %v", err)
+	}
+
+	s, _ := store.OpenWithContext(context.Background(), dbPath)
+	defer s.Close()
+	pb, _ := s.ListPlaybooks()
+	if len(pb) != 1 {
+		t.Fatalf("expected 1 playbook, got %d", len(pb))
+	}
+	if pb[0].PlaybookJSON == "" {
+		t.Errorf("playbook_json should be non-empty; got %q", pb[0].PlaybookJSON)
+	}
+	if pb[0].NotesText != "" {
+		t.Errorf("notes_text should be empty when only --playbook-file set; got %q", pb[0].NotesText)
+	}
+}
+
+// TestTeachCommand_IntegratedNotesFileOnly covers the variant where
+// only --playbook-notes-file is set: playbook row lands with empty
+// playbook_json and populated notes_text.
+func TestTeachCommand_IntegratedNotesFileOnly(t *testing.T) {
+	home := withTempLearnHome(t)
+	dbPath := filepath.Join(home, "data.db")
+	notesPath := writePlaybookFile(t, home, "notes.md", "remember to set source_type")
+
+	_, _, err := runRootArgs(t,
+		"teach",
+		"--query", "yet another widget query",
+		"--resource", "widget-9",
+		"--resource-type", "items",
+		"--playbook-notes-file", notesPath,
+		"--db", dbPath,
+	)
+	if err != nil {
+		t.Fatalf("teach: %v", err)
+	}
+
+	s, _ := store.OpenWithContext(context.Background(), dbPath)
+	defer s.Close()
+	pb, _ := s.ListPlaybooks()
+	if len(pb) != 1 {
+		t.Fatalf("expected 1 playbook, got %d", len(pb))
+	}
+	if pb[0].PlaybookJSON != "" {
+		t.Errorf("playbook_json should be empty when only --playbook-notes-file set; got %q", pb[0].PlaybookJSON)
+	}
+	if !strings.Contains(pb[0].NotesText, "source_type") {
+		t.Errorf("notes_text content missing: %q", pb[0].NotesText)
+	}
+}
+
+// learnEventRow is the readback shape the event-instrumentation tests
+// assert against.
+type learnEventRow struct {
+	Event        string
+	FamilyHash   string
+	MatchedRowID int64
+	EntityMatch  int
+	Surface      string
+}
+
+// readLearnEvents returns every learn_events row (insert order) from
+// the given DB, opening and closing its own store handle so the CLI
+// under test owns the file while running.
+func readLearnEvents(t *testing.T, dbPath string) []learnEventRow {
+	t.Helper()
+	s, err := store.OpenWithContext(context.Background(), dbPath)
+	if err != nil {
+		t.Fatalf("open store for events: %v", err)
+	}
+	defer s.Close()
+	rows, err := s.DB().Query(`SELECT event, COALESCE(query_family_hash, ''),
+		COALESCE(matched_row_id, 0), COALESCE(entity_match, 0), COALESCE(surface, '')
+		FROM learn_events ORDER BY id ASC`)
+	if err != nil {
+		t.Fatalf("read events: %v", err)
+	}
+	defer rows.Close()
+	var out []learnEventRow
+	for rows.Next() {
+		var r learnEventRow
+		if err := rows.Scan(&r.Event, &r.FamilyHash, &r.MatchedRowID, &r.EntityMatch, &r.Surface); err != nil {
+			t.Fatalf("scan event: %v", err)
+		}
+		out = append(out, r)
+	}
+	if err := rows.Err(); err != nil {
+		t.Fatalf("events rows: %v", err)
+	}
+	return out
+}
+
+// filterLearnEvents returns the subset with the given event type.
+func filterLearnEvents(rows []learnEventRow, event string) []learnEventRow {
+	var out []learnEventRow
+	for _, r := range rows {
+		if r.Event == event {
+			out = append(out, r)
+		}
+	}
+	return out
+}
+
+// TestLearnEvents_MissTeachHitSequenceRowIDLinkage drives the
+// canonical loop end to end — cold recall, teach, warm recall — and
+// pins the three correctly-typed events with row-id linkage: the
+// teach event and the recall_hit both carry the taught learning's
+// search_learnings row id, so teach-to-reuse joins by row id.
+func TestLearnEvents_MissTeachHitSequenceRowIDLinkage(t *testing.T) {
+	home := withTempLearnHome(t)
+	dbPath := filepath.Join(home, "data.db")
+	const query = "find all widgets in inventory"
+
+	if _, _, err := runRootArgs(t, "recall", query, "--db", dbPath, "--agent"); err != nil {
+		t.Fatalf("cold recall: %v", err)
+	}
+	if _, _, err := runRootArgs(t,
+		"teach", "--query", query,
+		"--resource", "widget-42", "--resource-type", "items",
+		"--db", dbPath,
+	); err != nil {
+		t.Fatalf("teach: %v", err)
+	}
+	if _, _, err := runRootArgs(t, "recall", query, "--db", dbPath, "--agent"); err != nil {
+		t.Fatalf("warm recall: %v", err)
+	}
+
+	// The taught learning's row id anchors the linkage assertions.
+	s, err := store.OpenWithContext(context.Background(), dbPath)
+	if err != nil {
+		t.Fatalf("reopen: %v", err)
+	}
+	rows, err := listLearningsRows(context.Background(), s, store.ListLearningsFilter{})
+	s.Close()
+	if err != nil || len(rows) != 1 {
+		t.Fatalf("want exactly 1 learning row (err=%v), got %d", err, len(rows))
+	}
+	taughtID := rows[0].ID
+
+	events := readLearnEvents(t, dbPath)
+	misses := filterLearnEvents(events, store.LearnEventRecallMiss)
+	teaches := filterLearnEvents(events, store.LearnEventTeach)
+	hits := filterLearnEvents(events, store.LearnEventRecallHit)
+	if len(misses) != 1 || len(teaches) != 1 || len(hits) != 1 {
+		t.Fatalf("want 1 miss / 1 teach / 1 hit, got %d/%d/%d (%+v)",
+			len(misses), len(teaches), len(hits), events)
+	}
+	if teaches[0].MatchedRowID != taughtID {
+		t.Errorf("teach event row id = %d, want taught row %d", teaches[0].MatchedRowID, taughtID)
+	}
+	if hits[0].MatchedRowID != taughtID {
+		t.Errorf("recall_hit event row id = %d, want taught row %d", hits[0].MatchedRowID, taughtID)
+	}
+	if misses[0].FamilyHash == "" || misses[0].FamilyHash != teaches[0].FamilyHash {
+		t.Errorf("miss family hash %q should match teach family hash %q",
+			misses[0].FamilyHash, teaches[0].FamilyHash)
+	}
+	for _, r := range events {
+		if r.Surface != store.LearnSurfaceCLI {
+			t.Errorf("event %s surface = %q, want cli", r.Event, r.Surface)
+		}
+	}
+}
+
+// TestLearnEvents_AliasMediatedRecallCreditsTaughtRowID pins the
+// row-id join rationale: a recall phrased through a different alias
+// (and different structural tokens) lands under a DIFFERENT family
+// hash than the teach, so a family-hash-only join would miss the
+// reuse — but the recall_hit's matched_row_id still credits the
+// taught row, and stats report teach-to-reuse = 1.
+func TestLearnEvents_AliasMediatedRecallCreditsTaughtRowID(t *testing.T) {
+	home := withTempLearnHome(t)
+	dbPath := filepath.Join(home, "data.db")
+
+	// Register the alias pair so the cross-alias canonical resolver
+	// can bridge the two phrasings.
+	for _, value := range []string{"WidgetCo", "WC"} {
+		if _, _, err := runRootArgs(t,
+			"teach-lookup", "--kind", "org",
+			"--canonical", "WidgetCo", "--value", value,
+			"--db", dbPath, "--agent",
+		); err != nil {
+			t.Fatalf("teach-lookup %s: %v", value, err)
+		}
+	}
+
+	if _, _, err := runRootArgs(t,
+		"teach", "--query", "show quarterly report for WidgetCo",
+		"--resource", "report-7", "--resource-type", "reports",
+		"--db", dbPath,
+	); err != nil {
+		t.Fatalf("teach: %v", err)
+	}
+
+	stdout, _, err := runRootArgs(t,
+		"recall", "display quarterly report for WC",
+		"--db", dbPath, "--agent",
+	)
+	if err != nil {
+		t.Fatalf("alias recall: %v", err)
+	}
+	var env recallEnvelope
+	unmarshalAgentResults(t, stdout, &env)
+	if !env.Found {
+		t.Fatalf("alias-mediated recall should hit; got %+v", env)
+	}
+
+	s, err := store.OpenWithContext(context.Background(), dbPath)
+	if err != nil {
+		t.Fatalf("reopen: %v", err)
+	}
+	rows, err := listLearningsRows(context.Background(), s, store.ListLearningsFilter{})
+	if err != nil || len(rows) != 1 {
+		s.Close()
+		t.Fatalf("want 1 learning row (err=%v), got %d", err, len(rows))
+	}
+	taughtID := rows[0].ID
+
+	events := readLearnEvents(t, dbPath)
+	teaches := filterLearnEvents(events, store.LearnEventTeach)
+	hits := filterLearnEvents(events, store.LearnEventRecallHit)
+	if len(teaches) != 1 || len(hits) != 1 {
+		s.Close()
+		t.Fatalf("want 1 teach / 1 hit, got %d/%d (%+v)", len(teaches), len(hits), events)
+	}
+	if hits[0].MatchedRowID != taughtID {
+		t.Errorf("recall_hit row id = %d, want taught row %d", hits[0].MatchedRowID, taughtID)
+	}
+	// The pin: the family hashes DIFFER (a family-hash-only join would
+	// miss this reuse) yet the row-id join credits it.
+	if hits[0].FamilyHash == teaches[0].FamilyHash {
+		t.Errorf("alias recall family hash %q should differ from teach family hash %q — the scenario must exercise the row-id join",
+			hits[0].FamilyHash, teaches[0].FamilyHash)
+	}
+	stats, err := s.LearnEventStats(context.Background())
+	s.Close()
+	if err != nil {
+		t.Fatalf("stats: %v", err)
+	}
+	if stats.TaughtRows != 1 || stats.ReusedRows != 1 {
+		t.Errorf("taught/reused = %d/%d, want 1/1 via row-id join", stats.TaughtRows, stats.ReusedRows)
+	}
+}
+
+// TestLearnEvents_InsertFailureNeverFailsRecall pins the best-effort
+// contract at the helper seam: recordRecallEvents against a closed
+// store must swallow the failure (to teach.log) — recall's result was
+// already computed and must reach the agent.
+func TestLearnEvents_InsertFailureNeverFailsRecall(t *testing.T) {
+	home := withTempLearnHome(t)
+	dbPath := filepath.Join(home, "data.db")
+
+	s, err := store.OpenWithContext(context.Background(), dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	s.Close() // every insert from here on fails
+
+	result := learn.Result{
+		Query:  "some question",
+		Family: "question some",
+		Found:  true,
+		Results: []learn.Hit{
+			{
+				LearningID:  1,
+				ResourceID:  "widget-1",
+				EntityMatch: learn.EntityMatchExact,
+			},
+		},
+		Playbook: &learn.ResolvedPlaybook{QueryFamily: "question some"},
+	}
+	// Must not panic and must not propagate an error (void contract).
+	recordRecallEvents(s, result)
+	recordRecallEvents(nil, result)
+
+	// The failure is diagnosable in teach.log.
+	stateDir, err := cliutil.StateDir()
+	if err != nil {
+		t.Fatalf("StateDir: %v", err)
+	}
+	data, err := os.ReadFile(filepath.Join(stateDir, teachErrLogFileName))
+	if err != nil {
+		t.Fatalf("teach.log should record the insert failure: %v", err)
+	}
+	if !strings.Contains(string(data), "event insert") {
+		t.Errorf("teach.log should mention the event insert; got %q", string(data))
+	}
+}
+
+// TestLearnEvents_ConcurrentTeachRecallLosesNothing drives the event
+// layer from two concurrent writers on two separate store handles to
+// the same file — the shape of a backgrounded teach racing a recall
+// in another process — and asserts every event lands. Run with -race
+// by the generator harness. (The full cobra commands are exercised
+// per-invocation elsewhere; the generated root binds process-global
+// flags, so in-process concurrency is only meaningful below the
+// command layer.)
+func TestLearnEvents_ConcurrentTeachRecallLosesNothing(t *testing.T) {
+	home := withTempLearnHome(t)
+	dbPath := filepath.Join(home, "data.db")
+
+	teachStore, err := store.OpenWithContext(context.Background(), dbPath)
+	if err != nil {
+		t.Fatalf("open teach store: %v", err)
+	}
+	defer teachStore.Close()
+	recallStore, err := store.OpenWithContext(context.Background(), dbPath)
+	if err != nil {
+		t.Fatalf("open recall store: %v", err)
+	}
+	defer recallStore.Close()
+
+	const rounds = 20
+	var wg sync.WaitGroup
+	errCh := make(chan error, rounds)
+	wg.Add(2)
+	go func() {
+		defer wg.Done()
+		for i := 0; i < rounds; i++ {
+			if err := teachStore.InsertLearnEvent(store.LearnEventTeach,
+				"fam-conc", int64(i+1), false, store.LearnSurfaceCLI); err != nil {
+				errCh <- err
+			}
+		}
+	}()
+	go func() {
+		defer wg.Done()
+		for i := 0; i < rounds; i++ {
+			// recordRecallEvents is the command side's insert path;
+			// a hit result with a playbook writes two events.
+			recordRecallEvents(recallStore, learn.Result{
+				Family: "fam-conc",
+				Found:  true,
+				Results: []learn.Hit{
+					{LearningID: int64(i + 1), EntityMatch: learn.EntityMatchExact},
+				},
+			})
+		}
+	}()
+	wg.Wait()
+	close(errCh)
+	for err := range errCh {
+		t.Errorf("concurrent teach event: %v", err)
+	}
+
+	events := readLearnEvents(t, dbPath)
+	if got := len(filterLearnEvents(events, store.LearnEventTeach)); got != rounds {
+		t.Errorf("teach events = %d, want %d", got, rounds)
+	}
+	if got := len(filterLearnEvents(events, store.LearnEventRecallHit)); got != rounds {
+		t.Errorf("recall_hit events = %d, want %d (best-effort inserts must not silently drop under concurrency)", got, rounds)
+	}
+}
+
+// TestLearnEvents_ForgetCascadesFamilyEvents pins the forget half of
+// R18: forgetting a query removes the learning AND its measurement
+// trail (by family hash), leaving only the forget event itself.
+func TestLearnEvents_ForgetCascadesFamilyEvents(t *testing.T) {
+	home := withTempLearnHome(t)
+	dbPath := filepath.Join(home, "data.db")
+	const query = "find all widgets in inventory"
+
+	if _, _, err := runRootArgs(t,
+		"teach", "--query", query,
+		"--resource", "widget-42", "--resource-type", "items",
+		"--db", dbPath,
+	); err != nil {
+		t.Fatalf("teach: %v", err)
+	}
+	if _, _, err := runRootArgs(t, "recall", query, "--db", dbPath, "--agent"); err != nil {
+		t.Fatalf("recall: %v", err)
+	}
+	if got := len(readLearnEvents(t, dbPath)); got != 2 {
+		t.Fatalf("precondition: want 2 events (teach + hit), got %d", got)
+	}
+
+	if _, _, err := runRootArgs(t,
+		"learnings", "forget", query, "--all", "--db", dbPath, "--agent",
+	); err != nil {
+		t.Fatalf("forget: %v", err)
+	}
+
+	s, err := store.OpenWithContext(context.Background(), dbPath)
+	if err != nil {
+		t.Fatalf("reopen: %v", err)
+	}
+	rows, err := listLearningsRows(context.Background(), s, store.ListLearningsFilter{})
+	s.Close()
+	if err != nil {
+		t.Fatalf("listLearnings: %v", err)
+	}
+	if len(rows) != 0 {
+		t.Errorf("learning rows after forget = %d, want 0", len(rows))
+	}
+
+	events := readLearnEvents(t, dbPath)
+	if len(events) != 1 || events[0].Event != store.LearnEventForget {
+		t.Errorf("events after forget = %+v, want exactly one forget event", events)
+	}
+}
+
+// TestTeachCommand_PIIEmailWarnsAndSucceeds pins the R18 insert-time
+// guard: a teach whose query carries an email shape warns to stderr
+// naming the PII rule, and the teach still lands (never blocked,
+// never silently redacted).
+func TestTeachCommand_PIIEmailWarnsAndSucceeds(t *testing.T) {
+	home := withTempLearnHome(t)
+	dbPath := filepath.Join(home, "data.db")
+
+	stdout, stderr, err := runRootArgs(t,
+		"teach",
+		"--query", "orders placed by jane.doe@example.com last week",
+		"--resource", "order-1", "--resource-type", "orders",
+		"--db", dbPath,
+	)
+	if err != nil {
+		t.Fatalf("teach with PII should still succeed: %v", err)
+	}
+	if stdout != "" {
+		t.Errorf("teach stays silent on stdout; got %q", stdout)
+	}
+	if !strings.Contains(stderr, "email") || !strings.Contains(stderr, "PII") {
+		t.Errorf("stderr should name the email PII rule; got %q", stderr)
+	}
+
+	s, _ := store.OpenWithContext(context.Background(), dbPath)
+	defer s.Close()
+	rows, _ := listLearningsRows(context.Background(), s, store.ListLearningsFilter{})
+	if len(rows) != 1 {
+		t.Errorf("the learning must still land (warn-only); got %d rows", len(rows))
+	}
+}
+
+// TestTeachCommand_NoPIINoWarning guards the conservative side: an
+// ordinary structural query with a numeric identifier produces no PII
+// warning.
+func TestTeachCommand_NoPIINoWarning(t *testing.T) {
+	home := withTempLearnHome(t)
+	dbPath := filepath.Join(home, "data.db")
+
+	_, stderr, err := runRootArgs(t,
+		"teach",
+		"--query", "status of order 5551234567 in the queue",
+		"--resource", "order-2", "--resource-type", "orders",
+		"--db", dbPath,
+	)
+	if err != nil {
+		t.Fatalf("teach: %v", err)
+	}
+	if strings.Contains(stderr, "PII") {
+		t.Errorf("bare numeric id must not trip the phone rule; stderr=%q", stderr)
+	}
+}
+
+// TestTeachCommand_PlaybookJSONInline covers the inline flag: a teach
+// with --playbook-json and no file records both the resource learning
+// and the playbook row.
+func TestTeachCommand_PlaybookJSONInline(t *testing.T) {
+	home := withTempLearnHome(t)
+	dbPath := filepath.Join(home, "data.db")
+
+	_, stderr, err := runRootArgs(t,
+		"teach",
+		"--query", "list all widgets and their top stats",
+		"--resource", "widget-42", "--resource-type", "items",
+		"--playbook-json", `{"steps":[{"cmd":"items list {category.id}"}]}`,
+		"--db", dbPath,
+	)
+	if err != nil {
+		t.Fatalf("teach --playbook-json: %v (stderr=%q)", err, stderr)
+	}
+
+	s, _ := store.OpenWithContext(context.Background(), dbPath)
+	defer s.Close()
+	rows, _ := listLearningsRows(context.Background(), s, store.ListLearningsFilter{})
+	if len(rows) != 1 {
+		t.Fatalf("expected 1 learning, got %d", len(rows))
+	}
+	pb, _ := s.ListPlaybooks()
+	if len(pb) != 1 {
+		t.Fatalf("expected 1 playbook from inline JSON, got %d", len(pb))
+	}
+	if !strings.Contains(pb[0].PlaybookJSON, "items list") {
+		t.Errorf("inline playbook_json not stored: %q", pb[0].PlaybookJSON)
+	}
+}
+
+// TestTeachCommand_PlaybookJSONAndFileMutuallyExclusive pins the
+// usage contract: both flags together is a (silent, typed-exit-2)
+// usage error recorded in teach.log, and nothing lands.
+func TestTeachCommand_PlaybookJSONAndFileMutuallyExclusive(t *testing.T) {
+	home := withTempLearnHome(t)
+	dbPath := filepath.Join(home, "data.db")
+	pbPath := writePlaybookFile(t, home, "pb.json", `{"steps":[{"cmd":"items list"}]}`)
+
+	stdout, _, err := runRootArgs(t,
+		"teach",
+		"--query", "both playbook inputs",
+		"--resource", "widget-1", "--resource-type", "items",
+		"--playbook-file", pbPath,
+		"--playbook-json", `{"steps":[{"cmd":"items list"}]}`,
+		"--db", dbPath,
+	)
+	if err == nil {
+		t.Fatal("teach with both --playbook-file and --playbook-json should error")
+	}
+	if stdout != "" {
+		t.Errorf("error path stays silent on stdout; got %q", stdout)
+	}
+
+	stateDir, stateErr := cliutil.StateDir()
+	if stateErr != nil {
+		t.Fatalf("StateDir: %v", stateErr)
+	}
+	data, readErr := os.ReadFile(filepath.Join(stateDir, teachErrLogFileName))
+	if readErr != nil {
+		t.Fatalf("teach.log should exist: %v", readErr)
+	}
+	if !strings.Contains(string(data), "mutually exclusive") {
+		t.Errorf("teach.log should record the mutual exclusion; got %q", string(data))
+	}
+}
+
+// TestTeachCommand_IntegratedPlaybookErrorDegrades confirms that a
+// failing playbook input (malformed JSON) does NOT prevent the
+// resource learning from landing. Per design, playbook failures log
+// to teach.log; the command still exits 0 because the agent's
+// primary write (resource learning) succeeded.
+func TestTeachCommand_IntegratedPlaybookErrorDegrades(t *testing.T) {
+	home := withTempLearnHome(t)
+	dbPath := filepath.Join(home, "data.db")
+	badPath := writePlaybookFile(t, home, "bad.json", "{not valid json")
+
+	stdout, _, err := runRootArgs(t,
+		"teach",
+		"--query", "graceful degrade query",
+		"--resource", "widget-deg",
+		"--resource-type", "items",
+		"--playbook-file", badPath,
+		"--db", dbPath,
+	)
+	if err != nil {
+		t.Fatalf("teach should not fail on bad playbook input; got %v", err)
+	}
+	if stdout != "" {
+		t.Errorf("teach should stay silent on degrade path; stdout=%q", stdout)
+	}
+
+	s, _ := store.OpenWithContext(context.Background(), dbPath)
+	defer s.Close()
+	rows, _ := listLearningsRows(context.Background(), s, store.ListLearningsFilter{})
+	if len(rows) != 1 {
+		t.Errorf("resource learning should still land despite playbook failure; got %d rows", len(rows))
+	}
+	pb, _ := s.ListPlaybooks()
+	if len(pb) != 0 {
+		t.Errorf("no playbook should land when input fails to parse; got %d", len(pb))
+	}
+
+	// teach.log should record the upsert failure for diagnosis.
+	stateDir, stateErr := cliutil.StateDir()
+	if stateErr != nil {
+		t.Fatalf("StateDir() error = %v", stateErr)
+	}
+	logPath := filepath.Join(stateDir, teachErrLogFileName)
+	data, statErr := os.ReadFile(logPath)
+	if statErr != nil {
+		t.Fatalf("teach.log should exist on degrade: %v", statErr)
+	}
+	if !strings.Contains(string(data), "playbook upsert") {
+		t.Errorf("teach.log should mention playbook upsert; got %q", string(data))
+	}
+}

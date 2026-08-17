@@ -1,0 +1,18 @@
+# Primary goal: discover replayable authenticated read endpoints (account, downloads, saved designs)
+# Read-only navigation. No mutations, no real downloads/renders.
+
+# Account / subscription
+https://placeit.net/account
+https://placeit.net/my-account
+https://placeit.net/account/subscription
+https://placeit.net/users/edit
+
+# Saved designs / favorites / history
+https://placeit.net/my-designs
+https://placeit.net/favorites
+https://placeit.net/downloads
+https://placeit.net/my-downloads
+https://placeit.net/account/downloads
+
+# API path guesses (capture via Performance API + fetch interceptor)
+# /api/account, /api/user, /api/users/me, /api/downloads, /api/favorites, /api/designs

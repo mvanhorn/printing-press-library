@@ -1,0 +1,6 @@
+[
+  { "race": "BMW Berlin Marathon", "aliases": ["berlin", "berlin marathon"], "provider": "mika", "event_id": "BML_HCH3C0OH2F2", "year": 2025, "base_url": "https://berlin.r.mikatiming.com" },
+  { "race": "Mastercard Mini 10K", "aliases": ["mini 10k", "nyrr mini", "mastercard mini", "mini"], "provider": "nyrr", "event_id": "26MINI", "year": 2026, "base_url": "https://rmsprodapi.nyrr.org" },
+  { "race": "Paraguay Multisport Challenge", "aliases": ["paraguay multisport", "paraguay"], "provider": "athlinks", "event_id": "1094411", "year": 2024, "base_url": "https://reignite-api.athlinks.com" },
+  { "race": "REWE Team Challenge Dresden", "aliases": ["rewe team challenge", "team challenge dresden", "dresden team challenge"], "provider": "raceresult", "event_id": "390537", "year": 2025, "base_url": "https://my.raceresult.com" }
+]

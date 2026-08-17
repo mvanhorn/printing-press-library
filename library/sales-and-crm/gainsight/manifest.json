@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "gainsight-pp-mcp",
+  "display_name": "Gainsight Read",
+  "version": "0.0.0",
+  "description": "Read-first Gainsight NXT API surface for customer success account, relationship, person, timeline",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/gainsight-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/gainsight-pp-mcp",
+      "args": [],
+      "env": {
+        "GAINSIGHT_ACCESS_KEY_AUTH": "${user_config.gainsight_access_key_auth}"
+      }
+    }
+  },
+  "user_config": {
+    "gainsight_access_key_auth": {
+      "type": "string",
+      "title": "GAINSIGHT_ACCESS_KEY_AUTH",
+      "description": "Sets GAINSIGHT_ACCESS_KEY_AUTH for the Gainsight Read MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

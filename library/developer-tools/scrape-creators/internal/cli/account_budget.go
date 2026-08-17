@@ -1,166 +1,126 @@
+// Copyright 2026 Adrian Horning and contributors. Licensed under Apache-2.0. See LICENSE.
+// pp:data-source live
+// Novel command: credit burn rate and runway projection.
+
 package cli
 
 import (
 	"encoding/json"
 	"fmt"
-	"strconv"
-	"strings"
-	"time"
+	"math"
 
 	"github.com/spf13/cobra"
 )
 
-// newAccountBudgetCmd reports current credits, recent burn rate, and a
-// projected runway. Combines /v1/account/credit-balance with the API's
-// daily usage history (no local store dependency for the projection).
-func newAccountBudgetCmd(flags *rootFlags) *cobra.Command {
-	var days int
-	cmd := &cobra.Command{
-		Use:   "budget",
-		Short: "Report current credits, daily burn rate, and projected days remaining",
-		Long: `Calls /v1/account/credit-balance and /v1/account/get-daily-usage-count and
-projects how many days of credits remain at the average burn rate over
-the last N days.
+func newNovelAccountBudgetCmd(flags *rootFlags) *cobra.Command {
+	var daysWindow int
 
-Use --days to widen or narrow the projection window. Returns JSON with
-the same fields a Grafana panel would graph.`,
-		Example:     "  scrape-creators-pp-cli account budget --json --days 7",
+	cmd := &cobra.Command{
+		Use:         "budget",
+		Short:       "See how fast you're spending API credits and how many days remain at the current pace.",
+		Example:     "  scrape-creators-pp-cli account budget",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// account budget takes no positional input, so it always runs.
 			if dryRunOK(flags) {
 				return nil
 			}
+
+			ctx, cancel := boundCtx(cmd.Context(), flags)
+			defer cancel()
+
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			balRaw, err := c.Get("/v1/account/credit-balance", nil)
-			if err != nil {
-				return classifyAPIError(err)
-			}
-			usageRaw, err := c.Get("/v1/account/get-daily-usage-count", nil)
-			if err != nil {
-				return classifyAPIError(err)
-			}
+			failures := make([]fetchFailure, 0)
 
-			var bal map[string]any
+			// Credit balance is the core signal; a failure here is fatal.
+			balRaw, err := c.Get(ctx, "/v1/account/credit-balance", nil)
+			if err != nil {
+				return classifyAPIError(err, flags)
+			}
+			var bal struct {
+				CreditCount json.Number `json:"creditCount"`
+			}
 			_ = json.Unmarshal(balRaw, &bal)
-			credits := lookupInt(bal, []string{"creditCount", "credits"})
+			creditBalance, _ := toInt64(bal.CreditCount)
 
-			// Daily usage is typically a list of {date, count}.
-			var dailyArr []any
-			_ = json.Unmarshal(usageRaw, &dailyArr)
-			if len(dailyArr) == 0 {
-				// Some payloads wrap in {data: [...]}
-				var wrapped struct {
-					Data []any `json:"data"`
+			// Daily usage drives the burn-rate average; degrade gracefully.
+			var avgDaily float64
+			var daysSampled int
+			if dailyRaw, derr := c.Get(ctx, "/v1/account/get-daily-usage-count", nil); derr != nil {
+				failures = append(failures, fetchFailure{Source: "get-daily-usage-count", Error: sanitizeFetchErr(derr)})
+			} else {
+				var daily []struct {
+					TotalCredits json.Number `json:"total_credits"`
 				}
-				if json.Unmarshal(usageRaw, &wrapped) == nil {
-					dailyArr = wrapped.Data
+				_ = json.Unmarshal(dailyRaw, &daily)
+				if daysWindow > 0 && len(daily) > daysWindow {
+					daily = daily[:daysWindow] // API returns most-recent first
 				}
-			}
-
-			type dayPoint struct {
-				Date  string `json:"date"`
-				Count int64  `json:"count"`
-			}
-			// Helper: read count, parsing both numeric and string-encoded forms.
-			parseAnyInt := func(v any) int64 {
-				switch x := v.(type) {
-				case float64:
-					return int64(x)
-				case int64:
-					return x
-				case int:
-					return int64(x)
-				case string:
-					n, _ := strconv.ParseInt(x, 10, 64)
-					return n
-				}
-				return 0
-			}
-			var points []dayPoint
-			for _, item := range dailyArr {
-				m, ok := item.(map[string]any)
-				if !ok {
-					continue
-				}
-				point := dayPoint{
-					Date: lookupString(m, []string{"date", "day", "usage_date"}),
-				}
-				for _, k := range []string{"count", "callCount", "request_count", "total_credits"} {
-					if v := m[k]; v != nil {
-						if n := parseAnyInt(v); n > 0 {
-							point.Count = n
-							break
-						}
+				var sum int64
+				for _, d := range daily {
+					if v, ok := toInt64(d.TotalCredits); ok {
+						sum += v
+						daysSampled++
 					}
 				}
-				if point.Date != "" {
-					points = append(points, point)
+				if daysSampled > 0 {
+					avgDaily = float64(sum) / float64(daysSampled)
 				}
 			}
 
-			// Average over the last N days (most recent first or last? Use last `days` entries).
-			window := days
-			if window <= 0 {
-				window = 7
-			}
-			if window > len(points) {
-				window = len(points)
-			}
-			var totalRecent int64
-			for i := len(points) - window; i < len(points) && i >= 0; i++ {
-				totalRecent += points[i].Count
-			}
-			var avgPerDay float64
-			if window > 0 {
-				avgPerDay = float64(totalRecent) / float64(window)
-			}
-
-			projectedDays := -1.0 // unknown
-			if avgPerDay > 0 {
-				projectedDays = float64(credits) / avgPerDay
-			}
-
-			result := map[string]any{
-				"credits_remaining": credits,
-				"window_days":       window,
-				"calls_in_window":   totalRecent,
-				"avg_calls_per_day": avgPerDay,
-				"projected_days":    projectedDays,
-				"projected_until":   "",
-				"daily_history":     points,
-				"computed_at":       time.Now().UTC().Format(time.RFC3339),
-			}
-			if projectedDays > 0 {
-				result["projected_until"] = time.Now().UTC().Add(time.Duration(projectedDays*24) * time.Hour).Format(time.RFC3339)
-			}
-
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
-				return printJSONFiltered(cmd.OutOrStdout(), result, flags)
-			}
-			fmt.Fprintf(cmd.OutOrStdout(), "Credits remaining: %d\n", credits)
-			fmt.Fprintf(cmd.OutOrStdout(), "Last %d days: %d calls (avg %.1f/day)\n", window, totalRecent, avgPerDay)
-			if projectedDays > 0 {
-				fmt.Fprintf(cmd.OutOrStdout(), "Projected runway: %.1f days (until %s)\n", projectedDays, result["projected_until"])
+			// Most-used routes are a cheap extra; degrade gracefully.
+			topRoutes := make([]json.RawMessage, 0)
+			if routesRaw, rerr := c.Get(ctx, "/v1/account/get-most-used-routes", nil); rerr != nil {
+				failures = append(failures, fetchFailure{Source: "get-most-used-routes", Error: sanitizeFetchErr(rerr)})
 			} else {
-				fmt.Fprintln(cmd.OutOrStdout(), "Projected runway: unable to compute (no recent usage)")
-			}
-			if len(points) > 0 {
-				fmt.Fprintln(cmd.OutOrStdout(), "")
-				tw := newTabWriter(cmd.OutOrStdout())
-				fmt.Fprintln(tw, "DATE\tCALLS")
-				for _, p := range points {
-					fmt.Fprintf(tw, "%s\t%d\n", p.Date, p.Count)
+				routes := resultArray(routesRaw, "routes")
+				for i, r := range routes {
+					if i >= 5 {
+						break
+					}
+					topRoutes = append(topRoutes, r)
 				}
-				return tw.Flush()
+			}
+
+			daysRemaining := math.Inf(1)
+			if avgDaily > 0 {
+				daysRemaining = float64(creditBalance) / avgDaily
+			}
+
+			warnFetchFailures(cmd, "account budget", failures)
+
+			daysRemainingOut := any(nil)
+			if !math.IsInf(daysRemaining, 1) {
+				daysRemainingOut = math.Round(daysRemaining*10) / 10
+			}
+
+			if novelWantsMachine(cmd.OutOrStdout(), flags) {
+				envelope := map[string]any{
+					"credit_balance":   creditBalance,
+					"avg_daily_spend":  int64(math.Round(avgDaily)),
+					"days_sampled":     daysSampled,
+					"days_remaining":   daysRemainingOut,
+					"most_used_routes": topRoutes,
+					"fetch_failures":   failures,
+				}
+				return printJSONFiltered(cmd.OutOrStdout(), envelope, flags)
+			}
+
+			w := cmd.OutOrStdout()
+			fmt.Fprintf(w, "Credit balance:   %d\n", creditBalance)
+			fmt.Fprintf(w, "Avg daily spend:  %d (over %d days)\n", int64(math.Round(avgDaily)), daysSampled)
+			if math.IsInf(daysRemaining, 1) {
+				fmt.Fprintf(w, "Days remaining:   n/a (no recent spend)\n")
+			} else {
+				fmt.Fprintf(w, "Days remaining:   %.1f\n", daysRemaining)
 			}
 			return nil
 		},
 	}
-	cmd.Flags().IntVar(&days, "days", 7, "Number of recent days to average over")
-	_ = strings.Title // keep imports simple
+	cmd.Flags().IntVar(&daysWindow, "days", 0, "limit the burn-rate average to the most recent N days (0 = all available)")
 	return cmd
 }

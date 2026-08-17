@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "vagaro-pp-mcp",
+  "display_name": "Vagaro",
+  "version": "0.1.0",
+  "description": "Every Vagaro discovery feature, plus the marketplace-wide availability search, price comparison, and local database no Vagaro tool has.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/vagaro-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/vagaro-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

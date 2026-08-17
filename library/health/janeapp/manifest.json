@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "janeapp-pp-mcp",
+  "display_name": "Jane App",
+  "version": "0.1.0",
+  "description": "Book, view, and manage your Jane (janeapp.com) appointments across every clinic from the terminal — unified agenda, next-opening finder, and availability watch the patient portal can't do.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/janeapp-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/janeapp-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

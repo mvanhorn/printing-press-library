@@ -19,16 +19,19 @@ func newClassificationsListCmd(flags *rootFlags) *cobra.Command {
 	var flagIncludeTest string
 	var flagPage string
 	var flagSize string
+	var flagLocale string
+	var flagIncludeLicensedContent string
 	var flagIncludeSpellcheck string
+	var flagAll bool
 
 	cmd := &cobra.Command{
 		Use:         "list",
-		Short:       "Find classifications and filter your search by name, and much more. Classifications help define the nature of...",
+		Short:       "Find classifications and filter your search by name, and much more.",
 		Example:     "  ticketmaster-pp-cli classifications list",
 		Annotations: map[string]string{"pp:endpoint": "classifications.list", "pp:method": "GET", "pp:path": "/classifications", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("source") {
-				allowedSource := []string{"ticketmaster", " universe", " frontgate", " tmr"}
+				allowedSource := []string{"ticketmaster", "universe", "frontgate", "tmr"}
 				validSource := false
 				for _, v := range allowedSource {
 					if flagSource == v {
@@ -37,11 +40,11 @@ func newClassificationsListCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validSource {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "source", flagSource, allowedSource)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagSource, "source", allowedSource)
 				}
 			}
 			if cmd.Flags().Changed("include-test") {
-				allowedIncludeTest := []string{"yes", " no", " only"}
+				allowedIncludeTest := []string{"yes", "no", "only"}
 				validIncludeTest := false
 				for _, v := range allowedIncludeTest {
 					if flagIncludeTest == v {
@@ -50,11 +53,24 @@ func newClassificationsListCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validIncludeTest {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "include-test", flagIncludeTest, allowedIncludeTest)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagIncludeTest, "include-test", allowedIncludeTest)
+				}
+			}
+			if cmd.Flags().Changed("include-licensed-content") {
+				allowedIncludeLicensedContent := []string{"yes", "no"}
+				validIncludeLicensedContent := false
+				for _, v := range allowedIncludeLicensedContent {
+					if flagIncludeLicensedContent == v {
+						validIncludeLicensedContent = true
+						break
+					}
+				}
+				if !validIncludeLicensedContent {
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagIncludeLicensedContent, "include-licensed-content", allowedIncludeLicensedContent)
 				}
 			}
 			if cmd.Flags().Changed("include-spellcheck") {
-				allowedIncludeSpellcheck := []string{"yes", " no"}
+				allowedIncludeSpellcheck := []string{"yes", "no"}
 				validIncludeSpellcheck := false
 				for _, v := range allowedIncludeSpellcheck {
 					if flagIncludeSpellcheck == v {
@@ -63,54 +79,45 @@ func newClassificationsListCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validIncludeSpellcheck {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "include-spellcheck", flagIncludeSpellcheck, allowedIncludeSpellcheck)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagIncludeSpellcheck, "include-spellcheck", allowedIncludeSpellcheck)
 				}
 			}
+			path := "/classifications"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/classifications"
-			params := map[string]string{}
-			if flagSort != "" {
-				params["sort"] = fmt.Sprintf("%v", flagSort)
-			}
-			if flagKeyword != "" {
-				params["keyword"] = fmt.Sprintf("%v", flagKeyword)
-			}
-			if flagId != "" {
-				params["id"] = fmt.Sprintf("%v", flagId)
-			}
-			if flagSource != "" {
-				params["source"] = fmt.Sprintf("%v", flagSource)
-			}
-			if flagIncludeTest != "" {
-				params["includeTest"] = fmt.Sprintf("%v", flagIncludeTest)
-			}
-			if flagPage != "" {
-				params["page"] = fmt.Sprintf("%v", flagPage)
-			}
-			if flagSize != "" {
-				params["size"] = fmt.Sprintf("%v", flagSize)
-			}
-			if flagIncludeSpellcheck != "" {
-				params["includeSpellcheck"] = fmt.Sprintf("%v", flagIncludeSpellcheck)
-			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "classifications", false, path, params, nil)
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "classifications", path, map[string]string{
+				"sort":                   formatCLIParamValue(flagSort),
+				"keyword":                formatCLIParamValue(flagKeyword),
+				"id":                     formatCLIParamValue(flagId),
+				"source":                 formatCLIParamValue(flagSource),
+				"includeTest":            formatCLIParamValue(flagIncludeTest),
+				"page":                   formatCLIParamValue(flagPage),
+				"size":                   formatCLIParamValue(flagSize),
+				"locale":                 formatCLIParamValue(flagLocale),
+				"includeLicensedContent": formatCLIParamValue(flagIncludeLicensedContent),
+				"includeSpellcheck":      formatCLIParamValue(flagIncludeSpellcheck),
+			}, nil, flagAll, "page", "page", "size", 100, "", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
 			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
+			// --plain) opt out of the auto-JSON path so piped consumers that asked for
+			// a non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -136,17 +143,20 @@ func newClassificationsListCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagSort, "sort", "name,asc", "Sorting order of the search result")
 	cmd.Flags().StringVar(&flagKeyword, "keyword", "", "Keyword to search on")
 	cmd.Flags().StringVar(&flagId, "id", "", "Filter entities by its id")
-	cmd.Flags().StringVar(&flagSource, "source", "", "Filter entities by its source name (one of: ticketmaster,  universe,  frontgate,  tmr)")
-	cmd.Flags().StringVar(&flagIncludeTest, "include-test", "no", "True if you want to have entities flag as test in the response. Only, if you only wanted test entities (one of: yes,  no,  only)")
+	cmd.Flags().StringVar(&flagSource, "source", "", "Filter entities by its source name (one of: ticketmaster, universe, frontgate, tmr)")
+	cmd.Flags().StringVar(&flagIncludeTest, "include-test", "no", "True if you want to have entities flag as test in the response. Only, if you only wanted test entities (one of: yes, no, only)")
 	cmd.Flags().StringVar(&flagPage, "page", "0", "Page number")
 	cmd.Flags().StringVar(&flagSize, "size", "20", "Page size of the response")
-	cmd.Flags().StringVar(&flagIncludeSpellcheck, "include-spellcheck", "no", "yes, to include spell check suggestions in the response. (one of: yes,  no)")
+	cmd.Flags().StringVar(&flagLocale, "locale", "en", "The locale in ISO code format. Multiple comma-separated values can be provided.")
+	cmd.Flags().StringVar(&flagIncludeLicensedContent, "include-licensed-content", "no", "Yes if you want to display licensed content (one of: yes, no)")
+	cmd.Flags().StringVar(&flagIncludeSpellcheck, "include-spellcheck", "no", "yes, to include spell check suggestions in the response. (one of: yes, no)")
+	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
 	return cmd
 }

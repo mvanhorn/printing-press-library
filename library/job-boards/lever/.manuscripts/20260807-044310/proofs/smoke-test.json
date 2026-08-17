@@ -1,0 +1,49 @@
+{
+  "run_id": "20260807-044310",
+  "generated_at": "2026-08-10T04:40:00Z",
+  "cli": "lever-pp-cli",
+  "api": "Lever Postings (api.lever.co/v0)",
+  "auth": "none",
+  "checks": [
+    {
+      "name": "version",
+      "result": "pass",
+      "detail": "--version responds (0.0.0-dev, pre-release stamp)"
+    },
+    {
+      "name": "doctor",
+      "result": "pass",
+      "detail": "doctor --json reachable, endpoints classified"
+    },
+    {
+      "name": "live list",
+      "result": "pass",
+      "detail": "postings list leverdemo live: full set (mode=json)"
+    },
+    {
+      "name": "live get",
+      "result": "pass",
+      "detail": "postings get leverdemo <uuid>: full posting detail returned"
+    },
+    {
+      "name": "sync",
+      "result": "pass",
+      "detail": "sync leverdemo: records persisted under postings:leverdemo with durability verification"
+    },
+    {
+      "name": "sync second board",
+      "result": "pass",
+      "detail": "sync palantir: records persisted under postings:palantir"
+    },
+    {
+      "name": "local list isolation",
+      "result": "pass",
+      "detail": "--data-source local: leverdemo returns own set (never palantir's)"
+    },
+    {
+      "name": "local get",
+      "result": "pass",
+      "detail": "postings get leverdemo <uuid> --data-source local: scoped resource_typ"
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-26T21:46:05Z",
+  "printing_press_version": "4.26.0",
+  "api_name": "open-food-facts",
+  "display_name": "Open Food Facts",
+  "cli_name": "open-food-facts-pp-cli",
+  "creator": {
+    "handle": "sdhilip200",
+    "name": "Dhilip Subramanian"
+  },
+  "owner": "sdhilip200",
+  "printer": "sdhilip200",
+  "printer_name": "Dhilip Subramanian",
+  "spec_format": "plan",
+  "spec_checksum": "sha256:55a37e9faa1329eafb83a08d28d17951df395b3ea0029e4064f3bf49f898d9fd",
+  "run_id": "20260626-214605",
+  "category": "food-and-dining",
+  "description": "Read-only Open Food Facts recipes for barcode product lookup, structured search, nutrition summaries, allergen and ingredient inspection, bounded comparison, category samples, and source posture checks.",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "auth_env_vars": [
+    "OPEN_FOOD_FACTS_USER_AGENT",
+    "OPEN_FOOD_FACTS_CONTACT_EMAIL",
+    "OPEN_FOOD_FACTS_BASE_URL"
+  ],
+  "novel_features": [
+    {
+      "name": "Barcode product lookup",
+      "command": "product",
+      "description": "Fetches one Open Food Facts v3 product record and returns compact identity, labels, countries, nutrition, allergen, data-quality, image, and source URL fields."
+    },
+    {
+      "name": "Bounded structured search",
+      "command": "search",
+      "description": "Uses the documented v2 structured search endpoint with category, brand, country, label, nutrition-grade, page, and page-size controls."
+    },
+    {
+      "name": "Nutrition summary",
+      "command": "nutrition",
+      "description": "Extracts key nutriments, serving basis, Nutri-Score, NOVA, Eco-Score, source URL, and data-quality tags for one barcode."
+    },
+    {
+      "name": "Ingredient and allergen inspection",
+      "command": "allergens",
+      "description": "Reports ingredient text, ingredient analysis tags, allergens, traces, additives, and voluntary-data caveats."
+    },
+    {
+      "name": "Small product comparison",
+      "command": "compare",
+      "description": "Compares two to five barcode records while preserving per-barcode lookup errors and successful product output."
+    },
+    {
+      "name": "Source and rate posture",
+      "command": "sources, doctor",
+      "description": "Reports read-only auth, custom User-Agent configuration, documented rate limits, anti-bulk non-goals, and local configuration."
+    }
+  ],
+  "spec_source": ".manuscripts/20260626-214605/research/open-food-facts-plan.md"
+}

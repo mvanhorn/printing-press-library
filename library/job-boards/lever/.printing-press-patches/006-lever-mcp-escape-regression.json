@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "lever-mcp-escape-regression",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260807-044310",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Adds internal/mcp/path_escape_test.go: focused regression coverage for the MCP path-escaping guard (formatMCPPathParamValue in internal/mcp/tools.go). Hostile corpus includes slash, dot-segment traversal, encoded traversal, backslash, query characters, hash, unicode, empty, and non-string inputs; asserts no raw slash survives (no path-segment smuggling) and that the escaped value round-trips through url.PathUnescape to the formatted input.",
+  "reason": "Greptile review scored the PR 4/5 with one request: the security-relevant escaping customization shipped without a focused regression test. The library's triage bot requires 5/5 before maintainer review. Test-only addition; zero behavior change.",
+  "files": [
+    "internal/mcp/path_escape_test.go"
+  ],
+  "validated_outcome": "go test ./... passes (11 packages); the new test's 11 hostile-input subtests all pass.",
+  "upstream_issue": null
+}

@@ -9,9 +9,10 @@ import (
 
 func newConversationsConvertCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "convert",
-		Short: "Create convert for conversations",
-		RunE:  parentNoSubcommandRunE(flags),
+		Use:         "convert",
+		Short:       "Create convert for conversations",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newConversationsConvertConversationToTicketCmd(flags))

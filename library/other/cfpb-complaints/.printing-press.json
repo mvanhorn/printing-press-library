@@ -1,0 +1,54 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-18T19:54:45.495224Z",
+  "printing_press_version": "4.29.0",
+  "api_name": "cfpb-complaints",
+  "display_name": "Cfpb Consumer Complaints",
+  "cli_name": "cfpb-complaints-pp-cli",
+  "creator": {
+    "handle": "Avanderheyde",
+    "name": "avanderheyde"
+  },
+  "owner": "avanderheyde",
+  "printer": "Avanderheyde",
+  "printer_name": "avanderheyde",
+  "spec_path": "spec.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:ad061c372fe1dfe5fb7b79a9cfdd669d99e9a4cd23d5dfff34aa91633100759c",
+  "run_id": "20260717-002908-c6f34c82",
+  "category": "other",
+  "description": "Search published CFPB consumer complaint records and aggregations.",
+  "mcp_binary": "cfpb-complaints-pp-mcp",
+  "mcp_tool_count": 1,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Company pulse",
+      "command": "company pulse",
+      "description": "Summarize complaint volume, products, issues, responses, timeliness, narrative availability, and a prior-window delta for one company."
+    },
+    {
+      "name": "Cohort-safe peer comparison",
+      "command": "compare companies",
+      "description": "Compare companies inside one explicit cohort while labeling counts as non-market-adjusted complaint volume."
+    },
+    {
+      "name": "Emerging-theme delta",
+      "command": "emerging themes",
+      "description": "Rank mechanical product and issue count changes between current and baseline windows without semantic or causal claims."
+    },
+    {
+      "name": "Narrative evidence packet",
+      "command": "narratives packet",
+      "description": "Select a newest-first bounded packet of published narratives with complaint IDs, exact cohort dates, and availability caveats."
+    },
+    {
+      "name": "Change watch",
+      "command": "watch changes",
+      "description": "Compare the latest bounded cohort with a locally persisted prior observation and report newly observed complaint IDs and categories."
+    }
+  ]
+}

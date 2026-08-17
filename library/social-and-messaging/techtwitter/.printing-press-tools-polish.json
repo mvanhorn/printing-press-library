@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-06-15T03:38:43.220217Z",
+  "cli_dir": "\u003ccli-dir\u003e/techtwitter",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 7,
+    "captured": "2026-06-15T03:26:51.778745Z"
+  }
+}

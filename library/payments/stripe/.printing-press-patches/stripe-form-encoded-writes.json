@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "stripe-form-encoded-writes",
+  "applied_at": "2026-06-03",
+  "base_run_id": "20260509-093200",
+  "base_printing_press_version": "4.1.0",
+  "summary": "Encode mutating Stripe API requests as application/x-www-form-urlencoded instead of JSON.",
+  "reason": "Stripe rejects JSON request bodies for write endpoints. The generated commands still build JSON-shaped maps, so the shared client now flattens them into Stripe bracket notation before sending. Form-encoding is scoped to POST/PUT/PATCH (DELETE stays JSON), MCP adapters' pre-marshaled []byte bodies are decoded before flattening, and arrays mixing scalars with objects use consistent indexed keys.",
+  "files": ["internal/client/client.go", "internal/client/client_test.go"],
+  "validated_outcome": "Unit tests cover write-method selection with DELETE excluded, POST content type, nested bracket fields, indexed object arrays, repeated scalar array fields, MCP pre-marshaled []byte bodies, and mixed scalar/object arrays."
+}

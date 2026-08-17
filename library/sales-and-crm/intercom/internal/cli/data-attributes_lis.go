@@ -32,23 +32,22 @@ func newDataAttributesLisCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validModel {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "model", flagModel, allowedModel)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagModel, "model", allowedModel)
 				}
 			}
+			path := "/data_attributes"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/data_attributes"
 			params := map[string]string{}
 			if flagModel != "" {
-				params["model"] = fmt.Sprintf("%v", flagModel)
+				params["model"] = formatCLIParamValue(flagModel)
 			}
 			if flagIncludeArchived != false {
-				params["include_archived"] = fmt.Sprintf("%v", flagIncludeArchived)
+				params["include_archived"] = formatCLIParamValue(flagIncludeArchived)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "data-attributes", false, path, params, nil, cmd.ErrOrStderr())
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "data-attributes", false, path, params, nil, "data", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -93,7 +92,7 @@ func newDataAttributesLisCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagModel, "model", "", "Specify the data attribute model to return. (one of: contact, company, conversation)")

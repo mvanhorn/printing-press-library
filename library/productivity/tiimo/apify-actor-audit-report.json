@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/tiimo",
+  "research_dir": "\u003ccli-dir\u003e/20260814-154828-17a1784d",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

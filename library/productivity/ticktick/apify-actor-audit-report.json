@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e\\ticktick-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e\\20260707-201031-0987b304",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

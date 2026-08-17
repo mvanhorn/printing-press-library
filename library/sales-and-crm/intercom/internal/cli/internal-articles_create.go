@@ -13,9 +13,9 @@ import (
 )
 
 func newInternalArticlesCreateCmd(flags *rootFlags) *cobra.Command {
-	var bodyAuthorId int
+	var bodyAuthorId string
 	var bodyBody string
-	var bodyOwnerId int
+	var bodyOwnerId string
 	var bodyTitle string
 	var stdinBody bool
 
@@ -25,6 +25,24 @@ func newInternalArticlesCreateCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  intercom-pp-cli internal-articles create --title example-resource",
 		Annotations: map[string]string{"pp:endpoint": "internal-articles.create", "pp:method": "POST", "pp:path": "/internal_articles"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Bare invocation of a command with required input prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only read commands fall through so a bare call still executes.
+			// Machine callers (--json/--agent, which sets asJSON) get a usage
+			// error + exit 2 instead of silent exit-0 help, so an incomplete
+			// invocation is never mistaken for success.
+			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "requires input",
+						"usage": cmd.CommandPath() + " --help",
+					}, flags); printErr != nil {
+						return printErr
+					}
+					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
+				}
+				return cmd.Help()
+			}
 			if !stdinBody {
 				if !cmd.Flags().Changed("author-id") && !flags.dryRun {
 					return fmt.Errorf("required flag \"%s\" not set", "author-id")
@@ -36,14 +54,13 @@ func newInternalArticlesCreateCmd(flags *rootFlags) *cobra.Command {
 					return fmt.Errorf("required flag \"%s\" not set", "title")
 				}
 			}
+			path := "/internal_articles"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/internal_articles"
 			params := map[string]string{}
-			var body map[string]any
+			var body any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
@@ -55,18 +72,19 @@ func newInternalArticlesCreateCmd(flags *rootFlags) *cobra.Command {
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
-				if bodyAuthorId != 0 {
-					body["author_id"] = bodyAuthorId
+				bodyMap := map[string]any{}
+				body = bodyMap
+				if bodyAuthorId != "" {
+					bodyMap["author_id"] = bodyAuthorId
 				}
 				if bodyBody != "" {
-					body["body"] = bodyBody
+					bodyMap["body"] = bodyBody
 				}
-				if bodyOwnerId != 0 {
-					body["owner_id"] = bodyOwnerId
+				if bodyOwnerId != "" {
+					bodyMap["owner_id"] = bodyOwnerId
 				}
 				if bodyTitle != "" {
-					body["title"] = bodyTitle
+					bodyMap["title"] = bodyTitle
 				}
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
@@ -136,6 +154,9 @@ func newInternalArticlesCreateCmd(flags *rootFlags) *cobra.Command {
 					"status":   statusCode,
 					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
 				}
+				if flags.agent {
+					envelope["meta"] = map[string]any{"source": "live"}
+				}
 				if partialFailure != nil {
 					envelope["partial_failure"] = partialFailure
 				}
@@ -174,7 +195,11 @@ func newInternalArticlesCreateCmd(flags *rootFlags) *cobra.Command {
 				if len(filtered) > 0 {
 					var parsed any
 					if err := json.Unmarshal(filtered, &parsed); err == nil {
-						envelope["data"] = parsed
+						if flags.agent {
+							envelope["results"] = parsed
+						} else {
+							envelope["data"] = parsed
+						}
 					}
 				}
 				envelopeJSON, err := json.Marshal(envelope)
@@ -205,9 +230,9 @@ func newInternalArticlesCreateCmd(flags *rootFlags) *cobra.Command {
 			return nil
 		},
 	}
-	cmd.Flags().IntVar(&bodyAuthorId, "author-id", 0, "The id of the author of the article.")
+	cmd.Flags().StringVar(&bodyAuthorId, "author-id", "", "The id of the author of the article.")
 	cmd.Flags().StringVar(&bodyBody, "body", "", "The content of the article.")
-	cmd.Flags().IntVar(&bodyOwnerId, "owner-id", 0, "The id of the owner of the article.")
+	cmd.Flags().StringVar(&bodyOwnerId, "owner-id", "", "The id of the owner of the article.")
 	cmd.Flags().StringVar(&bodyTitle, "title", "", "The title of the article.")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 

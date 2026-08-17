@@ -1,0 +1,12 @@
+{
+  "count": 0,
+  "generated_at": "2026-07-09T02:30:09Z",
+  "items": [],
+  "note": "no screens matched; this endpoint requires a Mobbin Pro session — run `mobbin-pp-cli auth login --chrome` and try a broader --pattern or remove --industry",
+  "query": {
+    "industry": "fintech",
+    "limit": 50,
+    "pattern": "empty-state",
+    "platform": "web"
+  }
+}

@@ -1,0 +1,378 @@
+name: eero
+display_name: eero
+description: "Unofficial eero mesh-network API for account, network, node, client, profile, activity, diagnostic, and speed-test data."
+cli_description: "Inspect an eero mesh network from the terminal with agent-friendly output for networks, nodes, connected devices, diagnostics, and speed tests."
+version: "0.1.0"
+base_url: "https://api-user.e2ro.com/2.2"
+spec_source: community
+category: devices
+http_transport: standard
+health_check_path: "/account"
+
+# eero has no supported public API. Community clients use a session cookie named
+# s. The generated CLI accepts the token through an environment variable; a
+# browser-cookie login path can be added after the read-only surface is proven.
+auth:
+  type: cookie
+  header: Cookie
+  in: header
+  format: "s={token}"
+  cookies:
+    - s
+  env_vars:
+    - EERO_SESSION_TOKEN
+  cookie_domain: api-user.e2ro.com
+  title: eero session token
+  description: "Set EERO_SESSION_TOKEN to an eero session token, or use auth login --chrome with a browser profile that is already signed in."
+
+required_headers:
+  - name: User-Agent
+    value: "eero-pp-cli/0.1 (unofficial; community API client)"
+  - name: Accept
+    value: "application/json"
+
+config:
+  format: toml
+  path: "~/.config/eero-pp-cli/config.toml"
+
+mcp:
+  transport: [stdio, http]
+  endpoint_tools: visible
+
+resources:
+  account:
+    description: "Authenticated eero account summary"
+    endpoints:
+      get:
+        method: GET
+        path: "/account"
+        description: "Show the authenticated account and available networks."
+        no_auth: false
+        response_path: data
+        response:
+          type: object
+          item: Account
+
+  network:
+    description: "eero network configuration and health"
+    endpoints:
+      show:
+        method: GET
+        path: "/networks/{network_id}"
+        description: "Show network health, speed summary, client count, node count, DNS, and feature settings."
+        no_auth: false
+        response_path: data
+        params:
+          - name: network_id
+            in: path
+            type: string
+            required: true
+            positional: true
+            flag_name: network
+            description: "Network ID from account get or the network URL."
+        response:
+          type: object
+          item: Network
+
+  eero:
+    description: "eero mesh nodes"
+    endpoints:
+      list:
+        method: GET
+        path: "/networks/{network_id}/eeros"
+        description: "List the eero nodes in a network."
+        no_auth: false
+        response_path: data
+        params:
+          - name: network_id
+            in: path
+            type: string
+            required: true
+            positional: true
+            flag_name: network
+            description: "Network ID from account get or the network URL."
+        response:
+          type: array
+          item: Eero
+      show:
+        method: GET
+        path: "/eeros/{eero_id}"
+        description: "Show one eero node by its resource ID."
+        no_auth: false
+        response_path: data
+        params:
+          - name: eero_id
+            in: path
+            type: string
+            required: true
+            positional: true
+            flag_name: id
+            description: "eero node ID from eero list."
+        response:
+          type: object
+          item: Eero
+
+  device:
+    description: "Connected client devices"
+    endpoints:
+      list:
+        method: GET
+        path: "/networks/{network_id}/devices"
+        description: "List connected and recently seen client devices on a network."
+        no_auth: false
+        response_path: data
+        params:
+          - name: network_id
+            in: path
+            type: string
+            required: true
+            positional: true
+            flag_name: network
+            description: "Network ID from account get or the network URL."
+        response:
+          type: array
+          item: Device
+      show:
+        method: GET
+        path: "/devices/{device_id}"
+        description: "Show one connected device by its resource ID."
+        no_auth: false
+        response_path: data
+        params:
+          - name: device_id
+            in: path
+            type: string
+            required: true
+            positional: true
+            flag_name: id
+            description: "Device ID from device list."
+        response:
+          type: object
+          item: Device
+
+  profiles:
+    description: "Parental-control profiles"
+    endpoints:
+      list:
+        method: GET
+        path: "/networks/{network_id}/profiles"
+        description: "List profiles attached to a network."
+        no_auth: false
+        response_path: data
+        params:
+          - name: network_id
+            in: path
+            type: string
+            required: true
+            positional: true
+            flag_name: network
+            description: "Network ID from account get or the network URL."
+        response:
+          type: array
+          item: Profile
+      show:
+        method: GET
+        path: "/profiles/{profile_id}"
+        description: "Show one parental-control profile by its resource ID."
+        no_auth: false
+        response_path: data
+        params:
+          - name: profile_id
+            in: path
+            type: string
+            required: true
+            positional: true
+            flag_name: id
+            description: "Profile ID from profile list."
+        response:
+          type: object
+          item: Profile
+
+  speed_test:
+    description: "Network speed-test results"
+    endpoints:
+      list:
+        method: GET
+        path: "/networks/{network_id}/speedtest"
+        description: "List the latest available speed-test results for a network."
+        no_auth: false
+        response_path: data
+        params:
+          - name: network_id
+            in: path
+            type: string
+            required: true
+            positional: true
+            flag_name: network
+            description: "Network ID from account get or the network URL."
+        response:
+          type: array
+          item: SpeedTest
+
+  activity:
+    description: "eero Plus network activity summary"
+    endpoints:
+      get:
+        method: GET
+        path: "/networks/{network_id}/activity"
+        description: "Show network activity insights when the account has eero Plus."
+        no_auth: false
+        response_path: data
+        params:
+          - name: network_id
+            in: path
+            type: string
+            required: true
+            positional: true
+            flag_name: network
+            description: "Network ID from account get or the network URL."
+        response:
+          type: object
+          item: Activity
+
+  diagnostics:
+    description: "Network diagnostics"
+    endpoints:
+      get:
+        method: GET
+        path: "/networks/{network_id}/diagnostics"
+        description: "Show the latest diagnostic report for a network."
+        no_auth: false
+        response_path: data
+        params:
+          - name: network_id
+            in: path
+            type: string
+            required: true
+            positional: true
+            flag_name: network
+            description: "Network ID from account get or the network URL."
+        response:
+          type: object
+          item: Diagnostic
+
+types:
+  Account:
+    fields:
+      - name: url
+        type: string
+      - name: name
+        type: string
+      - name: premium_status
+        type: string
+      - name: role
+        type: string
+  Network:
+    fields:
+      - name: url
+        type: string
+      - name: name
+        type: string
+      - name: target_firmware
+        type: string
+      - name: sqm
+        type: bool
+      - name: band_steering
+        type: bool
+      - name: thread
+        type: bool
+      - name: upnp
+        type: bool
+      - name: ipv6
+        type: bool
+      - name: wpa3
+        type: bool
+  Eero:
+    fields:
+      - name: url
+        type: string
+      - name: serial
+        type: string
+      - name: model
+        type: string
+      - name: location
+        type: string
+      - name: joined
+        type: string
+      - name: os_version
+        type: string
+      - name: status
+        type: string
+      - name: gateway
+        type: bool
+      - name: ip_address
+        type: string
+      - name: connected_clients_count
+        type: int
+      - name: mesh_quality_bars
+        type: int
+      - name: wired
+        type: bool
+      - name: update_available
+        type: bool
+  Device:
+    fields:
+      - name: url
+        type: string
+      - name: mac
+        type: string
+      - name: manufacturer
+        type: string
+      - name: ip
+        type: string
+      - name: nickname
+        type: string
+      - name: hostname
+        type: string
+      - name: display_name
+        type: string
+      - name: connected
+        type: bool
+      - name: wireless
+        type: bool
+      - name: connection_type
+        type: string
+      - name: paused
+        type: bool
+      - name: blocked
+        type: bool
+      - name: is_guest
+        type: bool
+      - name: is_private
+        type: bool
+      - name: frequency
+        type: string
+      - name: frequency_band
+        type: string
+      - name: auth
+        type: string
+  Profile:
+    fields:
+      - name: url
+        type: string
+      - name: name
+        type: string
+      - name: paused
+        type: bool
+  SpeedTest:
+    fields:
+      - name: date
+        type: string
+      - name: up_mbps
+        type: float
+      - name: down_mbps
+        type: float
+  Activity:
+    fields:
+      - name: counts
+        type: object
+  Diagnostic:
+    fields:
+      - name: url
+        type: string
+      - name: status
+        type: string
+      - name: created
+        type: string
+      - name: completed
+        type: string

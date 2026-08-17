@@ -9,8 +9,10 @@ import (
 
 func newFilesStylesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "styles",
-		Short: "Get information about published styles.",
+		Use:         "styles",
+		Short:       "Get information about published styles.",
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newFilesStylesGetFileCmd(flags))

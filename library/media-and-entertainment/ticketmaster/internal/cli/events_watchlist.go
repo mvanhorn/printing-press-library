@@ -83,7 +83,7 @@ func newEventsWatchlistSaveCmd(flags *rootFlags) *cobra.Command {
     --venue-ids KovZ917Ahkk,KovZpZAFkvEA,KovZpZA1klkA \
     --description "Seattle marquee venues"
 `, "\n"),
-		Annotations: map[string]string{"mcp:read-only": "false"},
+		Annotations: map[string]string{"mcp:read-only": "false", "pp:no-error-path-probe": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()

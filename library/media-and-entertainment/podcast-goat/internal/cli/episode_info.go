@@ -8,15 +8,18 @@ package cli
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/podcast-goat/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/podcast-goat/internal/dispatch"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/podcast-goat/internal/source"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/podcast-goat/internal/source/spoken"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/podcast-goat/internal/transcript"
 )
 
@@ -28,6 +31,12 @@ type infoRow struct {
 	GatedReason  string  `json:"gated_reason,omitempty"`
 	EstimatedUSD float64 `json:"estimated_usd"`
 	WouldFire    bool    `json:"would_fire"`
+	// Probe results (only populated with --probe, and only for adapters that
+	// support a spend-free availability check).
+	Probed     bool   `json:"probed,omitempty"`
+	Available  bool   `json:"available,omitempty"`
+	ProbeNote  string `json:"probe_note,omitempty"`
+	ProbeTitle string `json:"probe_title,omitempty"`
 }
 
 // infoReport is the structured shape returned by `episode info --json`.
@@ -44,6 +53,7 @@ func newEpisodeInfoCmd(flags *rootFlags) *cobra.Command {
 	var (
 		flagPaid     bool
 		flagProvider string
+		flagProbe    bool
 	)
 	cmd := &cobra.Command{
 		Use:   "info [url]",
@@ -120,6 +130,12 @@ existing-cache lookup), agent-friendly with --json.`,
 				}
 				row.EstimatedUSD = estimatedCostUSD(a)
 				row.WouldFire = (a.Name() == res.FiredBy)
+				// The probe honors --provider: a probe is a real network call
+				// carrying the API key, and an explicit allow-list means "do
+				// not talk to sources outside this list".
+				if flagProbe && matched && inAllowList(a.Name(), providers) {
+					probeRow(cmd.Context(), a, url, &row)
+				}
 				report.Sources = append(report.Sources, row)
 			}
 
@@ -132,7 +148,68 @@ existing-cache lookup), agent-friendly with --json.`,
 	}
 	cmd.Flags().BoolVar(&flagPaid, "paid", false, "Include paid-tier adapters in the would-fire calculation")
 	cmd.Flags().StringVar(&flagProvider, "provider", "", "Restrict adapter consideration to these (CSV)")
+	cmd.Flags().BoolVar(&flagProbe, "probe", false, "Ask supporting sources whether they actually have this episode (spend-free; currently spoken)")
 	return cmd
+}
+
+// probeTimeout bounds one probe call. Without it the spoken resolution chain
+// (search + title-extract + retry search) can hold a "spend-free quick
+// check" for over a minute.
+const probeTimeout = 12 * time.Second
+
+// inAllowList reports whether name passes the --provider allow-list (an
+// empty list allows everything).
+func inAllowList(name string, allow []string) bool {
+	if len(allow) == 0 {
+		return true
+	}
+	for _, p := range allow {
+		if p == name {
+			return true
+		}
+	}
+	return false
+}
+
+// probeRow runs a spend-free availability check for adapters that support
+// one. Static estimates say what a fetch would cost, not whether the source
+// has the episode at all — before this existed the only way to map paid-tier
+// coverage was attempting real fetches and grepping the error strings.
+func probeRow(ctx context.Context, a source.Adapter, url string, row *infoRow) {
+	sp, ok := a.(*spoken.Adapter)
+	if !ok {
+		row.ProbeNote = "probe not supported for this source"
+		return
+	}
+	row.Probed = true
+	ctx, cancel := context.WithTimeout(ctx, probeTimeout)
+	defer cancel()
+	hit, err := sp.Probe(ctx, url)
+	if err != nil {
+		row.Available = false
+		row.ProbeNote = probeErrNote(err)
+		return
+	}
+	row.Available = true
+	if hit != nil {
+		row.ProbeTitle = hit.Title
+	}
+}
+
+// probeErrNote maps probe failures to short human-readable notes.
+func probeErrNote(err error) string {
+	if errors.Is(err, context.DeadlineExceeded) {
+		return fmt.Sprintf("probe timed out after %s — source not ruled out; retry or fetch with --paid to know for sure", probeTimeout)
+	}
+	var na *source.NotApplicableError
+	if errors.As(err, &na) {
+		return "no results — this source does not have the episode"
+	}
+	var km *source.KeyMissingError
+	if errors.As(err, &km) {
+		return "no API key available for the probe"
+	}
+	return "probe failed: " + err.Error()
 }
 
 // estimatedCostUSD returns a coarse per-call USD estimate for each adapter.
@@ -185,7 +262,16 @@ func renderInfo(w io.Writer, r infoReport) {
 		if s.GatedReason != "" {
 			reason = " — " + s.GatedReason
 		}
-		fmt.Fprintf(w, "%s %s/%-12s  est: %s%s\n", marker, s.Tier, s.Adapter, costStr, reason)
+		probe := ""
+		switch {
+		case s.Probed && s.Available && s.ProbeTitle != "":
+			probe = fmt.Sprintf("  probe: available (%s)", s.ProbeTitle)
+		case s.Probed && s.Available:
+			probe = "  probe: available"
+		case s.Probed:
+			probe = "  probe: " + s.ProbeNote
+		}
+		fmt.Fprintf(w, "%s %s/%-12s  est: %s%s%s\n", marker, s.Tier, s.Adapter, costStr, reason, probe)
 	}
 }
 

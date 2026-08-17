@@ -10,12 +10,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// pp:data-source live
 // newBlockingCmd shows issues you (or a named user) are blocking — i.e.,
 // issues whose `inverseRelations` chain to another open issue assigned
 // to someone else. Sorted by downstream impact.
 func newBlockingCmd(flags *rootFlags) *cobra.Command {
 	var jsonOut bool
 	var assigneeFlag string
+	var stateFlag string
 	cmd := &cobra.Command{
 		Use:   "blocking",
 		Short: "Show issues you are blocking — sorted by downstream impact",
@@ -50,12 +52,28 @@ hit the API rate-limit budget.`,
 				userID = viewer.Viewer.ID
 			}
 
+			// The blocker set and the downstream re-check both resolve
+			// through internal/groups, so the server-side filter and the
+			// in-memory relation walk cannot disagree about what "open"
+			// means. The document below binds the resolved predicate as a
+			// WorkflowStateFilter variable rather than hardcoding one.
+			set, err := resolveStateSet(flags, "", stateFlag)
+			if err != nil {
+				return err
+			}
+			stateFilter := set.GraphQLFilter()
+			if stateFilter == nil {
+				// An empty WorkflowStateFilter constrains nothing, which is
+				// what an unfiltered group means.
+				stateFilter = map[string]any{}
+			}
+
 			// Query issues assigned to the user with their outbound
 			// "blocks" relations expanded. We use the issue.relations
 			// connection filtered to type=blocks; downstream issue is
 			// .relatedIssue.
-			const q = `query Blocking($assignee: ID!) {
-				issues(filter: {assignee: {id: {eq: $assignee}}, state: {type: {nin: ["completed", "canceled"]}}}, first: 100) {
+			const q = `query Blocking($assignee: ID!, $stateFilter: WorkflowStateFilter) {
+				issues(filter: {assignee: {id: {eq: $assignee}}, state: $stateFilter}, first: 100) {
 					nodes {
 						id
 						identifier
@@ -112,7 +130,7 @@ hit the API rate-limit budget.`,
 					} `json:"nodes"`
 				} `json:"issues"`
 			}
-			if err := c.QueryInto(q, map[string]any{"assignee": userID}, &resp); err != nil {
+			if err := c.QueryInto(q, map[string]any{"assignee": userID, "stateFilter": stateFilter}, &resp); err != nil {
 				return fmt.Errorf("blocking query: %w", err)
 			}
 
@@ -133,7 +151,7 @@ hit the API rate-limit budget.`,
 					if r.Type != "blocks" {
 						continue
 					}
-					if r.RelatedIssue.State.Type == "completed" || r.RelatedIssue.State.Type == "canceled" {
+					if !set.Matches(r.RelatedIssue.State.Type, r.RelatedIssue.State.Name) {
 						continue
 					}
 					assignee := r.RelatedIssue.Assignee.DisplayName
@@ -218,5 +236,6 @@ hit the API rate-limit budget.`,
 	}
 	cmd.Flags().BoolVar(&jsonOut, "json-out", false, "Force JSON output (alias for --json)")
 	cmd.Flags().StringVar(&assigneeFlag, "assignee", "me", "User UUID or 'me' to target a specific user's blocking queue")
+	cmd.Flags().StringVar(&stateFlag, "state", "active", stateGroupFlagUsage)
 	return cmd
 }

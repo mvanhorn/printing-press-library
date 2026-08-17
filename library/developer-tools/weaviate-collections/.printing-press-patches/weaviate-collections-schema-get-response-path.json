@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "weaviate-collections-schema-get-response-path",
+  "applied_at": "2026-08-07",
+  "base_run_id": "20260807-100645-wvc1",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Fixed schema objects-get returning only the properties array instead of the full collection config.",
+  "reason": "The generator set responsePath=\"properties\" for GET /schema/{className}, confusing the Class.properties array with the unrelated IndexStatusResponse.properties field used by the sibling /schema/{className}/indexes endpoint. Confirmed live against a real Weaviate Cloud cluster: the raw API returns the full Class object (class, vectorizer, replicationConfig, shardingConfig, properties, etc.), but the generated command discarded everything except properties.",
+  "files": ["internal/cli/schema_objects-get.go"],
+  "validated_outcome": "Confirmed live: `schema objects-get <collection> --json` now returns the full Class object matching the raw API response.",
+  "upstream_issue": ""
+}

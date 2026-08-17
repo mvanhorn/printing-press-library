@@ -1,0 +1,51 @@
+version: 2
+project_name: linq-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: linq-pp-cli
+    main: ./cmd/linq-pp-cli
+    binary: linq-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X linq-pp-cli/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: linq-pp-mcp
+    main: ./cmd/linq-pp-mcp
+    binary: linq-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: linq-pp-cli
+    repository:
+      owner: cathrynlavery
+      name: homebrew-tap
+    homepage: "https://github.com/cathrynlavery/linq-pp-cli"
+    description: "Community-curated OpenAPI 3.1 blueprint for the Linq Partner API, derived from https://docs.linqapp."
+    install: |
+      bin.install "linq-pp-cli"
+      bin.install "linq-pp-mcp"

@@ -1,0 +1,5 @@
+{
+  "descriptions": {
+    "status_get-gamma": "Health check for the Polymarket Gamma API. No parameters. Returns the literal string 'OK' (text/plain) when the upstream is reachable, or a non-2xx HTTP error when it is not. Prefer this over running a full sync to verify Polymarket connectivity from an agent context."
+  }
+}

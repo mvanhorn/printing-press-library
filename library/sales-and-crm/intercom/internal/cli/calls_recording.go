@@ -84,7 +84,7 @@ working directory.`,
 			if err != nil {
 				return fmt.Errorf("decoding recording: %w", err)
 			}
-			if err := os.WriteFile(absOut, raw, 0o644); err != nil {
+			if err := os.WriteFile(absOut, raw, 0o600); err != nil {
 				return fmt.Errorf("writing recording: %w", err)
 			}
 			if flags.asJSON || flags.agent {

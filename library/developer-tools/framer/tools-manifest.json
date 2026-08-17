@@ -1,0 +1,576 @@
+{
+  "api_name": "framer",
+  "base_url": "https://framer.com/api",
+  "description": "CLI for managing Framer websites — CMS, canvas, code files, publishing, and site migration. Requires Node.js 18+ and the framer-api npm package.",
+  "mcp_ready": "full",
+  "http_transport": "browser-chrome-h2",
+  "auth": {
+    "type": "api_key",
+    "header": "Authorization",
+    "in": "header",
+    "env_vars": [
+      "FRAMER_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "FRAMER_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "assets_add-image",
+      "description": "Add image from URL. Required: url.",
+      "method": "POST",
+      "path": "/assets/image",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "Image URL",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "assets_upload",
+      "description": "Upload an image or file asset.",
+      "method": "POST",
+      "path": "/assets/upload",
+      "params": []
+    },
+    {
+      "name": "changes_contributors",
+      "description": "List contributors who made changes in a version range.",
+      "method": "GET",
+      "path": "/changes/contributors",
+      "params": []
+    },
+    {
+      "name": "changes_list",
+      "description": "List added, removed, and modified paths since last publish.",
+      "method": "GET",
+      "path": "/changes",
+      "params": []
+    },
+    {
+      "name": "cms-collections_create",
+      "description": "Create a new CMS collection. Required: name.",
+      "method": "POST",
+      "path": "/cms/collections",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Collection name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "cms-collections_get",
+      "description": "Get collection details including fields and item count. Required: id.",
+      "method": "GET",
+      "path": "/cms/collections/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Collection ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "cms-collections_list",
+      "description": "List all CMS collections.",
+      "method": "GET",
+      "path": "/cms/collections",
+      "params": []
+    },
+    {
+      "name": "cms-fields_update",
+      "description": "Add, remove, or reorder collection fields. Required: collection_id. Partial update.",
+      "method": "PATCH",
+      "path": "/cms/collections/{collection_id}/fields",
+      "params": [
+        {
+          "name": "collection_id",
+          "type": "string",
+          "location": "path",
+          "description": "Collection ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "cms-items_get",
+      "description": "Get a CMS item with all field data. Required: id.",
+      "method": "GET",
+      "path": "/cms/items/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Item ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "cms-items_list",
+      "description": "List all items in a collection. Required: collection_id.",
+      "method": "GET",
+      "path": "/cms/collections/{collection_id}/items",
+      "params": [
+        {
+          "name": "collection_id",
+          "type": "string",
+          "location": "path",
+          "description": "Collection ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "cms-items_remove",
+      "description": "Remove CMS items by ID. Destructive.",
+      "method": "DELETE",
+      "path": "/cms/items",
+      "params": []
+    },
+    {
+      "name": "cms-items_upsert",
+      "description": "Create or update CMS items in batch. Required: collection_id.",
+      "method": "POST",
+      "path": "/cms/collections/{collection_id}/items",
+      "params": [
+        {
+          "name": "collection_id",
+          "type": "string",
+          "location": "path",
+          "description": "Collection ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "code_create",
+      "description": "Create a new code file. Required: name.",
+      "method": "POST",
+      "path": "/code",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "File name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "code_get",
+      "description": "Get code file content. Required: id.",
+      "method": "GET",
+      "path": "/code/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Code file ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "code_list",
+      "description": "List all code files in the project.",
+      "method": "GET",
+      "path": "/code",
+      "params": []
+    },
+    {
+      "name": "code_typecheck",
+      "description": "Run TypeScript type checking on a code file. Required: id.",
+      "method": "POST",
+      "path": "/code/{id}/typecheck",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Code file ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "components_add",
+      "description": "Add a component instance by URL or name. Optional: url.",
+      "method": "POST",
+      "path": "/components",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "Component URL"
+        }
+      ]
+    },
+    {
+      "name": "custom-code_get",
+      "description": "Get installed custom code snippets.",
+      "method": "GET",
+      "path": "/custom-code",
+      "params": []
+    },
+    {
+      "name": "custom-code_set",
+      "description": "Install custom code at head or body insertion points.",
+      "method": "POST",
+      "path": "/custom-code",
+      "params": []
+    },
+    {
+      "name": "fonts_list",
+      "description": "List all available fonts with weights and styles.",
+      "method": "GET",
+      "path": "/fonts",
+      "params": []
+    },
+    {
+      "name": "i18n_groups",
+      "description": "Get localization groups with translation status.",
+      "method": "GET",
+      "path": "/i18n/groups",
+      "params": []
+    },
+    {
+      "name": "i18n_locales",
+      "description": "List all project locales.",
+      "method": "GET",
+      "path": "/i18n/locales",
+      "params": []
+    },
+    {
+      "name": "nodes_add-svg",
+      "description": "Add an SVG element to the canvas.",
+      "method": "POST",
+      "path": "/nodes/svg",
+      "params": []
+    },
+    {
+      "name": "nodes_children",
+      "description": "Get child nodes of a node. Required: id.",
+      "method": "GET",
+      "path": "/nodes/{id}/children",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Parent node ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "nodes_clone",
+      "description": "Clone a node. Required: id.",
+      "method": "POST",
+      "path": "/nodes/{id}/clone",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Node ID to clone",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "nodes_create-frame",
+      "description": "Create a new frame node. Optional: parent.",
+      "method": "POST",
+      "path": "/nodes/frame",
+      "params": [
+        {
+          "name": "parent",
+          "type": "string",
+          "location": "body",
+          "description": "Parent node ID"
+        }
+      ]
+    },
+    {
+      "name": "nodes_create-text",
+      "description": "Create a new text node. Required: content. Optional: parent.",
+      "method": "POST",
+      "path": "/nodes/text",
+      "params": [
+        {
+          "name": "parent",
+          "type": "string",
+          "location": "body",
+          "description": "Parent node ID"
+        },
+        {
+          "name": "content",
+          "type": "string",
+          "location": "body",
+          "description": "Text content",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "nodes_find",
+      "description": "Find nodes by type, attribute, or name. Optional: type, attr, name.",
+      "method": "GET",
+      "path": "/nodes/find",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Node type filter (FrameNode, TextNode, etc.)"
+        },
+        {
+          "name": "attr",
+          "type": "string",
+          "location": "query",
+          "description": "Attribute filter (key=value)"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "Name filter (supports regex)"
+        }
+      ]
+    },
+    {
+      "name": "nodes_get",
+      "description": "Get node by ID with all attributes. Required: id.",
+      "method": "GET",
+      "path": "/nodes/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Node ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "nodes_remove",
+      "description": "Remove a node. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/nodes/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Node ID to remove",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "nodes_screenshot",
+      "description": "Capture a screenshot of a node as PNG/JPEG. Required: id.",
+      "method": "GET",
+      "path": "/nodes/{id}/screenshot",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Node ID to screenshot",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "nodes_set",
+      "description": "Set node attributes. Required: id. Partial update.",
+      "method": "PATCH",
+      "path": "/nodes/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Node ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "nodes_set-text",
+      "description": "Set text content of a text node. Required: id, content. Partial update.",
+      "method": "PATCH",
+      "path": "/nodes/{id}/text",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Node ID",
+          "required": true
+        },
+        {
+          "name": "content",
+          "type": "string",
+          "location": "body",
+          "description": "New text content",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pages_create",
+      "description": "Create a new page. Required: name. Optional: type.",
+      "method": "POST",
+      "path": "/pages",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Page name",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Page type: web or design"
+        }
+      ]
+    },
+    {
+      "name": "pages_list",
+      "description": "List all pages in the project.",
+      "method": "GET",
+      "path": "/pages",
+      "params": []
+    },
+    {
+      "name": "project_info",
+      "description": "Get project name, ID, and metadata.",
+      "method": "GET",
+      "path": "/project/info",
+      "params": []
+    },
+    {
+      "name": "project_user",
+      "description": "Get current authenticated user info.",
+      "method": "GET",
+      "path": "/project/user",
+      "params": []
+    },
+    {
+      "name": "publish_deploy",
+      "description": "Promote a published deployment to production. Required: deployment_id.",
+      "method": "POST",
+      "path": "/deploy",
+      "params": [
+        {
+          "name": "deployment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Deployment ID from publish",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "publish_preview",
+      "description": "Create a preview deployment with a shareable URL.",
+      "method": "POST",
+      "path": "/publish",
+      "params": []
+    },
+    {
+      "name": "redirects_add",
+      "description": "Add redirects to the project.",
+      "method": "POST",
+      "path": "/redirects",
+      "params": []
+    },
+    {
+      "name": "redirects_list",
+      "description": "List all project redirects.",
+      "method": "GET",
+      "path": "/redirects",
+      "params": []
+    },
+    {
+      "name": "redirects_remove",
+      "description": "Remove redirects from the project. Destructive.",
+      "method": "DELETE",
+      "path": "/redirects",
+      "params": []
+    },
+    {
+      "name": "styles-colors_create",
+      "description": "Create a new color style. Required: name, value.",
+      "method": "POST",
+      "path": "/styles/colors",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Style name",
+          "required": true
+        },
+        {
+          "name": "value",
+          "type": "string",
+          "location": "body",
+          "description": "CSS color value (hex, rgb, etc.)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "styles-colors_list",
+      "description": "List all color styles.",
+      "method": "GET",
+      "path": "/styles/colors",
+      "params": []
+    },
+    {
+      "name": "styles-text_create",
+      "description": "Create a new text style.",
+      "method": "POST",
+      "path": "/styles/text",
+      "params": []
+    },
+    {
+      "name": "styles-text_list",
+      "description": "List all text styles.",
+      "method": "GET",
+      "path": "/styles/text",
+      "params": []
+    }
+  ]
+}

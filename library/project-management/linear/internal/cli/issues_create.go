@@ -6,6 +6,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/project-management/linear/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/project-management/linear/internal/store"
 
 	"github.com/spf13/cobra"
@@ -15,7 +16,8 @@ import (
 // in init(). Calls Linear's issueCreate mutation and records the resulting issue
 // into the local pp_created ledger so pp-cleanup can find it later.
 func newIssuesCreateCmd(flags *rootFlags) *cobra.Command {
-	var titleFlag, teamFlag, descFlag, assigneeFlag, projectFlag, stateFlag string
+	var titleFlag, teamFlag, descFlag, assigneeFlag, projectFlag, projectNameFlag, stateFlag, parentFlag string
+	var stateNameFlag, stateTypeFlag string
 	var descFile string
 	var descStdin bool
 	var priorityFlag int
@@ -30,12 +32,21 @@ func newIssuesCreateCmd(flags *rootFlags) *cobra.Command {
 		Long: `Create a Linear issue via the issueCreate mutation. The new issue's ID is
 written to the local pp_created table along with a session tag, so pp-test
 list shows it and pp-cleanup can archive it without touching pre-existing
-tickets in the workspace.`,
+tickets in the workspace.
+
+Pass --parent with an issue identifier or UUID to create the new issue as a
+sub-issue under an existing parent.`,
 		Example: `  # Quick test ticket in team ENG
   linear-pp-cli issues create --title "pp-test sanity" --team ENG
 
+  # Open the issue directly in a named workflow state
+  linear-pp-cli issues create --title "x" --team ENG --state-name "In Progress"
+
   # Dry-run (shows the GraphQL request without sending)
   linear-pp-cli issues create --title "x" --team ENG --dry-run
+
+  # Create a sub-issue under an existing issue
+  linear-pp-cli issues create --title "child" --team ENG --parent ENG-123 --description-file /tmp/body.md --agent
 
   # JSON output (agent-mode)
   linear-pp-cli issues create --title "x" --team ENG --json`,
@@ -88,6 +99,26 @@ tickets in the workspace.`,
 				}
 			}
 
+			stateSelectors := 0
+			for _, v := range []string{stateFlag, stateNameFlag, stateTypeFlag} {
+				if v != "" {
+					stateSelectors++
+				}
+			}
+			if stateSelectors > 1 {
+				return usageErr(fmt.Errorf("pass exactly one of --state, --state-name, or --state-type"))
+			}
+			if stateFlag != "" && !store.IsUUID(stateFlag) {
+				return usageErr(fmt.Errorf("--state expects a workflow state UUID (got %q); use --state-name %q, or run 'linear-pp-cli workflow-states list --team %s' to find the UUID", stateFlag, stateFlag, teamFlag))
+			}
+			if stateTypeFlag != "" {
+				normalizedType, err := normalizeWorkflowStateType(stateTypeFlag)
+				if err != nil {
+					return err
+				}
+				stateTypeFlag = normalizedType
+			}
+
 			input := map[string]any{
 				"title":  titleFlag,
 				"teamId": teamID,
@@ -101,8 +132,25 @@ tickets in the workspace.`,
 			if assigneeFlag != "" {
 				input["assigneeId"] = assigneeFlag
 			}
-			if projectFlag != "" {
-				input["projectId"] = projectFlag
+			var c *client.Client
+			if projectFlag != "" || projectNameFlag != "" {
+				var projectClient graphqlQueryer
+				if projectNameFlag != "" && projectFlag == "" {
+					var err error
+					lookupClient, err := newPortfolioLookupClient(flags)
+					if err != nil {
+						return err
+					}
+					c = lookupClient
+					projectClient = lookupClient
+				}
+				projectID, err := resolveProjectFlag(projectClient, projectFlag, projectNameFlag, teamFlag, flags)
+				if err != nil {
+					return err
+				}
+				if projectID != "" {
+					input["projectId"] = projectID
+				}
 			}
 			if stateFlag != "" {
 				input["stateId"] = stateFlag
@@ -110,18 +158,58 @@ tickets in the workspace.`,
 			if len(labelsFlag) > 0 {
 				input["labelIds"] = labelsFlag
 			}
+			parentRef := parentFlag
+			if parentFlag != "" {
+				parentRef, err = validateParentIssueRef(parentFlag)
+				if err != nil {
+					return err
+				}
+				input["parentId"] = parentRef
+			}
 			if flags.dryRun {
 				out := map[string]any{"input": input}
 				if len(mediaFlag) > 0 {
 					out["media"] = mediaFlag
 					out["media_public"] = mediaPublic
 				}
+				if stateNameFlag != "" {
+					out["state_name"] = stateNameFlag
+				}
+				if stateTypeFlag != "" {
+					out["state_type"] = stateTypeFlag
+				}
 				return renderMutationDryRun(cmd, flags, "would_create_issue", "issueCreate", out)
 			}
 
-			c, err := flags.newClient()
-			if err != nil {
-				return err
+			if c == nil {
+				var err error
+				c, err = flags.newClient()
+				if err != nil {
+					return err
+				}
+			}
+			if parentFlag != "" {
+				parentID, err := resolveParentIssueID(c, parentRef)
+				if err != nil {
+					return classifyLiveReadError(err, flags)
+				}
+				input["parentId"] = parentID
+			}
+			if teamInfo.ID == "" && teamInfo.Key != "" {
+				resolvedTeamID, err := resolveTeamIDLive(c, teamInfo.Key)
+				if err != nil {
+					return classifyLiveReadError(err, flags)
+				}
+				teamID = resolvedTeamID
+				teamInfo.ID = resolvedTeamID
+				input["teamId"] = teamID
+			}
+			if stateNameFlag != "" || stateTypeFlag != "" {
+				stateID, err := resolveWorkflowState(c, teamInfo, stateNameFlag, stateTypeFlag)
+				if err != nil {
+					return classifyLiveReadError(err, flags)
+				}
+				input["stateId"] = stateID
 			}
 			if len(labelsFlag) > 0 {
 				if err := validateIssueLabelTeams(c, labelsFlag, teamInfo); err != nil {
@@ -145,6 +233,7 @@ tickets in the workspace.`,
 						state { id name type }
 						assignee { id name displayName }
 						project { id name }
+						parent { id identifier title }
 					}
 				}
 			}`
@@ -183,6 +272,11 @@ tickets in the workspace.`,
 							ID   string `json:"id"`
 							Name string `json:"name"`
 						} `json:"project,omitempty"`
+						Parent *struct {
+							ID         string `json:"id"`
+							Identifier string `json:"identifier"`
+							Title      string `json:"title"`
+						} `json:"parent,omitempty"`
 					} `json:"issue"`
 				} `json:"issueCreate"`
 			}
@@ -242,6 +336,14 @@ tickets in the workspace.`,
 					}
 					wb["projectId"] = parsed.IssueCreate.Issue.Project.ID
 				}
+				if parsed.IssueCreate.Issue.Parent != nil {
+					wb["parent"] = map[string]any{
+						"id":         parsed.IssueCreate.Issue.Parent.ID,
+						"identifier": parsed.IssueCreate.Issue.Parent.Identifier,
+						"title":      parsed.IssueCreate.Issue.Parent.Title,
+					}
+					wb["parentId"] = parsed.IssueCreate.Issue.Parent.ID
+				}
 				newIssueJSON, mErr := json.Marshal(wb)
 				if mErr == nil {
 					if upErr := db.UpsertIssue(parsed.IssueCreate.Issue.ID, parsed.IssueCreate.Issue.Identifier, parsed.IssueCreate.Issue.Title, newIssueJSON); upErr != nil {
@@ -255,7 +357,7 @@ tickets in the workspace.`,
 			if flags.asJSON {
 				enc := json.NewEncoder(os.Stdout)
 				enc.SetIndent("", "  ")
-				return enc.Encode(map[string]any{
+				event := map[string]any{
 					"event":      "issue_created",
 					"identifier": parsed.IssueCreate.Issue.Identifier,
 					"id":         parsed.IssueCreate.Issue.ID,
@@ -264,7 +366,16 @@ tickets in the workspace.`,
 					"state":      parsed.IssueCreate.Issue.State.Name,
 					"url":        parsed.IssueCreate.Issue.URL,
 					"session":    sess,
-				})
+				}
+				if parsed.IssueCreate.Issue.Parent != nil {
+					event["parent"] = map[string]any{
+						"id":         parsed.IssueCreate.Issue.Parent.ID,
+						"identifier": parsed.IssueCreate.Issue.Parent.Identifier,
+						"title":      parsed.IssueCreate.Issue.Parent.Title,
+					}
+					event["parentId"] = parsed.IssueCreate.Issue.Parent.ID
+				}
+				return enc.Encode(event)
 			}
 			fmt.Printf("Created %s — %s\n", parsed.IssueCreate.Issue.Identifier, parsed.IssueCreate.Issue.Title)
 			fmt.Printf("  URL: %s\n", parsed.IssueCreate.Issue.URL)
@@ -280,7 +391,11 @@ tickets in the workspace.`,
 	cmd.Flags().IntVar(&priorityFlag, "priority", 0, "Priority: 1=Urgent, 2=High, 3=Medium, 4=Low (0=None)")
 	cmd.Flags().StringVar(&assigneeFlag, "assignee", "", "Assignee user UUID")
 	cmd.Flags().StringVar(&projectFlag, "project", "", "Project UUID")
-	cmd.Flags().StringVar(&stateFlag, "state", "", "Workflow state UUID")
+	cmd.Flags().StringVar(&projectNameFlag, "project-name", "", "Resolve and attach project by exact name")
+	cmd.Flags().StringVar(&stateFlag, "state", "", "Workflow state UUID (see 'workflow-states list --team <key>'); use --state-name to set by name")
+	cmd.Flags().StringVar(&stateNameFlag, "state-name", "", "Workflow state name (e.g. \"In Progress\"); resolved against --team")
+	cmd.Flags().StringVar(&stateTypeFlag, "state-type", "", "Workflow state type (triage, backlog, unstarted, started, completed, canceled, duplicate); resolved against --team")
+	cmd.Flags().StringVar(&parentFlag, "parent", "", "Parent issue identifier or UUID; creates the issue as a sub-issue")
 	cmd.Flags().StringSliceVar(&labelsFlag, "label", nil, "Label UUIDs (repeatable)")
 	cmd.Flags().StringSliceVar(&mediaFlag, "media", nil, "Upload file and append it to the description markdown (repeatable)")
 	cmd.Flags().BoolVar(&mediaPublic, "media-public", false, "Request public Linear asset URLs for uploaded media")

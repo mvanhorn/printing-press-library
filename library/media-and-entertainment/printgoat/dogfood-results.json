@@ -1,0 +1,100 @@
+{
+  "dir": "\u003ccli-dir\u003e/printgoat",
+  "spec_path": "\u003ccli-dir\u003e/spec.json",
+  "spec_source": "bundled",
+  "verdict": "PASS",
+  "path_check": {
+    "tested": 0,
+    "valid": 0,
+    "valid_pct": 0
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "unknown",
+    "match": true,
+    "detail": "no bot/bearer/basic scheme detected"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "oauth_scope_coverage_check": {
+    "checked": 0,
+    "covered": 0,
+    "skipped": true,
+    "detail": "no OAuth-scoped endpoints in spec"
+  },
+  "dead_flags": {
+    "total": 22,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 75,
+    "dead": 0
+  },
+  "pipeline_check": {
+    "sync_calls_domain": true,
+    "search_calls_domain": false,
+    "domain_tables": 4,
+    "sync_file_emitted": true,
+    "sync_resources_present": true,
+    "detail": "sync uses domain-specific Upsert methods; search methods not found; 4 domain tables found"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 10,
+    "valid_examples": 10,
+    "detail": "10/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 91,
+      "registered": 91
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 10,
+    "found": 10
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 10,
+    "exempted_via_store": 2,
+    "exempted_via_computed_data_source": 8
+  },
+  "description_drift_check": {
+    "expected": "Search and reliably download 3D-print files across Printables and Thingiverse (plus search Cults3D) — with real resumable downloads and cross-site duplicate detection nothing else has."
+  },
+  "source_client_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "print_json_filtered_check": {
+    "checked": 75
+  },
+  "test_presence": {
+    "checked": 1
+  },
+  "naming_check": {
+    "checked": 75
+  },
+  "sync_param_drop_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "issues": null
+}

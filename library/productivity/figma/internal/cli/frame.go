@@ -50,16 +50,19 @@ func normalizeNodeIDList(ids []string) string {
 	return strings.Join(out, ",")
 }
 
-func newFrameCmd(flags *rootFlags) *cobra.Command {
+func newNovelFrameCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "frame",
 		Short: "Codegen-friendly frame extraction.",
 	}
-	cmd.AddCommand(newFrameExtractCmd(flags))
+	cmd.AddCommand(newNovelFrameExtractCmd(flags))
 	return cmd
 }
 
-func newFrameExtractCmd(flags *rootFlags) *cobra.Command {
+// pp:data-source live
+// frame extract fuses live node, variable, and dev-resource reads from the
+// Figma REST API; it does not consult the local SQLite store.
+func newNovelFrameExtractCmd(flags *rootFlags) *cobra.Command {
 	var ids []string
 	var depth int
 	var include string
@@ -111,7 +114,7 @@ are deduped into a global styleRegistry; SVG-like one-vector containers are coll
 			// 1. Node tree
 			nodesPath := "/v1/files/" + key + "/nodes"
 			nodesParams := map[string]string{"ids": normIDs, "depth": fmt.Sprintf("%d", depth)}
-			nodesRaw, err := c.Get(nodesPath, nodesParams)
+			nodesRaw, err := c.Get(cmd.Context(), nodesPath, nodesParams)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -153,7 +156,7 @@ are deduped into a global styleRegistry; SVG-like one-vector containers are coll
 
 			// 2. Variables
 			if includeSet["variables"] {
-				varsRaw, verr := c.Get("/v1/files/"+key+"/variables/local", nil)
+				varsRaw, verr := c.Get(cmd.Context(), "/v1/files/"+key+"/variables/local", nil)
 				if verr == nil {
 					var dec any
 					if json.Unmarshal(varsRaw, &dec) == nil {
@@ -170,7 +173,7 @@ are deduped into a global styleRegistry; SVG-like one-vector containers are coll
 				if normIDs != "" {
 					drParams["node_ids"] = normIDs
 				}
-				drRaw, derr := c.Get("/v1/files/"+key+"/dev_resources", drParams)
+				drRaw, derr := c.Get(cmd.Context(), "/v1/files/"+key+"/dev_resources", drParams)
 				if derr == nil {
 					var dec any
 					if json.Unmarshal(drRaw, &dec) == nil {
